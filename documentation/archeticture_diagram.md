@@ -1,0 +1,2 @@
+### archeticture diagram
+[archeticture_diagram_link] (https://miro.com/welcomeonboard/SDdRd3ZjdkhMTFpZNi8wMmdOUUk1ZU1ETys4NmRTdkQyeUs0ekV3SmJTOUFmTnliN2dRN1Zab1JHbExxN3l0cU1wSjdocWluSXZ4dDk0TEU5TGRhS3M5czBpWVRITDAzbzNWc01DU1BQWjlMalVXemw1Rm5mQ2crUXo4L0lHOFh0R2lncW1vRmFBVnlLcVJzTmdFdlNRPT0hdjE=?share_link_id=554631614300)
