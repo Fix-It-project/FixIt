@@ -1,0 +1,3 @@
+{
+  "extends": "@FixIt/config/tsconfig.base.json"
+}
