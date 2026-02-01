@@ -1,0 +1,24 @@
+version: 1
+backend:
+  phases:
+    build:
+      commands: []
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - corepack enable
+        - corepack prepare pnpm@latest --activate
+        - pnpm install
+    build:
+      commands:
+        - cd apps/server    # or the app root you set in Amplify
+        - pnpm run build
+  artifacts:
+    baseDirectory: apps/server/build   # change to your actual build output
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - ~/.pnpm-store
+      - node_modules/**/*
