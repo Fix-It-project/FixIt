@@ -1,22 +1,17 @@
-import { env } from "@FixIt/env/server";
-import cors from "cors";
-import express from "express";
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-app.use(
-  cors({
-    origin: env.CORS_ORIGIN,
-    methods: ["GET", "POST", "OPTIONS"],
-  }),
-);
+// Load environment variables once
+dotenv.config({ path: join(__dirname, '../.env') });
 
-app.use(express.json());
+import app from './app.js';
 
-app.get("/", (_req, res) => {
-  res.status(200).send("OK");
-});
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
