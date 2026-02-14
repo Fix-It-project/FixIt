@@ -39,7 +39,7 @@ export class AuthRepository {
 
     return data;
   }
-
+  //
   async signIn({ email, password }: SignInData) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -50,9 +50,11 @@ export class AuthRepository {
     return data;
   }
 
+  // For password reset, we will send a reset email with a link to the frontend reset page
+  // MUST BE A VALID WORKING EMAIL YOU CAN ACCESS TO TEST THIS FUNCTIONALITY
   async requestPasswordReset(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `http://localhost:8081`, // Adjust this URL to your frontend reset password page
+        redirectTo: `http://localhost:8081`, // Placeholder. should redirct to the forget password page in frontend
       });
       
     if (error){
@@ -68,6 +70,7 @@ export class AuthRepository {
       return data;
   }
 
+  // This function is for the actual password reset after the user clicks the link in their email and submits a new password
   async resetPassword(newPassword: string) {
     const { data, error } = await supabase.auth.updateUser( {
       password: newPassword,
