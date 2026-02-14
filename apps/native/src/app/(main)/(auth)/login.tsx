@@ -125,7 +125,7 @@ export default function Login() {
             <Text className="text-[14px] text-[#5f738c]">
               Don't have an account?{" "}
             </Text>
-            <Pressable onPress={() => router.push("/(main)/(auth)/signup")}>
+            <Pressable onPress={() => router.push("../role-selection")}>
               <Text className="text-[14px] text-[#036ded] font-bold">
                 Sign up
               </Text>

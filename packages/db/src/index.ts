@@ -1,9 +1,2 @@
-import { env } from "@FixIt/env/server";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-import { PrismaClient } from "../prisma/generated/client";
-
-const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
-
-export default prisma;
+//ysed to be where we created the prisma client but we have switched to drizzle, still dont know whether we will put db config here or in server. 
+//export default prisma;
