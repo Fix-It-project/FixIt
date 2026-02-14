@@ -36,17 +36,10 @@ export default function WelcomeScreen() {
         <View className="w-full max-w-[327px] gap-4">
           <Pressable
             className="flex-row items-center justify-center bg-[#036ded] h-14 rounded-full px-6 gap-2 active:opacity-70 shadow-sm"
-            onPress={() => router.push("/(main)/(auth)/signup")}
+            onPress={() => router.push("/(main)/(auth)/role-selection")}
           >
             <Text className="text-[17px] font-bold text-white">Get Started</Text>
             <Ionicons name="arrow-forward" size={20} color="#ffffff" />
-          </Pressable>
-
-          <Pressable
-            className="flex-row items-center justify-center bg-white h-14 rounded-full px-6 border-2 border-[#9ca3da] active:opacity-70"
-            onPress={() => router.push("/(main)/(auth)/login")}
-          >
-            <Text className="text-[17px] font-bold text-[#0c0c1c]">Login</Text>
           </Pressable>
         </View>
 
