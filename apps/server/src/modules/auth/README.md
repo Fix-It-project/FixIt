@@ -21,24 +21,27 @@ auth/
 Each file handles **one specific concern**:
 
 ### `auth.repository.ts` - Authentication API Layer
+
 **Responsibility:** Direct interaction with Supabase Auth API
 
 ```typescript
 class AuthRepository {
-  signUp()        // Register new user with Supabase Auth
-  signIn()        // Authenticate user with email/password
-  signOut()       // Invalidate user session
-  getUser()       // Verify JWT and get user info
-  refreshToken()  // Get new access token from refresh token
+  signUp(); // Register new user with Supabase Auth
+  signIn(); // Authenticate user with email/password
+  signOut(); // Invalidate user session
+  getUser(); // Verify JWT and get user info
+  refreshToken(); // Get new access token from refresh token
 }
 ```
 
 **What it does:**
+
 - Talks to `supabase.auth` API
 - Handles Supabase-specific errors
 - Returns raw Supabase responses
 
 **What it doesn't do:**
+
 - ❌ Database operations (users table)
 - ❌ Response formatting
 - ❌ HTTP status codes
@@ -46,6 +49,7 @@ class AuthRepository {
 ---
 
 ### `auth.service.ts` - Business Logic Layer
+
 **Responsibility:** Orchestrate authentication flow + user data persistence
 
 ```typescript
@@ -55,31 +59,34 @@ class AuthService {
     // 2. Store user in database (via usersRepository)
     // 3. Return formatted response
   }
-  
+
   async signIn(data) {
     // 1. Authenticate user (via authRepository)
     // 2. Return tokens + user info
   }
-  
-  signOut()
-  getCurrentUser()
-  refreshSession()
+
+  signOut();
+  getCurrentUser();
+  refreshSession();
 }
 ```
 
 **What it does:**
+
 - Coordinates between `authRepository` and `usersRepository`
 - Implements business rules (e.g., store user after signup)
 - Formats responses for controllers
 - Handles inter-module communication
 
 **What it doesn't do:**
+
 - ❌ HTTP request/response handling
 - ❌ Direct database/API calls
 
 ---
 
 ### `auth.controller.ts` - HTTP Layer
+
 **Responsibility:** Handle HTTP requests/responses
 
 ```typescript
@@ -89,12 +96,13 @@ class AuthController {
     // 2. Call authService.signUp()
     // 3. Return HTTP response with status codes
   }
-  
+
   // Similar for: signIn, signOut, getCurrentUser, refreshToken
 }
 ```
 
 **What it does:**
+
 - Extracts data from `req.body`, `req.headers`
 - Validates required fields
 - Calls service layer
@@ -102,43 +110,48 @@ class AuthController {
 - Handles errors → HTTP error responses
 
 **What it doesn't do:**
+
 - ❌ Business logic
 - ❌ Database/API calls
 
 ---
 
 ### `auth.routes.ts` - Route Configuration
+
 **Responsibility:** Map URLs to controller methods
 
 ```typescript
-router.post('/signup', authController.signUp)
-router.post('/signin', authController.signIn)
-router.post('/signout', authController.signOut)
-router.get('/me', authController.getCurrentUser)
-router.post('/refresh', authController.refreshToken)
+router.post("/signup", authController.signUp);
+router.post("/signin", authController.signIn);
+router.post("/signout", authController.signOut);
+router.get("/me", authController.getCurrentUser);
+router.post("/refresh", authController.refreshToken);
 ```
 
 **What it does:**
+
 - Defines API endpoints
 - Maps HTTP methods to controllers
 
 ---
 
 ### `models/user.model.ts` - Database Schema
+
 **Responsibility:** Define user data structure
 
 ```typescript
-export const users = pgTable('users', {
-  id: uuid('id').primaryKey(),
-  email: text('email').notNull().unique(),
-  fullName: text('full_name'),
-  phone: text('phone'),
-  address: text('address'),
-  createdAt: timestamp('created_at').defaultNow(),
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  fullName: text("full_name"),
+  phone: text("phone"),
+  address: text("address"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 ```
 
 **What it does:**
+
 - Drizzle ORM schema definition
 - TypeScript type exports (`User`, `NewUser`)
 
@@ -149,6 +162,7 @@ export const users = pgTable('users', {
 Base URL: `/api/auth`
 
 ### 1. Sign Up
+
 ```http
 POST /api/auth/signup
 Content-Type: application/json
@@ -163,6 +177,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created):**
+
 ```json
 {
   "user": {
@@ -174,6 +189,7 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - Creates user in **both** Supabase Auth + custom users table
 - No tokens returned (must sign in separately)
 - Email verification disabled for development
@@ -181,6 +197,7 @@ Content-Type: application/json
 ---
 
 ### 2. Sign In
+
 ```http
 POST /api/auth/signin
 Content-Type: application/json
@@ -192,6 +209,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "user": {
@@ -207,6 +225,7 @@ Content-Type: application/json
 ```
 
 **Notes:**
+
 - Returns JWT tokens
 - Store tokens securely on client (AsyncStorage, SecureStore)
 - Access token expires in 1 hour (default)
@@ -214,12 +233,14 @@ Content-Type: application/json
 ---
 
 ### 3. Sign Out
+
 ```http
 POST /api/auth/signout
 Authorization: Bearer <access_token>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -228,18 +249,21 @@ Authorization: Bearer <access_token>
 ```
 
 **Notes:**
+
 - JWT is stateless, so client should delete tokens
 - Server-side signout invalidates Supabase session
 
 ---
 
 ### 4. Get Current User
+
 ```http
 GET /api/auth/me
 Authorization: Bearer <access_token>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "user": {
@@ -257,6 +281,7 @@ Authorization: Bearer <access_token>
 ---
 
 ### 5. Refresh Token
+
 ```http
 POST /api/auth/refresh
 Content-Type: application/json
@@ -267,6 +292,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "user": {
@@ -274,18 +300,49 @@ Content-Type: application/json
     "email": "user@example.com"
   },
   "session": {
-    "accessToken": "eyJhbGc...",  // New token
-    "refreshToken": "v1.MjA...",  // New refresh token
+    "accessToken": "eyJhbGc...", // New token
+    "refreshToken": "v1.MjA...", // New refresh token
     "expiresAt": 1704676800
   }
 }
 ```
+
+### 6. Request Password Reset
+
+- **Endpoint:** `POST /api/auth/forgot-password`
+- **Description:** Sends a password reset email to the user using Supabase.
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Response:**
+  - Success: `{ "message": "Password reset email sent. Please check your inbox." }`
+  - Error: `{ "error": "..." }`
+
+### 7. Reset Password
+
+- **Endpoint:** `POST /api/auth/reset-password`
+- **Description:** Updates the user's password. Requires authentication (access token).
+- **Headers:**
+  - `Authorization: Bearer <access_token>`
+- **Request Body:**
+  ```json
+  {
+    "newPassword": "yourNewPassword"
+  }
+  ```
+- **Response:**
+  - Success: `{ "message": "Password updated successfully", "user": { ... } }`
+  - Error: `{ "error": "..." }`
 
 ---
 
 ## 🔒 Authentication Flow
 
 ### Registration Flow
+
 ```
 1. Client sends email/password to POST /api/auth/signup
 2. auth.controller validates input
@@ -297,6 +354,7 @@ Content-Type: application/json
 ```
 
 ### Login Flow
+
 ```
 1. Client sends email/password to POST /api/auth/signin
 2. auth.controller validates input
@@ -307,6 +365,7 @@ Content-Type: application/json
 ```
 
 ### Protected Request Flow
+
 ```
 1. Client includes: Authorization: Bearer <access_token>
 2. Server verifies token via GET /api/auth/me
@@ -330,6 +389,7 @@ CREATE TABLE users (
 ```
 
 **Relationship with Supabase Auth:**
+
 - `users.id` matches `auth.users.id` (same UUID)
 - Supabase Auth stores: password, email, auth metadata
 - Custom `users` table stores: additional user data
@@ -339,6 +399,7 @@ CREATE TABLE users (
 ## 🔧 Configuration
 
 ### Environment Variables (.env)
+
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=eyJhbGc...  # Used for auth operations
@@ -347,7 +408,9 @@ SUPABASE_CONNECTION_STRING=postgresql://...  # Direct DB connection
 ```
 
 ### Lazy Loading Pattern
+
 Both database clients use **Proxy pattern** to avoid early initialization:
+
 ```typescript
 // Connections only created when first accessed
 const supabase = getSupabaseClient();
@@ -359,8 +422,9 @@ const db = getDb();
 ## 🛠️ Usage Examples
 
 ### In Other Modules
+
 ```typescript
-import { authService } from '@/modules/auth';
+import { authService } from "@/modules/auth";
 
 // Check if user exists
 const user = await authService.getCurrentUser(token);
@@ -375,6 +439,7 @@ try {
 ```
 
 ### Testing with Postman
+
 1. **Sign Up** → Copy user ID
 2. **Sign In** → Copy `accessToken`
 3. **Protected Routes** → Add header: `Authorization: Bearer <accessToken>`
@@ -386,13 +451,13 @@ try {
 
 ### Common Errors
 
-| Error | Status | Cause |
-|-------|--------|-------|
-| `Email and password are required` | 400 | Missing fields |
-| `User with this email already exists` | 400 | Duplicate email |
-| `Invalid login credentials` | 401 | Wrong password |
-| `No token provided` | 401 | Missing Authorization header |
-| `Invalid token` | 401 | Expired/malformed JWT |
+| Error                                 | Status | Cause                        |
+| ------------------------------------- | ------ | ---------------------------- |
+| `Email and password are required`     | 400    | Missing fields               |
+| `User with this email already exists` | 400    | Duplicate email              |
+| `Invalid login credentials`           | 401    | Wrong password               |
+| `No token provided`                   | 401    | Missing Authorization header |
+| `Invalid token`                       | 401    | Expired/malformed JWT        |
 
 ---
 

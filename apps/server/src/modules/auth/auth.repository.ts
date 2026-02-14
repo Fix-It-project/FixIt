@@ -50,6 +50,33 @@ export class AuthRepository {
     return data;
   }
 
+  async requestPasswordReset(email: string) {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `http://localhost:8081`, // Adjust this URL to your frontend reset password page
+      });
+      
+    if (error){
+      console.error('Supabase error details:', {
+        message: error.message,
+        status: error.status,
+        name: error.name
+      });
+      throw error;
+    }
+
+      
+      return data;
+  }
+
+  async resetPassword(newPassword: string) {
+    const { data, error } = await supabase.auth.updateUser( {
+      password: newPassword,
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
   async signOut(_accessToken: string) {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;

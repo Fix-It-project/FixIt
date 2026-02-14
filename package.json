@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@FixIt/env": "workspace:*",
+    "@codegenie/serverless-express": "^4.17.1",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
