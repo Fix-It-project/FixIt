@@ -39,11 +39,41 @@ export class AuthRepository {
 
     return data;
   }
-
+  //
   async signIn({ email, password }: SignInData) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
+  // For password reset, we will send a reset email with a link to the frontend reset page
+  // MUST BE A VALID WORKING EMAIL YOU CAN ACCESS TO TEST THIS FUNCTIONALITY
+  async requestPasswordReset(email: string) {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `http://localhost:8081`, // Placeholder. should redirct to the forget password page in frontend
+      });
+      
+    if (error){
+      console.error('Supabase error details:', {
+        message: error.message,
+        status: error.status,
+        name: error.name
+      });
+      throw error;
+    }
+
+      
+      return data;
+  }
+
+  // This function is for the actual password reset after the user clicks the link in their email and submits a new password
+  async resetPassword(newPassword: string) {
+    const { data, error } = await supabase.auth.updateUser( {
+      password: newPassword,
     });
 
     if (error) throw error;

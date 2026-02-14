@@ -61,6 +61,14 @@ export class AuthService {
       },
     };
   }
+
+  async requestPasswordReset(email: string) {
+    return await authRepository.requestPasswordReset(email);
+  }
+
+  async updatePassword(newPassword: string) {
+    return await authRepository.resetPassword(newPassword);
+  }
 }
 
 export const authService = new AuthService();

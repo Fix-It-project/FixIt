@@ -18,4 +18,10 @@ router.get('/me', (req, res) => authController.getCurrentUser(req, res));
 // POST /api/auth/refresh - Refresh access token
 router.post('/refresh', (req, res) => authController.refreshToken(req, res));
 
+// POST /api/auth/forgot-password - Request password reset
+router.post('/forgot-password', (req, res) => authController.requestPasswordReset(req, res));
+
+// POST /api/auth/reset-password - Reset password with new password
+router.post('/reset-password', (req, res) => authController.resetPassword(req, res));
+
 export default router;
