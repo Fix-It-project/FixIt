@@ -1,6 +1,4 @@
-import { db } from '../../shared/db/index.js';
-import { users } from '../auth/models/user.model.js';
-import { eq } from 'drizzle-orm';
+import { supabase } from '../../shared/db/supabase.js';
 
 export interface CreateUserData {
   id: string;
@@ -18,31 +16,74 @@ export interface UpdateUserData {
 
 export class UsersRepository {
   async createUser(data: CreateUserData) {
-    const [user] = await db.insert(users).values(data).returning();
-    return user;
+    try {
+      console.log('Creating user with data:', data);
+      const { data: user, error } = await supabase
+        .from('users')
+        .insert({
+          id: data.id,
+          email: data.email,
+          full_name: data.fullName,
+          phone: data.phone,
+          address: data.address,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      console.log('Inserted user:', user);
+      return user;
+    } catch (error) {
+      console.error('Error inserting user:', error);
+      throw error;
+    }
   }
 
   async getUserById(id: string) {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async getUserByEmail(email: string) {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async updateUser(id: string, data: UpdateUserData) {
-    const [user] = await db
-      .update(users)
-      .set(data)
-      .where(eq(users.id, id))
-      .returning();
+    const { data: user, error } = await supabase
+      .from('users')
+      .update({
+        full_name: data.fullName,
+        phone: data.phone,
+        address: data.address,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
     return user;
   }
 
   async deleteUser(id: string) {
-    await db.delete(users).where(eq(users.id, id));
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 }
 
