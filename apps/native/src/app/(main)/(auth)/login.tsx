@@ -1,13 +1,71 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { useState } from "react";
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { signInSchema, type SignInFormData } from "@/src/schemas/auth-schema";
+import { signIn } from "@/src/services/auth/api/auth";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof SignInFormData, string>>>({});
+
+  const { setSession } = useAuthStore();
+
+  const handleLogin = async () => {
+    // Clear previous errors
+    setError(null);
+    setFieldErrors({});
+
+    // Validate with zod
+    const result = signInSchema.safeParse({ email: emailOrUsername, password });
+    console.log("[Login] Zod validation:", result.success ? "PASSED" : "FAILED", result.success ? {} : result.error.issues);
+    if (!result.success) {
+      const errors: Partial<Record<keyof SignInFormData, string>> = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof SignInFormData;
+        if (!errors[field]) {
+          errors[field] = issue.message;
+        }
+      }
+      setFieldErrors(errors);
+      return;
+    }
+
+    // Call API
+    setIsLoading(true);
+    try {
+      console.log("[Login] Calling signIn API with email:", result.data.email);
+      const response = await signIn({ email: result.data.email, password: result.data.password });
+      console.log("[Login] API response:", { user: response.user, hasSession: !!response.session });
+
+      // Store session in zustand + SecureStore
+      await setSession(
+        response.user,
+        response.session.accessToken,
+        response.session.refreshToken
+      );
+
+      // Navigate to main app
+      router.replace("/(app)");
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        err.message ||
+        "Something went wrong. Please try again.";
+      console.log("[Login] Error:", message, err.response?.status);
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;
 
   return (
     <KeyboardAvoidingView 
@@ -28,23 +86,38 @@ export default function Login() {
 
         {/* Form */}
         <View className="px-6">
+          {/* General Error */}
+          {error && (
+            <View className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 mb-4">
+              <Text className="text-red-600 text-[14px] text-center">{error}</Text>
+            </View>
+          )}
+
           {/* Email or Username */}
           <View className="mb-6">
             <Text className="text-[14px] font-medium text-[#111418] mb-2">
               Email or Username
             </Text>
-            <View className="bg-white h-14 rounded-full flex-row items-center px-6">
+            <View className={`bg-white h-14 rounded-full flex-row items-center px-6 ${fieldErrors.email ? 'border border-red-400' : ''}`}>
               <TextInput
                 value={emailOrUsername}
-                onChangeText={setEmailOrUsername}
+                onChangeText={(text) => {
+                  setEmailOrUsername(text);
+                  if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                  if (error) setError(null);
+                }}
                 placeholder="Enter your email or username"
                 placeholderTextColor="#99a1af"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!isLoading}
                 className="flex-1 text-[16px] text-[#111418]"
               />
               <Ionicons name="mail-outline" size={24} color="#5f738c" />
             </View>
+            {fieldErrors.email && (
+              <Text className="text-red-500 text-[12px] mt-1 ml-4">{fieldErrors.email}</Text>
+            )}
           </View>
 
           {/* Password */}
@@ -52,13 +125,18 @@ export default function Login() {
             <Text className="text-[14px] font-medium text-[#111418] mb-2">
               Password
             </Text>
-            <View className="bg-white h-14 rounded-full flex-row items-center px-6">
+            <View className={`bg-white h-14 rounded-full flex-row items-center px-6 ${fieldErrors.password ? 'border border-red-400' : ''}`}>
               <TextInput
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }));
+                  if (error) setError(null);
+                }}
                 placeholder="Enter your password"
                 placeholderTextColor="#99a1af"
                 secureTextEntry={!showPassword}
+                editable={!isLoading}
                 className="flex-1 text-[16px] text-[#111418]"
               />
               <Pressable onPress={() => setShowPassword(!showPassword)}>
@@ -69,6 +147,9 @@ export default function Login() {
                 />
               </Pressable>
             </View>
+            {fieldErrors.password && (
+              <Text className="text-red-500 text-[12px] mt-1 ml-4">{fieldErrors.password}</Text>
+            )}
           </View>
 
           {/* Forgot Password */}
@@ -82,16 +163,19 @@ export default function Login() {
 
           {/* Log In Button */}
           <Pressable 
-            className="bg-[#036ded] h-14 rounded-full items-center justify-center mb-6 active:opacity-90"
-            onPress={() => {
-              // Handle login
-              console.log({ emailOrUsername, password });
-              router.push("/(main)/(tabs)");
-            }}
+            className={`h-14 rounded-full items-center justify-center mb-6 ${
+              isFormValid && !isLoading ? 'bg-[#036ded] active:opacity-90' : 'bg-[#036ded]/50'
+            }`}
+            onPress={handleLogin}
+            disabled={!isFormValid || isLoading}
           >
-            <Text className="text-white text-[16px] font-bold">
-              Log in
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text className="text-white text-[16px] font-bold">
+                Log in
+              </Text>
+            )}
           </Pressable>
 
           {/* Divider */}

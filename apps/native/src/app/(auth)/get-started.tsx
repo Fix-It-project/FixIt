@@ -1,11 +1,10 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-export default function WelcomeScreen() {
+export default function GetStartedScreen() {
   return (
     <LinearGradient
       colors={['#ecefff', '#dbe2ff', '#ecefff']}
@@ -36,7 +35,7 @@ export default function WelcomeScreen() {
         <View className="w-full max-w-[327px] gap-4">
           <Pressable
             className="flex-row items-center justify-center bg-[#036ded] h-14 rounded-full px-6 gap-2 active:opacity-70 shadow-sm"
-            onPress={() => router.push("/(main)/(auth)/role-selection")}
+            onPress={() => router.push("/(auth)/role-selection")}
           >
             <Text className="text-[17px] font-bold text-white">Get Started</Text>
             <Ionicons name="arrow-forward" size={20} color="#ffffff" />
