@@ -1,3 +1,4 @@
+import { env } from "@FixIt/env/server";
 import express, { type Request, type Response, type Express } from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes.js';
@@ -5,7 +6,13 @@ import authRoutes from './modules/auth/auth.routes.js';
 const app: Express = express();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
