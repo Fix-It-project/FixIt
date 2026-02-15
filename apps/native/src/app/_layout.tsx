@@ -3,15 +3,18 @@ import "../../global.css";
 import * as Sentry from '@sentry/react-native';
 
 import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "@/src/lib/query-client";
 
 import { setAndroidNavigationBar } from "@/src/lib/android-navigation-bar";
 import { NAV_THEME } from "@/src/lib/constants";
 import { useColorScheme } from "@/src/lib/use-color-scheme";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 Sentry.init({
   dsn: 'https://bd466622828fff10dd93d712742852e5@o4510789900500992.ingest.us.sentry.io/4510789900763136',
@@ -41,12 +44,8 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 
-export const unstable_settings = {
-  initialRouteName: "index",
-};
-
 const useIsomorphicLayoutEffect =
-  Platform.OS === "web" && typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+  Platform.OS === "web" && typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 const styles = StyleSheet.create({
   container: {
@@ -57,7 +56,15 @@ const styles = StyleSheet.create({
 function RootLayout() {
   const hasMounted = useRef(false);
   const { colorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
+
+  // ── Auth state ──────────────────────────────────────────────────────────────
+  const { isAuthenticated, isLoading, loadStoredSession } = useAuthStore();
+
+  // Load any persisted session on first mount
+  useEffect(() => {
+    loadStoredSession();
+  }, []);
 
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {
@@ -68,22 +75,30 @@ function RootLayout() {
     hasMounted.current = true;
   }, []);
 
-  if (!isColorSchemeLoaded) {
+  // Wait until both colour-scheme AND auth state are resolved
+  if (!isColorSchemeLoaded || isLoading) {
     return null;
   }
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <GestureHandlerRootView style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(main)" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(app)" />
           </Stack>
+
+          {/* ── Single auth checkpoint ────────────────────────────────────── */}
+          {isAuthenticated ? (
+            <Redirect href="/(app)" />
+          ) : (
+            <Redirect href="/(auth)/get-started" />
+          )}
         </GestureHandlerRootView>
       </ThemeProvider>
-    </>
+    </QueryClientProvider>
   );
 }
 

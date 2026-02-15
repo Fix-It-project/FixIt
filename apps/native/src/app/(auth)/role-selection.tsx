@@ -52,7 +52,7 @@ export default function RoleSelectionScreen() {
             <View className="absolute top-4 right-4 w-32 h-32">
               <View className="w-full h-full rounded-full border-2 border-blue-300/30 shadow-lg overflow-hidden bg-[#3380FF] items-center justify-center">
                 <Image 
-                  source={require("../../../assets/avatars/business-man-user-icon-vector-4333097-removebg-preview.png")}
+                  source={require("../../assets/avatars/business-man-user-icon-vector-4333097-removebg-preview.png")}
                   style={{ width: 128, height: 160 }}
                   resizeMode="cover"
                 />
@@ -97,7 +97,7 @@ export default function RoleSelectionScreen() {
             <View className="absolute top-4 left-4 w-32 h-32">
               <View className="w-full h-full rounded-full border-2 border-blue-300/30 shadow-lg overflow-hidden bg-[#3380FF] items-center justify-center">
                 <Image 
-                  source={require("../../../assets/avatars/technician.png")}
+                  source={require("../../assets/avatars/technician.png")}
                   style={{ width: 128, height: 128 }}
                   resizeMode="cover"
                 />
@@ -128,7 +128,7 @@ export default function RoleSelectionScreen() {
         <View className="w-full max-w-sm mb-6">
           <Pressable
             className="w-full py-4 px-6 flex-row items-center justify-center active:opacity-70"
-            onPress={() => router.push("/(main)/(auth)/login")}
+            onPress={() => router.push("/(auth)/login")}
           >
             <Text className="text-[14px] font-medium text-[#64748b]">Already have an account? </Text>
             <Text className="text-[14px] font-bold text-[#0066FF]">Log in</Text>
