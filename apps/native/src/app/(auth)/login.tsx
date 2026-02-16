@@ -51,11 +51,16 @@ export default function Login() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
       className="flex-1 bg-[#ebeeff]"
     >
       <StatusBar style="dark" />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         {/* Header */}
         <View className="px-6 mt-24 mb-8">
           <Text className="text-[32px] font-bold text-[#111418] text-center mb-3">
