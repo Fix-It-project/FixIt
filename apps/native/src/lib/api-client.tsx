@@ -30,16 +30,10 @@ const refreshAccessToken = async (): Promise<string> => {
 
   refreshPromise = (async () => {
     try {
-      const { refreshToken, setSession, clearSession } = useAuthStore.getState();
+      const { refreshToken, setSession } = useAuthStore.getState();
 
       if (!refreshToken) {
         throw new Error("No refresh token available");
-      }
-
-      if (isTokenExpired(refreshToken, 0)) {
-        console.log("[apiClient] Refresh token expired");
-        await clearSession();
-        throw new Error("Refresh token expired");
       }
 
       console.log("[apiClient] Refreshing access token...");
