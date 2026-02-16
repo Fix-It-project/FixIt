@@ -89,6 +89,8 @@ export const techStep4Schema = z.object({
     .string()
     .min(5, "Address must be at least 5 characters")
     .max(200, "Address must be less than 200 characters"),
+  buildingNumber: z.string().min(1, "Building number is required"),
+  apartmentNumber: z.string().min(1, "Apartment number is required"),
 });
 
 export type TechStep4Data = z.infer<typeof techStep4Schema>;

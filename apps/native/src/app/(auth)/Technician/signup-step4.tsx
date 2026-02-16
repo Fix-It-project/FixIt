@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { router } from "expo-router";
-import { Alert } from "react-native";
+import { Alert, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { techStep4Schema, type TechStep4Data } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
@@ -20,6 +20,8 @@ export default function TechnicianSignUpStep4() {
   const [certificate, setCertificate] = useState(store.certificate);
   const [city, setCity] = useState(store.city);
   const [address, setAddress] = useState(store.address);
+  const [buildingNumber, setBuildingNumber] = useState(store.buildingNumber);
+  const [apartmentNumber, setApartmentNumber] = useState(store.apartmentNumber);
   const [isLoading, setIsLoading] = useState(false);
   const { fieldErrors, error, setError, clearFieldError, validate } =
     useFormValidation(techStep4Schema);
@@ -41,7 +43,7 @@ export default function TechnicianSignUpStep4() {
   };
 
   const handleSubmit = async () => {
-    const result = validate({ nationalId, criminalRecord, certificate, city, address });
+    const result = validate({ nationalId, criminalRecord, certificate, city, address, buildingNumber, apartmentNumber });
     if (!result.success) return;
 
     store.setStep4Data(result.data);
@@ -80,7 +82,9 @@ export default function TechnicianSignUpStep4() {
     criminalRecord.length > 0 &&
     certificate.length > 0 &&
     city.trim().length > 0 &&
-    address.trim().length > 0;
+    address.trim().length > 0 &&
+    buildingNumber.trim().length > 0 &&
+    apartmentNumber.trim().length > 0;
 
   return (
     <AuthPageLayout
@@ -129,6 +133,32 @@ export default function TechnicianSignUpStep4() {
         error={fieldErrors.address}
         disabled={isLoading}
       />
+
+      <View className="flex-row gap-3">
+        <View className="flex-1">
+          <FormInput
+            label="Building No."
+            value={buildingNumber}
+            onChangeText={(text) => { setBuildingNumber(text); clearFieldError("buildingNumber"); }}
+            placeholder="e.g. 12"
+            icon="business-outline"
+            error={fieldErrors.buildingNumber}
+            disabled={isLoading}
+            keyboardType="numeric"
+          />
+        </View>
+        <View className="flex-1">
+          <FormInput
+            label="Apartment No."
+            value={apartmentNumber}
+            onChangeText={(text) => { setApartmentNumber(text); clearFieldError("apartmentNumber"); }}
+            placeholder="e.g. 5A"
+            icon="home-outline"
+            error={fieldErrors.apartmentNumber}
+            disabled={isLoading}
+          />
+        </View>
+      </View>
 
       <SubmitButton
         label="Apply as Technician"

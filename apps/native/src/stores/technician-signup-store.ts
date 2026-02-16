@@ -16,6 +16,8 @@ interface TechnicianSignupState {
   certificate: string;
   city: string;
   address: string;
+  buildingNumber: string;
+  apartmentNumber: string;
 
   // Setters
   setStep1Data: (data: { email: string }) => void;
@@ -32,6 +34,8 @@ interface TechnicianSignupState {
     certificate: string;
     city: string;
     address: string;
+    buildingNumber: string;
+    apartmentNumber: string;
   }) => void;
   reset: () => void;
 }
@@ -48,6 +52,8 @@ const initialState = {
   certificate: "",
   city: "",
   address: "",
+  buildingNumber: "",
+  apartmentNumber: "",
 };
 
 export const useTechnicianSignupStore = create<TechnicianSignupState>(

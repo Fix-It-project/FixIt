@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -8,6 +8,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -22,11 +24,35 @@ export default function AuthPageLayout({
   subtitle,
   children,
 }: AuthPageLayoutProps) {
-  return (
-    <KeyboardAvoidingView
-      className="flex-1 bg-[#ebeeff]"
-      behavior={Platform.OS === "ios" ? "padding" : "padding"}
-    >
+  const keyboardPadding = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const showSub = Keyboard.addListener("keyboardDidShow", (e) => {
+      Animated.timing(keyboardPadding, {
+        toValue: e.endCoordinates.height,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      Animated.timing(keyboardPadding, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [keyboardPadding]);
+
+  const content = (
+    <>
       <StatusBar style="dark" />
       <ScrollView
         className="flex-1"
@@ -58,6 +84,22 @@ export default function AuthPageLayout({
           {children}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </>
+  );
+
+  if (Platform.OS === "ios") {
+    return (
+      <KeyboardAvoidingView className="flex-1 bg-[#ebeeff]" behavior="padding">
+        {content}
+      </KeyboardAvoidingView>
+    );
+  }
+
+  return (
+    <Animated.View
+      style={{ flex: 1, backgroundColor: "#ebeeff", paddingBottom: keyboardPadding }}
+    >
+      {content}
+    </Animated.View>
   );
 }
