@@ -1,8 +1,18 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLogoutMutation } from "@/src/hooks/useLogoutMutation";
 
 export default function Home() {
   const { user } = useAuthStore();
+  const logout = useLogoutMutation();
+
+  const handleLogout = () => {
+    logout.mutate(undefined, {
+      onError: (error) => {
+        Alert.alert("Logout failed", error.message || "Something went wrong.");
+      },
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -13,8 +23,15 @@ export default function Home() {
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} activeOpacity={0.8}>
-        <Text style={styles.logoutText}>Log Out</Text>
+      <TouchableOpacity
+        style={[styles.logoutButton, logout.isPending && styles.logoutButtonDisabled]}
+        activeOpacity={0.8}
+        onPress={handleLogout}
+        disabled={logout.isPending}
+      >
+        <Text style={styles.logoutText}>
+          {logout.isPending ? "Logging out…" : "Log Out"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -62,6 +79,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     width: "100%",
     alignItems: "center",
+  },
+  logoutButtonDisabled: {
+    opacity: 0.6,
   },
   logoutText: {
     color: "#fff",
