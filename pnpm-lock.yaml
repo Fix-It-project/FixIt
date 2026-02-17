@@ -72,6 +72,9 @@ importers:
       '@sentry/react-native':
         specifier: ^7.10.0
         version: 7.10.0(expo@54.0.32)(react-native@0.81.4(@babel/core@7.28.6)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
+      '@supabase/supabase-js':
+        specifier: ^2.95.3
+        version: 2.95.3
       '@tanstack/react-form':
         specifier: ^1.0.5
         version: 1.28.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

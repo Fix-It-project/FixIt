@@ -54,7 +54,7 @@ export class AuthRepository {
   // MUST BE A VALID WORKING EMAIL YOU CAN ACCESS TO TEST THIS FUNCTIONALITY
   async requestPasswordReset(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `http://localhost:8081`, // Placeholder. should redirct to the forget password page in frontend
+        redirectTo: `http://localhost:8081/reset-password`, // Placeholder. should redirct to the forget password page in frontend
       });
       
     if (error){
