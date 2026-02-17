@@ -1,37 +1,48 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/src/schemas/auth-schema";
-import { useResetPasswordMutation } from "@/src/hooks/useResetPasswordMutation";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import SubmitButton from "@/src/components/auth/SubmitButton";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { supabase } from "@/src/lib/supabase";
 
 export default function ResetPassword() {
-  const { access_token, refresh_token, userType } = useLocalSearchParams<{
-    access_token: string;
-    refresh_token: string;
+  const { userType } = useLocalSearchParams<{
     userType: string;
   }>();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ResetPasswordFormData, string>>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
-  const resetMutation = useResetPasswordMutation(userType ?? "user");
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsRecoveryMode(true);
+      }
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
 
   const clearFieldError = (field: keyof ResetPasswordFormData) => {
     if (fieldErrors[field]) {
       setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-    if (resetMutation.error) resetMutation.reset();
+    if (error) setError(null);
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     setFieldErrors({});
+    setError(null);
 
     const result = resetPasswordSchema.safeParse({ newPassword, confirmPassword });
     if (!result.success) {
@@ -44,18 +55,24 @@ export default function ResetPassword() {
       return;
     }
 
-    if (!access_token || !refresh_token) {
-      return;
+    setIsLoading(true);
+    try {
+      const { data, error: updateError } = await supabase.auth.updateUser({ 
+        password: result.data.newPassword 
+      });
+
+      if (updateError) throw updateError;
+      
+      if (data) {
+        const loginRoute = userType === "technician" ? "/(auth)/Technician/login" : "/(auth)/User/login";
+        router.replace(loginRoute as any);
+      }
+    } catch (err: any) {
+      setError(err.message || "There was an error updating your password.");
+    } finally {
+      setIsLoading(false);
     }
-
-    resetMutation.mutate({
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      newPassword: result.data.newPassword,
-    });
   };
-
-  const errorMessage = resetMutation.error ? getErrorMessage(resetMutation.error) : null;
 
   const loginRoute =
     userType === "technician" ? "/(auth)/Technician/login" : "/(auth)/User/login";
@@ -63,7 +80,7 @@ export default function ResetPassword() {
   const isFormValid = newPassword.length > 0 && confirmPassword.length > 0;
 
   // ─── Missing tokens = invalid link ────────────────────────────────────────
-  if (!access_token || !refresh_token) {
+  if (!isRecoveryMode) {
     return (
       <AuthPageLayout title="Invalid Link" subtitle="This password reset link is invalid or has expired">
         <View className="items-center mt-4 mb-6">
@@ -91,7 +108,7 @@ export default function ResetPassword() {
   // ─── Reset Password Form ──────────────────────────────────────────────────
   return (
     <AuthPageLayout title="Reset Password" subtitle="Enter your new password below">
-      <ErrorBanner message={errorMessage} />
+      <ErrorBanner message={error} />
 
       <PasswordInput
         label="New Password"
@@ -101,7 +118,7 @@ export default function ResetPassword() {
           clearFieldError("newPassword");
         }}
         error={fieldErrors.newPassword}
-        disabled={resetMutation.isPending}
+        disabled={isLoading}
       />
 
       <PasswordInput
@@ -112,13 +129,13 @@ export default function ResetPassword() {
           clearFieldError("confirmPassword");
         }}
         error={fieldErrors.confirmPassword}
-        disabled={resetMutation.isPending}
+        disabled={isLoading}
       />
 
       <SubmitButton
         label="Reset Password"
         onPress={handleResetPassword}
-        isLoading={resetMutation.isPending}
+        isLoading={isLoading}
         disabled={!isFormValid}
       />
 
