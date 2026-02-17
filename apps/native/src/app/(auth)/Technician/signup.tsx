@@ -7,7 +7,6 @@ import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import SubmitButton from "@/src/components/auth/SubmitButton";
-import OAuthDivider from "@/src/components/auth/OAuthDivider";
 import LoginLink from "@/src/components/auth/LoginLink";
 
 export default function TechnicianSignUpStep1() {
@@ -48,7 +47,6 @@ export default function TechnicianSignUpStep1() {
         disabled={email.trim().length === 0}
       />
 
-      <OAuthDivider variant="signup" />
       <LoginLink route="/(auth)/Technician/login" />
     </AuthPageLayout>
   );
