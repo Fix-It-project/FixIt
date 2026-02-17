@@ -128,7 +128,7 @@ export default function RoleSelectionScreen() {
         <View className="w-full max-w-sm mb-6">
           <Pressable
             className="w-full py-4 px-6 flex-row items-center justify-center active:opacity-70"
-            onPress={() => router.push("/(auth)/login")}
+            onPress={() => router.push("/(auth)/User/login")}
           >
             <Text className="text-[14px] font-medium text-[#64748b]">Already have an account? </Text>
             <Text className="text-[14px] font-bold text-[#0066FF]">Log in</Text>

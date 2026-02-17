@@ -8,7 +8,7 @@ import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import SubmitButton from "@/src/components/auth/SubmitButton";
-import SocialLoginButtons from "@/src/components/auth/SocialLoginButtons";
+import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 
 export default function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -41,28 +41,29 @@ export default function Login() {
     loginMutation.mutate({ email: result.data.email, password: result.data.password });
   };
 
-  const errorMessage = loginMutation.error
-    ? (loginMutation.error as any).response?.data?.error ||
-      loginMutation.error.message ||
-      "Something went wrong. Please try again."
-    : null;
+  const errorMessage = loginMutation.error ? getErrorMessage(loginMutation.error) : null;
 
   const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
       className="flex-1 bg-[#ebeeff]"
     >
       <StatusBar style="dark" />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
         {/* Header */}
         <View className="px-6 mt-24 mb-8">
           <Text className="text-[32px] font-bold text-[#111418] text-center mb-3">
             Welcome back
           </Text>
           <Text className="text-[16px] text-[#5f738c] text-center">
-            Sign in to book your next repair
+            Sign in to your technician account
           </Text>
         </View>
 
@@ -105,15 +106,6 @@ export default function Login() {
             isLoading={loginMutation.isPending}
             disabled={!isFormValid}
           />
-
-          {/* Divider */}
-          <View className="flex-row items-center">
-            <View className="flex-1 h-[1px] bg-[#5982b3]" />
-            <Text className="px-4 text-[14px] text-[#5f738c]">Or continue with</Text>
-            <View className="flex-1 h-[1px] bg-[#5982b3]" />
-          </View>
-
-          <SocialLoginButtons variant="full" />
 
           {/* Sign Up Link */}
           <View className="flex-row items-center justify-center mt-4 mb-8">

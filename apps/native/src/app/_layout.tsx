@@ -15,6 +15,7 @@ import { setAndroidNavigationBar } from "@/src/lib/android-navigation-bar";
 import { NAV_THEME } from "@/src/lib/constants";
 import { useColorScheme } from "@/src/lib/use-color-scheme";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLocationStore } from "@/src/stores/location-store";
 
 Sentry.init({
   dsn: 'https://bd466622828fff10dd93d712742852e5@o4510789900500992.ingest.us.sentry.io/4510789900763136',
@@ -60,10 +61,12 @@ function RootLayout() {
 
   // ── Auth state ──────────────────────────────────────────────────────────────
   const { isAuthenticated, isLoading, loadStoredSession } = useAuthStore();
+  const { requestLocationPermission } = useLocationStore();
 
-  // Load any persisted session on first mount
+  // Load persisted session & request location on first mount
   useEffect(() => {
     loadStoredSession();
+    requestLocationPermission();
   }, []);
 
   useIsomorphicLayoutEffect(() => {

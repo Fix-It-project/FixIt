@@ -48,6 +48,14 @@
           "project": "react-native",
           "organization": "zewail-city-of-science-and-tec"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians.",
+          "locationAlwaysPermission": "FixIt needs your location to connect you with nearby technicians.",
+          "locationWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians."
+        }
       ]
     ],
     "experiments": {
