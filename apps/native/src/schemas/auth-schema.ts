@@ -94,3 +94,26 @@ export const techStep4Schema = z.object({
 });
 
 export type TechStep4Data = z.infer<typeof techStep4Schema>;
+
+// ─── Forgot / Reset Password Schemas ─────────────────────────────────────────
+
+export const forgotPasswordSchema = z.object({
+  email: z.email("Please enter a valid email address"),
+});
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .max(72, "Password must be less than 72 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;

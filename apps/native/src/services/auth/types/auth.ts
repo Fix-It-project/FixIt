@@ -67,3 +67,23 @@ export interface SignOutResponse {
 export interface AuthErrorResponse {
   error: string;
 }
+
+// ─── Forgot / Reset Password Types ──────────────────────────────────────────
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  accessToken: string;
+  refreshToken: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
