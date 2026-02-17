@@ -7,6 +7,10 @@ import type {
   SignOutResponse,
   GetCurrentUserResponse,
   RefreshTokenResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "../types/auth";
 
 //sign up, sign in, sign out, get current user, refresh token
@@ -33,5 +37,15 @@ export async function refreshSession(refreshToken: string): Promise<RefreshToken
   const response = await apiClient.post<RefreshTokenResponse>("/api/auth/refresh", {
     refreshToken,
   });
+  return response.data;
+}
+
+export async function forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+  const response = await apiClient.post<ForgotPasswordResponse>("/api/auth/forgot-password", data);
+  return response.data;
+}
+
+export async function resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  const response = await apiClient.post<ResetPasswordResponse>("/api/auth/reset-password", data);
   return response.data;
 }

@@ -15,6 +15,7 @@ export default function AuthLayout() {
       <Stack.Screen name="Technician/signup-step2" />
       <Stack.Screen name="Technician/signup-step3" />
       <Stack.Screen name="Technician/signup-step4" />
+      <Stack.Screen name="(forgotpassword)" />
     </Stack>
   );
 }

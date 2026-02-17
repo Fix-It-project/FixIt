@@ -3,7 +3,8 @@ import "../../global.css";
 import * as Sentry from '@sentry/react-native';
 
 import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
-import { Redirect, Stack } from "expo-router";
+import { Redirect, Stack, router } from "expo-router";
+import * as Linking from "expo-linking";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
@@ -67,6 +68,45 @@ function RootLayout() {
   useEffect(() => {
     loadStoredSession();
     requestLocationPermission();
+  }, []);
+
+  // ── Deep link handler for password reset ─────────────────────────────────
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const url = event.url;
+      if (!url) return;
+
+      // Supabase redirects with tokens in the URL fragment:
+      // mybettertapp://reset-password#access_token=...&refresh_token=...&type=recovery
+      const hashIndex = url.indexOf("#");
+      if (hashIndex === -1) return;
+
+      const fragment = url.substring(hashIndex + 1);
+      const params = new URLSearchParams(fragment);
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+      const type = params.get("type");
+
+      if (type === "recovery" && accessToken && refreshToken) {
+        router.replace({
+          pathname: "/(auth)/(forgotpassword)/reset-password",
+          params: {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            userType: "user", // Default; user will already be on the correct flow
+          },
+        });
+      }
+    };
+
+    // Handle deep link if app was opened from a link
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+
+    // Handle deep link while app is running
+    const subscription = Linking.addEventListener("url", handleDeepLink);
+    return () => subscription.remove();
   }, []);
 
   useIsomorphicLayoutEffect(() => {

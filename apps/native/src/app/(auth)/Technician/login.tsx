@@ -93,7 +93,7 @@ export default function Login() {
 
           {/* Forgot Password */}
           <View className="items-end -mt-3">
-            <Pressable onPress={() => {/* Handle forgot password */}}>
+            <Pressable onPress={() => router.push("/(auth)/(forgotpassword)/forgot-password?userType=technician")}>
               <Text className="text-[14px] font-medium text-[#5f738c]">
                 Forgot Password?
               </Text>

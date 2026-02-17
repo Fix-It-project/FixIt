@@ -78,7 +78,9 @@ apiClient.interceptors.request.use(
     if (
       config.url?.includes("/api/auth/signin") ||
       config.url?.includes("/api/auth/signup") ||
-      config.url?.includes("/api/auth/refresh")
+      config.url?.includes("/api/auth/refresh") ||
+      config.url?.includes("/api/auth/forgot-password") ||
+      config.url?.includes("/api/auth/reset-password")
     ) {
       return config;
     }
