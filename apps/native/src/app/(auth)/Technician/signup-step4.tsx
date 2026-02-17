@@ -67,7 +67,7 @@ export default function TechnicianSignUpStep4() {
         "Application Submitted!",
         response.message ||
           "Your technician account has been created. Please sign in to continue.",
-        [{ text: "Sign In", onPress: () => router.replace("/(auth)/login") }]
+        [{ text: "Sign In", onPress: () => router.replace("/(auth)/Technician/login") }]
       );
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } }; message?: string };

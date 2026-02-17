@@ -2,10 +2,10 @@ import { View, Text } from "react-native";
 import SocialLoginButtons from "./SocialLoginButtons";
 
 interface OAuthDividerProps {
-  variant?: "compact" | "full";
+  variant?: "signup" | "login";
 }
 
-export default function OAuthDivider({ variant = "compact" }: OAuthDividerProps) {
+export default function OAuthDivider({ variant = "signup" }: OAuthDividerProps) {
   return (
     <>
       <View className="my-2 flex-row items-center">

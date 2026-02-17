@@ -9,6 +9,7 @@ import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import SubmitButton from "@/src/components/auth/SubmitButton";
 import OAuthDivider from "@/src/components/auth/OAuthDivider";
 import LoginLink from "@/src/components/auth/LoginLink";
+import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 
 export default function SignUp() {
   const [fullName, setFullName] = useState("");
@@ -33,11 +34,7 @@ export default function SignUp() {
     });
   };
 
-  const errorMessage = signUpMutation.error
-    ? (signUpMutation.error as any).response?.data?.error ||
-      signUpMutation.error.message ||
-      "Something went wrong. Please try again."
-    : null;
+  const errorMessage = signUpMutation.error ? getErrorMessage(signUpMutation.error) : null;
 
   const isFormValid =
     fullName.trim().length > 0 &&
@@ -111,7 +108,7 @@ export default function SignUp() {
       />
 
       <OAuthDivider />
-      <LoginLink />
+      <LoginLink route="/(auth)/User/login" />
     </AuthPageLayout>
   );
 }

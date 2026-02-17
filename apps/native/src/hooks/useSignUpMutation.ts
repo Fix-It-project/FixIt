@@ -16,7 +16,7 @@ export function useSignUpMutation() {
 				"Account Created!",
 				response.message ||
 					"Your account has been created successfully. Please sign in.",
-				[{ text: "Sign In", onPress: () => router.replace("/(auth)/login") }],
+				[{ text: "Sign In", onPress: () => router.replace("/(auth)/User/login") }],
 			);
 		},
 	});

@@ -48,8 +48,8 @@ export default function TechnicianSignUpStep1() {
         disabled={email.trim().length === 0}
       />
 
-      <OAuthDivider />
-      <LoginLink />
+      <OAuthDivider variant="signup" />
+      <LoginLink route="/(auth)/Technician/login" />
     </AuthPageLayout>
   );
 }
