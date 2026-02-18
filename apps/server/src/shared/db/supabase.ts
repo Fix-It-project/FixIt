@@ -66,4 +66,40 @@ export const supabase = new Proxy({} as SupabaseClient, {
   }
 });
 
+// ─── Admin client (service role — bypasses RLS) ───────────────────────────────
+
+let supabaseAdminInstance: SupabaseClient | null = null;
+
+function getSupabaseAdminClient() {
+  if (supabaseAdminInstance) {
+    return supabaseAdminInstance;
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Missing Supabase environment variables for admin client');
+  }
+
+  supabaseAdminInstance = createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+    global: {
+      fetch: customFetch,
+    },
+  });
+
+  return supabaseAdminInstance;
+}
+
+export const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseAdminClient();
+    return (client as any)[prop];
+  }
+});
+
 export default supabase;

@@ -2,6 +2,7 @@ import { env } from "@FixIt/env/server";
 import express, { type Request, type Response, type Express } from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes.js';
+import technicianAuthRoutes from './modules/technician-auth/technician-auth.routes.js';
 
 const app: Express = express();
 
@@ -23,5 +24,6 @@ app.get('/', (_req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/technician-auth', technicianAuthRoutes);
 
 export default app;

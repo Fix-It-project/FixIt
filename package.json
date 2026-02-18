@@ -27,9 +27,9 @@
   },
   "devDependencies": {
     "@FixIt/config": "workspace:*",
-    "@biomejs/biome": "^2.2.0",
+    "@biomejs/biome": "^2.4.2",
     "@types/node": "catalog:",
-    "turbo": "^2.6.3",
+    "turbo": "^2.8.9",
     "typescript": "catalog:"
   },
   "packageManager": "pnpm@10.29.2"
