@@ -23,12 +23,24 @@ provider:
     SUPABASE_URL: ${env:SUPABASE_URL}
     SUPABASE_ANON_KEY: ${env:SUPABASE_ANON_KEY}
     SUPABASE_CONNECTION_STRING: ${env:SUPABASE_CONNECTION_STRING}
+    SUPABASE_SERVICE_ROLE_KEY: ${env:SUPABASE_SERVICE_ROLE_KEY}
+    CORS_ORIGIN: ${env:CORS_ORIGIN}
+    STORAGE_BUCKET: ${env:STORAGE_BUCKET}
   # Uncomment to easily set up a custom domain. Read the docs for more details:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
   # domain: api.example.com
 
 functions:
-  api:
-    handler: src/lambda.handler
+  auth:
+    handler: serverless-deploy/auth-lambda.handler
     events:
-      - httpApi: "*"
+      - httpApi:
+          path: /api/auth/{proxy+}
+          method: ANY
+
+  technicianAuth:
+    handler: serverless-deploy/technician-auth-lambda.handler
+    events:
+      - httpApi:
+          path: /api/technician-auth/{proxy+}
+          method: ANY
