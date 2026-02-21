@@ -12,9 +12,11 @@
     "@FixIt/db": "workspace:*",
     "@FixIt/env": "workspace:*",
     "@supabase/supabase-js": "^2.95.3",
+    "@types/multer": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "catalog:",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -1,4 +1,6 @@
-import { supabase } from '../../shared/db/supabase.js';
+import { supabaseAdmin } from '../../shared/db/supabase.js';
+
+const supabase = supabaseAdmin;
 
 export interface CreateUserData {
   id: string;
