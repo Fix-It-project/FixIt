@@ -4,13 +4,16 @@ import { authService } from './auth.service.js';
 export class AuthController {
   async signUp(req: Request, res: Response) {
     try {
-      const { email, password, fullName, phone, address } = req.body;
+      const { email, password, fullName, phone, address, city, street, building_no, apartment_no, latitude, longitude } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-      const result = await authService.signUp({ email, password, fullName, phone, address });
+      const result = await authService.signUp({
+        email, password, fullName, phone, address,
+        city, street, building_no, apartment_no, latitude, longitude,
+      });
       return res.status(201).json(result);
     } catch (error: any) {
       return res.status(400).json({ error: error.message });

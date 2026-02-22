@@ -22,7 +22,7 @@ export class TechnicianAuthController {
   // POST /api/technician-auth/signup
   async signUp(req: Request, res: Response) {
     try {
-      const { email, password, first_name, last_name, phone, category_id } = req.body;
+      const { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude } = req.body;
 
       if (!email || !password || !first_name || !last_name || !category_id) {
         return res.status(400).json({
@@ -42,7 +42,7 @@ export class TechnicianAuthController {
       };
 
       const result = await technicianAuthService.signUp(
-        { email, password, first_name, last_name, phone, category_id },
+        { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude },
         files,
       );
 

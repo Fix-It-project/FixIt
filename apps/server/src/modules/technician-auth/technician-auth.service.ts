@@ -4,6 +4,7 @@ import {
   type TechnicianDocumentFiles,
 } from './technician-auth.repository.js';
 import { techniciansRepository } from '../technicians/index.js';
+import { addressesRepository } from '../addresses/index.js';
 
 export class TechnicianAuthService {
   // ─── Check email ──────────────────────────────────────────────────────────
@@ -54,6 +55,19 @@ export class TechnicianAuthService {
       category_id: data.category_id,
       ...documentUrls,
     });
+
+    // 5. Create address record if address details are provided
+    if (data.city && data.street) {
+      await addressesRepository.createAddress({
+        technician_id: technicianId,
+        city: data.city,
+        street: data.street,
+        building_no: data.building_no,
+        apartment_no: data.apartment_no,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+      });
+    }
 
     return {
       technician: {

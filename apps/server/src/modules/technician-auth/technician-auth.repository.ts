@@ -9,6 +9,12 @@ export interface TechnicianSignUpData {
   last_name: string;
   phone?: string;
   category_id: string;
+  city?: string;
+  street?: string;
+  building_no?: string;
+  apartment_no?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface TechnicianDocumentFiles {

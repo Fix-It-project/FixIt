@@ -1,5 +1,6 @@
 import { authRepository, type SignUpData, type SignInData } from './auth.repository.js';
 import { usersRepository } from '../users/index.js';
+import { addressesRepository } from '../addresses/index.js';
 
 export class AuthService {
   async signUp(data: SignUpData) {
@@ -14,6 +15,18 @@ export class AuthService {
         phone: data.phone,
         address: data.address,
       });
+
+      if (data.city && data.street) {
+        await addressesRepository.createAddress({
+          user_id: result.user.id,
+          city: data.city,
+          street: data.street,
+          building_no: data.building_no,
+          apartment_no: data.apartment_no,
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null,
+        });
+      }
     }
     
     return {
