@@ -1,1 +1,1 @@
-export { usersRepository } from './users.repository.js';
+export { usersRepository } from './user-auth.repository.js';
