@@ -22,6 +22,8 @@ export interface UpdateAddressData {
   longitude?: number | null;
 }
 
+export type SignUpAddressData = Omit<CreateAddressData, 'user_id' | 'technician_id'>;
+
 export class AddressesRepository {
   async createAddress(data: CreateAddressData) {
     try {
@@ -51,29 +53,59 @@ export class AddressesRepository {
     }
   }
 
-  async getAddressByUserId(userId: string) {
+  async getAddressesByUserId(userId: string) {
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+      .eq('user_id', userId);
 
     if (error) throw error;
     return data;
   }
 
-  async getAddressByTechnicianId(technicianId: string) {
+  async getAddressCountByUserId(userId: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('addresses')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return count ?? 0;
+  }
+
+  async getAddressesByTechnicianId(technicianId: string) {
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
-      .eq('technician_id', technicianId)
-      .maybeSingle();
+      .eq('technician_id', technicianId);
 
     if (error) throw error;
     return data;
   }
 
-  async updateAddress(id: string, data: UpdateAddressData) {
+  async getAddressCountByTechnicianId(technicianId: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('addresses')
+      .select('*', { count: 'exact', head: true })
+      .eq('technician_id', technicianId);
+
+    if (error) throw error;
+    return count ?? 0;
+  }
+
+  async updateAddress(id: string, data: UpdateAddressData, ownerId: string, ownerRole: 'user' | 'technician') {
+    const ownerColumn = ownerRole === 'user' ? 'user_id' : 'technician_id';
+    
+    const { data: existing, error: checkError } = await supabase
+      .from('addresses')
+      .select('id')
+      .eq('id', id)
+      .eq(ownerColumn, ownerId)
+      .maybeSingle();
+      
+    if (checkError) throw checkError;
+    if (!existing) throw new Error('Address not found or unauthorized to update');
+
     const { data: address, error } = await supabase
       .from('addresses')
       .update({
@@ -90,6 +122,27 @@ export class AddressesRepository {
 
     if (error) throw error;
     return address;
+  }
+
+  async deleteAddress(id: string, ownerId: string, ownerRole: 'user' | 'technician') {
+    const ownerColumn = ownerRole === 'user' ? 'user_id' : 'technician_id';
+
+    const { data: existing, error: checkError } = await supabase
+      .from('addresses')
+      .select('id')
+      .eq('id', id)
+      .eq(ownerColumn, ownerId)
+      .maybeSingle();
+
+    if (checkError) throw checkError;
+    if (!existing) throw new Error('Address not found or unauthorized to delete');
+
+    const { error } = await supabase
+      .from('addresses')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 }
 
