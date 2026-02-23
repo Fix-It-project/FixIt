@@ -10,7 +10,9 @@ interface TechnicianSignupState {
   lastName: string;
   password: string;
   confirmPassword: string;
-  // Step 4
+  // Step 4 – Categories
+  categories: string[];
+  // Step 5
   nationalId: string;
   criminalRecord: string;
   certificate: string;
@@ -28,7 +30,8 @@ interface TechnicianSignupState {
     password: string;
     confirmPassword: string;
   }) => void;
-  setStep4Data: (data: {
+  setCategoriesData: (data: { categories: string[] }) => void;
+  setStep5Data: (data: {
     nationalId: string;
     criminalRecord: string;
     certificate: string;
@@ -47,6 +50,7 @@ const initialState = {
   lastName: "",
   password: "",
   confirmPassword: "",
+  categories: [],
   nationalId: "",
   criminalRecord: "",
   certificate: "",
@@ -62,7 +66,8 @@ export const useTechnicianSignupStore = create<TechnicianSignupState>(
     setStep1Data: (data) => set(data),
     setStep2Data: (data) => set(data),
     setStep3Data: (data) => set(data),
-    setStep4Data: (data) => set(data),
+    setCategoriesData: (data) => set(data),
+    setStep5Data: (data) => set(data),
     reset: () => set(initialState),
   })
 );
