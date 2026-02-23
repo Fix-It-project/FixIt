@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../../shared/db/supabase.js';
 const supabase = supabaseAdmin;
 
 export interface CreateTechnicianData {
+  id: string;           // Must match the auth.users ID
   first_name: string;
   last_name: string;
   email: string;
@@ -32,6 +33,7 @@ export class TechniciansRepository {
       const { data: technician, error } = await supabase
         .from('technicians')
         .insert({
+          id: data.id,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,

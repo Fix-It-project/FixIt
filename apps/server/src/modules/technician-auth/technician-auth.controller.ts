@@ -42,8 +42,9 @@ export class TechnicianAuthController {
       };
 
       const result = await technicianAuthService.signUp(
-        { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude },
+        { email, password, first_name, last_name, phone, category_id },
         files,
+        { city, street, building_no, apartment_no, latitude, longitude },
       );
 
       return res.status(201).json(result);

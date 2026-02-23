@@ -10,10 +10,10 @@ export class AuthController {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-      const result = await authService.signUp({
-        email, password, fullName, phone, address,
-        city, street, building_no, apartment_no, latitude, longitude,
-      });
+      const result = await authService.signUp(
+        { email, password, fullName, phone, address },
+        { city, street, building_no, apartment_no, latitude, longitude },
+      );
       return res.status(201).json(result);
     } catch (error: any) {
       return res.status(400).json({ error: error.message });

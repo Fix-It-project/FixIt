@@ -6,12 +6,6 @@ export interface SignUpData {
   fullName?: string;
   phone?: string;
   address?: string;
-  city?: string;
-  street?: string;
-  building_no?: string;
-  apartment_no?: string;
-  latitude?: number | null;
-  longitude?: number | null;
 }
 
 export interface SignInData {
