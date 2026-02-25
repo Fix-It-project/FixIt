@@ -4,6 +4,7 @@ import {
   type TechnicianDocumentFiles,
 } from './technician-auth.repository.js';
 import { techniciansRepository } from '../technicians/index.js';
+import { addressesRepository, type SignUpAddressData } from '../addresses/index.js';
 
 export class TechnicianAuthService {
   // ─── Check email ──────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ export class TechnicianAuthService {
   async signUp(
     data: TechnicianSignUpData,
     files: TechnicianDocumentFiles,
+    addressData: SignUpAddressData,
   ) {
     // 1. Guard: reject if email already taken for a technician
     const alreadyExists = await techniciansRepository.emailExists(data.email);
@@ -46,6 +48,7 @@ export class TechnicianAuthService {
 
     // 4. Insert row into `technicians` table
     await techniciansRepository.createTechnician({
+      id: technicianId,
       first_name: data.first_name,
       last_name: data.last_name,
       email: data.email,
@@ -53,6 +56,17 @@ export class TechnicianAuthService {
       is_available: false, // new technicians start as unavailable until verified
       category_id: data.category_id,
       ...documentUrls,
+    });
+
+    // 5. Create address record
+    await addressesRepository.createAddress({
+      technician_id: technicianId,
+      city: addressData.city,
+      street: addressData.street,
+      building_no: addressData.building_no,
+      apartment_no: addressData.apartment_no,
+      latitude: addressData.latitude ?? null,
+      longitude: addressData.longitude ?? null,
     });
 
     return {

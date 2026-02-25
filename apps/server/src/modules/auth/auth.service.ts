@@ -1,8 +1,9 @@
 import { authRepository, type SignUpData, type SignInData } from './auth.repository.js';
 import { usersRepository } from '../users/index.js';
+import { addressesRepository, type SignUpAddressData } from '../addresses/index.js';
 
 export class AuthService {
-  async signUp(data: SignUpData) {
+  async signUp(data: SignUpData, addressData: SignUpAddressData) {
     const result = await authRepository.signUp(data);
     
     // Store user in database
@@ -13,6 +14,16 @@ export class AuthService {
         fullName: data.fullName,
         phone: data.phone,
         address: data.address,
+      });
+
+      await addressesRepository.createAddress({
+        user_id: result.user.id,
+        city: addressData.city,
+        street: addressData.street,
+        building_no: addressData.building_no,
+        apartment_no: addressData.apartment_no,
+        latitude: addressData.latitude ?? null,
+        longitude: addressData.longitude ?? null,
       });
     }
     
