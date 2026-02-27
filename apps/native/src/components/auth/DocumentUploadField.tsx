@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { CheckCircle2, CloudUpload, ChevronRight } from "lucide-react-native";
 
 interface DocumentUploadFieldProps {
   label: string;
@@ -38,16 +38,12 @@ export default function DocumentUploadField({
               </Text>
               <Text className="text-[12px] text-[#6a7282]">Tap to change</Text>
             </View>
-            <Ionicons name="checkmark-circle" size={22} color="#22c55e" />
+            <CheckCircle2 size={22} color="#22c55e" />
           </View>
         ) : (
           <View className="flex-1 flex-row items-center gap-3">
             <View className="items-center justify-center rounded-lg bg-[#f3f4f6] p-2.5">
-              <Ionicons
-                name="cloud-upload-outline"
-                size={22}
-                color="#6a7282"
-              />
+              <CloudUpload size={22} color="#6a7282" />
             </View>
             <View className="flex-1">
               <Text className="text-[14px] text-[#141118]">
@@ -57,7 +53,7 @@ export default function DocumentUploadField({
                 Take a photo or choose from gallery
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#99a1af" />
+            <ChevronRight size={18} color="#99a1af" />
           </View>
         )}
       </Pressable>

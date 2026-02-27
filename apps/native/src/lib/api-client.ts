@@ -30,7 +30,7 @@ const refreshAccessToken = async (): Promise<string> => {
 
   refreshPromise = (async () => {
     try {
-      const { refreshToken, setSession } = useAuthStore.getState();
+      const { refreshToken, setSession, userType } = useAuthStore.getState();
 
       if (!refreshToken) {
         throw new Error("No refresh token available");
@@ -38,14 +38,20 @@ const refreshAccessToken = async (): Promise<string> => {
 
       console.log("[apiClient] Refreshing access token...");
 
-      const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
+      const refreshUrl = userType === "technician"
+        ? `${API_BASE_URL}/api/technician-auth/refresh`
+        : `${API_BASE_URL}/api/auth/refresh`;
+
+      const { data } = await axios.post(refreshUrl, {
         refreshToken,
       });
 
+      // Technician endpoints return `technician` instead of `user`
+      const user = data.user || data.technician;
       const newAccessToken = data.session.accessToken;
       const newRefreshToken = data.session.refreshToken;
 
-      await setSession(data.user, newAccessToken, newRefreshToken);
+      await setSession(user, newAccessToken, newRefreshToken, useAuthStore.getState().userType ?? "user");
 
       console.log("[apiClient] Token refreshed successfully");
       return newAccessToken;
@@ -80,7 +86,11 @@ apiClient.interceptors.request.use(
       config.url?.includes("/api/auth/signup") ||
       config.url?.includes("/api/auth/refresh") ||
       config.url?.includes("/api/auth/forgot-password") ||
-      config.url?.includes("/api/auth/reset-password")
+      config.url?.includes("/api/auth/reset-password") ||
+      config.url?.includes("/api/technician-auth/signin") ||
+      config.url?.includes("/api/technician-auth/signup") ||
+      config.url?.includes("/api/technician-auth/check-email") ||
+      config.url?.includes("/api/technician-auth/refresh")
     ) {
       return config;
     }
@@ -117,7 +127,9 @@ apiClient.interceptors.response.use(
       error.response?.status !== 401 ||
       originalRequest._retry ||
       originalRequest.url?.includes("/api/auth/refresh") ||
-      originalRequest.url?.includes("/api/auth/signin")
+      originalRequest.url?.includes("/api/auth/signin") ||
+      originalRequest.url?.includes("/api/technician-auth/signin") ||
+      originalRequest.url?.includes("/api/technician-auth/refresh")
     ) {
       return Promise.reject(error);
     }

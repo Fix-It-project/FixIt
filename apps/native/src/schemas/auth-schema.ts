@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+// ─── Shared Address Fields ──────────────────────────────────────────────────
+
+const addressFieldsSchema = z.object({
+  city: z.string().min(1, "City is required"),
+  street: z
+    .string()
+    .min(5, "Street address must be at least 5 characters")
+    .max(200, "Street address must be less than 200 characters"),
+  buildingNumber: z.string().min(1, "Building number is required"),
+  apartmentNumber: z.string().min(1, "Apartment number is required"),
+});
+
 //sign up and sign in type validation with zod
 export const signUpSchema = z
   .object({
@@ -23,6 +35,7 @@ export const signUpSchema = z
       .string()
       .min(1, "Please confirm your password"),
   })
+  .merge(addressFieldsSchema)
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
@@ -80,20 +93,19 @@ export const techStep3Schema = z
 
 export type TechStep3Data = z.infer<typeof techStep3Schema>;
 
-export const techStep4Schema = z.object({
-  nationalId: z.string().min(1, "National ID is required"),
-  criminalRecord: z.string().min(1, "Criminal record document is required"),
-  certificate: z.string().min(1, "Certificate is required"),
-  city: z.string().min(1, "City is required"),
-  address: z
-    .string()
-    .min(5, "Address must be at least 5 characters")
-    .max(200, "Address must be less than 200 characters"),
-  buildingNumber: z.string().min(1, "Building number is required"),
-  apartmentNumber: z.string().min(1, "Apartment number is required"),
-});
+export const techStep5Schema = z
+  .object({
+    nationalId: z.string().min(1, "National ID is required"),
+    criminalRecord: z.string().min(1, "Criminal record document is required"),
+    certificate: z.string().min(1, "Certificate is required"),
+    address: z
+      .string()
+      .min(5, "Address must be at least 5 characters")
+      .max(200, "Address must be less than 200 characters"),
+  })
+  .merge(addressFieldsSchema.omit({ street: true }));
 
-export type TechStep4Data = z.infer<typeof techStep4Schema>;
+export type TechStep5Data = z.infer<typeof techStep5Schema>;
 
 // ─── Forgot / Reset Password Schemas ─────────────────────────────────────────
 

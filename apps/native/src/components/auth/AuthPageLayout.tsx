@@ -1,17 +1,9 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import type { ReactNode } from "react";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-  Animated,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, Pressable, ScrollView } from "react-native";
+import { ArrowLeft } from "lucide-react-native";
+import KeyboardWrapper from "./KeyboardWrapper";
 
 interface AuthPageLayoutProps {
   title: string;
@@ -24,35 +16,8 @@ export default function AuthPageLayout({
   subtitle,
   children,
 }: AuthPageLayoutProps) {
-  const keyboardPadding = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (Platform.OS !== "android") return;
-
-    const showSub = Keyboard.addListener("keyboardDidShow", (e) => {
-      Animated.timing(keyboardPadding, {
-        toValue: e.endCoordinates.height,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    });
-
-    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
-      Animated.timing(keyboardPadding, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, [keyboardPadding]);
-
-  const content = (
-    <>
+  return (
+    <KeyboardWrapper>
       <StatusBar style="dark" />
       <ScrollView
         className="flex-1"
@@ -66,7 +31,7 @@ export default function AuthPageLayout({
           onPress={() => router.back()}
           className="ml-4 mt-6 h-10 w-10 items-center justify-center rounded-full active:opacity-70"
         >
-          <Ionicons name="arrow-back" size={24} color="#141118" />
+          <ArrowLeft size={24} color="#141118" />
         </Pressable>
 
         {/* Header */}
@@ -84,22 +49,6 @@ export default function AuthPageLayout({
           {children}
         </View>
       </ScrollView>
-    </>
-  );
-
-  if (Platform.OS === "ios") {
-    return (
-      <KeyboardAvoidingView className="flex-1 bg-[#ebeeff]" behavior="padding">
-        {content}
-      </KeyboardAvoidingView>
-    );
-  }
-
-  return (
-    <Animated.View
-      style={{ flex: 1, backgroundColor: "#ebeeff", paddingBottom: keyboardPadding }}
-    >
-      {content}
-    </Animated.View>
+    </KeyboardWrapper>
   );
 }

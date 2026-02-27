@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { router } from "expo-router";
+import { User as UserIcon } from "lucide-react-native";
 import { techStep3Schema } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
@@ -15,7 +16,7 @@ export default function TechnicianSignUpStep3() {
   const [firstName, setFirstName] = useState(store.firstName);
   const [lastName, setLastName] = useState(store.lastName);
   const [password, setPassword] = useState(store.password);
-  const [confirmPassword, setConfirmPassword] = useState(store.confirmPassword);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { fieldErrors, error, clearFieldError, validate } =
     useFormValidation(techStep3Schema);
 
@@ -23,7 +24,7 @@ export default function TechnicianSignUpStep3() {
     const result = validate({ firstName, lastName, password, confirmPassword });
     if (!result.success) return;
 
-    store.setStep3Data(result.data);
+    store.setStep3Data({ firstName: result.data.firstName, lastName: result.data.lastName, password: result.data.password });
     router.push("/(auth)/Technician/signup-step4");
   };
 
@@ -45,7 +46,7 @@ export default function TechnicianSignUpStep3() {
         value={firstName}
         onChangeText={(text) => { setFirstName(text); clearFieldError("firstName"); }}
         placeholder="John"
-        icon="person-outline"
+        icon={UserIcon}
         error={fieldErrors.firstName}
       />
 
@@ -54,7 +55,7 @@ export default function TechnicianSignUpStep3() {
         value={lastName}
         onChangeText={(text) => { setLastName(text); clearFieldError("lastName"); }}
         placeholder="Doe"
-        icon="person-outline"
+        icon={UserIcon}
         error={fieldErrors.lastName}
       />
 

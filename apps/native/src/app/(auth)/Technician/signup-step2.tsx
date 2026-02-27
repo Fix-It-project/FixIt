@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { router } from "expo-router";
+import { Phone } from "lucide-react-native";
 import { techStep2Schema } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
@@ -35,7 +36,7 @@ export default function TechnicianSignUpStep2() {
         value={phone}
         onChangeText={(text) => { setPhone(text); clearFieldError("phone"); }}
         placeholder="(555) 123-4567"
-        icon="call-outline"
+        icon={Phone}
         error={fieldErrors.phone}
         keyboardType="phone-pad"
       />

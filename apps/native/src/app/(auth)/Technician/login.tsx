@@ -1,9 +1,12 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
-import { signInSchema, type SignInFormData } from "@/src/schemas/auth-schema";
-import { useLoginMutation } from "@/src/hooks/useLoginMutation";
+import { View, Text, Pressable, ScrollView } from "react-native";
+import { Mail } from "lucide-react-native";
+import KeyboardWrapper from "@/src/components/auth/KeyboardWrapper";
+import { signInSchema } from "@/src/schemas/auth-schema";
+import { useTechnicianLoginMutation } from "@/src/hooks/useTechnicianLoginMutation";
+import { useFormValidation } from "@/src/hooks/useFormValidation";
 import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
@@ -13,30 +16,13 @@ import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 export default function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof SignInFormData, string>>>({});
 
-  const loginMutation = useLoginMutation();
-
-  const clearFieldError = (field: keyof SignInFormData) => {
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-    if (loginMutation.error) loginMutation.reset();
-  };
+  const loginMutation = useTechnicianLoginMutation();
+  const { fieldErrors, clearFieldError, validate } = useFormValidation(signInSchema);
 
   const handleLogin = () => {
-    setFieldErrors({});
-
-    const result = signInSchema.safeParse({ email: emailOrUsername, password });
-    if (!result.success) {
-      const errors: Partial<Record<keyof SignInFormData, string>> = {};
-      for (const issue of result.error.issues) {
-        const field = issue.path[0] as keyof SignInFormData;
-        if (!errors[field]) errors[field] = issue.message;
-      }
-      setFieldErrors(errors);
-      return;
-    }
+    const result = validate({ email: emailOrUsername, password });
+    if (!result.success) return;
 
     loginMutation.mutate({ email: result.data.email, password: result.data.password });
   };
@@ -46,10 +32,7 @@ export default function Login() {
   const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "padding"}
-      className="flex-1 bg-[#ebeeff]"
-    >
+    <KeyboardWrapper>
       <StatusBar style="dark" />
       <ScrollView
         className="flex-1"
@@ -76,7 +59,7 @@ export default function Login() {
             value={emailOrUsername}
             onChangeText={(text) => { setEmailOrUsername(text); clearFieldError("email"); }}
             placeholder="Enter your email or username"
-            icon="mail-outline"
+            icon={Mail}
             error={fieldErrors.email}
             disabled={loginMutation.isPending}
             keyboardType="email-address"
@@ -118,6 +101,6 @@ export default function Login() {
           </View>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardWrapper>
   );
 }

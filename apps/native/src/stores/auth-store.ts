@@ -8,7 +8,10 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN: "fixit_access_token",
   REFRESH_TOKEN: "fixit_refresh_token",
   USER: "fixit_user",
+  USER_TYPE: "fixit_user_type",
 } as const;
+
+export type UserType = "user" | "technician";
 
 // ─── Store Types ─────────────────────────────────────────────────────────────
 
@@ -17,10 +20,11 @@ interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   refreshToken: string | null;
+  userType: UserType | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  setSession: (user: AuthUser, accessToken: string, refreshToken: string) => Promise<void>;
+  setSession: (user: AuthUser, accessToken: string, refreshToken: string, userType?: UserType) => Promise<void>;
   clearSession: () => Promise<void>;
   loadStoredSession: () => Promise<void>;
   setLoading: (loading: boolean) => void;
@@ -32,27 +36,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   accessToken: null,
   refreshToken: null,
+  userType: null,
   isAuthenticated: false,
   isLoading: true,
-  setSession: async (user, accessToken, refreshToken) => {
-    console.log("[AuthStore] setSession called:", { user, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
+  setSession: async (user, accessToken, refreshToken, userType = "user") => {
+    console.log("[AuthStore] setSession called:", { user, hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, userType });
 
     try {
       await Promise.all([
         SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, accessToken),
         SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, refreshToken),
         SecureStore.setItemAsync(STORAGE_KEYS.USER, JSON.stringify(user)),
+        SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, userType),
       ]);
 
       set({
         user,
         accessToken,
         refreshToken,
+        userType,
         isAuthenticated: true,
         isLoading: false,
       });
 
-      console.log("[AuthStore] State after setSession:", { isAuthenticated: true, user });
+      console.log("[AuthStore] State after setSession:", { isAuthenticated: true, user, userType });
     } catch (error) {
       console.error("[AuthStore] Failed to persist session:", error);
       throw error;
@@ -69,6 +76,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN),
         SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN),
         SecureStore.deleteItemAsync(STORAGE_KEYS.USER),
+        SecureStore.deleteItemAsync(STORAGE_KEYS.USER_TYPE),
       ]);
     } catch (error) {
       console.error("[AuthStore] Failed to clear storage:", error);
@@ -78,6 +86,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: null,
       accessToken: null,
       refreshToken: null,
+      userType: null,
       isAuthenticated: false,
       isLoading: false,
     });
@@ -89,10 +98,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log("[AuthStore] loadStoredSession: reading SecureStore...");
       set({ isLoading: true });
 
-      const [accessToken, refreshToken, userJson] = await Promise.all([
+      const [accessToken, refreshToken, userJson, storedUserType] = await Promise.all([
         SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN),
         SecureStore.getItemAsync(STORAGE_KEYS.REFRESH_TOKEN),
         SecureStore.getItemAsync(STORAGE_KEYS.USER),
+        SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE),
       ]);
 
       console.log("[AuthStore] SecureStore values:", {
@@ -108,11 +118,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const user: AuthUser = JSON.parse(userJson);
-      console.log("[AuthStore] Restored session for user:", user);
+      const userType = (storedUserType as UserType) || "user";
+      console.log("[AuthStore] Restored session for user:", user, "type:", userType);
       set({
         user,
         accessToken,
         refreshToken,
+        userType,
         isAuthenticated: true,
         isLoading: false,
       });

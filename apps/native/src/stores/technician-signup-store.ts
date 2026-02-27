@@ -9,7 +9,6 @@ interface TechnicianSignupState {
   firstName: string;
   lastName: string;
   password: string;
-  confirmPassword: string;
   // Step 4 – Categories
   categories: string[];
   // Step 5
@@ -28,7 +27,6 @@ interface TechnicianSignupState {
     firstName: string;
     lastName: string;
     password: string;
-    confirmPassword: string;
   }) => void;
   setCategoriesData: (data: { categories: string[] }) => void;
   setStep5Data: (data: {
@@ -49,7 +47,6 @@ const initialState = {
   firstName: "",
   lastName: "",
   password: "",
-  confirmPassword: "",
   categories: [],
   nationalId: "",
   criminalRecord: "",
