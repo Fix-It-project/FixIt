@@ -2,8 +2,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { forwardRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { NAV_THEME } from "@/src/lib/constants";
-import { useColorScheme } from "@/src/lib/use-color-scheme";
+import { NAV_THEME } from "@/src/lib/theme";
+import { useColorScheme } from "@/src/hooks/use-color-scheme";
 
 export const HeaderButton = forwardRef<View, { onPress?: () => void }>(({ onPress }, ref) => {
   const { colorScheme } = useColorScheme();
@@ -16,7 +16,7 @@ export const HeaderButton = forwardRef<View, { onPress?: () => void }>(({ onPres
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: pressed ? theme.background : theme.card,
+          backgroundColor: pressed ? theme.colors.background : theme.colors.card,
         },
       ]}
     >
@@ -24,7 +24,7 @@ export const HeaderButton = forwardRef<View, { onPress?: () => void }>(({ onPres
         <FontAwesome
           name="info-circle"
           size={20}
-          color={theme.text}
+          color={theme.colors.text}
           style={{
             opacity: pressed ? 0.7 : 1,
           }}

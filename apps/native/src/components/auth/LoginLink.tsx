@@ -10,11 +10,11 @@ export default function LoginLink({
 }: LoginLinkProps) {
   return (
     <View className="mb-8 mt-4 flex-row items-center justify-center">
-      <Text className="text-[14px] text-[#735f8c]">
+      <Text className="text-[14px] text-content-secondary">
         Already have an account?{" "}
       </Text>
       <Pressable onPress={() => router.push(route)}>
-        <Text className="text-[14px] font-bold text-[#0066FF]">Log In</Text>
+        <Text className="text-[14px] font-bold text-content-link">Log In</Text>
       </Pressable>
     </View>
   );

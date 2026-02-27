@@ -2,8 +2,8 @@ import { Link, Stack } from "expo-router";
 import { Text, View, StyleSheet } from "react-native";
 
 import { Container } from "@/src/components/container";
-import { NAV_THEME } from "@/src/lib/constants";
-import { useColorScheme } from "@/src/lib/use-color-scheme";
+import { NAV_THEME } from "@/src/lib/theme";
+import { useColorScheme } from "@/src/hooks/use-color-scheme";
 
 export default function NotFoundScreen() {
   const { colorScheme } = useColorScheme();
@@ -16,15 +16,15 @@ export default function NotFoundScreen() {
         <View style={styles.container}>
           <View style={styles.content}>
             <Text style={styles.emoji}>🤔</Text>
-            <Text style={[styles.title, { color: theme.text }]}>Page Not Found</Text>
-            <Text style={[styles.subtitle, { color: theme.text, opacity: 0.7 }]}>
+            <Text style={[styles.title, { color: theme.colors.text }]}>Page Not Found</Text>
+            <Text style={[styles.subtitle, { color: theme.colors.text, opacity: 0.7 }]}>
               Sorry, the page you're looking for doesn't exist.
             </Text>
             <Link href="/" asChild>
               <Text
                 style={[
                   styles.link,
-                  { color: theme.primary, backgroundColor: `${theme.primary}1a` },
+                  { color: theme.colors.primary, backgroundColor: `${theme.colors.primary}1a` },
                 ]}
               >
                 Go to Home

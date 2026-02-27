@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { router } from "expo-router";
+import { User as UserIcon } from "lucide-react-native";
 import { techStep3Schema } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import SubmitButton from "@/src/components/auth/SubmitButton";
 
 
 export default function TechnicianSignUpStep3() {
@@ -15,7 +17,7 @@ export default function TechnicianSignUpStep3() {
   const [firstName, setFirstName] = useState(store.firstName);
   const [lastName, setLastName] = useState(store.lastName);
   const [password, setPassword] = useState(store.password);
-  const [confirmPassword, setConfirmPassword] = useState(store.confirmPassword);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { fieldErrors, error, clearFieldError, validate } =
     useFormValidation(techStep3Schema);
 
@@ -23,7 +25,7 @@ export default function TechnicianSignUpStep3() {
     const result = validate({ firstName, lastName, password, confirmPassword });
     if (!result.success) return;
 
-    store.setStep3Data(result.data);
+    store.setStep3Data({ firstName: result.data.firstName, lastName: result.data.lastName, password: result.data.password });
     router.push("/(auth)/Technician/signup-step4");
   };
 
@@ -45,8 +47,9 @@ export default function TechnicianSignUpStep3() {
         value={firstName}
         onChangeText={(text) => { setFirstName(text); clearFieldError("firstName"); }}
         placeholder="John"
-        icon="person-outline"
+        icon={UserIcon}
         error={fieldErrors.firstName}
+        required
       />
 
       <FormInput
@@ -54,8 +57,9 @@ export default function TechnicianSignUpStep3() {
         value={lastName}
         onChangeText={(text) => { setLastName(text); clearFieldError("lastName"); }}
         placeholder="Doe"
-        icon="person-outline"
+        icon={UserIcon}
         error={fieldErrors.lastName}
+        required
       />
 
       <PasswordInput
@@ -63,6 +67,7 @@ export default function TechnicianSignUpStep3() {
         value={password}
         onChangeText={(text) => { setPassword(text); clearFieldError("password"); }}
         error={fieldErrors.password}
+        required
       />
 
       <PasswordInput
@@ -71,13 +76,16 @@ export default function TechnicianSignUpStep3() {
         onChangeText={(text) => { setConfirmPassword(text); clearFieldError("confirmPassword"); }}
         placeholder="Re-enter your password"
         error={fieldErrors.confirmPassword}
+        required
       />
 
-      <SubmitButton
-        label="Next"
+      <Button
         onPress={handleNext}
         disabled={!isFormValid}
-      />
+        className="mt-2"
+      >
+        <BtnText>Next</BtnText>
+      </Button>
 
     </AuthPageLayout>
   );
