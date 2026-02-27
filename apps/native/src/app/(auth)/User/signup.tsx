@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { signUpSchema, type SignUpFormData } from "@/src/schemas/auth-schema";
+import { View } from "react-native";
+import { User, Mail, Phone, MapPin, Navigation, Building2, Home } from "lucide-react-native";
+import { signUpSchema } from "@/src/schemas/auth-schema";
 import { useSignUpMutation } from "@/src/hooks/useSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
+import { useLocationStore } from "@/src/stores/location-store";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
@@ -17,20 +20,35 @@ export default function SignUp() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [city, setCity] = useState("");
+  const [street, setStreet] = useState("");
+  const [buildingNumber, setBuildingNumber] = useState("");
+  const [apartmentNumber, setApartmentNumber] = useState("");
+
+  const { location } = useLocationStore();
 
   const signUpMutation = useSignUpMutation();
   const { fieldErrors, clearFieldError, validate } =
     useFormValidation(signUpSchema);
 
   const handleSignUp = () => {
-    const result = validate({ fullName, email, phone, password, confirmPassword });
+    const result = validate({ 
+      fullName, email, phone, password, confirmPassword,
+      city, street, buildingNumber, apartmentNumber,
+    });
     if (!result.success) return;
 
     signUpMutation.mutate({
-      email: result.data.email,
-      password: result.data.password,
       fullName: result.data.fullName,
+      email: result.data.email,
       phone: result.data.phone,
+      password: result.data.password,
+      city: result.data.city,
+      street: result.data.street,
+      building_no: result.data.buildingNumber,
+      apartment_no: result.data.apartmentNumber,
+      latitude: location?.latitude ?? null,
+      longitude: location?.longitude ?? null,
     });
   };
 
@@ -41,7 +59,11 @@ export default function SignUp() {
     email.trim().length > 0 &&
     phone.trim().length > 0 &&
     password.length > 0 &&
-    confirmPassword.length > 0;
+    confirmPassword.length > 0 &&
+    city.trim().length > 0 &&
+    street.trim().length > 0 &&
+    buildingNumber.trim().length > 0 &&
+    apartmentNumber.trim().length > 0;
 
   return (
     <AuthPageLayout
@@ -55,7 +77,7 @@ export default function SignUp() {
         value={fullName}
         onChangeText={(text) => { setFullName(text); clearFieldError("fullName"); }}
         placeholder="John Doe"
-        icon="person-outline"
+        icon={User}
         error={fieldErrors.fullName}
         disabled={signUpMutation.isPending}
       />
@@ -65,7 +87,7 @@ export default function SignUp() {
         value={email}
         onChangeText={(text) => { setEmail(text); clearFieldError("email"); }}
         placeholder="john@example.com"
-        icon="mail-outline"
+        icon={Mail}
         error={fieldErrors.email}
         disabled={signUpMutation.isPending}
         keyboardType="email-address"
@@ -77,7 +99,7 @@ export default function SignUp() {
         value={phone}
         onChangeText={(text) => { setPhone(text); clearFieldError("phone"); }}
         placeholder="(555) 123-4567"
-        icon="call-outline"
+        icon={Phone}
         error={fieldErrors.phone}
         disabled={signUpMutation.isPending}
         keyboardType="phone-pad"
@@ -99,6 +121,52 @@ export default function SignUp() {
         error={fieldErrors.confirmPassword}
         disabled={signUpMutation.isPending}
       />
+
+      <FormInput
+        label="City"
+        value={city}
+        onChangeText={(text) => { setCity(text); clearFieldError("city"); }}
+        placeholder="e.g. Cairo"
+        icon={MapPin}
+        error={fieldErrors.city}
+        disabled={signUpMutation.isPending}
+      />
+
+      <FormInput
+        label="Street Address"
+        value={street}
+        onChangeText={(text) => { setStreet(text); clearFieldError("street"); }}
+        placeholder="Street address or area"
+        icon={Navigation}
+        error={fieldErrors.street}
+        disabled={signUpMutation.isPending}
+      />
+
+      <View className="flex-row gap-3">
+        <View className="flex-1">
+          <FormInput
+            label="Building No."
+            value={buildingNumber}
+            onChangeText={(text) => { setBuildingNumber(text); clearFieldError("buildingNumber"); }}
+            placeholder="e.g. 12"
+            icon={Building2}
+            error={fieldErrors.buildingNumber}
+            disabled={signUpMutation.isPending}
+            keyboardType="numeric"
+          />
+        </View>
+        <View className="flex-1">
+          <FormInput
+            label="Apartment No."
+            value={apartmentNumber}
+            onChangeText={(text) => { setApartmentNumber(text); clearFieldError("apartmentNumber"); }}
+            placeholder="e.g. 5A"
+            icon={Home}
+            error={fieldErrors.apartmentNumber}
+            disabled={signUpMutation.isPending}
+          />
+        </View>
+      </View>
 
       <SubmitButton
         label="Sign Up"

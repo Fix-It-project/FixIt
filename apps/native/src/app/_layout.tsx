@@ -10,10 +10,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { CustomToast } from "@/src/components/ui/toast";
+import { PortalHost } from "@rn-primitives/portal";
 import queryClient from "@/src/lib/query-client";
 
 import { setAndroidNavigationBar } from "@/src/lib/android-navigation-bar";
-import { NAV_THEME } from "@/src/lib/constants";
+import { NAV_THEME } from "@/src/lib/theme";
 import { useColorScheme } from "@/src/lib/use-color-scheme";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLocationStore } from "@/src/stores/location-store";
@@ -37,14 +39,7 @@ Sentry.init({
   // spotlight: __DEV__,
 });
 
-const LIGHT_THEME: Theme = {
-  ...DefaultTheme,
-  colors: NAV_THEME.light,
-};
-const DARK_THEME: Theme = {
-  ...DarkTheme,
-  colors: NAV_THEME.dark,
-};
+
 
 const useIsomorphicLayoutEffect =
   Platform.OS === "web" && typeof window === "undefined" ? useEffect : useLayoutEffect;
@@ -125,7 +120,7 @@ function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+      <ThemeProvider value={isDarkColorScheme ? NAV_THEME.dark : NAV_THEME.light}>
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <GestureHandlerRootView style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
@@ -140,6 +135,8 @@ function RootLayout() {
             <Redirect href="/(auth)/get-started" />
           )}
         </GestureHandlerRootView>
+        <PortalHost />
+        <CustomToast />
       </ThemeProvider>
     </QueryClientProvider>
   );
