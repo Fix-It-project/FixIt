@@ -47,6 +47,46 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // ─── FixIt App Colors ──────────────────────────────
+        brand: {
+          DEFAULT: '#036ded',
+          light: '#ebeeff',
+          alt: '#0066FF',
+          dark: '#135bec',
+        },
+        content: {
+          DEFAULT: '#141118',
+          secondary: '#735f8c',
+          muted: '#99a1af',
+          link: '#0066FF',
+          forgot: '#5f738c',
+          slate: '#0f172a',
+          'slate-light': '#64748b',
+          'slate-dim': '#94a3b8',
+        },
+        edge: {
+          DEFAULT: '#c4c0cc',
+          light: '#d1d5dc',
+          outline: '#e5e7eb',
+          chip: '#ede8f3',
+        },
+        success: {
+          DEFAULT: '#10b981',
+          alt: '#22c55e',
+        },
+        danger: '#ef4444',
+        warning: '#d97706',
+        surface: {
+          gray: '#f3f4f6',
+          muted: '#6a7282',
+        },
+        social: '#364153',
+        role: {
+          user: '#DBEAFE',
+          tech: '#0066FF',
+          accent: '#3380FF',
+          label: '#1E40AF',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

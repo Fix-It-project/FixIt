@@ -27,6 +27,9 @@ export function useTechnicianSignUpMutation() {
 				visibilityTime: 3000,
 			});
 			setTimeout(() => {
+				while (router.canGoBack()) {
+					router.back();
+				}
 				router.replace("/(auth)/Technician/login");
 			}, 3000);
 		},

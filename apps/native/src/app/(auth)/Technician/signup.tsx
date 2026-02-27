@@ -5,11 +5,14 @@ import { techStep1Schema } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { technicianCheckEmail } from "@/src/services/auth/api/technician-auth";
+import { ActivityIndicator } from "react-native";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import SubmitButton from "@/src/components/auth/SubmitButton";
 import LoginLink from "@/src/components/auth/LoginLink";
+import { Colors } from "@/src/lib/colors";
 
 export default function TechnicianSignUpStep1() {
   const store = useTechnicianSignupStore();
@@ -57,14 +60,20 @@ export default function TechnicianSignUpStep1() {
         keyboardType="email-address"
         autoCapitalize="none"
         disabled={isChecking}
+        required
       />
 
-      <SubmitButton
-        label="Next"
+      <Button
         onPress={handleNext}
-        isLoading={isChecking}
-        disabled={email.trim().length === 0}
-      />
+        disabled={email.trim().length === 0 || isChecking}
+        className="mt-2"
+      >
+        {isChecking ? (
+          <ActivityIndicator color={Colors.white} />
+        ) : (
+          <BtnText>Next</BtnText>
+        )}
+      </Button>
 
       <LoginLink route="/(auth)/Technician/login" />
     </AuthPageLayout>

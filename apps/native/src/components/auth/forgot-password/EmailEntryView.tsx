@@ -1,8 +1,10 @@
-import { View, Text } from "react-native";
-import type { useForgotPasswordMutation } from "@/src/hooks/useForgotPasswordMutation";
+import { View, Text, ActivityIndicator } from "react-native";
+import type { useForgotPasswordMutation } from "@/src/hooks/auth/useForgotPasswordMutation";
 import FormInput from "@/src/components/auth/FormInput";
-import SubmitButton from "@/src/components/auth/SubmitButton";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import { Mail } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 
 interface EmailEntryViewProps {
   email: string;
@@ -27,10 +29,10 @@ export default function EmailEntryView({
     <>
       {/* Header */}
       <View className="px-7 mt-2 mb-8">
-        <Text className="text-[26px] font-bold text-[#141118] mb-2">
+        <Text className="text-[26px] font-bold text-content mb-2">
           Reset your password
         </Text>
-        <Text className="text-[15px] text-[#735f8c] leading-[22px]">
+        <Text className="text-[15px] text-content-secondary leading-[22px]">
           Enter your email address and we'll send you a link to reset your
           password
         </Text>
@@ -54,6 +56,7 @@ export default function EmailEntryView({
           onClear={() => setEmail("")}
           keyboardType="email-address"
           autoCapitalize="none"
+          required
         />
       </View>
 
@@ -62,12 +65,16 @@ export default function EmailEntryView({
 
       {/* Bottom Button */}
       <View className="px-7 pb-10">
-        <SubmitButton
-          label="Reset Password"
+        <Button
           onPress={onSubmit}
-          isLoading={mutation.isPending}
           disabled={!isButtonActive}
-        />
+        >
+          {mutation.isPending ? (
+            <ActivityIndicator color={Colors.white} />
+          ) : (
+            <BtnText>Reset Password</BtnText>
+          )}
+        </Button>
       </View>
     </>
   );

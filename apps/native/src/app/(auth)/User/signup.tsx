@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import { User, Mail, Phone, MapPin, Navigation, Building2, Home } from "lucide-react-native";
 import { signUpSchema } from "@/src/schemas/auth-schema";
-import { useSignUpMutation } from "@/src/hooks/useSignUpMutation";
+import { useSignUpMutation } from "@/src/hooks/auth/useSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useLocationStore } from "@/src/stores/location-store";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import SubmitButton from "@/src/components/auth/SubmitButton";
+
 import OAuthDivider from "@/src/components/auth/OAuthDivider";
 import LoginLink from "@/src/components/auth/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { Colors } from "@/src/lib/colors";
 
 export default function SignUp() {
   const [fullName, setFullName] = useState("");
@@ -80,6 +83,7 @@ export default function SignUp() {
         icon={User}
         error={fieldErrors.fullName}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <FormInput
@@ -92,6 +96,7 @@ export default function SignUp() {
         disabled={signUpMutation.isPending}
         keyboardType="email-address"
         autoCapitalize="none"
+        required
       />
 
       <FormInput
@@ -103,6 +108,7 @@ export default function SignUp() {
         error={fieldErrors.phone}
         disabled={signUpMutation.isPending}
         keyboardType="phone-pad"
+        required
       />
 
       <PasswordInput
@@ -111,6 +117,7 @@ export default function SignUp() {
         onChangeText={(text) => { setPassword(text); clearFieldError("password"); }}
         error={fieldErrors.password}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <PasswordInput
@@ -120,6 +127,7 @@ export default function SignUp() {
         placeholder="Re-enter your password"
         error={fieldErrors.confirmPassword}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <FormInput
@@ -130,6 +138,7 @@ export default function SignUp() {
         icon={MapPin}
         error={fieldErrors.city}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <FormInput
@@ -140,6 +149,7 @@ export default function SignUp() {
         icon={Navigation}
         error={fieldErrors.street}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <View className="flex-row gap-3">
@@ -168,12 +178,17 @@ export default function SignUp() {
         </View>
       </View>
 
-      <SubmitButton
-        label="Sign Up"
+      <Button
         onPress={handleSignUp}
-        isLoading={signUpMutation.isPending}
-        disabled={!isFormValid}
-      />
+        disabled={!isFormValid || signUpMutation.isPending}
+        className="mt-2"
+      >
+        {signUpMutation.isPending ? (
+          <ActivityIndicator color={Colors.white} />
+        ) : (
+          <BtnText>Sign Up</BtnText>
+        )}
+      </Button>
 
       <OAuthDivider />
       <LoginLink route="/(auth)/User/login" />

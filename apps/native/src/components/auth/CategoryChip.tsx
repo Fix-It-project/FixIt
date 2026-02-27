@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import { Colors } from "@/src/lib/colors";
 
 interface CategoryChipProps {
   label: string;
@@ -59,7 +60,7 @@ export default function CategoryChip({
         className="mx-4 my-1.5 flex-row items-center overflow-hidden rounded-[14px] border-[1.5px] bg-white py-3 pl-0 pr-3.5"
         style={[
           {
-            borderColor: selected ? color : "#ede8f3",
+            borderColor: selected ? color : Colors.borderChip,
             // basic shadow props
             shadowColor: selected ? color : "#000",
             shadowOffset: { width: 0, height: 2 },
@@ -85,7 +86,7 @@ export default function CategoryChip({
 
         {/* Label */}
         <Text
-          className="flex-1 text-[15px] font-semibold tracking-wide text-[#141118]"
+          className="flex-1 text-[15px] font-semibold tracking-wide text-content"
           numberOfLines={1}
         >
           {label}
@@ -97,7 +98,7 @@ export default function CategoryChip({
             className="h-6 w-6 items-center justify-center rounded-full"
             style={{ backgroundColor: color }}
           >
-            <Check size={13} color="#fff" strokeWidth={3} />
+            <Check size={13} color={Colors.white} strokeWidth={3} />
           </View>
         ) : null}
       </Animated.View>

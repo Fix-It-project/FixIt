@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Platform, KeyboardAvoidingView, Animated, type ViewStyle } from "react-native";
 import { useKeyboardPadding } from "@/src/hooks/useKeyboardPadding";
+import { Colors } from "@/src/lib/colors";
 
 interface KeyboardWrapperProps {
   children: ReactNode;
@@ -15,7 +16,7 @@ interface KeyboardWrapperProps {
  */
 export default function KeyboardWrapper({
   children,
-  backgroundColor = "#ebeeff",
+  backgroundColor = Colors.brandLight,
   style,
 }: KeyboardWrapperProps) {
   const keyboardPadding = useKeyboardPadding();

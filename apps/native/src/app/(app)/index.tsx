@@ -1,8 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, Linking } from "react-native";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useLogoutMutation } from "@/src/hooks/useLogoutMutation";
+import { useLogoutMutation } from "@/src/hooks/auth/useLogoutMutation";
 import apiClient from "@/src/lib/api-client";
+import { Colors } from "@/src/lib/colors";
 
 export default function Home() {
   const { user, userType } = useAuthStore();
@@ -100,7 +101,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.surfaceGray,
   },
   contentContainer: {
     paddingHorizontal: 24,
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 28,
     width: "100%",
@@ -122,51 +123,51 @@ const styles = StyleSheet.create({
   },
   welcomeLabel: {
     fontSize: 16,
-    color: "#888",
+    color: Colors.textMuted,
     marginBottom: 4,
   },
   fullName: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#1a1a1a",
+    color: Colors.textPrimary,
     marginBottom: 6,
   },
   email: {
     fontSize: 15,
-    color: "#666",
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   status: {
     fontSize: 16,
-    color: "#3498db",
+    color: Colors.brand,
     fontWeight: "600",
     marginTop: 4,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1a1a1a",
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   detailsText: {
     fontSize: 15,
-    color: "#444",
+    color: Colors.surfaceMuted,
     marginBottom: 6,
   },
   locationContainer: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: Colors.borderLight,
   },
   linkText: {
-    color: "#3498db",
+    color: Colors.brand,
     fontSize: 15,
     marginTop: 8,
     textDecorationLine: "underline",
   },
   logoutButton: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: Colors.error,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 40,
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   logoutText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

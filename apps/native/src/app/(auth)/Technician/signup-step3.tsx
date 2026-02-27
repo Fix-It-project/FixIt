@@ -4,11 +4,12 @@ import { User as UserIcon } from "lucide-react-native";
 import { techStep3Schema } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import SubmitButton from "@/src/components/auth/SubmitButton";
 
 
 export default function TechnicianSignUpStep3() {
@@ -48,6 +49,7 @@ export default function TechnicianSignUpStep3() {
         placeholder="John"
         icon={UserIcon}
         error={fieldErrors.firstName}
+        required
       />
 
       <FormInput
@@ -57,6 +59,7 @@ export default function TechnicianSignUpStep3() {
         placeholder="Doe"
         icon={UserIcon}
         error={fieldErrors.lastName}
+        required
       />
 
       <PasswordInput
@@ -64,6 +67,7 @@ export default function TechnicianSignUpStep3() {
         value={password}
         onChangeText={(text) => { setPassword(text); clearFieldError("password"); }}
         error={fieldErrors.password}
+        required
       />
 
       <PasswordInput
@@ -72,13 +76,16 @@ export default function TechnicianSignUpStep3() {
         onChangeText={(text) => { setConfirmPassword(text); clearFieldError("confirmPassword"); }}
         placeholder="Re-enter your password"
         error={fieldErrors.confirmPassword}
+        required
       />
 
-      <SubmitButton
-        label="Next"
+      <Button
         onPress={handleNext}
         disabled={!isFormValid}
-      />
+        className="mt-2"
+      >
+        <BtnText>Next</BtnText>
+      </Button>
 
     </AuthPageLayout>
   );

@@ -5,7 +5,8 @@ import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { CATEGORIES } from "@/src/lib/categories";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import CategoryChip from "@/src/components/auth/CategoryChip";
-import SubmitButton from "@/src/components/auth/SubmitButton";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 
 export default function TechnicianSignUpStep4() {
   const store = useTechnicianSignupStore();
@@ -52,12 +53,13 @@ export default function TechnicianSignUpStep4() {
         />
       </View>
 
-      {/* Next button */}
-      <SubmitButton
-        label="Next"
+      <Button
         onPress={handleNext}
         disabled={selectedId === null}
-      />
+        className="mt-2"
+      >
+        <BtnText>Next</BtnText>
+      </Button>
     </AuthPageLayout>
   );
 }

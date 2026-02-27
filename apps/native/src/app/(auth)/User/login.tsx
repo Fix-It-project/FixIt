@@ -1,18 +1,21 @@
 import { router } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ActivityIndicator } from "react-native";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import { Mail } from "lucide-react-native";
-import KeyboardWrapper from "@/src/components/auth/KeyboardWrapper";
 import { signInSchema } from "@/src/schemas/auth-schema";
-import { useLoginMutation } from "@/src/hooks/useLoginMutation";
+import { useLoginMutation } from "@/src/hooks/auth/useLoginMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
+import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import SubmitButton from "@/src/components/auth/SubmitButton";
-import SocialLoginButtons from "@/src/components/auth/SocialLoginButtons";
+
+import OAuthDivider from "@/src/components/auth/OAuthDivider";
+import LoginLink from "@/src/components/auth/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { Colors } from "@/src/lib/colors";
 
 export default function Login() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -29,88 +32,61 @@ export default function Login() {
   };
 
   const errorMessage = loginMutation.error ? getErrorMessage(loginMutation.error) : null;
-
   const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;
 
   return (
-    <KeyboardWrapper>
-      <StatusBar style="dark" />
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1 }}
+    <AuthPageLayout
+      title="Welcome back"
+      subtitle="Sign in to book your next repair"
+    >
+      <ErrorBanner message={errorMessage} />
+
+      <FormInput
+        label="Email"
+        value={emailOrUsername}
+        onChangeText={(text) => { setEmailOrUsername(text); clearFieldError("email"); }}
+        placeholder="Enter your email"
+        icon={Mail}
+        error={fieldErrors.email}
+        disabled={loginMutation.isPending}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        required
+      />
+
+      <PasswordInput
+        label="Password"
+        value={password}
+        onChangeText={(text) => { setPassword(text); clearFieldError("password"); }}
+        error={fieldErrors.password}
+        disabled={loginMutation.isPending}
+        required
+      />
+
+      {/* Forgot Password */}
+      <View className="items-end -mt-3">
+        <Pressable onPress={() => router.push("/(auth)/(forgotpassword)/forgot-password?userType=user")}>
+          <Text className="text-[14px] font-medium text-content-forgot">
+            Forgot Password?
+          </Text>
+        </Pressable>
+      </View>
+
+      <Button
+        onPress={handleLogin}
+        disabled={!isFormValid || loginMutation.isPending}
+        className="mt-2"
       >
-        {/* Header */}
-        <View className="px-6 mt-24 mb-8">
-          <Text className="text-[32px] font-bold text-[#111418] text-center mb-3">
-            Welcome back
-          </Text>
-          <Text className="text-[16px] text-[#5f738c] text-center">
-            Sign in to book your next repair
-          </Text>
-        </View>
+        {loginMutation.isPending ? (
+          <ActivityIndicator color={Colors.white} />
+        ) : (
+          <BtnText>Log in</BtnText>
+        )}
+      </Button>
 
-        {/* Form */}
-        <View className="px-6 gap-6">
-          <ErrorBanner message={errorMessage} />
+      <OAuthDivider />
 
-          <FormInput
-            label="Email or Username"
-            value={emailOrUsername}
-            onChangeText={(text) => { setEmailOrUsername(text); clearFieldError("email"); }}
-            placeholder="Enter your email or username"
-            icon={Mail}
-            error={fieldErrors.email}
-            disabled={loginMutation.isPending}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <PasswordInput
-            label="Password"
-            value={password}
-            onChangeText={(text) => { setPassword(text); clearFieldError("password"); }}
-            error={fieldErrors.password}
-            disabled={loginMutation.isPending}
-          />
-
-          {/* Forgot Password */}
-          <View className="items-end -mt-3">
-            <Pressable onPress={() => router.push("/(auth)/(forgotpassword)/forgot-password?userType=user")}>
-              <Text className="text-[14px] font-medium text-[#5f738c]">
-                Forgot Password?
-              </Text>
-            </Pressable>
-          </View>
-
-          <SubmitButton
-            label="Log in"
-            onPress={handleLogin}
-            isLoading={loginMutation.isPending}
-            disabled={!isFormValid}
-          />
-
-          {/* Divider */}
-          <View className="flex-row items-center">
-            <View className="flex-1 h-[1px] bg-[#5982b3]" />
-            <Text className="px-4 text-[14px] text-[#5f738c]">Or continue with</Text>
-            <View className="flex-1 h-[1px] bg-[#5982b3]" />
-          </View>
-
-          <SocialLoginButtons variant="login" />
-
-          {/* Sign Up Link */}
-          <View className="flex-row items-center justify-center mt-4 mb-8">
-            <Text className="text-[14px] text-[#5f738c]">
-              Don't have an account?{" "}
-            </Text>
-            <Pressable onPress={() => router.push("/(auth)/role-selection")}>
-              <Text className="text-[14px] text-[#036ded] font-bold">Sign up</Text>
-            </Pressable>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardWrapper>
+      <LoginLink route="/(auth)/role-selection" />
+    </AuthPageLayout>
   );
 }

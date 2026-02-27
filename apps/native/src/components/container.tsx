@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { NAV_THEME } from "@/src/lib/theme";
-import { useColorScheme } from "@/src/lib/use-color-scheme";
+import { useColorScheme } from "@/src/hooks/use-color-scheme";
 
 export function Container({ children }: { children: React.ReactNode }) {
   const { colorScheme } = useColorScheme();

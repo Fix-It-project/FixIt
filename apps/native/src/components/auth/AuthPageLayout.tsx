@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 import KeyboardWrapper from "./KeyboardWrapper";
 
 interface AuthPageLayoutProps {
@@ -29,17 +30,17 @@ export default function AuthPageLayout({
         {/* Back Button */}
         <Pressable
           onPress={() => router.back()}
-          className="ml-4 mt-6 h-10 w-10 items-center justify-center rounded-full active:opacity-70"
+          className="ml-5 mt-14 h-10 w-10 items-center justify-center rounded-full active:opacity-70"
         >
-          <ArrowLeft size={24} color="#141118" />
+          <ArrowLeft size={24} color={Colors.textPrimary} />
         </Pressable>
 
         {/* Header */}
-        <View className="mb-10 mt-5 px-7">
-          <Text className="mb-2 text-[32px] font-bold leading-[48px] text-[#141118]">
+        <View className="mb-10 mt-3 px-7">
+          <Text className="mb-2 text-[32px] font-bold leading-[48px] text-content">
             {title}
           </Text>
-          <Text className="text-[16px] leading-[24px] text-[#735f8c]">
+          <Text className="text-[16px] leading-[24px] text-content-secondary">
             {subtitle}
           </Text>
         </View>

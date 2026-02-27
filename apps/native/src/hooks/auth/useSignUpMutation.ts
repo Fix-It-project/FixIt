@@ -18,6 +18,9 @@ export function useSignUpMutation() {
 				visibilityTime: 3000,
 			});
 			setTimeout(() => {
+				while (router.canGoBack()) {
+					router.back();
+				}
 				router.replace("/(auth)/User/login");
 			}, 3000);
 		},

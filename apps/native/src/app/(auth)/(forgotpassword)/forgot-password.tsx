@@ -4,10 +4,11 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
 import { forgotPasswordSchema } from "@/src/schemas/auth-schema";
-import { useForgotPasswordMutation } from "@/src/hooks/useForgotPasswordMutation";
+import { useForgotPasswordMutation } from "@/src/hooks/auth/useForgotPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { useCooldownTimer } from "@/src/hooks/useCooldownTimer";
+import { useCooldownTimer } from "@/src/hooks/auth/useCooldownTimer";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { Colors } from "@/src/lib/colors";
 import KeyboardWrapper from "@/src/components/auth/KeyboardWrapper";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import EmailEntryView from "@/src/components/auth/forgot-password/EmailEntryView";
@@ -67,7 +68,7 @@ export default function ForgotPassword() {
             onPress={() => router.back()}
             className="h-10 w-10 items-center justify-center rounded-full active:opacity-70"
           >
-            <ArrowLeft size={24} color="#141118" />
+            <ArrowLeft size={24} color={Colors.textPrimary} />
           </Pressable>
           <View className="h-10 w-10" />
         </View>

@@ -9,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { CustomToast } from "@/src/components/ui/toast";
 import { PortalHost } from "@rn-primitives/portal";
@@ -16,7 +17,7 @@ import queryClient from "@/src/lib/query-client";
 
 import { setAndroidNavigationBar } from "@/src/lib/android-navigation-bar";
 import { NAV_THEME } from "@/src/lib/theme";
-import { useColorScheme } from "@/src/lib/use-color-scheme";
+import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLocationStore } from "@/src/stores/location-store";
 
@@ -72,7 +73,7 @@ function RootLayout() {
       if (!url) return;
 
       // Supabase redirects with tokens in the URL fragment:
-      // mybettertapp://reset-password#access_token=...&refresh_token=...&type=recovery
+      // FixITapp://reset-password#access_token=...&refresh_token=...&type=recovery
       const hashIndex = url.indexOf("#");
       if (hashIndex === -1) return;
 
@@ -119,6 +120,7 @@ function RootLayout() {
   }
 
   return (
+    <SafeAreaProvider>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={isDarkColorScheme ? NAV_THEME.dark : NAV_THEME.light}>
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
@@ -139,6 +141,7 @@ function RootLayout() {
         <CustomToast />
       </ThemeProvider>
     </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
 

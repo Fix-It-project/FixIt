@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 
 interface PasswordInputProps {
 	label?: string;
@@ -11,6 +12,8 @@ interface PasswordInputProps {
 	disabled?: boolean;
 	/** "filled" = white bg, rounded-full (login/signup). "outline" = transparent bg, rounded-2xl, border (forgot/reset). */
 	variant?: "filled" | "outline";
+	/** Show red asterisk next to label */
+	required?: boolean;
 }
 
 export default function PasswordInput({
@@ -21,6 +24,7 @@ export default function PasswordInput({
 	error,
 	disabled,
 	variant = "filled",
+	required = false,
 }: PasswordInputProps) {
 	const [visible, setVisible] = useState(false);
 
@@ -32,8 +36,8 @@ export default function PasswordInput({
 				error
 					? "border-red-400"
 					: value.length > 0
-						? "border-[#036ded]"
-						: "border-[#c4c0cc]"
+						? "border-brand"
+						: "border-edge"
 			}`;
 
 	return (
@@ -42,11 +46,12 @@ export default function PasswordInput({
 				<Text
 					className={
 						isFilled
-							? "font-semibold text-[14px] text-[#141118]"
-							: "mb-1 font-semibold text-[14px] text-[#141118]"
+							? "font-semibold text-[14px] text-content"
+							: "mb-1 font-semibold text-[14px] text-content"
 					}
 				>
 					{label}
+					{required && <Text className="text-red-500"> *</Text>}
 				</Text>
 			)}
 			<View className={containerClass}>
@@ -54,16 +59,16 @@ export default function PasswordInput({
 					value={value}
 					onChangeText={onChangeText}
 					placeholder={placeholder}
-					placeholderTextColor="#99a1af"
+					placeholderTextColor={Colors.textMuted}
 					secureTextEntry={!visible}
 					editable={!disabled}
-					className="flex-1 text-[16px] text-[#141118]"
+					className="flex-1 text-[16px] text-content"
 				/>
 				<Pressable onPress={() => setVisible((v) => !v)} hitSlop={8}>
 					{visible ? (
-						<Eye size={20} color="#99a1af" />
+						<Eye size={20} color={Colors.textMuted} />
 					) : (
-						<EyeOff size={20} color="#99a1af" />
+						<EyeOff size={20} color={Colors.textMuted} />
 					)}
 				</Pressable>
 			</View>

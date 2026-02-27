@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import { MapPin, Navigation, Building2, Home } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { techStep5Schema, type TechStep5Data } from "@/src/schemas/auth-schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
-import { useTechnicianSignUpMutation } from "@/src/hooks/useTechnicianSignUpMutation";
+import { useTechnicianSignUpMutation } from "@/src/hooks/auth/useTechnicianSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
+import { Button } from "@/src/components/ui/button";
+import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
 import FormInput from "@/src/components/auth/FormInput";
 import DocumentUploadField from "@/src/components/auth/DocumentUploadField";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import SubmitButton from "@/src/components/auth/SubmitButton";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { Colors } from "@/src/lib/colors";
 
 
 export default function TechnicianSignUpStep5() {
@@ -95,6 +97,7 @@ export default function TechnicianSignUpStep5() {
         value={nationalId}
         onPick={() => pickImage(setNationalId, "nationalId")}
         error={fieldErrors.nationalId}
+        required
       />
 
       <DocumentUploadField
@@ -102,6 +105,7 @@ export default function TechnicianSignUpStep5() {
         value={criminalRecord}
         onPick={() => pickImage(setCriminalRecord, "criminalRecord")}
         error={fieldErrors.criminalRecord}
+        required
       />
 
       <DocumentUploadField
@@ -109,6 +113,7 @@ export default function TechnicianSignUpStep5() {
         value={certificate}
         onPick={() => pickImage(setCertificate, "certificate")}
         error={fieldErrors.certificate}
+        required
       />
 
       <FormInput
@@ -119,6 +124,7 @@ export default function TechnicianSignUpStep5() {
         icon={MapPin}
         error={fieldErrors.city}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <FormInput
@@ -129,6 +135,7 @@ export default function TechnicianSignUpStep5() {
         icon={Navigation}
         error={fieldErrors.address}
         disabled={signUpMutation.isPending}
+        required
       />
 
       <View className="flex-row gap-3">
@@ -142,6 +149,7 @@ export default function TechnicianSignUpStep5() {
             error={fieldErrors.buildingNumber}
             disabled={signUpMutation.isPending}
             keyboardType="numeric"
+            required
           />
         </View>
         <View className="flex-1">
@@ -153,16 +161,22 @@ export default function TechnicianSignUpStep5() {
             icon={Home}
             error={fieldErrors.apartmentNumber}
             disabled={signUpMutation.isPending}
+            required
           />
         </View>
       </View>
 
-      <SubmitButton
-        label="Apply as Technician"
+      <Button
         onPress={handleSubmit}
-        isLoading={signUpMutation.isPending}
-        disabled={!isFormValid}
-      />
+        disabled={!isFormValid || signUpMutation.isPending}
+        className="mt-2"
+      >
+        {signUpMutation.isPending ? (
+          <ActivityIndicator color={Colors.white} />
+        ) : (
+          <BtnText>Apply as Technician</BtnText>
+        )}
+      </Button>
 
     </AuthPageLayout>
   );

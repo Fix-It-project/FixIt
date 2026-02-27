@@ -1,21 +1,20 @@
 import { View, Text } from "react-native";
+import { useGoogleOAuth } from "@/src/hooks/auth/useGoogleOAuth";
 import SocialLoginButtons from "./SocialLoginButtons";
 
-interface OAuthDividerProps {
-  variant?: "signup" | "login";
-}
+export default function OAuthDivider() {
+  const { signInWithGoogle } = useGoogleOAuth();
 
-export default function OAuthDivider({ variant = "signup" }: OAuthDividerProps) {
   return (
     <>
       <View className="my-2 flex-row items-center">
-        <View className="h-[1px] flex-1 bg-[#d1d5dc]" />
-        <Text className="px-4 text-[12px] text-[#6a7282]">
+        <View className="h-[1px] flex-1 bg-edge-light" />
+        <Text className="px-4 text-[12px] text-surface-muted">
           Or continue with
         </Text>
-        <View className="h-[1px] flex-1 bg-[#d1d5dc]" />
+        <View className="h-[1px] flex-1 bg-edge-light" />
       </View>
-      <SocialLoginButtons variant={variant} />
+      <SocialLoginButtons onPress={signInWithGoogle} />
     </>
   );
 }
