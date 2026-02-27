@@ -1,5 +1,3 @@
-# "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: fixit11
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: FixIt
 
@@ -43,4 +41,10 @@ functions:
     events:
       - httpApi:
           path: /api/technician-auth/{proxy+}
+          method: ANY
+  addresses:
+    handler: serverless-deploy/addresses-lambda.handler
+    events:
+      - httpApi:
+          path: /api/addresses/{proxy+}
           method: ANY

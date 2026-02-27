@@ -4,8 +4,8 @@ import technicianAuthRoutes from './modules/technician-auth/technician-auth.rout
 import { userAddressRoutes, technicianAddressRoutes } from './modules/addresses/addresses.routes.js';
 
 app.use('/api/auth', authRoutes);
-app.use('/api/auth', userAddressRoutes);
 app.use('/api/technician-auth', technicianAuthRoutes);
-app.use('/api/technician-auth', technicianAddressRoutes);
+app.use('/api/addresses', userAddressRoutes);
+app.use('/api/addresses', technicianAddressRoutes);
 
 export default app;
