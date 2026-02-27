@@ -48,3 +48,9 @@ functions:
       - httpApi:
           path: /api/addresses/{proxy+}
           method: ANY
+  technicianCalendar:
+    handler: serverless-deploy/technician-calendar-lambda.handler
+    events:
+      - httpApi:
+          path: /api/technician-calendar/{proxy+}
+          method: ANY
