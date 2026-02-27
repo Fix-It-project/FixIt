@@ -6,6 +6,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "jsx": "react-jsx"
-  }
+    "jsx": "react-jsx",
+    "outDir": "dist"
+  },
+  "exclude": ["dist"]
 }
