@@ -24,7 +24,6 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "catalog:",
-    "drizzle-kit": "^0.31.8",
     "serverless-esbuild": "^1.57.0",
     "serverless-plugin-monorepo": "^0.11.0",
     "tsx": "^4.19.2",
