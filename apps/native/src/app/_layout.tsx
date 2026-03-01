@@ -1,9 +1,10 @@
 import "../../global.css";
 
 import * as Sentry from '@sentry/react-native';
+import { useFonts, GoogleSans_400Regular, GoogleSans_500Medium, GoogleSans_600SemiBold, GoogleSans_700Bold } from "@expo-google-fonts/google-sans";
 
 import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
-import { Redirect, Stack, router } from "expo-router";
+import { Stack, router } from "expo-router";
 import * as Linking from "expo-linking";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -56,8 +57,15 @@ function RootLayout() {
   const { colorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
+  const [fontsLoaded] = useFonts({
+    GoogleSans_400Regular,
+    GoogleSans_500Medium,
+    GoogleSans_600SemiBold,
+    GoogleSans_700Bold,
+  });
+
   // ── Auth state ──────────────────────────────────────────────────────────────
-  const { isAuthenticated, isLoading, loadStoredSession } = useAuthStore();
+  const { isLoading, loadStoredSession } = useAuthStore();
   const { requestLocationPermission } = useLocationStore();
 
   // Load persisted session & request location on first mount
@@ -114,8 +122,8 @@ function RootLayout() {
     hasMounted.current = true;
   }, []);
 
-  // Wait until both colour-scheme AND auth state are resolved
-  if (!isColorSchemeLoaded || isLoading) {
+  // Wait until colour-scheme, auth state, AND fonts are resolved
+  if (!isColorSchemeLoaded || isLoading || !fontsLoaded) {
     return null;
   }
 
@@ -126,16 +134,9 @@ function RootLayout() {
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <GestureHandlerRootView style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
             <Stack.Screen name="(app)" />
+            <Stack.Screen name="(auth)" />
           </Stack>
-
-          {/* ── Single auth checkpoint ────────────────────────────────────── */}
-          {isAuthenticated ? (
-            <Redirect href="/(app)" />
-          ) : (
-            <Redirect href="/(auth)/get-started" />
-          )}
         </GestureHandlerRootView>
         <PortalHost />
         <CustomToast />

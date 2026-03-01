@@ -56,7 +56,8 @@
           "locationAlwaysPermission": "FixIt needs your location to connect you with nearby technicians.",
           "locationWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians."
         }
-      ]
+      ],
+      "@sentry/react-native"
     ],
     "experiments": {
       "typedRoutes": true,

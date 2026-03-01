@@ -55,9 +55,9 @@ module.exports = {
           dark: '#135bec',
         },
         content: {
-          DEFAULT: '#141118',
-          secondary: '#735f8c',
-          muted: '#99a1af',
+          DEFAULT: '#000000',
+          secondary: '#555555',
+          muted: '#555555',
           link: '#0066FF',
           forgot: '#5f738c',
           slate: '#0f172a',
