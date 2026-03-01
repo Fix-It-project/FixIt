@@ -2,11 +2,15 @@ import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LocationHeader from "@/src/components/home/LocationHeader";
 import HeaderPolygons from "@/src/components/home/HeaderPolygons";
-import OrderAgainCard from "@/src/components/home/OrderAgainCard";
+import SearchBar from "@/src/components/home/SearchBar";
+import PreviousOrdersSection from "@/src/components/home/OrderAgainCard";
 import CategoryGrid from "@/src/components/home/CategoryGrid";
 import RecommendedTechnicians from "@/src/components/home/RecommendedTechnicians";
 import NearYouSection from "@/src/components/home/NearYouSection";
 import { Colors } from "@/src/lib/colors";
+
+/** Vertical gap between home-page sections (single source of truth). */
+const SECTION_GAP = 16;
 
 export default function Home() {
   return (
@@ -22,18 +26,14 @@ export default function Home() {
           contentContainerClassName="pb-6"
         >
           {/* Blue header area */}
-          <View style={{ backgroundColor: Colors.brand }} className="pb-12">
+          <View style={{ backgroundColor: Colors.brand }} className="pb-6">
             <HeaderPolygons />
             <LocationHeader />
+            <SearchBar />
           </View>
 
           {/* Content area */}
-          <View className="bg-surface-gray pt-1">
-            {/* Order Again card – intersects blue / gray boundary */}
-            <View className="-mt-7">
-              <OrderAgainCard />
-            </View>
-
+          <View className="bg-surface-gray" style={{ paddingTop: 12, gap: SECTION_GAP }}>
             {/* Category grid */}
             <CategoryGrid />
 
@@ -42,6 +42,9 @@ export default function Home() {
 
             {/* Near You section */}
             <NearYouSection />
+
+            {/* Previous orders */}
+            <PreviousOrdersSection />
           </View>
         </ScrollView>
       </SafeAreaView>

@@ -15,7 +15,7 @@ export default function CategoryGrid({
   const displayCategories = CATEGORIES.slice(0, 4);
 
   return (
-    <View className="mb-2 px-5">
+    <View className="px-5">
       {/* Section header */}
       <View className="mb-2.5 flex-row items-center justify-between">
         <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Categories</Text>

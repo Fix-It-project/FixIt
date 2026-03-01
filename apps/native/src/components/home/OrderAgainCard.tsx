@@ -1,76 +1,135 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, FlatList, Dimensions, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { ChevronRight } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
-import { PREVIOUS_ORDERS } from "@/src/lib/mock-data";
+import { RotateCcw } from "lucide-react-native";
+import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/lib/mock-data";
 
-export default function OrderAgainCard() {
-  const order = PREVIOUS_ORDERS[0];
-  if (!order) return null;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CARD_WIDTH = SCREEN_WIDTH * 0.75;
+const CARD_SPACING = 8;
 
+function OrderCard({ item }: { item: PreviousOrder }) {
   return (
-    <View className="mx-5 mb-2">
+    <View
+      style={{
+        width: CARD_WIDTH,
+        marginHorizontal: CARD_SPACING / 2,
+        borderRadius: 14,
+        backgroundColor: "#fff",
+        padding: 14,
+      }}
+    >
+      {/* Top: avatar + info + reorder button */}
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        {/* Avatar */}
+        <View
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: item.categoryColor,
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 10,
+          }}
+        >
+          <Text className="text-[14px] font-bold text-white">
+            {item.initials}
+          </Text>
+        </View>
+
+        {/* Name + category */}
+        <View style={{ flex: 1 }}>
+          <Text
+            className="text-[14px] font-semibold text-content"
+            style={{ fontFamily: "GoogleSans_600SemiBold" }}
+            numberOfLines={1}
+          >
+            {item.technicianName}
+          </Text>
+          <Text className="text-[12px] text-content-muted">
+            {item.category}
+          </Text>
+        </View>
+
+        {/* Pill-shaped transparent outline button */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            backgroundColor: "transparent",
+            borderWidth: 1.5,
+            borderColor: "#d1d5dc",
+            borderRadius: 100, // Pill shape
+            paddingHorizontal: 18, // Generous padding for pill proportions
+            paddingVertical: 8, // A bit of height but proportional
+          }}
+        >
+          <RotateCcw size={14} color="#141118" strokeWidth={2.5} style={{ marginTop: -1 }} />
+          <Text
+            className="text-[13px] font-bold text-content"
+            style={{ fontFamily: "GoogleSans_700Bold", lineHeight: 16 }}
+          >
+            Reorder
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Bottom row: date + price */}
       <View
-        className="overflow-hidden rounded-2xl bg-white p-4"
         style={{
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          elevation: 3,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: 10,
+          paddingTop: 8,
+          borderTopWidth: 1,
+          borderTopColor: "#f0f1f3",
         }}
       >
-        {/* Top row: label + action */}
-        <View className="mb-3 flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            <View
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: order.categoryColor }}
-            />
-            <Text className="text-xs font-medium text-content-muted">
-              Previous Order
-            </Text>
-          </View>
-          <TouchableOpacity
-            className="flex-row items-center gap-0.5"
-            activeOpacity={0.7}
-          >
-            <Text
-              className="text-[13px] font-semibold"
-              style={{ color: Colors.brand }}
-            >
-              Order Again
-            </Text>
-            <ChevronRight size={14} color={Colors.brand} strokeWidth={2.5} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Technician info */}
-        <View className="flex-row items-center gap-3">
-          {/* Avatar */}
-          <View
-            className="h-12 w-12 items-center justify-center rounded-full"
-            style={{ backgroundColor: order.categoryColor }}
-          >
-            <Text className="text-[15px] font-bold text-white">
-              {order.technicianName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Text>
-          </View>
-
-          {/* Details */}
-          <View className="flex-1">
-            <Text className="text-[15px] font-semibold text-content">
-              {order.technicianName}
-            </Text>
-            <Text className="mt-0.5 text-[13px] text-content-muted">
-              {order.category} · {order.date}
-            </Text>
-          </View>
-        </View>
+        <Text className="text-[12px] text-content-muted">{item.date}</Text>
+        <Text
+          className="text-[13px] font-semibold text-content"
+          style={{ fontFamily: "GoogleSans_600SemiBold" }}
+        >
+          {item.price}
+        </Text>
       </View>
+    </View>
+  );
+}
+
+export default function PreviousOrdersSection() {
+  if (PREVIOUS_ORDERS.length === 0) return null;
+
+  return (
+    <View>
+      {/* Header */}
+      <View className="mb-2 flex-row items-center px-5">
+        <Text
+          className="text-[22px] font-bold text-content"
+          style={{ fontFamily: "GoogleSans_700Bold" }}
+        >
+          Previous Orders
+        </Text>
+      </View>
+
+      {/* Horizontal list – max 3, no end arrow */}
+      <FlatList
+        data={PREVIOUS_ORDERS.slice(0, 3)}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <OrderCard item={item} />}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={CARD_WIDTH + CARD_SPACING}
+        decelerationRate="fast"
+        contentContainerStyle={{
+          paddingHorizontal: 20 - CARD_SPACING / 2,
+          paddingVertical: 4,
+        }}
+      />
     </View>
   );
 }

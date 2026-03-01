@@ -17,9 +17,9 @@ export const Colors = {
   brandDark: "#135bec", // get-started logo accent
 
   // ─── Text ───────────────────────────────────────────────
-  textPrimary: "#141118", // headings, labels, input text
-  textSecondary: "#735f8c", // subtitles, secondary text
-  textMuted: "#99a1af", // placeholderTextColor, icons
+  textPrimary: "#000000", // headings, labels, input text (like Uber titles)
+  textSecondary: "#555555", // subtitles, secondary text (like Uber descriptions)
+  textMuted: "#555555", // placeholderTextColor, icons
 
   // ─── Borders ────────────────────────────────────────────
   borderLight: "#d1d5dc", // dividers (OAuth separator)

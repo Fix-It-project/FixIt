@@ -21,9 +21,11 @@ export interface Technician {
 export interface PreviousOrder {
   id: string;
   technicianName: string;
+  initials: string;
   category: string;
   date: string;
   categoryColor: string;
+  price: string;
 }
 
 // ─── Previous Orders ─────────────────────────────────────────────────────────
@@ -32,16 +34,29 @@ export const PREVIOUS_ORDERS: PreviousOrder[] = [
   {
     id: "order-1",
     technicianName: "Ahmed Hassan",
+    initials: "AH",
     category: "Plumbing",
-    date: "25 February 2026",
+    date: "25 Feb 2026",
     categoryColor: "#2196F3",
+    price: "350 EGP",
   },
   {
     id: "order-2",
     technicianName: "Mohamed Ali",
+    initials: "MA",
     category: "Electrician",
-    date: "18 February 2026",
+    date: "18 Feb 2026",
     categoryColor: "#FF9800",
+    price: "500 EGP",
+  },
+  {
+    id: "order-3",
+    technicianName: "Youssef Samir",
+    initials: "YS",
+    category: "Painter",
+    date: "10 Feb 2026",
+    categoryColor: "#9C27B0",
+    price: "1,200 EGP",
   },
 ];
 

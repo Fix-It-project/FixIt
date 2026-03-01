@@ -41,7 +41,7 @@ export default function NearYouSection() {
   const flatListRef = useRef<FlatList>(null);
 
   return (
-    <View className="mb-4">
+    <View>
       <View className="mb-2 flex-row items-center px-5">
         <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Near You</Text>
       </View>

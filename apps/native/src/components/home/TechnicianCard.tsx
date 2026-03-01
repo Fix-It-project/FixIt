@@ -64,7 +64,7 @@ export default function TechnicianCard({
       </View>
 
       {/* Info below avatar */}
-      <View style={{ paddingLeft: 12, paddingRight: 8, marginTop: 6 }}>
+      <View style={{ paddingLeft: 12, paddingRight: 8, marginTop: 4 }}>
         <Text
           className="text-[16px] font-semibold text-content"
           style={{ fontFamily: "GoogleSans_600SemiBold" }}
@@ -77,7 +77,7 @@ export default function TechnicianCard({
             flexDirection: "row",
             alignItems: "center",
             gap: 6,
-            marginTop: 2,
+            marginTop: 1,
           }}
         >
           <Text className="text-[13px] text-content-muted">
@@ -116,8 +116,9 @@ export default function TechnicianCard({
           )}
         </View>
         <Text
-          className="mt-1 text-[13px] text-content-muted"
+          className="text-[13px] text-content-muted"
           numberOfLines={1}
+          style={{ marginTop: 1 }}
         >
           {item.tagline}
         </Text>
