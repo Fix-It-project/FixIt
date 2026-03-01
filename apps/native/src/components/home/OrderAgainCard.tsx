@@ -9,7 +9,7 @@ export default function OrderAgainCard() {
   if (!order) return null;
 
   return (
-    <View className="mx-5 mb-4">
+    <View className="mx-5 mb-2">
       <View
         className="overflow-hidden rounded-2xl bg-white p-4"
         style={{

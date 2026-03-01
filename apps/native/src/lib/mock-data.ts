@@ -3,6 +3,8 @@
  * Replace with real API calls once the backend is ready.
  */
 
+import type { ImageSourcePropType } from "react-native";
+
 export interface Technician {
   id: string;
   name: string;
@@ -12,6 +14,8 @@ export interface Technician {
   rating: number;
   reviewCount: number;
   distance?: string;
+  coverImage: ImageSourcePropType;
+  tagline: string;
 }
 
 export interface PreviousOrder {
@@ -52,6 +56,8 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
     category: "Plumbing",
     rating: 4.9,
     reviewCount: 127,
+    tagline: "Expert pipe & leak repair",
+    coverImage: require("@/src/assets/covers/cover_plumbing.png"),
   },
   {
     id: "tech-2",
@@ -61,6 +67,8 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
     category: "Carpenter",
     rating: 4.8,
     reviewCount: 98,
+    tagline: "Custom woodwork & furniture",
+    coverImage: require("@/src/assets/covers/cover_carpentry.png"),
   },
   {
     id: "tech-3",
@@ -70,6 +78,8 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
     category: "Electrician",
     rating: 4.7,
     reviewCount: 84,
+    tagline: "Wiring, panels & smart home",
+    coverImage: require("@/src/assets/covers/cover_electrical.png"),
   },
   {
     id: "tech-4",
@@ -79,6 +89,8 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
     category: "Painter",
     rating: 4.6,
     reviewCount: 62,
+    tagline: "Interior & exterior painting",
+    coverImage: require("@/src/assets/covers/cover_painting.png"),
   },
   {
     id: "tech-5",
@@ -88,6 +100,8 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
     category: "Oven/Cooker",
     rating: 4.5,
     reviewCount: 45,
+    tagline: "Appliance repair specialist",
+    coverImage: require("@/src/assets/covers/cover_oven.png"),
   },
 ];
 
@@ -103,6 +117,8 @@ export const NEARBY_TECHNICIANS: Technician[] = [
     rating: 4.8,
     reviewCount: 91,
     distance: "0.5 km",
+    tagline: "AC install & maintenance",
+    coverImage: require("@/src/assets/covers/cover_ac.png"),
   },
   {
     id: "near-2",
@@ -113,6 +129,8 @@ export const NEARBY_TECHNICIANS: Technician[] = [
     rating: 4.7,
     reviewCount: 73,
     distance: "1.2 km",
+    tagline: "Fast fix for any leak",
+    coverImage: require("@/src/assets/covers/cover_plumbing.png"),
   },
   {
     id: "near-3",
@@ -123,6 +141,8 @@ export const NEARBY_TECHNICIANS: Technician[] = [
     rating: 4.6,
     reviewCount: 58,
     distance: "1.8 km",
+    tagline: "Safe & reliable wiring",
+    coverImage: require("@/src/assets/covers/cover_electrical.png"),
   },
   {
     id: "near-4",
@@ -133,6 +153,8 @@ export const NEARBY_TECHNICIANS: Technician[] = [
     rating: 4.5,
     reviewCount: 42,
     distance: "2.3 km",
+    tagline: "Quality craftsmanship",
+    coverImage: require("@/src/assets/covers/cover_carpentry.png"),
   },
   {
     id: "near-5",
@@ -143,5 +165,7 @@ export const NEARBY_TECHNICIANS: Technician[] = [
     rating: 4.9,
     reviewCount: 110,
     distance: "3.1 km",
+    tagline: "Deep clean & sanitizing",
+    coverImage: require("@/src/assets/covers/cover_cleaning.png"),
   },
 ];
