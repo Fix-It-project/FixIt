@@ -87,7 +87,7 @@ export default function RecommendedTechnicians() {
     <View className="mb-2">
       {/* Header */}
       <View className="mb-2 flex-row items-center px-5">
-        <Text className="text-[18px] font-bold text-content">Recommended</Text>
+        <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Recommended</Text>
       </View>
 
       {/* Horizontal list */}

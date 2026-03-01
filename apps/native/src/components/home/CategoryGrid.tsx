@@ -18,7 +18,7 @@ export default function CategoryGrid({
     <View className="mb-2 px-5">
       {/* Section header */}
       <View className="mb-2.5 flex-row items-center justify-between">
-        <Text className="text-[18px] font-bold text-content">Categories</Text>
+        <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Categories</Text>
         <TouchableOpacity onPress={onMorePress} activeOpacity={0.6}>
           <Text className="text-[13px] font-medium" style={{ color: Colors.surfaceMuted }}>
             Show all
@@ -47,6 +47,7 @@ export default function CategoryGrid({
                 </View>
                 <Text
                   className="flex-1 px-3 text-[14px] font-semibold text-content"
+                  style={{ fontFamily: "GoogleSans_600SemiBold" }}
                   numberOfLines={2}
                 >
                   {cat.label}

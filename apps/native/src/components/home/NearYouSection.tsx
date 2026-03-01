@@ -43,7 +43,7 @@ export default function NearYouSection() {
   return (
     <View className="mb-4">
       <View className="mb-2 flex-row items-center px-5">
-        <Text className="text-[18px] font-bold text-content">Near You</Text>
+        <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Near You</Text>
       </View>
 
       <FlatList

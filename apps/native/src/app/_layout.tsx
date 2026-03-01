@@ -1,6 +1,7 @@
 import "../../global.css";
 
 import * as Sentry from '@sentry/react-native';
+import { useFonts, GoogleSans_400Regular, GoogleSans_500Medium, GoogleSans_600SemiBold, GoogleSans_700Bold } from "@expo-google-fonts/google-sans";
 
 import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
 import { Stack, router } from "expo-router";
@@ -55,6 +56,13 @@ function RootLayout() {
   const hasMounted = useRef(false);
   const { colorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
+
+  const [fontsLoaded] = useFonts({
+    GoogleSans_400Regular,
+    GoogleSans_500Medium,
+    GoogleSans_600SemiBold,
+    GoogleSans_700Bold,
+  });
 
   // ── Auth state ──────────────────────────────────────────────────────────────
   const { isLoading, loadStoredSession } = useAuthStore();
@@ -114,8 +122,8 @@ function RootLayout() {
     hasMounted.current = true;
   }, []);
 
-  // Wait until both colour-scheme AND auth state are resolved
-  if (!isColorSchemeLoaded || isLoading) {
+  // Wait until colour-scheme, auth state, AND fonts are resolved
+  if (!isColorSchemeLoaded || isLoading || !fontsLoaded) {
     return null;
   }
 

@@ -33,7 +33,7 @@ export default function LocationHeader({
             Your Location
           </Text>
           <View className="flex-row items-center gap-1">
-            <Text className="text-[15px] font-semibold text-white">
+            <Text className="text-[15px] font-semibold text-white" style={{ fontFamily: "GoogleSans_600SemiBold" }}>
               {location}
             </Text>
             <ChevronDown size={16} color="#ffffff" strokeWidth={2} />

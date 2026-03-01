@@ -10,7 +10,7 @@ export const CARD_WIDTH = SCREEN_WIDTH * 0.75;
 export const CARD_SPACING = 6;
 
 const COVER_HEIGHT = 150;
-const AVATAR_SIZE = 56;
+const AVATAR_SIZE = 68;
 const AVATAR_OVERLAP = AVATAR_SIZE / 2;
 
 interface TechnicianCardProps {
@@ -57,7 +57,7 @@ export default function TechnicianCard({
             borderColor: Colors.surfaceGray,
           }}
         >
-          <Text className="text-[16px] font-bold text-white">
+          <Text className="text-[18px] font-bold text-white">
             {item.initials}
           </Text>
         </View>
@@ -66,7 +66,8 @@ export default function TechnicianCard({
       {/* Info below avatar */}
       <View style={{ paddingLeft: 12, paddingRight: 8, marginTop: 6 }}>
         <Text
-          className="text-[15px] font-semibold text-content"
+          className="text-[16px] font-semibold text-content"
+          style={{ fontFamily: "GoogleSans_600SemiBold" }}
           numberOfLines={1}
         >
           {item.name}
@@ -79,7 +80,7 @@ export default function TechnicianCard({
             marginTop: 2,
           }}
         >
-          <Text className="text-[12px] text-content-muted">
+          <Text className="text-[13px] text-content-muted">
             {item.category}
           </Text>
           <View
@@ -90,7 +91,7 @@ export default function TechnicianCard({
             }}
           >
             <Star size={11} color="#F59E0B" fill="#F59E0B" strokeWidth={0} />
-            <Text className="text-[12px] font-semibold text-content">
+            <Text className="text-[13px] font-semibold text-content">
               {item.rating}
             </Text>
             {showReviewCount && (
@@ -115,7 +116,7 @@ export default function TechnicianCard({
           )}
         </View>
         <Text
-          className="mt-1 text-[12px] text-content-muted"
+          className="mt-1 text-[13px] text-content-muted"
           numberOfLines={1}
         >
           {item.tagline}
