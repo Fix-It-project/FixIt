@@ -3,7 +3,7 @@ import "../../global.css";
 import * as Sentry from '@sentry/react-native';
 
 import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
-import { Redirect, Stack, router } from "expo-router";
+import { Stack, router } from "expo-router";
 import * as Linking from "expo-linking";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -57,7 +57,7 @@ function RootLayout() {
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
   // ── Auth state ──────────────────────────────────────────────────────────────
-  const { isAuthenticated, isLoading, loadStoredSession } = useAuthStore();
+  const { isLoading, loadStoredSession } = useAuthStore();
   const { requestLocationPermission } = useLocationStore();
 
   // Load persisted session & request location on first mount
@@ -126,16 +126,9 @@ function RootLayout() {
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <GestureHandlerRootView style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
             <Stack.Screen name="(app)" />
+            <Stack.Screen name="(auth)" />
           </Stack>
-
-          {/* ── Single auth checkpoint ────────────────────────────────────── */}
-          {isAuthenticated ? (
-            <Redirect href="/(app)" />
-          ) : (
-            <Redirect href="/(auth)/get-started" />
-          )}
         </GestureHandlerRootView>
         <PortalHost />
         <CustomToast />
