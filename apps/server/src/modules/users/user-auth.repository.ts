@@ -7,7 +7,7 @@ export interface CreateUserData {
   email: string;
   fullName?: string;
   phone?: string;
-  address?: string;
+  
 }
 
 export interface UpdateUserData {
@@ -16,7 +16,24 @@ export interface UpdateUserData {
   address?: string;
 }
 
-export class UsersRepository {
+export interface UpdateProfileData {
+  full_name?: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface IUsersRepository {
+  createUser(data: CreateUserData): Promise<any>;
+  getUserById(id: string): Promise<any>;
+  getUserByEmail(email: string): Promise<any>;
+  updateUser(id: string, data: UpdateUserData): Promise<any>;
+  updateUserProfile(id: string, data: UpdateProfileData): Promise<any>;
+  updateAuthEmail(id: string, email: string): Promise<void>;
+  getProfileWithAddresses(id: string): Promise<any>;
+  deleteUser(id: string): Promise<void>;
+}
+
+export class UsersRepository implements IUsersRepository {
   async createUser(data: CreateUserData) {
     try {
       console.log('Creating user with data:', data);
@@ -26,8 +43,8 @@ export class UsersRepository {
           id: data.id,
           email: data.email,
           full_name: data.fullName,
-          phone: data.phone,
-          address: data.address,
+          phone: data.phone
+          
         })
         .select()
         .single();
@@ -77,6 +94,51 @@ export class UsersRepository {
 
     if (error) throw error;
     return user;
+  }
+
+  async updateUserProfile(id: string, data: UpdateProfileData) {
+    const updatePayload: Record<string, unknown> = {};
+    if (data.full_name !== undefined) updatePayload.full_name = data.full_name;
+    if (data.phone !== undefined) updatePayload.phone = data.phone;
+    if (data.email !== undefined) updatePayload.email = data.email;
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .update(updatePayload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return user;
+  }
+
+  /**
+   * Updates the user's email in Supabase Auth so login credentials stay in sync.
+   */
+  async updateAuthEmail(id: string, email: string) {
+    const { error } = await supabase.auth.admin.updateUserById(id, { email });
+    if (error) throw new Error(`Failed to update auth email: ${error.message}`);
+  }
+
+  async getProfileWithAddresses(id: string) {
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (userError) throw userError;
+
+    const { data: addresses, error: addrError } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('user_id', id)
+      .order('created_at', { ascending: true });
+
+    if (addrError) throw addrError;
+
+    return { ...user, addresses: addresses ?? [] };
   }
 
   async deleteUser(id: string) {

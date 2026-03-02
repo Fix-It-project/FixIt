@@ -1,4 +1,4 @@
-import { addressesRepository, type CreateAddressData, type UpdateAddressData } from './addresses.repository.js';
+import { addressesRepository, type AddressFields, type UpdateAddressData } from './addresses.repository.js';
 
 type OwnerRole = 'user' | 'technician';
 
@@ -13,18 +13,12 @@ export class AddressesService {
   async addAddress(
     ownerId: string,
     role: OwnerRole,
-    data: Omit<CreateAddressData, 'user_id' | 'technician_id'>,
+    data: AddressFields,
   ) {
-    const ownerKey = role === 'user' ? 'user_id' : 'technician_id';
-    return await addressesRepository.createAddress({
-      [ownerKey]: ownerId,
-      city: data.city,
-      street: data.street,
-      building_no: data.building_no,
-      apartment_no: data.apartment_no,
-      latitude: data.latitude,
-      longitude: data.longitude,
-    });
+    const ownerData = role === 'user'
+      ? { user_id: ownerId, ...data }
+      : { technician_id: ownerId, ...data };
+    return await addressesRepository.createAddress(ownerData);
   }
 
   async updateAddress(

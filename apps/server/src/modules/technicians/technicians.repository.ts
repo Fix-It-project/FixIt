@@ -25,7 +25,16 @@ export interface UpdateTechnicianData {
   national_id?: string;
 }
 
-export class TechniciansRepository {
+export interface ITechniciansRepository {
+  createTechnician(data: CreateTechnicianData): Promise<any>;
+  getTechnicianById(id: string): Promise<any>;
+  getTechnicianByEmail(email: string): Promise<any>;
+  emailExists(email: string): Promise<boolean>;
+  updateTechnician(id: string, data: UpdateTechnicianData): Promise<any>;
+  deleteTechnician(id: string): Promise<void>;
+}
+
+export class TechniciansRepository implements ITechniciansRepository {
   async createTechnician(data: CreateTechnicianData) {
     try {
       console.log('Creating technician with data:', { ...data, criminal_record: '[file]', birth_certificate: '[file]', national_id: '[file]' });

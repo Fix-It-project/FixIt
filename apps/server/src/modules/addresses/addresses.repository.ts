@@ -2,9 +2,8 @@ import { supabaseAdmin } from '../../shared/db/supabase.js';
 
 const supabase = supabaseAdmin;
 
-export interface CreateAddressData {
-  user_id?: string;
-  technician_id?: string;
+/** Shared address fields (no owner) — used during signup flows */
+export interface AddressFields {
   city: string;
   street: string;
   building_no?: string;
@@ -12,6 +11,16 @@ export interface CreateAddressData {
   latitude?: number | null;
   longitude?: number | null;
 }
+
+export interface CreateUserAddressData extends AddressFields {
+  user_id: string;
+}
+
+export interface CreateTechnicianAddressData extends AddressFields {
+  technician_id: string;
+}
+
+export type CreateAddressData = CreateUserAddressData | CreateTechnicianAddressData;
 
 export interface UpdateAddressData {
   city?: string;
@@ -22,9 +31,20 @@ export interface UpdateAddressData {
   longitude?: number | null;
 }
 
-export type SignUpAddressData = Omit<CreateAddressData, 'user_id' | 'technician_id'>;
+/** Alias kept for backward-compat — the shared fields callers pass during signup. */
+export type SignUpAddressData = AddressFields;
 
-export class AddressesRepository {
+export interface IAddressesRepository {
+  createAddress(data: CreateAddressData): Promise<any>;
+  getAddressesByUserId(userId: string): Promise<any[]>;
+  getAddressCountByUserId(userId: string): Promise<number>;
+  getAddressesByTechnicianId(technicianId: string): Promise<any[]>;
+  getAddressCountByTechnicianId(technicianId: string): Promise<number>;
+  updateAddress(id: string, data: UpdateAddressData, ownerId: string, ownerRole: 'user' | 'technician'): Promise<any>;
+  deleteAddress(id: string, ownerId: string, ownerRole: 'user' | 'technician'): Promise<void>;
+}
+
+export class AddressesRepository implements IAddressesRepository {
   async createAddress(data: CreateAddressData) {
     try {
       console.log('Creating address with data:', data);
@@ -32,8 +52,8 @@ export class AddressesRepository {
       const { data: address, error } = await supabase
         .from('addresses')
         .insert({
-          user_id: data.user_id ?? null,
-          technician_id: data.technician_id ?? null,
+          user_id: 'user_id' in data ? data.user_id : null,
+          technician_id: 'technician_id' in data ? data.technician_id : null,
           city: data.city,
           street: data.street,
           building_no: data.building_no ?? null,

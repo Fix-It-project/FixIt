@@ -1,8 +1,8 @@
 import {
   technicianAuthRepository,
   type TechnicianSignUpData,
-  type TechnicianDocumentFiles,
 } from './technician-auth.repository.js';
+import { storageRepository, type DocumentFiles } from '../../shared/storage/storage.repository.js';
 import { techniciansRepository } from '../technicians/index.js';
 import { addressesRepository, type SignUpAddressData } from '../addresses/index.js';
 
@@ -26,7 +26,7 @@ export class TechnicianAuthService {
    */
   async signUp(
     data: TechnicianSignUpData,
-    files: TechnicianDocumentFiles,
+    files: DocumentFiles,
     addressData: SignUpAddressData,
   ) {
     // 1. Guard: reject if email already taken for a technician
@@ -44,7 +44,7 @@ export class TechnicianAuthService {
     }
 
     // 3. Upload documents to Supabase Storage (parallel)
-    const documentUrls = await technicianAuthRepository.uploadDocuments(technicianId, files);
+    const documentUrls = await storageRepository.uploadDocuments(technicianId, files);
 
     // 4. Insert row into `technicians` table
     await techniciansRepository.createTechnician({

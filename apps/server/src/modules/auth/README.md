@@ -1,6 +1,211 @@
 # Auth Module
 
-Complete authentication system using Supabase Auth + JWT tokens.
+Complete user authentication using Supabase Auth + JWT tokens.
+
+## 📁 Structure
+
+```
+auth/
+├── auth.repository.ts  # Supabase Auth API operations — implements IAuthRepository
+├── auth.service.ts     # Business logic orchestration
+├── auth.controller.ts  # HTTP request handlers
+├── auth.routes.ts      # API endpoint definitions
+└── index.ts            # Module exports
+```
+
+## 🌐 Endpoints
+
+Base path: `/api/auth`
+
+| Method | Path               | Auth Required | Description                          |
+|--------|--------------------|---------------|--------------------------------------|
+| `POST` | `/signup`          | No            | Register a new user                  |
+| `POST` | `/signin`          | No            | Sign in and receive tokens           |
+| `POST` | `/signout`         | Yes (Bearer)  | Invalidate the current session       |
+| `GET`  | `/me`              | Yes (Bearer)  | Get the current authenticated user   |
+| `POST` | `/refresh`         | No            | Refresh the access token             |
+| `POST` | `/forgot-password` | No            | Send a password reset email          |
+| `POST` | `/reset-password`  | Yes (Bearer)  | Set a new password                   |
+
+---
+
+## 📤 Signup
+
+Signup creates records in **both** Supabase Auth and the `users` / `addresses` tables.
+
+**No tokens are returned** — the client must call `/signin` immediately after.
+
+### Request
+
+```http
+POST /api/auth/signup
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "SecurePass123!",
+  "fullName": "John Doe",
+  "phone": "+201234567890",
+  "city": "Cairo",
+  "street": "El-Tahrir St",
+  "building_no": "15",
+  "apartment_no": "3A",
+  "latitude": 30.0444,
+  "longitude": 31.2357
+}
+```
+
+| Field          | Required | Notes                           |
+|----------------|----------|---------------------------------|
+| `email`        | ✅       |                                 |
+| `password`     | ✅       |                                 |
+| `fullName`     | ❌       |                                 |
+| `phone`        | ❌       |                                 |
+| `city`         | ❌       | Goes into the `addresses` table |
+| `street`       | ❌       | Goes into the `addresses` table |
+| `building_no`  | ❌       |                                 |
+| `apartment_no` | ❌       |                                 |
+| `latitude`     | ❌       |                                 |
+| `longitude`    | ❌       |                                 |
+
+### Response `201`
+
+```json
+{
+  "user": { "id": "<uuid>", "email": "john@example.com" },
+  "message": "User registered successfully. Please sign in to continue."
+}
+```
+
+---
+
+## 🔑 Sign In
+
+```http
+POST /api/auth/signin
+Content-Type: application/json
+
+{ "email": "john@example.com", "password": "SecurePass123!" }
+```
+
+### Response `200`
+
+```json
+{
+  "user": { "id": "<uuid>", "email": "john@example.com" },
+  "session": {
+    "accessToken": "eyJhbGc...",
+    "refreshToken": "v1.MjA...",
+    "expiresAt": 1704673200
+  }
+}
+```
+
+---
+
+## 🔒 Sign Out
+
+```http
+POST /api/auth/signout
+Authorization: Bearer <access_token>
+```
+
+---
+
+## 👤 Get Current User
+
+```http
+GET /api/auth/me
+Authorization: Bearer <access_token>
+```
+
+---
+
+## ♻️ Refresh Token
+
+```http
+POST /api/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "v1.MjA..." }
+```
+
+---
+
+## 🔐 Forgot / Reset Password
+
+```http
+POST /api/auth/forgot-password
+Content-Type: application/json
+
+{ "email": "john@example.com" }
+```
+
+```http
+POST /api/auth/reset-password
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{ "newPassword": "NewPass456!" }
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+Request → auth.routes.ts  (no middleware — all public)
+             ↓
+          auth.controller.ts   ← validates fields, maps HTTP
+             ↓
+          auth.service.ts      ← orchestrates flow
+             ↓                       ↓                        ↓
+    authRepository        usersRepository         addressesRepository
+    (Supabase Auth)         (users table)           (addresses table)
+```
+
+### Signup flow (3 steps)
+
+1. `authRepository.signUp()` — creates Supabase Auth user
+2. `usersRepository.createUser()` — inserts row in `users` table (same UUID)
+3. `addressesRepository.createAddress()` — inserts `CreateUserAddressData` row linked to `user_id`
+
+---
+
+## 🗄️ Database Schema
+
+```sql
+CREATE TABLE users (
+  id          UUID PRIMARY KEY,   -- matches auth.users.id
+  email       TEXT NOT NULL UNIQUE,
+  full_name   TEXT,
+  phone       TEXT,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+The `addresses` table is owned by the **Addresses module**.
+
+---
+
+## 🧪 Error Reference
+
+| Error                                 | Status | Cause                   |
+|---------------------------------------|--------|-------------------------|
+| `Email and password are required`     | 400    | Missing body fields     |
+| `User with this email already exists` | 400    | Duplicate email         |
+| `Invalid login credentials`           | 401    | Wrong password          |
+| `No token provided`                   | 401    | Missing Authorization   |
+| `Invalid token`                       | 401    | Expired / malformed JWT |
+
+---
+
+## 📖 Related Modules
+
+- **Users** — profile read/update — `GET/PUT /api/users/profile`
+- **Addresses** — address CRUD — `GET/POST/PUT/DELETE /api/addresses/user/addresses`
+- **Middleware** — `requireUserAuth` in `shared/middlewares/user-auth.middleware.ts`
+
 
 ## 📁 Structure
 
@@ -145,7 +350,6 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   fullName: text("full_name"),
   phone: text("phone"),
-  address: text("address"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 ```
@@ -172,7 +376,7 @@ Content-Type: application/json
   "password": "SecurePass123!",
   "fullName": "John Doe",           // Optional
   "phone": "+1234567890",           // Optional
-  "address": "123 Main St"          // Optional
+  
 }
 ```
 
@@ -476,7 +680,6 @@ try {
 - [ ] OAuth providers (Google, GitHub)
 - [ ] Role-based access control (user/technician/admin)
 - [ ] Session management (active sessions list)
-- [ ] Rate limiting (prevent brute force)
 - [ ] Two-factor authentication (2FA)
 
 ---

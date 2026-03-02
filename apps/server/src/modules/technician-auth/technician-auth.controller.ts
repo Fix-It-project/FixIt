@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express';
 import { technicianAuthService } from './technician-auth.service.js';
-import type { TechnicianDocumentFiles } from './technician-auth.repository.js';
+import type { DocumentFiles } from '../../shared/storage/storage.repository.js';
 
 export class TechnicianAuthController {
   // POST /api/technician-auth/check-email
@@ -35,7 +35,7 @@ export class TechnicianAuthController {
         [fieldname: string]: Express.Multer.File[];
       };
 
-      const files: TechnicianDocumentFiles = {
+      const files: DocumentFiles = {
         criminal_record: uploadedFiles?.criminal_record?.[0],
         birth_certificate: uploadedFiles?.birth_certificate?.[0],
         national_id: uploadedFiles?.national_id?.[0],

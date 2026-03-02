@@ -13,7 +13,17 @@ export interface SignInData {
   password: string;
 }
 
-export class AuthRepository {
+export interface IAuthRepository {
+  signUp(data: SignUpData): Promise<any>;
+  signIn(data: SignInData): Promise<any>;
+  requestPasswordReset(email: string): Promise<any>;
+  resetPassword(newPassword: string): Promise<any>;
+  signOut(accessToken: string): Promise<{ success: boolean; message: string }>;
+  getUser(accessToken: string): Promise<any>;
+  refreshToken(refreshToken: string): Promise<any>;
+}
+
+export class AuthRepository implements IAuthRepository {
   async signUp({ email, password, fullName, phone, address }: SignUpData) {
     const { data, error } = await supabase.auth.signUp({
       email,

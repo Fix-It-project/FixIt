@@ -1,38 +1,24 @@
 import type { Request, Response } from 'express';
 import { addressesService } from './addresses.service.js';
-import { authService } from '../auth/auth.service.js';
-import { technicianAuthService } from '../technician-auth/technician-auth.service.js';
 
 type OwnerRole = 'user' | 'technician';
 
 /**
- * Extracts the owner ID from the Authorization header.
- * Uses the appropriate auth service based on the role.
- */
-async function getOwnerIdFromToken(req: Request, role: OwnerRole): Promise<string> {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) throw new Error('No token provided');
-
-  if (role === 'user') {
-    const user = await authService.getCurrentUser(token);
-    if (!user || !user.id) throw new Error('Invalid token');
-    return user.id;
-  }
-
-  const technician = await technicianAuthService.getCurrentTechnician(token);
-  if (!technician || !technician.id) throw new Error('Invalid token');
-  return technician.id;
-}
-
-/**
  * Creates a set of address controller handlers bound to a specific owner role.
- * This avoids duplicating the same controller logic for users and technicians.
+ * The owner ID is read from req.user or req.technician, which are set by
+ * the requireUserAuth / requireTechnicianAuth middleware respectively.
  */
 function createAddressHandlers(role: OwnerRole) {
+  function getOwnerId(req: Request): string {
+    const owner = role === 'user' ? (req as any).user : (req as any).technician;
+    if (!owner?.id) throw new Error('Not authenticated');
+    return owner.id;
+  }
+
   return {
     async getAddresses(req: Request, res: Response) {
       try {
-        const ownerId = await getOwnerIdFromToken(req, role);
+        const ownerId = getOwnerId(req);
         const addresses = await addressesService.getAddresses(ownerId, role);
         return res.status(200).json({ addresses });
       } catch (error: unknown) {
@@ -43,7 +29,7 @@ function createAddressHandlers(role: OwnerRole) {
 
     async addAddress(req: Request, res: Response) {
       try {
-        const ownerId = await getOwnerIdFromToken(req, role);
+        const ownerId = getOwnerId(req);
         const { city, street, building_no, apartment_no, latitude, longitude } = req.body;
 
         if (!city || !street) {
@@ -62,7 +48,7 @@ function createAddressHandlers(role: OwnerRole) {
 
     async updateAddress(req: Request, res: Response) {
       try {
-        const ownerId = await getOwnerIdFromToken(req, role);
+        const ownerId = getOwnerId(req);
         const addressId = req.params.id as string;
         if (!addressId) return res.status(400).json({ error: 'Address ID is required' });
 
@@ -79,7 +65,7 @@ function createAddressHandlers(role: OwnerRole) {
 
     async deleteAddress(req: Request, res: Response) {
       try {
-        const ownerId = await getOwnerIdFromToken(req, role);
+        const ownerId = getOwnerId(req);
         const addressId = req.params.id as string;
         if (!addressId) return res.status(400).json({ error: 'Address ID is required' });
 
