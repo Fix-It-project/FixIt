@@ -1,6 +1,5 @@
 import { View, ScrollView, TouchableOpacity, Dimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Button } from "@/src/components/ui/button";
 import {
   Snowflake,
   Droplets,
@@ -133,21 +132,10 @@ export default function IncomingRequests() {
   return (
     <View className="mt-6">
       {/* Section header */}
-      <View className="mb-3 flex-row items-center justify-between px-4">
+      <View className="mb-3 px-4">
         <Text className="text-xs font-bold uppercase tracking-widest text-content-muted">
           Incoming Requests
         </Text>
-        <View
-          className="rounded-full px-2 py-0.5"
-          style={{ backgroundColor: `${Colors.brand}15` }}
-        >
-          <Text
-            className="text-[10px] font-bold"
-            style={{ color: Colors.brand }}
-          >
-            {INCOMING_REQUESTS.length} NEW
-          </Text>
-        </View>
       </View>
 
       {/* Horizontal scroll */}
