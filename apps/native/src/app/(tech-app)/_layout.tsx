@@ -2,24 +2,24 @@ import { View } from "react-native";
 import { Redirect, Tabs } from "expo-router";
 import {
   House,
-  Grid2X2,
+  CalendarDays,
   MessageCircle,
-  Wrench,
+  Wallet,
   User,
 } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { useAuthStore } from "@/src/stores/auth-store";
 
-export default function AppLayout() {
+export default function TechAppLayout() {
   const { isAuthenticated, isLoading, userType } = useAuthStore();
 
   if (!isLoading && !isAuthenticated) {
     return <Redirect href="/(auth)/get-started" />;
   }
 
-  // Technicians should never land on the user app
-  if (!isLoading && isAuthenticated && userType === "technician") {
-    return <Redirect href="/(tech-app)" />;
+  // Only technicians may access this group
+  if (!isLoading && isAuthenticated && userType !== "technician") {
+    return <Redirect href="/(app)" />;
   }
 
   return (
@@ -57,11 +57,11 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="categories"
+        name="schedule"
         options={{
-          title: "Categories",
+          title: "Schedule",
           tabBarIcon: ({ color, size }) => (
-            <Grid2X2 size={size} color={color} strokeWidth={1.8} />
+            <CalendarDays size={size} color={color} strokeWidth={1.8} />
           ),
         }}
       />
@@ -91,11 +91,11 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="technicians"
+        name="wallet"
         options={{
-          title: "Technicians",
+          title: "Wallet",
           tabBarIcon: ({ color, size }) => (
-            <Wrench size={size} color={color} strokeWidth={1.8} />
+            <Wallet size={size} color={color} strokeWidth={1.8} />
           ),
         }}
       />
