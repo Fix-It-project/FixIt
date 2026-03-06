@@ -1,7 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
 
-const supabase = supabaseAdmin;
-
 export interface CreateTechnicianData {
   id: string;           // Must match the auth.users ID
   first_name: string;
@@ -25,7 +23,14 @@ export interface UpdateTechnicianData {
   national_id?: string;
 }
 
-export interface ITechniciansRepository {
+/** Minimal read interface required by TechniciansService (ISP). */
+export interface ITechnicianQueryRepository {
+  getTechniciansByCategory(categoryId: string): Promise<any[]>;
+  searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+}
+
+/** Full CRUD interface — used by modules that manage technician records. */
+export interface ITechniciansRepository extends ITechnicianQueryRepository {
   createTechnician(data: CreateTechnicianData): Promise<any>;
   getTechnicianById(id: string): Promise<any>;
   getTechnicianByEmail(email: string): Promise<any>;
@@ -35,11 +40,35 @@ export interface ITechniciansRepository {
 }
 
 export class TechniciansRepository implements ITechniciansRepository {
+  async getTechniciansByCategory(categoryId: string): Promise<any[]> {
+    const { data, error } = await supabaseAdmin
+      .from('technicians')
+      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .eq('category_id', categoryId)
+      .order('first_name', { ascending: true });
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
+  async searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]> {
+    const term = `%${query}%`;
+    const { data, error } = await supabaseAdmin
+      .from('technicians')
+      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .eq('category_id', categoryId)
+      .or(`first_name.ilike.${term},last_name.ilike.${term}`)
+      .order('first_name', { ascending: true });
+
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  }
+
   async createTechnician(data: CreateTechnicianData) {
     try {
       console.log('Creating technician with data:', { ...data, criminal_record: '[file]', birth_certificate: '[file]', national_id: '[file]' });
 
-      const { data: technician, error } = await supabase
+      const { data: technician, error } = await supabaseAdmin
         .from('technicians')
         .insert({
           id: data.id,
@@ -66,7 +95,7 @@ export class TechniciansRepository implements ITechniciansRepository {
   }
 
   async getTechnicianById(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('technicians')
       .select('*')
       .eq('id', id)
@@ -77,7 +106,7 @@ export class TechniciansRepository implements ITechniciansRepository {
   }
 
   async getTechnicianByEmail(email: string) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('technicians')
       .select('*')
       .eq('email', email)
@@ -88,7 +117,7 @@ export class TechniciansRepository implements ITechniciansRepository {
   }
 
   async emailExists(email: string): Promise<boolean> {
-    const { count, error } = await supabase
+    const { count, error } = await supabaseAdmin
       .from('technicians')
       .select('*', { count: 'exact', head: true })
       .eq('email', email);
@@ -98,7 +127,7 @@ export class TechniciansRepository implements ITechniciansRepository {
   }
 
   async updateTechnician(id: string, data: UpdateTechnicianData) {
-    const { data: technician, error } = await supabase
+    const { data: technician, error } = await supabaseAdmin
       .from('technicians')
       .update(data)
       .eq('id', id)
@@ -110,7 +139,7 @@ export class TechniciansRepository implements ITechniciansRepository {
   }
 
   async deleteTechnician(id: string) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('technicians')
       .delete()
       .eq('id', id);
