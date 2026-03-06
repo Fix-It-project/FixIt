@@ -21,6 +21,16 @@ export class TechnicianCalendarService {
     if (startDate >= endDate) {
       throw { status: 400, message: '`start` must be before `end`.' };
     }
+
+    // Entries cannot be scheduled on today or in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startDay = new Date(startDate);
+    startDay.setHours(0, 0, 0, 0);
+
+    if (startDay <= today) {
+      throw { status: 400, message: 'Calendar entries cannot be scheduled on today or in the past.' };
+    }
   }
 
   private validateDayOfWeek(day: number) {
@@ -44,6 +54,54 @@ export class TechnicianCalendarService {
     }
   }
 
+  private validateSpecificDate(date: string) {
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
+      throw { status: 400, message: 'Invalid specific_date format. Use YYYY-MM-DD.' };
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const parsedDay = new Date(parsed);
+    parsedDay.setHours(0, 0, 0, 0);
+
+    if (parsedDay <= today) {
+      throw { status: 400, message: 'specific_date must be in the future.' };
+    }
+  }
+
+  private async validateAgainstTemplate(technicianId: string, start: string, end: string) {
+    const date = new Date(start).toISOString().split('T')[0] as any; // YYYY-MM-DD
+    const template = await technicianCalendarRepository.getTemplateForDate(technicianId, date);
+
+    if (!template) {
+      throw { status: 409, message: 'No availability template set for this day. The technician has not defined working hours.' };
+    }
+
+    if (!template.active) {
+      throw { status: 409, message: 'The technician is marked as unavailable on this day.' };
+    }
+
+    // Parse template time range "[HH:MM:SS,HH:MM:SS)"
+    const match = template.time_range.match(/\[(.+),(.+)\)/);
+    if (!match) throw { status: 500, message: 'Failed to parse template time range.' };
+
+    const entryStart = new Date(start);
+    const entryEnd = new Date(end);
+
+    // Build template start/end using the same date as the entry
+    const datePrefix = date; // YYYY-MM-DD
+    const templateStart = new Date(`${datePrefix}T${match[1]}Z`);
+    const templateEnd = new Date(`${datePrefix}T${match[2]}Z`);
+
+    if (entryStart < templateStart || entryEnd > templateEnd) {
+      throw {
+        status: 409,
+        message: `Entry must be within the technician's available hours: ${match[1]} – ${match[2]}.`,
+      };
+    }
+  }
+
   // ─── Calendar entries ─────────────────────────────────────────────────────
 
   async getCalendar(technicianId: string, params: CalendarQueryParams) {
@@ -58,8 +116,34 @@ export class TechnicianCalendarService {
 
   async createEntry(data: CreateCalendarEntryData) {
     this.validateTimeRange(data.start, data.end);
+    await this.validateAgainstTemplate(data.technician_id, data.start, data.end);
+    await this.validateBufferPeriod(data.technician_id, data.start, data.end);
 
-    return technicianCalendarRepository.createEntry(data);
+    const entry = await technicianCalendarRepository.createEntry(data);
+
+    const BUFFER_MS = 3 * 60 * 60 * 1000;
+    const startMs = new Date(data.start).getTime();
+    const endMs = new Date(data.end).getTime();
+
+    // Buffer slot BEFORE the entry
+    await technicianCalendarRepository.createEntry({
+      technician_id: data.technician_id,
+      start: new Date(startMs - BUFFER_MS).toISOString(),
+      end: data.start,
+      type: 'blocked',
+      source: 'blocking as defined',
+    });
+
+    // Buffer slot AFTER the entry
+    await technicianCalendarRepository.createEntry({
+      technician_id: data.technician_id,
+      start: data.end,
+      end: new Date(endMs + BUFFER_MS).toISOString(),
+      type: 'blocked',
+      source: 'blocking as defined',
+    });
+
+    return entry;
   }
 
   async updateEntry(id: string, data: UpdateCalendarEntryData) {
@@ -68,6 +152,8 @@ export class TechnicianCalendarService {
 
     if (data.start && data.end) {
       this.validateTimeRange(data.start, data.end);
+      await this.validateAgainstTemplate(existing.technician_id, data.start, data.end);
+      await this.validateBufferPeriod(existing.technician_id, data.start, data.end, id);
     } else if (data.start || data.end) {
       throw { status: 400, message: 'Both `start` and `end` must be provided together.' };
     }
@@ -96,41 +182,84 @@ export class TechnicianCalendarService {
 
   async createTemplate(data: CreateTemplateData) {
     this.validateDayOfWeek(data.day_of_week);
-    this.validateTimeOnly(data.start, data.end);
-    try {
-      return await technicianCalendarRepository.createTemplate(data);
-    } catch (err: any) {
-      if (err.code === '23P01') {
-        throw {
-          status: 409,
-          message: 'This time range overlaps with an existing template for this day.',
-        };
+
+    if (data.is_one_time) {
+      // One-time template requires a specific_date
+      if (!data.specific_date) {
+        throw { status: 400, message: 'specific_date is required for one-time templates.' };
       }
-      throw err;
+      this.validateSpecificDate(data.specific_date);
+
+      // One slot per day rule — check against other one-time templates for same date
+      const existing = await technicianCalendarRepository.getTemplatesByTechnicianId(data.technician_id, false);
+      const duplicate = existing.find(
+        t => t.is_one_time && t.specific_date === data.specific_date
+      );
+      if (duplicate) {
+        throw { status: 409, message: 'You can only set your time for the entire day. A one-time template for this date already exists.' };
+      }
+    } else {
+      // Recurring template — check one slot per day_of_week rule
+      const existing = await technicianCalendarRepository.getTemplatesByTechnicianId(data.technician_id, false);
+      const duplicate = existing.find(
+        t => !t.is_one_time && t.day_of_week === data.day_of_week
+      );
+      if (duplicate) {
+        throw { status: 409, message: 'You can only set your time for the entire day. A template for this day already exists.' };
+      }
     }
+
+    // active:false on one-time = full day off, no time range needed
+    if (data.active === false && data.is_one_time) {
+      data.start = '00:00';
+      data.end = '23:59';
+    } else {
+      this.validateTimeOnly(data.start, data.end);
+    }
+
+    return technicianCalendarRepository.createTemplate(data);
   }
 
   async updateTemplate(id: string, data: UpdateTemplateData) {
     const existing = await technicianCalendarRepository.getTemplateById(id);
     if (!existing) throw { status: 404, message: 'Availability template not found.' };
 
-    if (data.day_of_week !== undefined) this.validateDayOfWeek(data.day_of_week);
-    if (data.start && data.end) this.validateTimeOnly(data.start, data.end);
-    else if (data.start || data.end) {
-      throw { status: 400, message: 'Both `start` and `end` must be provided together.' };
+    // Block time/day changes if recurring template day is inactive
+    if (!existing.active && !existing.is_one_time && (data.start || data.end || data.day_of_week !== undefined)) {
+      throw { status: 400, message: 'Cannot update a template for a day that is marked as unavailable. Re-activate the day first.' };
     }
 
-    try {
-      return await technicianCalendarRepository.updateTemplate(id, data);
-    } catch (err: any) {
-      if (err.code === '23P01') {
-        throw {
-          status: 409,
-          message: 'This time range overlaps with an existing template for this day.',
-        };
+    // Block changing day_of_week to one that already has a recurring template
+    if (!existing.is_one_time && data.day_of_week !== undefined && data.day_of_week !== existing.day_of_week) {
+      this.validateDayOfWeek(data.day_of_week);
+      const allTemplates = await technicianCalendarRepository.getTemplatesByTechnicianId(existing.technician_id, false);
+      const duplicate = allTemplates.find(t => !t.is_one_time && t.day_of_week === data.day_of_week);
+      if (duplicate) {
+        throw { status: 409, message: 'You can only set your time for the entire day. A template for this day already exists.' };
       }
-      throw err;
     }
+
+    // Block changing specific_date to one that already has a one-time template
+    if (existing.is_one_time && data.specific_date && data.specific_date !== existing.specific_date) {
+      this.validateSpecificDate(data.specific_date);
+      const allTemplates = await technicianCalendarRepository.getTemplatesByTechnicianId(existing.technician_id, false);
+      const duplicate = allTemplates.find(t => t.is_one_time && t.specific_date === data.specific_date);
+      if (duplicate) {
+        throw { status: 409, message: 'You can only set your time for the entire day. A one-time template for this date already exists.' };
+      }
+    }
+
+    if (data.start || data.end) {
+      const match = existing.time_range.match(/\[(.+),(.+)\)/) as any;
+      if (!match) throw { status: 500, message: 'Failed to parse existing template time range.' };
+      const currentStart: string = match[1];
+      const currentEnd: string = match[2];
+      this.validateTimeOnly(data.start ?? currentStart, data.end ?? currentEnd);
+    }
+
+    if (data.day_of_week !== undefined) this.validateDayOfWeek(data.day_of_week);
+
+    return technicianCalendarRepository.updateTemplate(id, data);
   }
 
   async deleteTemplate(id: string) {
@@ -138,6 +267,35 @@ export class TechnicianCalendarService {
     if (!existing) throw { status: 404, message: 'Availability template not found.' };
 
     await technicianCalendarRepository.deleteTemplate(id);
+  }
+
+  async validateBufferPeriod(technicianId: string, start: string, end: string, excludeId?: string) {
+    const BUFFER_MS = 3 * 60 * 60 * 1000;
+    const newStart = new Date(start).getTime();
+    const newEnd = new Date(end).getTime();
+
+    const entries = await technicianCalendarRepository.getEntriesByTechnicianId(technicianId);
+
+    for (const entry of entries) {
+      if (excludeId && entry.id === excludeId) continue;
+
+      // Parse Postgres tsrange format "[start,end)"
+      const match = entry.time_range.match(/\[(.+),(.+)\)/) as any;
+      if (!match) continue;
+
+      const entryStart = new Date(match[1]).getTime();
+      const entryEnd = new Date(match[2]).getTime();
+
+      const tooCloseAfter = newStart < entryEnd + BUFFER_MS;
+      const tooCloseBefore = newEnd > entryStart - BUFFER_MS;
+
+      if (tooCloseAfter && tooCloseBefore) {
+        throw {
+          status: 409,
+          message: 'A buffer of 3 hours is required before and after each calendar entry.',
+        };
+      }
+    }
   }
 }
 
