@@ -42,6 +42,8 @@ export interface AvailabilityTemplate {
   day_of_week: number; // 0 = Sunday
   time_range: string; // e.g. "[09:00:00,17:00:00)"
   active: boolean;
+  is_one_time: boolean;
+  specific_date: string | null;
 }
 
 export interface CreateTemplateData {
@@ -49,6 +51,9 @@ export interface CreateTemplateData {
   day_of_week: number;
   start: string; // HH:MM:SS e.g. "09:00:00"
   end: string;   // HH:MM:SS e.g. "17:00:00"
+  active?: boolean;
+  is_one_time?: boolean;
+  specific_date?: string | null;
 }
 
 export interface UpdateTemplateData {
@@ -56,6 +61,8 @@ export interface UpdateTemplateData {
   start?: string;
   end?: string;
   active?: boolean;
+  is_one_time?: boolean;
+  specific_date?: string | null;
 }
 
 export class TechnicianCalendarRepository {
@@ -221,6 +228,33 @@ export class TechnicianCalendarRepository {
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  async getTemplateForDate(technicianId: string, date: string): Promise<AvailabilityTemplate | null> {
+    // First check for a one-time template on this specific date
+    const { data: oneTime, error: oneTimeError } = await supabase
+      .from('availability_templates')
+      .select('*')
+      .eq('technician_id', technicianId)
+      .eq('is_one_time', true)
+      .eq('specific_date', date)
+      .maybeSingle();
+
+    if (oneTimeError) throw oneTimeError;
+    if (oneTime) return oneTime as AvailabilityTemplate;
+
+    // Fall back to recurring template for that day of week
+    const dayOfWeek = new Date(date).getDay();
+    const { data: recurring, error: recurringError } = await supabase
+      .from('availability_templates')
+      .select('*')
+      .eq('technician_id', technicianId)
+      .eq('is_one_time', false)
+      .eq('day_of_week', dayOfWeek)
+      .maybeSingle();
+
+    if (recurringError) throw recurringError;
+    return recurring as AvailabilityTemplate | null;
   }
 }
 
