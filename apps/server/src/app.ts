@@ -5,6 +5,7 @@ import { userAddressRoutes, technicianAddressRoutes } from './modules/addresses/
 import technicianCalendarRoutes from './modules/technician-calendar/technician-calendar.routes.js';
 import usersRoutes from './modules/users/users.routes.js';
 import categoriesRoutes from './modules/categories/categories.routes.js';
+import servicesRoutes from './modules/services/services.routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/technician-auth', technicianAuthRoutes);
@@ -13,4 +14,5 @@ app.use('/api/addresses', technicianAddressRoutes);
 app.use('/api/technician-calendar', technicianCalendarRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/categories/:categoryId/services', servicesRoutes);
 export default app;
