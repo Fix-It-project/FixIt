@@ -57,7 +57,8 @@
           "locationWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians."
         }
       ],
-      "@sentry/react-native"
+      "@sentry/react-native",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

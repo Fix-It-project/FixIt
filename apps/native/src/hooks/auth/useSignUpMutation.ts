@@ -15,14 +15,12 @@ export function useSignUpMutation() {
 					response.message ||
 					"Your account has been created successfully. Redirecting to sign in...",
 				position: "top",
-				visibilityTime: 3000,
+				visibilityTime: 2000,
 			});
 			setTimeout(() => {
-				while (router.canGoBack()) {
-					router.back();
-				}
-				router.replace("/(auth)/User/login");
-			}, 3000);
+				router.dismissAll();
+				router.push("/(auth)/User/login");
+			}, 2000);
 		},
 	});
 }

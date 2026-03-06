@@ -2,9 +2,12 @@ import { Redirect, Stack } from "expo-router";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function AuthLayout() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, userType } = useAuthStore();
 
   if (!isLoading && isAuthenticated) {
+    if (userType === "technician") {
+      return <Redirect href="/(tech-app)" />;
+    }
     return <Redirect href="/(app)" />;
   }
 

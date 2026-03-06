@@ -16,7 +16,7 @@ export function useTechnicianLoginMutation() {
 				response.session.refreshToken,
 				"technician",
 			);
-			router.replace("/(app)");
+			router.replace("/(tech-app)");
 		},
 	});
 }

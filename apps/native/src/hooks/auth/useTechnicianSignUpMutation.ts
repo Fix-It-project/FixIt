@@ -24,14 +24,12 @@ export function useTechnicianSignUpMutation() {
 					response.message ||
 					"Your technician account has been created. Redirecting to sign in...",
 				position: "top",
-				visibilityTime: 3000,
+				visibilityTime: 2000,
 			});
 			setTimeout(() => {
-				while (router.canGoBack()) {
-					router.back();
-				}
-				router.replace("/(auth)/Technician/login");
-			}, 3000);
+				router.dismissAll();
+				router.push("/(auth)/Technician/login");
+			}, 2000);
 		},
 		onSettled: () => {
 			useTechnicianSignupStore.getState().reset();

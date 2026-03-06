@@ -135,6 +135,7 @@ function RootLayout() {
         <GestureHandlerRootView style={styles.container}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(app)" />
+            <Stack.Screen name="(tech-app)" />
             <Stack.Screen name="(auth)" />
           </Stack>
         </GestureHandlerRootView>
