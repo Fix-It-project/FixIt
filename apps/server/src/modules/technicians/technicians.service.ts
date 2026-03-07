@@ -1,16 +1,5 @@
-import type { ITechnicianQueryRepository } from './technicians.repository.js';
+import type { ITechnicianQueryRepository, TechnicianProfile } from './technicians.repository.js';
 import type { ICategoriesRepository } from '../categories/categories.repository.js';
-
-/** Shape returned by the profile endpoint — all fields guaranteed non-null. */
-export interface TechnicianProfile {
-  name: string;
-  profilePicture: string | null;
-  description: string;
-  completedOrders: string;
-  totalBookings: string;
-  reviews: string;
-  phoneNumber: string;
-}
 
 export interface ITechniciansService {
   getTechniciansByCategory(categoryId: string): Promise<any[]>;
@@ -53,4 +42,3 @@ export class TechniciansService implements ITechniciansService {
     };
   }
 }
-

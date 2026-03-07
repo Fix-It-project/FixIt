@@ -23,11 +23,33 @@ export interface UpdateTechnicianData {
   national_id?: string;
 }
 
+/** API DTO shape returned by technician profile endpoint. */
+export interface TechnicianProfile {
+  name: string;
+  profilePicture: string | null;
+  description: string;
+  completedOrders: string;
+  totalBookings: string;
+  reviews: string;
+  phoneNumber: string;
+}
+
+/** Raw row shape selected for profile hydration. */
+export interface TechnicianProfileRow {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  is_available: boolean;
+  category_id: string;
+}
+
 /** Minimal read interface required by TechniciansService (ISP). */
 export interface ITechnicianQueryRepository {
   getTechniciansByCategory(categoryId: string): Promise<any[]>;
   searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
-  getTechnicianProfile(id: string): Promise<any | null>;
+  getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null>;
 }
 
 /** Full CRUD interface — used by modules that manage technician records. */
@@ -41,7 +63,7 @@ export interface ITechniciansRepository extends ITechnicianQueryRepository {
 }
 
 export class TechniciansRepository implements ITechniciansRepository {
-  async getTechnicianProfile(id: string): Promise<any | null> {
+  async getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null> {
     const { data, error } = await supabaseAdmin
       .from('technicians')
       .select('id, first_name, last_name, email, phone, is_available, category_id')
