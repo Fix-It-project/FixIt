@@ -39,6 +39,7 @@ export const Colors = {
   // ─── Misc ─────────────────────────────────────────────────
   star: "#F59E0B",          // amber star for ratings
   availableBg: "#d1fae5",   // light green badge background
+  whiteOverlay: "rgba(255,255,255,0.18)", // translucent white for button overlays
 
   // ─── Gradients (get-started / role-selection) ───────────
   gradientStart: "#ecefff",

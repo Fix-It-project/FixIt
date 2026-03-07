@@ -112,9 +112,9 @@ export default function TechniciansListScreen() {
               onPress={() => router.back()}
               activeOpacity={0.7}
               className="mr-3 h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+              style={{ backgroundColor: Colors.whiteOverlay }}
             >
-              <ChevronLeft size={22} color="#fff" strokeWidth={2.5} />
+              <ChevronLeft size={22} color={Colors.white} strokeWidth={2.5} />
             </TouchableOpacity>
             <View className="flex-1">
               <Text
@@ -189,7 +189,7 @@ export default function TechniciansListScreen() {
                     className="text-[12px] font-semibold"
                     style={{
                       fontFamily: "GoogleSans_600SemiBold",
-                      color: isActive ? "#fff" : Colors.textSecondary,
+                      color: isActive ? Colors.white : Colors.textSecondary,
                     }}
                   >
                     {option}
