@@ -74,11 +74,12 @@ module.exports = {
           DEFAULT: '#10b981',
           alt: '#22c55e',
         },
-        danger: '#ef4444',
+        danger: { DEFAULT: '#ef4444', light: '#fef2f2' },
         warning: '#d97706',
         surface: {
           gray: '#f3f4f6',
           muted: '#6a7282',
+          white: '#ffffff',
         },
         social: '#364153',
         star: '#F59E0B',
