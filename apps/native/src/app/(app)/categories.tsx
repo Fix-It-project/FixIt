@@ -13,11 +13,7 @@ const ICON_MAP = Object.fromEntries(
 );
 
 // Stable fallback colors for categories without a local icon
-const FALLBACK_COLORS = [
-  "#00BCD4", "#5C6BC0", "#EF5350", "#4CAF50",
-  "#F44336", "#9C27B0", "#2196F3", "#795548",
-  "#FF9800", "#009688", "#607D8B", "#E91E63",
-];
+const FALLBACK_COLORS = Colors.category.fallbacks;
 
 export default function CategoriesScreen() {
   const { data: categories, isLoading, isError, refetch } = useCategoriesQuery();
