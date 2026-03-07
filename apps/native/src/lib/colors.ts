@@ -36,6 +36,10 @@ export const Colors = {
   surfaceGray: "#f3f4f6", // upload icon background
   surfaceMuted: "#6a7282", // secondary icon colour / muted text
 
+  // ─── Misc ─────────────────────────────────────────────────
+  star: "#F59E0B",          // amber star for ratings
+  availableBg: "#d1fae5",   // light green badge background
+
   // ─── Gradients (get-started / role-selection) ───────────
   gradientStart: "#ecefff",
   gradientMid: "#dbe2ff",

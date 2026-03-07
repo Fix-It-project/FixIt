@@ -1,5 +1,6 @@
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import LocationHeader from "@/src/components/home/LocationHeader";
 import HeaderPolygons from "@/src/components/home/HeaderPolygons";
 import SearchBar from "@/src/components/home/SearchBar";
@@ -8,11 +9,23 @@ import CategoryGrid from "@/src/components/home/CategoryGrid";
 import RecommendedTechnicians from "@/src/components/home/RecommendedTechnicians";
 import NearYouSection from "@/src/components/home/NearYouSection";
 import { Colors } from "@/src/lib/colors";
+import { CATEGORIES } from "@/src/lib/categories";
 
 /** Vertical gap between home-page sections (single source of truth). */
 const SECTION_GAP = 16;
 
 export default function Home() {
+  const handleCategoryPress = (categoryId: string) => {
+    const cat = CATEGORIES.find((c) => c.id === categoryId);
+    router.push({
+      pathname: "/(app)/technicians-list" as any,
+      params: {
+        categoryId,
+        categoryName: cat?.label ?? "Technicians",
+      },
+    });
+  };
+
   return (
     <View className="flex-1 bg-surface-gray">
       <SafeAreaView
@@ -35,7 +48,7 @@ export default function Home() {
           {/* Content area */}
           <View className="bg-surface-gray" style={{ paddingTop: 12, gap: SECTION_GAP }}>
             {/* Category grid */}
-            <CategoryGrid />
+            <CategoryGrid onCategoryPress={handleCategoryPress} />
 
             {/* Recommended technicians */}
             <RecommendedTechnicians />
@@ -51,3 +64,4 @@ export default function Home() {
     </View>
   );
 }
+

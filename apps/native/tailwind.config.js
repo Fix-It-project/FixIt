@@ -81,6 +81,8 @@ module.exports = {
           muted: '#6a7282',
         },
         social: '#364153',
+        star: '#F59E0B',
+        'available-bg': '#d1fae5',
         role: {
           user: '#DBEAFE',
           tech: '#0066FF',
