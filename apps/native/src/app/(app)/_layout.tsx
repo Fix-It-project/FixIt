@@ -108,6 +108,12 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="technicians-list"
+        options={{
+          href: null, // hidden from tab bar
+        }}
+      />
     </Tabs>
   );
 }

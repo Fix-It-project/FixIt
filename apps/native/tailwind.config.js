@@ -82,6 +82,8 @@ module.exports = {
           white: '#ffffff',
         },
         social: '#364153',
+        star: '#F59E0B',
+        'available-bg': '#d1fae5',
         role: {
           user: '#DBEAFE',
           tech: '#0066FF',
