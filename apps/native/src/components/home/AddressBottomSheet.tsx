@@ -1,0 +1,173 @@
+import { useCallback, useMemo, forwardRef, useImperativeHandle, useRef } from "react";
+import { View, ActivityIndicator, FlatList, TouchableOpacity } from "react-native";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+  type BottomSheetBackdropProps,
+} from "@gorhom/bottom-sheet";
+import { Plus, X } from "lucide-react-native";
+import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/lib/colors";
+import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
+import { useSetActiveAddressMutation } from "@/src/hooks/addresses/useSetActiveAddressMutation";
+import AddressListItem from "@/src/components/home/AddressListItem";
+
+// ─── Public handle ──────────────────────────────────────────────────────────
+export interface AddressBottomSheetRef {
+  open: () => void;
+  close: () => void;
+}
+
+interface AddressBottomSheetProps {
+  onAddNewAddress: () => void;
+}
+
+// ─── Component ──────────────────────────────────────────────────────────────
+const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetProps>(
+  function AddressBottomSheet({ onAddNewAddress }, ref) {
+    const bottomSheetRef = useRef<BottomSheet>(null);
+
+    const { data: addresses, isLoading, isError } = useAddressesQuery();
+    const setActiveMutation = useSetActiveAddressMutation();
+
+    const snapPoints = useMemo(() => ["55%"], []);
+
+    useImperativeHandle(ref, () => ({
+      open() {
+        bottomSheetRef.current?.snapToIndex(0);
+      },
+      close() {
+        bottomSheetRef.current?.close();
+      },
+    }));
+
+    const renderBackdrop = useCallback(
+      (props: BottomSheetBackdropProps) => (
+        <BottomSheetBackdrop
+          {...props}
+          disappearsOnIndex={-1}
+          appearsOnIndex={0}
+          opacity={0.5}
+          pressBehavior="close"
+        />
+      ),
+      [],
+    );
+
+    const handleActivate = useCallback(
+      (addressId: string) => {
+        setActiveMutation.mutate(addressId);
+      },
+      [setActiveMutation],
+    );
+
+    const handleClose = useCallback(() => {
+      bottomSheetRef.current?.close();
+    }, []);
+
+    return (
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+        backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+        handleIndicatorStyle={{ backgroundColor: Colors.borderLight, width: 40 }}
+      >
+        <BottomSheetView className="flex-1 px-6 pb-6">
+          {/* Header */}
+          <View className="flex-row items-center justify-between mb-2">
+            <Text
+              className="text-[18px] font-bold text-content"
+              style={{ fontFamily: "GoogleSans_700Bold" }}
+            >
+              Choose delivery location
+            </Text>
+            <TouchableOpacity onPress={handleClose} activeOpacity={0.7}>
+              <X size={22} color={Colors.textSecondary} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Loading */}
+          {isLoading && (
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="large" color={Colors.brand} />
+              <Text
+                className="mt-3 text-[13px] text-content-muted"
+                style={{ fontFamily: "GoogleSans_400Regular" }}
+              >
+                Loading addresses…
+              </Text>
+            </View>
+          )}
+
+          {/* Error */}
+          {isError && !isLoading && (
+            <View className="flex-1 items-center justify-center">
+              <Text
+                className="text-center text-[15px] font-semibold text-danger"
+                style={{ fontFamily: "GoogleSans_600SemiBold" }}
+              >
+                Unable to load addresses
+              </Text>
+              <Text
+                className="mt-1 text-center text-[13px] text-content-muted"
+                style={{ fontFamily: "GoogleSans_400Regular" }}
+              >
+                Please try again later.
+              </Text>
+            </View>
+          )}
+
+          {/* Address list */}
+          {addresses && !isLoading && (
+            <View className="flex-1">
+              <Text
+                className="mb-1 text-[13px] text-content-secondary"
+                style={{ fontFamily: "GoogleSans_600SemiBold" }}
+              >
+                Saved addresses
+              </Text>
+
+              <FlatList
+                data={addresses}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                ItemSeparatorComponent={() => (
+                  <View style={{ height: 1, backgroundColor: Colors.surfaceGray }} />
+                )}
+                renderItem={({ item }) => (
+                  <AddressListItem
+                    address={item}
+                    isActive={item.is_active}
+                    onPress={() => handleActivate(item.id)}
+                    isLoading={setActiveMutation.isPending}
+                  />
+                )}
+              />
+
+              {/* Add New Location */}
+              <TouchableOpacity
+                onPress={onAddNewAddress}
+                activeOpacity={0.7}
+                className="mt-3 flex-row items-center justify-center rounded-xl py-3.5"
+                style={{ backgroundColor: Colors.brandLight }}
+              >
+                <Plus size={18} color={Colors.brand} strokeWidth={2.5} />
+                <Text
+                  className="ml-2 text-[15px]"
+                  style={{ fontFamily: "GoogleSans_600SemiBold", color: Colors.brand }}
+                >
+                  Add New Location
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </BottomSheetView>
+      </BottomSheet>
+    );
+  },
+);
+
+export default AddressBottomSheet;

@@ -10,6 +10,7 @@ export interface AddressFields {
   apartment_no?: string;
   latitude?: number | null;
   longitude?: number | null;
+  is_active?: boolean;
 }
 
 export interface CreateUserAddressData extends AddressFields {
@@ -42,6 +43,8 @@ export interface IAddressesRepository {
   getAddressCountByTechnicianId(technicianId: string): Promise<number>;
   updateAddress(id: string, data: UpdateAddressData, ownerId: string, ownerRole: 'user' | 'technician'): Promise<any>;
   deleteAddress(id: string, ownerId: string, ownerRole: 'user' | 'technician'): Promise<void>;
+  deactivateAllAddresses(ownerId: string, ownerRole: 'user' | 'technician'): Promise<void>;
+  setAddressActive(id: string, ownerId: string, ownerRole: 'user' | 'technician'): Promise<any>;
 }
 
 export class AddressesRepository implements IAddressesRepository {
@@ -60,6 +63,7 @@ export class AddressesRepository implements IAddressesRepository {
           apartment_no: data.apartment_no ?? null,
           latitude: data.latitude ?? null,
           longitude: data.longitude ?? null,
+          is_active: data.is_active ?? false,
         })
         .select()
         .single();
@@ -163,6 +167,43 @@ export class AddressesRepository implements IAddressesRepository {
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  async deactivateAllAddresses(ownerId: string, ownerRole: 'user' | 'technician') {
+    const ownerColumn = ownerRole === 'user' ? 'user_id' : 'technician_id';
+
+    const { error } = await supabase
+      .from('addresses')
+      .update({ is_active: false })
+      .eq(ownerColumn, ownerId)
+      .eq('is_active', true);
+
+    if (error) throw error;
+  }
+
+  async setAddressActive(id: string, ownerId: string, ownerRole: 'user' | 'technician') {
+    const ownerColumn = ownerRole === 'user' ? 'user_id' : 'technician_id';
+
+    // Verify ownership
+    const { data: existing, error: checkError } = await supabase
+      .from('addresses')
+      .select('id')
+      .eq('id', id)
+      .eq(ownerColumn, ownerId)
+      .maybeSingle();
+
+    if (checkError) throw checkError;
+    if (!existing) throw new Error('Address not found or unauthorized');
+
+    const { data: address, error } = await supabase
+      .from('addresses')
+      .update({ is_active: true })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return address;
   }
 }
 
