@@ -28,16 +28,17 @@ function derive(id: string) {
     reviewCount: 50 + seededIndex(id + "c", 280),
     distance: (0.5 + seededIndex(id + "d", 50) * 0.1).toFixed(1),
     yearsExp: 3 + seededIndex(id + "y", 15),
-    priceStart: 100 + seededIndex(id + "p", 200) * 1,
+
   };
 }
 
 interface TechnicianListCardProps {
   readonly item: TechnicianListItem;
   readonly onPress?: () => void;
+  readonly onAvatarPress?: (technicianId: string, initials: string) => void;
 }
 
-export default function TechnicianListCard({ item, onPress }: Readonly<TechnicianListCardProps>) {
+export default function TechnicianListCard({ item, onPress, onAvatarPress }: Readonly<TechnicianListCardProps>) {
   const extras = derive(item.id);
   const initials = `${item.first_name[0]}${item.last_name[0]}`;
   const fullName = `${item.first_name} ${item.last_name}`;
@@ -58,17 +59,22 @@ export default function TechnicianListCard({ item, onPress }: Readonly<Technicia
       <View className="flex-row p-3.5">
         {/* ── Left: avatar + view profile ── */}
         <View className="mr-3 items-center">
-          <View
-            className="h-14 w-14 items-center justify-center rounded-full"
-            style={{ backgroundColor: extras.avatarColor }}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => onAvatarPress?.(item.id, initials)}
           >
-            <Text
-              className="text-[16px] font-bold text-white"
-              style={{ fontFamily: "GoogleSans_700Bold" }}
+            <View
+              className="h-14 w-14 items-center justify-center rounded-full"
+              style={{ backgroundColor: extras.avatarColor }}
             >
-              {initials}
-            </Text>
-          </View>
+              <Text
+                className="text-[16px] font-bold text-white"
+                style={{ fontFamily: "GoogleSans_700Bold" }}
+              >
+                {initials}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* ── Center: details ── */}
@@ -149,16 +155,7 @@ export default function TechnicianListCard({ item, onPress }: Readonly<Technicia
           </View>
         </View>
 
-        {/* ── Right: price ── */}
-        <View className="ml-2 items-end justify-start pt-0.5">
-          <Text
-            className="text-[16px] font-bold text-brand"
-            style={{ fontFamily: "GoogleSans_700Bold" }}
-          >
-            {extras.priceStart} EGP
-          </Text>
-          <Text className="text-[10px] text-content-muted">starting from</Text>
-        </View>
+
       </View>
     </TouchableOpacity>
   );
