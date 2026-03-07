@@ -1,6 +1,6 @@
 import apiClient from "@/src/lib/api-client";
-import { techniciansResponseSchema } from "./schema";
-import type { TechnicianListItem, TechniciansResponse } from "./types";
+import { techniciansResponseSchema, technicianProfileResponseSchema } from "./schema";
+import type { TechnicianListItem, TechniciansResponse, TechnicianProfile, TechnicianProfileResponse } from "./types";
 
 /**
  * Fetch all technicians belonging to a given category.
@@ -35,3 +35,20 @@ export async function searchTechniciansInCategory(
   const validated = techniciansResponseSchema.parse(data);
   return validated.technicians;
 }
+
+/**
+ * Fetch a technician's profile card data.
+ * GET /api/technicians/:id/profile
+ *
+ * Server responds with `{ profile: {...} }` — we validate and unwrap.
+ */
+export async function getTechnicianProfile(
+  technicianId: string,
+): Promise<TechnicianProfile> {
+  const { data } = await apiClient.get<TechnicianProfileResponse>(
+    `/api/technicians/${technicianId}/profile`,
+  );
+  const validated = technicianProfileResponseSchema.parse(data);
+  return validated.profile;
+}
+

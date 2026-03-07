@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -14,17 +14,25 @@ import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 import { useTechniciansQuery } from "@/src/hooks/technicians/useTechniciansQuery";
 import TechnicianListCard from "@/src/components/technicians/TechnicianListCard";
+import TechnicianProfileSheet, {
+  type TechnicianProfileSheetRef,
+} from "@/src/components/technicians/TechnicianProfileSheet";
 import type { TechnicianListItem } from "@/src/services/technicians/types";
 
 // ─── Sort options ────────────────────────────────────────────────────────────
-const SORT_OPTIONS = ["Top Rated", "Nearest", "Most Reviews", "Price:"] as const;
+const SORT_OPTIONS = ["Top Rated", "Nearest", "Most Reviews"] as const;
 type SortKey = (typeof SORT_OPTIONS)[number];
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
   isLoading: loading,
   technicians,
-}: Readonly<{ isLoading: boolean; technicians: TechnicianListItem[] }>) {
+  onAvatarPress,
+}: Readonly<{
+  isLoading: boolean;
+  technicians: TechnicianListItem[];
+  onAvatarPress: (technicianId: string, initials: string) => void;
+}>) {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -53,7 +61,9 @@ function TechnicianListBody({
     <FlatList
       data={technicians}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <TechnicianListCard item={item} />}
+      renderItem={({ item }) => (
+        <TechnicianListCard item={item} onAvatarPress={onAvatarPress} />
+      )}
       contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
       showsVerticalScrollIndicator={false}
     />
@@ -69,6 +79,8 @@ export default function TechniciansListScreen() {
   const [searchText, setSearchText] = useState("");
   const [activeSort, setActiveSort] = useState<SortKey>("Top Rated");
 
+  const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
+
   // TanStack Query – cached & refetchable
   const { data: technicians = [], isLoading } = useTechniciansQuery(
     categoryId ?? "",
@@ -82,6 +94,13 @@ export default function TechniciansListScreen() {
     return list;
   }, [technicians, activeSort]);
 
+  const handleAvatarPress = useCallback(
+    (technicianId: string, initials: string) => {
+      profileSheetRef.current?.open(technicianId, initials);
+    },
+    [],
+  );
+
   return (
     <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: Colors.brand }}>
       <View className="flex-1 bg-surface-gray">
@@ -93,9 +112,9 @@ export default function TechniciansListScreen() {
               onPress={() => router.back()}
               activeOpacity={0.7}
               className="mr-3 h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+              style={{ backgroundColor: Colors.whiteOverlay }}
             >
-              <ChevronLeft size={22} color="#fff" strokeWidth={2.5} />
+              <ChevronLeft size={22} color={Colors.white} strokeWidth={2.5} />
             </TouchableOpacity>
             <View className="flex-1">
               <Text
@@ -170,7 +189,7 @@ export default function TechniciansListScreen() {
                     className="text-[12px] font-semibold"
                     style={{
                       fontFamily: "GoogleSans_600SemiBold",
-                      color: isActive ? "#fff" : Colors.textSecondary,
+                      color: isActive ? Colors.white : Colors.textSecondary,
                     }}
                   >
                     {option}
@@ -182,8 +201,16 @@ export default function TechniciansListScreen() {
         </View>
 
         {/* ── Technician list ── */}
-        <TechnicianListBody isLoading={isLoading} technicians={sortedTechnicians} />
+        <TechnicianListBody
+          isLoading={isLoading}
+          technicians={sortedTechnicians}
+          onAvatarPress={handleAvatarPress}
+        />
       </View>
+
+      {/* ── Profile bottom sheet (renders above everything) ── */}
+      <TechnicianProfileSheet ref={profileSheetRef} />
     </SafeAreaView>
   );
 }
+
