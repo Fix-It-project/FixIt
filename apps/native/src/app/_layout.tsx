@@ -137,6 +137,42 @@ function RootLayout() {
             <Stack.Screen name="(app)" />
             <Stack.Screen name="(tech-app)" />
             <Stack.Screen name="(auth)" />
+            <Stack.Screen
+              name="edit-profile"
+              options={{
+                presentation: "modal",
+                headerShown: true,
+                title: "Edit Profile",
+                headerBackTitle: "Back",
+              }}
+            />
+            <Stack.Screen
+              name="settings"
+              options={{
+                presentation: "card",
+                headerShown: true,
+                title: "Settings",
+                headerBackTitle: "Back",
+              }}
+            />
+            <Stack.Screen
+              name="settings/privacy-security"
+              options={{
+                presentation: "card",
+                headerShown: true,
+                title: "Privacy & Security",
+                headerBackTitle: "Settings",
+              }}
+            />
+            <Stack.Screen
+              name="settings/help-support"
+              options={{
+                presentation: "card",
+                headerShown: true,
+                title: "Help & Support",
+                headerBackTitle: "Settings",
+              }}
+            />
           </Stack>
         </GestureHandlerRootView>
         <PortalHost />
