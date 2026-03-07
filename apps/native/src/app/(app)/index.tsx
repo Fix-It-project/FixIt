@@ -9,19 +9,17 @@ import CategoryGrid from "@/src/components/home/CategoryGrid";
 import RecommendedTechnicians from "@/src/components/home/RecommendedTechnicians";
 import NearYouSection from "@/src/components/home/NearYouSection";
 import { Colors } from "@/src/lib/colors";
-import { CATEGORIES } from "@/src/lib/categories";
 
 /** Vertical gap between home-page sections (single source of truth). */
 const SECTION_GAP = 16;
 
 export default function Home() {
-  const handleCategoryPress = (categoryId: string) => {
-    const cat = CATEGORIES.find((c) => c.id === categoryId);
+  const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
       pathname: "/(app)/technicians-list" as any,
       params: {
         categoryId,
-        categoryName: cat?.label ?? "Technicians",
+        categoryName,
       },
     });
   };

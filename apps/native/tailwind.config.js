@@ -84,6 +84,17 @@ module.exports = {
         social: '#364153',
         star: '#F59E0B',
         'available-bg': '#d1fae5',
+        category: {
+          cyan:   '#00BCD4',
+          indigo: '#5C6BC0',
+          red:    '#EF5350',
+          green:  '#4CAF50',
+          rose:   '#F44336',
+          purple: '#9C27B0',
+          blue:   '#2196F3',
+          brown:  '#795548',
+          orange: '#FF9800',
+        },
         role: {
           user: '#DBEAFE',
           tech: '#0066FF',
