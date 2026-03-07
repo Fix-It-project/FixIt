@@ -1,15 +1,20 @@
+import { useEffect } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { MapPin } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 import type { Address } from "@/src/services/addresses/types";
 
 interface AddressListItemProps {
   address: Address;
   isActive: boolean;
   onPress: () => void;
-  isLoading?: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -20,23 +25,38 @@ export default function AddressListItem({
   address,
   isActive,
   onPress,
-  isLoading = false,
+  disabled = false,
 }: AddressListItemProps) {
-  const radioAnimatedStyle = useAnimatedStyle(() => ({
-    backgroundColor: withTiming(isActive ? Colors.brand : "transparent", { duration: 200 }),
-    borderColor: withTiming(isActive ? Colors.brand : Colors.borderLight, { duration: 200 }),
+  const active = useSharedValue(isActive ? 1 : 0);
+
+  useEffect(() => {
+    active.value = withTiming(isActive ? 1 : 0, { duration: 200 });
+  }, [isActive, active]);
+
+  const ringStyle = useAnimatedStyle(() => ({
+    borderColor:
+      active.value > 0.5 ? Colors.brand : Colors.borderLight,
+    backgroundColor:
+      active.value > 0.5 ? Colors.brand : "transparent",
   }));
 
-  const labelParts = [address.street, address.city].filter(Boolean);
-  const detailParts = [address.building_no, address.apartment_no].filter(Boolean);
+  const dotStyle = useAnimatedStyle(() => ({
+    opacity: active.value,
+    transform: [{ scale: active.value }],
+  }));
+
+  const detailParts = [
+    address.building_no,
+    address.apartment_no,
+  ].filter(Boolean);
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={isLoading}
+      disabled={disabled}
       activeOpacity={0.7}
       className="flex-row items-center py-3.5"
-      style={{ gap: 12, opacity: isLoading ? 0.5 : 1 }}
+      style={{ gap: 12, opacity: disabled ? 0.5 : 1 }}
     >
       {/* Map pin icon */}
       <View
@@ -55,29 +75,25 @@ export default function AddressListItem({
         >
           {address.city}
         </Text>
-        {labelParts.length > 0 && (
-          <Text
-            className="mt-0.5 text-[13px] text-content-secondary"
-            style={{ fontFamily: "GoogleSans_400Regular" }}
-            numberOfLines={2}
-          >
-            {labelParts.join(", ")}
-            {detailParts.length > 0 ? `, ${detailParts.join(", ")}` : ""}
-          </Text>
-        )}
+        <Text
+          className="mt-0.5 text-[13px] text-content-secondary"
+          style={{ fontFamily: "GoogleSans_400Regular" }}
+          numberOfLines={2}
+        >
+          {address.street}
+          {detailParts.length > 0 ? `, ${detailParts.join(", ")}` : ""}
+        </Text>
       </View>
 
-      {/* Radio button indicator */}
+      {/* Radio button — always rendered, animated */}
       <Animated.View
         className="h-5 w-5 items-center justify-center rounded-full"
-        style={[{ borderWidth: 2 }, radioAnimatedStyle]}
+        style={[{ borderWidth: 2 }, ringStyle]}
       >
-        {isActive && (
-          <View
-            className="h-2.5 w-2.5 rounded-full"
-            style={{ backgroundColor: Colors.white }}
-          />
-        )}
+        <Animated.View
+          className="h-2.5 w-2.5 rounded-full"
+          style={[{ backgroundColor: Colors.white }, dotStyle]}
+        />
       </Animated.View>
     </TouchableOpacity>
   );

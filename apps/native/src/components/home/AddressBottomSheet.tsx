@@ -1,4 +1,4 @@
-import { useCallback, useMemo, forwardRef, useImperativeHandle, useRef } from "react";
+import { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useRef } from "react";
 import { View, ActivityIndicator, FlatList, TouchableOpacity } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -30,10 +30,14 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
     const { data: addresses, isLoading, isError } = useAddressesQuery();
     const setActiveMutation = useSetActiveAddressMutation();
 
+    // Optimistic active ID — avoids stale UI while mutation is in-flight
+    const [optimisticActiveId, setOptimisticActiveId] = useState<string | null>(null);
+
     const snapPoints = useMemo(() => ["55%"], []);
 
     useImperativeHandle(ref, () => ({
       open() {
+        setOptimisticActiveId(null);
         bottomSheetRef.current?.snapToIndex(0);
       },
       close() {
@@ -56,7 +60,10 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
 
     const handleActivate = useCallback(
       (addressId: string) => {
-        setActiveMutation.mutate(addressId);
+        setOptimisticActiveId(addressId);
+        setActiveMutation.mutate(addressId, {
+          onSettled: () => setOptimisticActiveId(null),
+        });
       },
       [setActiveMutation],
     );
@@ -64,6 +71,13 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
     const handleClose = useCallback(() => {
       bottomSheetRef.current?.close();
     }, []);
+
+    // Determine which address is visually active
+    const getIsActive = useCallback(
+      (id: string, serverActive: boolean) =>
+        optimisticActiveId ? id === optimisticActiveId : serverActive,
+      [optimisticActiveId],
+    );
 
     return (
       <BottomSheet
@@ -140,9 +154,9 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
                 renderItem={({ item }) => (
                   <AddressListItem
                     address={item}
-                    isActive={item.is_active}
+                    isActive={getIsActive(item.id, item.is_active)}
                     onPress={() => handleActivate(item.id)}
-                    isLoading={setActiveMutation.isPending}
+                    disabled={setActiveMutation.isPending}
                   />
                 )}
               />

@@ -81,7 +81,8 @@ export class AddressesRepository implements IAddressesRepository {
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
     return data;
@@ -101,7 +102,8 @@ export class AddressesRepository implements IAddressesRepository {
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
-      .eq('technician_id', technicianId);
+      .eq('technician_id', technicianId)
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
     return data;

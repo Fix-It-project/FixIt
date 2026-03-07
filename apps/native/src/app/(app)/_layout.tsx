@@ -114,6 +114,12 @@ export default function AppLayout() {
           href: null, // hidden from tab bar
         }}
       />
+      <Tabs.Screen
+        name="add-address"
+        options={{
+          href: null, // hidden from tab bar
+        }}
+      />
     </Tabs>
   );
 }
