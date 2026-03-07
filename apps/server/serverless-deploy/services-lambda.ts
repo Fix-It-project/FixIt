@@ -1,7 +1,7 @@
 import serverlessExpress from '@codegenie/serverless-express';
-import categoriesRoutes from '../src/modules/categories/categories.routes.js';
+import servicesRoutes from '../src/modules/services/services.routes.js';
 import app from '../src/shared-app.js';
 
-app.use('/api/categories/:categoryId/services', categoriesRoutes);
+app.use('/api/categories/:categoryId/services', servicesRoutes);
 
 export const handler = serverlessExpress({ app });

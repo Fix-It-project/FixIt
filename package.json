@@ -29,6 +29,7 @@
     "@FixIt/config": "workspace:*",
     "@biomejs/biome": "^2.4.2",
     "@types/node": "catalog:",
+    "@types/react-native-calendars": "^1.1267.0",
     "turbo": "^2.8.9",
     "typescript": "catalog:"
   },
