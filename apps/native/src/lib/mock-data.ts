@@ -184,3 +184,45 @@ export const NEARBY_TECHNICIANS: Technician[] = [
     coverImage: require("@/src/assets/covers/cover_cleaning.png"),
   },
 ];
+
+// ─── Technician Listings (mock API fallback) ─────────────────────────────────
+
+import type { TechnicianListItem } from "@/src/services/technicians/types";
+
+/** Mock technicians indexed by category ID (matches CATEGORIES ids). */
+export const MOCK_TECHNICIANS_BY_CATEGORY: Record<string, TechnicianListItem[]> = {
+  // Air Condition
+  "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908": [
+    { id: "t-ac-1", first_name: "Ahmed", last_name: "Hassan", email: "ahmed@fix.it", phone: "+201234567890", is_available: true, category_id: "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908" },
+    { id: "t-ac-2", first_name: "Karim", last_name: "Nasser", email: "karim@fix.it", phone: "+201234567891", is_available: true, category_id: "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908" },
+    { id: "t-ac-3", first_name: "Omar", last_name: "Khaled", email: "omar@fix.it", phone: "+201234567892", is_available: true, category_id: "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908" },
+    { id: "t-ac-4", first_name: "Mostafa", last_name: "Ali", email: "mostafa@fix.it", phone: "+201234567893", is_available: false, category_id: "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908" },
+    { id: "t-ac-5", first_name: "Youssef", last_name: "Ibrahim", email: "youssef@fix.it", phone: "+201234567894", is_available: true, category_id: "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908" },
+    { id: "t-ac-6", first_name: "Hassan", last_name: "Mahmoud", email: "hassan@fix.it", phone: "+201234567895", is_available: false, category_id: "1d85a9ac-ffbb-4164-9f3f-6bb4100c9908" },
+  ],
+  // Dish
+  "078c039e-72a6-4b81-9940-3b440cbcd8da": [
+    { id: "t-ds-1", first_name: "Tarek", last_name: "Saeed", email: "tarek@fix.it", phone: "+201234567800", is_available: true, category_id: "078c039e-72a6-4b81-9940-3b440cbcd8da" },
+    { id: "t-ds-2", first_name: "Amr", last_name: "Farouk", email: "amr@fix.it", phone: "+201234567801", is_available: true, category_id: "078c039e-72a6-4b81-9940-3b440cbcd8da" },
+  ],
+  // Fan
+  "bbfc1ee7-38bc-4927-af90-4d90a3afce22": [
+    { id: "t-fn-1", first_name: "Mahmoud", last_name: "Adel", email: "mahmoud@fix.it", phone: "+201234567810", is_available: true, category_id: "bbfc1ee7-38bc-4927-af90-4d90a3afce22" },
+  ],
+  // Fridge/Freezer
+  "223d2864-9b6d-4e87-ae6c-432a4e85f35e": [
+    { id: "t-ff-1", first_name: "Sayed", last_name: "Ragab", email: "sayed@fix.it", phone: "+201234567820", is_available: true, category_id: "223d2864-9b6d-4e87-ae6c-432a4e85f35e" },
+    { id: "t-ff-2", first_name: "Khaled", last_name: "Emad", email: "khaled@fix.it", phone: "+201234567821", is_available: false, category_id: "223d2864-9b6d-4e87-ae6c-432a4e85f35e" },
+  ],
+  // Plumbing
+  "57954692-2cf3-489f-aa9d-42d0da4cf95c": [
+    { id: "t-pl-1", first_name: "Ali", last_name: "Mostafa", email: "ali@fix.it", phone: "+201234567830", is_available: true, category_id: "57954692-2cf3-489f-aa9d-42d0da4cf95c" },
+    { id: "t-pl-2", first_name: "Waleed", last_name: "Sami", email: "waleed@fix.it", phone: "+201234567831", is_available: true, category_id: "57954692-2cf3-489f-aa9d-42d0da4cf95c" },
+    { id: "t-pl-3", first_name: "Ibrahim", last_name: "Gamal", email: "ibrahim@fix.it", phone: "+201234567832", is_available: false, category_id: "57954692-2cf3-489f-aa9d-42d0da4cf95c" },
+  ],
+  // Electrician
+  "b2c3d4e5-5555-6666-7777-888899990000": [
+    { id: "t-el-1", first_name: "Nabil", last_name: "Hamed", email: "nabil@fix.it", phone: "+201234567840", is_available: true, category_id: "b2c3d4e5-5555-6666-7777-888899990000" },
+    { id: "t-el-2", first_name: "Sherif", last_name: "Youssef", email: "sherif@fix.it", phone: "+201234567841", is_available: true, category_id: "b2c3d4e5-5555-6666-7777-888899990000" },
+  ],
+};
