@@ -6,7 +6,7 @@ import technicianCalendarRoutes from './modules/technician-calendar/technician-c
 import usersRoutes from './modules/users/users.routes.js';
 import categoriesRoutes from './modules/categories/categories.routes.js';
 import servicesRoutes from './modules/services/services.routes.js';
-import { techniciansRoutes } from './modules/technicians/index.js';
+import { techniciansRoutes, technicianProfileRoutes } from './modules/technicians/index.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/technician-auth', technicianAuthRoutes);
@@ -17,4 +17,5 @@ app.use('/api/users', usersRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/categories/:categoryId/services', servicesRoutes);
 app.use('/api/categories/:categoryId/technicians', techniciansRoutes);
+app.use('/api/technicians', technicianProfileRoutes);
 export default app;

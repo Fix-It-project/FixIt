@@ -27,6 +27,7 @@ export interface UpdateTechnicianData {
 export interface ITechnicianQueryRepository {
   getTechniciansByCategory(categoryId: string): Promise<any[]>;
   searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+  getTechnicianProfile(id: string): Promise<any | null>;
 }
 
 /** Full CRUD interface — used by modules that manage technician records. */
@@ -40,6 +41,17 @@ export interface ITechniciansRepository extends ITechnicianQueryRepository {
 }
 
 export class TechniciansRepository implements ITechniciansRepository {
+  async getTechnicianProfile(id: string): Promise<any | null> {
+    const { data, error } = await supabaseAdmin
+      .from('technicians')
+      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    return data;
+  }
+
   async getTechniciansByCategory(categoryId: string): Promise<any[]> {
     const { data, error } = await supabaseAdmin
       .from('technicians')

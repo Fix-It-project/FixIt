@@ -20,4 +20,16 @@ export class TechniciansController {
     const technicians = await this.service.searchTechniciansByCategory(categoryId, query);
     res.json({ technicians });
   }
+
+  async getProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      const profile = await this.service.getTechnicianProfile(id);
+      res.json({ profile });
+    } catch (error: any) {
+      const status = error.status ?? 500;
+      res.status(status).json({ error: error.message ?? 'Internal server error' });
+    }
+  }
 }
+
