@@ -48,4 +48,23 @@ export const Colors = {
   gradientRoleStart: "#f0f4ff",
   gradientRoleMid: "#dbe2ff",
   gradientRoleEnd: "#f0f5ff",
+
+  // ─── Category icon colors ────────────────────────────────
+  category: {
+    cyan:   "#00BCD4", // Air Condition, Fan
+    indigo: "#5C6BC0", // Dish
+    red:    "#EF5350", // Fridge/Freezer
+    green:  "#4CAF50", // Home Cleaning
+    rose:   "#F44336", // Oven/Cooker
+    purple: "#9C27B0", // Painter
+    blue:   "#2196F3", // Plumbing
+    brown:  "#795548", // Carpenter
+    orange: "#FF9800", // Electrician
+    // Fallback palette (in order) for categories without a mapped icon
+    fallbacks: [
+      "#00BCD4", "#5C6BC0", "#EF5350", "#4CAF50",
+      "#F44336", "#9C27B0", "#2196F3", "#795548",
+      "#FF9800", "#009688", "#607D8B", "#E91E63",
+    ],
+  },
 } as const;

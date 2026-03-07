@@ -12,7 +12,6 @@ import NearYouSection from "@/src/components/home/NearYouSection";
 import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/components/home/AddressBottomSheet";
 import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/components/home/AddNewAddressSheet";
 import { Colors } from "@/src/lib/colors";
-import { CATEGORIES } from "@/src/lib/categories";
 
 /** Vertical gap between home-page sections (single source of truth). */
 const SECTION_GAP = 16;
@@ -21,13 +20,13 @@ export default function Home() {
   const addressSheetRef = useRef<AddressBottomSheetRef>(null);
   const addNewAddressSheetRef = useRef<AddNewAddressSheetRef>(null);
 
-  const handleCategoryPress = (categoryId: string) => {
-    const cat = CATEGORIES.find((c) => c.id === categoryId);
+  // Incoming change: categoryName now passed directly instead of looked up via CATEGORIES.find()
+  const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
       pathname: "/(app)/technicians-list" as any,
       params: {
         categoryId,
-        categoryName: cat?.label ?? "Technicians",
+        categoryName,
       },
     });
   };
@@ -67,13 +66,10 @@ export default function Home() {
           <View className="bg-surface-gray" style={{ paddingTop: 12, gap: SECTION_GAP }}>
             {/* Category grid */}
             <CategoryGrid onCategoryPress={handleCategoryPress} />
-
             {/* Recommended technicians */}
             <RecommendedTechnicians />
-
             {/* Near You section */}
             <NearYouSection />
-
             {/* Previous orders */}
             <PreviousOrdersSection />
           </View>
@@ -84,7 +80,6 @@ export default function Home() {
           ref={addressSheetRef}
           onAddNewAddress={handleAddNewAddress}
         />
-
         {/* Add new address bottom sheet */}
         <AddNewAddressSheet ref={addNewAddressSheetRef} />
       </SafeAreaView>
