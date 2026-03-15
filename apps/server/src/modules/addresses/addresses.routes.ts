@@ -19,6 +19,9 @@ userAddressRoutes.put('/user/addresses/:id', requireUserAuth, (req, res) => user
 // DELETE /api/addresses/user/addresses/:id - Delete an address
 userAddressRoutes.delete('/user/addresses/:id', requireUserAuth, (req, res) => userAddressHandlers.deleteAddress(req, res));
 
+// PATCH /api/addresses/user/addresses/:id/activate - Set an address as active
+userAddressRoutes.patch('/user/addresses/:id/activate', requireUserAuth, (req, res) => userAddressHandlers.setActiveAddress(req, res));
+
 //Technician address routes
 
 export const technicianAddressRoutes: RouterType = Router();
@@ -34,3 +37,7 @@ technicianAddressRoutes.put('/technician/addresses/:id', requireTechnicianAuth, 
 
 // DELETE /api/addresses/technician/addresses/:id - Delete an address
 technicianAddressRoutes.delete('/technician/addresses/:id', requireTechnicianAuth, (req, res) => technicianAddressHandlers.deleteAddress(req, res));
+
+// PATCH /api/addresses/technician/addresses/:id/activate - Set an address as active
+technicianAddressRoutes.patch('/technician/addresses/:id/activate', requireTechnicianAuth, (req, res) => technicianAddressHandlers.setActiveAddress(req, res));
+

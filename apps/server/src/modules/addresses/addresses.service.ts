@@ -2,6 +2,8 @@ import { addressesRepository, type AddressFields, type UpdateAddressData } from 
 
 type OwnerRole = 'user' | 'technician';
 
+const MAX_ADDRESSES_PER_OWNER = 3;
+
 export class AddressesService {
   async getAddresses(ownerId: string, role: OwnerRole) {
     if (role === 'user') {
@@ -15,10 +17,29 @@ export class AddressesService {
     role: OwnerRole,
     data: AddressFields,
   ) {
+    // Enforce max addresses per owner
+    const count = role === 'user'
+      ? await addressesRepository.getAddressCountByUserId(ownerId)
+      : await addressesRepository.getAddressCountByTechnicianId(ownerId);
+
+    if (count >= MAX_ADDRESSES_PER_OWNER) {
+      throw new Error(`Maximum of ${MAX_ADDRESSES_PER_OWNER} addresses allowed`);
+    }
+
+    // Atomically deactivate all existing addresses, then create the new one as active
+    await addressesRepository.deactivateAllAddresses(ownerId, role);
+
     const ownerData = role === 'user'
-      ? { user_id: ownerId, ...data }
-      : { technician_id: ownerId, ...data };
+      ? { user_id: ownerId, ...data, is_active: true }
+      : { technician_id: ownerId, ...data, is_active: true };
+
     return await addressesRepository.createAddress(ownerData);
+  }
+
+  async setActiveAddress(ownerId: string, role: OwnerRole, addressId: string) {
+    // Deactivate all, then activate the chosen one
+    await addressesRepository.deactivateAllAddresses(ownerId, role);
+    return await addressesRepository.setAddressActive(addressId, ownerId, role);
   }
 
   async updateAddress(

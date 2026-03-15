@@ -32,8 +32,15 @@ function createAddressHandlers(role: OwnerRole) {
         const ownerId = getOwnerId(req);
         const { city, street, building_no, apartment_no, latitude, longitude } = req.body;
 
-        if (!city || !street) {
-          return res.status(400).json({ error: 'City and street are required' });
+        // Validate required fields
+        const errors: string[] = [];
+        if (!city || typeof city !== 'string') errors.push('City is required');
+        if (!street || typeof street !== 'string') errors.push('Street is required');
+        if (latitude == null || typeof latitude !== 'number') errors.push('Latitude is required and must be a number');
+        if (longitude == null || typeof longitude !== 'number') errors.push('Longitude is required and must be a number');
+
+        if (errors.length > 0) {
+          return res.status(400).json({ error: errors.join('. ') });
         }
 
         const address = await addressesService.addAddress(ownerId, role, {
@@ -42,7 +49,8 @@ function createAddressHandlers(role: OwnerRole) {
         return res.status(201).json({ address });
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';
-        return res.status(400).json({ error: message });
+        const status = message.includes('Maximum of') ? 409 : 400;
+        return res.status(status).json({ error: message });
       }
     },
 
@@ -71,6 +79,20 @@ function createAddressHandlers(role: OwnerRole) {
 
         const result = await addressesService.deleteAddress(ownerId, role, addressId);
         return res.status(200).json(result);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return res.status(400).json({ error: message });
+      }
+    },
+
+    async setActiveAddress(req: Request, res: Response) {
+      try {
+        const ownerId = getOwnerId(req);
+        const addressId = req.params.id as string;
+        if (!addressId) return res.status(400).json({ error: 'Address ID is required' });
+
+        const address = await addressesService.setActiveAddress(ownerId, role, addressId);
+        return res.status(200).json({ address });
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         return res.status(400).json({ error: message });

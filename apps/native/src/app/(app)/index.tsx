@@ -1,3 +1,4 @@
+import { useRef, useCallback } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -8,12 +9,18 @@ import PreviousOrdersSection from "@/src/components/home/OrderAgainCard";
 import CategoryGrid from "@/src/components/home/CategoryGrid";
 import RecommendedTechnicians from "@/src/components/home/RecommendedTechnicians";
 import NearYouSection from "@/src/components/home/NearYouSection";
+import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/components/home/AddressBottomSheet";
+import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/components/home/AddNewAddressSheet";
 import { Colors } from "@/src/lib/colors";
 
 /** Vertical gap between home-page sections (single source of truth). */
 const SECTION_GAP = 16;
 
 export default function Home() {
+  const addressSheetRef = useRef<AddressBottomSheetRef>(null);
+  const addNewAddressSheetRef = useRef<AddNewAddressSheetRef>(null);
+
+  // Incoming change: categoryName now passed directly instead of looked up via CATEGORIES.find()
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
       pathname: "/(app)/technicians-list" as any,
@@ -23,6 +30,18 @@ export default function Home() {
       },
     });
   };
+
+  const handleLocationPress = useCallback(() => {
+    addressSheetRef.current?.open();
+  }, []);
+
+  const handleAddNewAddress = useCallback(() => {
+    addressSheetRef.current?.close();
+    // Small delay to let the first sheet close before opening the second
+    setTimeout(() => {
+      addNewAddressSheetRef.current?.open();
+    }, 300);
+  }, []);
 
   return (
     <View className="flex-1 bg-surface-gray">
@@ -39,7 +58,7 @@ export default function Home() {
           {/* Blue header area */}
           <View style={{ backgroundColor: Colors.brand }} className="pb-6">
             <HeaderPolygons />
-            <LocationHeader />
+            <LocationHeader onLocationPress={handleLocationPress} />
             <SearchBar />
           </View>
 
@@ -47,19 +66,23 @@ export default function Home() {
           <View className="bg-surface-gray" style={{ paddingTop: 12, gap: SECTION_GAP }}>
             {/* Category grid */}
             <CategoryGrid onCategoryPress={handleCategoryPress} />
-
             {/* Recommended technicians */}
             <RecommendedTechnicians />
-
             {/* Near You section */}
             <NearYouSection />
-
             {/* Previous orders */}
             <PreviousOrdersSection />
           </View>
         </ScrollView>
+
+        {/* Address selection bottom sheet */}
+        <AddressBottomSheet
+          ref={addressSheetRef}
+          onAddNewAddress={handleAddNewAddress}
+        />
+        {/* Add new address bottom sheet */}
+        <AddNewAddressSheet ref={addNewAddressSheetRef} />
       </SafeAreaView>
     </View>
   );
 }
-

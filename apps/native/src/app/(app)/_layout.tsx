@@ -16,7 +16,6 @@ export default function AppLayout() {
     return <Redirect href="/(auth)/get-started" />;
   }
 
-  // Technicians should never land on the user app
   if (!isLoading && isAuthenticated && userType === "technician") {
     return <Redirect href="/(tech-app)" />;
   }
@@ -77,6 +76,8 @@ export default function AppLayout() {
           }}
         />
         <Tabs.Screen name="technicians-list" options={{ href: null }} />
+        {/* Your addition — kept from HEAD */}
+        <Tabs.Screen name="add-address" options={{ href: null }} />
       </Tabs>
 
       {/* Floating chat button — bottom-right, above tab bar */}
