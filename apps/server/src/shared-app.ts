@@ -4,18 +4,18 @@ import cors from 'cors';
 
 const app: Express = express();
 
-// Middlewares
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    origin: env.CORS_ORIGIN.split(','),
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check route
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'FixIt API Server is running' });
 });

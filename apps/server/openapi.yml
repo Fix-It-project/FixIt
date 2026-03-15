@@ -5,7 +5,10 @@ info:
   description: API for the FixIt platform — users, technicians, categories, services, and scheduling.
 
 servers:
-  - url: /api
+  - url: http://localhost:3000/api
+    description: Local development
+  - url: https://d25l1nu40gf2i5.cloudfront.net/api
+    description: Production (CloudFront)
 
 components:
   securitySchemes:

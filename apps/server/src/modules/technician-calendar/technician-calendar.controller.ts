@@ -21,8 +21,8 @@ export class TechnicianCalendarController {
       const technicianId = this.checkOwnership(req, res);
       if (!technicianId) return;
 
-      const { from, to, type } = req.query as any;
-      const entries = await technicianCalendarService.getCalendar(technicianId, { from, to, type });
+      const { from, to } = req.query as any;
+      const entries = await technicianCalendarService.getCalendar(technicianId, { from, to });
       return res.status(200).json({ data: entries });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
@@ -51,18 +51,17 @@ export class TechnicianCalendarController {
       const technicianId = this.checkOwnership(req, res);
       if (!technicianId) return;
 
-      const { start, end, type, source } = req.body;
+      const { date, source, active } = req.body;
 
-      if (!start || !end || !type) {
-        return res.status(400).json({ error: '`start`, `end`, and `type` are required.' });
+      if (!date) {
+        return res.status(400).json({ error: '`date` is required in format YYYY-MM-DD.' });
       }
 
       const entry = await technicianCalendarService.createEntry({
         technician_id: technicianId,
-        start,
-        end,
-        type,
+        date,
         source,
+        active,
       });
 
       return res.status(201).json({ data: entry });
@@ -79,7 +78,9 @@ export class TechnicianCalendarController {
       if (!technicianId) return;
 
       const { id } = req.params as any;
-      const entry = await technicianCalendarService.updateEntry(id, req.body);
+      const { date, source, active } = req.body;
+
+      const entry = await technicianCalendarService.updateEntry(id, { date, source, active });
       return res.status(200).json({ data: entry });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
@@ -138,17 +139,16 @@ export class TechnicianCalendarController {
       const technicianId = this.checkOwnership(req, res);
       if (!technicianId) return;
 
-      const { day_of_week, start, end } = req.body;
+      const { day_of_week, active } = req.body;
 
-      if (day_of_week === undefined || !start || !end) {
-        return res.status(400).json({ error: '`day_of_week`, `start`, and `end` are required.' });
+      if (day_of_week === undefined) {
+        return res.status(400).json({ error: '`day_of_week` is required for availability templates.' });
       }
 
       const template = await technicianCalendarService.createTemplate({
         technician_id: technicianId,
         day_of_week,
-        start,
-        end,
+        active,
       });
 
       return res.status(201).json({ data: template });
@@ -165,7 +165,8 @@ export class TechnicianCalendarController {
       if (!technicianId) return;
 
       const { id } = req.params as any;
-      const template = await technicianCalendarService.updateTemplate(id, req.body);
+      const { day_of_week, active } = req.body;
+      const template = await technicianCalendarService.updateTemplate(id, { day_of_week, active });
       return res.status(200).json({ data: template });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
