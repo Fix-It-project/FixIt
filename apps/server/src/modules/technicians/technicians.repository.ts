@@ -45,10 +45,28 @@ export interface TechnicianProfileRow {
   category_id: string;
 }
 
+/** Row shape returned when listing technicians with their active address. */
+export interface TechnicianWithAddressRow {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  is_available: boolean;
+  category_id: string;
+  addresses: Array<{
+    city: string;
+    street: string;
+    latitude: number | null;
+    longitude: number | null;
+    is_active: boolean;
+  }>;
+}
+
 /** Minimal read interface required by TechniciansService (ISP). */
 export interface ITechnicianQueryRepository {
-  getTechniciansByCategory(categoryId: string): Promise<any[]>;
-  searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+  getTechniciansByCategory(categoryId: string): Promise<TechnicianWithAddressRow[]>;
+  searchTechniciansByCategory(categoryId: string, query: string): Promise<TechnicianWithAddressRow[]>;
   getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null>;
 }
 
@@ -74,28 +92,28 @@ export class TechniciansRepository implements ITechniciansRepository {
     return data;
   }
 
-  async getTechniciansByCategory(categoryId: string): Promise<any[]> {
+  async getTechniciansByCategory(categoryId: string): Promise<TechnicianWithAddressRow[]> {
     const { data, error } = await supabaseAdmin
       .from('technicians')
-      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .select('id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)')
       .eq('category_id', categoryId)
       .order('first_name', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as TechnicianWithAddressRow[];
   }
 
-  async searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]> {
+  async searchTechniciansByCategory(categoryId: string, query: string): Promise<TechnicianWithAddressRow[]> {
     const term = `%${query}%`;
     const { data, error } = await supabaseAdmin
       .from('technicians')
-      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .select('id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)')
       .eq('category_id', categoryId)
       .or(`first_name.ilike.${term},last_name.ilike.${term}`)
       .order('first_name', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as TechnicianWithAddressRow[];
   }
 
   async createTechnician(data: CreateTechnicianData) {

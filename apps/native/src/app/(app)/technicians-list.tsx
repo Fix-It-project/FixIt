@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -13,6 +13,7 @@ import { ChevronLeft, Search, SlidersHorizontal } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 import { useTechniciansQuery } from "@/src/hooks/technicians/useTechniciansQuery";
+import { useLocationStore } from "@/src/stores/location-store";
 import TechnicianListCard from "@/src/components/technicians/TechnicianListCard";
 import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
@@ -79,20 +80,27 @@ export default function TechniciansListScreen() {
   const [searchText, setSearchText] = useState("");
   const [activeSort, setActiveSort] = useState<SortKey>("Top Rated");
 
+  const { location, permissionStatus, requestLocationPermission } = useLocationStore();
+  const coords = activeSort === "Nearest" ? location : null;
+
   const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 
   // TanStack Query – cached & refetchable
   const { data: technicians = [], isLoading } = useTechniciansQuery(
     categoryId ?? "",
     searchText,
+    coords,
   );
 
-  // Client-side sort (the API doesn't sort by these yet)
-  const sortedTechnicians = useMemo(() => {
-    const list = [...technicians];
-    // Sorting uses the same deterministic seed from the card — fine for now
-    return list;
-  }, [technicians, activeSort]);
+  const handleSortPress = useCallback(
+    (option: SortKey) => {
+      setActiveSort(option);
+      if (option === "Nearest" && permissionStatus !== "granted") {
+        requestLocationPermission();
+      }
+    },
+    [permissionStatus, requestLocationPermission],
+  );
 
   const handleAvatarPress = useCallback(
     (technicianId: string, initials: string) => {
@@ -177,7 +185,7 @@ export default function TechniciansListScreen() {
               return (
                 <TouchableOpacity
                   key={option}
-                  onPress={() => setActiveSort(option)}
+                  onPress={() => handleSortPress(option)}
                   activeOpacity={0.7}
                   className="items-center justify-center rounded-full px-4"
                   style={{
@@ -203,7 +211,7 @@ export default function TechniciansListScreen() {
         {/* ── Technician list ── */}
         <TechnicianListBody
           isLoading={isLoading}
-          technicians={sortedTechnicians}
+          technicians={technicians}
           onAvatarPress={handleAvatarPress}
         />
       </View>

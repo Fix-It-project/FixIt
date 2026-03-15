@@ -19,9 +19,24 @@ function derive(id: string) {
     specialty: SPECIALTIES[seededIndex(id + "s", SPECIALTIES.length)],
     rating: +(4.5 + (seededIndex(id + "r", 5) * 0.1)).toFixed(1),
     reviewCount: 50 + seededIndex(id + "c", 280),
-    distance: (0.5 + seededIndex(id + "d", 50) * 0.1).toFixed(1),
     yearsExp: 3 + seededIndex(id + "y", 15),
   };
+}
+
+/** Build a readable location label: "2.3 km · Cairo, Main St" */
+function formatLocation(
+  distanceKm: number | null,
+  city: string | null,
+  street: string | null,
+): string {
+  const parts: string[] = [];
+  if (city) parts.push(city);
+  if (street) parts.push(street);
+  const place = parts.join(", ") || null;
+
+  if (distanceKm != null && place) return `${distanceKm.toFixed(1)} km · ${place}`;
+  if (distanceKm != null) return `${distanceKm.toFixed(1)} km away`;
+  return place ?? "No location";
 }
 
 interface TechnicianListCardProps {
@@ -77,11 +92,11 @@ export default function TechnicianListCard({ item, onPress, onAvatarPress }: Rea
 
           <RatingRow rating={extras.rating} reviewCount={extras.reviewCount} />
 
-          {/* Distance · experience */}
+          {/* Location · experience */}
           <View className="mt-0.5 flex-row items-center" style={{ gap: 4 }}>
             <MapPin size={11} color={Colors.surfaceMuted} strokeWidth={2} />
-            <Text className="text-[11px] text-content-muted">
-              {extras.distance} km away
+            <Text className="text-[11px] text-content-muted" numberOfLines={1}>
+              {formatLocation(item.distance_km, item.city, item.street)}
             </Text>
             <Text className="text-[11px] text-content-muted">·</Text>
             <Clock size={11} color={Colors.surfaceMuted} strokeWidth={2} />
