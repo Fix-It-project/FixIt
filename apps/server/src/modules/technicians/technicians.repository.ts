@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import { distanceKm } from '../../shared/utils/technicians/index.js';
 
 export interface CreateTechnicianData {
   id: string;           // Must match the auth.users ID
@@ -45,10 +46,63 @@ export interface TechnicianProfileRow {
   category_id: string;
 }
 
+/** Row shape returned when listing technicians with their active address. */
+export interface TechnicianWithAddressRow {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  is_available: boolean;
+  category_id: string;
+  addresses: Array<{
+    city: string;
+    street: string;
+    latitude: number | null;
+    longitude: number | null;
+    is_active: boolean;
+  }>;
+}
+
+export interface TechnicianListDTO {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  is_available: boolean;
+  category_id: string;
+  city: string | null;
+  street: string | null;
+  distance_km: number | null;
+}
+
+export function toDTO(row: TechnicianWithAddressRow, userLat?: number, userLng?: number): TechnicianListDTO {
+  const activeAddr = row.addresses.find((a) => a.is_active) ?? row.addresses[0] ?? null;
+
+  let distance_km: number | null = null;
+  if (userLat != null && userLng != null && activeAddr?.latitude != null && activeAddr?.longitude != null) {
+    distance_km = distanceKm(userLat, userLng, activeAddr.latitude, activeAddr.longitude);
+  }
+
+  return {
+    id: row.id,
+    first_name: row.first_name,
+    last_name: row.last_name,
+    email: row.email,
+    phone: row.phone,
+    is_available: row.is_available,
+    category_id: row.category_id,
+    city: activeAddr?.city ?? null,
+    street: activeAddr?.street ?? null,
+    distance_km,
+  };
+}
+
 /** Minimal read interface required by TechniciansService (ISP). */
 export interface ITechnicianQueryRepository {
-  getTechniciansByCategory(categoryId: string): Promise<any[]>;
-  searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+  getTechniciansByCategory(categoryId: string): Promise<TechnicianWithAddressRow[]>;
+  searchTechniciansByCategory(categoryId: string, query: string): Promise<TechnicianWithAddressRow[]>;
   getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null>;
 }
 
@@ -74,28 +128,28 @@ export class TechniciansRepository implements ITechniciansRepository {
     return data;
   }
 
-  async getTechniciansByCategory(categoryId: string): Promise<any[]> {
+  async getTechniciansByCategory(categoryId: string): Promise<TechnicianWithAddressRow[]> {
     const { data, error } = await supabaseAdmin
       .from('technicians')
-      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .select('id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)')
       .eq('category_id', categoryId)
       .order('first_name', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as TechnicianWithAddressRow[];
   }
 
-  async searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]> {
+  async searchTechniciansByCategory(categoryId: string, query: string): Promise<TechnicianWithAddressRow[]> {
     const term = `%${query}%`;
     const { data, error } = await supabaseAdmin
       .from('technicians')
-      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .select('id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)')
       .eq('category_id', categoryId)
       .or(`first_name.ilike.${term},last_name.ilike.${term}`)
       .order('first_name', { ascending: true });
 
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as TechnicianWithAddressRow[];
   }
 
   async createTechnician(data: CreateTechnicianData) {

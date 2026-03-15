@@ -16,6 +16,8 @@
     "cors": "^2.8.5",
     "dotenv": "catalog:",
     "express": "^5.1.0",
+    "geolib": "^3.3.4",
+    "lodash": "^4.17.23",
     "multer": "^2.0.2",
     "zod": "catalog:"
   },
@@ -23,6 +25,7 @@
     "@FixIt/config": "workspace:*",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
+    "@types/lodash": "^4.17.23",
     "@types/node": "catalog:",
     "serverless-esbuild": "^1.57.0",
     "serverless-plugin-monorepo": "^0.11.0",

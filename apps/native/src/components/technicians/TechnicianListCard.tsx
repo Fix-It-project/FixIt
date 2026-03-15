@@ -2,7 +2,7 @@ import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { MapPin, Clock } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { seededIndex } from "@/src/lib/helpers/technician-utils";
+import { formatLocation, seededIndex } from "@/src/lib/helpers/technician-utils";
 import TechnicianAvatar from "@/src/components/technicians/TechnicianAvatar";
 import RatingRow from "@/src/components/technicians/RatingRow";
 import AvailabilityBadge from "@/src/components/technicians/AvailabilityBadge";
@@ -19,7 +19,6 @@ function derive(id: string) {
     specialty: SPECIALTIES[seededIndex(id + "s", SPECIALTIES.length)],
     rating: +(4.5 + (seededIndex(id + "r", 5) * 0.1)).toFixed(1),
     reviewCount: 50 + seededIndex(id + "c", 280),
-    distance: (0.5 + seededIndex(id + "d", 50) * 0.1).toFixed(1),
     yearsExp: 3 + seededIndex(id + "y", 15),
   };
 }
@@ -77,11 +76,11 @@ export default function TechnicianListCard({ item, onPress, onAvatarPress }: Rea
 
           <RatingRow rating={extras.rating} reviewCount={extras.reviewCount} />
 
-          {/* Distance · experience */}
+          {/* Location · experience */}
           <View className="mt-0.5 flex-row items-center" style={{ gap: 4 }}>
             <MapPin size={11} color={Colors.surfaceMuted} strokeWidth={2} />
-            <Text className="text-[11px] text-content-muted">
-              {extras.distance} km away
+            <Text className="text-[11px] text-content-muted" numberOfLines={1}>
+              {formatLocation(item.distance_km, item.city, item.street)}
             </Text>
             <Text className="text-[11px] text-content-muted">·</Text>
             <Clock size={11} color={Colors.surfaceMuted} strokeWidth={2} />

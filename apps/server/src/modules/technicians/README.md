@@ -1,6 +1,6 @@
 # Technicians Module
 
-Public listing and search of technicians scoped to a category.
+Public listing and search of technicians scoped to a category, plus technician profile retrieval.
 
 ## 📁 Structure
 
@@ -13,21 +13,31 @@ technicians/
 └── index.ts                   # Public module exports
 ```
 
+Shared technician-specific helpers are grouped under `shared/utils/technicians/`:
+- `parseCoords` (query parsing for `lat` / `lng`)
+- `distanceKm` (geodesic distance calculation)
+- `sortByDistance` (distance-first sorting)
+
 ---
 
 ## 🌐 Endpoints
 
-Base path: `/api/categories/:categoryId/technicians`
+Base paths:
+- `/api/categories/:categoryId/technicians`
+- `/api/technicians`
 
-No authentication required — all endpoints are public.
+Category listing/search endpoints are public.  
+Profile endpoint requires authenticated user.
 
-| Method | Path         | Query params | Description                                    |
-|--------|--------------|--------------|------------------------------------------------|
-| `GET`  | `/`          | —            | List all technicians in a category             |
-| `GET`  | `/search`    | `q` (string) | Search technicians by name within the category |
+| Method | Path                                      | Query params                                  | Description                                    |
+|--------|-------------------------------------------|-----------------------------------------------|------------------------------------------------|
+| `GET`  | `/api/categories/:categoryId/technicians` | `lat` (number, optional), `lng` (number, optional) | List all technicians in a category             |
+| `GET`  | `/api/categories/:categoryId/technicians/search` | `q` (string, required), `lat` (number, optional), `lng` (number, optional) | Search technicians by name within the category |
+| `GET`  | `/api/technicians/:id/profile`            | —                                             | Get technician profile by id                   |
 
-Both endpoints return `404` if the `categoryId` does not exist.  
-`/search` returns `400` if the `q` parameter is missing or empty.
+Category endpoints return `404` if the `categoryId` does not exist.  
+`/search` returns `400` if the `q` parameter is missing or empty.  
+`/api/technicians/:id/profile` returns `404` if technician is not found.
 
 ### List response — `GET /`
 
@@ -41,7 +51,10 @@ Both endpoints return `404` if the `categoryId` does not exist.
       "email": "ahmed@example.com",
       "phone": "+201234567890",
       "is_available": true,
-      "category_id": "<uuid>"
+      "category_id": "<uuid>",
+      "city": "Cairo",
+      "street": "Tahrir St.",
+      "distance_km": 3.2
     }
   ]
 }
@@ -49,7 +62,9 @@ Both endpoints return `404` if the `categoryId` does not exist.
 
 ### Search response — `GET /search?q=ahmed`
 
-Same shape as above, filtered to technicians whose `first_name` or `last_name` matches the query (case-insensitive `ilike`). Results are ordered alphabetically by `first_name`.
+Same shape as above, filtered to technicians whose `first_name` or `last_name` matches the query (case-insensitive `ilike`).  
+If `lat` and `lng` are provided, `distance_km` is computed and results are sorted by nearest distance.  
+Without coordinates, DB ordering by `first_name` is preserved.
 
 ---
 
@@ -63,18 +78,23 @@ technicians.routes.ts   ← Composition root
 │
 ├─ GET /           → controller.getByCategoryId()
 └─ GET /search     → controller.searchInCategory()
+technicianProfileRoutes
+└─ GET /:id/profile → controller.getProfile()
         │
         ▼
 TechniciansController
   depends on: ITechniciansService
+  uses: parseCoords() from shared/utils/technicians
         │
         ▼
 TechniciansService
   depends on: ITechnicianQueryRepository   (narrow — only listing & search)
   depends on: ICategoriesRepository        (validates category existence)
+  uses: sortByDistance() from shared/utils/technicians
         │
         ▼
 TechniciansRepository   (implements both ITechnicianQueryRepository & ITechniciansRepository)
+  uses: distanceKm() from shared/utils/technicians
   ── supabaseAdmin ──▶ technicians table
 ```
 
@@ -91,6 +111,7 @@ Used exclusively by `TechniciansService`.
 interface ITechnicianQueryRepository {
   getTechniciansByCategory(categoryId: string): Promise<any[]>;
   searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+  getTechnicianProfile(id: string): Promise<any | null>;
 }
 ```
 
@@ -113,8 +134,9 @@ Depended on by `TechniciansController`.
 
 ```typescript
 interface ITechniciansService {
-  getTechniciansByCategory(categoryId: string): Promise<any[]>;
-  searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+  getTechniciansByCategory(categoryId: string, userLat?: number, userLng?: number): Promise<any[]>;
+  searchTechniciansByCategory(categoryId: string, query: string, userLat?: number, userLng?: number): Promise<any[]>;
+  getTechnicianProfile(id: string): Promise<any>;
 }
 ```
 
@@ -147,6 +169,8 @@ technicians (
 - `emailExists()` uses a `count` query with `head: true` — no rows are fetched.
 - Document URL columns store public Supabase Storage URLs uploaded during signup by `StorageRepository`.
 - Search uses Supabase `ilike` (case-insensitive) on both `first_name` and `last_name` combined with `or`.
+- `lat` and `lng` are parsed from query params; when valid, `distance_km` is computed per technician active address.
+- Distance sorting uses `sortByDistance` and pushes missing distances to the end.
 
 ---
 
@@ -155,4 +179,3 @@ technicians (
 - **Technician Auth** — signup/signin flow that calls `createTechnician()` via `ITechniciansRepository`
 - **Categories** — `ICategoriesRepository` injected into `TechniciansService` to validate category existence
 - **Storage** — `shared/storage/storage.repository.ts` — uploads document files during signup
-

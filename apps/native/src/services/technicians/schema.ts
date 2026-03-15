@@ -9,6 +9,9 @@ export const technicianListItemSchema = z.object({
   phone: z.string().nullable(),
   is_available: z.boolean(),
   category_id: z.string(),
+  city: z.string().nullable(),
+  street: z.string().nullable(),
+  distance_km: z.number().nullable(),
 });
 
 /** Zod schema matching the server response: `{ technicians: [...] }`. */
