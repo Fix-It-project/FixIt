@@ -1,2 +1,2 @@
-export { haversineKm } from './geo.js';
+export { distanceKm } from './geo.js';
 export { sortByDistance } from './sorting.js';

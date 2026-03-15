@@ -12,3 +12,19 @@ export function seededIndex(id: string, max: number): number {
 export function getAvatarColor(id: string): string {
   return AVATAR_COLORS[seededIndex(id, AVATAR_COLORS.length)];
 }
+
+/** Build a readable location label: "2.3 km · Cairo, Main St" */
+export function formatLocation(
+  distanceKm: number | null,
+  city: string | null,
+  street: string | null,
+): string {
+  const parts: string[] = [];
+  if (city) parts.push(city);
+  if (street) parts.push(street);
+  const place = parts.join(", ") || null;
+
+  if (distanceKm != null && place) return `${distanceKm.toFixed(1)} km · ${place}`;
+  if (distanceKm != null) return `${distanceKm.toFixed(1)} km away`;
+  return place ?? "No location";
+}

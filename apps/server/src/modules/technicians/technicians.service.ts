@@ -1,6 +1,6 @@
 import type { ITechnicianQueryRepository, TechnicianProfile, TechnicianWithAddressRow } from './technicians.repository.js';
 import type { ICategoriesRepository } from '../categories/categories.repository.js';
-import { haversineKm } from '../../shared/utils/geo.js';
+import { distanceKm } from '../../shared/utils/geo.js';
 import { sortByDistance } from '../../shared/utils/sorting.js';
 
 export interface TechnicianListDTO {
@@ -27,7 +27,7 @@ function toDTO(row: TechnicianWithAddressRow, userLat?: number, userLng?: number
 
   let distance_km: number | null = null;
   if (userLat != null && userLng != null && activeAddr?.latitude != null && activeAddr?.longitude != null) {
-    distance_km = Math.round(haversineKm(userLat, userLng, activeAddr.latitude, activeAddr.longitude) * 10) / 10;
+    distance_km = distanceKm(userLat, userLng, activeAddr.latitude, activeAddr.longitude);
   }
 
   return {

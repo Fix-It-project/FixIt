@@ -2,7 +2,7 @@ import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { MapPin, Clock } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { seededIndex } from "@/src/lib/helpers/technician-utils";
+import { formatLocation, seededIndex } from "@/src/lib/helpers/technician-utils";
 import TechnicianAvatar from "@/src/components/technicians/TechnicianAvatar";
 import RatingRow from "@/src/components/technicians/RatingRow";
 import AvailabilityBadge from "@/src/components/technicians/AvailabilityBadge";
@@ -21,22 +21,6 @@ function derive(id: string) {
     reviewCount: 50 + seededIndex(id + "c", 280),
     yearsExp: 3 + seededIndex(id + "y", 15),
   };
-}
-
-/** Build a readable location label: "2.3 km · Cairo, Main St" */
-function formatLocation(
-  distanceKm: number | null,
-  city: string | null,
-  street: string | null,
-): string {
-  const parts: string[] = [];
-  if (city) parts.push(city);
-  if (street) parts.push(street);
-  const place = parts.join(", ") || null;
-
-  if (distanceKm != null && place) return `${distanceKm.toFixed(1)} km · ${place}`;
-  if (distanceKm != null) return `${distanceKm.toFixed(1)} km away`;
-  return place ?? "No location";
 }
 
 interface TechnicianListCardProps {
