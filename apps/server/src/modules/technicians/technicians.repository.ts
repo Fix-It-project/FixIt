@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import { distanceKm } from '../../shared/utils/technicians/index.js';
 
 export interface CreateTechnicianData {
   id: string;           // Must match the auth.users ID
@@ -61,6 +62,41 @@ export interface TechnicianWithAddressRow {
     longitude: number | null;
     is_active: boolean;
   }>;
+}
+
+export interface TechnicianListDTO {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  is_available: boolean;
+  category_id: string;
+  city: string | null;
+  street: string | null;
+  distance_km: number | null;
+}
+
+export function toDTO(row: TechnicianWithAddressRow, userLat?: number, userLng?: number): TechnicianListDTO {
+  const activeAddr = row.addresses.find((a) => a.is_active) ?? row.addresses[0] ?? null;
+
+  let distance_km: number | null = null;
+  if (userLat != null && userLng != null && activeAddr?.latitude != null && activeAddr?.longitude != null) {
+    distance_km = distanceKm(userLat, userLng, activeAddr.latitude, activeAddr.longitude);
+  }
+
+  return {
+    id: row.id,
+    first_name: row.first_name,
+    last_name: row.last_name,
+    email: row.email,
+    phone: row.phone,
+    is_available: row.is_available,
+    category_id: row.category_id,
+    city: activeAddr?.city ?? null,
+    street: activeAddr?.street ?? null,
+    distance_km,
+  };
 }
 
 /** Minimal read interface required by TechniciansService (ISP). */

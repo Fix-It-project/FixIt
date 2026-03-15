@@ -1,47 +1,12 @@
-import type { ITechnicianQueryRepository, TechnicianProfile, TechnicianWithAddressRow } from './technicians.repository.js';
+import type { ITechnicianQueryRepository, TechnicianListDTO, TechnicianProfile } from './technicians.repository.js';
+import { toDTO } from './technicians.repository.js';
 import type { ICategoriesRepository } from '../categories/categories.repository.js';
-import { distanceKm } from '../../shared/utils/geo.js';
-import { sortByDistance } from '../../shared/utils/sorting.js';
-
-export interface TechnicianListDTO {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string | null;
-  is_available: boolean;
-  category_id: string;
-  city: string | null;
-  street: string | null;
-  distance_km: number | null;
-}
+import { sortByDistance } from '../../shared/utils/technicians/index.js';
 
 export interface ITechniciansService {
   getTechniciansByCategory(categoryId: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]>;
   searchTechniciansByCategory(categoryId: string, query: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]>;
   getTechnicianProfile(id: string): Promise<TechnicianProfile>;
-}
-
-function toDTO(row: TechnicianWithAddressRow, userLat?: number, userLng?: number): TechnicianListDTO {
-  const activeAddr = row.addresses.find((a) => a.is_active) ?? row.addresses[0] ?? null;
-
-  let distance_km: number | null = null;
-  if (userLat != null && userLng != null && activeAddr?.latitude != null && activeAddr?.longitude != null) {
-    distance_km = distanceKm(userLat, userLng, activeAddr.latitude, activeAddr.longitude);
-  }
-
-  return {
-    id: row.id,
-    first_name: row.first_name,
-    last_name: row.last_name,
-    email: row.email,
-    phone: row.phone,
-    is_available: row.is_available,
-    category_id: row.category_id,
-    city: activeAddr?.city ?? null,
-    street: activeAddr?.street ?? null,
-    distance_km,
-  };
 }
 
 export class TechniciansService implements ITechniciansService {
