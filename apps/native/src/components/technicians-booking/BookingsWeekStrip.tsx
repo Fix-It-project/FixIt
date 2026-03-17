@@ -1,8 +1,9 @@
-import { View, TouchableOpacity, useWindowDimensions, I18nManager } from "react-native";
-import { Text } from "@/src/components/ui/text";
+import { I18nManager, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { Colors } from "@/src/lib/colors";
-import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
+import { toIso } from "@/src/lib/helpers/date-helpers";
+import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/technicians/useTechBookingsQuery";
+import { Text } from "@/src/components/ui/text";
 import Animated, {
   FadeIn,
   useSharedValue,
@@ -16,15 +17,6 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-
-function getMonday(d: Date): Date {
-  const copy = new Date(d);
-  const day = copy.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  copy.setDate(copy.getDate() + diff);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
 
 /** Horizontal week strip – 7 day circles, swipe left/right to navigate weeks with slide animation. */
 export default function BookingsWeekStrip() {
@@ -45,8 +37,6 @@ export default function BookingsWeekStrip() {
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
-
-  const toIso = (d: Date) => d.toISOString().split("T")[0];
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],

@@ -1,12 +1,14 @@
-import { View, TouchableOpacity } from "react-native";
-import { Text } from "@/src/components/ui/text";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { TouchableOpacity, View } from "react-native";
 import { Bell, ChevronLeft } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
-import { TECH_PROFILE } from "@/src/lib/tech-mock-data";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { Colors } from "@/src/lib/colors";
+import { TECH_PROFILE } from "@/src/lib/tech-mock-data";
+import { Text } from "@/src/components/ui/text";
+import BookingsCalendarSheet, { type BookingsCalendarSheetRef } from "./BookingsCalendarSheet";
+import BookingsViewToggle from "./BookingsViewToggle";
 import BookingsWeekStrip from "./BookingsWeekStrip";
-import BookingsCalendarSheet from "./BookingsCalendarSheet";
 
 /**
  * Bookings page header.
@@ -15,9 +17,27 @@ import BookingsCalendarSheet from "./BookingsCalendarSheet";
  * schedule/bookings toggle (bookings active, schedule no-op),
  * the week strip, and the "Jump" button.
  */
-export default function BookingsHeader() {
+export interface BookingsHeaderRef {
+  closeCalendarIfOpen: () => boolean;
+}
+
+const BookingsHeader = forwardRef<BookingsHeaderRef, object>(function BookingsHeader(_, ref) {
   const router = useRouter();
   const profile = TECH_PROFILE;
+  const calendarRef = useRef<BookingsCalendarSheetRef>(null);
+
+  const handleBackPress = useCallback(() => {
+    if (calendarRef.current?.closeIfOpen()) return;
+    router.back();
+  }, [router]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      closeCalendarIfOpen: () => calendarRef.current?.closeIfOpen() ?? false,
+    }),
+    [],
+  );
 
   return (
     <View
@@ -43,9 +63,9 @@ export default function BookingsHeader() {
         <View className="flex-row items-center gap-2">
           {/* Back */}
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={handleBackPress}
             className="h-9 w-9 items-center justify-center rounded-full"
-            style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+            style={{ backgroundColor: Colors.overlayMd }}
             activeOpacity={0.7}
           >
             <ChevronLeft size={20} color={Colors.white} strokeWidth={2} />
@@ -64,7 +84,7 @@ export default function BookingsHeader() {
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 26,
-                color: "#7dd3fc",
+                color: Colors.brandAccentText,
               }}
             >
               IT
@@ -74,7 +94,7 @@ export default function BookingsHeader() {
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 22,
-                color: "rgba(255,255,255,0.85)",
+                color: Colors.white,
               }}
             >
               Technicians
@@ -86,9 +106,9 @@ export default function BookingsHeader() {
           {/* Online badge */}
           <View className="flex-row items-center gap-1.5">
             <Text
-              className="text-xs font-bold uppercase"
+              className="font-bold text-xs uppercase"
               style={{
-                color: profile.isOnline ? "#86efac" : "rgba(255,255,255,0.5)",
+                color: profile.isOnline ? Colors.onlineGreen : Colors.overlaySub,
               }}
             >
               {profile.isOnline ? "Online" : "Offline"}
@@ -96,9 +116,7 @@ export default function BookingsHeader() {
             <View
               className="h-2 w-2 rounded-full"
               style={{
-                backgroundColor: profile.isOnline
-                  ? "#86efac"
-                  : "rgba(255,255,255,0.4)",
+                backgroundColor: profile.isOnline ? Colors.onlineGreen : Colors.overlayDim,
               }}
             />
           </View>
@@ -106,12 +124,12 @@ export default function BookingsHeader() {
           {/* Bell */}
           <TouchableOpacity
             className="h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+            style={{ backgroundColor: Colors.overlayMd }}
             activeOpacity={0.7}
           >
             <Bell size={20} color={Colors.white} strokeWidth={1.8} />
             <View
-              className="absolute right-2 top-2 h-2 w-2 rounded-full"
+              className="absolute top-2 right-2 h-2 w-2 rounded-full"
               style={{ backgroundColor: Colors.error }}
             />
           </TouchableOpacity>
@@ -119,50 +137,7 @@ export default function BookingsHeader() {
       </Animated.View>
 
       {/* ── Schedule / Bookings toggle ── */}
-      <Animated.View
-        entering={FadeInDown.delay(80).duration(400)}
-        className="mb-4 flex-row rounded-xl p-1"
-        style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
-      >
-        {/* Schedule (no-op) */}
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center gap-1.5 rounded-lg py-2.5"
-          activeOpacity={0.7}
-        >
-          <Text
-            style={{
-              fontFamily: "GoogleSans_600SemiBold",
-              fontSize: 14,
-              color: "rgba(255,255,255,0.55)",
-            }}
-          >
-            Schedule
-          </Text>
-        </TouchableOpacity>
-
-        {/* Bookings (active) */}
-        <View
-          className="flex-1 flex-row items-center justify-center gap-1.5 rounded-lg py-2.5"
-          style={{
-            backgroundColor: Colors.white,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "GoogleSans_600SemiBold",
-              fontSize: 14,
-              color: Colors.brand,
-            }}
-          >
-            Bookings
-          </Text>
-        </View>
-      </Animated.View>
+      <BookingsViewToggle />
 
       {/* ── Week strip ── */}
       <Animated.View entering={FadeInDown.delay(160).duration(400)}>
@@ -174,8 +149,10 @@ export default function BookingsHeader() {
         entering={FadeInDown.delay(240).duration(400)}
         className="mt-2.5 flex-row justify-end"
       >
-        <BookingsCalendarSheet />
+        <BookingsCalendarSheet ref={calendarRef} />
       </Animated.View>
     </View>
   );
-}
+});
+
+export default BookingsHeader;

@@ -84,6 +84,13 @@ module.exports = {
         social: '#364153',
         star: '#F59E0B',
         'available-bg': '#d1fae5',
+        'brand-accent-text': '#7dd3fc',
+        'online-green': '#86efac',
+        'overlay-md': 'rgba(255,255,255,0.2)',
+        'overlay-sm': 'rgba(255,255,255,0.15)',
+        'overlay-sub': 'rgba(255,255,255,0.55)',
+        'overlay-dim': 'rgba(255,255,255,0.4)',
+        'overlay-bright': 'rgba(255,255,255,0.7)',
         category: {
           cyan:   '#00BCD4',
           indigo: '#5C6BC0',

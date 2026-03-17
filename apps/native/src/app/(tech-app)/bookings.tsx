@@ -1,48 +1,41 @@
-import { View, ScrollView } from "react-native";
+import { useCallback, useRef } from "react";
+import { BackHandler, ScrollView, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
+import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-helpers";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingsQuery } from "@/src/hooks/technicians/useTechBookingsQuery";
-import BookingsHeader from "@/src/components/technicians-booking/BookingsHeader";
+import { Text } from "@/src/components/ui/text";
 import BookingCard from "@/src/components/technicians-booking/BookingCard";
 import BookingsEmptyState from "@/src/components/technicians-booking/BookingsEmptyState";
-
-/** Format a Date to "YYYY-MM-DD". */
-function toIso(d: Date): string {
-  return d.toISOString().split("T")[0];
-}
-
-/** Format a Date for the heading, e.g. "Today's Bookings" or "Tuesday, Mar 18". */
-function formatHeading(d: Date): string {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const compare = new Date(d);
-  compare.setHours(0, 0, 0, 0);
-
-  if (compare.getTime() === today.getTime()) return "Today's Bookings";
-
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
-}
-
-/** Format a Date to "Mar 17, 2026". */
-function formatDateLabel(d: Date): string {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
+import BookingsHeader, {
+  type BookingsHeaderRef,
+} from "@/src/components/technicians-booking/BookingsHeader";
 
 export default function BookingsScreen() {
   const { selectedDate } = useBookingsDateStore();
+  const headerRef = useRef<BookingsHeaderRef>(null);
   const dateStr = toIso(selectedDate);
-  const { data: bookings = [], isLoading } = useTechBookingsQuery(dateStr);
+  const { data: bookings = [], isPending } = useTechBookingsQuery(dateStr);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onHardwareBack = () => {
+        if (headerRef.current?.closeCalendarIfOpen()) return true;
+        return false;
+      };
+
+      const subscription = BackHandler.addEventListener("hardwareBackPress", onHardwareBack);
+      return () => subscription.remove();
+    }, []),
+  );
 
   return (
     <View className="flex-1 bg-surface-gray">
       <SafeAreaView className="flex-1" edges={["top"]}>
         {/* Header (sticky) */}
-        <BookingsHeader />
+        <BookingsHeader ref={headerRef} />
 
         {/* Content */}
         <ScrollView
@@ -66,7 +59,7 @@ export default function BookingsScreen() {
                 className="mt-0.5"
                 style={{ fontSize: 13, color: Colors.textSecondary }}
               >
-                {bookings.length} booking{bookings.length !== 1 ? "s" : ""}
+                {bookings.length} booking{bookings.length === 1 ? "" : "s"}
               </Text>
             </View>
             {bookings.length > 0 && (
@@ -84,7 +77,7 @@ export default function BookingsScreen() {
 
           {/* List or empty state */}
           <View className="px-4">
-            {bookings.length === 0 && !isLoading ? (
+            {bookings.length === 0 && !isPending ? (
               <BookingsEmptyState />
             ) : (
               bookings.map((b, i) => (

@@ -8,7 +8,7 @@ import { create } from "zustand";
  */
 
 /** Returns the Monday of the week containing `d`. */
-function getMonday(d: Date): Date {
+export function getMonday(d: Date): Date {
   const copy = new Date(d);
   const day = copy.getDay(); // 0 = Sun
   const diff = day === 0 ? -6 : 1 - day;

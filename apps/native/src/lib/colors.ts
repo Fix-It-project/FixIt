@@ -41,6 +41,15 @@ export const Colors = {
   availableBg: "#d1fae5",   // light green badge background
   whiteOverlay: "rgba(255,255,255,0.18)", // translucent white for button overlays
 
+  // ─── Technician status / header overlays ─────────────────
+  brandAccentText: "#7dd3fc", // sky-blue accent for header "IT" wordmark
+  onlineGreen: "#86efac",    // soft green for technician online badge
+  overlayMd: "rgba(255,255,255,0.2)",  // icon button backgrounds on dark header
+  overlaySm: "rgba(255,255,255,0.15)", // toggle pill background on dark header
+  overlaySub: "rgba(255,255,255,0.55)", // inactive toggle tab text
+  overlayDim: "rgba(255,255,255,0.4)", // swipe dot inactive
+  overlayBright: "rgba(255,255,255,0.7)", // swipe dot active
+
   // ─── Gradients (get-started / role-selection) ───────────
   gradientStart: "#ecefff",
   gradientMid: "#dbe2ff",

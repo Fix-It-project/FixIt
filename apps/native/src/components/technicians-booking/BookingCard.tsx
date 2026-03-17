@@ -1,9 +1,10 @@
-import { View, TouchableOpacity, Linking } from "react-native";
-import { Text } from "@/src/components/ui/text";
-import { MapPin, Star, ShieldCheck, ClipboardList } from "lucide-react-native";
+import { useCallback } from "react";
+import { Linking, TouchableOpacity, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { ClipboardList, MapPin, ShieldCheck, Star } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import type { TechBooking } from "@/src/lib/tech-mock-data";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import { Text } from "@/src/components/ui/text";
 
 interface BookingCardProps {
   readonly booking: TechBooking;
@@ -15,10 +16,10 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
   const fullStars = Math.floor(booking.rating);
   const hasHalf = booking.rating - fullStars >= 0.25;
 
-  const openMaps = () => {
+  const openMaps = useCallback(() => {
     const q = encodeURIComponent(`${booking.address}, ${booking.city}`);
     Linking.openURL(`https://maps.google.com/?q=${q}`);
-  };
+  }, [booking.address, booking.city]);
 
   return (
     <Animated.View
