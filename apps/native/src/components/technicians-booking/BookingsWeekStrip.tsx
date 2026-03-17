@@ -1,9 +1,15 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, useWindowDimensions, I18nManager } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/technicians/useTechBookingsQuery";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -11,11 +17,23 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
-/** Horizontal week strip – 7 day circles, swipe left/right to navigate weeks. */
+function getMonday(d: Date): Date {
+  const copy = new Date(d);
+  const day = copy.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  copy.setDate(copy.getDate() + diff);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+}
+
+/** Horizontal week strip – 7 day circles, swipe left/right to navigate weeks with slide animation. */
 export default function BookingsWeekStrip() {
   const { selectedDate, weekStart, setSelectedDate, goToPrevWeek, goToNextWeek } =
     useBookingsDateStore();
   const { data: bookingDates } = useTechBookingDatesQuery();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const translateX = useSharedValue(0);
 
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekStart);
@@ -30,19 +48,54 @@ export default function BookingsWeekStrip() {
 
   const toIso = (d: Date) => d.toISOString().split("T")[0];
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  /**
+   * direction: 1 = slide left, -1 = slide right.
+   * Slides the strip out, updates the store, then slides the new week in.
+   */
+  const runSlide = (direction: number, goFn: () => void) => {
+    translateX.value = withTiming(direction * -screenWidth, { duration: 180 }, (finished) => {
+      "worklet";
+      if (!finished) return;
+      runOnJS(goFn)();
+      translateX.value = direction * screenWidth;
+      translateX.value = withTiming(0, { duration: 180 });
+    });
+  };
+
   const swipeGesture = Gesture.Pan()
     .runOnJS(true)
     .activeOffsetX([-20, 20])
     .onEnd((e) => {
-      if (e.translationX < -30) goToNextWeek();
-      else if (e.translationX > 30) goToPrevWeek();
+      const swipedLeft = e.translationX < -30;
+      const swipedRight = e.translationX > 30;
+      if (!swipedLeft && !swipedRight) return;
+
+      const goToPrev = I18nManager.isRTL ? swipedLeft : swipedRight;
+      const goToNext = I18nManager.isRTL ? swipedRight : swipedLeft;
+      const canGoPrevWeek = weekStart.getTime() > getMonday(new Date()).getTime();
+      const slideDirection = swipedLeft ? 1 : -1;
+
+      if (goToNext) {
+        runSlide(slideDirection, goToNextWeek);
+      } else if (goToPrev) {
+        // Do not play backward animation when we're already at current week.
+        if (!canGoPrevWeek) return;
+        runSlide(slideDirection, goToPrevWeek);
+      }
     });
 
   return (
-    <Animated.View entering={FadeIn.duration(300)} className="px-1">
+    <Animated.View
+      entering={FadeIn.duration(300)}
+      className="px-1"
+      style={{ overflow: "hidden" }}
+    >
       <GestureDetector gesture={swipeGesture}>
-        {/* Day circles */}
-        <View className="flex-row justify-around">
+        <Animated.View className="flex-row justify-around" style={animatedStyle}>
           {days.map((day, i) => {
             const selected = isSameDay(day, selectedDate);
             const isPast = day < today;
@@ -88,7 +141,6 @@ export default function BookingsWeekStrip() {
                   {day.getDate()}
                 </Text>
 
-                {/* Booking dot */}
                 {hasBookings && (
                   <View
                     style={{
@@ -104,7 +156,7 @@ export default function BookingsWeekStrip() {
               </TouchableOpacity>
             );
           })}
-        </View>
+        </Animated.View>
       </GestureDetector>
 
       {/* Swipe indicator dots */}

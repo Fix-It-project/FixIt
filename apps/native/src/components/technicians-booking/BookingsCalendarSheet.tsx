@@ -1,27 +1,30 @@
 import { useCallback, useMemo, useRef } from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { CalendarDays } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import { Calendar, type DateData } from "react-native-calendars";
+import { CalendarList, type DateData } from "react-native-calendars";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/technicians/useTechBookingsQuery";
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 const todayIso = today.toISOString().split("T")[0];
+const MONTHS_AHEAD = 24;
 
 /**
  * "Jump" button + bottom-sheet month calendar.
  *
- * Uses BottomSheetModal (portal-based) so it renders above all content
- * regardless of where in the tree this component lives.
+ * Uses BottomSheetModal (portal-based) so it renders above all content.
+ * CalendarList with horizontal + pagingEnabled gives a native swipe-to-navigate-months
+ * slide animation with no manual animation code.
  */
 export default function BookingsCalendarSheet() {
   const sheetRef = useRef<BottomSheetModal>(null);
   const { selectedDate, setSelectedDate } = useBookingsDateStore();
   const { data: bookingDates } = useTechBookingDatesQuery();
+  const { width: screenWidth } = useWindowDimensions();
 
   const toIso = (d: Date) => d.toISOString().split("T")[0];
   const selectedIso = toIso(selectedDate);
@@ -36,7 +39,7 @@ export default function BookingsCalendarSheet() {
     }
 
     marks[selectedIso] = {
-      ...(marks[selectedIso] || {}),
+      ...marks[selectedIso],
       selected: true,
       selectedColor: Colors.brand,
     };
@@ -88,7 +91,7 @@ export default function BookingsCalendarSheet() {
       {/* Bottom sheet calendar — renders via portal above all content */}
       <BottomSheetModal
         ref={sheetRef}
-        snapPoints={["55%"]}
+        snapPoints={["60%"]}
         enablePanDownToClose
         backgroundStyle={{ backgroundColor: Colors.white }}
         handleIndicatorStyle={{ backgroundColor: Colors.borderLight, width: 40 }}
@@ -104,11 +107,18 @@ export default function BookingsCalendarSheet() {
           >
             Jump to Date
           </Text>
-          <Calendar
+          <CalendarList
             current={selectedIso}
             minDate={todayIso}
+            pastScrollRange={0}
+            futureScrollRange={MONTHS_AHEAD}
             onDayPress={handleDayPress}
             markedDates={markedDates}
+            horizontal
+            pagingEnabled
+            staticHeader
+            calendarWidth={screenWidth - 32}
+            showScrollIndicator={false}
             theme={{
               arrowColor: Colors.brand,
               todayTextColor: Colors.brand,
