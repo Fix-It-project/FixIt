@@ -22,6 +22,28 @@ export interface UpdateTechnicianData {
   criminal_record?: string;
   birth_certificate?: string;
   national_id?: string;
+  description?: string;
+}
+
+/** Self-profile shape returned to the authenticated technician. */
+export interface TechnicianSelfProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  profile_image: string | null;
+  description: string | null;
+  category_name: string | null;
+  total_orders: number;
+  completed_orders: number;
+}
+
+export interface UpdateTechnicianSelfData {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  description?: string;
 }
 
 /** API DTO shape returned by technician profile endpoint. */
@@ -114,6 +136,9 @@ export interface ITechniciansRepository extends ITechnicianQueryRepository {
   emailExists(email: string): Promise<boolean>;
   updateTechnician(id: string, data: UpdateTechnicianData): Promise<any>;
   deleteTechnician(id: string): Promise<void>;
+  getTechnicianSelf(id: string): Promise<TechnicianSelfProfile | null>;
+  updateTechnicianSelf(id: string, data: UpdateTechnicianSelfData): Promise<any>;
+  updateProfileImage(id: string, url: string): Promise<any>;
 }
 
 export class TechniciansRepository implements ITechniciansRepository {
@@ -233,6 +258,68 @@ export class TechniciansRepository implements ITechniciansRepository {
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  async getTechnicianSelf(id: string): Promise<TechnicianSelfProfile | null> {
+    const { data, error } = await supabaseAdmin
+      .from('technicians')
+      .select('id, first_name, last_name, email, phone, profile_image, description, categories(name)')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+
+    const [{ count: totalOrders }, { count: completedOrders }] = await Promise.all([
+      supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('technician_id', id),
+      supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('technician_id', id).eq('status', 'completed'),
+    ]);
+
+    const categoriesRaw = data.categories as unknown as { name: string }[] | { name: string } | null;
+    const categories = Array.isArray(categoriesRaw) ? categoriesRaw[0] ?? null : categoriesRaw;
+
+    return {
+      id: data.id,
+      first_name: data.first_name ?? '',
+      last_name: data.last_name ?? '',
+      email: data.email ?? '',
+      phone: data.phone ?? null,
+      profile_image: data.profile_image ?? null,
+      description: data.description ?? null,
+      category_name: categories?.name ?? null,
+      total_orders: totalOrders ?? 0,
+      completed_orders: completedOrders ?? 0,
+    };
+  }
+
+  async updateTechnicianSelf(id: string, data: UpdateTechnicianSelfData) {
+    const payload: Partial<UpdateTechnicianSelfData> = {};
+    if (data.first_name !== undefined) payload.first_name = data.first_name;
+    if (data.last_name !== undefined) payload.last_name = data.last_name;
+    if (data.phone !== undefined) payload.phone = data.phone;
+    if (data.description !== undefined) payload.description = data.description;
+
+    const { data: technician, error } = await supabaseAdmin
+      .from('technicians')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return technician;
+  }
+
+  async updateProfileImage(id: string, url: string) {
+    const { data: technician, error } = await supabaseAdmin
+      .from('technicians')
+      .update({ profile_image: url })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return technician;
   }
 }
 
