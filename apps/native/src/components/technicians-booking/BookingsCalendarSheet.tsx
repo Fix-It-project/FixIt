@@ -1,0 +1,133 @@
+import { useCallback, useMemo, useRef } from "react";
+import { TouchableOpacity } from "react-native";
+import { Text } from "@/src/components/ui/text";
+import { CalendarDays } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { Calendar, type DateData } from "react-native-calendars";
+import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
+import { useTechBookingDatesQuery } from "@/src/hooks/technicians/useTechBookingsQuery";
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const todayIso = today.toISOString().split("T")[0];
+
+/**
+ * "Jump" button + bottom-sheet month calendar.
+ *
+ * Uses BottomSheetModal (portal-based) so it renders above all content
+ * regardless of where in the tree this component lives.
+ */
+export default function BookingsCalendarSheet() {
+  const sheetRef = useRef<BottomSheetModal>(null);
+  const { selectedDate, setSelectedDate } = useBookingsDateStore();
+  const { data: bookingDates } = useTechBookingDatesQuery();
+
+  const toIso = (d: Date) => d.toISOString().split("T")[0];
+  const selectedIso = toIso(selectedDate);
+
+  const markedDates = useMemo(() => {
+    const marks: Record<string, { marked?: boolean; dotColor?: string; selected?: boolean; selectedColor?: string }> = {};
+
+    if (bookingDates) {
+      for (const dateStr of bookingDates) {
+        marks[dateStr] = { marked: true, dotColor: Colors.star };
+      }
+    }
+
+    marks[selectedIso] = {
+      ...(marks[selectedIso] || {}),
+      selected: true,
+      selectedColor: Colors.brand,
+    };
+
+    return marks;
+  }, [bookingDates, selectedIso]);
+
+  const handleOpen = useCallback(() => {
+    sheetRef.current?.present();
+  }, []);
+
+  const handleDayPress = useCallback(
+    (day: DateData) => {
+      const d = new Date(day.year, day.month - 1, day.day);
+      setSelectedDate(d);
+      sheetRef.current?.dismiss();
+    },
+    [setSelectedDate],
+  );
+
+  return (
+    <>
+      {/* Jump button */}
+      <TouchableOpacity
+        onPress={handleOpen}
+        className="flex-row items-center gap-1.5 self-end rounded-xl px-3 py-2"
+        style={{
+          backgroundColor: Colors.brandLight,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.08,
+          shadowRadius: 3,
+          elevation: 2,
+        }}
+        activeOpacity={0.7}
+      >
+        <CalendarDays size={14} color={Colors.brand} strokeWidth={2} />
+        <Text
+          style={{
+            fontSize: 12,
+            fontFamily: "GoogleSans_600SemiBold",
+            color: Colors.brand,
+          }}
+        >
+          Jump
+        </Text>
+      </TouchableOpacity>
+
+      {/* Bottom sheet calendar — renders via portal above all content */}
+      <BottomSheetModal
+        ref={sheetRef}
+        snapPoints={["55%"]}
+        enablePanDownToClose
+        backgroundStyle={{ backgroundColor: Colors.white }}
+        handleIndicatorStyle={{ backgroundColor: Colors.borderLight, width: 40 }}
+      >
+        <BottomSheetView className="flex-1 px-4 pb-4">
+          <Text
+            className="mb-2 text-center"
+            style={{
+              fontFamily: "GoogleSans_700Bold",
+              fontSize: 16,
+              color: Colors.textPrimary,
+            }}
+          >
+            Jump to Date
+          </Text>
+          <Calendar
+            current={selectedIso}
+            minDate={todayIso}
+            onDayPress={handleDayPress}
+            markedDates={markedDates}
+            theme={{
+              arrowColor: Colors.brand,
+              todayTextColor: Colors.brand,
+              selectedDayBackgroundColor: Colors.brand,
+              selectedDayTextColor: Colors.white,
+              textDayFontFamily: "GoogleSans_400Regular",
+              textMonthFontFamily: "GoogleSans_700Bold",
+              textDayHeaderFontFamily: "GoogleSans_500Medium",
+              textDayFontSize: 14,
+              textMonthFontSize: 16,
+              textDayHeaderFontSize: 12,
+              monthTextColor: Colors.textPrimary,
+              textSectionTitleColor: Colors.textSecondary,
+              dayTextColor: Colors.textPrimary,
+              textDisabledColor: Colors.borderLight,
+            }}
+          />
+        </BottomSheetView>
+      </BottomSheetModal>
+    </>
+  );
+}

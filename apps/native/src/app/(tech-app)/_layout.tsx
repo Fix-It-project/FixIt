@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { Redirect, Tabs } from "expo-router";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   House,
   CalendarDays,
@@ -23,6 +24,7 @@ export default function TechAppLayout() {
   }
 
   return (
+    <BottomSheetModalProvider>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -109,5 +111,6 @@ export default function TechAppLayout() {
         }}
       />
     </Tabs>
+    </BottomSheetModalProvider>
   );
 }
