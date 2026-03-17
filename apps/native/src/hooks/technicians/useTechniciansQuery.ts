@@ -18,17 +18,19 @@ import type { TechnicianListItem } from "@/src/services/technicians/types";
 export function useTechniciansQuery(
   categoryId: string,
   searchQuery = "",
+  coords?: { latitude: number; longitude: number } | null,
 ) {
   const trimmedQuery = searchQuery.trim();
 
   return useQuery<TechnicianListItem[]>({
-    queryKey: ["technicians", categoryId, trimmedQuery],
+    queryKey: ["technicians", categoryId, trimmedQuery, coords?.latitude ?? null, coords?.longitude ?? null],
     queryFn: async () => {
       try {
+        const c = coords ?? undefined;
         if (trimmedQuery.length >= 2) {
-          return await searchTechniciansInCategory(categoryId, trimmedQuery);
+          return await searchTechniciansInCategory(categoryId, trimmedQuery, c);
         }
-        return await getTechniciansByCategory(categoryId);
+        return await getTechniciansByCategory(categoryId, c);
       } catch (error) {
         // Fallback to mock data during development when server is offline
         console.warn(

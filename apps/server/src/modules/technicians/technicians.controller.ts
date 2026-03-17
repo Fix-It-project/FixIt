@@ -1,12 +1,14 @@
 import type { Request, Response } from 'express';
 import type { ITechniciansService } from './technicians.service.js';
+import { parseCoords } from '../../shared/utils/technicians/index.js';
 
 export class TechniciansController {
   constructor(private readonly service: ITechniciansService) {}
 
   async getByCategoryId(req: Request, res: Response): Promise<void> {
     const categoryId = req.params.categoryId as string;
-    const technicians = await this.service.getTechniciansByCategory(categoryId);
+    const { lat, lng } = parseCoords(req);
+    const technicians = await this.service.getTechniciansByCategory(categoryId, lat, lng);
     res.json({ technicians });
   }
 
@@ -17,7 +19,8 @@ export class TechniciansController {
       res.status(400).json({ error: 'Query parameter "q" is required' });
       return;
     }
-    const technicians = await this.service.searchTechniciansByCategory(categoryId, query);
+    const { lat, lng } = parseCoords(req);
+    const technicians = await this.service.searchTechniciansByCategory(categoryId, query, lat, lng);
     res.json({ technicians });
   }
 
@@ -32,4 +35,3 @@ export class TechniciansController {
     }
   }
 }
-

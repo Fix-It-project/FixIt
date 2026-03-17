@@ -10,9 +10,16 @@ import type { TechnicianListItem, TechniciansResponse, TechnicianProfile, Techni
  */
 export async function getTechniciansByCategory(
   categoryId: string,
+  coords?: { latitude: number; longitude: number },
 ): Promise<TechnicianListItem[]> {
+  const params: Record<string, string> = {};
+  if (coords) {
+    params.lat = String(coords.latitude);
+    params.lng = String(coords.longitude);
+  }
   const { data } = await apiClient.get<TechniciansResponse>(
     `/api/categories/${categoryId}/technicians`,
+    { params },
   );
   const validated = techniciansResponseSchema.parse(data);
   return validated.technicians;
@@ -27,10 +34,16 @@ export async function getTechniciansByCategory(
 export async function searchTechniciansInCategory(
   categoryId: string,
   query: string,
+  coords?: { latitude: number; longitude: number },
 ): Promise<TechnicianListItem[]> {
+  const params: Record<string, string> = { q: query };
+  if (coords) {
+    params.lat = String(coords.latitude);
+    params.lng = String(coords.longitude);
+  }
   const { data } = await apiClient.get<TechniciansResponse>(
     `/api/categories/${categoryId}/technicians/search`,
-    { params: { q: query } },
+    { params },
   );
   const validated = techniciansResponseSchema.parse(data);
   return validated.technicians;

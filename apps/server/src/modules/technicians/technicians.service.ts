@@ -1,9 +1,11 @@
-import type { ITechnicianQueryRepository, TechnicianProfile } from './technicians.repository.js';
+import type { ITechnicianQueryRepository, TechnicianListDTO, TechnicianProfile } from './technicians.repository.js';
+import { toDTO } from './technicians.repository.js';
 import type { ICategoriesRepository } from '../categories/categories.repository.js';
+import { sortByDistance } from '../../shared/utils/technicians/index.js';
 
 export interface ITechniciansService {
-  getTechniciansByCategory(categoryId: string): Promise<any[]>;
-  searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]>;
+  getTechniciansByCategory(categoryId: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]>;
+  searchTechniciansByCategory(categoryId: string, query: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]>;
   getTechnicianProfile(id: string): Promise<TechnicianProfile>;
 }
 
@@ -13,16 +15,24 @@ export class TechniciansService implements ITechniciansService {
     private readonly categoriesRepo: ICategoriesRepository,
   ) {}
 
-  async getTechniciansByCategory(categoryId: string): Promise<any[]> {
+  async getTechniciansByCategory(categoryId: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]> {
     const category = await this.categoriesRepo.getCategoryById(categoryId);
     if (!category) throw Object.assign(new Error('Category not found'), { status: 404 });
-    return this.repo.getTechniciansByCategory(categoryId);
+
+    const rows = await this.repo.getTechniciansByCategory(categoryId);
+    const dtos = rows.map((r) => toDTO(r, userLat, userLng));
+
+    return userLat != null && userLng != null ? sortByDistance(dtos) : dtos;
   }
 
-  async searchTechniciansByCategory(categoryId: string, query: string): Promise<any[]> {
+  async searchTechniciansByCategory(categoryId: string, query: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]> {
     const category = await this.categoriesRepo.getCategoryById(categoryId);
     if (!category) throw Object.assign(new Error('Category not found'), { status: 404 });
-    return this.repo.searchTechniciansByCategory(categoryId, query);
+
+    const rows = await this.repo.searchTechniciansByCategory(categoryId, query);
+    const dtos = rows.map((r) => toDTO(r, userLat, userLng));
+
+    return userLat != null && userLng != null ? sortByDistance(dtos) : dtos;
   }
 
   async getTechnicianProfile(id: string): Promise<TechnicianProfile> {

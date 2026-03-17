@@ -7,6 +7,9 @@ export interface TechnicianListItem {
   phone: string | null;
   is_available: boolean;
   category_id: string;
+  city: string | null;
+  street: string | null;
+  distance_km: number | null;
 }
 
 /**
