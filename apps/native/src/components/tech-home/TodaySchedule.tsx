@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import {
   Zap,
@@ -10,6 +10,7 @@ import { Colors } from "@/src/lib/colors";
 import { TODAY_SCHEDULE } from "@/src/lib/tech-mock-data";
 import type { ScheduleItem } from "@/src/lib/tech-mock-data";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useRouter } from "expo-router";
 
 /** Map icon name strings to actual lucide components */
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -110,11 +111,26 @@ function ScheduleCard({
 }
 
 export default function TodaySchedule() {
+  const router = useRouter();
+
   return (
     <View className="mt-6 px-4">
-      <Text className="mb-4 text-xs font-bold uppercase tracking-widest text-content-muted">
-        Today's Schedule
-      </Text>
+      <View className="mb-4 flex-row items-center justify-between">
+        <Text className="text-xs font-bold uppercase tracking-widest text-content-muted">
+          Today's Schedule
+        </Text>
+        <TouchableOpacity onPress={() => router.push("/bookings" as any)} activeOpacity={0.7}>
+          <Text
+            style={{
+              fontFamily: "GoogleSans_600SemiBold",
+              fontSize: 12,
+              color: Colors.brand,
+            }}
+          >
+            View All
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       <View>
         {TODAY_SCHEDULE.map((item, index) => (

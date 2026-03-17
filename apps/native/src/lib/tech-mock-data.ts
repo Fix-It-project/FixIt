@@ -138,6 +138,151 @@ export const WALLET = {
   balance: "4,500 EGP",
 };
 
+// ─── Technician Bookings ─────────────────────────────────────────────────────
+
+export interface TechBooking {
+  id: string;
+  clientName: string;
+  avatarInitials: string;
+  avatarColor: string;
+  serviceType: string;
+  rating: number;
+  distance: number;
+  city: string;
+  address: string;
+  price: number;
+  currency: string;
+  /** ISO date string (YYYY-MM-DD) */
+  date: string;
+  time: string;
+  verified: boolean;
+}
+
+/**
+ * Helper – returns an ISO date string offset from "today" (2026-03-17).
+ * Keeps dates deterministic so mock data works without a real clock.
+ */
+function offsetDate(days: number): string {
+  const d = new Date(2026, 2, 17); // March 17 2026
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0];
+}
+
+export const TECH_BOOKINGS: TechBooking[] = [
+  {
+    id: "book-1",
+    clientName: "Sarah Jenkins",
+    avatarInitials: "SJ",
+    avatarColor: "#2196F3",
+    serviceType: "Electrical Inspection",
+    rating: 4.7,
+    distance: 2.3,
+    city: "Heliopolis",
+    address: "14 Garden Ct",
+    price: 650,
+    currency: "EGP",
+    date: offsetDate(0),
+    time: "09:00 AM",
+    verified: true,
+  },
+  {
+    id: "book-2",
+    clientName: "Michael Chen",
+    avatarInitials: "MC",
+    avatarColor: "#FF9800",
+    serviceType: "Cabinet Repair",
+    rating: 4.2,
+    distance: 5.1,
+    city: "Nasr City",
+    address: "228 Park Ave",
+    price: 480,
+    currency: "EGP",
+    date: offsetDate(0),
+    time: "01:30 PM",
+    verified: false,
+  },
+  {
+    id: "book-3",
+    clientName: "Emma Wilson",
+    avatarInitials: "EW",
+    avatarColor: "#4CAF50",
+    serviceType: "Deep Cleaning",
+    rating: 4.9,
+    distance: 1.8,
+    city: "Mohandessin",
+    address: "50 Central Road",
+    price: 350,
+    currency: "EGP",
+    date: offsetDate(0),
+    time: "04:00 PM",
+    verified: true,
+  },
+  {
+    id: "book-4",
+    clientName: "Omar Hassan",
+    avatarInitials: "OH",
+    avatarColor: "#00BCD4",
+    serviceType: "AC Unit Servicing",
+    rating: 4.8,
+    distance: 4.2,
+    city: "Maadi",
+    address: "752 Ocean Ave",
+    price: 850,
+    currency: "EGP",
+    date: offsetDate(1),
+    time: "10:00 AM",
+    verified: true,
+  },
+  {
+    id: "book-5",
+    clientName: "Layla Farouk",
+    avatarInitials: "LF",
+    avatarColor: "#9C27B0",
+    serviceType: "Pipe Leakage Fix",
+    rating: 4.5,
+    distance: 3.6,
+    city: "Zamalek",
+    address: "120 Tahrir St",
+    price: 520,
+    currency: "EGP",
+    date: offsetDate(1),
+    time: "02:00 PM",
+    verified: false,
+  },
+  {
+    id: "book-6",
+    clientName: "James Parker",
+    avatarInitials: "JP",
+    avatarColor: "#795548",
+    serviceType: "Wall Painting",
+    rating: 4.3,
+    distance: 6.0,
+    city: "New Cairo",
+    address: "88 Fifth Settlement",
+    price: 720,
+    currency: "EGP",
+    date: offsetDate(3),
+    time: "11:00 AM",
+    verified: true,
+  },
+  {
+    id: "book-7",
+    clientName: "Nadia Saleh",
+    avatarInitials: "NS",
+    avatarColor: "#5C6BC0",
+    serviceType: "Appliance Repair",
+    rating: 4.6,
+    distance: 2.9,
+    city: "Dokki",
+    address: "33 Mesaha Sq",
+    price: 600,
+    currency: "EGP",
+    date: offsetDate(5),
+    time: "03:00 PM",
+    verified: true,
+  },
+];
+
 // ─── User Reviews ────────────────────────────────────────────────────────────
 
 export const USER_REVIEWS: ReviewItem[] = [
