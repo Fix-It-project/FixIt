@@ -51,7 +51,7 @@ export class TechnicianCalendarController {
       const technicianId = this.checkOwnership(req, res);
       if (!technicianId) return;
 
-      const { date, source, active } = req.body;
+      const { date } = req.body;
 
       if (!date) {
         return res.status(400).json({ error: '`date` is required in format YYYY-MM-DD.' });
@@ -60,8 +60,6 @@ export class TechnicianCalendarController {
       const entry = await technicianCalendarService.createEntry({
         technician_id: technicianId,
         date,
-        source,
-        active,
       });
 
       return res.status(201).json({ data: entry });
@@ -78,9 +76,9 @@ export class TechnicianCalendarController {
       if (!technicianId) return;
 
       const { id } = req.params as any;
-      const { date, source, active } = req.body;
+      const { date } = req.body; // Removed source and active
 
-      const entry = await technicianCalendarService.updateEntry(id, { date, source, active });
+      const entry = await technicianCalendarService.updateEntry(id, { date });
       return res.status(200).json({ data: entry });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });

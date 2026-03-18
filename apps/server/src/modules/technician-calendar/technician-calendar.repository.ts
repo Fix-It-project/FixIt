@@ -4,26 +4,20 @@ const supabase = supabaseAdmin;
 
 // ─── Calendar entries ───────────────────────────────────────────────────────
 
-export interface TechnicianCalendar {
+export interface CalendarException {
   id: string;
   technician_id: string;
   date: string;       // YYYY-MM-DD
   created_at: string; // ISO timestamp
-  active: boolean;    // current flag
-  source: string | null; // e.g. 'booking', 'holiday', 'system'
 }
 
 export interface CreateCalendarEntryData {
   technician_id: string;
-  date: string;           // YYYY-MM-DD
-  active?: boolean;       // default true
-  source?: string | null; // default 'booking'
+  date: string;       // YYYY-MM-DD
 }
 
 export interface UpdateCalendarEntryData {
-  date?: string;            // YYYY-MM-DD
-  active?: boolean;
-  source?: string | null;
+  date?: string;
 }
 
 export interface CalendarQueryParams {
@@ -56,7 +50,7 @@ export class TechnicianCalendarRepository {
 
   async getEntriesByTechnicianId(technicianId: string, params: CalendarQueryParams = {}) {
     let query = supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .select('*')
       .eq('technician_id', technicianId)
       .order('date', { ascending: true });
@@ -71,12 +65,12 @@ export class TechnicianCalendarRepository {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data as TechnicianCalendar[];
+    return data as CalendarException[];
   }
 
   async getEntryById(id: string) {
     const { data, error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .select('*')
       .eq('id', id)
       .single();
@@ -86,46 +80,42 @@ export class TechnicianCalendarRepository {
       throw error;
     }
 
-    return data as TechnicianCalendar;
+    return data as CalendarException;
   }
 
   async createEntry(dto: CreateCalendarEntryData) {
     const { data, error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .insert({
         technician_id: dto.technician_id,
         date: dto.date,
-        active: dto.active ?? true,
-        source: dto.source ?? 'booking',
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data as TechnicianCalendar;
+    return data as CalendarException;
   }
 
   async updateEntry(id: string, dto: UpdateCalendarEntryData) {
     const updates: Record<string, any> = {};
 
     if (dto.date !== undefined) updates.date = dto.date;
-    if (dto.active !== undefined) updates.active = dto.active;
-    if (dto.source !== undefined) updates.source = dto.source;
 
     const { data, error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .update(updates)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data as TechnicianCalendar;
+    return data as CalendarException;
   }
 
   async deleteEntry(id: string) {
     const { error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .delete()
       .eq('id', id);
 

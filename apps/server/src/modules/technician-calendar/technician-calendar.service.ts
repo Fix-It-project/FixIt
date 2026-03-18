@@ -6,6 +6,7 @@ import {
   type CreateTemplateData,
   type UpdateTemplateData,
 } from './technician-calendar.repository.js';
+import { ordersRepository } from '../orders/orders.repository.js';
 
 export class TechnicianCalendarService {
   // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -16,23 +17,6 @@ export class TechnicianCalendarService {
       throw { status: 400, message: 'Invalid date format. Use YYYY-MM-DD.' };
     }
     return d.toISOString().slice(0, 10); // YYYY-MM-DD
-  }
-
-  /** Bookings must be today or in the future (no past bookings) */
-  private ensureFutureBookingDate(date: string) {
-    const normalized = this.normalizeDate(date);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const booking = new Date(normalized);
-    booking.setHours(0, 0, 0, 0);
-
-    if (booking < today) {
-      throw { status: 400, message: 'Bookings can only be created for today or a future day.' };
-    }
-
-    return normalized;
   }
 
   /** Holidays/off days can be today or later (not in the past). */
@@ -61,54 +45,21 @@ export class TechnicianCalendarService {
     }
   }
 
-  private async ensureDayAvailable(technicianId: string, date: string) {
-    const normalized = this.normalizeDate(date);
-    const template = await technicianCalendarRepository.getTemplateForDate(technicianId, normalized);
-
-    if (!template) {
-      throw {
-        status: 409,
-        message: 'The technician has not defined availability for this weekday.',
-      };
-    }
-
-    if (!template.active) {
-      throw {
-        status: 409,
-        message: 'The technician is marked as unavailable on this weekday.',
-      };
-    }
-  }
-
-  private async getDayEntries(technicianId: string, date: string) {
-    const normalized = this.normalizeDate(date);
-    return technicianCalendarRepository.getEntriesByTechnicianId(technicianId, {
-      from: normalized,
-      to: normalized,
-    });
-  }
-
-  /** Holiday rules: no other active holiday, and no active bookings on that day */
+  /** Holiday rules: no other exception exists for this day, and no active bookings. */
   private async ensureHolidayConstraints(technicianId: string, date: string, excludeId?: string) {
-    const entries = await this.getDayEntries(technicianId, date);
+    const entries = await technicianCalendarRepository.getEntriesByTechnicianId(technicianId, {
+      from: date,
+      to: date,
+    });
 
-    const hasActiveHoliday = entries.some(
-      e =>
-        (!excludeId || e.id !== excludeId) &&
-        e.active === true &&
-        e.source === 'holiday'
-    );
-    if (hasActiveHoliday) {
-      throw { status: 409, message: 'A holiday already exists for this day.' };
+    const hasHoliday = entries.some(e => !excludeId || e.id !== excludeId);
+    if (hasHoliday) {
+      throw { status: 409, message: 'A holiday/exception already exists for this day.' };
     }
 
-    const hasActiveBooking = entries.some(
-      e =>
-        (!excludeId || e.id !== excludeId) &&
-        e.active === true &&
-        e.source === 'booking'
-    );
-    if (hasActiveBooking) {
+    // NEW: Check the orders table for active bookings
+    const activeOrdersCount = await ordersRepository.getActiveOrdersCountForDate(technicianId, date);
+    if (activeOrdersCount > 0) {
       throw {
         status: 409,
         message: 'There are active bookings on this day. Cancel them before setting a holiday.',
@@ -116,39 +67,7 @@ export class TechnicianCalendarService {
     }
   }
 
-  /** Booking rules: max 5 active bookings, and no active holiday on that day */
-  private async ensureBookingConstraints(technicianId: string, date: string, excludeId?: string) {
-    const entries = await this.getDayEntries(technicianId, date);
-
-    const hasActiveHoliday = entries.some(
-      e =>
-        (!excludeId || e.id !== excludeId) &&
-        e.active === true &&
-        e.source === 'holiday'
-    );
-    if (hasActiveHoliday) {
-      throw {
-        status: 409,
-        message: 'This day is marked as a holiday. Bookings are not allowed.',
-      };
-    }
-
-    const activeBookings = entries.filter(
-      e =>
-        (!excludeId || e.id !== excludeId) &&
-        e.active === true &&
-        e.source === 'booking'
-    );
-
-    if (activeBookings.length >= 5) {
-      throw {
-        status: 409,
-        message: 'Maximum number of active bookings (5) reached for this day.',
-      };
-    }
-  }
-
-  // ─── Calendar entries (per‑day, with source/active) ──────────────────────
+  // ─── Calendar entries (per‑day exceptions) ──────────────────────
 
   async getCalendar(technicianId: string, params: CalendarQueryParams) {
     const { from, to } = params;
@@ -165,77 +84,28 @@ export class TechnicianCalendarService {
   }
 
   async createEntry(data: CreateCalendarEntryData) {
-    const source = data.source ?? 'booking';
     const technicianId = data.technician_id;
+    const normalizedDate = this.ensureNotPastDate(data.date);
 
-    let normalizedDate: string;
+    await this.ensureHolidayConstraints(technicianId, normalizedDate);
 
-    if (source === 'holiday') {
-      normalizedDate = this.ensureNotPastDate(data.date);
-      await this.ensureHolidayConstraints(technicianId, normalizedDate);
-    } else {
-      normalizedDate = this.ensureFutureBookingDate(data.date);
-      await this.ensureDayAvailable(technicianId, normalizedDate);
-      await this.ensureBookingConstraints(technicianId, normalizedDate);
-    }
-
-    // Default active:
-    // - bookings: false (pending by default)
-    // - holidays: true (day is off immediately)
-    let active: boolean;
-    if (data.active !== undefined) {
-      active = data.active;
-    } else if (source === 'holiday') {
-      active = true;
-    } else {
-      active = false;
-    }
-
-    const entry = await technicianCalendarRepository.createEntry({
+    return technicianCalendarRepository.createEntry({
       technician_id: technicianId,
       date: normalizedDate,
-      source,
-      active,
     });
-
-    return entry;
   }
 
   async updateEntry(id: string, data: UpdateCalendarEntryData) {
     const existing = await technicianCalendarRepository.getEntryById(id);
     if (!existing) throw { status: 404, message: 'Calendar entry not found.' };
 
-    // Compute what the entry will look like after update
-    const newSource = data.source ?? existing.source ?? 'booking';
-    const newActive = data.active ?? existing.active;
-    const effectiveDate = data.date ?? existing.date;
-
     const updates: UpdateCalendarEntryData = {};
 
-    // Validate constraints based on *final* state
-    if (newSource === 'holiday' && newActive) {
-      const normalizedDate = this.ensureNotPastDate(effectiveDate);
+    if (data.date) {
+      const normalizedDate = this.ensureNotPastDate(data.date);
       await this.ensureHolidayConstraints(existing.technician_id, normalizedDate, id);
-
-      if (data.date) {
-        updates.date = normalizedDate;
-      }
-    } else if (newSource === 'booking' && newActive) {
-      const normalizedDate = this.ensureFutureBookingDate(effectiveDate);
-      await this.ensureDayAvailable(existing.technician_id, normalizedDate);
-      await this.ensureBookingConstraints(existing.technician_id, normalizedDate, id);
-
-      if (data.date) {
-        updates.date = normalizedDate;
-      }
-    } else if (data.date) {
-      // Inactive entries can still update date, but keep format normalized
-      updates.date = this.normalizeDate(data.date);
+      updates.date = normalizedDate;
     }
-
-    // Apply other simple updates
-    if (data.active !== undefined) updates.active = data.active;
-    if (data.source !== undefined) updates.source = data.source;
 
     if (Object.keys(updates).length === 0) {
       return existing;
@@ -310,6 +180,15 @@ export class TechnicianCalendarService {
     if (!existing) throw { status: 404, message: 'Availability template not found.' };
 
     await technicianCalendarRepository.deleteTemplate(id);
+  }
+
+  async isDateHoliday(technicianId: string, date: string): Promise<boolean> {
+    const entries = await technicianCalendarRepository.getEntriesByTechnicianId(technicianId, {
+      from: date,
+      to: date,
+    });
+    // If any record exists in calendar_exceptions for this date, it's considered blocked.
+    return entries.length > 0;
   }
 }
 
