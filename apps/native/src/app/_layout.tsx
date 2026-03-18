@@ -147,6 +147,15 @@ function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="edit-tech-profile"
+              options={{
+                presentation: "modal",
+                headerShown: true,
+                title: "Edit Profile",
+                headerBackTitle: "Back",
+              }}
+            />
+            <Stack.Screen
               name="settings"
               options={{
                 presentation: "card",

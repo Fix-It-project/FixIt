@@ -1,12 +1,25 @@
-import { View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
+import { Camera, User } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { User } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 
 interface ProfileAvatarProps {
-  name: string | null;
+  readonly name: string | null;
+  readonly imageUrl?: string | null;
+  readonly onChangePhoto?: () => void;
 }
 
-export default function ProfileAvatar({ name }: ProfileAvatarProps) {
+function AvatarContent({ imageUrl, initials }: { readonly imageUrl: string | null | undefined; readonly initials: string | null }) {
+  if (imageUrl) {
+    return <Image source={{ uri: imageUrl }} className="h-24 w-24 rounded-full" resizeMode="cover"/>;
+  }
+  if (initials) {
+    return <Text className="text-3xl font-bold text-white">{initials}</Text>;
+  }
+  return <User size={44} color={Colors.white} strokeWidth={1.5} />;
+}
+
+export default function ProfileAvatar({ name, imageUrl, onChangePhoto }: ProfileAvatarProps) {
   const initials = name
     ? name
         .split(" ")
@@ -17,11 +30,19 @@ export default function ProfileAvatar({ name }: ProfileAvatarProps) {
     : null;
 
   return (
-    <View className="h-24 w-24 items-center justify-center rounded-full bg-white/25">
-      {initials ? (
-        <Text className="text-3xl font-bold text-white">{initials}</Text>
-      ) : (
-        <User size={44} color="#ffffff" strokeWidth={1.5} />
+    <View className="relative h-24 w-24">
+      <View className="h-24 w-24 items-center justify-center rounded-full bg-white/25">
+        <AvatarContent imageUrl={imageUrl} initials={initials} />
+      </View>
+      {onChangePhoto && (
+        <TouchableOpacity
+          onPress={onChangePhoto}
+          activeOpacity={0.8}
+          className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-white"
+          style={{ elevation: 3 }}
+        >
+          <Camera size={14} color={Colors.brand} strokeWidth={2} />
+        </TouchableOpacity>
       )}
     </View>
   );
