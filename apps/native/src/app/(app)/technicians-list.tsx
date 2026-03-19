@@ -18,6 +18,7 @@ import TechnicianListCard from "@/src/components/technicians/TechnicianListCard"
 import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/components/technicians/TechnicianProfileSheet";
+import UserBookingSheet, { type UserBookingSheetRef } from "@/src/components/technicians-booking/UserBookingSheet";
 import type { TechnicianListItem } from "@/src/services/technicians/types";
 
 // ─── Sort options ────────────────────────────────────────────────────────────
@@ -29,10 +30,12 @@ function TechnicianListBody({
   isLoading: loading,
   technicians,
   onAvatarPress,
+  onBookPress,
 }: Readonly<{
   isLoading: boolean;
   technicians: TechnicianListItem[];
   onAvatarPress: (technicianId: string, initials: string) => void;
+  onBookPress: (technicianId: string, name: string) => void;
 }>) {
   if (loading) {
     return (
@@ -63,7 +66,11 @@ function TechnicianListBody({
       data={technicians}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <TechnicianListCard item={item} onAvatarPress={onAvatarPress} />
+        <TechnicianListCard
+          item={item}
+          onAvatarPress={onAvatarPress}
+          onBookPress={onBookPress}
+        />
       )}
       contentContainerStyle={{ paddingTop: 12, paddingBottom: 24 }}
       showsVerticalScrollIndicator={false}
@@ -84,6 +91,7 @@ export default function TechniciansListScreen() {
   const coords = activeSort === "Nearest" ? location : null;
 
   const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
+  const bookingSheetRef = useRef<UserBookingSheetRef>(null);
 
   // TanStack Query – cached & refetchable
   const { data: technicians = [], isLoading } = useTechniciansQuery(
@@ -107,6 +115,16 @@ export default function TechniciansListScreen() {
       profileSheetRef.current?.open(technicianId, initials);
     },
     [],
+  );
+
+  const handleBookPress = useCallback(
+    (technicianId: string, name: string) => {
+      // Pass the categoryId as the service_id directly into the booking sheet
+      if (categoryId) {
+        bookingSheetRef.current?.open(technicianId, name, categoryId);
+      }
+    },
+    [categoryId],
   );
 
   return (
@@ -213,11 +231,13 @@ export default function TechniciansListScreen() {
           isLoading={isLoading}
           technicians={technicians}
           onAvatarPress={handleAvatarPress}
+          onBookPress={handleBookPress}
         />
       </View>
 
-      {/* ── Profile bottom sheet (renders above everything) ── */}
+      {/* Sheets */}
       <TechnicianProfileSheet ref={profileSheetRef} />
+      <UserBookingSheet ref={bookingSheetRef} />
     </SafeAreaView>
   );
 }

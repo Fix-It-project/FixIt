@@ -62,3 +62,10 @@ export interface TechnicianOrder {
 export interface GetTechnicianOrdersResponse {
   data: TechnicianOrder[];
 }
+
+export interface PublicScheduleResponse {
+  data: {
+    templates: AvailabilityTemplate[];
+    exceptions: CalendarException[];
+  };
+}

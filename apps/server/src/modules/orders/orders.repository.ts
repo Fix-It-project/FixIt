@@ -136,6 +136,38 @@ export class OrdersRepository {
     if (error) throw error;
     return data as Order;
   }
+
+  // check for pending orders
+  async hasPendingBooking(userId: string, technicianId: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('technician_id', technicianId)
+      .eq('status', 'pending')
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return !!data;
+  }
+
+  // find ANY valid service that falls under this category
+  async getServiceId(categoryId: string): Promise<string | null> {
+    const { data, error } = await supabase
+      .from('services')
+      .select('id')
+      .eq('category_id', categoryId)
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error finding service ID:', error);
+      return null;
+    }
+
+    return data?.id || null;
+  }
 }
 
 export const ordersRepository = new OrdersRepository();

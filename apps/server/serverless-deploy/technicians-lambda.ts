@@ -1,7 +1,8 @@
 import serverlessExpress from '@codegenie/serverless-express';
-import { techniciansRoutes } from '../src/modules/technicians/index.js';
+import { technicianSelfRoutes, technicianProfileRoutes } from '../src/modules/technicians/index.js';
 import app from '../src/shared-app.js';
 
-app.use('/api/categories/:categoryId/technicians', techniciansRoutes);
+app.use('/api/technicians', technicianSelfRoutes);
+app.use('/api/technicians', technicianProfileRoutes);
 
 export const handler = serverlessExpress({ app });

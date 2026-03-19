@@ -27,9 +27,10 @@ interface TechnicianListCardProps {
   readonly item: TechnicianListItem;
   readonly onPress?: () => void;
   readonly onAvatarPress?: (technicianId: string, initials: string) => void;
+  readonly onBookPress?: (technicianId: string, technicianName: string) => void;
 }
 
-export default function TechnicianListCard({ item, onPress, onAvatarPress }: Readonly<TechnicianListCardProps>) {
+export default function TechnicianListCard({ item, onPress, onAvatarPress, onBookPress }: Readonly<TechnicianListCardProps>) {
   const extras = derive(item.id);
   const initials = `${item.first_name[0]}${item.last_name[0]}`;
   const fullName = `${item.first_name} ${item.last_name}`;
@@ -89,8 +90,16 @@ export default function TechnicianListCard({ item, onPress, onAvatarPress }: Rea
             </Text>
           </View>
 
-          <View className="mt-1.5">
+          <View className="mt-1.5 flex-row items-center justify-between">
             <AvailabilityBadge isAvailable={item.is_available} />
+            
+            <TouchableOpacity
+              onPress={() => onBookPress?.(item.id, fullName)}
+              activeOpacity={0.7}
+              style={{ backgroundColor: Colors.brand, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 100 }}
+            >
+              <Text className="text-[12px] font-bold text-white">Book Now</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

@@ -4,6 +4,9 @@ import { requireTechnicianAuth } from '../../shared/middlewares/technician-auth.
 
 const router: RouterType = Router();
 
+// ─── Public routes ────────────────────────────────────────────────────────────
+router.get('/public/:technicianId', (req, res) => technicianCalendarController.getPublicSchedule(req, res));
+
 // ─── Availability templates ───────────────────────────────────────────────────
 router.get('/:technicianId/templates', requireTechnicianAuth, (req, res) => technicianCalendarController.getTemplates(req, res));
 router.post('/:technicianId/templates', requireTechnicianAuth, (req, res) => technicianCalendarController.createTemplate(req, res));

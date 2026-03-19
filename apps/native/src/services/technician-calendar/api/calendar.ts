@@ -11,6 +11,7 @@ import type {
   CreateExceptionPayload,
   TechnicianOrder,
   GetTechnicianOrdersResponse,
+  PublicScheduleResponse
 } from '../types/calendar';
 
 // ─── Availability templates ───────────────────────────────────────────────────
@@ -78,6 +79,13 @@ export async function getTechnicianOrders(technicianId: string): Promise<Technic
   // Uses the existing technician orders endpoint — we group by date on the client.
   const response = await apiClient.get<GetTechnicianOrdersResponse>(
     `/api/orders/technician/orders`
+  );
+  return response.data.data;
+}
+
+export async function getPublicSchedule(technicianId: string) {
+  const response = await apiClient.get<PublicScheduleResponse>(
+    `/api/technician-calendar/public/${technicianId}`
   );
   return response.data.data;
 }
