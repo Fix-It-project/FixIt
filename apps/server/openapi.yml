@@ -1,0 +1,1288 @@
+openapi: 3.0.3
+info:
+  title: FixIt API
+  version: 1.0.0
+  description: API for the FixIt platform — users, technicians, categories, services, and scheduling.
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development
+  - url: https://d25l1nu40gf2i5.cloudfront.net/api
+    description: Production (CloudFront)
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        min_price:
+          type: integer
+        max_price:
+          type: integer
+        category_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    Technician:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        is_available:
+          type: boolean
+        category_id:
+          type: string
+          format: uuid
+
+    Address:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        city:
+          type: string
+        street:
+          type: string
+        building_no:
+          type: string
+        apartment_no:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    CalendarEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        technician_id:
+          type: string
+          format: uuid
+        time_range:
+          type: string
+          example: "[2026-03-09T09:00:00Z,2026-03-09T11:00:00Z)"
+        type:
+          type: string
+          enum: [booking, blocked]
+        source:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    AvailabilityTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        technician_id:
+          type: string
+          format: uuid
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+        time_range:
+          type: string
+          example: "[09:00:00,17:00:00)"
+        active:
+          type: boolean
+        is_one_time:
+          type: boolean
+        specific_date:
+          type: string
+          format: date
+          nullable: true
+
+    Session:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresAt:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+paths:
+  # ─── Auth ───────────────────────────────────────────────────────────────────
+
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                fullName:
+                  type: string
+                phone:
+                  type: string
+                city:
+                  type: string
+                street:
+                  type: string
+                building_no:
+                  type: string
+                apartment_no:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                  message:
+                    type: string
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/signin:
+    post:
+      tags: [Auth]
+      summary: Sign in and receive tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                  session:
+                    $ref: "#/components/schemas/Session"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/signout:
+    post:
+      tags: [Auth]
+      summary: Sign out the current user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Signed out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get the current authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh the access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: New tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                  session:
+                    $ref: "#/components/schemas/Session"
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Send a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Set a new password
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newPassword]
+              properties:
+                newPassword:
+                  type: string
+      responses:
+        "200":
+          description: Password updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+
+  # ─── Users ──────────────────────────────────────────────────────────────────
+
+  /users/profile:
+    get:
+      tags: [Users]
+      summary: Get current user profile with addresses
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profile:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          email:
+                            type: string
+                          full_name:
+                            type: string
+                          phone:
+                            type: string
+                          created_at:
+                            type: string
+                            format: date-time
+                          addresses:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/Address"
+
+    put:
+      tags: [Users]
+      summary: Update user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profile:
+                    type: object
+
+  # ─── Addresses ──────────────────────────────────────────────────────────────
+
+  /addresses/user/addresses:
+    get:
+      tags: [Addresses]
+      summary: List all addresses for the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User addresses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  addresses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Address"
+
+    post:
+      tags: [Addresses]
+      summary: Add a new address for the authenticated user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [city, street, building_no]
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                building_no:
+                  type: string
+                apartment_no:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        "201":
+          description: Address created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    $ref: "#/components/schemas/Address"
+
+  /addresses/user/addresses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags: [Addresses]
+      summary: Update a user address
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                building_no:
+                  type: string
+                apartment_no:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        "200":
+          description: Address updated
+    delete:
+      tags: [Addresses]
+      summary: Delete a user address
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Address deleted
+        "400":
+          description: Cannot delete last address
+
+  /addresses/technician/addresses:
+    get:
+      tags: [Addresses]
+      summary: List all addresses for the authenticated technician
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Technician addresses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  addresses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Address"
+
+    post:
+      tags: [Addresses]
+      summary: Add a new address for the authenticated technician
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [city, street, building_no]
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                building_no:
+                  type: string
+                apartment_no:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        "201":
+          description: Address created
+
+  /addresses/technician/addresses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags: [Addresses]
+      summary: Update a technician address
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                building_no:
+                  type: string
+                apartment_no:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        "200":
+          description: Address updated
+    delete:
+      tags: [Addresses]
+      summary: Delete a technician address
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Address deleted
+        "400":
+          description: Cannot delete last address
+
+  # ─── Categories ─────────────────────────────────────────────────────────────
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List all categories
+      responses:
+        "200":
+          description: All categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Category"
+
+  /categories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Categories]
+      summary: Get a single category
+      responses:
+        "200":
+          description: Category found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    $ref: "#/components/schemas/Category"
+        "404":
+          description: Category not found
+
+  # ─── Services ───────────────────────────────────────────────────────────────
+
+  /categories/{categoryId}/services:
+    parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Services]
+      summary: List all services in a category
+      responses:
+        "200":
+          description: Services list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  services:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Service"
+        "404":
+          description: Category not found
+
+  /categories/{categoryId}/services/{serviceId}:
+    parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: serviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Services]
+      summary: Get a single service
+      responses:
+        "200":
+          description: Service found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    $ref: "#/components/schemas/Service"
+        "404":
+          description: Service not found
+
+  # ─── Technicians ────────────────────────────────────────────────────────────
+
+  /categories/{categoryId}/technicians:
+    parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Technicians]
+      summary: List all technicians in a category
+      responses:
+        "200":
+          description: Technicians list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  technicians:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Technician"
+        "404":
+          description: Category not found
+
+  /categories/{categoryId}/technicians/search:
+    parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Technicians]
+      summary: Search technicians by name within a category
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  technicians:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Technician"
+        "400":
+          description: Missing query parameter
+        "404":
+          description: Category not found
+
+  # ─── Technician Auth ────────────────────────────────────────────────────────
+
+  /technician-auth/check-email:
+    post:
+      tags: [Technician Auth]
+      summary: Check if a technician email already exists
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Email availability result
+        "409":
+          description: Email already exists
+
+  /technician-auth/signup:
+    post:
+      tags: [Technician Auth]
+      summary: Register a new technician with document uploads
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [email, password, first_name, last_name, category_id]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                category_id:
+                  type: string
+                  format: uuid
+                phone:
+                  type: string
+                city:
+                  type: string
+                street:
+                  type: string
+                building_no:
+                  type: string
+                apartment_no:
+                  type: string
+                latitude:
+                  type: string
+                longitude:
+                  type: string
+                criminal_record:
+                  type: string
+                  format: binary
+                birth_certificate:
+                  type: string
+                  format: binary
+                national_id:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Technician registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  technician:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                      first_name:
+                        type: string
+                      last_name:
+                        type: string
+                  message:
+                    type: string
+
+  /technician-auth/signin:
+    post:
+      tags: [Technician Auth]
+      summary: Sign in as a technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  technician:
+                    type: object
+                  session:
+                    $ref: "#/components/schemas/Session"
+
+  /technician-auth/signout:
+    post:
+      tags: [Technician Auth]
+      summary: Sign out the current technician
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Signed out
+
+  /technician-auth/profile:
+    get:
+      tags: [Technician Auth]
+      summary: Get the current authenticated technician
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Technician profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  technician:
+                    $ref: "#/components/schemas/Technician"
+
+  /technician-auth/refresh:
+    post:
+      tags: [Technician Auth]
+      summary: Refresh the technician access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: New tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: "#/components/schemas/Session"
+
+  # ─── Technician Calendar ────────────────────────────────────────────────────
+
+  /technician-calendar/{technicianId}:
+    parameters:
+      - name: technicianId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Technician Calendar]
+      summary: Get all calendar entries for a technician
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [booking, blocked]
+      responses:
+        "200":
+          description: Calendar entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CalendarEntry"
+
+    post:
+      tags: [Technician Calendar]
+      summary: Create a new calendar entry
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start, end, type]
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+                type:
+                  type: string
+                  enum: [booking, blocked]
+                source:
+                  type: string
+      responses:
+        "201":
+          description: Calendar entry created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CalendarEntry"
+        "400":
+          description: Validation error (past date, outside working hours, conflict)
+
+  /technician-calendar/{technicianId}/{id}:
+    parameters:
+      - name: technicianId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Technician Calendar]
+      summary: Get a specific calendar entry
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Calendar entry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/CalendarEntry"
+        "404":
+          description: Entry not found
+
+    patch:
+      tags: [Technician Calendar]
+      summary: Update a calendar entry
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+                type:
+                  type: string
+                  enum: [booking, blocked]
+                source:
+                  type: string
+      responses:
+        "200":
+          description: Entry updated
+        "404":
+          description: Entry not found
+
+    delete:
+      tags: [Technician Calendar]
+      summary: Delete a calendar entry
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Entry deleted
+        "404":
+          description: Entry not found
+
+  /technician-calendar/{technicianId}/templates:
+    parameters:
+      - name: technicianId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Technician Calendar]
+      summary: Get all availability templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: activeOnly
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Availability templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AvailabilityTemplate"
+
+    post:
+      tags: [Technician Calendar]
+      summary: Create a new availability template
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [day_of_week]
+              properties:
+                day_of_week:
+                  type: integer
+                  minimum: 0
+                  maximum: 6
+                start:
+                  type: string
+                  example: "09:00:00"
+                end:
+                  type: string
+                  example: "17:00:00"
+                active:
+                  type: boolean
+                  default: true
+                is_one_time:
+                  type: boolean
+                  default: false
+                specific_date:
+                  type: string
+                  format: date
+      responses:
+        "201":
+          description: Template created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AvailabilityTemplate"
+        "400":
+          description: Validation error
+
+  /technician-calendar/{technicianId}/templates/{id}:
+    parameters:
+      - name: technicianId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Technician Calendar]
+      summary: Get a specific availability template
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Template found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AvailabilityTemplate"
+        "404":
+          description: Template not found
+
+    patch:
+      tags: [Technician Calendar]
+      summary: Update an availability template
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                day_of_week:
+                  type: integer
+                  minimum: 0
+                  maximum: 6
+                start:
+                  type: string
+                  example: "09:00:00"
+                end:
+                  type: string
+                  example: "17:00:00"
+                active:
+                  type: boolean
+                specific_date:
+                  type: string
+                  format: date
+      responses:
+        "200":
+          description: Template updated
+        "400":
+          description: Validation error
+        "404":
+          description: Template not found
+
+    delete:
+      tags: [Technician Calendar]
+      summary: Delete an availability template
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Template deleted
+        "404":
+          description: Template not found

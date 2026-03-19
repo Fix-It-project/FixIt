@@ -7,6 +7,7 @@ import usersRoutes from './modules/users/users.routes.js';
 import categoriesRoutes from './modules/categories/categories.routes.js';
 import servicesRoutes from './modules/services/services.routes.js';
 import { techniciansRoutes, technicianProfileRoutes, technicianSelfRoutes } from './modules/technicians/index.js';
+import ordersRoutes  from './modules/orders/orders.routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/technician-auth', technicianAuthRoutes);
@@ -19,4 +20,5 @@ app.use('/api/categories/:categoryId/services', servicesRoutes);
 app.use('/api/categories/:categoryId/technicians', techniciansRoutes);
 app.use('/api/technicians', technicianSelfRoutes);
 app.use('/api/technicians', technicianProfileRoutes);
+app.use('/api/orders', ordersRoutes);
 export default app;

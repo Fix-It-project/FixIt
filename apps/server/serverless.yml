@@ -12,6 +12,9 @@ build:
     external:
       - "@supabase/supabase-js"
 
+package:
+  individually: true
+
 provider:
   name: aws
   runtime: nodejs20.x
@@ -42,12 +45,26 @@ functions:
       - httpApi:
           path: /api/technician-auth/{proxy+}
           method: ANY
+  users:
+    handler: serverless-deploy/users-lambda.handler
+    events:
+      - httpApi:
+          path: /api/users/{proxy+}
+          method: ANY
+
   addresses:
     handler: serverless-deploy/addresses-lambda.handler
     events:
       - httpApi:
           path: /api/addresses/{proxy+}
           method: ANY
+  categories:
+    handler: serverless-deploy/categories-lambda.handler
+    events:
+      - httpApi:
+          path: /api/categories/{proxy+}
+          method: ANY
+
   technicianCalendar:
     handler: serverless-deploy/technician-calendar-lambda.handler
     events:

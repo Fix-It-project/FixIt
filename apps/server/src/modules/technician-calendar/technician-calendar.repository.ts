@@ -2,59 +2,46 @@ import { supabaseAdmin } from '../../shared/db/supabase.js';
 
 const supabase = supabaseAdmin;
 
-export type CalendarEntryType = 'booking' | 'blocked';
+// ─── Calendar entries ───────────────────────────────────────────────────────
 
-export interface TechnicianCalendar {
+export interface CalendarException {
   id: string;
   technician_id: string;
-  time_range: string;
-  type: CalendarEntryType;
-  source: string | null;
-  created_at: string;
+  date: string;       // YYYY-MM-DD
+  created_at: string; // ISO timestamp
 }
 
 export interface CreateCalendarEntryData {
   technician_id: string;
-  start: string;
-  end: string;
-  type: CalendarEntryType;
-  source?: string;
+  date: string;       // YYYY-MM-DD
 }
 
 export interface UpdateCalendarEntryData {
-  start?: string;
-  end?: string;
-  type?: CalendarEntryType;
-  source?: string;
+  date?: string;
 }
 
 export interface CalendarQueryParams {
-  from?: string;
-  to?: string;
-  type?: CalendarEntryType;
+  from?: string; // YYYY-MM-DD
+  to?: string;   // YYYY-MM-DD
 }
 
-// ─── Availability Templates ───────────────────────────────────────────────────
+// ─── Availability Templates (recurring only) ───────────────────────────────
 
 export interface AvailabilityTemplate {
   id: string;
   technician_id: string;
   day_of_week: number; // 0 = Sunday
-  time_range: string; // e.g. "[09:00:00,17:00:00)"
   active: boolean;
 }
 
 export interface CreateTemplateData {
   technician_id: string;
   day_of_week: number;
-  start: string; // HH:MM:SS e.g. "09:00:00"
-  end: string;   // HH:MM:SS e.g. "17:00:00"
+  active?: boolean; // default true
 }
 
 export interface UpdateTemplateData {
   day_of_week?: number;
-  start?: string;
-  end?: string;
   active?: boolean;
 }
 
@@ -63,32 +50,27 @@ export class TechnicianCalendarRepository {
 
   async getEntriesByTechnicianId(technicianId: string, params: CalendarQueryParams = {}) {
     let query = supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .select('*')
       .eq('technician_id', technicianId)
-      .order('created_at', { ascending: true });
+      .order('date', { ascending: true });
 
-    if (params.type) {
-      query = query.eq('type', params.type);
+    if (params.from) {
+      query = query.gte('date', params.from);
     }
 
-    if (params.from && params.to) {
-      const tsrange = `[${params.from},${params.to})`;
-      query = query.filter('time_range', 'ov', tsrange);
-    } else if (params.from) {
-      query = query.gte('time_range', params.from);
-    } else if (params.to) {
-      query = query.lte('time_range', params.to);
+    if (params.to) {
+      query = query.lte('date', params.to);
     }
 
     const { data, error } = await query;
     if (error) throw error;
-    return data as TechnicianCalendar[];
+    return data as CalendarException[];
   }
 
   async getEntryById(id: string) {
     const { data, error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .select('*')
       .eq('id', id)
       .single();
@@ -98,57 +80,49 @@ export class TechnicianCalendarRepository {
       throw error;
     }
 
-    return data as TechnicianCalendar;
+    return data as CalendarException;
   }
 
   async createEntry(dto: CreateCalendarEntryData) {
-    const timeRange = `[${dto.start},${dto.end})`;
-
     const { data, error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .insert({
         technician_id: dto.technician_id,
-        time_range: timeRange,
-        type: dto.type,
-        source: dto.source ?? null,
+        date: dto.date,
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data as TechnicianCalendar;
+    return data as CalendarException;
   }
 
   async updateEntry(id: string, dto: UpdateCalendarEntryData) {
     const updates: Record<string, any> = {};
 
-    if (dto.start && dto.end) {
-      updates.time_range = `[${dto.start},${dto.end})`;
-    }
-    if (dto.type) updates.type = dto.type;
-    if (dto.source !== undefined) updates.source = dto.source;
+    if (dto.date !== undefined) updates.date = dto.date;
 
     const { data, error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .update(updates)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data as TechnicianCalendar;
+    return data as CalendarException;
   }
 
   async deleteEntry(id: string) {
     const { error } = await supabase
-      .from('technician_calendar')
+      .from('calendar_exceptions')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
   }
 
-  // ─── Availability templates ───────────────────────────────────────────────
+  // ─── Availability templates (recurring) ──────────────────────────────────
 
   async getTemplatesByTechnicianId(technicianId: string, activeOnly = true) {
     let query = supabase
@@ -187,7 +161,7 @@ export class TechnicianCalendarRepository {
       .insert({
         technician_id: dto.technician_id,
         day_of_week: dto.day_of_week,
-        time_range: `[${dto.start},${dto.end})`,
+        active: dto.active ?? true,
       })
       .select()
       .single();
@@ -199,7 +173,6 @@ export class TechnicianCalendarRepository {
   async updateTemplate(id: string, dto: UpdateTemplateData) {
     const updates: Record<string, any> = {};
 
-    if (dto.start && dto.end) updates.time_range = `[${dto.start},${dto.end})`;
     if (dto.day_of_week !== undefined) updates.day_of_week = dto.day_of_week;
     if (dto.active !== undefined) updates.active = dto.active;
 
@@ -221,6 +194,20 @@ export class TechnicianCalendarRepository {
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  async getTemplateForDate(technicianId: string, date: string): Promise<AvailabilityTemplate | null> {
+    const dayOfWeek = new Date(date).getDay();
+
+    const { data, error } = await supabase
+      .from('availability_templates')
+      .select('*')
+      .eq('technician_id', technicianId)
+      .eq('day_of_week', dayOfWeek)
+      .maybeSingle();
+
+    if (error) throw error;
+    return (data ?? null) as AvailabilityTemplate | null;
   }
 }
 
