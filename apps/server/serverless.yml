@@ -71,3 +71,10 @@ functions:
       - httpApi:
           path: /api/technician-calendar/{proxy+}
           method: ANY
+
+  orders:
+    handler: serverless-deploy/orders-lambda.handler
+    events:
+      - httpApi:
+          path: /api/orders/{proxy+}
+          method: ANY

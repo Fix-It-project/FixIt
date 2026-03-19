@@ -108,7 +108,10 @@ export class TechnicianCalendarController {
       if (!technicianId) return;
 
       const { activeOnly } = req.query as any;
-      const templates = await technicianCalendarService.getTemplates(technicianId, activeOnly !== 'false');
+      // Default to false so the frontend always receives all 7 day rows,
+      // including inactive ones. Without this, GET omits inactive rows and
+      // the frontend's diff logic incorrectly tries to re-create them (409).
+      const templates = await technicianCalendarService.getTemplates(technicianId, activeOnly === 'true');
       return res.status(200).json({ data: templates });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });

@@ -140,16 +140,10 @@ export class TechnicianCalendarService {
 
     this.validateDayOfWeek(data.day_of_week);
 
-    const existing = await technicianCalendarRepository.getTemplatesByTechnicianId(data.technician_id, false);
-    const duplicate = existing.find(t => t.day_of_week === data.day_of_week);
-    if (duplicate) {
-      throw {
-        status: 409,
-        message: 'A template for this weekday already exists.',
-      };
-    }
-
-    return technicianCalendarRepository.createTemplate({
+    // Upsert: delegate to the repository which uses Supabase's native upsert
+    // on the (technician_id, day_of_week) unique constraint. POST is now
+    // fully idempotent — no 409 ever reaches the frontend.
+    return technicianCalendarRepository.upsertTemplate({
       technician_id: data.technician_id,
       day_of_week: data.day_of_week,
       active: data.active,

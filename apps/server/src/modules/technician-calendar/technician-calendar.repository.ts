@@ -187,6 +187,26 @@ export class TechnicianCalendarRepository {
     return data as AvailabilityTemplate;
   }
 
+  async upsertTemplate(dto: CreateTemplateData) {
+    // Uses Supabase upsert with the unique constraint on (technician_id, day_of_week).
+    // onConflict targets that constraint so it updates the existing row cleanly.
+    const { data, error } = await supabase
+      .from('availability_templates')
+      .upsert(
+        {
+          technician_id: dto.technician_id,
+          day_of_week: dto.day_of_week,
+          active: dto.active ?? true,
+        },
+        { onConflict: 'technician_id,day_of_week' }
+      )
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as AvailabilityTemplate;
+  }
+
   async deleteTemplate(id: string) {
     const { error } = await supabase
       .from('availability_templates')
