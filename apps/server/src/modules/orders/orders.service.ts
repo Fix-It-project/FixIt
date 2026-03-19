@@ -3,7 +3,7 @@ import { technicianCalendarService } from '../technician-calendar/technician-cal
 
 export interface CreateOrderRequest {
   technician_id: string;
-  category_id: string; // Changed from service_id to category_id
+  service_id: string; 
   scheduled_date: string; // YYYY-MM-DD
   problem_description?: string;
 }
@@ -43,10 +43,10 @@ export class OrdersService {
 
   // USER: create order, default active=false
   async createOrderForUser(userId: string, body: CreateOrderRequest): Promise<Order> {
-    const { technician_id, category_id, scheduled_date, problem_description } = body;
+    const { technician_id, service_id, scheduled_date, problem_description } = body;
     const normalizedDate = this.ensureFutureBookingDate(scheduled_date);
     
-    // 0. NEW: Check if user already has a pending booking with this technician
+    // 0. Check if user already has a pending booking with this technician
     const hasPending = await ordersRepository.hasPendingBooking(userId, technician_id);
     if (hasPending) {
       throw { status: 400, message: 'You already have a pending booking with this technician.' };
@@ -67,17 +67,11 @@ export class OrdersService {
       throw { status: 400, message: 'Technician is on holiday/unavailable on this specific date.' };
     }
 
-    // 3. Look up a valid service id using just the category id
-    const serviceId = await ordersRepository.getServiceId(category_id);
-    if (!serviceId) {
-      throw { status: 400, message: 'No service exists for the requested category.' };
-    }
-
-    // 4. Create the order immediately.
+    // 3. Create the order immediately using the frontend's service_id
     const order = await ordersRepository.createOrder({
       technician_id,
       user_id: userId,
-      service_id: serviceId, 
+      service_id, 
       problem_description: problem_description || 'General Service Request',
       scheduled_date: normalizedDate,
     });

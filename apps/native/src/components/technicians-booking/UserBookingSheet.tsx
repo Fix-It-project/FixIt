@@ -140,20 +140,19 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
   }, [templates, exceptions, selectedDate]);
 
   const handleConfirm = async () => {
-    if (!techId || !selectedDate || !selectedServiceId) return;
+    if (!techId || !selectedDate) return;
     try {
       await createBooking({
         technician_id: techId,
-        category_id: selectedServiceId,
+        service_id: '9722e1e5-0a32-401b-b9f1-0521062bf682', //hardcoded for now since logic not yet implemented
         scheduled_date: selectedDate,
-        problem_description: 'General Service Request',
+        problem_description: 'General Service Request', //hardcoded for now since we don't have a description input in the UI
       });
       showToast('Booking submitted pending approval! ✓', 'success');
       setTimeout(() => {
         sheetRef.current?.close();
-      }, 1500); // 1.5 second delay so the toast stays visible before sheet closes
+      }, 1500); 
     } catch (error: any) {
-      // If backend sends a specific constraint error, we display it
       const errorMsg = error?.response?.data?.error || error?.message || 'Failed to submit booking. Try again.';
       showToast(errorMsg, 'error');
     }
