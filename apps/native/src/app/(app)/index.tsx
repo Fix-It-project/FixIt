@@ -43,6 +43,12 @@ export default function Home() {
     }, 300);
   }, []);
 
+  const handleNewAddressBack = useCallback(() => {
+    setTimeout(() => {
+      addressSheetRef.current?.open();
+    }, 300);
+  }, []);
+
   return (
     <View className="flex-1 bg-surface-gray">
       <SafeAreaView
@@ -81,7 +87,7 @@ export default function Home() {
           onAddNewAddress={handleAddNewAddress}
         />
         {/* Add new address bottom sheet */}
-        <AddNewAddressSheet ref={addNewAddressSheetRef} />
+        <AddNewAddressSheet ref={addNewAddressSheetRef} onBack={handleNewAddressBack} />
       </SafeAreaView>
     </View>
   );

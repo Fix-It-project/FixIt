@@ -1,6 +1,6 @@
-import { useCallback, useRef } from "react";
-import { BackHandler, ScrollView, View } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useRef } from "react";
+import { ScrollView, View } from "react-native";
+import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/src/lib/colors";
 import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-helpers";
@@ -19,17 +19,10 @@ export default function BookingsScreen() {
   const dateStr = toIso(selectedDate);
   const { data: bookings = [], isPending } = useTechBookingsQuery(dateStr);
 
-  useFocusEffect(
-    useCallback(() => {
-      const onHardwareBack = () => {
-        if (headerRef.current?.closeCalendarIfOpen()) return true;
-        return false;
-      };
-
-      const subscription = BackHandler.addEventListener("hardwareBackPress", onHardwareBack);
-      return () => subscription.remove();
-    }, []),
-  );
+  useFocusBackHandler(() => {
+    if (headerRef.current?.closeCalendarIfOpen()) return true;
+    return false;
+  });
 
   return (
     <View className="flex-1 bg-surface-gray">

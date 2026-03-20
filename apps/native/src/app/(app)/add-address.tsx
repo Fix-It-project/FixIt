@@ -4,9 +4,6 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,6 +13,7 @@ import { Colors } from "@/src/lib/colors";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { addAddressSchema } from "@/src/schemas/address-schema";
 import { useAddAddressMutation } from "@/src/hooks/addresses/useAddAddressMutation";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 /** Helper: renders a labelled text input with optional error. */
 function FormField({
@@ -103,110 +101,108 @@ export default function AddAddressScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: Colors.white }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
+      {/* Header */}
+      <View className="flex-row items-center px-5 py-3" style={{ gap: 8 }}>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
+          <ChevronLeft size={26} color={Colors.textPrimary} strokeWidth={2} />
+        </TouchableOpacity>
+        <Text
+          className="text-[20px] text-content"
+          style={{ fontFamily: "GoogleSans_700Bold" }}
+        >
+          Address Details
+        </Text>
+      </View>
+
+      <KeyboardAwareScrollView
+        style={{ flex: 1, paddingHorizontal: 20 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        contentContainerStyle={{ gap: 16, paddingBottom: 32 }}
+        bottomOffset={20}
       >
-        {/* Header */}
-        <View className="flex-row items-center px-5 py-3" style={{ gap: 8 }}>
-          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-            <ChevronLeft size={26} color={Colors.textPrimary} strokeWidth={2} />
-          </TouchableOpacity>
+        {/* Coords badge */}
+        <View
+          className="flex-row items-center rounded-lg px-3 py-2.5"
+          style={{ backgroundColor: Colors.brandLight }}
+        >
+          <MapPin size={14} color={Colors.brand} strokeWidth={2} />
           <Text
-            className="text-[20px] text-content"
-            style={{ fontFamily: "GoogleSans_700Bold" }}
+            className="ml-2 text-[13px]"
+            style={{ fontFamily: "GoogleSans_400Regular", color: Colors.brand }}
           >
-            Address Details
+            Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
           </Text>
         </View>
 
-        <ScrollView
-          className="flex-1 px-5"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ gap: 16, paddingBottom: 32 }}
-        >
-          {/* Coords badge */}
-          <View
-            className="flex-row items-center rounded-lg px-3 py-2.5"
-            style={{ backgroundColor: Colors.brandLight }}
+        {/* Form fields */}
+        <FormField
+          label="City"
+          required
+          value={city}
+          onChangeText={(t) => { setCity(t); clearFieldError("city"); }}
+          placeholder="Enter city"
+          error={fieldErrors.city}
+        />
+
+        <FormField
+          label="Street"
+          required
+          value={street}
+          onChangeText={(t) => { setStreet(t); clearFieldError("street"); }}
+          placeholder="Enter street address"
+          error={fieldErrors.street}
+        />
+
+        <FormField
+          label="Building Number"
+          value={buildingNumber}
+          onChangeText={setBuildingNumber}
+          placeholder="Enter building number (optional)"
+        />
+
+        <FormField
+          label="Apartment Number"
+          value={apartmentNumber}
+          onChangeText={setApartmentNumber}
+          placeholder="Enter apartment number (optional)"
+        />
+
+        {/* Mutation error */}
+        {addMutation.isError && (
+          <Text
+            className="text-[13px] text-center"
+            style={{ color: Colors.error, fontFamily: "GoogleSans_400Regular" }}
           >
-            <MapPin size={14} color={Colors.brand} strokeWidth={2} />
+            {(addMutation.error as any)?.response?.data?.error ??
+              "Failed to save address. Please try again."}
+          </Text>
+        )}
+
+        {/* Submit */}
+        <TouchableOpacity
+          onPress={handleSubmit}
+          disabled={addMutation.isPending}
+          activeOpacity={0.7}
+          className="flex-row items-center justify-center rounded-xl py-4"
+          style={{
+            backgroundColor: Colors.brand,
+            opacity: addMutation.isPending ? 0.6 : 1,
+          }}
+        >
+          {addMutation.isPending ? (
+            <ActivityIndicator size="small" color={Colors.white} />
+          ) : (
             <Text
-              className="ml-2 text-[13px]"
-              style={{ fontFamily: "GoogleSans_400Regular", color: Colors.brand }}
+              className="text-[15px] text-white"
+              style={{ fontFamily: "GoogleSans_600SemiBold" }}
             >
-              Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
-            </Text>
-          </View>
-
-          {/* Form fields */}
-          <FormField
-            label="City"
-            required
-            value={city}
-            onChangeText={(t) => { setCity(t); clearFieldError("city"); }}
-            placeholder="Enter city"
-            error={fieldErrors.city}
-          />
-
-          <FormField
-            label="Street"
-            required
-            value={street}
-            onChangeText={(t) => { setStreet(t); clearFieldError("street"); }}
-            placeholder="Enter street address"
-            error={fieldErrors.street}
-          />
-
-          <FormField
-            label="Building Number"
-            value={buildingNumber}
-            onChangeText={setBuildingNumber}
-            placeholder="Enter building number (optional)"
-          />
-
-          <FormField
-            label="Apartment Number"
-            value={apartmentNumber}
-            onChangeText={setApartmentNumber}
-            placeholder="Enter apartment number (optional)"
-          />
-
-          {/* Mutation error */}
-          {addMutation.isError && (
-            <Text
-              className="text-[13px] text-center"
-              style={{ color: Colors.error, fontFamily: "GoogleSans_400Regular" }}
-            >
-              {(addMutation.error as any)?.response?.data?.error ??
-                "Failed to save address. Please try again."}
+              Save Address
             </Text>
           )}
-
-          {/* Submit */}
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={addMutation.isPending}
-            activeOpacity={0.7}
-            className="flex-row items-center justify-center rounded-xl py-4"
-            style={{
-              backgroundColor: Colors.brand,
-              opacity: addMutation.isPending ? 0.6 : 1,
-            }}
-          >
-            {addMutation.isPending ? (
-              <ActivityIndicator size="small" color={Colors.white} />
-            ) : (
-              <Text
-                className="text-[15px] text-white"
-                style={{ fontFamily: "GoogleSans_600SemiBold" }}
-              >
-                Save Address
-              </Text>
-            )}
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </TouchableOpacity>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

@@ -9,7 +9,7 @@ import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useCooldownTimer } from "@/src/hooks/auth/useCooldownTimer";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
-import KeyboardWrapper from "@/src/components/auth/KeyboardWrapper";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import EmailEntryView from "@/src/components/auth/forgot-password/EmailEntryView";
 import CheckInboxView from "@/src/components/auth/forgot-password/CheckInboxView";
@@ -59,9 +59,12 @@ export default function ForgotPassword() {
 
   // ─── Render ─────────────────────────────────────────────────────────────────
   return (
-    <KeyboardWrapper>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ flex: 1, backgroundColor: Colors.brandLight }}
+    >
       <StatusBar style="dark" />
-      <View className="flex-1">
+      <View style={{ flex: 1 }}>
         {/* ── Top Bar ────────────────────────────────────────────────── */}
         <View className="flex-row items-center justify-between px-4 pt-6 pb-2">
           <Pressable
@@ -94,6 +97,6 @@ export default function ForgotPassword() {
           />
         )}
       </View>
-    </KeyboardWrapper>
+    </KeyboardAvoidingView>
   );
 }

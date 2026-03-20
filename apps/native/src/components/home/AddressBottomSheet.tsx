@@ -11,6 +11,7 @@ import { Colors } from "@/src/lib/colors";
 import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
 import { useSetActiveAddressMutation } from "@/src/hooks/addresses/useSetActiveAddressMutation";
 import AddressListItem from "@/src/components/home/AddressListItem";
+import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
 
 // ─── Public handle ──────────────────────────────────────────────────────────
 export interface AddressBottomSheetRef {
@@ -32,8 +33,14 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
 
     // Optimistic active ID — avoids stale UI while mutation is in-flight
     const [optimisticActiveId, setOptimisticActiveId] = useState<string | null>(null);
+    const [sheetIndex, setSheetIndex] = useState(-1);
 
-    const snapPoints = useMemo(() => ["55%"], []);
+    const snapPoints = useMemo(() => ["65%"], []);
+
+    useHardwareBackHandler(sheetIndex >= 0, () => {
+      bottomSheetRef.current?.close();
+      return true;
+    });
 
     useImperativeHandle(ref, () => ({
       open() {
@@ -88,6 +95,7 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
         backdropComponent={renderBackdrop}
         backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
         handleIndicatorStyle={{ backgroundColor: Colors.borderLight, width: 40 }}
+        onChange={setSheetIndex}
       >
         <BottomSheetView className="flex-1 px-6 pb-6">
           {/* Header */}
@@ -147,6 +155,7 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
               <FlatList
                 data={addresses}
                 keyExtractor={(item) => item.id}
+                extraData={optimisticActiveId}
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => (
                   <View style={{ height: 1, backgroundColor: Colors.surfaceGray }} />

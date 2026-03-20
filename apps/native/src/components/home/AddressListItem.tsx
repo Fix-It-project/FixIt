@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  interpolateColor,
 } from "react-native-reanimated";
 import type { Address } from "@/src/services/addresses/types";
 
@@ -34,10 +35,16 @@ export default function AddressListItem({
   }, [isActive, active]);
 
   const ringStyle = useAnimatedStyle(() => ({
-    borderColor:
-      active.value > 0.5 ? Colors.brand : Colors.borderLight,
-    backgroundColor:
-      active.value > 0.5 ? Colors.brand : "transparent",
+    borderColor: interpolateColor(
+      active.value,
+      [0, 1],
+      [Colors.borderLight, Colors.brand],
+    ),
+    backgroundColor: interpolateColor(
+      active.value,
+      [0, 1],
+      ["transparent", Colors.brand],
+    ),
   }));
 
   const dotStyle = useAnimatedStyle(() => ({
@@ -53,7 +60,7 @@ export default function AddressListItem({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || isActive}
       activeOpacity={0.7}
       className="flex-row items-center py-3.5"
       style={{ gap: 12, opacity: disabled ? 0.5 : 1 }}
