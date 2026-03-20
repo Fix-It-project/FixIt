@@ -1,9 +1,9 @@
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TechHeader from "@/src/components/tech-home/TechHeader";
-import IncomingRequests from "@/src/components/tech-home/IncomingRequests";
-import TodaySchedule from "@/src/components/tech-home/TodaySchedule";
-import EarningsWallet from "@/src/components/tech-home/EarningsWallet";
+import TechHeader from "@/src/components/tech/home/TechHeader";
+import IncomingRequests from "@/src/components/tech/home/IncomingRequests";
+import TodaySchedule from "@/src/components/tech/home/TodaySchedule";
+import EarningsWallet from "@/src/components/tech/home/EarningsWallet";
 
 const SECTION_GAP = 8;
 

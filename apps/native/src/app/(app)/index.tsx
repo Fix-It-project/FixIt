@@ -2,15 +2,15 @@ import { useRef, useCallback } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import LocationHeader from "@/src/components/home/LocationHeader";
-import HeaderPolygons from "@/src/components/home/HeaderPolygons";
-import SearchBar from "@/src/components/home/SearchBar";
-import PreviousOrdersSection from "@/src/components/home/OrderAgainCard";
-import CategoryGrid from "@/src/components/home/CategoryGrid";
-import RecommendedTechnicians from "@/src/components/home/RecommendedTechnicians";
-import NearYouSection from "@/src/components/home/NearYouSection";
-import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/components/home/AddressBottomSheet";
-import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/components/home/AddNewAddressSheet";
+import LocationHeader from "@/src/components/user/home/LocationHeader";
+import HeaderPolygons from "@/src/components/user/home/HeaderPolygons";
+import SearchBar from "@/src/components/user/home/SearchBar";
+import PreviousOrdersSection from "@/src/components/user/home/OrderAgainCard";
+import CategoryGrid from "@/src/components/user/home/CategoryGrid";
+import RecommendedTechnicians from "@/src/components/user/home/RecommendedTechnicians";
+import NearYouSection from "@/src/components/user/home/NearYouSection";
+import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/components/user/home/AddressBottomSheet";
+import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/components/user/home/AddNewAddressSheet";
 import { Colors } from "@/src/lib/colors";
 
 /** Vertical gap between home-page sections (single source of truth). */
@@ -23,7 +23,7 @@ export default function Home() {
   // Incoming change: categoryName now passed directly instead of looked up via CATEGORIES.find()
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
-      pathname: "/(app)/technicians-list" as any,
+      pathname: "/(app)/(technicians)/list" as any,
       params: {
         categoryId,
         categoryName,

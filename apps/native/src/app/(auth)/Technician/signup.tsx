@@ -8,10 +8,10 @@ import { technicianCheckEmail } from "@/src/services/auth/api/technician-auth";
 import { ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
-import FormInput from "@/src/components/auth/FormInput";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import LoginLink from "@/src/components/auth/LoginLink";
+import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
+import FormInput from "@/src/components/shared/auth/FormInput";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import LoginLink from "@/src/components/shared/auth/LoginLink";
 import { Colors } from "@/src/lib/colors";
 
 export default function TechnicianSignUpStep1() {

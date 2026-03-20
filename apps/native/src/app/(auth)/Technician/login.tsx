@@ -7,12 +7,12 @@ import { Mail } from "lucide-react-native";
 import { signInSchema } from "@/src/schemas/auth-schema";
 import { useTechnicianLoginMutation } from "@/src/hooks/auth/useTechnicianLoginMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
-import FormInput from "@/src/components/auth/FormInput";
-import PasswordInput from "@/src/components/auth/PasswordInput";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
+import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
+import FormInput from "@/src/components/shared/auth/FormInput";
+import PasswordInput from "@/src/components/shared/auth/PasswordInput";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
 
-import LoginLink from "@/src/components/auth/LoginLink";
+import LoginLink from "@/src/components/shared/auth/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 

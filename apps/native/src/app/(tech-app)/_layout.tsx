@@ -50,6 +50,10 @@ export default function TechAppLayout() {
       }}
     >
       <Tabs.Screen
+        name="(bookings)"
+        options={{ tabBarButton: () => null, tabBarItemStyle: { display: "none" } }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: "Home",
@@ -59,7 +63,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="schedule"
+        name="(schedule)"
         options={{
           title: "Schedule",
           tabBarIcon: ({ color, size }) => (
@@ -68,7 +72,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="chatbot"
+        name="(chatbot)"
         options={{
           title: "",
           tabBarIcon: ({ focused }) => (
@@ -93,7 +97,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="wallet"
+        name="(wallet)"
         options={{
           title: "Wallet",
           tabBarIcon: ({ color, size }) => (
@@ -102,7 +106,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(profile)"
         options={{
           title: "My Profile",
           tabBarIcon: ({ color, size }) => (

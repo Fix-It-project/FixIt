@@ -11,8 +11,8 @@ import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import PasswordInput from "@/src/components/auth/PasswordInput";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import PasswordInput from "@/src/components/shared/auth/PasswordInput";
 
 export default function ResetPassword() {
   const { access_token, refresh_token, userType } = useLocalSearchParams<{
