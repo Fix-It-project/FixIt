@@ -33,7 +33,7 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
     // Optimistic active ID — avoids stale UI while mutation is in-flight
     const [optimisticActiveId, setOptimisticActiveId] = useState<string | null>(null);
 
-    const snapPoints = useMemo(() => ["55%"], []);
+    const snapPoints = useMemo(() => ["65%"], []);
 
     useImperativeHandle(ref, () => ({
       open() {

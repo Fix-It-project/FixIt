@@ -23,7 +23,7 @@ const AddNewAddressSheet = forwardRef<AddNewAddressSheetRef, object>(
     const bottomSheetRef = useRef<BottomSheet>(null);
     const { requestLocationPermission, isLoading: isLocating } = useLocationStore();
 
-    const snapPoints = useMemo(() => ["45%"], []);
+    const snapPoints = useMemo(() => ["55%"], []);
 
     useImperativeHandle(ref, () => ({
       open() {
