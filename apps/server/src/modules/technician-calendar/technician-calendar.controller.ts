@@ -100,6 +100,22 @@ export class TechnicianCalendarController {
     }
   }
 
+  // ─── PUBLIC ENDPOINT (No Auth Required) ───────────────────────────────────
+
+  async getPublicSchedule(req: Request, res: Response) {
+    try {
+      const { technicianId } = req.params as any;
+      const { from, to } = req.query as any;
+      
+      const templates = await technicianCalendarService.getTemplates(technicianId, false);
+      const exceptions = await technicianCalendarService.getCalendar(technicianId, { from, to });
+      
+      return res.status(200).json({ data: { templates, exceptions } });
+    } catch (err: any) {
+      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    }
+  }
+
   // ─── GET /api/technician-calendar/:technicianId/templates ────────────────
 
   async getTemplates(req: Request, res: Response) {
@@ -108,7 +124,10 @@ export class TechnicianCalendarController {
       if (!technicianId) return;
 
       const { activeOnly } = req.query as any;
-      const templates = await technicianCalendarService.getTemplates(technicianId, activeOnly !== 'false');
+      // Default to false so the frontend always receives all 7 day rows,
+      // including inactive ones. Without this, GET omits inactive rows and
+      // the frontend's diff logic incorrectly tries to re-create them (409).
+      const templates = await technicianCalendarService.getTemplates(technicianId, activeOnly === 'true');
       return res.status(200).json({ data: templates });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });

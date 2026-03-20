@@ -136,6 +136,21 @@ export class OrdersRepository {
     if (error) throw error;
     return data as Order;
   }
+
+  // check for pending orders
+  async hasPendingBooking(userId: string, technicianId: string): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('technician_id', technicianId)
+      .eq('status', 'pending')
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return !!data;
+  }
 }
 
 export const ordersRepository = new OrdersRepository();

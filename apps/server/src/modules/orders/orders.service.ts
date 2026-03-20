@@ -3,7 +3,7 @@ import { technicianCalendarService } from '../technician-calendar/technician-cal
 
 export interface CreateOrderRequest {
   technician_id: string;
-  service_id: string;
+  service_id: string; 
   scheduled_date: string; // YYYY-MM-DD
   problem_description?: string;
 }
@@ -46,6 +46,12 @@ export class OrdersService {
     const { technician_id, service_id, scheduled_date, problem_description } = body;
     const normalizedDate = this.ensureFutureBookingDate(scheduled_date);
     
+    // 0. Check if user already has a pending booking with this technician
+    const hasPending = await ordersRepository.hasPendingBooking(userId, technician_id);
+    if (hasPending) {
+      throw { status: 400, message: 'You already have a pending booking with this technician.' };
+    }
+
     // 1. Check template availability
     const dateObj = new Date(normalizedDate);
     const dayOfWeek = dateObj.getDay();
@@ -55,18 +61,18 @@ export class OrdersService {
       throw { status: 400, message: 'Technician is not available on this day of the week.' };
     }
 
-    // 2. NEW: Check if there's a specific holiday/exception
+    // 2. Check if there's a specific holiday/exception
     const isHoliday = await technicianCalendarService.isDateHoliday(technician_id, normalizedDate);
     if (isHoliday) {
       throw { status: 400, message: 'Technician is on holiday/unavailable on this specific date.' };
     }
 
-    // Create the order immediately. It starts as pending context and active=false
+    // 3. Create the order immediately using the frontend's service_id
     const order = await ordersRepository.createOrder({
       technician_id,
       user_id: userId,
-      service_id,
-      problem_description,
+      service_id, 
+      problem_description: problem_description || 'General Service Request',
       scheduled_date: normalizedDate,
     });
     

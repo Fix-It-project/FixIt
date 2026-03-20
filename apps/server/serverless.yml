@@ -52,6 +52,13 @@ functions:
           path: /api/users/{proxy+}
           method: ANY
 
+  technicians:
+    handler: serverless-deploy/technicians-lambda.handler
+    events:
+      - httpApi:
+          path: /api/technicians/{proxy+}
+          method: ANY
+
   addresses:
     handler: serverless-deploy/addresses-lambda.handler
     events:
@@ -70,4 +77,11 @@ functions:
     events:
       - httpApi:
           path: /api/technician-calendar/{proxy+}
+          method: ANY
+
+  orders:
+    handler: serverless-deploy/orders-lambda.handler
+    events:
+      - httpApi:
+          path: /api/orders/{proxy+}
           method: ANY
