@@ -53,3 +53,8 @@ coverage
 tmp
 temp
 .trash
+.claude/
+CLAUDE*
+**/CLAUDE*
+documentation/agent_docs/*
+.mcp.json

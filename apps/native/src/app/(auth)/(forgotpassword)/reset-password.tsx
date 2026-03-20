@@ -10,7 +10,7 @@ import { useResetPasswordMutation } from "@/src/hooks/auth/useResetPasswordMutat
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
-import KeyboardWrapper from "@/src/components/auth/KeyboardWrapper";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import ErrorBanner from "@/src/components/auth/ErrorBanner";
 import PasswordInput from "@/src/components/auth/PasswordInput";
 
@@ -108,9 +108,12 @@ export default function ResetPassword() {
 
   // ─── Reset Password Form ────────────────────────────────────────────────────
   return (
-    <KeyboardWrapper>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ flex: 1, backgroundColor: Colors.brandLight }}
+    >
       <StatusBar style="dark" />
-      <View className="flex-1">
+      <View style={{ flex: 1 }}>
         {/* ── Top Bar ────────────────────────────────────────────────── */}
         <View className="flex-row items-center justify-between px-4 pt-6 pb-2">
           <Pressable
@@ -170,7 +173,7 @@ export default function ResetPassword() {
         </View>
 
         {/* ── Spacer ─────────────────────────────────────────────────── */}
-        <View className="flex-1" />
+        <View style={{ flex: 1 }} />
 
         {/* ── Back to Login link ──────────────────────────────────────── */}
         <View className="items-center mb-4">
@@ -199,6 +202,6 @@ export default function ResetPassword() {
           </Button>
         </View>
       </View>
-    </KeyboardWrapper>
+    </KeyboardAvoidingView>
   );
 }

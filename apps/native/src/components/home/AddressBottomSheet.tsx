@@ -147,6 +147,7 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
               <FlatList
                 data={addresses}
                 keyExtractor={(item) => item.id}
+                extraData={optimisticActiveId}
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => (
                   <View style={{ height: 1, backgroundColor: Colors.surfaceGray }} />

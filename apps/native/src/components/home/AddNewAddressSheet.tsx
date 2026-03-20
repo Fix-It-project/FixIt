@@ -23,7 +23,7 @@ const AddNewAddressSheet = forwardRef<AddNewAddressSheetRef, object>(
     const bottomSheetRef = useRef<BottomSheet>(null);
     const { requestLocationPermission, isLoading: isLocating } = useLocationStore();
 
-    const snapPoints = useMemo(() => ["40%"], []);
+    const snapPoints = useMemo(() => ["45%"], []);
 
     useImperativeHandle(ref, () => ({
       open() {
@@ -72,7 +72,7 @@ const AddNewAddressSheet = forwardRef<AddNewAddressSheetRef, object>(
         backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
         handleIndicatorStyle={{ backgroundColor: Colors.borderLight, width: 40 }}
       >
-        <BottomSheetView className="flex-1 px-6 pb-6">
+        <BottomSheetView className="flex-1 px-6 pb-10">
           <View className="flex-1 items-center justify-center" style={{ gap: 20 }}>
             {/* Icon */}
             <View

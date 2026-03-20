@@ -10,6 +10,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { CustomToast } from "@/src/components/ui/toast";
@@ -133,6 +134,7 @@ function RootLayout() {
       <ThemeProvider value={isDarkColorScheme ? NAV_THEME.dark : NAV_THEME.light}>
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <GestureHandlerRootView style={styles.container}>
+          <KeyboardProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(app)" />
             <Stack.Screen name="(tech-app)" />
@@ -183,6 +185,7 @@ function RootLayout() {
               }}
             />
           </Stack>
+          </KeyboardProvider>
         </GestureHandlerRootView>
         <PortalHost />
         <CustomToast />

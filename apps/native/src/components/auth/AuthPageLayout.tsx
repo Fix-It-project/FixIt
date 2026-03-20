@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import KeyboardWrapper from "./KeyboardWrapper";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 interface AuthPageLayoutProps {
   title: string;
@@ -18,10 +18,12 @@ export default function AuthPageLayout({
   children,
 }: AuthPageLayoutProps) {
   return (
-    <KeyboardWrapper>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ flex: 1, backgroundColor: Colors.brandLight }}
+    >
       <StatusBar style="dark" />
       <ScrollView
-        className="flex-1"
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
@@ -50,6 +52,6 @@ export default function AuthPageLayout({
           {children}
         </View>
       </ScrollView>
-    </KeyboardWrapper>
+    </KeyboardAvoidingView>
   );
 }
