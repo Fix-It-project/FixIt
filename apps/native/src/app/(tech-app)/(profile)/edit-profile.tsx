@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { router } from "expo-router";
 import { FileText, Phone, User } from "lucide-react-native";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
@@ -26,14 +27,14 @@ export default function EditTechProfileScreen() {
   } = useEditTechProfileStore();
 
   useEffect(() => {
-    if (profile) {
-      hydrate({
-        firstName: profile.first_name ?? "",
-        lastName: profile.last_name ?? "",
-        phone: profile.phone ?? "",
-        description: profile.description ?? "",
-      });
-    }
+    if (!profile) return;
+
+    hydrate({
+      firstName: profile.first_name ?? "",
+      lastName: profile.last_name ?? "",
+      phone: profile.phone ?? "",
+      description: profile.description ?? "",
+    });
   }, [profile, hydrate]);
 
   const handleSave = () => {
@@ -59,10 +60,15 @@ export default function EditTechProfileScreen() {
   };
 
   return (
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ flex: 1 }}
+    >
     <ScrollView
       className="flex-1 bg-surface-gray"
       contentContainerClassName="px-5 py-6 gap-4"
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
     >
       <ErrorBanner
         message={updateProfile.error ? getErrorMessage(updateProfile.error) : null}
@@ -125,5 +131,6 @@ export default function EditTechProfileScreen() {
         </Button>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

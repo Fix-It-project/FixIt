@@ -76,7 +76,7 @@ export default function TechnicianCard({
           {item.name}
         </Text>
         <View className="mt-px flex-row items-center gap-1.5">
-          <Text className="text-[13px] text-content-muted">
+          <Text className="shrink text-[13px] text-content-muted" numberOfLines={1}>
             {item.category}
           </Text>
           <View className="flex-row items-center gap-0.5">

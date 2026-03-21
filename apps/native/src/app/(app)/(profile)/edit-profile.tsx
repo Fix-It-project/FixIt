@@ -24,14 +24,14 @@ export default function EditProfileScreen() {
 
   // Pre-fill store once profile data is available
   useEffect(() => {
-    if (profile) {
-      hydrate({
-        fullName: profile.full_name ?? "",
-        email: profile.email ?? "",
-        phone: profile.phone ?? "",
-      });
-    }
-  }, [profile]);
+    if (!profile) return;
+
+    hydrate({
+      fullName: profile.full_name ?? "",
+      email: profile.email ?? "",
+      phone: profile.phone ?? "",
+    });
+  }, [profile, hydrate]);
 
   const handleSave = () => {
     const result = validate({ full_name: fullName, email, phone });

@@ -1,18 +1,17 @@
-import { View, FlatList, Dimensions, TouchableOpacity } from "react-native";
+import { View, FlatList, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { RotateCcw } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/lib/mock-data/user";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH * 0.75;
+const CARD_WIDTH_RATIO = 0.75;
 const CARD_SPACING = 8;
 
-function OrderCard({ item }: { item: PreviousOrder }) {
+function OrderCard({ item, cardWidth }: { item: PreviousOrder; cardWidth: number }) {
   return (
     <View
       style={{
-        width: CARD_WIDTH,
+        width: cardWidth,
         marginHorizontal: CARD_SPACING / 2,
         borderRadius: 14,
         backgroundColor: Colors.white,
@@ -103,6 +102,9 @@ function OrderCard({ item }: { item: PreviousOrder }) {
 }
 
 export default function PreviousOrdersSection() {
+  const { width } = useWindowDimensions();
+  const cardWidth = width * CARD_WIDTH_RATIO;
+
   if (PREVIOUS_ORDERS.length === 0) return null;
 
   return (
@@ -121,10 +123,10 @@ export default function PreviousOrdersSection() {
       <FlatList
         data={PREVIOUS_ORDERS.slice(0, 3)}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <OrderCard item={item} />}
+        renderItem={({ item }) => <OrderCard item={item} cardWidth={cardWidth} />}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_SPACING}
+        snapToInterval={cardWidth + CARD_SPACING}
         decelerationRate="fast"
         contentContainerStyle={{
           paddingHorizontal: 20 - CARD_SPACING / 2,

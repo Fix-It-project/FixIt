@@ -87,6 +87,7 @@ function ScheduleCard({
             <Text
               className="font-bold text-content"
               style={{ fontFamily: "GoogleSans_600SemiBold" }}
+              numberOfLines={1}
             >
               {item.clientName}
             </Text>
@@ -98,13 +99,13 @@ function ScheduleCard({
           />
         </View>
 
-        <Text className="mb-2 text-xs text-content-muted">
+        <Text className="mb-2 text-xs text-content-muted" numberOfLines={1}>
           {item.serviceType} • {item.time}
         </Text>
 
         <View className="flex-row items-center gap-1.5">
           <MapPin size={10} color={Colors.textMuted} strokeWidth={2} />
-          <Text className="text-[10px] text-content-muted">{item.location}</Text>
+          <Text className="flex-1 text-[10px] text-content-muted" numberOfLines={1}>{item.location}</Text>
         </View>
       </View>
     </Animated.View>

@@ -63,7 +63,9 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
                   fontFamily: "GoogleSans_700Bold",
                   fontSize: 15,
                   color: Colors.textPrimary,
+                  flexShrink: 1,
                 }}
+                numberOfLines={1}
               >
                 {booking.clientName}
               </Text>
@@ -76,6 +78,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
             <Text
               className="mt-0.5"
               style={{ fontSize: 12, color: Colors.textSecondary }}
+              numberOfLines={1}
             >
               {booking.serviceType} • {booking.time}
             </Text>
@@ -102,17 +105,17 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
             {/* Location */}
             <View className="mt-1.5 flex-row items-center gap-1">
               <MapPin size={12} color={Colors.textSecondary} strokeWidth={2} />
-              <Text style={{ fontSize: 12, color: Colors.textSecondary }}>
+              <Text style={{ fontSize: 12, color: Colors.textSecondary }} numberOfLines={1}>
                 {booking.distance} km away
               </Text>
             </View>
-            <Text style={{ fontSize: 11, color: Colors.textSecondary, marginTop: 2 }}>
+            <Text style={{ fontSize: 11, color: Colors.textSecondary, marginTop: 2 }} numberOfLines={1}>
               {booking.address}, {booking.city}
             </Text>
           </View>
 
           {/* Price */}
-          <View className="items-end">
+          <View className="items-end" style={{ flexShrink: 0 }}>
             <Text style={{ fontSize: 10, color: Colors.textSecondary }}>
               Service Fee
             </Text>
@@ -163,6 +166,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
                 fontSize: 13,
                 color: Colors.white,
               }}
+              numberOfLines={1}
             >
               View Details
             </Text>

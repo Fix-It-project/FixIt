@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useRef } from "react";
-import { View, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, ActivityIndicator, TouchableOpacity, useWindowDimensions } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -37,7 +37,8 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
       sheetState.technicianId,
     );
 
-    const snapPoints = useMemo(() => ["55%"], []);
+    const { height } = useWindowDimensions();
+    const snapPoints = useMemo(() => [Math.min(height * 0.55, 480)], [height]);
 
     useImperativeHandle(ref, () => ({
       open(technicianId: string, initials: string) {

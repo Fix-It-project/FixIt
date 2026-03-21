@@ -25,6 +25,10 @@ export default function BookingsWeekStrip() {
   const { data: bookingDates } = useTechBookingDatesQuery();
   const { width: screenWidth } = useWindowDimensions();
 
+  // Responsive circle size: fit 7 circles with gaps inside the strip (px-1 = 4px each side)
+  const availableWidth = screenWidth - 8; // px-1 padding on each side
+  const circleSize = Math.min(44, Math.floor((availableWidth - 6 * 8) / 7)); // 6 gaps of ~8px
+
   const translateX = useSharedValue(0);
 
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -98,8 +102,8 @@ export default function BookingsWeekStrip() {
                 disabled={isPast}
                 className="items-center justify-center rounded-full"
                 style={{
-                  width: 44,
-                  height: 44,
+                  width: circleSize,
+                  height: circleSize,
                   opacity: isPast ? 0.35 : 1,
                   backgroundColor: selected ? Colors.brand : Colors.white,
                   shadowColor: selected ? Colors.brand : Colors.shadow,
@@ -112,20 +116,20 @@ export default function BookingsWeekStrip() {
               >
                 <Text
                   style={{
-                    fontSize: 8,
+                    fontSize: Math.max(7, circleSize * 0.18),
                     textTransform: "uppercase",
                     color: selected ? Colors.overlayBright : Colors.textSecondary,
-                    lineHeight: 10,
+                    lineHeight: Math.max(9, circleSize * 0.23),
                   }}
                 >
                   {DAYS[i]}
                 </Text>
                 <Text
                   style={{
-                    fontSize: 14,
+                    fontSize: Math.max(11, circleSize * 0.32),
                     fontFamily: "GoogleSans_700Bold",
                     color: selected ? Colors.white : Colors.textPrimary,
-                    lineHeight: 18,
+                    lineHeight: Math.max(14, circleSize * 0.41),
                   }}
                 >
                   {day.getDate()}
@@ -135,7 +139,7 @@ export default function BookingsWeekStrip() {
                   <View
                     style={{
                       position: "absolute",
-                      bottom: 3,
+                      bottom: Math.max(2, circleSize * 0.07),
                       width: 4,
                       height: 4,
                       borderRadius: 2,

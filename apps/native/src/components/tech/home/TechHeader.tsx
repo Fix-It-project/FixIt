@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, Dimensions } from "react-native";
+import { View, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Bell, Star } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
@@ -6,14 +6,13 @@ import { TECH_PROFILE } from "@/src/lib/mock-data/tech";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Svg, { Polygon, Defs, LinearGradient, Stop } from "react-native-svg";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const HEADER_HEIGHT = 160;
 
 /** Decorative polygon background — same faceted style as the user home page */
-function TechHeaderPolygons() {
+function TechHeaderPolygons({ screenWidth }: { screenWidth: number }) {
   return (
     <Svg
-      width={SCREEN_WIDTH}
+      width={screenWidth}
       height={HEADER_HEIGHT}
       style={{ position: "absolute", top: 0, left: 0 }}
     >
@@ -30,40 +29,40 @@ function TechHeaderPolygons() {
 
       {/* Large bottom-left shard */}
       <Polygon
-        points={`0,${HEADER_HEIGHT * 0.35} ${SCREEN_WIDTH * 0.45},${HEADER_HEIGHT * 0.1} ${SCREEN_WIDTH * 0.38},${HEADER_HEIGHT} 0,${HEADER_HEIGHT}`}
+        points={`0,${HEADER_HEIGHT * 0.35} ${screenWidth * 0.45},${HEADER_HEIGHT * 0.1} ${screenWidth * 0.38},${HEADER_HEIGHT} 0,${HEADER_HEIGHT}`}
         fill="url(#tg1)"
       />
 
       {/* Top-right triangle */}
       <Polygon
-        points={`${SCREEN_WIDTH * 0.55},0 ${SCREEN_WIDTH},0 ${SCREEN_WIDTH},${HEADER_HEIGHT * 0.55} ${SCREEN_WIDTH * 0.7},${HEADER_HEIGHT * 0.3}`}
+        points={`${screenWidth * 0.55},0 ${screenWidth},0 ${screenWidth},${HEADER_HEIGHT * 0.55} ${screenWidth * 0.7},${HEADER_HEIGHT * 0.3}`}
         fill="#0284c7"
         opacity={0.15}
       />
 
       {/* Center diamond */}
       <Polygon
-        points={`${SCREEN_WIDTH * 0.3},${HEADER_HEIGHT * 0.05} ${SCREEN_WIDTH * 0.65},${HEADER_HEIGHT * 0.2} ${SCREEN_WIDTH * 0.5},${HEADER_HEIGHT * 0.7} ${SCREEN_WIDTH * 0.15},${HEADER_HEIGHT * 0.45}`}
+        points={`${screenWidth * 0.3},${HEADER_HEIGHT * 0.05} ${screenWidth * 0.65},${HEADER_HEIGHT * 0.2} ${screenWidth * 0.5},${HEADER_HEIGHT * 0.7} ${screenWidth * 0.15},${HEADER_HEIGHT * 0.45}`}
         fill="url(#tg2)"
       />
 
       {/* Small top-left accent */}
       <Polygon
-        points={`0,0 ${SCREEN_WIDTH * 0.28},0 ${SCREEN_WIDTH * 0.15},${HEADER_HEIGHT * 0.35} 0,${HEADER_HEIGHT * 0.2}`}
+        points={`0,0 ${screenWidth * 0.28},0 ${screenWidth * 0.15},${HEADER_HEIGHT * 0.35} 0,${HEADER_HEIGHT * 0.2}`}
         fill={Colors.brandAccentText}
         opacity={0.1}
       />
 
       {/* Bottom-right wedge */}
       <Polygon
-        points={`${SCREEN_WIDTH * 0.6},${HEADER_HEIGHT * 0.5} ${SCREEN_WIDTH},${HEADER_HEIGHT * 0.35} ${SCREEN_WIDTH},${HEADER_HEIGHT} ${SCREEN_WIDTH * 0.5},${HEADER_HEIGHT}`}
+        points={`${screenWidth * 0.6},${HEADER_HEIGHT * 0.5} ${screenWidth},${HEADER_HEIGHT * 0.35} ${screenWidth},${HEADER_HEIGHT} ${screenWidth * 0.5},${HEADER_HEIGHT}`}
         fill="#0369a1"
         opacity={0.18}
       />
 
       {/* Thin mid-right sliver */}
       <Polygon
-        points={`${SCREEN_WIDTH * 0.7},0 ${SCREEN_WIDTH * 0.85},0 ${SCREEN_WIDTH * 0.95},${HEADER_HEIGHT * 0.45} ${SCREEN_WIDTH * 0.75},${HEADER_HEIGHT * 0.25}`}
+        points={`${screenWidth * 0.7},0 ${screenWidth * 0.85},0 ${screenWidth * 0.95},${HEADER_HEIGHT * 0.45} ${screenWidth * 0.75},${HEADER_HEIGHT * 0.25}`}
         fill="#38bdf8"
         opacity={0.12}
       />
@@ -72,6 +71,7 @@ function TechHeaderPolygons() {
 }
 
 export default function TechHeader() {
+  const { width: screenWidth } = useWindowDimensions();
   const profile = TECH_PROFILE;
 
   return (
@@ -90,7 +90,7 @@ export default function TechHeader() {
       }}
     >
       {/* Polygon decorations */}
-      <TechHeaderPolygons />
+      <TechHeaderPolygons screenWidth={screenWidth} />
 
       {/* Title row */}
       <Animated.View
@@ -189,17 +189,18 @@ export default function TechHeader() {
             />
           </View>
 
-          <View>
+          <View className="flex-1">
             <Text
               style={{
                 fontFamily: "GoogleSans_600SemiBold",
                 color: Colors.white,
                 fontWeight: "700",
               }}
+              numberOfLines={1}
             >
               {profile.name}
             </Text>
-            <Text style={{ fontSize: 12, color: Colors.overlayBright }}>
+            <Text style={{ fontSize: 12, color: Colors.overlayBright }} numberOfLines={1}>
               {profile.specialty}
             </Text>
           </View>

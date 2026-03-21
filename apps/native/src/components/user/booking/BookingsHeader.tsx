@@ -27,7 +27,7 @@ const BookingsHeader = forwardRef<BookingsHeaderRef, object>(function BookingsHe
 
   const handleBackPress = useCallback(() => {
     if (calendarRef.current?.closeIfOpen()) return;
-    router.back();
+    router.replace("/(tech-app)");
   }, [router]);
 
   useImperativeHandle(

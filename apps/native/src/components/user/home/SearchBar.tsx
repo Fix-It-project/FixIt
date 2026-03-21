@@ -6,15 +6,8 @@ export default function SearchBar() {
   return (
     <View className="px-5 pb-4 pt-1">
       <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: Colors.whiteOverlay,
-          borderRadius: 12,
-          paddingHorizontal: 14,
-          paddingVertical: 11,
-          gap: 10,
-        }}
+        className="flex-row items-center gap-2.5 rounded-xl px-3.5 py-3"
+        style={{ backgroundColor: Colors.whiteOverlay }}
       >
         <Search size={18} color={Colors.overlaySub} strokeWidth={2} />
         <TextInput

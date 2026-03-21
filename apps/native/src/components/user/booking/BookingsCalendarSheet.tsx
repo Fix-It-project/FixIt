@@ -28,7 +28,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
     const isSheetOpenRef = useRef(false);
     const { selectedDate, setSelectedDate } = useBookingsDateStore();
     const { data: bookingDates } = useTechBookingDatesQuery();
-    const { width: screenWidth } = useWindowDimensions();
+    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
     const selectedIso = toIso(selectedDate);
 
@@ -111,7 +111,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
         {/* Bottom sheet calendar — renders via portal above all content */}
         <BottomSheetModal
           ref={sheetRef}
-          snapPoints={["60%"]}
+          snapPoints={[Math.min(screenHeight * 0.6, 520)]}
           enablePanDownToClose
           onChange={handleSheetChange}
           backgroundStyle={{ backgroundColor: Colors.white }}

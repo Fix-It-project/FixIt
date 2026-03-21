@@ -56,8 +56,8 @@ export class TechniciansService implements ITechniciansService {
       name: `${technician.first_name} ${technician.last_name}`,
       profilePicture: technician.profile_image ?? null,
       description: technician.description ?? 'No description available',
-      completedOrders: completedOrders ?? 0,
-      totalBookings: totalBookings ?? 0,
+      completedOrders: Number(completedOrders ?? 0),
+      totalBookings: Number(totalBookings ?? 0),
       reviews: 0,
       phoneNumber: technician.phone ?? 'Not provided',
     };

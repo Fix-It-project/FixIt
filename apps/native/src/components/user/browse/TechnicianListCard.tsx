@@ -2,8 +2,7 @@ import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { MapPin, Clock } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { formatLocation } from "@/src/lib/helpers/technician-utils";
-import { derive } from "@/src/lib/technician-helpers";
+import { deriveTechnicianExtras, formatLocation } from "@/src/lib/helpers/technician-utils";
 import TechnicianAvatar from "@/src/components/user/browse/TechnicianAvatar";
 import RatingRow from "@/src/components/user/browse/RatingRow";
 import AvailabilityBadge from "@/src/components/user/browse/AvailabilityBadge";
@@ -17,7 +16,7 @@ interface TechnicianListCardProps {
 }
 
 export default function TechnicianListCard({ item, onPress, onAvatarPress, onBookPress }: Readonly<TechnicianListCardProps>) {
-  const extras = derive(item.id);
+  const extras = deriveTechnicianExtras(item.id);
   const initials = `${item.first_name[0]}${item.last_name[0]}`;
   const fullName = `${item.first_name} ${item.last_name}`;
 
@@ -57,6 +56,7 @@ export default function TechnicianListCard({ item, onPress, onAvatarPress, onBoo
           <Text
             className="text-[12px] text-content-secondary"
             style={{ fontFamily: "GoogleSans_400Regular" }}
+            numberOfLines={1}
           >
             {extras.specialty}
           </Text>
@@ -66,12 +66,12 @@ export default function TechnicianListCard({ item, onPress, onAvatarPress, onBoo
           {/* Location · experience */}
           <View className="mt-0.5 flex-row items-center" style={{ gap: 4 }}>
             <MapPin size={11} color={Colors.surfaceMuted} strokeWidth={2} />
-            <Text className="text-[11px] text-content-muted" numberOfLines={1}>
+            <Text className="shrink text-[11px] text-content-muted" numberOfLines={1}>
               {formatLocation(item.distance_km, item.city, item.street)}
             </Text>
             <Text className="text-[11px] text-content-muted">·</Text>
             <Clock size={11} color={Colors.surfaceMuted} strokeWidth={2} />
-            <Text className="text-[11px] text-content-muted">
+            <Text className="text-[11px] text-content-muted" numberOfLines={1}>
               {extras.yearsExp} yrs exp
             </Text>
           </View>

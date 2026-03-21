@@ -1,4 +1,4 @@
-import { View, ScrollView, TouchableOpacity, Dimensions } from "react-native";
+import { View, ScrollView, TouchableOpacity, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import {
   Snowflake,
@@ -12,7 +12,7 @@ import { INCOMING_REQUESTS } from "@/src/lib/mock-data/tech";
 import type { IncomingRequest } from "@/src/lib/mock-data/tech";
 import Animated, { FadeInRight } from "react-native-reanimated";
 
-const CARD_WIDTH = Dimensions.get("window").width * 0.72;
+const CARD_WIDTH_RATIO = 0.72;
 
 /** Map icon name strings from mock data to actual lucide components */
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -24,9 +24,11 @@ const ICON_MAP: Record<string, LucideIcon> = {
 function RequestCard({
   item,
   index,
+  cardWidth,
 }: {
   item: IncomingRequest;
   index: number;
+  cardWidth: number;
 }) {
   const IconComponent = ICON_MAP[item.icon] || Zap;
 
@@ -34,7 +36,7 @@ function RequestCard({
     <Animated.View
       entering={FadeInRight.delay(index * 100).duration(400)}
       style={{
-        width: CARD_WIDTH,
+        width: cardWidth,
         marginRight: 12,
       }}
     >
@@ -63,14 +65,15 @@ function RequestCard({
                 strokeWidth={1.8}
               />
             </View>
-            <View>
+            <View className="shrink">
               <Text
                 className="text-sm font-bold text-content"
                 style={{ fontFamily: "GoogleSans_600SemiBold" }}
+                numberOfLines={1}
               >
                 {item.serviceType}
               </Text>
-              <Text className="text-[10px] uppercase text-content-muted">
+              <Text className="text-[10px] uppercase text-content-muted" numberOfLines={1}>
                 {item.distance}
               </Text>
             </View>
@@ -130,6 +133,9 @@ function RequestCard({
 }
 
 export default function IncomingRequests() {
+  const { width } = useWindowDimensions();
+  const cardWidth = width * CARD_WIDTH_RATIO;
+
   return (
     <View className="mt-6">
       {/* Section header */}
@@ -146,7 +152,7 @@ export default function IncomingRequests() {
         contentContainerStyle={{ paddingHorizontal: 16 }}
       >
         {INCOMING_REQUESTS.map((item, index) => (
-          <RequestCard key={item.id} item={item} index={index} />
+          <RequestCard key={item.id} item={item} index={index} cardWidth={cardWidth} />
         ))}
       </ScrollView>
     </View>

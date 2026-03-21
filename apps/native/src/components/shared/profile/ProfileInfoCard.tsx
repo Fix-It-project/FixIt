@@ -21,7 +21,7 @@ function InfoRow({
       </View>
       <View className="flex-1">
         <Text className="text-xs text-content-muted">{label}</Text>
-        <Text className="text-[15px] font-medium text-content">{value}</Text>
+        <Text className="text-[15px] font-medium text-content" numberOfLines={2}>{value}</Text>
       </View>
     </View>
   );

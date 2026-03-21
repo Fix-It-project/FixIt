@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useRef } from "react";
-import { View, ActivityIndicator, FlatList, TouchableOpacity } from "react-native";
+import { View, ActivityIndicator, FlatList, TouchableOpacity, useWindowDimensions } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -35,7 +35,8 @@ const AddressBottomSheet = forwardRef<AddressBottomSheetRef, AddressBottomSheetP
     const [optimisticActiveId, setOptimisticActiveId] = useState<string | null>(null);
     const [sheetIndex, setSheetIndex] = useState(-1);
 
-    const snapPoints = useMemo(() => ["65%"], []);
+    const { height } = useWindowDimensions();
+    const snapPoints = useMemo(() => [Math.min(height * 0.65, 560)], [height]);
 
     useHardwareBackHandler(sheetIndex >= 0, () => {
       bottomSheetRef.current?.close();
