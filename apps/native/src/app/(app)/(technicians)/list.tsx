@@ -20,7 +20,7 @@ import TechnicianSortBar, { type SortKey } from "@/src/components/user/browse/Te
 import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/components/user/browse/TechnicianProfileSheet";
-import UserBookingSheet, { type UserBookingSheetRef } from "@/src/components/user/booking/UserBookingSheet";
+import UserBookingSheet, { type UserBookingSheetRef } from "@/src/components/tech/booking/UserBookingSheet";
 import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
 import BackButton from "@/src/components/ui/BackButton";
 
