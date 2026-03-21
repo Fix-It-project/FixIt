@@ -4,7 +4,7 @@ import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { Mail } from "lucide-react-native";
-import { signInSchema } from "@/src/schemas/auth-schema";
+import { signInSchema } from "@/src/services/auth/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
 import FormInput from "@/src/components/shared/auth/FormInput";

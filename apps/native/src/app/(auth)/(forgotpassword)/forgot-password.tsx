@@ -3,7 +3,7 @@ import { View, Pressable } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
-import { forgotPasswordSchema } from "@/src/schemas/auth-schema";
+import { forgotPasswordSchema } from "@/src/services/auth/schemas/form.schema";
 import { useForgotPasswordMutation } from "@/src/hooks/auth/useForgotPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useCooldownTimer } from "@/src/hooks/auth/useCooldownTimer";

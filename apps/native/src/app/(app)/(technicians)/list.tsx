@@ -7,8 +7,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, router } from "expo-router";
-import { ChevronLeft, Search } from "lucide-react-native";
+import { useLocalSearchParams } from "expo-router";
+import { Search } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
@@ -21,7 +21,8 @@ import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/components/user/browse/TechnicianProfileSheet";
 import UserBookingSheet, { type UserBookingSheetRef } from "@/src/components/user/booking/UserBookingSheet";
-import type { TechnicianListItem } from "@/src/services/technicians/types/technician";
+import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
+import BackButton from "@/src/components/ui/BackButton";
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
@@ -144,14 +145,7 @@ export default function TechniciansListScreen() {
         <View style={{ backgroundColor: Colors.brand }} className="pb-4">
           {/* Top row: back + title */}
           <View className="flex-row items-center px-4 pb-2 pt-2">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              activeOpacity={0.7}
-              className="mr-3 h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: Colors.whiteOverlay }}
-            >
-              <ChevronLeft size={22} color={Colors.white} strokeWidth={2.5} />
-            </TouchableOpacity>
+            <BackButton variant="light" className="mr-3" />
             <View className="flex-1">
               <Text
                 className="text-[20px] font-bold text-white"
@@ -182,7 +176,7 @@ export default function TechniciansListScreen() {
                 placeholder="Search technicians..."
                 placeholderTextColor={Colors.textMuted}
                 className="ml-2.5 flex-1 text-[14px] text-content"
-                style={{ fontFamily: "GoogleSans_400Regular", padding: 0 }}
+                style={{ fontFamily: "GoogleSans_400Regular", padding: 0, textAlignVertical: "center" }}
                 returnKeyType="search"
                 autoCorrect={false}
               />

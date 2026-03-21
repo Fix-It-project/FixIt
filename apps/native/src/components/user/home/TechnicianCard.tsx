@@ -1,40 +1,43 @@
-import { View, Image, Dimensions } from "react-native";
+import { View, Image } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Star, MapPin } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import type { Technician } from "@/src/lib/mock-data/user";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
-export const CARD_WIDTH = SCREEN_WIDTH * 0.75;
+export const CARD_WIDTH_RATIO = 0.75;
 export const CARD_SPACING = 6;
 
-const COVER_HEIGHT = 150;
 const AVATAR_SIZE = 68;
 const AVATAR_OVERLAP = AVATAR_SIZE / 2;
 
 interface TechnicianCardProps {
   item: Technician;
+  cardWidth: number;
   showReviewCount?: boolean;
   showDistance?: boolean;
 }
 
 export default function TechnicianCard({
   item,
+  cardWidth,
   showReviewCount = false,
   showDistance = false,
 }: TechnicianCardProps) {
   return (
     <View
       style={{
-        width: CARD_WIDTH,
+        width: cardWidth,
         marginHorizontal: CARD_SPACING / 2,
       }}
     >
       {/* Cover Image */}
       <Image
         source={item.coverImage}
-        style={{ width: "100%", height: COVER_HEIGHT, borderRadius: 14 }}
+        className="rounded-[14px]"
+        style={{
+          width: "100%",
+          height: cardWidth * 0.6,
+        }}
         resizeMode="cover"
       />
 
@@ -64,7 +67,7 @@ export default function TechnicianCard({
       </View>
 
       {/* Info below avatar */}
-      <View style={{ paddingLeft: 12, paddingRight: 8, marginTop: 4 }}>
+      <View className="mt-1 pl-3 pr-2">
         <Text
           className="text-[16px] font-semibold text-content"
           style={{ fontFamily: "GoogleSans_600SemiBold" }}
@@ -72,24 +75,11 @@ export default function TechnicianCard({
         >
           {item.name}
         </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 6,
-            marginTop: 1,
-          }}
-        >
+        <View className="mt-px flex-row items-center gap-1.5">
           <Text className="text-[13px] text-content-muted">
             {item.category}
           </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 3,
-            }}
-          >
+          <View className="flex-row items-center gap-0.5">
             <Star size={11} color={Colors.star} fill={Colors.star} strokeWidth={0} />
             <Text className="text-[13px] font-semibold text-content">
               {item.rating}
@@ -101,13 +91,7 @@ export default function TechnicianCard({
             )}
           </View>
           {showDistance && item.distance && (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
+            <View className="flex-row items-center gap-0.5">
               <MapPin size={11} color={Colors.textMuted} strokeWidth={2} />
               <Text className="text-[11px] text-content-muted">
                 {item.distance}
@@ -116,9 +100,8 @@ export default function TechnicianCard({
           )}
         </View>
         <Text
-          className="text-[13px] text-content-muted"
+          className="mt-px text-[13px] text-content-muted"
           numberOfLines={1}
-          style={{ marginTop: 1 }}
         >
           {item.tagline}
         </Text>

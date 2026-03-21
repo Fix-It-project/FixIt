@@ -5,7 +5,7 @@ import { FileText, Phone, User } from "lucide-react-native";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
 import { useUpdateTechSelfProfileMutation } from "@/src/hooks/tech/useUpdateTechSelfProfileMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { editTechProfileSchema } from "@/src/schemas/technician-profile.schema";
+import { editTechProfileSchema } from "@/src/services/tech-self/schemas/form.schema";
 import { useEditTechProfileStore } from "@/src/stores/edit-tech-profile-store";
 import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
 import FormInput from "@/src/components/shared/auth/FormInput";

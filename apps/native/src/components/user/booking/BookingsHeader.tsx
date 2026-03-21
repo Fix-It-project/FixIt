@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Colors } from "@/src/lib/colors";
 import { Text } from "@/src/components/ui/text";
-import NotificationBell from "@/src/components/shared/NotificationBell";
+import NotificationBell from "@/src/components/ui/NotificationBell";
 import BookingsCalendarSheet, { type BookingsCalendarSheetRef } from "./BookingsCalendarSheet";
 import BookingsViewToggle from "./BookingsViewToggle";
 import BookingsWeekStrip from "./BookingsWeekStrip";

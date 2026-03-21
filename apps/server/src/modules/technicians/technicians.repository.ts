@@ -51,9 +51,9 @@ export interface TechnicianProfile {
   name: string;
   profilePicture: string | null;
   description: string;
-  completedOrders: string;
-  totalBookings: string;
-  reviews: string;
+  completedOrders: number;
+  totalBookings: number;
+  reviews: number;
   phoneNumber: string;
 }
 
@@ -66,6 +66,8 @@ export interface TechnicianProfileRow {
   phone: string | null;
   is_available: boolean;
   category_id: string;
+  profile_image: string | null;
+  description: string | null;
 }
 
 /** Row shape returned when listing technicians with their active address. */
@@ -145,7 +147,7 @@ export class TechniciansRepository implements ITechniciansRepository {
   async getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null> {
     const { data, error } = await supabaseAdmin
       .from('technicians')
-      .select('id, first_name, last_name, email, phone, is_available, category_id')
+      .select('id, first_name, last_name, email, phone, is_available, category_id, profile_image, description')
       .eq('id', id)
       .maybeSingle();
 

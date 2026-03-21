@@ -9,7 +9,7 @@ import Animated, {
   withTiming,
   interpolateColor,
 } from "react-native-reanimated";
-import type { Address } from "@/src/services/addresses/types";
+import type { Address } from "@/src/services/addresses/schemas/response.schema";
 
 interface AddressListItemProps {
   address: Address;

@@ -1,6 +1,7 @@
-import { View, Text, TextInput, Pressable, type TextInputProps } from "react-native";
+import { View, Text, Pressable, type TextInputProps } from "react-native";
 import { CircleX, type LucideIcon } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
+import { Input } from "@/src/components/ui/input";
 
 interface FormInputProps {
 	label?: string;
@@ -37,54 +38,47 @@ export default function FormInput({
 	onClear,
 	required = false,
 }: FormInputProps) {
-	const isFilled = variant === "filled";
-
-	const containerClass = isFilled
-		? `bg-white h-14 rounded-full flex-row items-center px-6 ${error ? "border border-red-400" : ""}`
-		: `h-14 rounded-2xl flex-row items-center px-5 border ${
-				error
-					? "border-red-400"
-					: value.length > 0
-						? "border-brand"
-						: "border-edge"
-			}`;
-
 	return (
-		<View className={isFilled ? "gap-3" : ""}>
+		<View className={variant === "filled" ? "gap-3" : ""}>
 			{label && (
 				<Text className="text-[14px] font-semibold text-content">
 					{label}
 					{required && <Text className="text-red-500"> *</Text>}
 				</Text>
 			)}
-			<View className={containerClass}>
-				<TextInput
+			<View className="flex-row items-center">
+				<Input
+					variant={variant}
+					hasError={!!error}
 					value={value}
 					onChangeText={onChangeText}
 					placeholder={placeholder}
-					placeholderTextColor={Colors.textMuted}
 					keyboardType={keyboardType}
 					autoCapitalize={autoCapitalize}
 					editable={!disabled}
-					className="flex-1 text-[16px] text-content"
+					className="flex-1"
 				/>
 				{clearable && value.length > 0 && (
 					<Pressable
 						onPress={onClear}
 						hitSlop={8}
-						className="active:opacity-70"
+						className="absolute right-4 active:opacity-70"
 					>
 						<CircleX size={20} color={Colors.textMuted} />
 					</Pressable>
 				)}
-				{Icon && !clearable && <Icon size={20} color={Colors.textMuted} />}
+				{Icon && !clearable && (
+					<View className="absolute right-4">
+						<Icon size={20} color={Colors.textMuted} />
+					</View>
+				)}
 			</View>
 			{error && (
 				<Text
 					className={
-						isFilled
-							? "text-red-500 text-[12px] ml-4"
-							: "text-red-500 text-[12px] ml-2 mt-1"
+						variant === "filled"
+							? "ml-4 text-[12px] text-red-500"
+							: "ml-2 mt-1 text-[12px] text-red-500"
 					}
 				>
 					{error}

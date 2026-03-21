@@ -2,17 +2,20 @@ import { useRef } from "react";
 import {
   View,
   FlatList,
+  useWindowDimensions,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { RECOMMENDED_TECHNICIANS } from "@/src/lib/mock-data/user";
 import TechnicianCard, {
-  CARD_WIDTH,
+  CARD_WIDTH_RATIO,
   CARD_SPACING,
 } from "@/src/components/user/home/TechnicianCard";
 import SectionEndArrow from "@/src/components/user/home/SectionEndArrow";
 
 export default function RecommendedTechnicians() {
   const flatListRef = useRef<FlatList>(null);
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = screenWidth * CARD_WIDTH_RATIO;
 
   return (
     <View>
@@ -32,11 +35,11 @@ export default function RecommendedTechnicians() {
         data={RECOMMENDED_TECHNICIANS}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TechnicianCard item={item} showReviewCount />
+          <TechnicianCard item={item} cardWidth={cardWidth} showReviewCount />
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_SPACING}
+        snapToInterval={cardWidth + CARD_SPACING}
         decelerationRate="fast"
         contentContainerStyle={{
           paddingHorizontal: 20 - CARD_SPACING / 2,

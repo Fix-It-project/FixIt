@@ -1,8 +1,9 @@
 import { ActivityIndicator, View } from "react-native";
 import { FileText, Mail, Phone, Wrench, type LucideIcon } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
+import { Separator } from "@/src/components/ui/separator";
 import { Colors } from "@/src/lib/colors";
-import type { TechnicianSelfProfile } from "@/src/services/tech-self/types/tech-self";
+import type { TechnicianSelfProfile } from "@/src/services/tech-self/schemas/response.schema";
 
 function InfoRow({
   icon: Icon,
@@ -44,13 +45,13 @@ export default function TechProfileInfoCard({ profile, isLoading }: TechProfileI
     <View className="mt-3 px-5">
       <View className="rounded-2xl bg-surface-white px-5 py-2 shadow-sm" style={{ elevation: 3 }}>
         <InfoRow icon={Mail} label="Email" value={profile?.email ?? "—"} />
-        <View className="h-px bg-edge-outline" />
+        <Separator />
         <InfoRow icon={Phone} label="Phone" value={profile?.phone ?? "Not provided"} />
-        <View className="h-px bg-edge-outline" />
+        <Separator />
         <InfoRow icon={Wrench} label="Specialty" value={profile?.category_name ?? "Not assigned"} />
         {!!profile?.description && (
           <>
-            <View className="h-px bg-edge-outline" />
+            <Separator />
             <InfoRow icon={FileText} label="About" value={profile.description} />
           </>
         )}

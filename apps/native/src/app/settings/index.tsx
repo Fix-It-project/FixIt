@@ -3,6 +3,7 @@ import { CircleHelp, Shield } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 
 import { SettingsItem } from "@/src/components/shared/settings/SettingsItem";
+import { Separator } from "@/src/components/ui/separator";
 
 export default function SettingsScreen() {
   return (
@@ -13,7 +14,7 @@ export default function SettingsScreen() {
           label="Privacy & Security"
           onPress={() => router.push("/settings/privacy-security")}
         />
-        <View className="h-px bg-edge-outline" />
+        <Separator />
         <SettingsItem
           icon={CircleHelp}
           label="Help & Support"

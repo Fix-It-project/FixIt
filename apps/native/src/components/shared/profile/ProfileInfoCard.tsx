@@ -1,8 +1,9 @@
 import { View, ActivityIndicator } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { Separator } from "@/src/components/ui/separator";
 import { Mail, Phone, MapPin, type LucideIcon } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import type { UserProfile } from "@/src/services/users/types/user";
+import type { UserProfile } from "@/src/services/users/schemas/response.schema";
 
 function InfoRow({
   icon: Icon,
@@ -52,9 +53,9 @@ export default function ProfileInfoCard({ profile, isLoading }: ProfileInfoCardP
         style={{ elevation: 3 }}
       >
         <InfoRow icon={Mail} label="Email" value={profile?.email ?? "—"} />
-        <View className="h-px bg-edge-outline" />
+        <Separator />
         <InfoRow icon={Phone} label="Phone" value={profile?.phone ?? "Not provided"} />
-        <View className="h-px bg-edge-outline" />
+        <Separator />
         <InfoRow icon={MapPin} label="Address" value={addressText} />
       </View>
     </View>

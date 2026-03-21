@@ -19,7 +19,7 @@ import {
   useDeleteExceptionMutation,
   useOrdersByDate,
 } from '@/src/hooks/tech/useCalendar';
-import type { TechnicianOrder } from '@/src/services/tech-calendar/types/calendar';
+import type { TechnicianOrder } from '@/src/services/tech-calendar/schemas/response.schema';
 
 const ALL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const TODAY = new Date().toISOString().split('T')[0];

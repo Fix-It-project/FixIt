@@ -5,7 +5,7 @@ import { Text as BtnText } from "@/src/components/ui/text";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
-import { resetPasswordSchema } from "@/src/schemas/auth-schema";
+import { resetPasswordSchema } from "@/src/services/auth/schemas/form.schema";
 import { useResetPasswordMutation } from "@/src/hooks/auth/useResetPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";

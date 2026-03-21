@@ -1,15 +1,17 @@
 import { useRef } from "react";
-import { View, FlatList } from "react-native";
+import { View, FlatList, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { NEARBY_TECHNICIANS } from "@/src/lib/mock-data/user";
 import TechnicianCard, {
-  CARD_WIDTH,
+  CARD_WIDTH_RATIO,
   CARD_SPACING,
 } from "@/src/components/user/home/TechnicianCard";
 import SectionEndArrow from "@/src/components/user/home/SectionEndArrow";
 
 export default function NearYouSection() {
   const flatListRef = useRef<FlatList>(null);
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = screenWidth * CARD_WIDTH_RATIO;
 
   return (
     <View>
@@ -22,11 +24,11 @@ export default function NearYouSection() {
         data={NEARBY_TECHNICIANS}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TechnicianCard item={item} showDistance />
+          <TechnicianCard item={item} cardWidth={cardWidth} showDistance />
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_SPACING}
+        snapToInterval={cardWidth + CARD_SPACING}
         decelerationRate="fast"
         contentContainerStyle={{
           paddingHorizontal: 20 - CARD_SPACING / 2,

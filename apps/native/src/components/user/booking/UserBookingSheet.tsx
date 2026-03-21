@@ -1,17 +1,18 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Calendar, type DateData } from 'react-native-calendars';
 import Toast from 'react-native-toast-message';
 
 import { Text } from '@/src/components/ui/text';
+import { Button } from '@/src/components/ui/button';
 import { useCreateBookingMutation } from '@/src/hooks/orders/useCreateBooking';
 import { useTechnicianPublicSchedule } from '@/src/hooks/tech/usePublicSchedule';
 import { useAvailabilityMarks } from '@/src/hooks/user/useAvailabilityMarks';
 import { Colors } from '@/src/lib/colors';
 import { getErrorMessage } from '@/src/lib/helpers/error-helpers';
-import { bookingSchema } from '@/src/schemas/booking-schema';
+import { bookingSchema } from '@/src/services/orders/schemas/form.schema';
 
 export interface UserBookingSheetRef {
   open: (techId: string, name: string, serviceId: string) => void;
@@ -121,22 +122,15 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
                 />
 
                 <View className="flex-1 justify-end pt-4">
-                  <TouchableOpacity
+                  <Button
                     disabled={!selectedDate || isPending}
                     onPress={handleConfirm}
-                    activeOpacity={0.8}
-                    style={{
-                      backgroundColor:
-                        !selectedDate || isPending ? Colors.borderLight : Colors.brand,
-                      padding: 16,
-                      borderRadius: 12,
-                      alignItems: 'center',
-                    }}
+                    className="w-full"
                   >
-                    <Text className="font-bold text-[16px] text-white">
+                    <Text>
                       {isPending ? 'Confirming...' : 'Confirm Booking'}
                     </Text>
-                  </TouchableOpacity>
+                  </Button>
                 </View>
               </>
             )}

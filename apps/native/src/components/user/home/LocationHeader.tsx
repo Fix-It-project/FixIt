@@ -3,7 +3,7 @@ import { Text } from "@/src/components/ui/text";
 import { MapPin, ChevronDown } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
-import NotificationBell from "@/src/components/shared/NotificationBell";
+import NotificationBell from "@/src/components/ui/NotificationBell";
 
 interface LocationHeaderProps {
   onLocationPress?: () => void;
@@ -36,7 +36,7 @@ export default function LocationHeader({
           <MapPin size={16} color={Colors.white} strokeWidth={2} />
         </View>
 
-        <View style={{ maxWidth: 200 }}>
+        <View className="shrink">
           <Text className="text-xs" style={{ color: Colors.overlayBright }}>
             Your Location
           </Text>

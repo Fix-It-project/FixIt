@@ -1,13 +1,12 @@
 import apiClient from "@/src/lib/api-client";
-import { techniciansResponseSchema, technicianProfileResponseSchema } from "../types/schema";
-import type { TechnicianListItem, TechniciansResponse, TechnicianProfile, TechnicianProfileResponse } from "../types/technician";
+import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import {
+  techniciansResponseSchema,
+  technicianProfileResponseSchema,
+  type TechnicianListItem,
+  type TechnicianProfile,
+} from "../schemas/response.schema";
 
-/**
- * Fetch all technicians belonging to a given category.
- * GET /api/categories/:categoryId/technicians
- *
- * Server responds with `{ technicians: [...] }` — we validate and unwrap.
- */
 export async function getTechniciansByCategory(
   categoryId: string,
   coords?: { latitude: number; longitude: number },
@@ -17,20 +16,13 @@ export async function getTechniciansByCategory(
     params.lat = String(coords.latitude);
     params.lng = String(coords.longitude);
   }
-  const { data } = await apiClient.get<TechniciansResponse>(
+  const { data } = await apiClient.get(
     `/api/categories/${categoryId}/technicians`,
     { params },
   );
-  const validated = techniciansResponseSchema.parse(data);
-  return validated.technicians;
+  return safeParseResponse(techniciansResponseSchema, data, "getTechniciansByCategory").technicians;
 }
 
-/**
- * Search technicians within a category by name.
- * GET /api/categories/:categoryId/technicians/search?q=<term>
- *
- * Server responds with `{ technicians: [...] }` — we validate and unwrap.
- */
 export async function searchTechniciansInCategory(
   categoryId: string,
   query: string,
@@ -41,26 +33,18 @@ export async function searchTechniciansInCategory(
     params.lat = String(coords.latitude);
     params.lng = String(coords.longitude);
   }
-  const { data } = await apiClient.get<TechniciansResponse>(
+  const { data } = await apiClient.get(
     `/api/categories/${categoryId}/technicians/search`,
     { params },
   );
-  const validated = techniciansResponseSchema.parse(data);
-  return validated.technicians;
+  return safeParseResponse(techniciansResponseSchema, data, "searchTechniciansInCategory").technicians;
 }
 
-/**
- * Fetch a technician's profile card data.
- * GET /api/technicians/:id/profile
- *
- * Server responds with `{ profile: {...} }` — we validate and unwrap.
- */
 export async function getTechnicianProfile(
   technicianId: string,
 ): Promise<TechnicianProfile> {
-  const { data } = await apiClient.get<TechnicianProfileResponse>(
+  const { data } = await apiClient.get(
     `/api/technicians/${technicianId}/profile`,
   );
-  const validated = technicianProfileResponseSchema.parse(data);
-  return validated.profile;
+  return safeParseResponse(technicianProfileResponseSchema, data, "getTechnicianProfile").profile;
 }

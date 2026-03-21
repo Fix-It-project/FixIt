@@ -1,63 +1,66 @@
 import apiClient from "@/src/lib/api-client";
+import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import {
+  techCheckEmailResponseSchema,
+  techSignInResponseSchema,
+  techSignUpResponseSchema,
+  techSignOutResponseSchema,
+  techRefreshTokenResponseSchema,
+  type TechCheckEmailResponse,
+  type TechSignInResponse,
+  type TechSignUpResponse,
+  type TechSignOutResponse,
+  type TechRefreshTokenResponse,
+} from "../schemas/response.schema";
 import type {
   TechnicianSignInRequest,
-  TechnicianSignInResponse,
-  TechnicianSignUpResponse,
   TechnicianCheckEmailRequest,
-  TechnicianCheckEmailResponse,
-  TechnicianSignOutResponse,
-  TechnicianRefreshTokenResponse,
 } from "../types/technician-auth";
 
-// POST /api/technician-auth/check-email
 export async function technicianCheckEmail(
-  data: TechnicianCheckEmailRequest
-): Promise<TechnicianCheckEmailResponse> {
-  const response = await apiClient.post<TechnicianCheckEmailResponse>(
+  data: TechnicianCheckEmailRequest,
+): Promise<TechCheckEmailResponse> {
+  const response = await apiClient.post(
     "/api/technician-auth/check-email",
-    data
+    data,
   );
-  return response.data;
+  return safeParseResponse(techCheckEmailResponseSchema, response.data, "technicianCheckEmail");
 }
 
-// POST /api/technician-auth/signin
 export async function technicianSignIn(
-  data: TechnicianSignInRequest
-): Promise<TechnicianSignInResponse> {
-  const response = await apiClient.post<TechnicianSignInResponse>(
+  data: TechnicianSignInRequest,
+): Promise<TechSignInResponse> {
+  const response = await apiClient.post(
     "/api/technician-auth/signin",
-    data
+    data,
   );
-  return response.data;
+  return safeParseResponse(techSignInResponseSchema, response.data, "technicianSignIn");
 }
 
-// POST /api/technician-auth/signup (multipart/form-data)
 export async function technicianSignUp(
-  formData: FormData
-): Promise<TechnicianSignUpResponse> {
-  const response = await apiClient.post<TechnicianSignUpResponse>(
+  formData: FormData,
+): Promise<TechSignUpResponse> {
+  const response = await apiClient.post(
     "/api/technician-auth/signup",
     formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
+    { headers: { "Content-Type": "multipart/form-data" } },
   );
-  return response.data;
+  return safeParseResponse(techSignUpResponseSchema, response.data, "technicianSignUp");
 }
 
-// POST /api/technician-auth/signout
-export async function technicianSignOut(): Promise<TechnicianSignOutResponse> {
-  const response = await apiClient.post<TechnicianSignOutResponse>(
-    "/api/technician-auth/signout"
+export async function technicianSignOut(): Promise<TechSignOutResponse> {
+  const response = await apiClient.post(
+    "/api/technician-auth/signout",
   );
-  return response.data;
+  return safeParseResponse(techSignOutResponseSchema, response.data, "technicianSignOut");
 }
 
-// POST /api/technician-auth/refresh
 export async function technicianRefreshSession(
-  refreshToken: string
-): Promise<TechnicianRefreshTokenResponse> {
-  const response = await apiClient.post<TechnicianRefreshTokenResponse>(
+  refreshToken: string,
+): Promise<TechRefreshTokenResponse> {
+  const response = await apiClient.post(
     "/api/technician-auth/refresh",
-    { refreshToken }
+    { refreshToken },
   );
-  return response.data;
+  return safeParseResponse(techRefreshTokenResponseSchema, response.data, "technicianRefreshSession");
 }

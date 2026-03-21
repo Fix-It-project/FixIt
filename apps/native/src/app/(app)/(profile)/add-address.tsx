@@ -1,20 +1,21 @@
 import { useState, useCallback } from "react";
 import {
   View,
-  TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
-import { ChevronLeft, MapPin } from "lucide-react-native";
+import { MapPin } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
+import { Button } from "@/src/components/ui/button";
 import { Colors } from "@/src/lib/colors";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { addAddressSchema } from "@/src/schemas/address-schema";
+import { addAddressSchema } from "@/src/services/addresses/schemas/form.schema";
 import { useAddAddressMutation } from "@/src/hooks/addresses/useAddAddressMutation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import AddressFormSection from "@/src/components/shared/AddressFormSection";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import PageHeader from "@/src/components/shared/PageHeader";
 
 export default function AddAddressScreen() {
   const params = useLocalSearchParams<{ latitude: string; longitude: string }>();
@@ -54,17 +55,7 @@ export default function AddAddressScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: Colors.white }}>
       {/* Header */}
-      <View className="flex-row items-center px-5 py-3" style={{ gap: 8 }}>
-        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-          <ChevronLeft size={26} color={Colors.textPrimary} strokeWidth={2} />
-        </TouchableOpacity>
-        <Text
-          className="text-[20px] text-content"
-          style={{ fontFamily: "GoogleSans_700Bold" }}
-        >
-          Address Details
-        </Text>
-      </View>
+      <PageHeader title="Address Details" variant="surface" className="px-5 py-3" />
 
       <KeyboardAwareScrollView
         style={{ flex: 1, paddingHorizontal: 20 }}
@@ -115,27 +106,17 @@ export default function AddAddressScreen() {
         )}
 
         {/* Submit */}
-        <TouchableOpacity
+        <Button
           onPress={handleSubmit}
           disabled={addMutation.isPending}
-          activeOpacity={0.7}
-          className="flex-row items-center justify-center rounded-xl py-4"
-          style={{
-            backgroundColor: Colors.brand,
-            opacity: addMutation.isPending ? 0.6 : 1,
-          }}
+          className="w-full rounded-xl"
         >
           {addMutation.isPending ? (
             <ActivityIndicator size="small" color={Colors.white} />
           ) : (
-            <Text
-              className="text-[15px] text-white"
-              style={{ fontFamily: "GoogleSans_600SemiBold" }}
-            >
-              Save Address
-            </Text>
+            <Text>Save Address</Text>
           )}
-        </TouchableOpacity>
+        </Button>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );

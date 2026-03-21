@@ -3,8 +3,8 @@ import { Wrench } from "lucide-react-native";
 import { router } from "expo-router";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
-import { ICON_MAP } from "@/src/lib/category-helpers";
-import type { Category } from "@/src/services/categories/types/category";
+import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
+import type { Category } from "@/src/services/categories/schemas/response.schema";
 
 interface CategoryGridProps {
   categories?: Category[];

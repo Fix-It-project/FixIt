@@ -3,7 +3,7 @@ import { ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { User, Mail, Phone } from "lucide-react-native";
-import { signUpSchema } from "@/src/schemas/auth-schema";
+import { signUpSchema } from "@/src/services/auth/schemas/form.schema";
 import { useSignUpMutation } from "@/src/hooks/auth/useSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useLocationStore } from "@/src/stores/location-store";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { techStep5Schema, type TechStep5Data } from "@/src/schemas/auth-schema";
+import { techStep5Schema, type TechStep5Data } from "@/src/services/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useTechnicianSignUpMutation } from "@/src/hooks/auth/useTechnicianSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";

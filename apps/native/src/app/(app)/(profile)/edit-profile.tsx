@@ -5,7 +5,7 @@ import { Mail, Phone, User } from "lucide-react-native";
 import { useProfileQuery } from "@/src/hooks/user/useProfileQuery";
 import { useUpdateProfileMutation } from "@/src/hooks/user/useUpdateProfileMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { editProfileSchema } from "@/src/schemas/auth-schema";
+import { editProfileSchema } from "@/src/services/users/schemas/form.schema";
 import { useEditProfileStore } from "@/src/stores/edit-profile-store";
 import FormInput from "@/src/components/shared/auth/FormInput";
 import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";

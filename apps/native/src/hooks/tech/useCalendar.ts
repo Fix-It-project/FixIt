@@ -6,7 +6,7 @@ import {
   deleteException,
   getTechnicianOrders,
 } from '@/src/services/tech-calendar/api/calendar';
-import type { TechnicianOrder } from '@/src/services/tech-calendar/types/calendar';
+import type { TechnicianOrder } from '@/src/services/tech-calendar/schemas/response.schema';
 import { useAuthStore } from '@/src/stores/auth-store';
 
 // ─── Templates (recurring weekly schedule) ────────────────────────────────────

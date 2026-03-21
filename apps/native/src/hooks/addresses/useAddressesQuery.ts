@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUserAddresses } from "@/src/services/addresses/api";
-import type { Address } from "@/src/services/addresses/types";
+import type { Address } from "@/src/services/addresses/schemas/response.schema";
 
 /**
  * TanStack Query hook that fetches all addresses for the authenticated user.

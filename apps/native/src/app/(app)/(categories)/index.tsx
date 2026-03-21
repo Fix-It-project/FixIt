@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
-import { ICON_MAP } from "@/src/lib/category-helpers";
+import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
 import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
 
 // Stable fallback colors for categories without a local icon

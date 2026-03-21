@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { User as UserIcon } from "lucide-react-native";
-import { techStep3Schema } from "@/src/schemas/auth-schema";
+import { techStep3Schema } from "@/src/services/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { Button } from "@/src/components/ui/button";

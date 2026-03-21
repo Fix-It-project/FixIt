@@ -7,7 +7,7 @@ import { derive } from "@/src/lib/technician-helpers";
 import TechnicianAvatar from "@/src/components/user/browse/TechnicianAvatar";
 import RatingRow from "@/src/components/user/browse/RatingRow";
 import AvailabilityBadge from "@/src/components/user/browse/AvailabilityBadge";
-import type { TechnicianListItem } from "@/src/services/technicians/types/technician";
+import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
 
 interface TechnicianListCardProps {
   readonly item: TechnicianListItem;

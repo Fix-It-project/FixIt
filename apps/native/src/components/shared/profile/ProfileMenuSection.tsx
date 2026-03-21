@@ -1,5 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { Separator } from "@/src/components/ui/separator";
 import {
   ChevronRight,
   Pencil,
@@ -69,9 +70,9 @@ export default function ProfileMenuSection({ onLogout, isLoggingOut, onEditProfi
           style={{ elevation: 2 }}
         >
           <MenuItem icon={Pencil} label="Edit Profile" onPress={onEditProfile} />
-          <View className="h-px bg-edge-outline" />
+          <Separator />
           <MenuItem icon={MapPin} label="My Addresses" onPress={() => {}} />
-          <View className="h-px bg-edge-outline" />
+          <Separator />
           <MenuItem icon={Settings} label="Settings" onPress={onSettings} />
         </View>
       </View>

@@ -24,3 +24,7 @@ export const addressesResponseSchema = z.object({
 export const addressResponseSchema = z.object({
   address: addressSchema,
 });
+
+export type Address = z.infer<typeof addressSchema>;
+export type AddressesResponse = z.infer<typeof addressesResponseSchema>;
+export type AddressResponse = z.infer<typeof addressResponseSchema>;
