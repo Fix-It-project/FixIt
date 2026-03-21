@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useRef } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, TouchableOpacity } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
@@ -33,7 +33,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
       initials: "",
     });
 
-    const { data: profile, isLoading, isError } = useTechnicianProfileQuery(
+    const { data: profile, isLoading, isError, refetch } = useTechnicianProfileQuery(
       sheetState.technicianId,
     );
 
@@ -104,6 +104,19 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
               >
                 Please try again later.
               </Text>
+              <TouchableOpacity
+                onPress={() => refetch()}
+                activeOpacity={0.7}
+                className="mt-3 rounded-xl px-5 py-2.5"
+                style={{ backgroundColor: Colors.brand }}
+              >
+                <Text
+                  className="text-[14px] font-semibold text-white"
+                  style={{ fontFamily: "GoogleSans_600SemiBold" }}
+                >
+                  Retry
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
 

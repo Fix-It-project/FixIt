@@ -1,8 +1,9 @@
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { MapPin, ChevronDown, Bell } from "lucide-react-native";
+import { MapPin, ChevronDown } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
+import NotificationBell from "@/src/components/shared/NotificationBell";
 
 interface LocationHeaderProps {
   onLocationPress?: () => void;
@@ -25,18 +26,18 @@ export default function LocationHeader({
       <TouchableOpacity
         onPress={onLocationPress}
         className="flex-row items-center gap-2 rounded-full px-3 py-2"
-        style={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+        style={{ backgroundColor: Colors.overlaySm }}
         activeOpacity={0.7}
       >
         <View
           className="h-8 w-8 items-center justify-center rounded-full"
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.25)" }}
+          style={{ backgroundColor: Colors.overlayMd }}
         >
-          <MapPin size={16} color="#ffffff" strokeWidth={2} />
+          <MapPin size={16} color={Colors.white} strokeWidth={2} />
         </View>
 
         <View style={{ maxWidth: 200 }}>
-          <Text className="text-xs" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
+          <Text className="text-xs" style={{ color: Colors.overlayBright }}>
             Your Location
           </Text>
           <View className="flex-row items-center gap-1">
@@ -47,24 +48,13 @@ export default function LocationHeader({
             >
               {locationLabel}
             </Text>
-            <ChevronDown size={16} color="#ffffff" strokeWidth={2} />
+            <ChevronDown size={16} color={Colors.white} strokeWidth={2} />
           </View>
         </View>
       </TouchableOpacity>
 
       {/* Notification bell */}
-      <TouchableOpacity
-        className="h-10 w-10 items-center justify-center rounded-full"
-        style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
-        activeOpacity={0.7}
-      >
-        <Bell size={20} color="#ffffff" strokeWidth={1.8} />
-        {/* Notification dot */}
-        <View
-          className="absolute right-2 top-2 h-2 w-2 rounded-full"
-          style={{ backgroundColor: Colors.error }}
-        />
-      </TouchableOpacity>
+      <NotificationBell />
     </View>
   );
 }

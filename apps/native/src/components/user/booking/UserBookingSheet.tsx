@@ -1,61 +1,17 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState, useMemo, useCallback } from 'react';
-import { View, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
-import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { Calendar } from 'react-native-calendars';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
+
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { Calendar, type DateData } from 'react-native-calendars';
+import Toast from 'react-native-toast-message';
+
 import { Text } from '@/src/components/ui/text';
-import { Colors } from '@/src/lib/colors';
-import { useTechnicianPublicSchedule } from '@/src/hooks/tech/usePublicSchedule';
 import { useCreateBookingMutation } from '@/src/hooks/orders/useCreateBooking';
-
-type ToastType = 'success' | 'error';
-
-function useToast() {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const [message, setMessage] = useState('');
-  const [type, setType] = useState<ToastType>('success');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const show = useCallback(
-    (msg: string, toastType: ToastType = 'success') => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      setMessage(msg);
-      setType(toastType);
-      Animated.sequence([
-        Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true }),
-        Animated.delay(1500),
-        Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-      ]).start();
-      timerRef.current = setTimeout(() => setMessage(''), 2100);
-    },
-    [opacity],
-  );
-
-  const ToastComponent = message ? (
-    <Animated.View
-      style={{
-        opacity,
-        position: 'absolute',
-        top: 16,
-        left: 16,
-        right: 16,
-        zIndex: 100,
-        backgroundColor: type === 'success' ? Colors.brand : '#D9534F',
-        borderRadius: 14,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.15,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 8,
-        elevation: 6,
-      }}
-    >
-      <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>{message}</Text>
-    </Animated.View>
-  ) : null;
-
-  return { show, ToastComponent };
-}
+import { useTechnicianPublicSchedule } from '@/src/hooks/tech/usePublicSchedule';
+import { useAvailabilityMarks } from '@/src/hooks/user/useAvailabilityMarks';
+import { Colors } from '@/src/lib/colors';
+import { getErrorMessage } from '@/src/lib/helpers/error-helpers';
+import { bookingSchema } from '@/src/schemas/booking-schema';
 
 export interface UserBookingSheetRef {
   open: (techId: string, name: string, serviceId: string) => void;
@@ -65,16 +21,16 @@ export interface UserBookingSheetRef {
 const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
   const sheetRef = useRef<BottomSheet>(null);
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const [techId, setTechId] = useState<string | null>(null);
   const [techName, setTechName] = useState('');
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const { show: showToast, ToastComponent } = useToast();
-
   const { templates, exceptions, isLoading } = useTechnicianPublicSchedule(techId);
   const { mutateAsync: createBooking, isPending } = useCreateBookingMutation();
+
+  const markedDates = useAvailabilityMarks(templates, exceptions, selectedDate);
 
   useImperativeHandle(ref, () => ({
     open: (id: string, name: string, serviceId: string) => {
@@ -88,73 +44,25 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
     close: () => {
       sheetRef.current?.close();
       setIsOpen(false);
-    }
+    },
   }));
 
-  // Build the dates available based on the templates & exceptions.
-  const markedDates = useMemo(() => {
-    const marks: Record<string, any> = {};
-    if (!templates.length) return marks;
-
-    const activeDays = new Set(templates.filter(t => t.active).map(t => t.day_of_week));
-    const exceptionDates = new Set(exceptions.map(e => e.date));
-
-    const today = new Date();
-    const end = new Date();
-    end.setMonth(today.getMonth() + 3);
-
-    const cursor = new Date(today);
-    while (cursor <= end) {
-      const dateStr = cursor.toISOString().split('T')[0];
-      const dayOfWeek = cursor.getDay();
-
-      const isUnavailable = !activeDays.has(dayOfWeek) || exceptionDates.has(dateStr);
-      const isSelected = dateStr === selectedDate;
-
-      if (isSelected && !isUnavailable) {
-        marks[dateStr] = {
-          selected: true,
-          selectedColor: Colors.brand,
-          customStyles: {
-            container: {
-              backgroundColor: Colors.brand,
-              borderRadius: 20,
-            },
-            text: { color: '#fff', fontWeight: '700' },
-          },
-        };
-      } else if (isUnavailable) {
-        marks[dateStr] = {
-          disabled: true,
-          disableTouchEvent: true,
-          customStyles: {
-            container: { backgroundColor: 'transparent' },
-            text: { color: '#D1D5DB' },   
-          },
-        };
-      }
-
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    return marks;
-  }, [templates, exceptions, selectedDate]);
-
   const handleConfirm = async () => {
-    if (!techId || !selectedDate) return;
+    if (!techId || !selectedDate || !selectedServiceId) return;
     try {
-      await createBooking({
+      const payload = bookingSchema.parse({
         technician_id: techId,
-        service_id: '9722e1e5-0a32-401b-b9f1-0521062bf682', //hardcoded for now since logic not yet implemented
+        service_id: selectedServiceId,
         scheduled_date: selectedDate,
-        problem_description: 'General Service Request', //hardcoded for now since we don't have a description input in the UI
+        problem_description: 'General Service Request',
       });
-      showToast('Booking submitted pending approval! ✓', 'success');
+      await createBooking(payload);
+      Toast.show({ type: 'success', text1: 'Booking submitted pending approval!' });
       setTimeout(() => {
         sheetRef.current?.close();
-      }, 1500); 
-    } catch (error: any) {
-      const errorMsg = error?.response?.data?.error || error?.message || 'Failed to submit booking. Try again.';
-      showToast(errorMsg, 'error');
+      }, 1500);
+    } catch (error: unknown) {
+      Toast.show({ type: 'error', text1: getErrorMessage(error) });
     }
   };
 
@@ -165,18 +73,20 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
       snapPoints={['75%']}
       enablePanDownToClose
       onClose={() => setIsOpen(false)}
+      backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+      handleIndicatorStyle={{ backgroundColor: Colors.borderLight, width: 40 }}
       backdropComponent={(bProps) => (
         <BottomSheetBackdrop {...bProps} appearsOnIndex={0} disappearsOnIndex={-1} />
       )}
     >
-      <BottomSheetView style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 20 }}>
-        {ToastComponent}
-        
+      <BottomSheetView className="flex-1 px-5 pb-5">
         {isOpen && (
           <>
             <View className="mb-4">
-              <Text className="text-[20px] font-bold">Book {techName}</Text>
-              <Text className="text-[14px] text-content-muted mt-1">Select an available date for the service</Text>
+              <Text className="font-bold text-[20px]">Book {techName}</Text>
+              <Text className="mt-1 text-[14px] text-content-muted">
+                Select an available date for the service
+              </Text>
             </View>
 
             {isLoading ? (
@@ -187,17 +97,17 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
               <>
                 <Calendar
                   minDate={new Date().toISOString().split('T')[0]}
-                  onDayPress={(day: any) => setSelectedDate(day.dateString)}
+                  onDayPress={(day: DateData) => setSelectedDate(day.dateString)}
                   markedDates={markedDates}
                   markingType="custom"
                   theme={{
                     todayTextColor: Colors.brand,
                     arrowColor: Colors.brand,
-                    textDisabledColor: '#D1D5DB',
+                    textDisabledColor: Colors.borderLight,
                     selectedDayBackgroundColor: Colors.brand,
-                    selectedDayTextColor: '#fff',
-                    dayTextColor: '#111827',
-                    // Rounded day cells — required for pill-shaped selection
+                    selectedDayTextColor: Colors.white,
+                    dayTextColor: Colors.textPrimary,
+                    // @ts-expect-error: undocumented but supported calendar theme override
                     'stylesheet.day.basic': {
                       base: {
                         width: 32,
@@ -207,7 +117,7 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
                         borderRadius: 16,
                       },
                     },
-                  } as any}
+                  }}
                 />
 
                 <View className="flex-1 justify-end pt-4">
@@ -216,13 +126,14 @@ const UserBookingSheet = forwardRef<UserBookingSheetRef>((props, ref) => {
                     onPress={handleConfirm}
                     activeOpacity={0.8}
                     style={{
-                      backgroundColor: !selectedDate || isPending ? Colors.borderLight : Colors.brand,
+                      backgroundColor:
+                        !selectedDate || isPending ? Colors.borderLight : Colors.brand,
                       padding: 16,
                       borderRadius: 12,
                       alignItems: 'center',
                     }}
                   >
-                    <Text className="text-white font-bold text-[16px]">
+                    <Text className="font-bold text-[16px] text-white">
                       {isPending ? 'Confirming...' : 'Confirm Booking'}
                     </Text>
                   </TouchableOpacity>

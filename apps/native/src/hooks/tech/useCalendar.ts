@@ -1,9 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getTemplates,
-  createTemplate,
-  updateTemplate,
   getExceptions,
   createException,
   deleteException,
@@ -13,50 +10,9 @@ import type { TechnicianOrder } from '@/src/services/tech-calendar/types/calenda
 import { useAuthStore } from '@/src/stores/auth-store';
 
 // ─── Templates (recurring weekly schedule) ────────────────────────────────────
-
-export function useTemplatesQuery() {
-  const user = useAuthStore((s) => s.user);
-
-  return useQuery({
-    queryKey: ['technician-templates', user?.id],
-    queryFn: () => getTemplates(user!.id),
-    enabled: !!user?.id,
-  });
-}
-
-export function useSaveTemplatesMutation() {
-  const queryClient = useQueryClient();
-  const user = useAuthStore((s) => s.user);
-
-  return useMutation({
-    mutationFn: async ({
-      newSchedule,
-    }: {
-      newSchedule: { day_of_week: number; active: boolean }[];
-    }) => {
-      const technicianId = user?.id;
-      if (!technicianId) throw new Error('Not authenticated');
-
-      const freshTemplates = await getTemplates(technicianId);
-
-      const promises = newSchedule.map(({ day_of_week, active }) => {
-        const existing = freshTemplates.find((e) => e.day_of_week === day_of_week);
-        if (existing) {
-          if (existing.active !== active) {
-            return updateTemplate(technicianId, existing.id, { active });
-          }
-          return Promise.resolve(existing);
-        }
-        return createTemplate(technicianId, { day_of_week, active });
-      });
-
-      return Promise.all(promises);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['technician-templates', user?.id] });
-    },
-  });
-}
+// Canonical definitions live in useTemplates.ts — re-exported here so that
+// existing import sites (e.g. ScheduleScreen) keep working without changes.
+export { useTemplatesQuery, useSaveTemplatesMutation } from './useTemplates';
 
 // ─── Exceptions (single-day unavailability overrides) ────────────────────────
 
@@ -65,7 +21,10 @@ export function useExceptionsQuery() {
 
   return useQuery({
     queryKey: ['technician-exceptions', user?.id],
-    queryFn: () => getExceptions(user!.id),
+    queryFn: () => {
+      if (!user?.id) throw new Error('User not authenticated');
+      return getExceptions(user.id);
+    },
     enabled: !!user?.id,
   });
 }
@@ -109,7 +68,10 @@ export function useTechnicianOrdersQuery() {
 
   return useQuery({
     queryKey: ['technician-orders-calendar', user?.id],
-    queryFn: () => getTechnicianOrders(user!.id),
+    queryFn: () => {
+      if (!user?.id) throw new Error('User not authenticated');
+      return getTechnicianOrders(user.id);
+    },
     enabled: !!user?.id,
     refetchInterval: 60_000,
   });

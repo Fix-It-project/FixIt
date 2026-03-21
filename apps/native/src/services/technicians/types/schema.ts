@@ -24,9 +24,9 @@ export const technicianProfileSchema = z.object({
   name: z.string(),
   profilePicture: z.string().nullable(),
   description: z.string(),
-  completedOrders: z.string(),
-  totalBookings: z.string(),
-  reviews: z.string(),
+  completedOrders: z.number(),
+  totalBookings: z.number(),
+  reviews: z.number(),
   phoneNumber: z.string(),
 });
 
@@ -35,7 +35,17 @@ export const technicianProfileResponseSchema = z.object({
   profile: technicianProfileSchema,
 });
 
-export type TechnicianListItemZ = z.infer<typeof technicianListItemSchema>;
-export type TechniciansResponseZ = z.infer<typeof techniciansResponseSchema>;
-export type TechnicianProfileZ = z.infer<typeof technicianProfileSchema>;
-export type TechnicianProfileResponseZ = z.infer<typeof technicianProfileResponseSchema>;
+// Canonical types inferred from Zod schemas — single source of truth.
+export type TechnicianListItem = z.infer<typeof technicianListItemSchema>;
+export type TechniciansResponse = z.infer<typeof techniciansResponseSchema>;
+export type TechnicianProfile = z.infer<typeof technicianProfileSchema>;
+export type TechnicianProfileResponse = z.infer<typeof technicianProfileResponseSchema>;
+
+/** @deprecated Use the canonical names above. */
+export type TechnicianListItemZ = TechnicianListItem;
+/** @deprecated Use the canonical names above. */
+export type TechniciansResponseZ = TechniciansResponse;
+/** @deprecated Use the canonical names above. */
+export type TechnicianProfileZ = TechnicianProfile;
+/** @deprecated Use the canonical names above. */
+export type TechnicianProfileResponseZ = TechnicianProfileResponse;

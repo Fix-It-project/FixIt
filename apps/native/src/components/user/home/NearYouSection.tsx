@@ -1,41 +1,12 @@
 import { useRef } from "react";
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { ChevronRight } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
 import { NEARBY_TECHNICIANS } from "@/src/lib/mock-data/user";
 import TechnicianCard, {
   CARD_WIDTH,
   CARD_SPACING,
 } from "@/src/components/user/home/TechnicianCard";
-
-function EndArrow({ onPress }: { onPress?: () => void }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      style={{
-        width: 56,
-        alignItems: "center",
-        justifyContent: "center",
-        marginLeft: 4,
-      }}
-    >
-      <View
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          backgroundColor: Colors.brand,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <ChevronRight size={26} color="#fff" strokeWidth={2.5} />
-      </View>
-    </TouchableOpacity>
-  );
-}
+import SectionEndArrow from "@/src/components/user/home/SectionEndArrow";
 
 export default function NearYouSection() {
   const flatListRef = useRef<FlatList>(null);
@@ -62,7 +33,7 @@ export default function NearYouSection() {
           paddingVertical: 4,
           alignItems: "center",
         }}
-        ListFooterComponent={<EndArrow />}
+        ListFooterComponent={<SectionEndArrow />}
       />
     </View>
   );

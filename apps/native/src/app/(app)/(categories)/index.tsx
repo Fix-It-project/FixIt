@@ -4,13 +4,8 @@ import { router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
-import { CATEGORIES } from "@/src/lib/categories";
+import { ICON_MAP } from "@/src/lib/category-helpers";
 import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
-
-// id → { icon, color } from the local static list
-const ICON_MAP = Object.fromEntries(
-  CATEGORIES.map((c) => [c.id, { icon: c.icon, color: c.color }])
-);
 
 // Stable fallback colors for categories without a local icon
 const FALLBACK_COLORS = Colors.category.fallbacks;
@@ -20,7 +15,7 @@ export default function CategoriesScreen() {
 
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
-      pathname: "/(app)/(technicians)/list" as any,
+      pathname: "/(app)/(technicians)/list",
       params: { categoryId, categoryName },
     });
   };
@@ -73,7 +68,7 @@ export default function CategoriesScreen() {
                   <TouchableOpacity
                     key={cat.id}
                     className="mb-3 overflow-hidden rounded-xl"
-                    style={{ width: "48.5%", backgroundColor: "#f0f1f3" }}
+                    style={{ width: "48.5%", backgroundColor: Colors.surfaceLight }}
                     onPress={() => handleCategoryPress(cat.id, cat.name)}
                     activeOpacity={0.7}
                   >
@@ -82,7 +77,7 @@ export default function CategoriesScreen() {
                         className="h-16 w-16 items-center justify-center"
                         style={{ backgroundColor: color }}
                       >
-                        <Icon size={26} color="#fff" strokeWidth={1.75} />
+                        <Icon size={26} color={Colors.white} strokeWidth={1.75} />
                       </View>
                       <Text
                         className="flex-1 px-3 text-[14px] font-semibold text-content"

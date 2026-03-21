@@ -1,5 +1,5 @@
 import { ActivityIndicator, View } from "react-native";
-import { FileText, Mail, Phone, Wrench } from "lucide-react-native";
+import { FileText, Mail, Phone, Wrench, type LucideIcon } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 import type { TechnicianSelfProfile } from "@/src/services/tech-self/types/tech-self";
@@ -9,7 +9,7 @@ function InfoRow({
   label,
   value,
 }: {
-  readonly icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
+  readonly icon: LucideIcon;
   readonly label: string;
   readonly value: string;
 }) {

@@ -1,6 +1,7 @@
 import { View, ActivityIndicator } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Mail, Phone, MapPin } from "lucide-react-native";
+import { Mail, Phone, MapPin, type LucideIcon } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 import type { UserProfile } from "@/src/services/users/types/user";
 
 function InfoRow({
@@ -8,14 +9,14 @@ function InfoRow({
   label,
   value,
 }: {
-  icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
+  icon: LucideIcon;
   label: string;
   value: string;
 }) {
   return (
     <View className="flex-row items-center gap-3 py-3">
       <View className="h-10 w-10 items-center justify-center rounded-full bg-brand-light">
-        <Icon size={18} color="#036ded" strokeWidth={1.8} />
+        <Icon size={18} color={Colors.brand} strokeWidth={1.8} />
       </View>
       <View className="flex-1">
         <Text className="text-xs text-content-muted">{label}</Text>
@@ -34,7 +35,7 @@ export default function ProfileInfoCard({ profile, isLoading }: ProfileInfoCardP
   if (isLoading) {
     return (
       <View className="items-center py-12">
-        <ActivityIndicator size="large" color="#036ded" />
+        <ActivityIndicator size="large" color={Colors.brand} />
       </View>
     );
   }

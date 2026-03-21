@@ -1,11 +1,11 @@
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Bell, ChevronLeft } from "lucide-react-native";
+import { ChevronLeft } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Colors } from "@/src/lib/colors";
-import { TECH_PROFILE } from "@/src/lib/mock-data/tech";
 import { Text } from "@/src/components/ui/text";
+import NotificationBell from "@/src/components/shared/NotificationBell";
 import BookingsCalendarSheet, { type BookingsCalendarSheetRef } from "./BookingsCalendarSheet";
 import BookingsViewToggle from "./BookingsViewToggle";
 import BookingsWeekStrip from "./BookingsWeekStrip";
@@ -23,7 +23,6 @@ export interface BookingsHeaderRef {
 
 const BookingsHeader = forwardRef<BookingsHeaderRef, object>(function BookingsHeader(_, ref) {
   const router = useRouter();
-  const profile = TECH_PROFILE;
   const calendarRef = useRef<BookingsCalendarSheetRef>(null);
 
   const handleBackPress = useCallback(() => {
@@ -48,7 +47,7 @@ const BookingsHeader = forwardRef<BookingsHeaderRef, object>(function BookingsHe
         paddingTop: 8,
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
-        shadowColor: "#000",
+        shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.18,
         shadowRadius: 10,
@@ -103,36 +102,8 @@ const BookingsHeader = forwardRef<BookingsHeaderRef, object>(function BookingsHe
         </View>
 
         <View className="flex-row items-center gap-3">
-          {/* Online badge */}
-          <View className="flex-row items-center gap-1.5">
-            <Text
-              className="font-bold text-xs uppercase"
-              style={{
-                color: profile.isOnline ? Colors.onlineGreen : Colors.overlaySub,
-              }}
-            >
-              {profile.isOnline ? "Online" : "Offline"}
-            </Text>
-            <View
-              className="h-2 w-2 rounded-full"
-              style={{
-                backgroundColor: profile.isOnline ? Colors.onlineGreen : Colors.overlayDim,
-              }}
-            />
-          </View>
-
           {/* Bell */}
-          <TouchableOpacity
-            className="h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: Colors.overlayMd }}
-            activeOpacity={0.7}
-          >
-            <Bell size={20} color={Colors.white} strokeWidth={1.8} />
-            <View
-              className="absolute top-2 right-2 h-2 w-2 rounded-full"
-              style={{ backgroundColor: Colors.error }}
-            />
-          </TouchableOpacity>
+          <NotificationBell />
         </View>
       </Animated.View>
 

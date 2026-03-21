@@ -28,7 +28,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
       style={{
         borderWidth: 1,
         borderColor: Colors.borderLight,
-        shadowColor: "#000",
+        shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.06,
         shadowRadius: 8,

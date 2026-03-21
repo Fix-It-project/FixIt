@@ -32,7 +32,7 @@ export default function BookingsViewToggle() {
         className="flex-1 flex-row items-center justify-center gap-1.5 rounded-lg py-2.5"
         style={{
           backgroundColor: Colors.white,
-          shadowColor: "#000",
+          shadowColor: Colors.shadow,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,

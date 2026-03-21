@@ -62,7 +62,7 @@ export default function CategoryChip({
           {
             borderColor: selected ? color : Colors.borderChip,
             // basic shadow props
-            shadowColor: selected ? color : "#000",
+            shadowColor: selected ? color : Colors.shadow,
             shadowOffset: { width: 0, height: 2 },
             shadowRadius: 6,
             elevation: 3,

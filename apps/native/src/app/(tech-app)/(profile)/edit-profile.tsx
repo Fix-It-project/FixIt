@@ -40,7 +40,7 @@ export default function EditTechProfileScreen() {
     const result = validate({ first_name: firstName, last_name: lastName, phone, description });
     if (!result.success) return;
 
-    const payload: Record<string, string> = {};
+    const payload: { first_name?: string; last_name?: string; phone?: string; description?: string } = {};
     if (firstName !== (profile?.first_name ?? "")) payload.first_name = firstName;
     if (lastName !== (profile?.last_name ?? "")) payload.last_name = lastName;
     if (phone !== (profile?.phone ?? "")) payload.phone = phone;

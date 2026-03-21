@@ -90,7 +90,7 @@ export default function TechnicianCard({
               gap: 3,
             }}
           >
-            <Star size={11} color="#F59E0B" fill="#F59E0B" strokeWidth={0} />
+            <Star size={11} color={Colors.star} fill={Colors.star} strokeWidth={0} />
             <Text className="text-[13px] font-semibold text-content">
               {item.rating}
             </Text>

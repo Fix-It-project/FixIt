@@ -2,26 +2,12 @@ import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { MapPin, Clock } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { formatLocation, seededIndex } from "@/src/lib/helpers/technician-utils";
+import { formatLocation } from "@/src/lib/helpers/technician-utils";
+import { derive } from "@/src/lib/technician-helpers";
 import TechnicianAvatar from "@/src/components/user/browse/TechnicianAvatar";
 import RatingRow from "@/src/components/user/browse/RatingRow";
 import AvailabilityBadge from "@/src/components/user/browse/AvailabilityBadge";
 import type { TechnicianListItem } from "@/src/services/technicians/types/technician";
-
-/* ── Deterministic extras derived from the ID (replaced by real API data later) */
-const SPECIALTIES = [
-  "Technician", "Specialist", "Expert", "Installation Specialist",
-  "Maintenance Expert", "Repair Specialist",
-];
-
-function derive(id: string) {
-  return {
-    specialty: SPECIALTIES[seededIndex(id + "s", SPECIALTIES.length)],
-    rating: +(4.5 + (seededIndex(id + "r", 5) * 0.1)).toFixed(1),
-    reviewCount: 50 + seededIndex(id + "c", 280),
-    yearsExp: 3 + seededIndex(id + "y", 15),
-  };
-}
 
 interface TechnicianListCardProps {
   readonly item: TechnicianListItem;

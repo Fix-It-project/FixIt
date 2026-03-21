@@ -1,13 +1,14 @@
 import { View, TouchableOpacity } from "react-native";
-import { ChevronRight } from "lucide-react-native";
+import { ChevronRight, type LucideIcon } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/lib/colors";
 
 export function SettingsItem({
   icon: Icon,
   label,
   onPress,
 }: {
-  icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
+  icon: LucideIcon;
   label: string;
   onPress: () => void;
 }) {
@@ -18,10 +19,10 @@ export function SettingsItem({
       className="flex-row items-center gap-3 py-3.5"
     >
       <View className="h-10 w-10 items-center justify-center rounded-full bg-brand-light">
-        <Icon size={18} color="#036ded" strokeWidth={1.8} />
+        <Icon size={18} color={Colors.brand} strokeWidth={1.8} />
       </View>
       <Text className="flex-1 text-[15px] font-medium text-content">{label}</Text>
-      <ChevronRight size={18} color="#555555" strokeWidth={1.8} />
+      <ChevronRight size={18} color={Colors.textSecondary} strokeWidth={1.8} />
     </TouchableOpacity>
   );
 }

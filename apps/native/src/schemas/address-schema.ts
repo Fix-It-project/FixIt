@@ -9,6 +9,10 @@ export const addAddressSchema = z.object({
     .max(200, "Street address must be less than 200 characters"),
   buildingNumber: z.string().optional().or(z.literal("")),
   apartmentNumber: z.string().optional().or(z.literal("")),
+  /** Latitude from GPS — optional because it is captured separately, not via the form. */
+  latitude: z.number().min(-90).max(90).optional(),
+  /** Longitude from GPS — optional because it is captured separately, not via the form. */
+  longitude: z.number().min(-180).max(180).optional(),
 });
 
 export type AddAddressFormData = z.infer<typeof addAddressSchema>;

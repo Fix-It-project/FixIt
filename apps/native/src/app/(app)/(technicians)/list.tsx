@@ -1,29 +1,27 @@
-import { useState, useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import {
   View,
   FlatList,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { ChevronLeft, Search, SlidersHorizontal } from "lucide-react-native";
+import { ChevronLeft, Search } from "lucide-react-native";
+import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 import { useTechniciansQuery } from "@/src/hooks/user/useTechniciansQuery";
 import { useLocationStore } from "@/src/stores/location-store";
+import { useTechnicianSearchStore } from "@/src/stores/technician-search-store";
 import TechnicianListCard from "@/src/components/user/browse/TechnicianListCard";
+import TechnicianSortBar, { type SortKey } from "@/src/components/user/browse/TechnicianSortBar";
 import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/components/user/browse/TechnicianProfileSheet";
 import UserBookingSheet, { type UserBookingSheetRef } from "@/src/components/user/booking/UserBookingSheet";
 import type { TechnicianListItem } from "@/src/services/technicians/types/technician";
-
-// ─── Sort options ────────────────────────────────────────────────────────────
-const SORT_OPTIONS = ["Top Rated", "Nearest", "Most Reviews"] as const;
-type SortKey = (typeof SORT_OPTIONS)[number];
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
@@ -84,8 +82,7 @@ export default function TechniciansListScreen() {
     categoryName: string;
   }>();
 
-  const [searchText, setSearchText] = useState("");
-  const [activeSort, setActiveSort] = useState<SortKey>("Top Rated");
+  const { searchText, setSearchText, activeSort, setActiveSort } = useTechnicianSearchStore();
 
   const { location, permissionStatus, requestLocationPermission } = useLocationStore();
   const coords = activeSort === "Nearest" ? location : null;
@@ -94,20 +91,33 @@ export default function TechniciansListScreen() {
   const bookingSheetRef = useRef<UserBookingSheetRef>(null);
 
   // TanStack Query – cached & refetchable
-  const { data: technicians = [], isLoading } = useTechniciansQuery(
+  const { data: technicians = [], isLoading, refetch } = useTechniciansQuery(
     categoryId ?? "",
     searchText,
     coords,
   );
 
+  // When coords become available while "Nearest" is active, trigger a refetch
+  useEffect(() => {
+    if (activeSort === "Nearest" && location) {
+      refetch();
+    }
+  }, [activeSort, location, refetch]);
+
   const handleSortPress = useCallback(
-    (option: SortKey) => {
-      setActiveSort(option);
+    async (option: SortKey) => {
       if (option === "Nearest" && permissionStatus !== "granted") {
-        requestLocationPermission();
+        await requestLocationPermission();
+        // After requesting, check the updated permission status from the store
+        const updatedStatus = useLocationStore.getState().permissionStatus;
+        if (updatedStatus !== "granted") {
+          Toast.show({ type: "error", text1: "Location permission required for nearest sort" });
+          return;
+        }
       }
+      setActiveSort(option);
     },
-    [permissionStatus, requestLocationPermission],
+    [permissionStatus, requestLocationPermission, setActiveSort],
   );
 
   const handleAvatarPress = useCallback(
@@ -186,45 +196,7 @@ export default function TechniciansListScreen() {
         </View>
 
         {/* ── Sort filter tabs ── */}
-        <View className="bg-white py-2.5" style={{ borderBottomWidth: 1, borderBottomColor: Colors.borderLight }}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
-          >
-            <View
-              className="mr-1 h-8 w-8 items-center justify-center rounded-lg"
-              style={{ backgroundColor: Colors.surfaceGray }}
-            >
-              <SlidersHorizontal size={16} color={Colors.surfaceMuted} strokeWidth={2} />
-            </View>
-            {SORT_OPTIONS.map((option) => {
-              const isActive = activeSort === option;
-              return (
-                <TouchableOpacity
-                  key={option}
-                  onPress={() => handleSortPress(option)}
-                  activeOpacity={0.7}
-                  className="items-center justify-center rounded-full px-4"
-                  style={{
-                    height: 32,
-                    backgroundColor: isActive ? Colors.brand : Colors.surfaceGray,
-                  }}
-                >
-                  <Text
-                    className="text-[12px] font-semibold"
-                    style={{
-                      fontFamily: "GoogleSans_600SemiBold",
-                      color: isActive ? Colors.white : Colors.textSecondary,
-                    }}
-                  >
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
+        <TechnicianSortBar activeSort={activeSort} onSortPress={handleSortPress} />
 
         {/* ── Technician list ── */}
         <TechnicianListBody

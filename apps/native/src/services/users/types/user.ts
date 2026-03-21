@@ -1,16 +1,12 @@
 // ─── User Profile Types ──────────────────────────────────────────────────────
 
-export interface UserAddress {
-  id: string;
-  user_id: string;
-  city: string;
-  street: string;
-  building_no: string;
-  apartment_no: string;
-  latitude: number | null;
-  longitude: number | null;
-  created_at: string;
-}
+import type { Address } from '@/src/services/addresses/types';
+
+/**
+ * @deprecated Use `Address` from `@/src/services/addresses/types` directly.
+ * Kept as an alias for backward compatibility.
+ */
+export type UserAddress = Address;
 
 export interface UserProfile {
   id: string;
@@ -18,7 +14,7 @@ export interface UserProfile {
   full_name: string | null;
   phone: string | null;
   created_at: string;
-  addresses: UserAddress[];
+  addresses: Address[];
 }
 
 export interface GetProfileResponse {

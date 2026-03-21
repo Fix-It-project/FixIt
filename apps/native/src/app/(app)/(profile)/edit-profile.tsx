@@ -38,7 +38,7 @@ export default function EditProfileScreen() {
     if (!result.success) return;
 
     // Only send changed fields
-    const payload: Record<string, string> = {};
+    const payload: { full_name?: string; email?: string; phone?: string } = {};
     if (fullName !== (profile?.full_name ?? "")) payload.full_name = fullName;
     if (email !== (profile?.email ?? "")) payload.email = email;
     if (phone !== (profile?.phone ?? "")) payload.phone = phone;

@@ -28,10 +28,10 @@ export async function uploadTechnicianProfileImage(
     uri: imageUri,
     type: mimeType,
     name: "profile.jpg",
-  } as unknown as Blob);
+  } as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
 
-  const { data } = await apiClient.post("/api/technicians/me/profile-image", form, {
+  const { data } = await apiClient.post<{ profile_image: string }>("/api/technicians/me/profile-image", form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return data as { profile_image: string };
+  return data;
 }

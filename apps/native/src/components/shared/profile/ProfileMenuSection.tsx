@@ -6,7 +6,9 @@ import {
   MapPin,
   Settings,
   LogOut,
+  type LucideIcon,
 } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 
 function MenuItem({
   icon: Icon,
@@ -14,7 +16,7 @@ function MenuItem({
   onPress,
   destructive = false,
 }: {
-  icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
+  icon: LucideIcon;
   label: string;
   onPress: () => void;
   destructive?: boolean;
@@ -32,7 +34,7 @@ function MenuItem({
       >
         <Icon
           size={18}
-          color={destructive ? "#ef4444" : "#036ded"}
+          color={destructive ? Colors.error : Colors.brand}
           strokeWidth={1.8}
         />
       </View>
@@ -44,7 +46,7 @@ function MenuItem({
         {label}
       </Text>
       {!destructive && (
-        <ChevronRight size={18} color="#555555" strokeWidth={1.8} />
+        <ChevronRight size={18} color={Colors.textSecondary} strokeWidth={1.8} />
       )}
     </TouchableOpacity>
   );

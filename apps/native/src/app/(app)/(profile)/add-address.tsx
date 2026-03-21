@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import {
   View,
-  TextInput,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
@@ -14,55 +13,8 @@ import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { addAddressSchema } from "@/src/schemas/address-schema";
 import { useAddAddressMutation } from "@/src/hooks/addresses/useAddAddressMutation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-
-/** Helper: renders a labelled text input with optional error. */
-function FormField({
-  label,
-  required,
-  value,
-  onChangeText,
-  placeholder,
-  error,
-}: {
-  label: string;
-  required?: boolean;
-  value: string;
-  onChangeText: (t: string) => void;
-  placeholder: string;
-  error?: string;
-}) {
-  return (
-    <View>
-      <Text
-        className="mb-1 text-[13px] text-content"
-        style={{ fontFamily: "GoogleSans_600SemiBold" }}
-      >
-        {label}
-        {required && <Text style={{ color: Colors.error }}> *</Text>}
-      </Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={Colors.textMuted}
-        className="rounded-xl border px-4 py-3 text-[15px]"
-        style={{
-          fontFamily: "GoogleSans_400Regular",
-          borderColor: error ? Colors.error : Colors.borderLight,
-          color: Colors.textPrimary,
-        }}
-      />
-      {error && (
-        <Text
-          className="mt-1 text-[12px]"
-          style={{ color: Colors.error, fontFamily: "GoogleSans_400Regular" }}
-        >
-          {error}
-        </Text>
-      )}
-    </View>
-  );
-}
+import AddressFormSection from "@/src/components/shared/AddressFormSection";
+import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 
 export default function AddAddressScreen() {
   const params = useLocalSearchParams<{ latitude: string; longitude: string }>();
@@ -137,36 +89,19 @@ export default function AddAddressScreen() {
         </View>
 
         {/* Form fields */}
-        <FormField
-          label="City"
-          required
-          value={city}
-          onChangeText={(t) => { setCity(t); clearFieldError("city"); }}
-          placeholder="Enter city"
-          error={fieldErrors.city}
-        />
-
-        <FormField
-          label="Street"
-          required
-          value={street}
-          onChangeText={(t) => { setStreet(t); clearFieldError("street"); }}
-          placeholder="Enter street address"
-          error={fieldErrors.street}
-        />
-
-        <FormField
-          label="Building Number"
-          value={buildingNumber}
-          onChangeText={setBuildingNumber}
-          placeholder="Enter building number (optional)"
-        />
-
-        <FormField
-          label="Apartment Number"
-          value={apartmentNumber}
-          onChangeText={setApartmentNumber}
-          placeholder="Enter apartment number (optional)"
+        <AddressFormSection
+          city={city}
+          onCityChange={(t) => { setCity(t); clearFieldError("city"); }}
+          street={street}
+          onStreetChange={(t) => { setStreet(t); clearFieldError("street"); }}
+          buildingNumber={buildingNumber}
+          onBuildingNumberChange={setBuildingNumber}
+          apartmentNumber={apartmentNumber}
+          onApartmentNumberChange={setApartmentNumber}
+          errors={{ city: fieldErrors.city, street: fieldErrors.street }}
+          variant="outline"
+          streetLabel="Street"
+          showIcons={false}
         />
 
         {/* Mutation error */}
@@ -175,8 +110,7 @@ export default function AddAddressScreen() {
             className="text-[13px] text-center"
             style={{ color: Colors.error, fontFamily: "GoogleSans_400Regular" }}
           >
-            {(addMutation.error as any)?.response?.data?.error ??
-              "Failed to save address. Please try again."}
+            {getErrorMessage(addMutation.error)}
           </Text>
         )}
 

@@ -1,3 +1,7 @@
+import type { OrderStatus } from '@/src/services/shared/types';
+
+export type { OrderStatus };
+
 export interface CreateOrderPayload {
   technician_id: string;
   service_id: string;
@@ -11,7 +15,7 @@ export interface Order {
   user_id: string;
   service_id: string;
   scheduled_date: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'cancelled_by_user' | 'cancelled_by_technician' | 'completed';
+  status: OrderStatus;
   problem_description: string;
 }
 

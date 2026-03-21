@@ -117,8 +117,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      const user: AuthUser = JSON.parse(userJson);
-      const userType = (storedUserType as UserType) || "user";
+      const parsed = JSON.parse(userJson);
+      if (!parsed || typeof parsed.id !== 'string') {
+        console.log("[AuthStore] Invalid stored user data");
+        await get().clearSession();
+        return;
+      }
+      const user = parsed as AuthUser;
+      const userType: UserType = storedUserType === 'technician' ? 'technician' : 'user';
       console.log("[AuthStore] Restored session for user:", user, "type:", userType);
       set({
         user,

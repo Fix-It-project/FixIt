@@ -11,6 +11,7 @@ import RecommendedTechnicians from "@/src/components/user/home/RecommendedTechni
 import NearYouSection from "@/src/components/user/home/NearYouSection";
 import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/components/user/home/AddressBottomSheet";
 import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/components/user/home/AddNewAddressSheet";
+import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
 import { Colors } from "@/src/lib/colors";
 
 /** Vertical gap between home-page sections (single source of truth). */
@@ -19,11 +20,12 @@ const SECTION_GAP = 16;
 export default function Home() {
   const addressSheetRef = useRef<AddressBottomSheetRef>(null);
   const addNewAddressSheetRef = useRef<AddNewAddressSheetRef>(null);
+  const { data: categories, isLoading: categoriesLoading } = useCategoriesQuery();
 
   // Incoming change: categoryName now passed directly instead of looked up via CATEGORIES.find()
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
-      pathname: "/(app)/(technicians)/list" as any,
+      pathname: "/(app)/(technicians)/list",
       params: {
         categoryId,
         categoryName,
@@ -71,7 +73,7 @@ export default function Home() {
           {/* Content area */}
           <View className="bg-surface-gray" style={{ paddingTop: 12, gap: SECTION_GAP }}>
             {/* Category grid */}
-            <CategoryGrid onCategoryPress={handleCategoryPress} />
+            <CategoryGrid categories={categories} isLoading={categoriesLoading} onCategoryPress={handleCategoryPress} />
             {/* Recommended technicians */}
             <RecommendedTechnicians />
             {/* Near You section */}

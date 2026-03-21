@@ -5,6 +5,7 @@ import {
   Droplets,
   Zap,
   MapPin,
+  type LucideIcon,
 } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { INCOMING_REQUESTS } from "@/src/lib/mock-data/tech";
@@ -14,7 +15,7 @@ import Animated, { FadeInRight } from "react-native-reanimated";
 const CARD_WIDTH = Dimensions.get("window").width * 0.72;
 
 /** Map icon name strings from mock data to actual lucide components */
-const ICON_MAP: Record<string, React.ComponentType<any>> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Snowflake,
   Droplets,
   Zap,
@@ -42,7 +43,7 @@ function RequestCard({
         style={{
           borderWidth: item.isHighlighted ? 2 : 1,
           borderColor: item.isHighlighted ? Colors.brand : Colors.borderLight,
-          shadowColor: item.isHighlighted ? Colors.brand : "#000",
+          shadowColor: item.isHighlighted ? Colors.brand : Colors.shadow,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: item.isHighlighted ? 0.15 : 0.06,
           shadowRadius: 8,

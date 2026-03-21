@@ -1,3 +1,7 @@
+import type { OrderStatus } from '@/src/services/shared/types';
+
+export type { OrderStatus };
+
 // ─── Availability templates ───────────────────────────────────────────────────
 
 export interface AvailabilityTemplate {
@@ -52,7 +56,7 @@ export interface TechnicianOrder {
   technician_id: string;
   user_id: string;
   service_id: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'cancelled_by_user' | 'cancelled_by_technician' | 'completed';
+  status: OrderStatus;
   problem_description: string | null;
   scheduled_date: string; // YYYY-MM-DD
   active: boolean;

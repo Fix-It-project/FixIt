@@ -3,7 +3,7 @@ import { Text } from "@/src/components/ui/text";
 
 interface InfoRowProps {
   readonly icon: React.ReactNode;
-  readonly text: string;
+  readonly text: string | number;
   readonly className?: string;
 }
 

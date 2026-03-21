@@ -1,13 +1,14 @@
 import { View, ScrollView } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Shield } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 
 export default function PrivacySecurityScreen() {
   return (
     <ScrollView className="flex-1 bg-surface-gray" contentContainerClassName="px-5 py-6 gap-4">
       <View className="rounded-2xl bg-surface-white px-5 py-6 shadow-sm" style={{ elevation: 2 }}>
         <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-brand-light">
-          <Shield size={28} color="#036ded" strokeWidth={1.8} />
+          <Shield size={28} color={Colors.brand} strokeWidth={1.8} />
         </View>
         <Text className="text-lg font-bold text-content">Privacy & Security</Text>
         <Text className="mt-2 text-[14px] leading-5 text-content-muted">

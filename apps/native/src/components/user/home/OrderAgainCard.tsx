@@ -1,6 +1,7 @@
 import { View, FlatList, Dimensions, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { RotateCcw } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/lib/mock-data/user";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -14,7 +15,7 @@ function OrderCard({ item }: { item: PreviousOrder }) {
         width: CARD_WIDTH,
         marginHorizontal: CARD_SPACING / 2,
         borderRadius: 14,
-        backgroundColor: "#fff",
+        backgroundColor: Colors.white,
         padding: 14,
       }}
     >
@@ -61,13 +62,13 @@ function OrderCard({ item }: { item: PreviousOrder }) {
             gap: 6,
             backgroundColor: "transparent",
             borderWidth: 1.5,
-            borderColor: "#d1d5dc",
+            borderColor: Colors.borderLight,
             borderRadius: 100, // Pill shape
             paddingHorizontal: 18, // Generous padding for pill proportions
             paddingVertical: 8, // A bit of height but proportional
           }}
         >
-          <RotateCcw size={14} color="#141118" strokeWidth={2.5} style={{ marginTop: -1 }} />
+          <RotateCcw size={14} color={Colors.darkText} strokeWidth={2.5} style={{ marginTop: -1 }} />
           <Text
             className="text-[13px] font-bold text-content"
             style={{ fontFamily: "GoogleSans_700Bold", lineHeight: 16 }}
@@ -86,7 +87,7 @@ function OrderCard({ item }: { item: PreviousOrder }) {
           marginTop: 10,
           paddingTop: 8,
           borderTopWidth: 1,
-          borderTopColor: "#f0f1f3",
+          borderTopColor: Colors.surfaceLight,
         }}
       >
         <Text className="text-[12px] text-content-muted">{item.date}</Text>

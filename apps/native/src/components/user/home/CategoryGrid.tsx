@@ -2,27 +2,25 @@ import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Wrench } from "lucide-react-native";
 import { router } from "expo-router";
 import { Text } from "@/src/components/ui/text";
-import { CATEGORIES } from "@/src/lib/categories";
 import { Colors } from "@/src/lib/colors";
-import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
+import { ICON_MAP } from "@/src/lib/category-helpers";
+import type { Category } from "@/src/services/categories/types/category";
 
 interface CategoryGridProps {
+  categories?: Category[];
+  isLoading?: boolean;
   onCategoryPress?: (categoryId: string, categoryName: string) => void;
   onMorePress?: () => void;
 }
 
-const ICON_MAP = Object.fromEntries(
-  CATEGORIES.map((c) => [c.id, { icon: c.icon, color: c.color }])
-);
-
 const FALLBACK_COLORS = Colors.category.fallbacks;
 
 export default function CategoryGrid({
+  categories,
+  isLoading = false,
   onCategoryPress,
   onMorePress,
 }: CategoryGridProps) {
-  const { data: categories, isLoading } = useCategoriesQuery();
-
   const displayCategories = categories?.slice(0, 4) ?? [];
 
   return (
@@ -30,7 +28,7 @@ export default function CategoryGrid({
       {/* Section header */}
       <View className="mb-2.5 flex-row items-center justify-between">
         <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Categories</Text>
-        <TouchableOpacity onPress={() => { onMorePress?.(); router.push("/(app)/categories" as any); }} activeOpacity={0.6}>
+        <TouchableOpacity onPress={() => { onMorePress?.(); router.push("/(app)/(categories)"); }} activeOpacity={0.6}>
           <Text className="text-[13px] font-medium" style={{ color: Colors.surfaceMuted }}>
             Show all
           </Text>
@@ -55,7 +53,7 @@ export default function CategoryGrid({
               <TouchableOpacity
                 key={cat.id}
                 className="mb-2.5 overflow-hidden rounded-xl"
-                style={{ width: "48.5%", backgroundColor: "#f0f1f3" }}
+                style={{ width: "48.5%", backgroundColor: Colors.surfaceLight }}
                 onPress={() => onCategoryPress?.(cat.id, cat.name)}
                 activeOpacity={0.7}
               >
@@ -64,7 +62,7 @@ export default function CategoryGrid({
                     className="h-16 w-16 items-center justify-center"
                     style={{ backgroundColor: color }}
                   >
-                    <Icon size={26} color="#fff" strokeWidth={1.75} />
+                    <Icon size={26} color={Colors.white} strokeWidth={1.75} />
                   </View>
                   <Text
                     className="flex-1 px-3 text-[14px] font-semibold text-content"

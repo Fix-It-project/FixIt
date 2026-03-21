@@ -102,7 +102,7 @@ export default function BookingsWeekStrip() {
                   height: 44,
                   opacity: isPast ? 0.35 : 1,
                   backgroundColor: selected ? Colors.brand : Colors.white,
-                  shadowColor: selected ? Colors.brand : "#000",
+                  shadowColor: selected ? Colors.brand : Colors.shadow,
                   shadowOffset: { width: 0, height: selected ? 3 : 1 },
                   shadowOpacity: selected ? 0.35 : 0.08,
                   shadowRadius: selected ? 6 : 3,
@@ -114,7 +114,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: 8,
                     textTransform: "uppercase",
-                    color: selected ? "rgba(255,255,255,0.7)" : Colors.textSecondary,
+                    color: selected ? Colors.overlayBright : Colors.textSecondary,
                     lineHeight: 10,
                   }}
                 >
@@ -151,9 +151,9 @@ export default function BookingsWeekStrip() {
 
       {/* Swipe indicator dots */}
       <View className="mt-2 flex-row items-center justify-center gap-1">
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.4)" }} />
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.7)" }} />
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.4)" }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayBright }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
       </View>
     </Animated.View>
   );

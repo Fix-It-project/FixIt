@@ -1,4 +1,5 @@
 import { Colors } from "@/src/lib/colors";
+import { TAB_BAR_STYLE, TAB_BAR_LABEL_STYLE } from "@/src/lib/tab-bar-config";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Redirect, Tabs, router } from "expo-router";
 import {
@@ -27,23 +28,8 @@ export default function AppLayout() {
           headerShown: false,
           tabBarActiveTintColor: Colors.brand,
           tabBarInactiveTintColor: Colors.textMuted,
-          tabBarStyle: {
-            backgroundColor: Colors.white,
-            borderTopWidth: 0,
-            height: 80,
-            paddingBottom: 20,
-            paddingTop: 8,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.06,
-            shadowRadius: 8,
-            elevation: 8,
-          },
-          tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: "600",
-            marginTop: 2,
-          },
+          tabBarStyle: TAB_BAR_STYLE,
+          tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
         }}
       >
         <Tabs.Screen

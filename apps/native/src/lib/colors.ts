@@ -36,10 +36,23 @@ export const Colors = {
   surfaceGray: "#f3f4f6", // upload icon background
   surfaceMuted: "#6a7282", // secondary icon colour / muted text
 
+  // ─── Surface / Background (extended) ────────────────────
+  surfaceLight: "#f0f1f3",  // category card bg, light surface backgrounds
+
   // ─── Misc ─────────────────────────────────────────────────
   star: "#F59E0B",          // amber star for ratings
+  starLight: "#fde68a",     // star accent on dark backgrounds
   availableBg: "#d1fae5",   // light green badge background
   whiteOverlay: "rgba(255,255,255,0.18)", // translucent white for button overlays
+  shadow: "#000000",        // shadow color
+  cyan: "#06b6d4",          // stat card icon background
+  purple: "#a855f7",        // stat card icon background
+  darkText: "#141118",      // dark text for contrast (reorder button etc.)
+  dayText: "#111827",       // calendar day text
+
+  // ─── Feedback (extended) ──────────────────────────────────
+  errorToast: "#D9534F",    // toast error background
+  disabledCalText: "#D1D5DB", // disabled date text in calendars
 
   // ─── Technician status / header overlays ─────────────────
   brandAccentText: "#7dd3fc", // sky-blue accent for header "IT" wordmark

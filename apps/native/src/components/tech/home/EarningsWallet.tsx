@@ -16,7 +16,7 @@ export default function EarningsWallet() {
         style={{
           borderWidth: 1,
           borderColor: Colors.borderLight,
-          shadowColor: "#000",
+          shadowColor: Colors.shadow,
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.04,
           shadowRadius: 4,

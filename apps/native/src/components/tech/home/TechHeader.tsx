@@ -50,7 +50,7 @@ function TechHeaderPolygons() {
       {/* Small top-left accent */}
       <Polygon
         points={`0,0 ${SCREEN_WIDTH * 0.28},0 ${SCREEN_WIDTH * 0.15},${HEADER_HEIGHT * 0.35} 0,${HEADER_HEIGHT * 0.2}`}
-        fill="#7dd3fc"
+        fill={Colors.brandAccentText}
         opacity={0.1}
       />
 
@@ -82,7 +82,7 @@ export default function TechHeader() {
         paddingBottom: 16,
         paddingTop: 8,
         overflow: "hidden",
-        shadowColor: "#000",
+        shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.18,
         shadowRadius: 10,
@@ -101,7 +101,7 @@ export default function TechHeader() {
           style={{
             fontFamily: "GoogleSans_700Bold",
             fontSize: 22,
-            color: "#ffffff",
+            color: Colors.white,
           }}
         >
           Fix
@@ -109,7 +109,7 @@ export default function TechHeader() {
             style={{
               fontFamily: "GoogleSans_700Bold",
               fontSize: 26,
-              color: "#7dd3fc",
+              color: Colors.brandAccentText,
             }}
           >
             IT
@@ -119,7 +119,7 @@ export default function TechHeader() {
             style={{
               fontFamily: "GoogleSans_700Bold",
               fontSize: 22,
-              color: "rgba(255,255,255,0.85)",
+              color: "rgba(255,255,255,0.85)", // no exact token — intentionally brighter than overlayBright
             }}
           >
             Technicians
@@ -131,14 +131,14 @@ export default function TechHeader() {
           <View className="flex-row items-center gap-1.5">
             <Text
               className="font-bold uppercase text-xs"
-              style={{ color: profile.isOnline ? "#86efac" : "rgba(255,255,255,0.5)" }}
+              style={{ color: profile.isOnline ? Colors.onlineGreen : "rgba(255,255,255,0.5)" }}
             >
               {profile.isOnline ? "Online" : "Offline"}
             </Text>
             <View
               className="h-2 w-2 rounded-full"
               style={{
-                backgroundColor: profile.isOnline ? "#86efac" : "rgba(255,255,255,0.4)",
+                backgroundColor: profile.isOnline ? Colors.onlineGreen : Colors.overlayDim,
               }}
             />
           </View>
@@ -146,10 +146,10 @@ export default function TechHeader() {
           {/* Notification bell */}
           <TouchableOpacity
             className="h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+            style={{ backgroundColor: Colors.overlayMd }}
             activeOpacity={0.7}
           >
-            <Bell size={20} color="#ffffff" strokeWidth={1.8} />
+            <Bell size={20} color={Colors.white} strokeWidth={1.8} />
             {/* Notification dot */}
             <View
               className="absolute right-2 top-2 h-2 w-2 rounded-full"
@@ -163,18 +163,18 @@ export default function TechHeader() {
       <Animated.View
         entering={FadeInDown.delay(100).duration(400)}
         className="flex-row items-center justify-between rounded-2xl p-4"
-        style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+        style={{ backgroundColor: Colors.overlaySm }}
       >
         <View className="flex-row items-center gap-3">
           {/* Avatar — amber so it stands out on the blue background */}
           <View className="relative">
             <View
               className="h-12 w-12 items-center justify-center rounded-full"
-              style={{ backgroundColor: "#f59e0b" }}
+              style={{ backgroundColor: Colors.star }}
             >
               <Text
                 className="font-bold text-base"
-                style={{ color: "#ffffff" }}
+                style={{ color: Colors.white }}
               >
                 {profile.avatarInitials}
               </Text>
@@ -184,7 +184,7 @@ export default function TechHeader() {
               className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2"
               style={{
                 borderColor: Colors.brandDark,
-                backgroundColor: profile.isOnline ? "#86efac" : "rgba(255,255,255,0.4)",
+                backgroundColor: profile.isOnline ? Colors.onlineGreen : Colors.overlayDim,
               }}
             />
           </View>
@@ -193,13 +193,13 @@ export default function TechHeader() {
             <Text
               style={{
                 fontFamily: "GoogleSans_600SemiBold",
-                color: "#ffffff",
+                color: Colors.white,
                 fontWeight: "700",
               }}
             >
               {profile.name}
             </Text>
-            <Text style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
+            <Text style={{ fontSize: 12, color: Colors.overlayBright }}>
               {profile.specialty}
             </Text>
           </View>
@@ -208,15 +208,15 @@ export default function TechHeader() {
         {/* Rating */}
         <View className="items-end">
           <View className="flex-row items-center gap-1">
-            <Star size={14} color="#fde68a" fill="#fde68a" strokeWidth={0} />
+            <Star size={14} color={Colors.starLight} fill={Colors.starLight} strokeWidth={0} />
             <Text
               className="text-sm font-bold"
-              style={{ color: "#ffffff" }}
+              style={{ color: Colors.white }}
             >
               {profile.rating}
             </Text>
           </View>
-          <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>
+          <Text style={{ fontSize: 10, color: Colors.overlaySub }}>
             {profile.reviewCount} reviews
           </Text>
         </View>

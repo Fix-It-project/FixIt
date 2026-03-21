@@ -4,7 +4,7 @@ import { Text } from "@/src/components/ui/text";
 interface StatCardProps {
   readonly icon: React.ReactNode;
   readonly label: string;
-  readonly value: string;
+  readonly value: string | number;
 }
 
 export default function StatCard({ icon, label, value }: StatCardProps) {

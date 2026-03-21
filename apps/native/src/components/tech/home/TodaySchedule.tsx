@@ -5,6 +5,7 @@ import {
   Hammer,
   Sparkles,
   MapPin,
+  type LucideIcon,
 } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { TODAY_SCHEDULE } from "@/src/lib/mock-data/tech";
@@ -13,7 +14,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 
 /** Map icon name strings to actual lucide components */
-const ICON_MAP: Record<string, React.ComponentType<any>> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Zap,
   Hammer,
   Sparkles,
@@ -66,7 +67,7 @@ function ScheduleCard({
           borderWidth: 1,
           borderColor: isInProgress ? `${Colors.brand}30` : Colors.borderLight,
           opacity: isInProgress ? 1 : 0.85,
-          shadowColor: "#000",
+          shadowColor: Colors.shadow,
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.04,
           shadowRadius: 4,

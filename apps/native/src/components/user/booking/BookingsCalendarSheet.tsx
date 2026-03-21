@@ -88,7 +88,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
           className="flex-row items-center gap-1.5 self-end rounded-xl px-3 py-2"
           style={{
             backgroundColor: Colors.brandLight,
-            shadowColor: "#000",
+            shadowColor: Colors.shadow,
             shadowOffset: { width: 0, height: 1 },
             shadowOpacity: 0.08,
             shadowRadius: 3,
