@@ -9,6 +9,7 @@ import {
   User,
 } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
+import { TAB_BAR_STYLE, TAB_BAR_LABEL_STYLE } from "@/src/lib/tab-bar-config";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function TechAppLayout() {
@@ -30,25 +31,14 @@ export default function TechAppLayout() {
         headerShown: false,
         tabBarActiveTintColor: Colors.brand,
         tabBarInactiveTintColor: Colors.textMuted,
-        tabBarStyle: {
-          backgroundColor: Colors.white,
-          borderTopWidth: 0,
-          height: 80,
-          paddingBottom: 20,
-          paddingTop: 8,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.06,
-          shadowRadius: 8,
-          elevation: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
-          marginTop: 2,
-        },
+        tabBarStyle: TAB_BAR_STYLE,
+        tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
       }}
     >
+      <Tabs.Screen
+        name="(bookings)"
+        options={{ tabBarButton: () => null, tabBarItemStyle: { display: "none" } }}
+      />
       <Tabs.Screen
         name="index"
         options={{
@@ -59,7 +49,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="schedule"
+        name="(schedule)"
         options={{
           title: "Schedule",
           tabBarIcon: ({ color, size }) => (
@@ -68,7 +58,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="chatbot"
+        name="(chatbot)"
         options={{
           title: "",
           tabBarIcon: ({ focused }) => (
@@ -93,7 +83,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="wallet"
+        name="(wallet)"
         options={{
           title: "Wallet",
           tabBarIcon: ({ color, size }) => (
@@ -102,7 +92,7 @@ export default function TechAppLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(profile)"
         options={{
           title: "My Profile",
           tabBarIcon: ({ color, size }) => (

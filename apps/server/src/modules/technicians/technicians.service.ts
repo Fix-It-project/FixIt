@@ -3,6 +3,7 @@ import { toDTO } from './technicians.repository.js';
 import type { ICategoriesRepository } from '../categories/categories.repository.js';
 import { sortByDistance } from '../../shared/utils/technicians/index.js';
 import type { IStorageRepository } from '../../shared/storage/storage.repository.js';
+import { supabaseAdmin } from '../../shared/db/supabase.js';
 
 export interface ITechniciansService {
   getTechniciansByCategory(categoryId: string, userLat?: number, userLng?: number): Promise<TechnicianListDTO[]>;
@@ -46,13 +47,18 @@ export class TechniciansService implements ITechniciansService {
       throw Object.assign(new Error('Technician not found'), { status: 404 });
     }
 
+    const [{ count: totalBookings }, { count: completedOrders }] = await Promise.all([
+      supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('technician_id', id),
+      supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('technician_id', id).eq('status', 'completed'),
+    ]);
+
     return {
       name: `${technician.first_name} ${technician.last_name}`,
-      profilePicture: null,
-      description: 'No description available',
-      completedOrders: 'N/A',
-      totalBookings: 'N/A',
-      reviews: 'No reviews yet',
+      profilePicture: technician.profile_image ?? null,
+      description: technician.description ?? 'No description available',
+      completedOrders: Number(completedOrders ?? 0),
+      totalBookings: Number(totalBookings ?? 0),
+      reviews: 0,
       phoneNumber: technician.phone ?? 'Not provided',
     };
   }

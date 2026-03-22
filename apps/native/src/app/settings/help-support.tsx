@@ -1,6 +1,8 @@
 import { View, ScrollView, Linking, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Mail, MessageCircle, CircleHelp } from "lucide-react-native";
+import { Separator } from "@/src/components/ui/separator";
+import { Mail, MessageCircle, CircleHelp, type LucideIcon } from "lucide-react-native";
+import { Colors } from "@/src/lib/colors";
 
 function ContactItem({
   icon: Icon,
@@ -8,7 +10,7 @@ function ContactItem({
   value,
   onPress,
 }: {
-  icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
+  icon: LucideIcon;
   label: string;
   value: string;
   onPress: () => void;
@@ -20,7 +22,7 @@ function ContactItem({
       className="flex-row items-center gap-3 py-3.5"
     >
       <View className="h-10 w-10 items-center justify-center rounded-full bg-brand-light">
-        <Icon size={18} color="#036ded" strokeWidth={1.8} />
+        <Icon size={18} color={Colors.brand} strokeWidth={1.8} />
       </View>
       <View className="flex-1">
         <Text className="text-[13px] text-content-muted">{label}</Text>
@@ -35,7 +37,7 @@ export default function HelpSupportScreen() {
     <ScrollView className="flex-1 bg-surface-gray" contentContainerClassName="px-5 py-6 gap-4">
       <View className="rounded-2xl bg-surface-white px-5 py-6 shadow-sm" style={{ elevation: 2 }}>
         <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-brand-light">
-          <CircleHelp size={28} color="#036ded" strokeWidth={1.8} />
+          <CircleHelp size={28} color={Colors.brand} strokeWidth={1.8} />
         </View>
         <Text className="text-lg font-bold text-content">Help & Support</Text>
         <Text className="mt-2 text-[14px] leading-5 text-content-muted">
@@ -50,7 +52,7 @@ export default function HelpSupportScreen() {
           value="support@fixit.app"
           onPress={() => Linking.openURL("mailto:support@fixit.app")}
         />
-        <View className="h-px bg-edge-outline" />
+        <Separator />
         <ContactItem
           icon={MessageCircle}
           label="WhatsApp"

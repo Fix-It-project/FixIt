@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { View, ActivityIndicator } from "react-native";
-import { MapPin, Navigation, Building2, Home } from "lucide-react-native";
+import { ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { techStep5Schema, type TechStep5Data } from "@/src/schemas/auth-schema";
+import { techStep5Schema, type TechStep5Data } from "@/src/services/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useTechnicianSignUpMutation } from "@/src/hooks/auth/useTechnicianSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
-import FormInput from "@/src/components/auth/FormInput";
-import DocumentUploadField from "@/src/components/auth/DocumentUploadField";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
+import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
+import AddressFormSection from "@/src/components/shared/AddressFormSection";
+import DocumentUploadField from "@/src/components/shared/auth/DocumentUploadField";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 
@@ -52,16 +51,13 @@ export default function TechnicianSignUpStep5() {
 
     store.setStep5Data(result.data);
 
-    const { firstName, lastName, email, phone, password, categories } =
-      useTechnicianSignupStore.getState();
-
     signUpMutation.mutate({
-      email,
-      password,
-      firstName,
-      lastName,
-      phone,
-      categoryId: categories[0] ?? "",
+      email: store.email,
+      password: store.password,
+      firstName: store.firstName,
+      lastName: store.lastName,
+      phone: store.phone,
+      categoryId: store.categories[0] ?? "",
       city,
       street: address,
       buildingNumber,
@@ -116,55 +112,25 @@ export default function TechnicianSignUpStep5() {
         required
       />
 
-      <FormInput
-        label="City"
-        value={city}
-        onChangeText={(text) => { setCity(text); clearFieldError("city"); }}
-        placeholder="e.g. Cairo"
-        icon={MapPin}
-        error={fieldErrors.city}
+      <AddressFormSection
+        city={city}
+        onCityChange={(text) => { setCity(text); clearFieldError("city"); }}
+        street={address}
+        onStreetChange={(text) => { setAddress(text); clearFieldError("address"); }}
+        buildingNumber={buildingNumber}
+        onBuildingNumberChange={(text) => { setBuildingNumber(text); clearFieldError("buildingNumber"); }}
+        apartmentNumber={apartmentNumber}
+        onApartmentNumberChange={(text) => { setApartmentNumber(text); clearFieldError("apartmentNumber"); }}
+        errors={{
+          city: fieldErrors.city,
+          street: fieldErrors.address,
+          buildingNumber: fieldErrors.buildingNumber,
+          apartmentNumber: fieldErrors.apartmentNumber,
+        }}
         disabled={signUpMutation.isPending}
-        required
+        streetLabel="Address"
+        buildingRequired
       />
-
-      <FormInput
-        label="Address"
-        value={address}
-        onChangeText={(text) => { setAddress(text); clearFieldError("address"); }}
-        placeholder="Street address or area"
-        icon={Navigation}
-        error={fieldErrors.address}
-        disabled={signUpMutation.isPending}
-        required
-      />
-
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <FormInput
-            label="Building No."
-            value={buildingNumber}
-            onChangeText={(text) => { setBuildingNumber(text); clearFieldError("buildingNumber"); }}
-            placeholder="e.g. 12"
-            icon={Building2}
-            error={fieldErrors.buildingNumber}
-            disabled={signUpMutation.isPending}
-            keyboardType="numeric"
-            required
-          />
-        </View>
-        <View className="flex-1">
-          <FormInput
-            label="Apartment No."
-            value={apartmentNumber}
-            onChangeText={(text) => { setApartmentNumber(text); clearFieldError("apartmentNumber"); }}
-            placeholder="e.g. 5A"
-            icon={Home}
-            error={fieldErrors.apartmentNumber}
-            disabled={signUpMutation.isPending}
-            required
-          />
-        </View>
-      </View>
 
       <Button
         onPress={handleSubmit}

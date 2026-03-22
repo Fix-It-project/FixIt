@@ -44,7 +44,7 @@ export function buildFormData(
 			uri: data.nationalIdUri,
 			type: "image/jpeg",
 			name: "national_id.jpg",
-		} as unknown as Blob);
+		} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
 	}
 
 	if (data.criminalRecordUri) {
@@ -52,7 +52,7 @@ export function buildFormData(
 			uri: data.criminalRecordUri,
 			type: "image/jpeg",
 			name: "criminal_record.jpg",
-		} as unknown as Blob);
+		} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
 	}
 
 	if (data.certificateUri) {
@@ -60,7 +60,7 @@ export function buildFormData(
 			uri: data.certificateUri,
 			type: "image/jpeg",
 			name: "birth_certificate.jpg",
-		} as unknown as Blob);
+		} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
 	}
 
 	return formData;

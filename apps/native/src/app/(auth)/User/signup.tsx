@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import { User, Mail, Phone, MapPin, Navigation, Building2, Home } from "lucide-react-native";
-import { signUpSchema } from "@/src/schemas/auth-schema";
+import { User, Mail, Phone } from "lucide-react-native";
+import { signUpSchema } from "@/src/services/auth/schemas/form.schema";
 import { useSignUpMutation } from "@/src/hooks/auth/useSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useLocationStore } from "@/src/stores/location-store";
-import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
-import FormInput from "@/src/components/auth/FormInput";
-import PasswordInput from "@/src/components/auth/PasswordInput";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
+import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
+import FormInput from "@/src/components/shared/auth/FormInput";
+import AddressFormSection from "@/src/components/shared/AddressFormSection";
+import PasswordInput from "@/src/components/shared/auth/PasswordInput";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
 
-import OAuthDivider from "@/src/components/auth/OAuthDivider";
-import LoginLink from "@/src/components/auth/LoginLink";
+import OAuthDivider from "@/src/components/shared/auth/OAuthDivider";
+import LoginLink from "@/src/components/shared/auth/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 
@@ -130,53 +131,23 @@ export default function SignUp() {
         required
       />
 
-      <FormInput
-        label="City"
-        value={city}
-        onChangeText={(text) => { setCity(text); clearFieldError("city"); }}
-        placeholder="e.g. Cairo"
-        icon={MapPin}
-        error={fieldErrors.city}
+      <AddressFormSection
+        city={city}
+        onCityChange={(text) => { setCity(text); clearFieldError("city"); }}
+        street={street}
+        onStreetChange={(text) => { setStreet(text); clearFieldError("street"); }}
+        buildingNumber={buildingNumber}
+        onBuildingNumberChange={(text) => { setBuildingNumber(text); clearFieldError("buildingNumber"); }}
+        apartmentNumber={apartmentNumber}
+        onApartmentNumberChange={(text) => { setApartmentNumber(text); clearFieldError("apartmentNumber"); }}
+        errors={{
+          city: fieldErrors.city,
+          street: fieldErrors.street,
+          buildingNumber: fieldErrors.buildingNumber,
+          apartmentNumber: fieldErrors.apartmentNumber,
+        }}
         disabled={signUpMutation.isPending}
-        required
       />
-
-      <FormInput
-        label="Street Address"
-        value={street}
-        onChangeText={(text) => { setStreet(text); clearFieldError("street"); }}
-        placeholder="Street address or area"
-        icon={Navigation}
-        error={fieldErrors.street}
-        disabled={signUpMutation.isPending}
-        required
-      />
-
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <FormInput
-            label="Building No."
-            value={buildingNumber}
-            onChangeText={(text) => { setBuildingNumber(text); clearFieldError("buildingNumber"); }}
-            placeholder="e.g. 12"
-            icon={Building2}
-            error={fieldErrors.buildingNumber}
-            disabled={signUpMutation.isPending}
-            keyboardType="numeric"
-          />
-        </View>
-        <View className="flex-1">
-          <FormInput
-            label="Apartment No."
-            value={apartmentNumber}
-            onChangeText={(text) => { setApartmentNumber(text); clearFieldError("apartmentNumber"); }}
-            placeholder="e.g. 5A"
-            icon={Home}
-            error={fieldErrors.apartmentNumber}
-            disabled={signUpMutation.isPending}
-          />
-        </View>
-      </View>
 
       <Button
         onPress={handleSignUp}

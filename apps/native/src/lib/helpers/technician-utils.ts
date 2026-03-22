@@ -13,6 +13,24 @@ export function getAvatarColor(id: string): string {
   return AVATAR_COLORS[seededIndex(id, AVATAR_COLORS.length)];
 }
 
+const SPECIALTIES = [
+  "Technician", "Specialist", "Expert", "Installation Specialist",
+  "Maintenance Expert", "Repair Specialist",
+];
+
+/**
+ * Derive deterministic extras from a technician ID.
+ * Replaced by real API data later.
+ */
+export function deriveTechnicianExtras(id: string) {
+  return {
+    specialty: SPECIALTIES[seededIndex(`${id}s`, SPECIALTIES.length)],
+    rating: +(4.5 + (seededIndex(`${id}r`, 5) * 0.1)).toFixed(1),
+    reviewCount: 50 + seededIndex(`${id}c`, 280),
+    yearsExp: 3 + seededIndex(`${id}y`, 15),
+  };
+}
+
 /** Build a readable location label: "2.3 km · Cairo, Main St" */
 export function formatLocation(
   distanceKm: number | null,

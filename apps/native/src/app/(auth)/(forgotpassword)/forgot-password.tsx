@@ -3,16 +3,16 @@ import { View, Pressable } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
-import { forgotPasswordSchema } from "@/src/schemas/auth-schema";
+import { forgotPasswordSchema } from "@/src/services/auth/schemas/form.schema";
 import { useForgotPasswordMutation } from "@/src/hooks/auth/useForgotPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useCooldownTimer } from "@/src/hooks/auth/useCooldownTimer";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import EmailEntryView from "@/src/components/auth/forgot-password/EmailEntryView";
-import CheckInboxView from "@/src/components/auth/forgot-password/CheckInboxView";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import EmailEntryView from "@/src/components/shared/auth/forgot-password/EmailEntryView";
+import CheckInboxView from "@/src/components/shared/auth/forgot-password/CheckInboxView";
 
 const COOLDOWN_SECONDS = 30;
 

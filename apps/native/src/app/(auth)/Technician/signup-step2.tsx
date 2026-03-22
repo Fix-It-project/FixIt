@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { Phone } from "lucide-react-native";
-import { techStep2Schema } from "@/src/schemas/auth-schema";
+import { techStep2Schema } from "@/src/services/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import AuthPageLayout from "@/src/components/auth/AuthPageLayout";
-import FormInput from "@/src/components/auth/FormInput";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
+import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
+import FormInput from "@/src/components/shared/auth/FormInput";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
 
 
 export default function TechnicianSignUpStep2() {

@@ -1,18 +1,19 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, type Href } from "expo-router";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { StatusBar } from "expo-status-bar";
-import { ArrowLeft, AlertCircle } from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
-import { resetPasswordSchema } from "@/src/schemas/auth-schema";
+import { resetPasswordSchema } from "@/src/services/auth/schemas/form.schema";
 import { useResetPasswordMutation } from "@/src/hooks/auth/useResetPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import ErrorBanner from "@/src/components/auth/ErrorBanner";
-import PasswordInput from "@/src/components/auth/PasswordInput";
+import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import InvalidResetLinkView from "@/src/components/shared/auth/InvalidResetLinkView";
+import PasswordInput from "@/src/components/shared/auth/PasswordInput";
 
 export default function ResetPassword() {
   const { access_token, refresh_token, userType } = useLocalSearchParams<{
@@ -45,7 +46,7 @@ export default function ResetPassword() {
     ? getErrorMessage(resetMutation.error)
     : null;
 
-  const loginRoute =
+  const loginRoute: Href =
     userType === "technician"
       ? "/(auth)/Technician/login"
       : "/(auth)/User/login";
@@ -55,55 +56,7 @@ export default function ResetPassword() {
 
   // ─── Invalid Link State ─────────────────────────────────────────────────────
   if (!access_token || !refresh_token) {
-    return (
-      <View className="flex-1 bg-brand-light">
-        <StatusBar style="dark" />
-
-        {/* Top Bar */}
-        <View className="flex-row items-center px-4 pt-6 pb-2">
-          <Pressable
-            onPress={() => router.back()}
-            className="h-10 w-10 items-center justify-center rounded-full active:opacity-70"
-          >
-            <ArrowLeft size={24} color={Colors.textPrimary} />
-          </Pressable>
-        </View>
-
-        {/* Header */}
-        <View className="px-7 mt-2 mb-6">
-          <Text className="text-[26px] font-bold text-content mb-2">
-            Invalid Link
-          </Text>
-          <Text className="text-[15px] text-content-secondary leading-[22px]">
-            This password reset link is invalid or has expired
-          </Text>
-        </View>
-
-        {/* Icon */}
-        <View className="items-center mt-6">
-          <View className="h-20 w-20 rounded-full bg-red-100 items-center justify-center">
-            <AlertCircle size={40} color={Colors.error} />
-          </View>
-          <Text className="text-[14px] text-content-secondary mt-4 text-center px-10 leading-[20px]">
-            Please request a new password reset link from the login page.
-          </Text>
-        </View>
-
-        {/* Spacer */}
-        <View className="flex-1" />
-
-        {/* Bottom Button */}
-        <View className="px-7 pb-10">
-          <Button
-            variant="outline"
-            onPress={() => router.replace(loginRoute as any)}
-            className="border-2 border-brand"
-          >
-            <BtnText className="text-brand">Back to Login</BtnText>
-          </Button>
-        </View>
-      </View>
-    );
+    return <InvalidResetLinkView loginRoute={loginRoute} />;
   }
 
   // ─── Reset Password Form ────────────────────────────────────────────────────
@@ -178,7 +131,7 @@ export default function ResetPassword() {
         {/* ── Back to Login link ──────────────────────────────────────── */}
         <View className="items-center mb-4">
           <Pressable
-            onPress={() => router.replace(loginRoute as any)}
+            onPress={() => router.replace(loginRoute)}
             className="flex-row items-center gap-1 active:opacity-70"
           >
             <ArrowLeft size={16} color={Colors.textSecondary} />
