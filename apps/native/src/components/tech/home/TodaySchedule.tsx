@@ -1,36 +1,23 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import {
-  Zap,
-  Hammer,
-  Sparkles,
-  MapPin,
-  type LucideIcon,
-} from "lucide-react-native";
+import { ClipboardList } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { TODAY_SCHEDULE } from "@/src/lib/mock-data/tech";
-import type { ScheduleItem } from "@/src/lib/mock-data/tech";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
-
-/** Map icon name strings to actual lucide components */
-const ICON_MAP: Record<string, LucideIcon> = {
-  Zap,
-  Hammer,
-  Sparkles,
-};
+import { useTodaysAcceptedOrders } from "@/src/hooks/tech/useTechOrders";
+import { useTechnicianOrdersQuery } from "@/src/hooks/tech/useCalendar";
+import type { TechnicianOrder } from "@/src/services/tech-calendar/schemas/response.schema";
 
 function ScheduleCard({
   item,
   index,
   isLast,
 }: {
-  item: ScheduleItem;
+  item: TechnicianOrder;
   index: number;
   isLast: boolean;
 }) {
-  const isInProgress = item.status === "in-progress";
-  const IconComponent = ICON_MAP[item.icon] || Zap;
+  const isInProgress = index === 0;
 
   return (
     <Animated.View
@@ -39,7 +26,6 @@ function ScheduleCard({
     >
       {/* Timeline column */}
       <View className="mr-3 items-center" style={{ width: 24 }}>
-        {/* Dot */}
         <View
           className="h-6 w-6 rounded-full border-4"
           style={{
@@ -47,15 +33,10 @@ function ScheduleCard({
             borderColor: Colors.surfaceGray,
           }}
         />
-        {/* Line */}
         {!isLast && (
           <View
             className="flex-1"
-            style={{
-              width: 2,
-              backgroundColor: Colors.borderLight,
-              marginTop: -2,
-            }}
+            style={{ width: 2, backgroundColor: Colors.borderLight, marginTop: -2 }}
           />
         )}
       </View>
@@ -75,38 +56,31 @@ function ScheduleCard({
         }}
       >
         <View className="mb-2 flex-row items-start justify-between">
-          <View>
+          <View className="flex-1 mr-2">
             <Text
               className="mb-0.5 text-[10px] font-bold uppercase"
-              style={{
-                color: isInProgress ? Colors.brand : Colors.textMuted,
-              }}
+              style={{ color: isInProgress ? Colors.brand : Colors.textMuted }}
             >
               {isInProgress ? "In Progress" : "Upcoming"}
             </Text>
             <Text
               className="font-bold text-content"
               style={{ fontFamily: "GoogleSans_600SemiBold" }}
-              numberOfLines={1}
+              numberOfLines={2}
             >
-              {item.clientName}
+              {item.problem_description ?? "Service Request"}
             </Text>
           </View>
-          <IconComponent
+          <ClipboardList
             size={20}
             color={isInProgress ? Colors.brand : Colors.textMuted}
             strokeWidth={1.8}
           />
         </View>
 
-        <Text className="mb-2 text-xs text-content-muted" numberOfLines={1}>
-          {item.serviceType} • {item.time}
+        <Text className="text-xs text-content-muted">
+          Scheduled for today
         </Text>
-
-        <View className="flex-row items-center gap-1.5">
-          <MapPin size={10} color={Colors.textMuted} strokeWidth={2} />
-          <Text className="flex-1 text-[10px] text-content-muted" numberOfLines={1}>{item.location}</Text>
-        </View>
       </View>
     </Animated.View>
   );
@@ -114,6 +88,8 @@ function ScheduleCard({
 
 export default function TodaySchedule() {
   const router = useRouter();
+  const todaysOrders = useTodaysAcceptedOrders();
+  const { isLoading } = useTechnicianOrdersQuery();
 
   return (
     <View className="mt-6 px-4">
@@ -123,27 +99,36 @@ export default function TodaySchedule() {
         </Text>
         <TouchableOpacity onPress={() => router.push("/(tech-app)/(bookings)")} activeOpacity={0.7}>
           <Text
-            style={{
-              fontFamily: "GoogleSans_600SemiBold",
-              fontSize: 12,
-              color: Colors.brand,
-            }}
+            style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 12, color: Colors.brand }}
           >
             View All
           </Text>
         </TouchableOpacity>
       </View>
 
-      <View>
-        {TODAY_SCHEDULE.map((item, index) => (
-          <ScheduleCard
-            key={item.id}
-            item={item}
-            index={index}
-            isLast={index === TODAY_SCHEDULE.length - 1}
-          />
-        ))}
-      </View>
+      {isLoading ? (
+        <View className="items-center py-6">
+          <ActivityIndicator color={Colors.brand} />
+        </View>
+      ) : todaysOrders.length === 0 ? (
+        <View
+          className="items-center rounded-2xl bg-white px-4 py-6"
+          style={{ borderWidth: 1, borderColor: Colors.borderLight }}
+        >
+          <Text className="text-sm text-content-muted">No bookings for today</Text>
+        </View>
+      ) : (
+        <View>
+          {todaysOrders.map((item, index) => (
+            <ScheduleCard
+              key={item.id}
+              item={item}
+              index={index}
+              isLast={index === todaysOrders.length - 1}
+            />
+          ))}
+        </View>
+      )}
     </View>
   );
 }

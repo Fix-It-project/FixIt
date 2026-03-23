@@ -25,6 +25,7 @@ export const technicianOrderSchema = z.object({
   scheduled_date: z.string(),
   active: z.boolean(),
   created_at: z.string(),
+  user_address: z.string().nullable().optional(),
 });
 
 export const getTemplatesResponseSchema = z.object({
@@ -42,6 +43,9 @@ export const exceptionResponseSchema = z.object({
 export const getTechnicianOrdersResponseSchema = z.object({
   data: z.array(technicianOrderSchema),
 });
+export const technicianOrderResponseSchema = z.object({
+  data: technicianOrderSchema,
+});
 export const publicScheduleResponseSchema = z.object({
   data: z.object({
     templates: z.array(availabilityTemplateSchema),
@@ -57,4 +61,5 @@ export type TemplateResponse = z.infer<typeof templateResponseSchema>;
 export type GetExceptionsResponse = z.infer<typeof getExceptionsResponseSchema>;
 export type ExceptionResponse = z.infer<typeof exceptionResponseSchema>;
 export type GetTechnicianOrdersResponse = z.infer<typeof getTechnicianOrdersResponseSchema>;
+export type TechnicianOrderResponse = z.infer<typeof technicianOrderResponseSchema>;
 export type PublicScheduleResponse = z.infer<typeof publicScheduleResponseSchema>;

@@ -22,6 +22,7 @@ export interface Order {
   scheduled_date: string;
   active: boolean;
   created_at: string;
+  user_address?: string | null;
 }
 
 export interface CreateOrderData {
@@ -75,12 +76,21 @@ export class OrdersRepository {
   async getTechnicianOrders(technicianId: string): Promise<Order[]> {
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('*, addresses(city, street, building_no)')
       .eq('technician_id', technicianId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data ?? []) as Order[];
+
+    return (data ?? []).map((row: any) => {
+      const addr = Array.isArray(row.addresses) ? row.addresses[0] : null;
+      const parts = [addr?.building_no, addr?.street, addr?.city].filter(Boolean);
+      return {
+        ...row,
+        addresses: undefined,
+        user_address: parts.length > 0 ? parts.join(', ') : null,
+      };
+    }) as Order[];
   }
 
   async getOrderById(id: string): Promise<Order | null> {
