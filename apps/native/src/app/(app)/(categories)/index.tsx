@@ -15,7 +15,7 @@ export default function CategoriesScreen() {
 
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
-      pathname: "/(app)/(technicians)/list",
+      pathname: "/(app)/(services)/list",
       params: { categoryId, categoryName },
     });
   };
