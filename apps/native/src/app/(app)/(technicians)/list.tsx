@@ -78,9 +78,11 @@ function TechnicianListBody({
 }
 
 export default function TechniciansListScreen() {
-  const { categoryId, categoryName } = useLocalSearchParams<{
+  const { categoryId, categoryName, serviceId, serviceName } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
+    serviceId: string;
+    serviceName: string;
   }>();
 
   const { searchText, setSearchText, activeSort, setActiveSort } = useTechnicianSearchStore();
@@ -130,12 +132,11 @@ export default function TechniciansListScreen() {
 
   const handleBookPress = useCallback(
     (technicianId: string, name: string) => {
-      // Pass the categoryId as the service_id directly into the booking sheet
-      if (categoryId) {
-        bookingSheetRef.current?.open(technicianId, name, categoryId);
+      if (serviceId) {
+        bookingSheetRef.current?.open(technicianId, name, serviceId);
       }
     },
-    [categoryId],
+    [serviceId],
   );
 
   return (
@@ -152,7 +153,7 @@ export default function TechniciansListScreen() {
                 style={{ fontFamily: "GoogleSans_700Bold" }}
                 numberOfLines={1}
               >
-                {categoryName ?? "Technicians"}
+                {serviceName ?? categoryName ?? "Technicians"}
               </Text>
               <Text
                 className="text-[12px] text-white/70"

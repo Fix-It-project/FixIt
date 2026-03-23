@@ -22,10 +22,9 @@ export default function Home() {
   const addNewAddressSheetRef = useRef<AddNewAddressSheetRef>(null);
   const { data: categories, isLoading: categoriesLoading } = useCategoriesQuery();
 
-  // Incoming change: categoryName now passed directly instead of looked up via CATEGORIES.find()
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
     router.push({
-      pathname: "/(app)/(technicians)/list",
+      pathname: "/(app)/(services)/list",
       params: {
         categoryId,
         categoryName,
