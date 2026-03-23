@@ -7,7 +7,10 @@ export class OrdersController {
   async createOrder(req: Request, res: Response) {
     try {
       const user = (req as any).user;
-      const order = await ordersService.createOrderForUser(user.id, req.body);
+      const order = await ordersService.createOrderForUser(user.id, {
+        ...req.body,
+        attachment: req.file,
+      });
       return res.status(201).json({ data: order });
     } catch (err: any) {
       return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });

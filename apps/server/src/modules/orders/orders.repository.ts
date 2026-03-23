@@ -17,6 +17,8 @@ export interface Order {
   service_id: string;
   status: OrderStatus;
   problem_description: string | null;
+  attachment: string | null;
+  cancellation_reason: string | null;
   scheduled_date: string;
   active: boolean;
   created_at: string;
@@ -27,12 +29,15 @@ export interface CreateOrderData {
   user_id: string;
   service_id: string;
   problem_description?: string;
+  attachment?: string;
   scheduled_date: string;
 }
 
 export interface UpdateOrderData {
   status?: OrderStatus;
   active?: boolean;
+  cancellation_reason?: string | null;
+  attachment?: string | null;
 }
 
 export class OrdersRepository {
@@ -44,6 +49,7 @@ export class OrdersRepository {
         user_id: data.user_id,
         service_id: data.service_id,
         problem_description: data.problem_description ?? null,
+        attachment: data.attachment ?? null,
         status: 'pending',
         scheduled_date: data.scheduled_date,
         active: false,
@@ -125,6 +131,8 @@ export class OrdersRepository {
     const updates: Record<string, any> = {};
     if (dto.status !== undefined) updates.status = dto.status;
     if (dto.active !== undefined) updates.active = dto.active;
+    if (dto.cancellation_reason !== undefined) updates.cancellation_reason = dto.cancellation_reason;
+    if (dto.attachment !== undefined) updates.attachment = dto.attachment;
 
     const { data, error } = await supabase
       .from('orders')

@@ -10,6 +10,7 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
     CORS_ORIGIN: z.string().url(),
     STORAGE_BUCKET: z.string().min(1),
+    ORDER_BUCKET: z.string().min(1),
     PORT: z.coerce.number().default(3000),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   },
