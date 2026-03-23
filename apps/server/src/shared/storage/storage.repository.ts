@@ -2,6 +2,7 @@ import { supabaseAdmin } from '../db/supabase.js';
 import { env } from '@FixIt/env/server';
 
 const STORAGE_BUCKET = env.STORAGE_BUCKET;
+const ORDER_BUCKET = env.ORDER_BUCKET;
 
 export type DocumentName = 'criminal_record' | 'birth_certificate' | 'national_id';
 
@@ -18,6 +19,7 @@ export interface IStorageRepository {
     birth_certificate?: string;
     national_id?: string;
   }>;
+  uploadOrderAttachment(orderId: string, file: Express.Multer.File): Promise<string>;
 }
 
 export class StorageRepository implements IStorageRepository {
@@ -73,6 +75,32 @@ export class StorageRepository implements IStorageRepository {
 
     await Promise.all(uploadTasks);
     return uploads;
+  }
+
+  /**
+   * Uploads a single order attachment to the ORDER_BUCKET.
+   * Returns the public URL of the uploaded file.
+   */
+  async uploadOrderAttachment(orderId: string, file: Express.Multer.File): Promise<string> {
+    const ext = file.originalname.split('.').pop();
+    const filePath = `${orderId}/attachment.${ext}`;
+
+    const { error } = await supabaseAdmin.storage
+      .from(ORDER_BUCKET)
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true,
+      });
+
+    if (error) {
+      throw new Error(`Failed to upload order attachment: ${error.message}`);
+    }
+
+    const { data: urlData } = supabaseAdmin.storage
+      .from(ORDER_BUCKET)
+      .getPublicUrl(filePath);
+
+    return urlData.publicUrl;
   }
 }
 
