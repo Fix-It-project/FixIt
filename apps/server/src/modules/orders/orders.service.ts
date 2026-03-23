@@ -85,7 +85,7 @@ export class OrdersService {
       technician_id,
       user_id: userId,
       service_id,
-      problem_description: problem_description || 'General Service Request',
+      problem_description,
       scheduled_date: normalizedDate,
     });
 
