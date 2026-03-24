@@ -63,6 +63,10 @@ export default function AppLayout() {
           options={{ tabBarButton: () => null, tabBarItemStyle: { display: "none" } }}
         />
         <Tabs.Screen
+          name="(booking)"
+          options={{ tabBarButton: () => null, tabBarItemStyle: { display: "none" } }}
+        />
+        <Tabs.Screen
           name="(profile)"
           options={{
             title: "My Profile",

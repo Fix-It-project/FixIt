@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { Search } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
@@ -20,7 +20,6 @@ import TechnicianSortBar, { type SortKey } from "@/src/components/user/browse/Te
 import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/components/user/browse/TechnicianProfileSheet";
-import UserBookingSheet, { type UserBookingSheetRef } from "@/src/components/user/booking/UserBookingSheet";
 import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
 import BackButton from "@/src/components/ui/BackButton";
 
@@ -91,7 +90,6 @@ export default function TechniciansListScreen() {
   const coords = activeSort === "Nearest" ? location : null;
 
   const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
-  const bookingSheetRef = useRef<UserBookingSheetRef>(null);
 
   // TanStack Query – cached & refetchable
   const { data: technicians = [], isLoading, refetch } = useTechniciansQuery(
@@ -132,11 +130,19 @@ export default function TechniciansListScreen() {
 
   const handleBookPress = useCallback(
     (technicianId: string, name: string) => {
-      if (serviceId) {
-        bookingSheetRef.current?.open(technicianId, name, serviceId);
-      }
+      router.push({
+        pathname: "/(app)/(booking)" as any,
+        params: {
+          technicianId,
+          technicianName: name,
+          serviceId,
+          serviceName,
+          categoryId,
+          categoryName,
+        },
+      });
     },
-    [serviceId],
+    [serviceId, serviceName, categoryId, categoryName],
   );
 
   return (
@@ -204,7 +210,6 @@ export default function TechniciansListScreen() {
 
       {/* Sheets */}
       <TechnicianProfileSheet ref={profileSheetRef} />
-      <UserBookingSheet ref={bookingSheetRef} />
     </SafeAreaView>
   );
 }

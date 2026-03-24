@@ -11,6 +11,7 @@ import {
 	getTechnicianOrdersResponseSchema,
 	getTemplatesResponseSchema,
 	publicScheduleResponseSchema,
+	technicianOrderResponseSchema,
 	templateResponseSchema,
 } from "../schemas/response.schema";
 import type {
@@ -112,6 +113,21 @@ export async function getTechnicianOrders(
 		getTechnicianOrdersResponseSchema,
 		response.data,
 		"getTechnicianOrders",
+	).data;
+}
+
+export async function updateTechnicianOrderStatus(
+	orderId: string,
+	status: 'accepted' | 'rejected',
+): Promise<TechnicianOrder> {
+	const response = await apiClient.patch(
+		`/api/orders/technician/orders/${orderId}`,
+		{ status },
+	);
+	return safeParseResponse(
+		technicianOrderResponseSchema,
+		response.data,
+		'updateTechnicianOrderStatus',
 	).data;
 }
 

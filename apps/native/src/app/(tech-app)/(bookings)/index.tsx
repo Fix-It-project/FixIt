@@ -7,11 +7,11 @@ import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-he
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingsQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
-import BookingCard from "@/src/components/user/booking/BookingCard";
-import BookingsEmptyState from "@/src/components/user/booking/BookingsEmptyState";
+import BookingCard from "@/src/components/tech/booking/BookingCard";
+import BookingsEmptyState from "@/src/components/tech/booking/BookingsEmptyState";
 import BookingsHeader, {
   type BookingsHeaderRef,
-} from "@/src/components/user/booking/BookingsHeader";
+} from "@/src/components/tech/booking/BookingsHeader";
 
 export default function BookingsScreen() {
   const { selectedDate } = useBookingsDateStore();

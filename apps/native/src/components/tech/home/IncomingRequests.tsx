@@ -1,133 +1,138 @@
-import { View, ScrollView, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import {
-  Snowflake,
-  Droplets,
-  Zap,
-  MapPin,
-  type LucideIcon,
-} from "lucide-react-native";
+import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { INCOMING_REQUESTS } from "@/src/lib/mock-data/tech";
-import type { IncomingRequest } from "@/src/lib/mock-data/tech";
 import Animated, { FadeInRight } from "react-native-reanimated";
+import { usePendingOrders, useAcceptOrderMutation, useRejectOrderMutation } from "@/src/hooks/tech/useTechOrders";
+import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
+import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
+import { CATEGORIES } from "@/src/lib/categories";
+import RequestDetailsModal from "./RequestDetailsModal";
+import type { TechnicianOrder } from "@/src/services/tech-calendar/schemas/response.schema";
 
 const CARD_WIDTH_RATIO = 0.72;
 
-/** Map icon name strings from mock data to actual lucide components */
-const ICON_MAP: Record<string, LucideIcon> = {
-  Snowflake,
-  Droplets,
-  Zap,
-};
+function timeAgo(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
 
 function RequestCard({
   item,
   index,
   cardWidth,
+  CategoryIcon,
+  categoryColor,
 }: {
-  item: IncomingRequest;
+  item: TechnicianOrder;
   index: number;
   cardWidth: number;
+  CategoryIcon: LucideIcon;
+  categoryColor: string;
 }) {
-  const IconComponent = ICON_MAP[item.icon] || Zap;
+  const openModal = useTechRequestsStore((s) => s.openModal);
+  const acceptMutation = useAcceptOrderMutation();
+  const rejectMutation = useRejectOrderMutation();
+  const isBusy = acceptMutation.isPending || rejectMutation.isPending;
 
   return (
     <Animated.View
       entering={FadeInRight.delay(index * 100).duration(400)}
-      style={{
-        width: cardWidth,
-        marginRight: 12,
-      }}
+      style={{ width: cardWidth, marginRight: 12 }}
     >
-      <View
-        className="rounded-2xl bg-white p-4"
-        style={{
-          borderWidth: item.isHighlighted ? 2 : 1,
-          borderColor: item.isHighlighted ? Colors.brand : Colors.borderLight,
-          shadowColor: item.isHighlighted ? Colors.brand : Colors.shadow,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: item.isHighlighted ? 0.15 : 0.06,
-          shadowRadius: 8,
-          elevation: item.isHighlighted ? 4 : 2,
-        }}
-      >
-        {/* Top row */}
-        <View className="mb-3 flex-row items-start justify-between">
-          <View className="flex-row items-center gap-2">
+      <TouchableOpacity activeOpacity={0.95} onPress={() => openModal(item)}>
+        <View
+          className="rounded-2xl bg-white p-4"
+          style={{
+            borderWidth: 1,
+            borderColor: Colors.borderLight,
+            shadowColor: Colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.06,
+            shadowRadius: 8,
+            elevation: 2,
+          }}
+        >
+          {/* Top row: category icon + title + received time */}
+          <View className="mb-2 flex-row items-center gap-2">
             <View
               className="h-10 w-10 items-center justify-center rounded-xl"
-              style={{ backgroundColor: `${item.iconColor}15` }}
+              style={{ backgroundColor: `${categoryColor}18` }}
             >
-              <IconComponent
-                size={20}
-                color={item.iconColor}
-                strokeWidth={1.8}
-              />
+              <CategoryIcon size={20} color={categoryColor} strokeWidth={1.8} />
             </View>
-            <View className="shrink">
+            <View style={{ flex: 1 }}>
               <Text
                 className="text-sm font-bold text-content"
                 style={{ fontFamily: "GoogleSans_600SemiBold" }}
                 numberOfLines={1}
               >
-                {item.serviceType}
+                Service Request
               </Text>
-              <Text className="text-[10px] uppercase text-content-muted" numberOfLines={1}>
-                {item.distance}
+              <Text className="text-[10px] uppercase text-content-muted">
+                Received {timeAgo(item.created_at)}
               </Text>
             </View>
           </View>
-          <Text
-            className="font-bold"
-            style={{
-              color: item.isHighlighted ? Colors.brand : Colors.textPrimary,
-              fontFamily: "GoogleSans_700Bold",
-            }}
-          >
-            {item.price}
-          </Text>
-        </View>
 
-        {/* Location */}
-        <View className="mb-4 flex-row items-center gap-1.5">
-          <MapPin size={12} color={Colors.textMuted} strokeWidth={2} />
-          <Text
-            className="flex-1 text-xs text-content-muted"
-            numberOfLines={1}
-          >
-            {item.location}
+          {/* Scheduled date */}
+          <Text className="mb-2 text-xs text-content-muted">
+            📅 {item.scheduled_date}
           </Text>
-        </View>
 
-        {/* Action buttons */}
-        <View className="flex-row gap-2">
-          <TouchableOpacity
-            className="flex-1 items-center rounded-xl py-2.5"
-            style={{ backgroundColor: Colors.brand }}
-            activeOpacity={0.85}
+          {/* Problem description — 1 line only */}
+          <Text className="mb-1 text-xs text-content-muted" numberOfLines={1}>
+            {item.problem_description ?? "No description provided."}
+          </Text>
+
+          <Text
+            className="mb-3 text-[11px]"
+            style={{ color: Colors.brand, fontFamily: "GoogleSans_600SemiBold" }}
           >
-            <Text
-              className="text-xs font-bold text-white"
-              style={{ fontFamily: "GoogleSans_600SemiBold" }}
+            Tap to view details →
+          </Text>
+
+          {/* Action buttons */}
+          <View className="flex-row gap-2">
+            <TouchableOpacity
+              className="flex-1 items-center rounded-xl py-2.5"
+              style={{ backgroundColor: isBusy ? Colors.borderLight : Colors.brand }}
+              activeOpacity={0.85}
+              disabled={isBusy}
+              onPress={() => acceptMutation.mutate(item.id)}
             >
-              Accept
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="flex-1 items-center rounded-xl border py-2.5"
-            style={{ borderColor: Colors.borderLight }}
-            activeOpacity={0.7}
-          >
-            <Text
-              className="text-xs font-bold text-content"
-              style={{ fontFamily: "GoogleSans_600SemiBold" }}
+              {acceptMutation.isPending ? (
+                <ActivityIndicator size="small" color={Colors.white} />
+              ) : (
+                <Text className="text-xs font-bold text-white" style={{ fontFamily: "GoogleSans_600SemiBold" }}>
+                  Accept
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-1 items-center rounded-xl border py-2.5"
+              style={{ borderColor: Colors.borderLight, backgroundColor: isBusy ? Colors.surfaceGray : Colors.white }}
+              activeOpacity={0.7}
+              disabled={isBusy}
+              onPress={() => rejectMutation.mutate(item.id)}
             >
-              Decline
-            </Text>
-          </TouchableOpacity>
+              {rejectMutation.isPending ? (
+                <ActivityIndicator size="small" color={Colors.textMuted} />
+              ) : (
+                <Text className="text-xs font-bold text-content" style={{ fontFamily: "GoogleSans_600SemiBold" }}>
+                  Decline
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -135,26 +140,66 @@ function RequestCard({
 export default function IncomingRequests() {
   const { width } = useWindowDimensions();
   const cardWidth = width * CARD_WIDTH_RATIO;
+  const { data: pendingOrders, isLoading } = usePendingOrders();
+  const { data: profile } = useTechSelfProfileQuery();
+
+  const category = CATEGORIES.find(
+    (c) => c.label.toLowerCase() === (profile?.category_name ?? "").toLowerCase(),
+  );
+  const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
+  const categoryColor = category?.color ?? Colors.brand;
 
   return (
     <View className="mt-6">
       {/* Section header */}
-      <View className="mb-3 px-4">
+      <View className="mb-3 flex-row items-center justify-between px-4">
         <Text className="text-xs font-bold uppercase tracking-widest text-content-muted">
           Incoming Requests
         </Text>
+        {pendingOrders.length > 0 && (
+          <View
+            className="h-5 w-5 items-center justify-center rounded-full"
+            style={{ backgroundColor: Colors.brand }}
+          >
+            <Text style={{ fontSize: 10, color: Colors.white, fontFamily: "GoogleSans_700Bold" }}>
+              {pendingOrders.length}
+            </Text>
+          </View>
+        )}
       </View>
 
-      {/* Horizontal scroll */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-      >
-        {INCOMING_REQUESTS.map((item, index) => (
-          <RequestCard key={item.id} item={item} index={index} cardWidth={cardWidth} />
-        ))}
-      </ScrollView>
+      {isLoading ? (
+        <View className="items-center py-6">
+          <ActivityIndicator color={Colors.brand} />
+        </View>
+      ) : pendingOrders.length === 0 ? (
+        <View
+          className="mx-4 items-center rounded-2xl bg-white px-4 py-6"
+          style={{ borderWidth: 1, borderColor: Colors.borderLight }}
+        >
+          <Text className="text-sm text-content-muted">No pending requests</Text>
+        </View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+        >
+          {pendingOrders.map((item, index) => (
+            <RequestCard
+              key={item.id}
+              item={item}
+              index={index}
+              cardWidth={cardWidth}
+              CategoryIcon={CategoryIcon}
+              categoryColor={categoryColor}
+            />
+          ))}
+        </ScrollView>
+      )}
+
+      {/* Single modal instance for all cards */}
+      <RequestDetailsModal />
     </View>
   );
 }

@@ -10,14 +10,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/src/lib/colors';
+import type { DaySchedule } from '@/src/services/tech-calendar/types/calendar';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-export interface DaySchedule {
-  day_of_week: number; // 0-6
-  dayName: string;
-  enabled: boolean;
-}
 
 const DEFAULT_SCHEDULE: DaySchedule[] = DAYS.map((dayName, i) => ({
   day_of_week: i,
