@@ -80,22 +80,21 @@ export class OrdersRepository {
   async getTechnicianOrders(technicianId: string): Promise<Order[]> {
     const { data, error } = await supabase
       .from('orders')
-      .select('*, addresses(city, street, building_no), services(name, category_id), users(full_name, phone)')
+      .select('*, users(full_name, phone, addresses(city, street, building_no)), services(name, category_id)')
       .eq('technician_id', technicianId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
     return (data ?? []).map((row: any) => {
-      const addr = Array.isArray(row.addresses) ? row.addresses[0] : null;
+      const usr = Array.isArray(row.users) ? row.users[0] : row.users;
+      const addr = Array.isArray(usr?.addresses) ? usr.addresses[0] : (usr?.addresses ?? null);
       const parts = [addr?.building_no, addr?.street, addr?.city].filter(Boolean);
       const svc = Array.isArray(row.services) ? row.services[0] : row.services;
-      const usr = Array.isArray(row.users) ? row.users[0] : row.users;
       return {
         ...row,
-        addresses: undefined,
-        services: undefined,
         users: undefined,
+        services: undefined,
         user_address: parts.length > 0 ? parts.join(', ') : null,
         service_name: svc?.name ?? null,
         category_id: svc?.category_id ?? null,
