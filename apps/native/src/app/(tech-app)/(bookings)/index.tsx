@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ScrollView, View } from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/src/lib/colors";
@@ -17,7 +17,7 @@ export default function BookingsScreen() {
   const { selectedDate } = useBookingsDateStore();
   const headerRef = useRef<BookingsHeaderRef>(null);
   const dateStr = toIso(selectedDate);
-  const { data: bookings = [], isPending } = useTechBookingsQuery(dateStr);
+  const { data: bookings = [], isPending, isRefetching, refetch } = useTechBookingsQuery(dateStr);
 
   useFocusBackHandler(() => {
     if (headerRef.current?.closeCalendarIfOpen()) return true;
@@ -35,6 +35,14 @@ export default function BookingsScreen() {
           className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 32 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              colors={[Colors.brand]}
+              tintColor={Colors.brand}
+            />
+          }
         >
           {/* Date heading */}
           <View className="flex-row items-baseline justify-between px-4 pb-2 pt-5">

@@ -118,11 +118,12 @@ export async function getTechnicianOrders(
 
 export async function updateTechnicianOrderStatus(
 	orderId: string,
-	status: 'accepted' | 'rejected',
+	status: 'accepted' | 'rejected' | 'cancelled_by_technician' | 'completed',
+	cancellation_reason?: string,
 ): Promise<TechnicianOrder> {
 	const response = await apiClient.patch(
 		`/api/orders/technician/orders/${orderId}`,
-		{ status },
+		{ status, ...(cancellation_reason !== undefined && { cancellation_reason }) },
 	);
 	return safeParseResponse(
 		technicianOrderResponseSchema,

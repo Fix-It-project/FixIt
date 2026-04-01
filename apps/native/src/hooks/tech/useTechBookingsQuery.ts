@@ -1,39 +1,36 @@
-import { useQuery } from "@tanstack/react-query";
-import { TECH_BOOKINGS } from "@/src/lib/mock-data/tech";
-import type { TechBooking } from "@/src/lib/mock-data/tech";
+import { useMemo } from "react";
+import { useTechnicianOrdersQuery } from "./useCalendar";
+import type { TechnicianOrder } from "@/src/services/tech-calendar/schemas/response.schema";
 
 /**
- * TanStack Query hook that returns bookings for a given date.
- *
- * Currently returns mock data. When the backend is ready, swap the
- * `queryFn` to hit the real API (same pattern as `useTechniciansQuery`).
- *
- * @param dateString  ISO date string, e.g. "2026-03-17"
+ * Returns accepted orders for a specific date.
+ * Derives from the single technician-orders query (no extra API call).
  */
 export function useTechBookingsQuery(dateString: string) {
-  return useQuery<TechBooking[]>({
-    queryKey: ["tech-bookings", dateString],
-    queryFn: async () => {
-      // TODO: replace with real API call
-      return TECH_BOOKINGS.filter((b) => b.date === dateString);
-    },
-    staleTime: 2 * 60 * 1000,
-    retry: 1,
-  });
+  const query = useTechnicianOrdersQuery();
+  const bookings = useMemo(
+    () =>
+      (query.data ?? []).filter(
+        (o: TechnicianOrder) =>
+          o.status === "accepted" && o.scheduled_date === dateString,
+      ),
+    [query.data, dateString],
+  );
+  return { ...query, data: bookings };
 }
 
 /**
- * Returns all dates that have at least one booking.
+ * Returns a Set of all dates that have at least one accepted booking.
  * Used to render dot indicators on the calendar / week strip.
  */
 export function useTechBookingDatesQuery() {
-  return useQuery<Set<string>>({
-    queryKey: ["tech-booking-dates"],
-    queryFn: async () => {
-      // TODO: replace with real API call
-      return new Set(TECH_BOOKINGS.map((b) => b.date));
-    },
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  });
+  const query = useTechnicianOrdersQuery();
+  const dates = useMemo(() => {
+    const set = new Set<string>();
+    for (const o of query.data ?? []) {
+      if (o.status === "accepted") set.add(o.scheduled_date);
+    }
+    return set;
+  }, [query.data]);
+  return { ...query, data: dates };
 }
