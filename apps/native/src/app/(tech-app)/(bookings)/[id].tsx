@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/src/lib/colors";
+import { Text } from "@/src/components/ui/text";
 import {
   useBookingById,
   useCancelOrderByTechnicianMutation,
@@ -81,24 +82,54 @@ export default function BookingDetailScreen() {
             <BookingDescriptionCard description={booking.problem_description} />
           )}
           {booking.attachment && <BookingAttachmentCard uri={booking.attachment} />}
-          <BookingActionButtons
-            onComplete={handleComplete}
-            onReschedule={handleReschedule}
-            onCancel={() => setCancelModalVisible(true)}
-            isCompleting={completeMutation.isPending}
-          />
+
+          {/* Status banner for non-active orders */}
+          {booking.status !== "accepted" ? (
+            <View
+              className="mt-2 items-center rounded-2xl py-4"
+              style={{ backgroundColor: `${booking.status === "completed" ? Colors.success : Colors.error}12` }}
+            >
+              <Text
+                style={{
+                  fontFamily: "GoogleSans_600SemiBold",
+                  fontSize: 14,
+                  color: booking.status === "completed" ? Colors.success : Colors.error,
+                }}
+              >
+                {booking.status === "completed"
+                  ? "Completed"
+                  : booking.status === "cancelled_by_user"
+                    ? "Cancelled by client"
+                    : "Cancelled by you"}
+              </Text>
+              {booking.cancellation_reason && (
+                <Text style={{ fontSize: 12, color: Colors.textSecondary, marginTop: 4, paddingHorizontal: 16, textAlign: "center" }}>
+                  {booking.cancellation_reason}
+                </Text>
+              )}
+            </View>
+          ) : (
+            <BookingActionButtons
+              onComplete={handleComplete}
+              onReschedule={handleReschedule}
+              onCancel={() => setCancelModalVisible(true)}
+              isCompleting={completeMutation.isPending}
+            />
+          )}
         </ScrollView>
       </SafeAreaView>
 
-      <BookingCancelModal
-        visible={cancelModalVisible}
-        clientName={booking.user_name}
-        reason={cancelReason}
-        onReasonChange={setCancelReason}
-        onClose={() => setCancelModalVisible(false)}
-        onConfirm={handleCancelConfirm}
-        isLoading={cancelMutation.isPending}
-      />
+      {booking.status === "accepted" && (
+        <BookingCancelModal
+          visible={cancelModalVisible}
+          clientName={booking.user_name}
+          reason={cancelReason}
+          onReasonChange={setCancelReason}
+          onClose={() => setCancelModalVisible(false)}
+          onConfirm={handleCancelConfirm}
+          isLoading={cancelMutation.isPending}
+        />
+      )}
     </View>
   );
 }

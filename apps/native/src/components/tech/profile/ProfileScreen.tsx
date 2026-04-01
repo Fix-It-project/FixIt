@@ -78,6 +78,7 @@ export default function ProfileScreen() {
           <TechProfileInfoCard profile={profile} isLoading={isLoading} />
           <ProfileMenuSection
             onEditProfile={() => router.push("/(tech-app)/(profile)/edit-profile")}
+            onPastOrders={() => router.push("/(tech-app)/(profile)/past-orders" as any)}
             onSettings={() => router.push("/settings")}
             onLogout={handleLogout}
             isLoggingOut={logout.isPending}

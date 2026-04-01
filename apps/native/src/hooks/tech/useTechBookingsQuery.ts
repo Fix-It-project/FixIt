@@ -2,8 +2,15 @@ import { useMemo } from "react";
 import { useTechnicianOrdersQuery } from "./useCalendar";
 import type { TechnicianOrder } from "@/src/services/tech-calendar/schemas/response.schema";
 
+/** Statuses that should appear on the technician bookings calendar. */
+const VISIBLE_STATUSES = new Set([
+  "accepted",
+  "cancelled_by_user",
+  "cancelled_by_technician",
+]);
+
 /**
- * Returns accepted orders for a specific date.
+ * Returns visible orders for a specific date (accepted + cancelled).
  * Derives from the single technician-orders query (no extra API call).
  */
 export function useTechBookingsQuery(dateString: string) {
@@ -12,11 +19,22 @@ export function useTechBookingsQuery(dateString: string) {
     () =>
       (query.data ?? []).filter(
         (o: TechnicianOrder) =>
-          o.status === "accepted" && o.scheduled_date === dateString,
+          VISIBLE_STATUSES.has(o.status) && o.scheduled_date === dateString,
       ),
     [query.data, dateString],
   );
   return { ...query, data: bookings };
+}
+
+/** Returns all past orders (completed + cancelled). */
+export function useTechPastOrders() {
+  const query = useTechnicianOrdersQuery();
+  const pastStatuses = new Set(["completed", "cancelled_by_user", "cancelled_by_technician"]);
+  const orders = useMemo(
+    () => (query.data ?? []).filter((o) => pastStatuses.has(o.status)),
+    [query.data],
+  );
+  return { ...query, data: orders };
 }
 
 /**

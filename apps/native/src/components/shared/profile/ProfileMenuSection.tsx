@@ -3,6 +3,7 @@ import { Text } from "@/src/components/ui/text";
 import { Separator } from "@/src/components/ui/separator";
 import {
   ChevronRight,
+  ClipboardList,
   Pencil,
   MapPin,
   Settings,
@@ -58,9 +59,10 @@ interface ProfileMenuSectionProps {
   isLoggingOut: boolean;
   onEditProfile: () => void;
   onSettings: () => void;
+  onPastOrders?: () => void;
 }
 
-export default function ProfileMenuSection({ onLogout, isLoggingOut, onEditProfile, onSettings }: ProfileMenuSectionProps) {
+export default function ProfileMenuSection({ onLogout, isLoggingOut, onEditProfile, onSettings, onPastOrders }: ProfileMenuSectionProps) {
   return (
     <>
       {/* Menu */}
@@ -71,6 +73,12 @@ export default function ProfileMenuSection({ onLogout, isLoggingOut, onEditProfi
         >
           <MenuItem icon={Pencil} label="Edit Profile" onPress={onEditProfile} />
           <Separator />
+          {onPastOrders && (
+            <>
+              <MenuItem icon={ClipboardList} label="Past Orders" onPress={onPastOrders} />
+              <Separator />
+            </>
+          )}
           <MenuItem icon={MapPin} label="My Addresses" onPress={() => {}} />
           <Separator />
           <MenuItem icon={Settings} label="Settings" onPress={onSettings} />

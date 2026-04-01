@@ -19,6 +19,13 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
   const categoryColor = category?.color ?? Colors.brand;
   const initials = getInitials(booking.user_name);
   const avatarColor = getAvatarColor(booking.user_name);
+  const isCancelled = booking.status === "cancelled_by_user" || booking.status === "cancelled_by_technician";
+  const isCompleted = booking.status === "completed";
+
+  const statusLabel = isCancelled
+    ? booking.status === "cancelled_by_user" ? "Cancelled by client" : "Cancelled"
+    : isCompleted ? "Completed" : null;
+  const statusColor = isCancelled ? Colors.error : isCompleted ? Colors.success : null;
 
   return (
     <Animated.View
@@ -26,7 +33,8 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
       className="mb-3 overflow-hidden rounded-2xl bg-white"
       style={{
         borderWidth: 1,
-        borderColor: Colors.borderLight,
+        borderColor: isCancelled ? `${Colors.error}30` : Colors.borderLight,
+        opacity: isCancelled ? 0.7 : 1,
         shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.06,
@@ -71,6 +79,18 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
                 {formatDate(booking.scheduled_date)}
               </Text>
             </View>
+
+            {/* Status badge */}
+            {statusLabel && statusColor && (
+              <View
+                className="mt-1.5 self-start rounded-full px-2.5 py-0.5"
+                style={{ backgroundColor: `${statusColor}15` }}
+              >
+                <Text style={{ fontSize: 10, fontFamily: "GoogleSans_600SemiBold", color: statusColor }}>
+                  {statusLabel}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Category badge */}

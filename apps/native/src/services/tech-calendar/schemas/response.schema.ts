@@ -29,6 +29,7 @@ export const technicianOrderSchema = z.object({
   service_name: z.string().nullable().optional(),
   category_id: z.string().nullable().optional(),
   attachment: z.string().nullable().optional(),
+  cancellation_reason: z.string().nullable().optional(),
   user_name: z.string().nullable().optional(),
   user_phone: z.string().nullable().optional(),
 });
