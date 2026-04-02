@@ -9,6 +9,7 @@ export const technicianSelfProfileSchema = z.object({
   profile_image: z.string().nullable(),
   description: z.string().nullable(),
   category_name: z.string().nullable(),
+
   total_orders: z.number(),
   completed_orders: z.number(),
 });
