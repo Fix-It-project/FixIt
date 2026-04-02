@@ -47,3 +47,33 @@ export function useRejectOrderMutation() {
     },
   });
 }
+
+export function useCancelOrderByTechnicianMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
+      updateTechnicianOrderStatus(orderId, 'cancelled_by_technician', reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['technician-orders-calendar'] });
+    },
+  });
+}
+
+export function useCompleteOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (orderId: string) => updateTechnicianOrderStatus(orderId, 'completed'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['technician-orders-calendar'] });
+    },
+  });
+}
+
+/** Find a single booking by ID from the cached orders list */
+export function useBookingById(orderId: string): TechnicianOrder | undefined {
+  const { data: orders = [] } = useTechnicianOrdersQuery();
+  return useMemo(
+    () => orders.find((o) => o.id === orderId),
+    [orders, orderId],
+  );
+}
