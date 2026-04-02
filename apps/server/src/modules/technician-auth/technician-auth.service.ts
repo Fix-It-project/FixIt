@@ -85,6 +85,15 @@ export class TechnicianAuthService {
   async signIn(email: string, password: string) {
     const result = await technicianAuthRepository.signIn(email, password);
 
+    // Guard: reject if this email belongs to a user, not a technician
+    const techRecord = await techniciansRepository.getTechnicianByEmail(email);
+    if (!techRecord) {
+      await technicianAuthRepository.signOut(result.session?.access_token ?? '');
+      const err: any = new Error('No technician account found for this email');
+      err.status = 403;
+      throw err;
+    }
+
     return {
       technician: {
         id: result.user?.id,

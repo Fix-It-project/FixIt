@@ -13,7 +13,6 @@ export class AuthService {
         email: data.email,
         fullName: data.fullName,
         phone: data.phone,
-        address: data.address,
       });
 
       await addressesRepository.createAddress({
@@ -38,7 +37,16 @@ export class AuthService {
 
   async signIn(data: SignInData) {
     const result = await authRepository.signIn(data);
-    
+
+    // Guard: reject if this email belongs to a technician, not a user
+    const userRecord = await usersRepository.getUserByEmail(data.email);
+    if (!userRecord) {
+      await authRepository.signOut(result.session?.access_token ?? '');
+      const err: any = new Error('No user account found for this email');
+      err.status = 403;
+      throw err;
+    }
+
     return {
       user: {
         id: result.user?.id,
