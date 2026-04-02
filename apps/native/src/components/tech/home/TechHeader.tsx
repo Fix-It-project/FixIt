@@ -1,8 +1,9 @@
-import { View, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, TouchableOpacity, useWindowDimensions, Image } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Bell, Star } from "lucide-react-native";
+import { Bell, Star, ClipboardList } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
-import { TECH_PROFILE } from "@/src/lib/mock-data/tech";
+import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
+import { getInitials } from "@/src/lib/helpers/booking-helpers";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Svg, { Polygon, Defs, LinearGradient, Stop } from "react-native-svg";
 
@@ -27,40 +28,29 @@ function TechHeaderPolygons({ screenWidth }: { screenWidth: number }) {
         </LinearGradient>
       </Defs>
 
-      {/* Large bottom-left shard */}
       <Polygon
         points={`0,${HEADER_HEIGHT * 0.35} ${screenWidth * 0.45},${HEADER_HEIGHT * 0.1} ${screenWidth * 0.38},${HEADER_HEIGHT} 0,${HEADER_HEIGHT}`}
         fill="url(#tg1)"
       />
-
-      {/* Top-right triangle */}
       <Polygon
         points={`${screenWidth * 0.55},0 ${screenWidth},0 ${screenWidth},${HEADER_HEIGHT * 0.55} ${screenWidth * 0.7},${HEADER_HEIGHT * 0.3}`}
         fill="#0284c7"
         opacity={0.15}
       />
-
-      {/* Center diamond */}
       <Polygon
         points={`${screenWidth * 0.3},${HEADER_HEIGHT * 0.05} ${screenWidth * 0.65},${HEADER_HEIGHT * 0.2} ${screenWidth * 0.5},${HEADER_HEIGHT * 0.7} ${screenWidth * 0.15},${HEADER_HEIGHT * 0.45}`}
         fill="url(#tg2)"
       />
-
-      {/* Small top-left accent */}
       <Polygon
         points={`0,0 ${screenWidth * 0.28},0 ${screenWidth * 0.15},${HEADER_HEIGHT * 0.35} 0,${HEADER_HEIGHT * 0.2}`}
         fill={Colors.brandAccentText}
         opacity={0.1}
       />
-
-      {/* Bottom-right wedge */}
       <Polygon
         points={`${screenWidth * 0.6},${HEADER_HEIGHT * 0.5} ${screenWidth},${HEADER_HEIGHT * 0.35} ${screenWidth},${HEADER_HEIGHT} ${screenWidth * 0.5},${HEADER_HEIGHT}`}
         fill="#0369a1"
         opacity={0.18}
       />
-
-      {/* Thin mid-right sliver */}
       <Polygon
         points={`${screenWidth * 0.7},0 ${screenWidth * 0.85},0 ${screenWidth * 0.95},${HEADER_HEIGHT * 0.45} ${screenWidth * 0.75},${HEADER_HEIGHT * 0.25}`}
         fill="#38bdf8"
@@ -72,7 +62,12 @@ function TechHeaderPolygons({ screenWidth }: { screenWidth: number }) {
 
 export default function TechHeader() {
   const { width: screenWidth } = useWindowDimensions();
-  const profile = TECH_PROFILE;
+  const { data: profile } = useTechSelfProfileQuery();
+
+  const fullName = profile ? `${profile.first_name} ${profile.last_name}` : "...";
+  const initials = getInitials(fullName);
+  const isOnline = false;
+  const specialty = profile?.category_name ?? "Technician";
 
   return (
     <View
@@ -89,7 +84,6 @@ export default function TechHeader() {
         elevation: 6,
       }}
     >
-      {/* Polygon decorations */}
       <TechHeaderPolygons screenWidth={screenWidth} />
 
       {/* Title row */}
@@ -98,63 +92,38 @@ export default function TechHeader() {
         className="mb-4 flex-row items-center justify-between"
       >
         <Text
-          style={{
-            fontFamily: "GoogleSans_700Bold",
-            fontSize: 22,
-            color: Colors.white,
-          }}
+          style={{ fontFamily: "GoogleSans_700Bold", fontSize: 22, color: Colors.white }}
         >
           Fix
-          <Text
-            style={{
-              fontFamily: "GoogleSans_700Bold",
-              fontSize: 26,
-              color: Colors.brandAccentText,
-            }}
-          >
+          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 26, color: Colors.brandAccentText }}>
             IT
           </Text>
           {"  "}
-          <Text
-            style={{
-              fontFamily: "GoogleSans_700Bold",
-              fontSize: 22,
-              color: "rgba(255,255,255,0.85)", // no exact token — intentionally brighter than overlayBright
-            }}
-          >
+          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 22, color: "rgba(255,255,255,0.85)" }}>
             Technicians
           </Text>
         </Text>
 
         <View className="flex-row items-center gap-3">
-          {/* Online status */}
           <View className="flex-row items-center gap-1.5">
             <Text
               className="font-bold uppercase text-xs"
-              style={{ color: profile.isOnline ? Colors.onlineGreen : "rgba(255,255,255,0.5)" }}
+              style={{ color: isOnline ? Colors.onlineGreen : "rgba(255,255,255,0.5)" }}
             >
-              {profile.isOnline ? "Online" : "Offline"}
+              {isOnline ? "Online" : "Offline"}
             </Text>
             <View
               className="h-2 w-2 rounded-full"
-              style={{
-                backgroundColor: profile.isOnline ? Colors.onlineGreen : Colors.overlayDim,
-              }}
+              style={{ backgroundColor: isOnline ? Colors.onlineGreen : Colors.overlayDim }}
             />
           </View>
 
-          {/* Notification bell */}
           <TouchableOpacity
             className="h-10 w-10 items-center justify-center rounded-full"
             style={{ backgroundColor: Colors.overlayMd }}
             activeOpacity={0.7}
           >
             <Bell size={20} color={Colors.white} strokeWidth={1.8} />
-            {/* Notification dot */}
-            <View
-              className="absolute right-2 top-2 h-2 w-2 rounded-full"
-              style={{ backgroundColor: Colors.error }}
-            />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -165,61 +134,60 @@ export default function TechHeader() {
         className="flex-row items-center justify-between rounded-2xl p-4"
         style={{ backgroundColor: Colors.overlaySm }}
       >
-        <View className="flex-row items-center gap-3">
-          {/* Avatar — amber so it stands out on the blue background */}
+        <View className="flex-1 flex-row items-center gap-3">
           <View className="relative">
-            <View
-              className="h-12 w-12 items-center justify-center rounded-full"
-              style={{ backgroundColor: Colors.star }}
-            >
-              <Text
-                className="font-bold text-base"
-                style={{ color: Colors.white }}
+            {profile?.profile_image ? (
+              <Image
+                source={{ uri: profile.profile_image }}
+                className="h-12 w-12 rounded-full"
+                style={{ backgroundColor: Colors.overlayMd }}
+              />
+            ) : (
+              <View
+                className="h-12 w-12 items-center justify-center rounded-full"
+                style={{ backgroundColor: Colors.star }}
               >
-                {profile.avatarInitials}
-              </Text>
-            </View>
-            {/* Online dot on avatar */}
+                <Text className="font-bold text-base" style={{ color: Colors.white }}>
+                  {initials}
+                </Text>
+              </View>
+            )}
             <View
               className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2"
               style={{
                 borderColor: Colors.brandDark,
-                backgroundColor: profile.isOnline ? Colors.onlineGreen : Colors.overlayDim,
+                backgroundColor: isOnline ? Colors.onlineGreen : Colors.overlayDim,
               }}
             />
           </View>
 
-          <View className="flex-1">
+          <View style={{ flex: 1 }}>
             <Text
-              style={{
-                fontFamily: "GoogleSans_600SemiBold",
-                color: Colors.white,
-                fontWeight: "700",
-              }}
+              style={{ fontFamily: "GoogleSans_600SemiBold", color: Colors.white, fontWeight: "700" }}
               numberOfLines={1}
             >
-              {profile.name}
+              {fullName}
             </Text>
             <Text style={{ fontSize: 12, color: Colors.overlayBright }} numberOfLines={1}>
-              {profile.specialty}
+              {specialty}
             </Text>
           </View>
         </View>
 
-        {/* Rating */}
-        <View className="items-end">
-          <View className="flex-row items-center gap-1">
-            <Star size={14} color={Colors.starLight} fill={Colors.starLight} strokeWidth={0} />
-            <Text
-              className="text-sm font-bold"
-              style={{ color: Colors.white }}
-            >
-              {profile.rating}
+        {/* Stats */}
+        <View className="items-end gap-2" style={{ flexShrink: 0 }}>
+          <View className="flex-row items-center gap-1.5">
+            <ClipboardList size={14} color={Colors.overlayBright} />
+            <Text className="text-sm font-bold" style={{ color: Colors.white }}>
+              {profile?.total_orders ?? 0}
             </Text>
           </View>
-          <Text style={{ fontSize: 10, color: Colors.overlaySub }}>
-            {profile.reviewCount} reviews
-          </Text>
+          <View className="flex-row items-center gap-1.5">
+            <Star size={14} color={Colors.star} fill={Colors.star} />
+            <Text className="text-sm font-bold" style={{ color: Colors.white }}>
+              4.8
+            </Text>
+          </View>
         </View>
       </Animated.View>
     </View>
