@@ -27,6 +27,9 @@ export interface Order {
   category_id?: string | null;
   user_name?: string | null;
   user_phone?: string | null;
+  technician_name?: string | null;
+  technician_image?: string | null;
+  technician_phone?: string | null;
 }
 
 export interface CreateOrderData {
@@ -69,12 +72,26 @@ export class OrdersRepository {
   async getUserOrders(userId: string): Promise<Order[]> {
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('*, technicians(first_name, last_name, profile_image, phone), services(name, category_id)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return (data ?? []) as Order[];
+
+    return (data ?? []).map((row: any) => {
+      const tech = Array.isArray(row.technicians) ? row.technicians[0] : row.technicians;
+      const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+      return {
+        ...row,
+        technicians: undefined,
+        services: undefined,
+        technician_name: tech ? `${tech.first_name} ${tech.last_name}` : null,
+        technician_image: tech?.profile_image ?? null,
+        technician_phone: row.status === 'accepted' ? (tech?.phone ?? null) : null,
+        service_name: svc?.name ?? null,
+        category_id: svc?.category_id ?? null,
+      };
+    }) as Order[];
   }
 
   async getTechnicianOrders(technicianId: string): Promise<Order[]> {
