@@ -14,6 +14,7 @@ export default function ProfileLayout() {
         }}
       />
       <Stack.Screen name="add-address" />
+      <Stack.Screen name="past-orders" />
     </Stack>
   );
 }

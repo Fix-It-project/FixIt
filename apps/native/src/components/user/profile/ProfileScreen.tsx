@@ -16,6 +16,7 @@ export default function ProfileScreen() {
   const logout = useLogoutMutation();
 
   const handleEditProfile = () => router.push("/(app)/(profile)/edit-profile");
+  const handlePastOrders = () => router.push("/(app)/(profile)/past-orders");
   const handleSettings = () => router.push("/settings");
 
   const handleLogout = () => {
@@ -46,6 +47,7 @@ export default function ProfileScreen() {
           <ProfileInfoCard profile={profile} isLoading={isLoading} />
           <ProfileMenuSection
             onEditProfile={handleEditProfile}
+            onPastOrders={handlePastOrders}
             onSettings={handleSettings}
             onLogout={handleLogout}
             isLoggingOut={logout.isPending}

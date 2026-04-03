@@ -9,8 +9,15 @@ export const orderSchema = z.object({
   scheduled_date: z.string(),
   status: orderStatusSchema,
   problem_description: z.string().nullable(),
+  attachment: z.string().nullable().optional(),
+  cancellation_reason: z.string().nullable().optional(),
   active: z.boolean(),
   created_at: z.string(),
+  technician_name: z.string().nullable().optional(),
+  technician_image: z.string().nullable().optional(),
+  technician_phone: z.string().nullable().optional(),
+  service_name: z.string().nullable().optional(),
+  category_id: z.string().nullable().optional(),
 });
 
 export const orderResponseSchema = z.object({ data: orderSchema });
