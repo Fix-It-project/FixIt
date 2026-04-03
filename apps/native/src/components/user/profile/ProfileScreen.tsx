@@ -3,16 +3,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useLogoutMutation } from "@/src/hooks/auth/useLogoutMutation";
 import { useProfileQuery } from "@/src/hooks/user/useProfileQuery";
+import { useUserOrdersQuery } from "@/src/hooks/orders/useUserOrders";
 import ProfileHeader from "@/src/components/shared/profile/ProfileHeader";
 import ProfileStatsSection from "@/src/components/shared/profile/ProfileStatsSection";
 import ProfileInfoCard from "@/src/components/shared/profile/ProfileInfoCard";
 import ProfileMenuSection from "@/src/components/shared/profile/ProfileMenuSection";
 
-// ─── Mock stats (replace with real query when backend is ready) ───────────────
-const MOCK_STATS = { bookings: 12, completed: 8 } as const;
-
 export default function ProfileScreen() {
   const { data: profile, isLoading } = useProfileQuery();
+  const { data: orders = [] } = useUserOrdersQuery();
+  const totalBookings = orders.length;
+  const completedBookings = orders.filter((o) => o.status === "completed").length;
   const logout = useLogoutMutation();
 
   const handleEditProfile = () => router.push("/(app)/(profile)/edit-profile");
@@ -43,7 +44,7 @@ export default function ProfileScreen() {
           contentContainerClassName="pb-10"
         >
           <ProfileHeader name={profile?.full_name ?? null} isLoading={isLoading} />
-          <ProfileStatsSection bookings={MOCK_STATS.bookings} completed={MOCK_STATS.completed} />
+          <ProfileStatsSection bookings={totalBookings} completed={completedBookings} />
           <ProfileInfoCard profile={profile} isLoading={isLoading} />
           <ProfileMenuSection
             onEditProfile={handleEditProfile}
