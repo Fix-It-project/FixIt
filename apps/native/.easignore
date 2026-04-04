@@ -1,0 +1,28 @@
+# Dependencies (reinstalled by EAS)
+node_modules/
+apps/native/node_modules/
+
+# Server app (not needed for native build)
+apps/server/
+
+# Docs and non-essential files
+documentation/
+*.md
+!README.md
+
+# Build artifacts
+dist/
+build/
+.turbo/
+
+# Env files (use EAS secrets instead)
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+
+# IDE
+.vscode/
+.idea/

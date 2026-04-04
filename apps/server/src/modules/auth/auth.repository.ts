@@ -64,7 +64,7 @@ export class AuthRepository implements IAuthRepository {
   // MUST BE A VALID WORKING EMAIL YOU CAN ACCESS TO TEST THIS FUNCTIONALITY
   async requestPasswordReset(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'FixITapp://reset-password',
+        redirectTo: 'fixitapp://reset-password',
       });
       
     if (error){
