@@ -1,6 +1,7 @@
 import { Alert, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import * as ImagePicker from "expo-image-picker";
 import { useLogoutMutation } from "@/src/hooks/auth/useLogoutMutation";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
@@ -56,6 +57,9 @@ export default function ProfileScreen() {
   };
 
   const fullName = profile ? `${profile.first_name} ${profile.last_name}` : null;
+  const handleEditProfile = useDebounce(() => router.push("/(tech-app)/(profile)/edit-profile"));
+  const handlePastOrders = useDebounce(() => router.push("/(tech-app)/(profile)/past-orders" as any));
+  const handleSettings = useDebounce(() => router.push("/settings"));
 
   return (
     <View className="flex-1 bg-surface-gray">
@@ -77,9 +81,9 @@ export default function ProfileScreen() {
           />
           <TechProfileInfoCard profile={profile} isLoading={isLoading} />
           <ProfileMenuSection
-            onEditProfile={() => router.push("/(tech-app)/(profile)/edit-profile")}
-            onPastOrders={() => router.push("/(tech-app)/(profile)/past-orders" as any)}
-            onSettings={() => router.push("/settings")}
+            onEditProfile={handleEditProfile}
+            onPastOrders={handlePastOrders}
+            onSettings={handleSettings}
             onLogout={handleLogout}
             isLoggingOut={logout.isPending}
           />

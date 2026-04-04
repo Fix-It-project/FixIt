@@ -4,6 +4,7 @@ import { ClipboardList } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import { useTodaysAcceptedOrders } from "@/src/hooks/tech/useTechOrders";
 import { useTechnicianOrdersQuery } from "@/src/hooks/tech/useCalendar";
 import type { TechnicianOrder } from "@/src/services/tech-calendar/schemas/response.schema";
@@ -90,6 +91,7 @@ export default function TodaySchedule() {
   const router = useRouter();
   const todaysOrders = useTodaysAcceptedOrders();
   const { isLoading } = useTechnicianOrdersQuery();
+  const goToBookings = useDebounce(() => router.push("/(tech-app)/(bookings)"));
 
   return (
     <View className="mt-6 px-4">
@@ -97,7 +99,7 @@ export default function TodaySchedule() {
         <Text className="text-xs font-bold uppercase tracking-widest text-content-muted">
           Today's Schedule
         </Text>
-        <TouchableOpacity onPress={() => router.push("/(tech-app)/(bookings)")} activeOpacity={0.7}>
+        <TouchableOpacity onPress={goToBookings} activeOpacity={0.7}>
           <Text
             style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 12, color: Colors.brand }}
           >

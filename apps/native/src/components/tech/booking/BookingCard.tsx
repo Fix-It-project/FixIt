@@ -1,5 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Calendar, ClipboardList, type LucideIcon } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
@@ -14,6 +15,7 @@ interface BookingCardProps {
 }
 
 export default function BookingCard({ booking, index }: BookingCardProps) {
+  const goToBooking = useDebounce(() => router.push(`/(tech-app)/(bookings)/${booking.id}` as any));
   const category = CATEGORIES.find((c) => c.id === booking.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? Colors.brand;
@@ -44,7 +46,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
     >
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() => router.push(`/(tech-app)/(bookings)/${booking.id}` as any)}
+        onPress={goToBooking}
       >
         <View className="flex-row items-center gap-3 p-4">
           {/* Avatar */}

@@ -8,6 +8,7 @@ import ProfileHeader from "@/src/components/shared/profile/ProfileHeader";
 import ProfileStatsSection from "@/src/components/shared/profile/ProfileStatsSection";
 import ProfileInfoCard from "@/src/components/shared/profile/ProfileInfoCard";
 import ProfileMenuSection from "@/src/components/shared/profile/ProfileMenuSection";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function ProfileScreen() {
   const { data: profile, isLoading } = useProfileQuery();
@@ -16,9 +17,9 @@ export default function ProfileScreen() {
   const completedBookings = orders.filter((o) => o.status === "completed").length;
   const logout = useLogoutMutation();
 
-  const handleEditProfile = () => router.push("/(app)/(profile)/edit-profile");
-  const handlePastOrders = () => router.push("/(app)/(profile)/past-orders");
-  const handleSettings = () => router.push("/settings");
+  const handleEditProfile = useDebounce(() => router.push("/(app)/(profile)/edit-profile"));
+  const handlePastOrders = useDebounce(() => router.push("/(app)/(profile)/past-orders"));
+  const handleSettings = useDebounce(() => router.push("/settings"));
 
   const handleLogout = () => {
     Alert.alert("Log Out", "Are you sure you want to log out?", [

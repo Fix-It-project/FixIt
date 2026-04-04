@@ -10,9 +10,11 @@ import {
   User,
 } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function AppLayout() {
   const { isAuthenticated, isLoading, userType } = useAuthStore();
+  const goToChatbot = useDebounce(() => router.push("/(app)/(chatbot)"));
 
   if (!isLoading && !isAuthenticated) {
     return <Redirect href="/(auth)/get-started" />;
@@ -89,7 +91,7 @@ export default function AppLayout() {
 
       {/* Floating chat button — bottom-right, above tab bar */}
       <TouchableOpacity
-        onPress={() => router.push("/(app)/(chatbot)")}
+        onPress={goToChatbot}
         activeOpacity={0.85}
         style={{
           position: "absolute",
