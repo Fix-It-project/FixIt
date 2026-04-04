@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
@@ -27,30 +27,6 @@ export default function PasswordInput({
 	required = false,
 }: PasswordInputProps) {
 	const [visible, setVisible] = useState(false);
-	const [showLast, setShowLast] = useState(false);
-	const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	const handleChangeText = useCallback(
-		(text: string) => {
-			onChangeText(text);
-			if (!visible && text.length > value.length) {
-				if (hideTimer.current) clearTimeout(hideTimer.current);
-				setShowLast(true);
-				hideTimer.current = setTimeout(() => setShowLast(false), 800);
-			} else {
-				setShowLast(false);
-			}
-		},
-		[onChangeText, visible, value.length],
-	);
-
-	// Build masked display: "●●●●a" when showLast, "●●●●●" otherwise
-	const maskedValue =
-		visible || value.length === 0
-			? value
-			: showLast && value.length > 0
-				? "\u25CF".repeat(value.length - 1) + value.slice(-1)
-				: "\u25CF".repeat(value.length);
 
 	const isFilled = variant === "filled";
 
@@ -80,29 +56,11 @@ export default function PasswordInput({
 			)}
 			<View className={containerClass}>
 				<TextInput
-					value={visible ? value : maskedValue}
-					onChangeText={(text) => {
-						// When masked, the user edits dot characters — derive the real value
-						if (visible) {
-							handleChangeText(text);
-						} else {
-							const dots = maskedValue;
-							if (text.length > dots.length) {
-								// Character(s) appended
-								handleChangeText(value + text.slice(dots.length));
-							} else if (text.length < dots.length) {
-								// Character(s) deleted
-								handleChangeText(value.slice(0, text.length));
-							} else {
-								handleChangeText(value);
-							}
-						}
-					}}
+					value={value}
+					onChangeText={onChangeText}
 					placeholder={placeholder}
 					placeholderTextColor={Colors.textMuted}
-					secureTextEntry={false}
-					autoCorrect={false}
-					autoCapitalize="none"
+					secureTextEntry={!visible}
 					editable={!disabled}
 					className="flex-1 text-[16px] text-content"
 				/>
