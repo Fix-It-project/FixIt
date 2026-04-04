@@ -3,6 +3,7 @@ import { TAB_BAR_STYLE, TAB_BAR_LABEL_STYLE } from "@/src/lib/tab-bar-config";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Redirect, Tabs, router } from "expo-router";
 import {
+  ClipboardList,
   Grid2X2,
   House,
   MessageCircle,
@@ -65,6 +66,15 @@ export default function AppLayout() {
         <Tabs.Screen
           name="(booking)"
           options={{ tabBarButton: () => null, tabBarItemStyle: { display: "none" } }}
+        />
+        <Tabs.Screen
+          name="(orders)"
+          options={{
+            title: "My Orders",
+            tabBarIcon: ({ color, size }) => (
+              <ClipboardList size={size} color={color} strokeWidth={1.8} />
+            ),
+          }}
         />
         <Tabs.Screen
           name="(profile)"
