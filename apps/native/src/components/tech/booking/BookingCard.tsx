@@ -32,78 +32,82 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
   return (
     <Animated.View
       entering={FadeInDown.delay(index * 100).duration(400)}
-      className="mb-3 overflow-hidden rounded-2xl bg-white"
-      style={{
-        borderWidth: 1,
-        borderColor: isCancelled ? `${Colors.error}30` : Colors.borderLight,
-        opacity: isCancelled ? 0.7 : 1,
-        shadowColor: Colors.shadow,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
-      }}
+      className="mb-3"
     >
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={goToBooking}
+      <View
+        className="overflow-hidden rounded-2xl bg-white"
+        style={{
+          borderWidth: 1,
+          borderColor: isCancelled ? `${Colors.error}30` : Colors.borderLight,
+          opacity: isCancelled ? 0.7 : 1,
+          shadowColor: Colors.shadow,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 8,
+          elevation: 2,
+        }}
       >
-        <View className="flex-row items-center gap-3 p-4">
-          {/* Avatar */}
-          <View
-            className="h-12 w-12 items-center justify-center rounded-full"
-            style={{ backgroundColor: avatarColor }}
-          >
-            <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 15, color: Colors.white }}>
-              {initials}
-            </Text>
-          </View>
-
-          {/* Info */}
-          <View className="flex-1">
-            <Text
-              style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.textPrimary }}
-              numberOfLines={1}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={goToBooking}
+        >
+          <View className="flex-row items-center gap-3 p-4">
+            {/* Avatar */}
+            <View
+              className="h-12 w-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: avatarColor }}
             >
-              {booking.user_name ?? "Unknown Client"}
-            </Text>
-
-            <View className="mt-0.5 flex-row items-center gap-1.5">
-              <CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
-              <Text style={{ fontSize: 12, color: Colors.textSecondary }} numberOfLines={1}>
-                {booking.service_name ?? "Service"}
+              <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 15, color: Colors.white }}>
+                {initials}
               </Text>
             </View>
 
-            <View className="mt-1 flex-row items-center gap-1">
-              <Calendar size={11} color={Colors.textMuted} strokeWidth={2} />
-              <Text style={{ fontSize: 11, color: Colors.textMuted }}>
-                {formatDate(booking.scheduled_date)}
-              </Text>
-            </View>
-
-            {/* Status badge */}
-            {statusLabel && statusColor && (
-              <View
-                className="mt-1.5 self-start rounded-full px-2.5 py-0.5"
-                style={{ backgroundColor: `${statusColor}15` }}
+            {/* Info */}
+            <View className="flex-1">
+              <Text
+                style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.textPrimary }}
+                numberOfLines={1}
               >
-                <Text style={{ fontSize: 10, fontFamily: "GoogleSans_600SemiBold", color: statusColor }}>
-                  {statusLabel}
+                {booking.user_name ?? "Unknown Client"}
+              </Text>
+
+              <View className="mt-0.5 flex-row items-center gap-1.5">
+                <CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
+                <Text style={{ fontSize: 12, color: Colors.textSecondary }} numberOfLines={1}>
+                  {booking.service_name ?? "Service"}
                 </Text>
               </View>
-            )}
-          </View>
 
-          {/* Category badge */}
-          <View
-            className="h-9 w-9 items-center justify-center rounded-xl"
-            style={{ backgroundColor: `${categoryColor}18` }}
-          >
-            <CategoryIcon size={18} color={categoryColor} strokeWidth={1.8} />
+              <View className="mt-1 flex-row items-center gap-1">
+                <Calendar size={11} color={Colors.textMuted} strokeWidth={2} />
+                <Text style={{ fontSize: 11, color: Colors.textMuted }}>
+                  {formatDate(booking.scheduled_date)}
+                </Text>
+              </View>
+
+              {/* Status badge */}
+              {statusLabel && statusColor && (
+                <View
+                  className="mt-1.5 self-start rounded-full px-2.5 py-0.5"
+                  style={{ backgroundColor: `${statusColor}15` }}
+                >
+                  <Text style={{ fontSize: 10, fontFamily: "GoogleSans_600SemiBold", color: statusColor }}>
+                    {statusLabel}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* Category badge */}
+            <View
+              className="h-9 w-9 items-center justify-center rounded-xl"
+              style={{ backgroundColor: `${categoryColor}18` }}
+            >
+              <CategoryIcon size={18} color={categoryColor} strokeWidth={1.8} />
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }

@@ -1,36 +1,54 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { useRouter } from 'expo-router';
-import { Colors } from '@/src/lib/colors';
+import { Text } from '@/src/components/ui/text';
+import { Toast } from '@/src/components/ui/toast';
 import {
-  useTemplatesQuery,
-  useSaveTemplatesMutation,
-  useExceptionsQuery,
   useAddExceptionMutation,
   useDeleteExceptionMutation,
+  useExceptionsQuery,
   useOrdersByDate,
+  useSaveTemplatesMutation,
+  useTemplatesQuery,
 } from '@/src/hooks/tech/useCalendar';
+import { Colors } from '@/src/lib/colors';
 import type { DaySchedule } from '@/src/services/tech-calendar/types/calendar';
-import ScheduleSetupModal from '../schedule/ScheduleSetupModal';
 import { buildMarkedDates } from '@/src/services/tech-calendar/utils/buildMarkedDates';
-import { useScheduleToast } from '@/src/hooks/tech/useScheduleToast';
-import ScheduleToast from '../schedule/ScheduleToast';
-import ScheduleOrdersPanel from '../schedule/ScheduleOrdersPanel';
+import ScheduleDayPanel from '../schedule/ScheduleDayPanel';
 import ScheduleLegend from '../schedule/ScheduleLegend';
+import ScheduleSetupModal from '../schedule/ScheduleSetupModal';
 
 const ALL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const TODAY = new Date().toISOString().split('T')[0];
 
-export default function ScheduleScreen() {
-  const router = useRouter();
+const CALENDAR_THEME = {
+  backgroundColor: Colors.white,
+  calendarBackground: Colors.white,
+  textSectionTitleColor: Colors.textMuted,
+  selectedDayBackgroundColor: Colors.brand,
+  selectedDayTextColor: Colors.white,
+  todayTextColor: Colors.brand,
+  todayBackgroundColor: Colors.brandLight,
+  dayTextColor: Colors.textPrimary,
+  textDisabledColor: Colors.borderLight,
+  dotColor: Colors.brand,
+  selectedDotColor: Colors.white,
+  arrowColor: Colors.brand,
+  monthTextColor: Colors.textPrimary,
+  indicatorColor: Colors.brand,
+  textDayFontWeight: '400' as const,
+  textMonthFontWeight: '700' as const,
+  textDayHeaderFontWeight: '600' as const,
+  'stylesheet.day.basic': {
+    base: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 16 },
+  },
+} as Record<string, unknown>;
 
+interface Props {
+  onDismissSetup: () => void;
+}
+
+export default function ScheduleScreen({ onDismissSetup }: Props) {
   const { data: serverTemplates, isLoading: isLoadingTemplates } = useTemplatesQuery();
   const { data: exceptions = [], isLoading: isLoadingExceptions } = useExceptionsQuery();
   const ordersByDate = useOrdersByDate();
@@ -38,12 +56,12 @@ export default function ScheduleScreen() {
   const addException = useAddExceptionMutation();
   const deleteException = useDeleteExceptionMutation();
 
-  const { show: showToast, message: toastMessage, type: toastType, opacity: toastOpacity } = useScheduleToast();
-
-  const [scheduleSet, setScheduleSet] = useState<boolean | null>(null);
+  const [isEditingSchedule, setIsEditingSchedule] = useState(false);
   const [selectedDate, setSelectedDate] = useState(TODAY);
 
-  // Map server templates → local DaySchedule[]
+  const hasSchedule = !isLoadingTemplates && (serverTemplates?.length ?? 0) > 0;
+  const showSetupModal = !isLoadingTemplates && !isLoadingExceptions && (!hasSchedule || isEditingSchedule);
+
   const techSchedule = useMemo<DaySchedule[]>(() => {
     if (!serverTemplates) return [];
     return ALL_DAYS.map((dayName, index) => {
@@ -57,33 +75,24 @@ export default function ScheduleScreen() {
     [techSchedule, exceptions, ordersByDate, selectedDate],
   );
 
-  // Decide once after initial load whether to show the setup modal
-  useEffect(() => {
-    if (!isLoadingTemplates && serverTemplates !== undefined && scheduleSet === null) {
-      setScheduleSet(serverTemplates.length > 0);
-    }
-  }, [isLoadingTemplates, serverTemplates, scheduleSet]);
-
-  // ─── Handlers ───────────────────────────────────────────────────────────────
-
   const handleScheduleConfirm = async (newSchedule: DaySchedule[]) => {
     try {
       await saveMutation.mutateAsync({
         newSchedule: newSchedule.map((s) => ({ day_of_week: s.day_of_week, active: s.enabled })),
       });
-      setScheduleSet(true);
-      setTimeout(() => showToast('Schedule updated successfully ✓', 'success'), 350);
+      setIsEditingSchedule(false);
+      setTimeout(() => Toast.show({ type: 'success', text1: 'Schedule updated successfully ✓' }), 350);
     } catch {
-      showToast('Failed to update schedule. Try again.', 'error');
+      Toast.show({ type: 'error', text1: 'Failed to update schedule. Try again.' });
     }
   };
 
   const handleMarkUnavailable = async () => {
     try {
       await addException.mutateAsync(selectedDate);
-      showToast('Day marked as unavailable ✓', 'success');
+      Toast.show({ type: 'success', text1: 'Day marked as unavailable ✓' });
     } catch {
-      showToast('Failed to mark day. Try again.', 'error');
+      Toast.show({ type: 'error', text1: 'Failed to mark day. Try again.' });
     }
   };
 
@@ -92,9 +101,9 @@ export default function ScheduleScreen() {
     if (!entry) return;
     try {
       await deleteException.mutateAsync(entry.id);
-      showToast('Override removed ✓', 'success');
+      Toast.show({ type: 'success', text1: 'Override removed ✓' });
     } catch {
-      showToast('Failed to remove override. Try again.', 'error');
+      Toast.show({ type: 'error', text1: 'Failed to remove override. Try again.' });
     }
   };
 
@@ -102,23 +111,7 @@ export default function ScheduleScreen() {
     setSelectedDate(day.dateString);
   }, []);
 
-  // ─── Selected-day derived state ──────────────────────────────────────────────
-
-  const selectedDayOfWeek = new Date(selectedDate + 'T00:00:00').getDay();
-  const isSelectedDayWorking = techSchedule.find((d) => d.day_of_week === selectedDayOfWeek)?.enabled ?? false;
-  const isSelectedDateException = !!exceptions.find((e) => e.date === selectedDate);
-  const isSelectedDatePast = selectedDate < TODAY;
-  const ordersForSelectedDay = ordersByDate[selectedDate] ?? [];
-
-  const canMarkUnavailable =
-    !isSelectedDatePast &&
-    isSelectedDayWorking &&
-    !isSelectedDateException &&
-    ordersForSelectedDay.length === 0;
-
-  // ─── Loading ─────────────────────────────────────────────────────────────────
-
-  if (isLoadingTemplates || isLoadingExceptions || scheduleSet === null) {
+  if (isLoadingTemplates || isLoadingExceptions) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <ActivityIndicator color={Colors.brand} />
@@ -126,38 +119,49 @@ export default function ScheduleScreen() {
     );
   }
 
+  const selectedDayOfWeek = new Date(`${selectedDate}T00:00:00`).getDay();
   const selectedDayName = ALL_DAYS[selectedDayOfWeek];
+  const isSelectedDayWorking = techSchedule.find((d) => d.day_of_week === selectedDayOfWeek)?.enabled ?? false;
+  const isSelectedDateException = !!exceptions.find((e) => e.date === selectedDate);
+  const isSelectedDatePast = selectedDate < TODAY;
+  const ordersForSelectedDay = ordersByDate[selectedDate] ?? [];
+  const canMarkUnavailable =
+    !isSelectedDatePast && isSelectedDayWorking && !isSelectedDateException && ordersForSelectedDay.length === 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.white }}>
-      <ScheduleToast message={toastMessage} type={toastType} opacity={toastOpacity} />
-
-      {/* Setup modal */}
+    <View className="flex-1 bg-white">
       <ScheduleSetupModal
-        visible={!scheduleSet}
+        visible={showSetupModal}
         onConfirm={handleScheduleConfirm}
         existingSchedule={techSchedule.length ? techSchedule : undefined}
         isLoading={saveMutation.isPending}
         onDismiss={() => {
-          if (serverTemplates && serverTemplates.length > 0) setScheduleSet(true);
-          else router.back();
+          if (hasSchedule) {
+            setIsEditingSchedule(false);
+          } else {
+            onDismissSetup();
+          }
         }}
       />
 
-      {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 22, fontWeight: '700', color: Colors.textPrimary }}>My Schedule</Text>
-        <TouchableOpacity
-          onPress={() => setScheduleSet(false)}
-          style={{ backgroundColor: Colors.brandLight, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 }}
-        >
-          <Text style={{ fontSize: 12, fontWeight: '600', color: Colors.brand }}>Edit Schedule</Text>
-        </TouchableOpacity>
-      </View>
-
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Calendar */}
-        <View style={{ paddingHorizontal: 8, marginTop: 8 }}>
+        {hasSchedule && (
+          <View className="flex-row items-center justify-between px-4 pt-4 pb-2">
+            <Text style={{ fontFamily: 'GoogleSans_700Bold', fontSize: 18 }} className="text-content">
+              My Schedule
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsEditingSchedule(true)}
+              className="rounded-xl bg-brand-light px-3 py-1.5"
+            >
+              <Text style={{ fontFamily: 'GoogleSans_600SemiBold', fontSize: 12 }} className="text-brand">
+                Edit Schedule
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View className="mt-2 px-2">
           <Calendar
             onDayPress={onMonthDayPress}
             markingType="multi-dot"
@@ -165,117 +169,25 @@ export default function ScheduleScreen() {
             minDate={TODAY}
             enableSwipeMonths
             firstDay={0}
-            theme={{
-              backgroundColor: Colors.white,
-              calendarBackground: Colors.white,
-              textSectionTitleColor: Colors.textMuted,
-              selectedDayBackgroundColor: Colors.brand,
-              selectedDayTextColor: Colors.white,
-              todayTextColor: Colors.brand,
-              todayBackgroundColor: Colors.brandLight,
-              dayTextColor: Colors.textPrimary,
-              textDisabledColor: Colors.borderLight,
-              dotColor: Colors.brand,
-              selectedDotColor: Colors.white,
-              arrowColor: Colors.brand,
-              monthTextColor: Colors.textPrimary,
-              indicatorColor: Colors.brand,
-              textDayFontWeight: '400',
-              textMonthFontWeight: '700',
-              textDayHeaderFontWeight: '600',
-              'stylesheet.day.basic': {
-                base: {
-                  width: 32,
-                  height: 32,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 16,
-                },
-              },
-            } as any}
+            theme={CALENDAR_THEME}
           />
         </View>
 
-        {/* Selected-day panel */}
-        <View
-          style={{
-            marginHorizontal: 12,
-            marginTop: 12,
-            padding: 14,
-            borderRadius: 16,
-            backgroundColor: Colors.surfaceGray,
-            borderWidth: 1,
-            borderColor: Colors.borderLight,
-          }}
-        >
-          {/* Date label */}
-          <Text style={{ fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 2 }}>
-            {selectedDate === TODAY ? 'Today' : selectedDayName}{' '}
-            <Text style={{ color: Colors.textMuted, fontWeight: '400' }}>{selectedDate}</Text>
-          </Text>
-
-          {/* Availability status */}
-          {isSelectedDatePast ? (
-            <Text style={{ fontSize: 13, color: Colors.textMuted, marginTop: 4 }}>
-              Past dates cannot be modified.
-            </Text>
-          ) : isSelectedDateException ? (
-            <>
-              <Text style={{ fontSize: 13, color: '#E65100', marginTop: 4 }}>
-                🚫 Marked as unavailable (override)
-              </Text>
-              <TouchableOpacity
-                onPress={handleRemoveOverride}
-                disabled={deleteException.isPending}
-                style={{
-                  marginTop: 10,
-                  paddingVertical: 10,
-                  borderRadius: 12,
-                  alignItems: 'center',
-                  backgroundColor: deleteException.isPending ? Colors.borderLight : '#FFF3E0',
-                  borderWidth: 1,
-                  borderColor: '#E65100',
-                }}
-              >
-                <Text style={{ fontSize: 13, fontWeight: '600', color: deleteException.isPending ? Colors.textMuted : '#E65100' }}>
-                  {deleteException.isPending ? 'Removing...' : 'Remove Override'}
-                </Text>
-              </TouchableOpacity>
-            </>
-          ) : isSelectedDayWorking ? (
-            <>
-              <Text style={{ fontSize: 13, color: Colors.textMuted, marginTop: 4 }}>
-                ✅ Working day — you are available
-              </Text>
-              {canMarkUnavailable ? (
-                <TouchableOpacity
-                  onPress={handleMarkUnavailable}
-                  disabled={addException.isPending}
-                  style={{
-                    marginTop: 10,
-                    paddingVertical: 10,
-                    borderRadius: 12,
-                    alignItems: 'center',
-                    backgroundColor: addException.isPending ? Colors.borderLight : Colors.white,
-                    borderWidth: 1,
-                    borderColor: Colors.borderLight,
-                  }}
-                >
-                  <Text style={{ fontSize: 13, fontWeight: '600', color: addException.isPending ? Colors.textMuted : Colors.textPrimary }}>
-                    {addException.isPending ? 'Saving...' : '🚫 Mark as Unavailable'}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </>
-          ) : (
-            <Text style={{ fontSize: 13, color: Colors.textMuted, marginTop: 4 }}>
-              Day off — not a working day in your schedule.
-            </Text>
-          )}
-
-          {/* Orders for this day */}
-          <ScheduleOrdersPanel orders={ordersForSelectedDay} />
-        </View>
+        <ScheduleDayPanel
+          key={selectedDate}
+          selectedDate={selectedDate}
+          today={TODAY}
+          selectedDayName={selectedDayName}
+          isSelectedDatePast={isSelectedDatePast}
+          isSelectedDateException={isSelectedDateException}
+          isSelectedDayWorking={isSelectedDayWorking}
+          canMarkUnavailable={canMarkUnavailable}
+          orders={ordersForSelectedDay}
+          onMarkUnavailable={handleMarkUnavailable}
+          onRemoveOverride={handleRemoveOverride}
+          isAddingException={addException.isPending}
+          isDeletingException={deleteException.isPending}
+        />
 
         <ScheduleLegend />
       </ScrollView>

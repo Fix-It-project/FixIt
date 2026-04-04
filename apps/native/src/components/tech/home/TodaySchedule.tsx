@@ -91,7 +91,7 @@ export default function TodaySchedule() {
   const router = useRouter();
   const todaysOrders = useTodaysAcceptedOrders();
   const { isLoading } = useTechnicianOrdersQuery();
-  const goToBookings = useDebounce(() => router.push("/(tech-app)/(bookings)"));
+  const goToBookings = useDebounce(() => router.push("/(tech-app)/(schedule)?view=bookings"));
 
   return (
     <View className="mt-6 px-4">
