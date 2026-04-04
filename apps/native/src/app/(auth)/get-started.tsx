@@ -6,8 +6,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function GetStartedScreen() {
+  const goToRoleSelection = useDebounce(() => router.push("/(auth)/role-selection"));
+
   return (
     <LinearGradient
       colors={[Colors.gradientStart, Colors.gradientMid, Colors.gradientEnd]}
@@ -37,7 +40,7 @@ export default function GetStartedScreen() {
         {/* Buttons */}
         <View className="w-full max-w-[327px] gap-4">
           <Button
-            onPress={() => router.push("/(auth)/role-selection")}
+            onPress={goToRoleSelection}
             className="flex-row gap-2 shadow-sm"
           >
             <BtnText className="text-[17px]">Get Started</BtnText>

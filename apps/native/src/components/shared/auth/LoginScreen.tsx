@@ -1,5 +1,6 @@
 import { router, type Href } from "expo-router";
 import { useState } from "react";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -49,6 +50,8 @@ export default function LoginScreen({
     loginMutation.mutate({ email: result.data.email, password: result.data.password });
   };
 
+  const goToForgotPassword = useDebounce(() => router.push(`/(auth)/(forgotpassword)/forgot-password?userType=${forgotPasswordUserType}`));
+
   const errorMessage = loginMutation.error ? getErrorMessage(loginMutation.error) : null;
   const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;
 
@@ -83,7 +86,7 @@ export default function LoginScreen({
 
       {/* Forgot Password */}
       <View className="items-end -mt-3">
-        <Pressable onPress={() => router.push(`/(auth)/(forgotpassword)/forgot-password?userType=${forgotPasswordUserType}`)}>
+        <Pressable onPress={goToForgotPassword}>
           <Text className="text-[14px] font-medium text-content-forgot">
             Forgot Password?
           </Text>

@@ -4,8 +4,13 @@ import { View, Text, Pressable, ScrollView, Image } from "react-native";
 import { Wrench, HelpCircle, Hammer } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/src/lib/colors";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function RoleSelectionScreen() {
+  const goToUserSignup = useDebounce(() => router.push("/(auth)/User/signup"));
+  const goToTechSignup = useDebounce(() => router.push("/(auth)/Technician/signup"));
+  const goToLogin = useDebounce(() => router.push("/(auth)/User/login"));
+
   return (
     <LinearGradient
       colors={[Colors.gradientRoleStart, Colors.gradientRoleMid, Colors.gradientRoleEnd]}
@@ -45,7 +50,7 @@ export default function RoleSelectionScreen() {
               shadowRadius: 20,
               elevation: 10,
             }}
-            onPress={() => router.push("./User/signup")}
+            onPress={goToUserSignup}
           >
 
 
@@ -89,7 +94,7 @@ export default function RoleSelectionScreen() {
               shadowRadius: 20,
               elevation: 10,
             }}
-            onPress={() => router.push("./Technician/signup")}
+            onPress={goToTechSignup}
           >
             {/* Background blur effect */}
             <View className="absolute -bottom-10 -left-10 w-56 h-56 bg-white/10 rounded-full" style={{ opacity: 0.3 }} />
@@ -129,7 +134,7 @@ export default function RoleSelectionScreen() {
         <View className="w-full max-w-sm mb-6">
           <Pressable
             className="w-full py-4 px-6 flex-row items-center justify-center active:opacity-70"
-            onPress={() => router.push("/(auth)/User/login")}
+            onPress={goToLogin}
           >
             <Text className="text-[14px] font-medium text-content-slate-light">Already have an account? </Text>
             <Text className="text-[14px] font-bold text-brand-alt">Log in</Text>

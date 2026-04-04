@@ -1,6 +1,7 @@
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import { ChevronLeft, ClipboardList, type LucideIcon } from "lucide-react-native";
 import { Colors } from "@/src/lib/colors";
 import { CATEGORIES } from "@/src/lib/categories";
@@ -24,11 +25,12 @@ function PastOrderCard({ order }: { readonly order: Order }) {
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? Colors.brand;
   const color = statusColor(order.status);
+  const goToOrder = useDebounce(() => router.push({ pathname: "/(app)/(orders)/[id]", params: { id: order.id } }));
 
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() => router.push({ pathname: "/(app)/(orders)/[id]", params: { id: order.id } })}
+      onPress={goToOrder}
       className="mb-3 rounded-2xl bg-white p-4"
       style={{ borderWidth: 1, borderColor: Colors.borderLight }}
     >

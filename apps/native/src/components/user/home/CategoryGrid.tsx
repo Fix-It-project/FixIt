@@ -5,6 +5,7 @@ import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
 import type { Category } from "@/src/services/categories/schemas/response.schema";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 interface CategoryGridProps {
   categories?: Category[];
@@ -22,13 +23,14 @@ export default function CategoryGrid({
   onMorePress,
 }: CategoryGridProps) {
   const displayCategories = categories?.slice(0, 4) ?? [];
+  const goToCategories = useDebounce(() => { onMorePress?.(); router.push("/(app)/(categories)"); });
 
   return (
     <View className="px-5">
       {/* Section header */}
       <View className="mb-2.5 flex-row items-center justify-between">
         <Text className="text-[22px] font-bold text-content" style={{ fontFamily: "GoogleSans_700Bold" }}>Categories</Text>
-        <TouchableOpacity onPress={() => { onMorePress?.(); router.push("/(app)/(categories)"); }} activeOpacity={0.6}>
+        <TouchableOpacity onPress={goToCategories} activeOpacity={0.6}>
           <Text className="text-[13px] font-medium" style={{ color: Colors.surfaceMuted }}>
             Show all
           </Text>

@@ -6,9 +6,11 @@ import { Text } from "@/src/components/ui/text";
 import { useUserOrdersQuery } from "@/src/hooks/orders/useUserOrders";
 import OrdersHeader from "@/src/components/user/orders/OrdersHeader";
 import UserOrderCard from "@/src/components/user/orders/UserOrderCard";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function MyOrdersScreen() {
   const { data: orders = [], isLoading, refetch, isRefetching } = useUserOrdersQuery();
+  const goToOrder = useDebounce((id: string) => router.push({ pathname: "/(app)/(orders)/[id]", params: { id } }));
 
   return (
     <View className="flex-1 bg-surface-gray">
@@ -43,7 +45,7 @@ export default function MyOrdersScreen() {
               <UserOrderCard
                 key={order.id}
                 order={order}
-                onPress={() => router.push({ pathname: "/(app)/(orders)/[id]", params: { id: order.id } })}
+                onPress={() => goToOrder(order.id)}
               />
             ))}
           </ScrollView>
