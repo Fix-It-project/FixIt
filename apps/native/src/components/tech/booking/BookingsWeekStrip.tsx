@@ -5,7 +5,6 @@ import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-stor
 import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
 import Animated, {
-  FadeIn,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
@@ -83,11 +82,7 @@ export default function BookingsWeekStrip() {
     });
 
   return (
-    <Animated.View
-      entering={FadeIn.duration(300)}
-      className="px-1"
-      style={{ overflow: "hidden" }}
-    >
+    <View className="px-1" style={{ overflow: "hidden" }}>
       <GestureDetector gesture={swipeGesture}>
         <Animated.View className="flex-row justify-around" style={animatedStyle}>
           {days.map((day, i) => {
@@ -159,6 +154,6 @@ export default function BookingsWeekStrip() {
         <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayBright }} />
         <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
       </View>
-    </Animated.View>
+    </View>
   );
 }

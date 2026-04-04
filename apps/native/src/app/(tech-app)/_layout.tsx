@@ -51,6 +51,7 @@ export default function TechAppLayout() {
       <Tabs.Screen
         name="(schedule)"
         options={{
+          href: "/(tech-app)/(schedule)",
           title: "Schedule",
           tabBarIcon: ({ color, size }) => (
             <CalendarDays size={size} color={color} strokeWidth={1.8} />

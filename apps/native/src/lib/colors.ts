@@ -54,6 +54,12 @@ export const Colors = {
   errorToast: "#D9534F",    // toast error background
   disabledCalText: "#D1D5DB", // disabled date text in calendars
 
+  // ─── Schedule availability states ────────────────────────
+  unavailableOrange: "#E65100",    // override/unavailable label + border
+  unavailableOrangeBg: "#FFF3E0",  // override button background
+  orderGreenBg: "#F0FDF4",         // orders panel background
+  orderGreenDark: "#15803D",       // orders panel text/icon
+
   // ─── Technician status / header overlays ─────────────────
   brandAccentText: "#7dd3fc", // sky-blue accent for header "IT" wordmark
   onlineGreen: "#86efac",    // soft green for technician online badge
