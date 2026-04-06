@@ -1,4 +1,3 @@
-import { useRef, useCallback, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -21,7 +20,11 @@ import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/components/user/browse/TechnicianProfileSheet";
 import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
+import {
+  getRecommendedTechnicians,
+} from "@/src/services/technicians/recommendations.service";
 import BackButton from "@/src/components/ui/BackButton";
+import { useRef, useCallback, useEffect, useMemo, useState } from "react";
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
@@ -85,40 +88,72 @@ export default function TechniciansListScreen() {
   }>();
 
   const { searchText, setSearchText, activeSort, setActiveSort } = useTechnicianSearchStore();
-
   const { location, permissionStatus, requestLocationPermission } = useLocationStore();
   const coords = activeSort === "Nearest" ? location : null;
 
   const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
-
-  // TanStack Query – cached & refetchable
   const { data: technicians = [], isLoading, refetch } = useTechniciansQuery(
     categoryId ?? "",
     searchText,
     coords,
   );
 
-  // When coords become available while "Nearest" is active, trigger a refetch
+  const [recommendedRank, setRecommendedRank] = useState<Map<string, number> | null>(null);
+
+  const fetchRecommended = useCallback(async () => {
+    try {
+      const problemDescription =
+        (typeof serviceName === "string" && serviceName.trim()) ||
+        (typeof categoryName === "string" && categoryName.trim()) ||
+        "General home service needed";
+
+      const recs = await getRecommendedTechnicians({
+        problemDescription,
+        topK: 10,
+      });
+
+      setRecommendedRank(
+        new Map(recs.map((r: { technician_id: string }, i: number) => [r.technician_id, i])),
+      );
+    } catch (error) {
+      Toast.show({ type: "error", text1: "Could not load recommendations" });
+      setRecommendedRank(null);
+    }
+  }, [serviceName, categoryName]);
+
   useEffect(() => {
     if (activeSort === "Nearest" && location) {
       refetch();
     }
   }, [activeSort, location, refetch]);
 
+  useEffect(() => {
+    if (activeSort === "Recommended") {
+      void fetchRecommended();
+    }
+  }, [activeSort, fetchRecommended]);
+
   const handleSortPress = useCallback(
     async (option: SortKey) => {
       if (option === "Nearest" && permissionStatus !== "granted") {
         await requestLocationPermission();
-        // After requesting, check the updated permission status from the store
         const updatedStatus = useLocationStore.getState().permissionStatus;
         if (updatedStatus !== "granted") {
           Toast.show({ type: "error", text1: "Location permission required for nearest sort" });
           return;
         }
       }
+
       setActiveSort(option);
+
+      if (option === "Recommended") {
+        await fetchRecommended();
+        return;
+      }
+
+      setRecommendedRank(null);
     },
-    [permissionStatus, requestLocationPermission, setActiveSort],
+    [permissionStatus, requestLocationPermission, setActiveSort, fetchRecommended],
   );
 
   const handleAvatarPress = useCallback(
@@ -144,6 +179,16 @@ export default function TechniciansListScreen() {
     },
     [serviceId, serviceName, categoryId, categoryName],
   );
+
+  const displayedTechnicians = useMemo(() => {
+    if (activeSort !== "Recommended" || !recommendedRank) return technicians;
+
+    return [...technicians].sort((a, b) => {
+      const ar = recommendedRank.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+      const br = recommendedRank.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+      return ar - br;
+    });
+  }, [technicians, activeSort, recommendedRank]);
 
   return (
     <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: Colors.brand }}>
@@ -202,7 +247,7 @@ export default function TechniciansListScreen() {
         {/* ── Technician list ── */}
         <TechnicianListBody
           isLoading={isLoading}
-          technicians={technicians}
+          technicians={displayedTechnicians}
           onAvatarPress={handleAvatarPress}
           onBookPress={handleBookPress}
         />
@@ -213,4 +258,3 @@ export default function TechniciansListScreen() {
     </SafeAreaView>
   );
 }
-
