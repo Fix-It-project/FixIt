@@ -1,0 +1,101 @@
+technician_id,name,phone,category,cluster,latitude,longitude,years_experience,base_hourly_rate
+1,Raymond Coleman,823-259-2751x774,Carpentry,Maadi,29.944902,31.243819,2,104
+2,Caroline Wright,+1-912-977-2520,Electrical,Maadi,29.945517,31.274564,11,397
+3,Thomas Crosby,001-618-525-3148x8419,Plumbing,Maadi,29.933122,31.258254,1,103
+4,Kimberly Brown,4147439300,Electrical,Nasr City,30.086986,31.306655,6,215
+5,Frances Munoz,001-443-500-7630,Plumbing,Nasr City,30.053441,31.35229,6,262
+6,Allison Jones,001-502-757-5868x91453,Carpentry,Nasr City,30.090404,31.33191,3,168
+7,Caitlyn Davis,(610)362-6148x60188,Carpentry,Maadi,29.954328,31.244609,16,466
+8,Sarah Morrow,+1-828-578-0186x855,Plumbing,Maadi,29.944592,31.26825,4,256
+9,Leah Cook,781.245.5381x53074,Electrical,Nasr City,30.060436,31.35662,6,235
+10,Alec Davis,694-794-4333x15409,Plumbing,6th of October,29.948246,30.920575,1,149
+11,Tammy Garrison,+1-983-800-2984,Electrical,Maadi,29.980237,31.262673,2,105
+12,Benjamin Shaffer,771-213-3153,Plumbing,Maadi,29.980808,31.272369,11,373
+13,Jennifer Bailey,(276)951-8427x764,Electrical,6th of October,29.974012,30.916404,6,259
+14,Phyllis Barker,805-285-2239x7293,Carpentry,6th of October,29.951346,30.968242,4,272
+15,James Carson,819.428.7497x68178,Electrical,6th of October,29.969138,30.936206,6,265
+16,Christine Sanders,786.350.1194x08520,Carpentry,Nasr City,30.036336,31.32905,7,269
+17,Thomas Mosley,+1-778-594-7005x22788,Plumbing,6th of October,29.944517,30.958677,1,124
+18,Loretta Gardner,+1-421-950-0342,Carpentry,6th of October,29.951282,30.931313,7,266
+19,Dana Yu,+1-631-327-8448x78713,Carpentry,6th of October,29.953693,30.96417,12,383
+20,Michelle Ramirez,+1-662-202-8634,Carpentry,Nasr City,30.046928,31.325374,12,333
+21,Heather Sweeney,6327712487,Electrical,Nasr City,30.03423,31.302212,22,513
+22,Mariah Jones,(686)998-2459,Plumbing,6th of October,29.973722,30.941369,5,264
+23,Eric Patterson,001-374-483-7763x29360,Carpentry,Nasr City,30.081926,31.321125,23,569
+24,Mark Stephens,001-540-890-1090,Plumbing,Maadi,29.941426,31.2604,11,359
+25,Allison Rivera,+1-203-287-4124,Carpentry,Maadi,29.963856,31.267075,4,185
+26,Eric Horton,001-519-639-6698x563,Plumbing,Nasr City,30.087505,31.330282,4,238
+27,Sandra Bailey,937-220-1496,Carpentry,6th of October,29.988996,30.930506,24,449
+28,Scott King,001-585-950-8198x19561,Plumbing,Nasr City,30.049214,31.357311,1,118
+29,Alec Hahn,6432363283,Electrical,Maadi,29.940253,31.282639,2,128
+30,Jeremy Rose,687-264-2370x0206,Plumbing,6th of October,29.967819,30.948418,15,292
+31,Penny Hill,(489)687-0645,Carpentry,Maadi,29.977416,31.259312,7,197
+32,Janice Sosa,868.440.7703x6485,Electrical,6th of October,30.000447,30.951575,3,171
+33,Joseph Daugherty,001-430-648-6520,Plumbing,Nasr City,30.085516,31.323949,2,178
+34,Steven Bernard,(338)894-8550x09089,Carpentry,Nasr City,30.066185,31.329944,15,320
+35,Timothy Mcintyre,(959)907-8676,Plumbing,Nasr City,30.037364,31.34219,11,443
+36,Karl Smith,+1-251-858-3784x2086,Carpentry,6th of October,29.990544,30.943948,5,215
+37,Christina Dunn,3683896478,Electrical,Maadi,29.95747,31.278298,6,210
+38,Alyssa Butler,(619)912-4724x2199,Plumbing,Nasr City,30.062253,31.347995,2,169
+39,Amy Harris,001-393-373-8524x8335,Plumbing,Maadi,29.971921,31.278559,1,129
+40,Denise Simmons,+1-948-464-2274,Electrical,6th of October,29.949918,30.932376,10,334
+41,Leah Lawrence,(410)890-4075x7483,Electrical,Nasr City,30.071669,31.335556,13,418
+42,Teresa Ruiz,368-920-6872x857,Electrical,Maadi,29.957477,31.287746,1,153
+43,Kimberly Sanchez,(270)560-8473x8451,Electrical,6th of October,29.981971,30.931006,3,102
+44,Karen Foster,+1-301-968-3562x92655,Plumbing,Nasr City,30.043093,31.349644,15,281
+45,Mariah Jimenez,(862)318-7872x8053,Electrical,Nasr City,30.049357,31.336873,7,248
+46,Richard Long,+1-804-983-4947x400,Plumbing,6th of October,29.959719,30.924259,5,242
+47,Angela Morton,+1-371-983-9462,Carpentry,Nasr City,30.07179,31.354598,14,404
+48,Brandi Cox,001-420-813-9595x231,Plumbing,Nasr City,30.079907,31.338199,25,573
+49,Michelle Gallagher,001-978-721-0179,Plumbing,Nasr City,30.072844,31.331926,5,259
+50,Kimberly Faulkner,668-768-7650x316,Electrical,Maadi,29.956821,31.280874,7,255
+51,Marc Hernandez DDS,001-688-572-4329,Electrical,6th of October,30.000008,30.918143,1,110
+52,Kathleen Sampson,001-428-554-1978x613,Plumbing,Maadi,29.973594,31.284085,15,326
+53,Martin Williams,+1-390-922-8892x70796,Carpentry,Nasr City,30.050133,31.352946,13,334
+54,John Pacheco,(393)351-4832,Carpentry,Nasr City,30.03368,31.356069,7,215
+55,Mary Lane,(829)294-7949,Carpentry,Nasr City,30.082364,31.315191,1,160
+56,Gary Hall,(566)924-1461x3227,Plumbing,6th of October,29.983621,30.943942,3,106
+57,Kyle Tran,+1-893-710-2328x015,Plumbing,Maadi,29.929944,31.257126,4,279
+58,Alexander Lopez,2493170444,Carpentry,Maadi,29.947034,31.246995,1,125
+59,Kristy Herrera,452.928.9797,Electrical,6th of October,29.995574,30.962636,5,210
+60,Jessica Oneal,8544624496,Plumbing,Nasr City,30.086138,31.30942,3,114
+61,John Baker,+1-740-986-0648,Electrical,Maadi,29.976875,31.23108,22,579
+62,Christina Berg,858-738-8957,Plumbing,Maadi,29.980542,31.260287,9,321
+63,Alicia Harrell,+1-327-852-8013x27176,Plumbing,6th of October,29.977339,30.918396,15,479
+64,Robert Torres II,324-411-8899,Carpentry,Nasr City,30.072752,31.348057,5,189
+65,Tiffany Martinez,312.244.1485,Plumbing,6th of October,29.972447,30.937326,5,193
+66,Lisa Tran,001-738-759-8547,Carpentry,6th of October,29.987833,30.947615,4,281
+67,Amanda Lewis,(256)894-5791x16012,Electrical,Maadi,29.965625,31.266878,13,416
+68,Jessica Hickman,001-566-758-6511x601,Plumbing,Maadi,29.943446,31.259742,6,181
+69,Nicole Johnson,247-603-6237,Carpentry,Nasr City,30.06186,31.337433,4,235
+70,Stephen Porter,506.573.5008,Electrical,6th of October,29.986016,30.941876,2,190
+71,Kenneth Hart,649-813-8699x968,Electrical,Nasr City,30.047863,31.320011,1,193
+72,Jo Davis,781-309-9614,Carpentry,6th of October,29.949801,30.928109,6,258
+73,Lawrence Cochran,001-879-317-1555x205,Electrical,Nasr City,30.061522,31.310066,2,155
+74,Emily Taylor,001-544-588-8139x2305,Plumbing,Nasr City,30.04502,31.329294,2,131
+75,Christopher Peterson,889-881-5374,Plumbing,Nasr City,30.045744,31.300503,7,211
+76,Nicole Washington,977-248-9365,Electrical,6th of October,29.989555,30.945823,3,185
+77,Steven Jones,(897)433-2924,Plumbing,Nasr City,30.088505,31.322121,4,243
+78,Alejandro Daniels,+1-683-953-7567x342,Electrical,Maadi,29.93603,31.249713,15,334
+79,Christian Romero,875-217-5917x207,Carpentry,Nasr City,30.062213,31.340436,2,176
+80,Matthew Chang,590.799.6124x469,Electrical,6th of October,29.957884,30.935175,4,246
+81,Angela Stokes,001-775-415-9745x403,Electrical,Maadi,29.983657,31.271842,5,272
+82,Devin Jimenez,(882)968-4120,Carpentry,Nasr City,30.082027,31.355604,3,197
+83,Ashley Marquez,340-438-7795x4719,Plumbing,6th of October,29.979584,30.914568,2,182
+84,Christopher Robinson DDS,(771)648-7902,Plumbing,Nasr City,30.068828,31.339495,4,191
+85,Lori Russell,255-601-5385,Plumbing,Maadi,29.956574,31.251143,7,268
+86,Gabriel Thomas,+1-608-728-1546x29028,Plumbing,Nasr City,30.077671,31.30256,6,240
+87,Raymond Nelson,761.266.3290,Electrical,6th of October,29.997904,30.951614,6,234
+88,John Bruce,001-362-505-3548x39844,Electrical,Nasr City,30.06822,31.298908,20,579
+89,Brianna Burton,(432)864-2577x257,Carpentry,Nasr City,30.069354,31.350722,2,129
+90,Michelle Townsend,348.343.8584x0354,Electrical,6th of October,29.995547,30.915487,1,140
+91,Linda Garcia,(725)661-7684x6640,Plumbing,6th of October,29.942102,30.936822,5,204
+92,Shannon Washington,(762)805-3137,Plumbing,6th of October,29.976032,30.914124,7,215
+93,Brittany Leonard,(747)971-3681x027,Electrical,6th of October,29.96199,30.95525,12,305
+94,Joel Wilson,841-767-9971,Electrical,Maadi,29.97075,31.254796,2,122
+95,Melissa Ryan,9418937775,Electrical,Maadi,29.947579,31.276339,10,350
+96,Juan Petersen,515.374.4710x65087,Carpentry,6th of October,29.990745,30.962954,6,269
+97,David Kline,8675291385,Electrical,6th of October,29.960532,30.946432,7,193
+98,Michael Benson,+1-994-250-9750x781,Electrical,6th of October,29.983735,30.952804,2,160
+99,Alicia Mcdaniel,(945)899-1375,Carpentry,Nasr City,30.058432,31.306856,6,203
+100,Kathy Hernandez,+1-728-661-2233x46710,Electrical,Nasr City,30.041868,31.299827,7,194
