@@ -1,0 +1,10 @@
+{
+  "model_dir": "C:\\Users\\abdal\\OneDrive\\Desktop\\FixIt Recommendation System\\models\\model_20260308_005454",
+  "timestamp": "20260308_005454",
+  "artifacts": [
+    "nmf_W.pkl",
+    "nmf_H.pkl",
+    "faiss.index",
+    "tfidf_vectorizer.pkl"
+  ]
+}
