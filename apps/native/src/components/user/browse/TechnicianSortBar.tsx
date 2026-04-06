@@ -3,7 +3,7 @@ import { SlidersHorizontal } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
 
-const SORT_OPTIONS = ["Top Rated", "Nearest", "Most Reviews"] as const;
+export const SORT_OPTIONS = ["Recommended", "Top Rated", "Nearest", "Most Reviews"] as const;
 export type SortKey = (typeof SORT_OPTIONS)[number];
 
 interface TechnicianSortBarProps {

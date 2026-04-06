@@ -12,9 +12,15 @@ interface TechnicianSearchStore {
 export const useTechnicianSearchStore = create<TechnicianSearchStore>(
   (set) => ({
     searchText: "",
-    activeSort: "Top Rated",
+    activeSort: "Recommended",
     setSearchText: (text) => set({ searchText: text }),
     setActiveSort: (sort) => set({ activeSort: sort }),
-    reset: () => set({ searchText: "", activeSort: "Top Rated" }),
+    reset: () => set({ searchText: "", activeSort: "Recommended" }),
   }),
 );
+
+export type TechnicianSortFilter =
+  | "top_rated"
+  | "nearest"
+  | "most_reviews"
+  | "recommended";
