@@ -58,3 +58,4 @@ CLAUDE*
 **/CLAUDE*
 documentation/agent_docs/*
 .mcp.json
+.codex

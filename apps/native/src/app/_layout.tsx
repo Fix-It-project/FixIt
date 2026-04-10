@@ -1,5 +1,6 @@
 import "../../global.css";
 
+import * as SplashScreen from 'expo-splash-screen';
 import * as Sentry from '@sentry/react-native';
 import { useFonts, GoogleSans_400Regular, GoogleSans_500Medium, GoogleSans_600SemiBold, GoogleSans_700Bold } from "@expo-google-fonts/google-sans";
 
@@ -22,6 +23,8 @@ import { NAV_THEME } from "@/src/lib/theme";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLocationStore } from "@/src/stores/location-store";
+
+SplashScreen.preventAutoHideAsync();
 
 Sentry.init({
   dsn: 'https://bd466622828fff10dd93d712742852e5@o4510789900500992.ingest.us.sentry.io/4510789900763136',
@@ -74,6 +77,13 @@ function RootLayout() {
     loadStoredSession();
     requestLocationPermission();
   }, []);
+
+  // Dismiss splash screen once everything is ready
+  useEffect(() => {
+    if (isColorSchemeLoaded && !isLoading && fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [isColorSchemeLoaded, isLoading, fontsLoaded]);
 
   // ── Deep link handler for password reset ─────────────────────────────────
   useEffect(() => {

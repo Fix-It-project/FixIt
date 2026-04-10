@@ -3,18 +3,18 @@ import { ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { User, Mail, Phone } from "lucide-react-native";
-import { signUpSchema } from "@/src/services/auth/schemas/form.schema";
+import { signUpSchema } from "@/src/features/auth/schemas/form.schema";
 import { useSignUpMutation } from "@/src/hooks/auth/useSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useLocationStore } from "@/src/stores/location-store";
-import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
-import FormInput from "@/src/components/shared/auth/FormInput";
-import AddressFormSection from "@/src/components/shared/AddressFormSection";
-import PasswordInput from "@/src/components/shared/auth/PasswordInput";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import FormInput from "@/src/features/auth/components/shared/FormInput";
+import AddressFormSection from "@/src/components/AddressFormSection";
+import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 
-import OAuthDivider from "@/src/components/shared/auth/OAuthDivider";
-import LoginLink from "@/src/components/shared/auth/LoginLink";
+import OAuthDivider from "@/src/features/auth/components/shared/OAuthDivider";
+import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 
@@ -155,7 +155,7 @@ export default function SignUp() {
         className="mt-2"
       >
         {signUpMutation.isPending ? (
-          <ActivityIndicator color={Colors.white} />
+          <ActivityIndicator color={Colors.surfaceBase} />
         ) : (
           <BtnText>Sign Up</BtnText>
         )}

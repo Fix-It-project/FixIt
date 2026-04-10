@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useTechnicianOrdersQuery } from "./useCalendar";
-import type { TechnicianOrder } from "@/src/services/tech-calendar/schemas/response.schema";
+import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 
 /** Statuses that should appear on the technician bookings calendar. */
 const VISIBLE_STATUSES = new Set([

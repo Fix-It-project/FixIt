@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTechnicianProfile } from "@/src/services/technicians/api/technicians";
-import type { TechnicianProfile } from "@/src/services/technicians/schemas/response.schema";
+import { getTechnicianProfile } from "@/src/features/technicians/api/technicians";
+import type { TechnicianProfile } from "@/src/features/technicians/schemas/response.schema";
 
 /**
  * TanStack Query hook that fetches a technician's profile data.

@@ -6,18 +6,17 @@ import { Wrench } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
 import { useCreateBookingMutation } from "@/src/hooks/orders/useCreateBooking";
-import { bookingSchema } from "@/src/services/orders/schemas/form.schema";
+import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 import { Text } from "@/src/components/ui/text";
 import BackButton from "@/src/components/ui/BackButton";
-import BookingDateStep from "@/src/components/user/booking/BookingDateStep";
+import BookingDateStep from "@/src/features/booking-orders/components/user/BookingDateStep";
 import BookingDetailsStep, {
   type AttachmentInfo,
-} from "@/src/components/user/booking/BookingDetailsStep";
+} from "@/src/features/booking-orders/components/user/BookingDetailsStep";
 
-/** Fallback matches brand.DEFAULT in tailwind.config.js */
-const BRAND_DEFAULT = "#036ded";
+const BRAND_DEFAULT = Colors.primary;
 
 type Step = "date" | "details";
 
@@ -80,7 +79,7 @@ export default function BookingScreen() {
       edges={["top"]}
       style={{ backgroundColor: categoryColor }}
     >
-      <View className="flex-1 bg-surface-gray">
+      <View className="flex-1 bg-surface-elevated">
         {/* Header */}
         <View style={{ backgroundColor: categoryColor }} className="pb-5">
           <View className="flex-row items-center px-4 pb-1 pt-2">
@@ -107,7 +106,7 @@ export default function BookingScreen() {
             <View
               className="h-10 w-10 items-center justify-center rounded-full bg-overlay-md"
             >
-              <CategoryIcon size={20} color="#ffffff" strokeWidth={1.75} />
+              <CategoryIcon size={20} color={Colors.surfaceBase} strokeWidth={1.75} />
             </View>
           </View>
         </View>

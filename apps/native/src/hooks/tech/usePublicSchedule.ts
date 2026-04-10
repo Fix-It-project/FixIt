@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPublicSchedule } from '@/src/services/tech-calendar/api/calendar';
+import { getPublicSchedule } from '@/src/features/schedule/api/calendar';
 
 export function useTechnicianPublicSchedule(technicianId: string | null) {
   const { data, isLoading } = useQuery({

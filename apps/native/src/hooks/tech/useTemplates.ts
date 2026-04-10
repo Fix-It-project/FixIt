@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTemplates, createTemplate, updateTemplate } from '@/src/services/tech-calendar/api/calendar';
+import { getTemplates, createTemplate, updateTemplate } from '@/src/features/schedule/api/calendar';
 import { useAuthStore } from '@/src/stores/auth-store';
 
 export function useTemplatesQuery() {
@@ -42,12 +42,12 @@ export function useSaveTemplatesMutation() {
             });
           }
           return Promise.resolve(existing); // No change needed
-        } else {
-          return createTemplate(technicianId, {
-            day_of_week: daySettings.day_of_week,
-            active: daySettings.active,
-          });
         }
+
+        return createTemplate(technicianId, {
+          day_of_week: daySettings.day_of_week,
+          active: daySettings.active,
+        });
       });
 
       return Promise.all(promises);

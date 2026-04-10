@@ -1,98 +1,110 @@
 /**
- * Centralized color palette for the FixIt app.
+ * Single source of truth for all FixIt design tokens.
  *
- * Import `Colors` wherever you need a color value instead of
- * hard-coding hex strings.  To retheme the app, change the
- * values here and every screen updates automatically.
+ * Every color value comes from `tailwindcss/colors` (except rgba overlays).
+ * All neutrals use the `slate` family — never gray, neutral, or zinc.
  *
- * NOTE: `theme.ts` is intentionally kept separate — it
- * provides React Navigation theme tokens (light/dark HSL).
+ * `tailwind.config.ts` imports and maps these tokens into NativeWind classes.
+ * `theme.ts` is intentionally separate (React Navigation light/dark HSL).
  */
 
+import colors from "tailwindcss/colors";
+
 export const Colors = {
-  // ─── Brand ──────────────────────────────────────────────
-  brand: "#036ded", // primary blue  (buttons, focused inputs, links)
-  brandLight: "#ebeeff", // light-blue bg (KeyboardWrapper, info toast)
-  brandAlt: "#0066FF", // shadow colour, role-selection accent
-  brandDark: "#135bec", // get-started logo accent
+  // ─── Primary ────────────────────────────────────────────
+  primary:      colors.blue[600],   // buttons, focused inputs, links
+  primaryLight: colors.indigo[50],  // light bg (KeyboardWrapper, info toast)
+  primaryDark:  colors.blue[700],   // get-started logo accent
 
   // ─── Text ───────────────────────────────────────────────
-  textPrimary: "#000000", // headings, labels, input text (like Uber titles)
-  textSecondary: "#555555", // subtitles, secondary text (like Uber descriptions)
-  textMuted: "#555555", // placeholderTextColor, icons
+  textPrimary:   colors.black,       // headings, labels, input text
+  textSecondary: colors.slate[600],  // subtitles, descriptions
+  textMuted:     colors.slate[600],  // placeholders, icons
+  textContrast:  colors.slate[900],  // high-contrast dark text
+  textCalendar:  colors.slate[900],  // calendar day text
 
-  // ─── Borders ────────────────────────────────────────────
-  borderLight: "#d1d5dc", // dividers (OAuth separator)
-  borderChip: "#ede8f3", // category chip unselected border
+  // ─── Border ─────────────────────────────────────────────
+  borderDefault: colors.slate[300],  // dividers, separators
+  borderChip:    colors.violet[50],  // category chip unselected border
 
   // ─── Feedback ───────────────────────────────────────────
-  success: "#10b981", // toast checkmark green
-  successAlt: "#22c55e", // document upload check
-  error: "#ef4444", // error toast / alert icon
-  warning: "#d97706", // error banner icon
+  success:    colors.emerald[500],   // toast checkmark, positive actions
+  successAlt: colors.green[500],     // document upload check
+  danger:     colors.red[500],       // error toast, alert icon
+  dangerLight: colors.red[50],       // error background tint
+  dangerSoft: colors.red[100],       // status badge background
+  warning:    colors.amber[600],     // warning banner icon
+  warningLight: colors.amber[100],   // warning badge background
 
-  // ─── Surface / Background ──────────────────────────────
-  white: "#ffffff",
-  surfaceGray: "#f3f4f6", // upload icon background
-  surfaceMuted: "#6a7282", // secondary icon colour / muted text
+  // ─── Surface ───────────────────────────────────────────
+  surfaceBase:     colors.white,      // default background
+  surfaceElevated: colors.slate[100], // upload icon bg, card bg
+  surfaceMuted:    colors.slate[500], // secondary icon colour
 
-  // ─── Surface / Background (extended) ────────────────────
-  surfaceLight: "#f0f1f3",  // category card bg, light surface backgrounds
+  // ─── Rating ─────────────────────────────────────────────
+  ratingDefault: colors.amber[500],  // star rating
+  ratingLight:   colors.amber[200],  // star accent on dark backgrounds
 
-  // ─── Misc ─────────────────────────────────────────────────
-  star: "#F59E0B",          // amber star for ratings
-  starLight: "#fde68a",     // star accent on dark backgrounds
-  availableBg: "#d1fae5",   // light green badge background
-  whiteOverlay: "rgba(255,255,255,0.18)", // translucent white for button overlays
-  shadow: "#000000",        // shadow color
-  cyan: "#06b6d4",          // stat card icon background
-  purple: "#a855f7",        // stat card icon background
-  darkText: "#141118",      // dark text for contrast (reorder button etc.)
-  dayText: "#111827",       // calendar day text
+  // ─── Status ─────────────────────────────────────────────
+  statusAvailable:     colors.emerald[100], // light green badge bg
+  statusOnline:        colors.green[300],   // technician online badge
+  statusUnavailable:   colors.orange[600],  // unavailable label + border
+  statusUnavailableBg: colors.orange[100],  // unavailable button bg
 
-  // ─── Feedback (extended) ──────────────────────────────────
-  errorToast: "#D9534F",    // toast error background
-  disabledCalText: "#D1D5DB", // disabled date text in calendars
+  // ─── Order ──────────────────────────────────────────────
+  orderBg:   colors.green[50],  // orders panel background
+  orderText: colors.green[700], // orders panel text/icon
 
-  // ─── Schedule availability states ────────────────────────
-  unavailableOrange: "#E65100",    // override/unavailable label + border
-  unavailableOrangeBg: "#FFF3E0",  // override button background
-  orderGreenBg: "#F0FDF4",         // orders panel background
-  orderGreenDark: "#15803D",       // orders panel text/icon
+  // ─── Accent ─────────────────────────────────────────────
+  accentCyan:   colors.cyan[500],   // stat card icon
+  accentPurple: colors.purple[500], // stat card icon
+  accentSky:    colors.sky[300],    // header "IT" wordmark
 
-  // ─── Technician status / header overlays ─────────────────
-  brandAccentText: "#7dd3fc", // sky-blue accent for header "IT" wordmark
-  onlineGreen: "#86efac",    // soft green for technician online badge
-  overlayMd: "rgba(255,255,255,0.2)",  // icon button backgrounds on dark header
-  overlaySm: "rgba(255,255,255,0.15)", // toggle pill background on dark header
-  overlaySub: "rgba(255,255,255,0.55)", // inactive toggle tab text
-  overlayDim: "rgba(255,255,255,0.4)", // swipe dot inactive
-  overlayBright: "rgba(255,255,255,0.7)", // swipe dot active
+  // ─── Role ───────────────────────────────────────────────
+  roleUser:   colors.blue[100], // user role badge bg
+  roleTech:   colors.blue[600], // tech role badge bg
+  roleAccent: colors.blue[500], // role selection accent
+  roleLabel:  colors.blue[800], // role label text
 
-  // ─── Gradients (get-started / role-selection) ───────────
-  gradientStart: "#ecefff",
-  gradientMid: "#dbe2ff",
-  gradientEnd: "#ecefff",
-  gradientRoleStart: "#f0f4ff",
-  gradientRoleMid: "#dbe2ff",
-  gradientRoleEnd: "#f0f5ff",
+  // ─── Overlay ────────────────────────────────────────────
+  overlayWhite:  "rgba(255,255,255,0.18)" as const,
+  overlayMd:     "rgba(255,255,255,0.2)" as const,
+  overlaySm:     "rgba(255,255,255,0.15)" as const,
+  overlaySub:    "rgba(255,255,255,0.55)" as const,
+  overlayDim:    "rgba(255,255,255,0.4)" as const,
+  overlayBright: "rgba(255,255,255,0.7)" as const,
 
-  // ─── Category icon colors ────────────────────────────────
+  // ─── Gradient ───────────────────────────────────────────
+  gradientStart:     colors.indigo[50],
+  gradientMid:       colors.indigo[100],
+  gradientEnd:       colors.indigo[50],
+  gradientRoleStart: colors.blue[50],
+  gradientRoleMid:   colors.indigo[100],
+  gradientRoleEnd:   colors.blue[50],
+
+  // ─── Misc ──────────────────────────────────────────────
+  shadow:      colors.black,
+  disabledText: colors.slate[300], // disabled date text in calendars
+  socialIcon:  colors.slate[600],  // social/OAuth icon colour
+
+  // ─── Category ───────────────────────────────────────────
   category: {
-    cyan:   "#00BCD4", // Air Condition, Fan
-    indigo: "#5C6BC0", // Dish
-    red:    "#EF5350", // Fridge/Freezer
-    green:  "#4CAF50", // Home Cleaning
-    rose:   "#F44336", // Oven/Cooker
-    purple: "#9C27B0", // Painter
-    blue:   "#2196F3", // Plumbing
-    brown:  "#795548", // Carpenter
-    orange: "#FF9800", // Electrician
-    // Fallback palette (in order) for categories without a mapped icon
+    cyan:   colors.cyan[500],    // Air Condition, Fan
+    indigo: colors.indigo[500],  // Dish
+    red:    colors.red[500],     // Fridge/Freezer
+    green:  colors.green[500],   // Home Cleaning
+    rose:   colors.rose[500],    // Oven/Cooker
+    purple: colors.fuchsia[500], // Painter
+    blue:   colors.blue[500],    // Plumbing
+    brown:  colors.stone[500],   // Carpenter
+    orange: colors.amber[500],   // Electrician
     fallbacks: [
-      "#00BCD4", "#5C6BC0", "#EF5350", "#4CAF50",
-      "#F44336", "#9C27B0", "#2196F3", "#795548",
-      "#FF9800", "#009688", "#607D8B", "#E91E63",
+      colors.cyan[500],    colors.indigo[500], colors.red[500],
+      colors.green[500],   colors.rose[500],   colors.fuchsia[500],
+      colors.blue[500],    colors.stone[500],  colors.amber[500],
+      colors.teal[500],    colors.slate[500],  colors.pink[500],
     ],
   },
 } as const;
+
+export type AppColors = typeof Colors;

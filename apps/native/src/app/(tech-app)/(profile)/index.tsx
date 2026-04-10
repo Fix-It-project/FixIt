@@ -1,2 +1,2 @@
-import ProfileScreen from "@/src/components/tech/profile/ProfileScreen";
-export default ProfileScreen;
+import TechProfileScreen from "@/src/features/tech-self/components/tech/TechProfileScreen";
+export default TechProfileScreen;

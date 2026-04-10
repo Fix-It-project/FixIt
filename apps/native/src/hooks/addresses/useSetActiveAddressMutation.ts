@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { setActiveUserAddress } from "@/src/services/addresses/api";
+import { setActiveUserAddress } from "@/src/features/addresses/api";
 
 /**
  * TanStack mutation hook for setting an address as active.

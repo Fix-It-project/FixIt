@@ -9,9 +9,9 @@ const badgeVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "bg-brand",
-				secondary: "bg-surface-gray",
-				success: "bg-available-bg",
+				default: "bg-app-primary",
+				secondary: "bg-surface-elevated",
+				success: "bg-status-available",
 				destructive: "bg-danger-light",
 				outline: "border border-edge bg-transparent",
 			},

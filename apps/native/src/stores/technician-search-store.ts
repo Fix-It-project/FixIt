@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { SortKey } from "@/src/components/user/browse/TechnicianSortBar";
+import type { SortKey } from "@/src/features/technicians/types/sort";
 
 interface TechnicianSearchStore {
   searchText: string;

@@ -49,7 +49,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
 				? hasError
 					? "border-red-400"
 					: isFocused
-						? "border-brand"
+						? "border-app-primary"
 						: "border-edge"
 				: hasError
 					? "border border-red-400"

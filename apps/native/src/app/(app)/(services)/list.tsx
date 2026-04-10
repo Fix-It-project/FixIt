@@ -4,11 +4,11 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
 import { useServicesQuery } from "@/src/hooks/services/useServicesQuery";
-import ServicesHeader from "@/src/components/user/services/ServicesHeader";
-import ServiceListBody from "@/src/components/user/services/ServiceListBody";
+import { Colors } from "@/src/lib/colors";
+import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
+import ServiceListContent from "@/src/features/services/components/user/ServiceListContent";
 
-/** Fallback matches brand.DEFAULT in tailwind.config.js */
-const BRAND_DEFAULT = "#036ded";
+const BRAND_DEFAULT = Colors.primary;
 
 export default function ServicesListScreen() {
   const { categoryId, categoryName } = useLocalSearchParams<{
@@ -31,13 +31,13 @@ export default function ServicesListScreen() {
 
   return (
     <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: categoryColor }}>
-      <View className="flex-1 bg-surface-gray">
+      <View className="flex-1 bg-surface-elevated">
         <ServicesHeader
           categoryName={categoryName ?? "Services"}
           categoryColor={categoryColor}
           CategoryIcon={CategoryIcon}
         />
-        <ServiceListBody
+        <ServiceListContent
           services={services}
           isLoading={isLoading}
           isError={isError}

@@ -2,15 +2,15 @@ import { useRef, useCallback } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import LocationHeader from "@/src/components/user/home/LocationHeader";
-import HeaderPolygons from "@/src/components/user/home/HeaderPolygons";
-import SearchBar from "@/src/components/user/home/SearchBar";
-import PreviousOrdersSection from "@/src/components/user/home/OrderAgainCard";
-import CategoryGrid from "@/src/components/user/home/CategoryGrid";
-import RecommendedTechnicians from "@/src/components/user/home/RecommendedTechnicians";
-import NearYouSection from "@/src/components/user/home/NearYouSection";
-import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/components/user/home/AddressBottomSheet";
-import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/components/user/home/AddNewAddressSheet";
+import LocationHeader from "@/src/features/addresses/components/user/LocationHeader";
+import HeaderPolygons from "@/src/components/home/HeaderPolygons";
+import SearchBar from "@/src/components/home/SearchBar";
+import PreviousOrdersSection from "@/src/features/booking-orders/components/user/PreviousOrdersSection";
+import CategoryGrid from "@/src/features/categories/components/user/CategoryGrid";
+import RecommendedTechnicians from "@/src/features/technicians/components/user/RecommendedTechnicians";
+import NearYouSection from "@/src/features/technicians/components/user/NearYouSection";
+import AddressBottomSheet, { type AddressBottomSheetRef } from "@/src/features/addresses/components/user/AddressBottomSheet";
+import AddNewAddressSheet, { type AddNewAddressSheetRef } from "@/src/features/addresses/components/user/AddNewAddressSheet";
 import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
 import { Colors } from "@/src/lib/colors";
 
@@ -51,26 +51,26 @@ export default function Home() {
   }, []);
 
   return (
-    <View className="flex-1 bg-surface-gray">
+    <View className="flex-1 bg-surface-elevated">
       <SafeAreaView
         className="flex-1"
         edges={["top"]}
-        style={{ backgroundColor: Colors.brand }}
+        style={{ backgroundColor: Colors.primary }}
       >
         <ScrollView
-          className="flex-1 bg-surface-gray"
+          className="flex-1 bg-surface-elevated"
           showsVerticalScrollIndicator={false}
           contentContainerClassName="pb-6"
         >
           {/* Blue header area */}
-          <View style={{ backgroundColor: Colors.brand }} className="pb-6">
+          <View style={{ backgroundColor: Colors.primary }} className="pb-6">
             <HeaderPolygons />
             <LocationHeader onLocationPress={handleLocationPress} />
             <SearchBar />
           </View>
 
           {/* Content area */}
-          <View className="bg-surface-gray" style={{ paddingTop: 12, gap: SECTION_GAP }}>
+          <View className="bg-surface-elevated" style={{ paddingTop: 12, gap: SECTION_GAP }}>
             {/* Category grid */}
             <CategoryGrid categories={categories} isLoading={categoriesLoading} onCategoryPress={handleCategoryPress} />
             {/* Recommended technicians */}

@@ -45,13 +45,13 @@ export function useAvailabilityMarks(
       if (isSelected && !isUnavailable) {
         marks[dateStr] = {
           selected: true,
-          selectedColor: Colors.brand,
+          selectedColor: Colors.primary,
           customStyles: {
             container: {
-              backgroundColor: Colors.brand,
+              backgroundColor: Colors.primary,
               borderRadius: 20,
             },
-            text: { color: Colors.white, fontWeight: '700' },
+            text: { color: Colors.surfaceBase, fontWeight: '700' },
           },
         };
       } else if (isUnavailable) {
@@ -60,7 +60,7 @@ export function useAvailabilityMarks(
           disableTouchEvent: true,
           customStyles: {
             container: { backgroundColor: 'transparent' },
-            text: { color: Colors.borderLight },
+            text: { color: Colors.borderDefault },
           },
         };
       }

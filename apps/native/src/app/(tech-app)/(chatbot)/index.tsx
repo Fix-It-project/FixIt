@@ -5,12 +5,12 @@ import { Colors } from "@/src/lib/colors";
 
 export default function ChatbotScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-surface-gray">
+    <View className="flex-1 items-center justify-center bg-surface-elevated">
       <View
         className="mb-4 h-16 w-16 items-center justify-center rounded-full"
-        style={{ backgroundColor: Colors.brandLight }}
+        style={{ backgroundColor: Colors.primaryLight }}
       >
-        <MessageCircle size={28} color={Colors.brand} strokeWidth={1.8} />
+        <MessageCircle size={28} color={Colors.primary} strokeWidth={1.8} />
       </View>
       <Text className="text-xl font-bold text-content">Chatbot</Text>
       <Text className="mt-2 text-sm text-content-muted">Coming soon</Text>

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { createOrder } from '@/src/services/orders/api/orders';
+import { createOrder } from '@/src/features/booking-orders/api/orders';
 
 export function useCreateBookingMutation() {
   return useMutation({

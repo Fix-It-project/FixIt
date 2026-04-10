@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTechnicianOrdersQuery } from './useCalendar';
-import { updateTechnicianOrderStatus } from '@/src/services/tech-calendar/api/calendar';
-import type { TechnicianOrder } from '@/src/services/tech-calendar/schemas/response.schema';
+import { updateTechnicianOrderStatus } from '@/src/features/schedule/api/calendar';
+import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 
 function localToday(): string {
   const d = new Date();

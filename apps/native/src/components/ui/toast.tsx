@@ -19,7 +19,7 @@ export const toastConfig: ToastConfig = {
   error: ({ text1, text2 }) => (
     <View className="mt-2 flex-row items-center rounded-2xl border border-red-200 bg-red-50 p-4 w-[90%] shadow-sm">
       <View style={{ marginRight: 12, alignSelf: 'center' }}>
-        <XCircle color={Colors.error} size={20} />
+        <XCircle color={Colors.danger} size={20} />
       </View>
       <View className="flex-1">
         {text1 ? <Text className="text-[15px] font-bold text-red-800">{text1}</Text> : null}
@@ -28,9 +28,9 @@ export const toastConfig: ToastConfig = {
     </View>
   ),
   info: ({ text1, text2 }) => (
-    <View className="mt-2 flex-row items-center rounded-2xl border border-brand/30 bg-brand-light p-4 w-[90%] shadow-sm">
+    <View className="mt-2 flex-row items-center rounded-2xl border border-app-primary/30 bg-app-primary-light p-4 w-[90%] shadow-sm">
       <View style={{ marginRight: 12, alignSelf: 'center' }}>
-        <Info color={Colors.brand} size={20} />
+        <Info color={Colors.primary} size={20} />
       </View>
       <View className="flex-1">
         {text1 ? <Text className="text-[15px] font-bold text-content">{text1}</Text> : null}

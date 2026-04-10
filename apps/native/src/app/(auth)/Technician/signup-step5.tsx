@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { techStep5Schema, type TechStep5Data } from "@/src/services/auth/schemas/form.schema";
+import { techStep5Schema, type TechStep5Data } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useTechnicianSignUpMutation } from "@/src/hooks/auth/useTechnicianSignUpMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
-import AddressFormSection from "@/src/components/shared/AddressFormSection";
-import DocumentUploadField from "@/src/components/shared/auth/DocumentUploadField";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import AddressFormSection from "@/src/components/AddressFormSection";
+import DocumentUploadField from "@/src/features/auth/components/shared/DocumentUploadField";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 
@@ -138,7 +138,7 @@ export default function TechnicianSignUpStep5() {
         className="mt-2"
       >
         {signUpMutation.isPending ? (
-          <ActivityIndicator color={Colors.white} />
+          <ActivityIndicator color={Colors.surfaceBase} />
         ) : (
           <BtnText>Apply as Technician</BtnText>
         )}

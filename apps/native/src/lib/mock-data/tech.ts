@@ -3,6 +3,8 @@
  * Replace with real API calls once the backend is ready.
  */
 
+import { Colors } from "../colors";
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface IncomingRequest {
@@ -51,7 +53,7 @@ export const TECH_PROFILE: TechProfile = {
   name: "Alex Rivera",
   specialty: "HVAC Specialist",
   avatarInitials: "AR",
-  avatarColor: "#036ded",
+  avatarColor: Colors.primary,
   rating: 4.8,
   reviewCount: 127,
   isOnline: true,
@@ -64,7 +66,7 @@ export const INCOMING_REQUESTS: IncomingRequest[] = [
     id: "req-1",
     serviceType: "AC Repair",
     icon: "Snowflake",
-    iconColor: "#036ded",
+    iconColor: Colors.primary,
     description: "Unit not cooling, makes loud noise",
     distance: "4.2 km away",
     price: "850 EGP",

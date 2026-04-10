@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
-import { techStep1Schema } from "@/src/services/auth/schemas/form.schema";
+import { techStep1Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { technicianCheckEmail } from "@/src/services/auth/api/technician-auth";
+import { technicianCheckEmail } from "@/src/features/auth/api/technician-auth";
 import { ActivityIndicator } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
-import FormInput from "@/src/components/shared/auth/FormInput";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
-import LoginLink from "@/src/components/shared/auth/LoginLink";
+import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import FormInput from "@/src/features/auth/components/shared/FormInput";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { Colors } from "@/src/lib/colors";
 
 export default function TechnicianSignUpStep1() {
@@ -69,7 +69,7 @@ export default function TechnicianSignUpStep1() {
         className="mt-2"
       >
         {isChecking ? (
-          <ActivityIndicator color={Colors.white} />
+          <ActivityIndicator color={Colors.surfaceBase} />
         ) : (
           <BtnText>Next</BtnText>
         )}

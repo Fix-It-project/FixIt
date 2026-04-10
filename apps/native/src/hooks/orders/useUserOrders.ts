@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserOrders, cancelUserOrder } from "@/src/services/orders/api/orders";
-import type { Order } from "@/src/services/orders/schemas/response.schema";
+import { getUserOrders, cancelUserOrder } from "@/src/features/booking-orders/api/orders";
+import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 
 const USER_ORDERS_KEY = ["user-orders"] as const;
 

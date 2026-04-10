@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addUserAddress } from "@/src/services/addresses/api";
-import type { CreateAddressRequest } from "@/src/services/addresses/types";
+import { addUserAddress } from "@/src/features/addresses/api";
+import type { CreateAddressRequest } from "@/src/features/addresses/types";
 
 /**
  * TanStack mutation hook for creating a new address.

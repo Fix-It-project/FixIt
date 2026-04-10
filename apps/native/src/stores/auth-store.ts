@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
-import type { AuthUser } from "@/src/services/auth/schemas/response.schema";
+import type { AuthUser } from "@/src/features/auth/schemas/response.schema";
 
 // ─── Secure Storage Keys ─────────────────────────────────────────────────────
 

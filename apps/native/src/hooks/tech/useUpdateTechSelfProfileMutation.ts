@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateTechnicianSelf } from "@/src/services/tech-self/api/tech-self";
-import type { UpdateTechnicianSelfRequest } from "@/src/services/tech-self/types/tech-self";
+import { updateTechnicianSelf } from "@/src/features/tech-self/api/tech-self";
+import type { UpdateTechnicianSelfRequest } from "@/src/features/tech-self/types/tech-self";
 
 export function useUpdateTechSelfProfileMutation() {
   const queryClient = useQueryClient();

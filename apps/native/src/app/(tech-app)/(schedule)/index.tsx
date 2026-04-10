@@ -3,11 +3,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BookingsContent from "@/src/components/tech/booking/BookingsContent";
-import ScheduleScreen from "@/src/components/tech/screens/ScheduleScreen";
+import BookingListContent from "@/src/features/booking-orders/components/tech/BookingListContent";
+import ScheduleScreen from "@/src/features/schedule/components/tech/ScheduleScreen";
 import ScheduleBookingsHeader, {
   type ScheduleBookingsHeaderRef,
-} from "@/src/components/tech/shared/ScheduleBookingsHeader";
+} from "@/src/features/schedule/components/tech/ScheduleBookingsHeader";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 
 type ActiveView = "schedule" | "bookings";
@@ -33,7 +33,7 @@ export default function UnifiedSchedulePage() {
   });
 
   return (
-    <SafeAreaView edges={["top"]} className="flex-1 bg-surface-gray">
+    <SafeAreaView edges={["top"]} className="flex-1 bg-surface-elevated">
       <ScheduleBookingsHeader ref={headerRef} activeView={activeView} onToggle={setActiveView} />
 
       {activeView === "schedule" ? (
@@ -42,7 +42,7 @@ export default function UnifiedSchedulePage() {
         </Animated.View>
       ) : (
         <Animated.View key="bookings" entering={FadeIn.duration(200)} className="flex-1">
-          <BookingsContent />
+          <BookingListContent />
         </Animated.View>
       )}
     </SafeAreaView>

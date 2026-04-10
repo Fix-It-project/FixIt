@@ -3,8 +3,8 @@ import { router } from "expo-router";
 import { View, FlatList } from "react-native";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { CATEGORIES } from "@/src/lib/categories";
-import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
-import CategoryChip from "@/src/components/shared/auth/CategoryChip";
+import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import CategoryChip from "@/src/features/auth/components/shared/CategoryChip";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 

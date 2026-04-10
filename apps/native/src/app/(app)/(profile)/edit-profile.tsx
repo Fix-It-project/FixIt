@@ -5,10 +5,10 @@ import { Mail, Phone, User } from "lucide-react-native";
 import { useProfileQuery } from "@/src/hooks/user/useProfileQuery";
 import { useUpdateProfileMutation } from "@/src/hooks/user/useUpdateProfileMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { editProfileSchema } from "@/src/services/users/schemas/form.schema";
+import { editProfileSchema } from "@/src/features/users/schemas/form.schema";
 import { useEditProfileStore } from "@/src/stores/edit-profile-store";
-import FormInput from "@/src/components/shared/auth/FormInput";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import FormInput from "@/src/features/auth/components/shared/FormInput";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
@@ -57,7 +57,7 @@ export default function EditProfileScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-surface-gray"
+      className="flex-1 bg-surface-elevated"
       contentContainerClassName="px-5 py-6 gap-4"
       keyboardShouldPersistTaps="handled"
     >
@@ -105,7 +105,7 @@ export default function EditProfileScreen() {
       <View className="mt-2">
         <Button onPress={handleSave} disabled={updateProfile.isPending}>
           {updateProfile.isPending ? (
-            <ActivityIndicator color={Colors.white} />
+            <ActivityIndicator color={Colors.surfaceBase} />
           ) : (
             <Text>Save Changes</Text>
           )}

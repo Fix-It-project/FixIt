@@ -21,7 +21,7 @@ export default function CategoriesScreen() {
   };
 
   return (
-    <View className="flex-1 bg-surface-gray">
+    <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
         {/* Header */}
         <View className="px-5 pb-3 pt-4">
@@ -36,7 +36,7 @@ export default function CategoriesScreen() {
         {/* Loading */}
         {isLoading && (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={Colors.brand} />
+            <ActivityIndicator size="large" color={Colors.primary} />
           </View>
         )}
 
@@ -47,7 +47,7 @@ export default function CategoriesScreen() {
               Failed to load categories.
             </Text>
             <TouchableOpacity onPress={() => refetch()} activeOpacity={0.7}>
-              <Text className="text-[14px] font-semibold text-brand">Retry</Text>
+              <Text className="text-[14px] font-semibold text-app-primary">Retry</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -68,7 +68,7 @@ export default function CategoriesScreen() {
                   <TouchableOpacity
                     key={cat.id}
                     className="mb-3 overflow-hidden rounded-xl"
-                    style={{ width: "48.5%", backgroundColor: Colors.surfaceLight }}
+                    style={{ width: "48.5%", backgroundColor: Colors.surfaceElevated }}
                     onPress={() => handleCategoryPress(cat.id, cat.name)}
                     activeOpacity={0.7}
                   >
@@ -77,7 +77,7 @@ export default function CategoriesScreen() {
                         className="h-16 w-16 items-center justify-center"
                         style={{ backgroundColor: color }}
                       >
-                        <Icon size={26} color={Colors.white} strokeWidth={1.75} />
+                        <Icon size={26} color={Colors.surfaceBase} strokeWidth={1.75} />
                       </View>
                       <Text
                         className="flex-1 px-3 text-[14px] font-semibold text-content"
