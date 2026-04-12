@@ -1,7 +1,6 @@
 import { View, TextInput } from "react-native";
 import { Search } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export default function SearchBar() {
   const themeColors = useThemeColors();

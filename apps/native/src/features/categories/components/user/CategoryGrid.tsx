@@ -4,9 +4,8 @@ import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { Colors } from "@/src/lib/theme";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface CategoryGridProps {
 	categories?: Category[];

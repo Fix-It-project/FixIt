@@ -1,8 +1,7 @@
 import { Image, TouchableOpacity, View } from "react-native";
 import { Camera, User } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface ProfileAvatarProps {
   readonly name: string | null;

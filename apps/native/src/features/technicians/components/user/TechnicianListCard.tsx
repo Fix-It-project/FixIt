@@ -2,12 +2,11 @@ import { Clock, MapPin } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
-import { Colors } from "@/src/lib/theme";
 import {
 	deriveTechnicianExtras,
 	formatLocation,
 } from "@/src/lib/helpers/technician-utils";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import AvailabilityBadge from "./AvailabilityBadge";
 import RatingRow from "./RatingRow";
 import TechnicianAvatar from "./TechnicianAvatar";

@@ -10,8 +10,7 @@ import {
   LogOut,
   type LucideIcon,
 } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 function MenuItem({
   icon: Icon,

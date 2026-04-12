@@ -2,8 +2,7 @@ import { ChevronLeft, ClipboardList, type LucideIcon } from "lucide-react-native
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
   readonly categoryId: string | null | undefined;

@@ -1,8 +1,7 @@
 import { View, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
 import { useUserOrdersQuery } from "@/src/hooks/orders/useUserOrders";
 import OrdersHeader from "@/src/features/booking-orders/components/user/OrdersHeader";

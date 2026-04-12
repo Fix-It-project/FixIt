@@ -1,8 +1,7 @@
 import { CircleCheck, Clock } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface AvailabilityBadgeProps {
 	readonly isAvailable: boolean;

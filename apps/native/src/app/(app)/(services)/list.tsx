@@ -4,10 +4,9 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useServicesQuery } from "@/src/hooks/services/useServicesQuery";
-import { Colors } from "@/src/lib/theme";
 import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
 import ServiceListContent from "@/src/features/services/components/user/ServiceListContent";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export default function ServicesListScreen() {
   const themeColors = useThemeColors();

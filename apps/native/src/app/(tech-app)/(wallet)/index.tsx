@@ -1,8 +1,7 @@
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Wallet } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export default function WalletScreen() {
   const themeColors = useThemeColors();

@@ -21,8 +21,7 @@ import {
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useLocationStore } from "@/src/stores/location-store";
 
 export interface AddNewAddressSheetRef {

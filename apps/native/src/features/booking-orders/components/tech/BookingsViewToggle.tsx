@@ -1,7 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
-import { Colors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 /** Schedule / Bookings pill toggle — Bookings tab is always active for now. */

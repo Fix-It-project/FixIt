@@ -3,11 +3,10 @@ import { router } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Calendar, ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 
 interface BookingCardProps {

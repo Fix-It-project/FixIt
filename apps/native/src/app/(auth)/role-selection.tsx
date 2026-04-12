@@ -2,8 +2,7 @@ import { router } from "expo-router";
 import { View, Text, Pressable, ScrollView, Image } from "react-native";
 import { HelpCircle, Hammer } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

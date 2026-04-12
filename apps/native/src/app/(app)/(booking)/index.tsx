@@ -8,7 +8,6 @@ import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useCreateBookingMutation } from "@/src/hooks/orders/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
-import { Colors } from "@/src/lib/theme";
 import { useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
 import BackButton from "@/src/components/ui/BackButton";

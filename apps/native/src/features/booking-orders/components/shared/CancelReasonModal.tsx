@@ -1,8 +1,7 @@
 import { X } from "lucide-react-native";
 import { ActivityIndicator, Modal, Pressable, TextInput, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
   readonly confirmLabel: string;

@@ -1,10 +1,9 @@
 import { I18nManager, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { Colors } from "@/src/lib/theme";
 import { toIso } from "@/src/lib/helpers/date-helpers";
 import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

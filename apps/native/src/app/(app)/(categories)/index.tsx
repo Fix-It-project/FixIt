@@ -3,8 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
 

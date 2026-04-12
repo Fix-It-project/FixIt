@@ -23,8 +23,7 @@ import { Text } from "@/src/components/ui/text";
 import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
 import { useSetActiveAddressMutation } from "@/src/hooks/addresses/useSetActiveAddressMutation";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import AddressListItem from "./AddressListItem";
 
 export interface AddressBottomSheetRef {

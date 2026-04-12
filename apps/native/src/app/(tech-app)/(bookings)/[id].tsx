@@ -2,8 +2,7 @@ import { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
 import {
   useBookingById,

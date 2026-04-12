@@ -1,7 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { Bell } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface NotificationBellProps {
   /** Background color of the circular button. Defaults to `Colors.overlayMd`. */

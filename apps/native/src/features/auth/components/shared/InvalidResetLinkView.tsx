@@ -3,8 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { ArrowLeft, AlertCircle } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface InvalidResetLinkViewProps {

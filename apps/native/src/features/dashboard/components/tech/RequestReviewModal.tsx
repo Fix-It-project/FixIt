@@ -1,8 +1,7 @@
 import { View, TouchableOpacity, ActivityIndicator, Modal, Pressable } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { ClipboardList, X, MapPin } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
 import { useAcceptOrderMutation, useRejectOrderMutation } from "@/src/hooks/tech/useTechOrders";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";

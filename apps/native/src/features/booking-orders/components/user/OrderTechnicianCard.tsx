@@ -3,9 +3,8 @@ import { Image, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { Colors } from "@/src/lib/theme";
 import { getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly order: Order;

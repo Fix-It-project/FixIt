@@ -5,8 +5,7 @@ import { Text } from "@/src/components/ui/text";
 import NotificationBell from "@/src/components/ui/NotificationBell";
 import BookingsCalendarSheet from "@/src/features/booking-orders/components/tech/BookingsCalendarSheet";
 import BookingsWeekStrip from "@/src/features/booking-orders/components/tech/BookingsWeekStrip";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import ScheduleBookingsToggle from "./ScheduleViewToggle";
 import type { BookingsCalendarSheetRef } from "@/src/features/booking-orders/components/tech/BookingsCalendarSheet";
 

@@ -3,8 +3,7 @@ import { TouchableOpacity, View } from "react-native";
 import NotificationBell from "@/src/components/ui/NotificationBell";
 import { Text } from "@/src/components/ui/text";
 import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface LocationHeaderProps {
 	onLocationPress?: () => void;

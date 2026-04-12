@@ -3,6 +3,18 @@ import { Text } from '@/src/components/ui/text';
 import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 import ScheduleOrdersPanel from './ScheduleOrdersPanel';
 
+interface StatusActionButtonProps {
+  readonly disabled: boolean;
+  readonly disabledBackgroundClassName: string;
+  readonly enabledBackgroundClassName: string;
+  readonly enabledBorderClassName: string;
+  readonly disabledTextClassName: string;
+  readonly enabledTextClassName: string;
+  readonly idleLabel: string;
+  readonly loadingLabel: string;
+  readonly onPress: () => void;
+}
+
 interface Props {
   selectedDate: string;
   today: string;
@@ -16,6 +28,115 @@ interface Props {
   onRemoveOverride: () => void;
   isAddingException: boolean;
   isDeletingException: boolean;
+}
+
+function StatusActionButton({
+  disabled,
+  disabledBackgroundClassName,
+  enabledBackgroundClassName,
+  enabledBorderClassName,
+  disabledTextClassName,
+  enabledTextClassName,
+  idleLabel,
+  loadingLabel,
+  onPress,
+}: StatusActionButtonProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      className={`mt-2.5 items-center rounded-xl border py-2.5 ${
+        disabled ? disabledBackgroundClassName : `${enabledBorderClassName} ${enabledBackgroundClassName}`
+      }`}
+    >
+      <Text
+        className={`font-semibold text-[13px] ${
+          disabled ? disabledTextClassName : enabledTextClassName
+        }`}
+      >
+        {disabled ? loadingLabel : idleLabel}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function renderDayStatus({
+  isSelectedDatePast,
+  isSelectedDateException,
+  isSelectedDayWorking,
+  canMarkUnavailable,
+  onMarkUnavailable,
+  onRemoveOverride,
+  isAddingException,
+  isDeletingException,
+}: Pick<
+  Props,
+  | 'isSelectedDatePast'
+  | 'isSelectedDateException'
+  | 'isSelectedDayWorking'
+  | 'canMarkUnavailable'
+  | 'onMarkUnavailable'
+  | 'onRemoveOverride'
+  | 'isAddingException'
+  | 'isDeletingException'
+>) {
+  if (isSelectedDatePast) {
+    return (
+      <Text className="mt-1 text-[13px] text-content-muted">
+        Past dates cannot be modified.
+      </Text>
+    );
+  }
+
+  if (isSelectedDateException) {
+    return (
+      <>
+        <Text className="mt-1 text-[13px] text-status-unavailable">
+          🚫 Marked as unavailable (override)
+        </Text>
+        <StatusActionButton
+          onPress={onRemoveOverride}
+          disabled={isDeletingException}
+          disabledBackgroundClassName="border-status-unavailable bg-edge"
+          enabledBackgroundClassName="bg-status-unstatus-available"
+          enabledBorderClassName="border-status-unavailable"
+          disabledTextClassName="text-content-muted"
+          enabledTextClassName="text-status-unavailable"
+          idleLabel="Remove Override"
+          loadingLabel="Removing..."
+        />
+      </>
+    );
+  }
+
+  if (isSelectedDayWorking) {
+    return (
+      <>
+        <Text className="mt-1 text-[13px] text-content-muted">
+          ✅ Working day — you are available
+        </Text>
+        {canMarkUnavailable ? (
+          <StatusActionButton
+            onPress={onMarkUnavailable}
+            disabled={isAddingException}
+            disabledBackgroundClassName="border-edge bg-edge"
+            enabledBackgroundClassName="bg-surface"
+            enabledBorderClassName="border-edge"
+            disabledTextClassName="text-content-muted"
+            enabledTextClassName="text-content"
+            idleLabel="Mark as Unavailable"
+            loadingLabel="Saving..."
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  return (
+    <Text className="mt-1 text-[13px] text-content-muted">
+      Day off — not a working day in your schedule.
+    </Text>
+  );
 }
 
 export default function ScheduleDayPanel({
@@ -32,6 +153,17 @@ export default function ScheduleDayPanel({
   isAddingException,
   isDeletingException,
 }: Props) {
+  const dayStatus = renderDayStatus({
+    isSelectedDatePast,
+    isSelectedDateException,
+    isSelectedDayWorking,
+    canMarkUnavailable,
+    onMarkUnavailable,
+    onRemoveOverride,
+    isAddingException,
+    isDeletingException,
+  });
+
   return (
     <View className="mx-3 mt-3 rounded-2xl border border-edge bg-surface-elevated p-3.5">
       <Text className="mb-0.5 font-semibold text-[13px] text-content-secondary">
@@ -39,59 +171,7 @@ export default function ScheduleDayPanel({
         <Text className="font-normal text-[13px] text-content-muted">{selectedDate}</Text>
       </Text>
 
-      {isSelectedDatePast ? (
-        <Text className="mt-1 text-[13px] text-content-muted">
-          Past dates cannot be modified.
-        </Text>
-      ) : isSelectedDateException ? (
-        <>
-          <Text className="mt-1 text-[13px] text-status-unavailable">
-            🚫 Marked as unavailable (override)
-          </Text>
-          <TouchableOpacity
-            onPress={onRemoveOverride}
-            disabled={isDeletingException}
-            className={`mt-2.5 items-center rounded-xl border border-status-unavailable py-2.5 ${
-              isDeletingException ? 'bg-edge' : 'bg-status-unstatus-available'
-            }`}
-          >
-            <Text
-              className={`font-semibold text-[13px] ${
-                isDeletingException ? 'text-content-muted' : 'text-status-unavailable'
-              }`}
-            >
-              {isDeletingException ? 'Removing...' : 'Remove Override'}
-            </Text>
-          </TouchableOpacity>
-        </>
-      ) : isSelectedDayWorking ? (
-        <>
-          <Text className="mt-1 text-[13px] text-content-muted">
-            ✅ Working day — you are available
-          </Text>
-          {canMarkUnavailable && (
-            <TouchableOpacity
-              onPress={onMarkUnavailable}
-              disabled={isAddingException}
-              className={`mt-2.5 items-center rounded-xl border border-edge py-2.5 ${
-                isAddingException ? 'bg-edge' : 'bg-surface'
-              }`}
-            >
-              <Text
-                className={`font-semibold text-[13px] ${
-                  isAddingException ? 'text-content-muted' : 'text-content'
-                }`}
-              >
-                {isAddingException ? 'Saving...' : 'Mark as Unavailable'}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </>
-      ) : (
-        <Text className="mt-1 text-[13px] text-content-muted">
-          Day off — not a working day in your schedule.
-        </Text>
-      )}
+      {dayStatus}
 
       <ScheduleOrdersPanel orders={orders} />
     </View>

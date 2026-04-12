@@ -1,9 +1,8 @@
 import { MapPin, Star } from "lucide-react-native";
 import { Image, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
 import type { Technician } from "@/src/lib/mock-data/user";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export const CARD_WIDTH_RATIO = 0.75;
 export const CARD_SPACING = 6;

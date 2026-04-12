@@ -1,8 +1,7 @@
 import { View, TouchableOpacity } from "react-native";
 import { ChevronRight, type LucideIcon } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
-import { useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export function SettingsItem({
   icon: Icon,
