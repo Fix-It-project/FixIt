@@ -30,6 +30,7 @@
     "@types/express": "^5.0.1",
     "@types/lodash": "^4.17.23",
     "@types/node": "catalog:",
+    "@vitest/coverage-v8": "4.1.2",
     "serverless-esbuild": "^1.57.0",
     "serverless-plugin-monorepo": "^0.11.0",
     "tsx": "^4.19.2",

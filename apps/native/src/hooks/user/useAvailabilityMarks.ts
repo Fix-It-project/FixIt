@@ -52,7 +52,7 @@ export function useAvailabilityMarks(
               backgroundColor: themeColors.primary,
               borderRadius: 20,
             },
-            text: { color: themeColors.surfaceBase, fontWeight: '700' },
+            text: { color: themeColors.surfaceOnPrimary, fontWeight: '700' },
           },
         };
       } else if (isUnavailable) {

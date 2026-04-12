@@ -32,7 +32,7 @@ export default function LocationHeader({
 					className="h-8 w-8 items-center justify-center rounded-full"
 					style={{ backgroundColor: Colors.overlayMd }}
 				>
-					<MapPin size={16} color={themeColors.surfaceBase} strokeWidth={2} />
+					<MapPin size={16} color={themeColors.onPrimaryHeader} strokeWidth={2} />
 				</View>
 
 				<View className="shrink">
@@ -49,7 +49,7 @@ export default function LocationHeader({
 						</Text>
 						<ChevronDown
 							size={16}
-							color={themeColors.surfaceBase}
+							color={themeColors.onPrimaryHeader}
 							strokeWidth={2}
 						/>
 					</View>

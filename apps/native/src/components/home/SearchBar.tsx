@@ -18,7 +18,7 @@ export default function SearchBar() {
           style={{
             flex: 1,
             fontSize: 15,
-            color: themeColors.surfaceBase,
+            color: themeColors.onPrimaryHeader,
             fontFamily: "GoogleSans_400Regular",
             padding: 0,
           }}

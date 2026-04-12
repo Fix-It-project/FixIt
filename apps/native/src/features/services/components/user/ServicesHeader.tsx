@@ -21,18 +21,18 @@ export default function ServicesHeader({
 	return (
 		<View style={{ backgroundColor: categoryColor }} className="pb-5">
 			<View className="flex-row items-center px-4 pt-2 pb-1">
-				<BackButton variant="light" className="mr-3" onPress={onBackPress} />
+				<BackButton variant="header-inverse" className="mr-3" onPress={onBackPress} />
 				<View className="flex-1">
 					<Text
-						className="font-bold text-[20px] text-white"
-						style={{ fontFamily: "GoogleSans_700Bold" }}
+						className="font-bold text-[20px]"
+						style={{ fontFamily: "GoogleSans_700Bold", color: themeColors.onPrimaryHeader }}
 						numberOfLines={1}
 					>
 						{categoryName}
 					</Text>
 					<Text
-						className="text-[12px] text-white/70"
-						style={{ fontFamily: "GoogleSans_400Regular" }}
+						className="text-[12px]"
+						style={{ fontFamily: "GoogleSans_400Regular", color: themeColors.overlayBright }}
 					>
 						Choose a service
 					</Text>
@@ -40,7 +40,7 @@ export default function ServicesHeader({
 				<View className="h-10 w-10 items-center justify-center rounded-full bg-overlay-md">
 					<CategoryIcon
 						size={20}
-						color={themeColors.surfaceBase}
+						color={themeColors.onPrimaryHeader}
 						strokeWidth={1.75}
 					/>
 				</View>

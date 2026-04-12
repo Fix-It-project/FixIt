@@ -1,8 +1,10 @@
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeft, ClipboardList, type LucideIcon } from "lucide-react-native";
+import { ClipboardList, type LucideIcon } from "lucide-react-native";
+import PageHeader from "@/src/components/PageHeader";
 import { Text } from "@/src/components/ui/text";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Colors, useThemeColors } from "@/src/lib/theme";
@@ -14,7 +16,7 @@ export interface PastOrdersListItem {
   readonly fallbackName: string;
   readonly id: string;
   readonly name: string | null | undefined;
-  readonly route: string | { params: Record<string, string>; pathname: string };
+  readonly route: Href;
   readonly scheduledDate: string;
   readonly serviceName: string | null | undefined;
   readonly status: string;
@@ -23,6 +25,8 @@ export interface PastOrdersListItem {
 
 interface Props {
   readonly items: readonly PastOrdersListItem[];
+  readonly onBack?: () => void;
+  readonly title?: string;
 }
 
 function statusColor(status: string): string {
@@ -31,6 +35,7 @@ function statusColor(status: string): string {
 
 function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
   const themeColors = useThemeColors();
+  const goToOrder = useDebounce(() => router.push(item.route as never));
   const category = item.categoryId ? CATEGORIES.find((c) => c.id === item.categoryId) : undefined;
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? Colors.primary;
@@ -39,7 +44,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() => router.push(item.route as never)}
+      onPress={goToOrder}
       className="mb-3 rounded-2xl bg-surface p-4"
       style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
     >
@@ -92,27 +97,17 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
   );
 }
 
-export default function PastOrdersList({ items }: Props) {
+export default function PastOrdersList({
+  items,
+  onBack,
+  title = "Past Orders",
+}: Props) {
   const themeColors = useThemeColors();
 
   return (
     <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
-        <View
-          className="flex-row items-center gap-3 px-4 pb-4 pt-2"
-          style={{ backgroundColor: themeColors.surfaceBase }}
-        >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="h-9 w-9 items-center justify-center rounded-full"
-            style={{ backgroundColor: themeColors.surfaceElevated }}
-          >
-            <ChevronLeft size={20} color={themeColors.textPrimary} />
-          </TouchableOpacity>
-          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 18, color: themeColors.textPrimary }}>
-            Past Orders
-          </Text>
-        </View>
+        <PageHeader title={title} onBackPress={onBack} />
 
         <ScrollView
           className="flex-1"

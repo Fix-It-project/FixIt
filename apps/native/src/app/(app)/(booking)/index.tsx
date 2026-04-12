@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { View } from "react-native";
+import { useCallback, useState } from "react";
+import { BackHandler, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, router } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import Toast from "react-native-toast-message";
+import BackButton from "@/src/components/ui/BackButton";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useCreateBookingMutation } from "@/src/hooks/orders/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
-import BackButton from "@/src/components/ui/BackButton";
 import BookingDateStep from "@/src/features/booking-orders/components/user/BookingDateStep";
 import BookingDetailsStep, {
   type AttachmentInfo,
@@ -28,7 +28,6 @@ export default function BookingScreen() {
     serviceName,
     categoryId,
     categoryName,
-    origin,
   } = useLocalSearchParams<{
     technicianId: string;
     technicianName: string;
@@ -36,7 +35,6 @@ export default function BookingScreen() {
     serviceName: string;
     categoryId: string;
     categoryName: string;
-    origin?: string;
   }>();
 
   const [step, setStep] = useState<Step>("date");
@@ -51,13 +49,7 @@ export default function BookingScreen() {
   const stepLabel = step === "date" ? "Step 1 of 2 — Select Date" : "Step 2 of 2 — Details";
   const goBack = useSafeBack({
     pathname: "/(app)/(technicians)/list",
-    params: {
-      categoryId,
-      categoryName,
-      serviceId,
-      serviceName,
-      origin,
-    },
+    params: { categoryId, categoryName, serviceId, serviceName },
   });
 
   const handleBackPress = () => {
@@ -68,6 +60,19 @@ export default function BookingScreen() {
 
     goBack();
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+        if (step !== "details") return false;
+
+        setStep("date");
+        return true;
+      });
+
+      return () => subscription.remove();
+    }, [step]),
+  );
 
   const handleConfirm = async (
     description: string,
@@ -88,7 +93,10 @@ export default function BookingScreen() {
       });
 
       Toast.show({ type: "success", text1: "Booking submitted pending approval!" });
-      setTimeout(() => goBack(), 1500);
+      setTimeout(() => {
+        router.dismissAll();
+        router.replace("/(app)/(tabs)");
+      }, 1000);
     } catch (error: unknown) {
       Toast.show({ type: "error", text1: getErrorMessage(error) });
     }
@@ -101,25 +109,24 @@ export default function BookingScreen() {
       style={{ backgroundColor: categoryColor }}
     >
       <View className="flex-1 bg-surface-elevated">
-        {/* Header */}
         <View style={{ backgroundColor: categoryColor }} className="pb-5">
           <View className="flex-row items-center px-4 pb-1 pt-2">
             <BackButton
-              variant="light"
+              variant="header-inverse"
               className="mr-3"
               onPress={handleBackPress}
             />
             <View className="flex-1">
               <Text
-                className="text-[20px] font-bold text-white"
-                style={{ fontFamily: "GoogleSans_700Bold" }}
+                className="text-[20px] font-bold"
+                style={{ fontFamily: "GoogleSans_700Bold", color: themeColors.onPrimaryHeader }}
                 numberOfLines={1}
               >
                 Book {technicianName ?? "Technician"}
               </Text>
               <Text
-                className="text-[12px] text-white/70"
-                style={{ fontFamily: "GoogleSans_400Regular" }}
+                className="text-[12px]"
+                style={{ fontFamily: "GoogleSans_400Regular", color: themeColors.overlayBright }}
               >
                 {serviceName ?? categoryName ?? "Service"} · {stepLabel}
               </Text>
@@ -127,7 +134,11 @@ export default function BookingScreen() {
             <View
               className="h-10 w-10 items-center justify-center rounded-full bg-overlay-md"
             >
-              <CategoryIcon size={20} color={themeColors.surfaceBase} strokeWidth={1.75} />
+              <CategoryIcon
+                size={20}
+                color={themeColors.onPrimaryHeader}
+                strokeWidth={1.75}
+              />
             </View>
           </View>
         </View>

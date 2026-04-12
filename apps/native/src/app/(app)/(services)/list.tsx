@@ -1,7 +1,8 @@
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, router } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
 import { Wrench } from "lucide-react-native";
+import { useCallback, useRef } from "react";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useServicesQuery } from "@/src/hooks/services/useServicesQuery";
 import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
@@ -10,28 +11,41 @@ import { Colors } from "@/src/lib/theme";
 import { useSafeBack } from "@/src/lib/navigation";
 
 export default function ServicesListScreen() {
-  const { categoryId, categoryName, origin } = useLocalSearchParams<{
+  const { categoryId, categoryName } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
-    origin?: string;
   }>();
+  const isNavigatingRef = useRef(false);
 
   const { data: services, isLoading, isError, refetch } = useServicesQuery(categoryId ?? "");
 
   const meta = getCategoryMeta(categoryId);
   const CategoryIcon = meta?.icon ?? Wrench;
   const categoryColor = meta?.color ?? Colors.primary;
-  const goBack = useSafeBack(origin === "categories" ? "/(app)/(categories)" : "/(app)");
+  const goBack = useSafeBack("/(app)/(tabs)/(categories)");
 
-  const handleServicePress = (serviceId: string, serviceName: string) => {
+  useFocusEffect(
+    useCallback(() => {
+      isNavigatingRef.current = false;
+    }, []),
+  );
+
+  const handleServicePress = useCallback((serviceId: string, serviceName: string) => {
+    if (isNavigatingRef.current) return;
+
+    isNavigatingRef.current = true;
     router.push({
       pathname: "/(app)/(technicians)/list",
-      params: { categoryId, categoryName, serviceId, serviceName, origin },
+      params: { categoryId, categoryName, serviceId, serviceName },
     });
-  };
+  }, [categoryId, categoryName]);
 
   return (
-    <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: categoryColor }}>
+    <SafeAreaView
+      className="flex-1"
+      edges={["top"]}
+      style={{ backgroundColor: categoryColor }}
+    >
       <View className="flex-1 bg-surface-elevated">
         <ServicesHeader
           categoryName={categoryName ?? "Services"}

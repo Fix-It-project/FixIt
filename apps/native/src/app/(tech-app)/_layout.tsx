@@ -120,7 +120,7 @@ export default function TechAppLayout() {
               centerActionLift,
               primaryColor: themeColors.primary,
               primaryDarkColor: themeColors.primaryDark,
-              surfaceColor: themeColors.surfaceBase,
+              surfaceColor: themeColors.surfaceOnPrimary,
             }),
           }}
         />

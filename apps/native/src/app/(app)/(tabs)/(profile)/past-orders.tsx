@@ -1,5 +1,6 @@
 import PastOrdersList, { type PastOrdersListItem } from "@/src/features/booking-orders/components/shared/PastOrdersList";
 import { useUserPastOrders } from "@/src/hooks/orders/useUserOrders";
+import { useSafeBack } from "@/src/lib/navigation";
 
 function statusLabel(status: string): string {
   if (status === "completed") return "Completed";
@@ -9,6 +10,7 @@ function statusLabel(status: string): string {
 
 export default function PastOrdersScreen() {
   const { data: orders } = useUserPastOrders();
+  const goBack = useSafeBack("/(app)/(tabs)/(profile)");
   const items: PastOrdersListItem[] = orders.map((order) => ({
     id: order.id,
     name: order.technician_name,
@@ -20,8 +22,8 @@ export default function PastOrdersScreen() {
     scheduledDate: order.scheduled_date,
     status: order.status,
     statusLabel: statusLabel(order.status),
-    route: { pathname: "/(app)/(orders)/[id]", params: { id: order.id } },
+    route: { pathname: "/(app)/(tabs)/(orders)/[id]", params: { id: order.id } },
   }));
 
-  return <PastOrdersList items={items} />;
+  return <PastOrdersList items={items} onBack={goBack} />;
 }

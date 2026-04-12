@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { View, type ViewProps } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import BackButton from "@/src/components/ui/BackButton";
+import { useThemeColors } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
 
 interface PageHeaderProps extends ViewProps {
@@ -25,28 +26,45 @@ export default function PageHeader({
 	rightContent,
 	onBackPress,
 	className,
+	style,
 	...props
 }: Readonly<PageHeaderProps>) {
 	const isBrand = variant === "app-primary";
+	const themeColors = useThemeColors();
+	const titleColor = isBrand
+		? themeColors.onPrimaryHeader
+		: themeColors.textPrimary;
+	const subtitleColor = isBrand
+		? themeColors.overlayBright
+		: themeColors.textSecondary;
 
 	return (
 		<View
-			className={cn("flex-row items-center px-4 pt-2 pb-2", className)}
+			className={cn(
+				"min-h-16 flex-row items-center border-b border-border px-5 py-3",
+				isBrand && "border-transparent",
+				className,
+			)}
+			style={[
+				{
+					backgroundColor: isBrand
+						? themeColors.primary
+						: themeColors.surfaceBase,
+				},
+				style,
+			]}
 			{...props}
 		>
 			<BackButton
-				variant={isBrand ? "light" : "surface"}
+				variant={isBrand ? "header-inverse" : "header"}
 				onPress={onBackPress}
 				className="mr-3"
 			/>
 
 			<View className="flex-1">
 				<Text
-					className={cn(
-						"font-bold text-[20px]",
-						isBrand ? "text-white" : "text-content"
-					)}
-					style={{ fontFamily: "GoogleSans_700Bold" }}
+					className="font-bold text-[20px]"
+					style={{ fontFamily: "GoogleSans_700Bold", color: titleColor }}
 					numberOfLines={1}
 				>
 					{title}
@@ -54,11 +72,8 @@ export default function PageHeader({
 
 				{subtitle && (
 					<Text
-						className={cn(
-							"text-[12px]",
-							isBrand ? "text-white/70" : "text-content-muted"
-						)}
-						style={{ fontFamily: "GoogleSans_400Regular" }}
+						className="text-[12px]"
+						style={{ fontFamily: "GoogleSans_400Regular", color: subtitleColor }}
 					>
 						{subtitle}
 					</Text>

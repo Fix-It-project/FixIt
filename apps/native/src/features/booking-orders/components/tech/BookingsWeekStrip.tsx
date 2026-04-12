@@ -114,7 +114,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(7, circleSize * 0.18),
                     textTransform: "uppercase",
-                    color: selected ? themeColors.overlayBright : themeColors.textSecondary,
+                    color: selected ? themeColors.surfaceOnPrimary : themeColors.textSecondary,
                     lineHeight: Math.max(9, circleSize * 0.23),
                   }}
                 >
@@ -124,7 +124,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(11, circleSize * 0.32),
                     fontFamily: "GoogleSans_700Bold",
-                    color: selected ? themeColors.surfaceBase : themeColors.textPrimary,
+                    color: selected ? themeColors.surfaceOnPrimary : themeColors.textPrimary,
                     lineHeight: Math.max(14, circleSize * 0.41),
                   }}
                 >

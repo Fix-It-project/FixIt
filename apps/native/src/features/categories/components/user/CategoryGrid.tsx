@@ -25,7 +25,10 @@ export default function CategoryGrid({
 	const displayCategories = categories?.slice(0, 4) ?? [];
 	const goToCategories = useDebounce(() => {
 		onMorePress?.();
-		router.push("/(app)/(categories)");
+		router.push("/(app)/(tabs)/(categories)");
+	});
+	const handleCategoryTap = useDebounce((categoryId: string, categoryName: string) => {
+		onCategoryPress?.(categoryId, categoryName);
 	});
 	let content = (
 		<View className="flex-row flex-wrap justify-between">
@@ -42,7 +45,7 @@ export default function CategoryGrid({
 							width: "48.5%",
 							backgroundColor: themeColors.surfaceElevated,
 						}}
-						onPress={() => onCategoryPress?.(cat.id, cat.name)}
+						onPress={() => handleCategoryTap(cat.id, cat.name)}
 						activeOpacity={0.7}
 					>
 						<View className="flex-row items-center">
@@ -52,7 +55,7 @@ export default function CategoryGrid({
 							>
 								<Icon
 									size={26}
-									color={themeColors.surfaceBase}
+									color={themeColors.surfaceOnPrimary}
 									strokeWidth={1.75}
 								/>
 							</View>

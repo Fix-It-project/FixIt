@@ -14,5 +14,10 @@ export default defineConfig({
     include: ['src/**/tests/**/*.test.ts'],
     setupFiles: ['tests/setup.ts'],
     mockReset: true,
+    coverage: {
+    reporter: ['text', 'html', 'lcov'],
+    },
   },
 });
+
+

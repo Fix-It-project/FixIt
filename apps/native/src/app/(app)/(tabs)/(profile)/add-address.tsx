@@ -56,7 +56,7 @@ export default function AddAddressScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: themeColors.surfaceBase }}>
       {/* Header */}
-      <PageHeader title="Address Details" variant="surface" className="px-5 py-3" />
+      <PageHeader title="Address Details" variant="surface" />
 
       <KeyboardAwareScrollView
         style={{ flex: 1, paddingHorizontal: 20 }}

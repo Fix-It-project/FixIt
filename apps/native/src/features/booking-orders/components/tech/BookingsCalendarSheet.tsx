@@ -29,6 +29,11 @@ export interface BookingsCalendarSheetRef {
   closeIfOpen: () => boolean;
 }
 
+function getLaterMonthIso(firstIso: string, secondIso: string) {
+  const laterTimestamp = Math.max(Date.parse(firstIso), Date.parse(secondIso));
+  return toIso(new Date(laterTimestamp));
+}
+
 const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
   function BookingsCalendarSheet(_, ref) {
     const themeColors = useThemeColors();
@@ -46,7 +51,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
       new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1),
     );
     const [visibleMonthIso, setVisibleMonthIso] = useState(
-      selectedMonthIso < currentMonthIso ? currentMonthIso : selectedMonthIso,
+      getLaterMonthIso(currentMonthIso, selectedMonthIso),
     );
     const markedDates = useMemo(
       () => buildBookingsCalendarMarks(bookingDates, selectedIso, themeColors),
@@ -59,9 +64,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
     );
 
     const handleOpen = useCallback(() => {
-      setVisibleMonthIso(
-        selectedMonthIso < currentMonthIso ? currentMonthIso : selectedMonthIso,
-      );
+      setVisibleMonthIso(getLaterMonthIso(currentMonthIso, selectedMonthIso));
       setCalendarRenderKey((current) => current + 1);
       isSheetOpenRef.current = true;
       sheetRef.current?.present();

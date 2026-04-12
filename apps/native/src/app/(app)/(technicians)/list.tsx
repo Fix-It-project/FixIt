@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Search } from "lucide-react-native";
 import Toast from "react-native-toast-message";
+import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useTechniciansQuery } from "@/src/hooks/user/useTechniciansQuery";
@@ -21,12 +22,9 @@ import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
 } from "@/src/features/technicians/components/user/TechnicianProfileSheet";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
-import {
-  getRecommendedTechnicians,
-} from "@/src/features/technicians/recommendations.service";
-import BackButton from "@/src/components/ui/BackButton";
 import { useRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useSafeBack } from "@/src/lib/navigation";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
@@ -83,12 +81,11 @@ function TechnicianListBody({
 
 export default function TechniciansListScreen() {
   const themeColors = useThemeColors();
-  const { categoryId, categoryName, serviceId, serviceName, origin } = useLocalSearchParams<{
+  const { categoryId, categoryName, serviceId, serviceName } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
     serviceId: string;
     serviceName: string;
-    origin?: string;
   }>();
 
   const { searchText, setSearchText, activeSort, setActiveSort } = useTechnicianSearchStore();
@@ -103,17 +100,19 @@ export default function TechniciansListScreen() {
   );
   const goBack = useSafeBack({
     pathname: "/(app)/(services)/list",
-    params: {
-      categoryId,
-      categoryName,
-      origin,
-    },
+    params: { categoryId, categoryName },
   });
 
   const [recommendedRank, setRecommendedRank] = useState<Map<string, number> | null>(null);
+  const [isFetchingRecommended, setIsFetchingRecommended] = useState(false);
 
   const fetchRecommended = useCallback(async () => {
+    setIsFetchingRecommended(true);
+
     try {
+      const { getRecommendedTechnicians } = await import(
+        "@/src/features/technicians/recommendations.service"
+      );
       const problemDescription =
         (typeof serviceName === "string" && serviceName.trim()) ||
         (typeof categoryName === "string" && categoryName.trim()) ||
@@ -130,6 +129,8 @@ export default function TechniciansListScreen() {
     } catch {
       Toast.show({ type: "error", text1: "Could not load recommendations" });
       setRecommendedRank(null);
+    } finally {
+      setIsFetchingRecommended(false);
     }
   }, [serviceName, categoryName]);
 
@@ -159,6 +160,7 @@ export default function TechniciansListScreen() {
       setActiveSort(option);
 
       if (option === "Recommended") {
+        setRecommendedRank(null);
         await fetchRecommended();
         return;
       }
@@ -175,7 +177,7 @@ export default function TechniciansListScreen() {
     [],
   );
 
-  const handleBookPress = useCallback(
+  const handleBookPress = useDebounce(
     (technicianId: string, name: string) => {
       router.push({
         pathname: "/(app)/(booking)" as any,
@@ -186,11 +188,10 @@ export default function TechniciansListScreen() {
           serviceName,
           categoryId,
           categoryName,
-          origin,
         },
       });
     },
-    [serviceId, serviceName, categoryId, categoryName, origin],
+    800,
   );
 
   const displayedTechnicians = useMemo(() => {
@@ -206,31 +207,32 @@ export default function TechniciansListScreen() {
     technicians.length === 1 ? "technician found" : "technicians found";
 
   return (
-    <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: Colors.primary }}>
+    <SafeAreaView
+      className="flex-1"
+      edges={["top"]}
+      style={{ backgroundColor: Colors.primary }}
+    >
       <View className="flex-1 bg-surface-elevated">
-        {/* ── Blue header ── */}
         <View style={{ backgroundColor: Colors.primary }} className="pb-4">
-          {/* Top row: back + title */}
           <View className="flex-row items-center px-4 pb-2 pt-2">
-            <BackButton variant="light" className="mr-3" onPress={goBack} />
+            <BackButton variant="header-inverse" className="mr-3" onPress={goBack} />
             <View className="flex-1">
               <Text
-                className="text-[20px] font-bold text-white"
-                style={{ fontFamily: "GoogleSans_700Bold" }}
+                className="text-[20px] font-bold"
+                style={{ fontFamily: "GoogleSans_700Bold", color: themeColors.onPrimaryHeader }}
                 numberOfLines={1}
               >
                 {serviceName ?? categoryName ?? "Technicians"}
               </Text>
               <Text
-                className="text-[12px] text-white/70"
-                style={{ fontFamily: "GoogleSans_400Regular" }}
+                className="text-[12px]"
+                style={{ fontFamily: "GoogleSans_400Regular", color: themeColors.overlayBright }}
               >
                 {technicians.length} {technicianCountLabel}
               </Text>
             </View>
           </View>
 
-          {/* Search bar */}
           <View className="mx-4 mt-1">
             <View
               className="flex-row items-center rounded-xl bg-surface px-3.5"
@@ -258,6 +260,21 @@ export default function TechniciansListScreen() {
 
         {/* ── Sort filter tabs ── */}
         <TechnicianSortBar activeSort={activeSort} onSortPress={handleSortPress} />
+
+        {activeSort === "Recommended" && isFetchingRecommended && (
+          <View
+            className="flex-row items-center gap-2 px-4 py-3"
+            style={{ borderBottomWidth: 1, borderBottomColor: themeColors.borderDefault }}
+          >
+            <ActivityIndicator size="small" color={Colors.primary} />
+            <Text
+              className="text-[13px] text-content-muted"
+              style={{ fontFamily: "GoogleSans_500Medium" }}
+            >
+              Ranking technicians for you...
+            </Text>
+          </View>
+        )}
 
         {/* ── Technician list ── */}
         <TechnicianListBody

@@ -84,7 +84,7 @@ const AddNewAddressSheet = forwardRef<
 		if (location) {
 			bottomSheetRef.current?.close();
 			router.push({
-				pathname: "/(app)/(profile)/add-address",
+				pathname: "/(app)/(tabs)/(profile)/add-address",
 				params: {
 					latitude: String(location.latitude),
 					longitude: String(location.longitude),

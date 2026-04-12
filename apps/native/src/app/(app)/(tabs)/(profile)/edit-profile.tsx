@@ -19,7 +19,7 @@ export default function EditProfileScreen() {
   const { data: profile } = useProfileQuery();
   const updateProfile = useUpdateProfileMutation();
   const { fieldErrors, clearFieldError, validate } = useFormValidation(editProfileSchema);
-  const goBack = useSafeBack("/(app)/(profile)");
+  const goBack = useSafeBack("/(app)/(tabs)/(profile)");
 
   const { fullName, email, phone, setFullName, setEmail, setPhone, hydrate, reset } =
     useEditProfileStore();

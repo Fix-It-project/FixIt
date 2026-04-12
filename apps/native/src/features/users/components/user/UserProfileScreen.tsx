@@ -17,8 +17,8 @@ export default function UserProfileScreen() {
   const completedBookings = orders.filter((o) => o.status === "completed").length;
   const logout = useLogoutMutation();
 
-  const handleEditProfile = useDebounce(() => router.push("/(app)/(profile)/edit-profile"));
-  const handlePastOrders = useDebounce(() => router.push("/(app)/(profile)/past-orders"));
+  const handleEditProfile = useDebounce(() => router.push("/(app)/(tabs)/(profile)/edit-profile"));
+  const handlePastOrders = useDebounce(() => router.push("/(app)/(tabs)/(profile)/past-orders"));
   const handleSettings = useDebounce(() => router.push("/settings"));
 
   const handleLogout = () => {
@@ -59,4 +59,3 @@ export default function UserProfileScreen() {
     </View>
   );
 }
-

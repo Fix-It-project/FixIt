@@ -11,7 +11,7 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 export default function MyOrdersScreen() {
   const themeColors = useThemeColors();
   const { data: orders = [], isLoading, refetch, isRefetching } = useUserOrdersQuery();
-  const goToOrder = useDebounce((id: string) => router.push({ pathname: "/(app)/(orders)/[id]", params: { id } }));
+  const goToOrder = useDebounce((id: string) => router.push({ pathname: "/(app)/(tabs)/(orders)/[id]", params: { id } }));
   const isRefreshing = isRefetching && !isLoading;
 
   return (
@@ -32,9 +32,9 @@ export default function MyOrdersScreen() {
               paddingBottom: 40,
               flexGrow: orders.length === 0 ? 1 : undefined,
             }}
-            refreshControl={
+            refreshControl={(
               <RefreshControl refreshing={isRefreshing} onRefresh={refetch} tintColor={Colors.primary} />
-            }
+            )}
           >
             {orders.length === 0 ? (
               <View className="flex-1 items-center justify-center px-8">

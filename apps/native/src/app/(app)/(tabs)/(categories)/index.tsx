@@ -6,23 +6,23 @@ import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
+import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function CategoriesScreen() {
   const themeColors = useThemeColors();
   const fallbackColors = themeColors.category.fallbacks;
   const { data: categories, isLoading, isError, refetch } = useCategoriesQuery();
 
-  const handleCategoryPress = (categoryId: string, categoryName: string) => {
+  const handleCategoryPress = useDebounce((categoryId: string, categoryName: string) => {
     router.push({
       pathname: "/(app)/(services)/list",
-      params: { categoryId, categoryName, origin: "categories" },
+      params: { categoryId, categoryName },
     });
-  };
+  });
 
   return (
     <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
-        {/* Header */}
         <View className="px-5 pb-3 pt-4">
           <Text
             className="text-[26px] font-bold text-content"
@@ -32,14 +32,12 @@ export default function CategoriesScreen() {
           </Text>
         </View>
 
-        {/* Loading */}
         {isLoading && (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={Colors.primary} />
           </View>
         )}
 
-        {/* Error */}
         {isError && !isLoading && (
           <View className="flex-1 items-center justify-center gap-2">
             <Text className="text-[14px] text-content-muted">
@@ -51,7 +49,6 @@ export default function CategoriesScreen() {
           </View>
         )}
 
-        {/* Grid */}
         {!isLoading && !isError && (
           <ScrollView
             className="flex-1"
@@ -76,7 +73,7 @@ export default function CategoriesScreen() {
                         className="h-16 w-16 items-center justify-center"
                         style={{ backgroundColor: color }}
                       >
-                        <Icon size={26} color={themeColors.surfaceBase} strokeWidth={1.75} />
+                        <Icon size={26} color={themeColors.surfaceOnPrimary} strokeWidth={1.75} />
                       </View>
                       <Text
                         className="flex-1 px-3 text-[14px] font-semibold text-content"

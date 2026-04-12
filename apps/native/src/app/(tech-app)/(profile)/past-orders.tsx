@@ -1,5 +1,6 @@
 import PastOrdersList, { type PastOrdersListItem } from "@/src/features/booking-orders/components/shared/PastOrdersList";
 import { useTechPastOrders } from "@/src/hooks/tech/useTechBookingsQuery";
+import { useSafeBack } from "@/src/lib/navigation";
 
 function statusLabel(status: string): string {
   if (status === "completed") return "Completed";
@@ -9,6 +10,7 @@ function statusLabel(status: string): string {
 
 export default function PastOrdersScreen() {
   const { data: orders } = useTechPastOrders();
+  const goBack = useSafeBack("/(tech-app)/(profile)");
   const items: PastOrdersListItem[] = orders.map((order) => ({
     id: order.id,
     name: order.user_name,
@@ -22,5 +24,5 @@ export default function PastOrdersScreen() {
     route: `/(tech-app)/(bookings)/${order.id}`,
   }));
 
-  return <PastOrdersList items={items} />;
+  return <PastOrdersList items={items} onBack={goBack} />;
 }

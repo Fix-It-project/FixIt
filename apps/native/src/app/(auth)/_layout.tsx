@@ -1,4 +1,5 @@
 import { Redirect, Stack } from "expo-router";
+import { APP_ROOT_ROUTE, TECH_ROOT_ROUTE } from "@/src/lib/navigation-routes";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function AuthLayout() {
@@ -8,9 +9,9 @@ export default function AuthLayout() {
 
   if (!isLoading && isAuthenticated) {
     if (userType === "technician") {
-      return <Redirect href="/(tech-app)" />;
+      return <Redirect href={TECH_ROOT_ROUTE} />;
     }
-    return <Redirect href="/(app)" />;
+    return <Redirect href={APP_ROOT_ROUTE} />;
   }
 
   return (

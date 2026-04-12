@@ -19,7 +19,7 @@ export default function OrderDetailScreen() {
   const themeColors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const order = useUserOrderById(id);
-  const goBack = useSafeBack("/(app)/(orders)");
+  const goBack = useSafeBack("/(app)/(tabs)/(orders)");
 
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelReason, setCancelReason] = useState("");

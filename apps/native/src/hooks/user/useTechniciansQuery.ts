@@ -20,24 +20,25 @@ export function useTechniciansQuery(
   searchQuery = "",
   coords?: { latitude: number; longitude: number } | null,
 ) {
+  const trimmedCategoryId = categoryId.trim();
   const trimmedQuery = searchQuery.trim();
 
   return useQuery<TechnicianListItem[]>({
-    queryKey: ["technicians", categoryId, trimmedQuery, coords?.latitude ?? null, coords?.longitude ?? null],
+    queryKey: ["technicians", trimmedCategoryId, trimmedQuery, coords?.latitude ?? null, coords?.longitude ?? null],
     queryFn: async () => {
       try {
         const c = coords ?? undefined;
         if (trimmedQuery.length >= 2) {
-          return await searchTechniciansInCategory(categoryId, trimmedQuery, c);
+          return await searchTechniciansInCategory(trimmedCategoryId, trimmedQuery, c);
         }
-        return await getTechniciansByCategory(categoryId, c);
+        return await getTechniciansByCategory(trimmedCategoryId, c);
       } catch (error) {
         // Fallback to mock data during development when server is offline
         console.warn(
           "[useTechniciansQuery] API unreachable, using mock data.",
           error,
         );
-        const mock = MOCK_TECHNICIANS_BY_CATEGORY[categoryId] ?? [];
+        const mock = MOCK_TECHNICIANS_BY_CATEGORY[trimmedCategoryId] ?? [];
 
         if (trimmedQuery.length >= 2) {
           const lower = trimmedQuery.toLowerCase();
@@ -51,6 +52,7 @@ export function useTechniciansQuery(
         return mock;
       }
     },
+    enabled: trimmedCategoryId.length > 0,
     // Keep cached data for 2 minutes
     staleTime: 2 * 60 * 1000,
     // Prevent automatic retries when falling back to mock data
