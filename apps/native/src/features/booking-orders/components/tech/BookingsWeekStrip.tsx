@@ -1,9 +1,10 @@
 import { I18nManager, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import { toIso } from "@/src/lib/helpers/date-helpers";
 import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -19,6 +20,7 @@ today.setHours(0, 0, 0, 0);
 
 /** Horizontal week strip – 7 day circles, swipe left/right to navigate weeks with slide animation. */
 export default function BookingsWeekStrip() {
+  const themeColors = useThemeColors();
   const { selectedDate, weekStart, setSelectedDate, goToPrevWeek, goToNextWeek } =
     useBookingsDateStore();
   const { data: bookingDates } = useTechBookingDatesQuery();
@@ -100,7 +102,7 @@ export default function BookingsWeekStrip() {
                   width: circleSize,
                   height: circleSize,
                   opacity: isPast ? 0.35 : 1,
-                  backgroundColor: selected ? Colors.primary : Colors.surfaceBase,
+                  backgroundColor: selected ? Colors.primary : themeColors.surfaceBase,
                   shadowColor: selected ? Colors.primary : Colors.shadow,
                   shadowOffset: { width: 0, height: selected ? 3 : 1 },
                   shadowOpacity: selected ? 0.35 : 0.08,
@@ -113,7 +115,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(7, circleSize * 0.18),
                     textTransform: "uppercase",
-                    color: selected ? Colors.overlayBright : Colors.textSecondary,
+                    color: selected ? Colors.overlayBright : themeColors.textSecondary,
                     lineHeight: Math.max(9, circleSize * 0.23),
                   }}
                 >
@@ -123,7 +125,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(11, circleSize * 0.32),
                     fontFamily: "GoogleSans_700Bold",
-                    color: selected ? Colors.surfaceBase : Colors.textPrimary,
+                    color: selected ? themeColors.surfaceBase : themeColors.textPrimary,
                     lineHeight: Math.max(14, circleSize * 0.41),
                   }}
                 >
@@ -138,7 +140,7 @@ export default function BookingsWeekStrip() {
                       width: 4,
                       height: 4,
                       borderRadius: 2,
-                      backgroundColor: selected ? Colors.surfaceBase : Colors.ratingDefault,
+                      backgroundColor: selected ? themeColors.surfaceBase : Colors.ratingDefault,
                     }}
                   />
                 )}

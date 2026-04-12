@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 interface PasswordInputProps {
 	label?: string;
@@ -26,12 +26,13 @@ export default function PasswordInput({
 	variant = "filled",
 	required = false,
 }: PasswordInputProps) {
+	const themeColors = useThemeColors();
 	const [visible, setVisible] = useState(false);
 
 	const isFilled = variant === "filled";
 
 	const containerClass = isFilled
-		? `bg-white h-14 rounded-full flex-row items-center px-6 ${error ? "border border-red-400" : ""}`
+		? `bg-surface h-14 rounded-full flex-row items-center px-6 ${error ? "border border-red-400" : ""}`
 		: `h-14 rounded-2xl flex-row items-center px-5 border ${
 				error
 					? "border-red-400"
@@ -59,16 +60,16 @@ export default function PasswordInput({
 					value={value}
 					onChangeText={onChangeText}
 					placeholder={placeholder}
-					placeholderTextColor={Colors.textMuted}
+					placeholderTextColor={themeColors.textMuted}
 					secureTextEntry={!visible}
 					editable={!disabled}
 					className="flex-1 text-[16px] text-content"
 				/>
 				<Pressable onPress={() => setVisible((v) => !v)} hitSlop={8}>
 					{visible ? (
-						<Eye size={20} color={Colors.textMuted} />
+						<Eye size={20} color={themeColors.textMuted} />
 					) : (
-						<EyeOff size={20} color={Colors.textMuted} />
+						<EyeOff size={20} color={themeColors.textMuted} />
 					)}
 				</Pressable>
 			</View>

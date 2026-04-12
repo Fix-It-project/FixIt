@@ -10,7 +10,8 @@ import {
   LogOut,
   type LucideIcon,
 } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 
 function MenuItem({
   icon: Icon,
@@ -23,6 +24,7 @@ function MenuItem({
   onPress: () => void;
   destructive?: boolean;
 }) {
+  const themeColors = useThemeColors();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -48,7 +50,7 @@ function MenuItem({
         {label}
       </Text>
       {!destructive && (
-        <ChevronRight size={18} color={Colors.textSecondary} strokeWidth={1.8} />
+        <ChevronRight size={18} color={themeColors.textSecondary} strokeWidth={1.8} />
       )}
     </TouchableOpacity>
   );

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { View, ScrollView, ActivityIndicator, Alert } from "react-native";
-import { router } from "expo-router";
 import { Mail, Phone, User } from "lucide-react-native";
 import { useProfileQuery } from "@/src/hooks/user/useProfileQuery";
 import { useUpdateProfileMutation } from "@/src/hooks/user/useUpdateProfileMutation";
@@ -11,13 +10,17 @@ import FormInput from "@/src/features/auth/components/shared/FormInput";
 import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { useSafeBack } from "@/src/lib/navigation";
 
 export default function EditProfileScreen() {
+  const themeColors = useThemeColors();
   const { data: profile } = useProfileQuery();
   const updateProfile = useUpdateProfileMutation();
   const { fieldErrors, clearFieldError, validate } = useFormValidation(editProfileSchema);
+  const goBack = useSafeBack("/(app)/(profile)");
 
   const { fullName, email, phone, setFullName, setEmail, setPhone, hydrate, reset } =
     useEditProfileStore();
@@ -33,15 +36,28 @@ export default function EditProfileScreen() {
     });
   }, [profile, hydrate]);
 
+  const originalValues = {
+    fullName: profile?.full_name ?? "",
+    email: profile?.email ?? "",
+    phone: profile?.phone ?? "",
+  };
+
+  const hasChanges =
+    fullName !== originalValues.fullName ||
+    email !== originalValues.email ||
+    phone !== originalValues.phone;
+
   const handleSave = () => {
+    if (!hasChanges) return;
+
     const result = validate({ full_name: fullName, email, phone });
     if (!result.success) return;
 
     // Only send changed fields
     const payload: { full_name?: string; email?: string; phone?: string } = {};
-    if (fullName !== (profile?.full_name ?? "")) payload.full_name = fullName;
-    if (email !== (profile?.email ?? "")) payload.email = email;
-    if (phone !== (profile?.phone ?? "")) payload.phone = phone;
+    if (result.data.full_name !== originalValues.fullName) payload.full_name = result.data.full_name;
+    if (result.data.email !== originalValues.email) payload.email = result.data.email;
+    if (result.data.phone !== originalValues.phone) payload.phone = result.data.phone;
 
     if (Object.keys(payload).length === 0) {
       Alert.alert("No changes", "You haven't changed anything.");
@@ -49,7 +65,7 @@ export default function EditProfileScreen() {
     }
 
     updateProfile.mutate(payload, {
-      onSuccess: () => { reset(); router.back(); },
+      onSuccess: () => { reset(); goBack(); },
       onError: (error) =>
         Alert.alert("Update failed", getErrorMessage(error) || "Something went wrong."),
     });
@@ -103,9 +119,9 @@ export default function EditProfileScreen() {
       />
 
       <View className="mt-2">
-        <Button onPress={handleSave} disabled={updateProfile.isPending}>
+        <Button onPress={handleSave} disabled={!hasChanges || updateProfile.isPending}>
           {updateProfile.isPending ? (
-            <ActivityIndicator color={Colors.surfaceBase} />
+            <ActivityIndicator color={themeColors.surfaceBase} />
           ) : (
             <Text>Save Changes</Text>
           )}

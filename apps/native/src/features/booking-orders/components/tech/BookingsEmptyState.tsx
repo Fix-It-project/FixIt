@@ -1,11 +1,13 @@
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { CalendarOff } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 /** Shown when the selected day has no bookings. */
 export default function BookingsEmptyState() {
+  const themeColors = useThemeColors();
   return (
     <Animated.View
       entering={FadeIn.duration(400)}
@@ -14,7 +16,7 @@ export default function BookingsEmptyState() {
       {/* Icon */}
       <View
         className="mb-5 h-20 w-20 items-center justify-center rounded-full"
-        style={{ backgroundColor: Colors.primaryLight }}
+        style={{ backgroundColor: themeColors.primaryLight }}
       >
         <CalendarOff size={36} color={Colors.primary} strokeWidth={1.5} />
       </View>
@@ -23,7 +25,7 @@ export default function BookingsEmptyState() {
         style={{
           fontFamily: "GoogleSans_700Bold",
           fontSize: 20,
-          color: Colors.textPrimary,
+          color: themeColors.textPrimary,
           textAlign: "center",
         }}
       >
@@ -33,7 +35,7 @@ export default function BookingsEmptyState() {
         className="mt-2"
         style={{
           fontSize: 14,
-          color: Colors.textSecondary,
+          color: themeColors.textSecondary,
           textAlign: "center",
           lineHeight: 20,
         }}

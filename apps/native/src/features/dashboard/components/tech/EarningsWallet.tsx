@@ -1,10 +1,11 @@
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 import { WALLET } from "@/src/lib/mock-data/tech";
 import Animated, { FadeInUp } from "react-native-reanimated";
 
 export default function EarningsWallet() {
+  const themeColors = useThemeColors();
   return (
     <Animated.View
       entering={FadeInUp.delay(300).duration(400)}
@@ -12,11 +13,11 @@ export default function EarningsWallet() {
     >
       {/* Wallet card */}
       <View
-        className="rounded-2xl bg-white p-4"
+        className="rounded-2xl bg-surface p-4"
         style={{
           borderWidth: 1,
-          borderColor: Colors.borderDefault,
-          shadowColor: Colors.shadow,
+          borderColor: themeColors.borderDefault,
+          shadowColor: themeColors.shadow,
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.04,
           shadowRadius: 4,
@@ -36,14 +37,14 @@ export default function EarningsWallet() {
         <TouchableOpacity
           className="mt-4 items-center rounded-xl border py-2.5"
           style={{
-            backgroundColor: `${Colors.primary}10`,
-            borderColor: `${Colors.primary}30`,
+            backgroundColor: `${themeColors.primary}10`,
+            borderColor: `${themeColors.primary}30`,
           }}
           activeOpacity={0.7}
         >
           <Text
             className="text-[11px] font-bold uppercase"
-            style={{ color: Colors.primary }}
+            style={{ color: themeColors.primary }}
           >
             Withdraw
           </Text>

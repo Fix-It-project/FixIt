@@ -12,9 +12,10 @@ import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout
 import FormInput from "@/src/features/auth/components/shared/FormInput";
 import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 export default function TechnicianSignUpStep1() {
+  const themeColors = useThemeColors();
   const store = useTechnicianSignupStore();
   const [email, setEmail] = useState(store.email);
   const [isChecking, setIsChecking] = useState(false);
@@ -69,7 +70,7 @@ export default function TechnicianSignUpStep1() {
         className="mt-2"
       >
         {isChecking ? (
-          <ActivityIndicator color={Colors.surfaceBase} />
+          <ActivityIndicator color={themeColors.surfaceBase} />
         ) : (
           <BtnText>Next</BtnText>
         )}

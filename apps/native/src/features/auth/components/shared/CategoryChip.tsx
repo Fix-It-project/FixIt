@@ -6,7 +6,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 
 interface CategoryChipProps {
   label: string;
@@ -57,7 +57,7 @@ export default function CategoryChip({
       android_ripple={{ color: "rgba(0,0,0,0.06)" }}
     >
       <Animated.View
-        className="mx-4 my-1.5 flex-row items-center overflow-hidden rounded-[14px] border-[1.5px] bg-white py-3 pl-0 pr-3.5"
+        className="mx-4 my-1.5 flex-row items-center overflow-hidden rounded-[14px] border-[1.5px] bg-surface py-3 pl-0 pr-3.5"
         style={[
           {
             borderColor: selected ? color : Colors.borderChip,

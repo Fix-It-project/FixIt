@@ -3,8 +3,9 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ChevronLeft, ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
-import { CATEGORIES } from "@/src/lib/categories";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
+import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
 import { useTechPastOrders } from "@/src/hooks/tech/useTechBookingsQuery";
@@ -21,6 +22,7 @@ function statusColor(status: string): string {
 }
 
 function PastOrderCard({ order }: { readonly order: TechnicianOrder }) {
+  const themeColors = useThemeColors();
   const category = CATEGORIES.find((c) => c.id === order.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? Colors.primary;
@@ -31,8 +33,8 @@ function PastOrderCard({ order }: { readonly order: TechnicianOrder }) {
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={goToOrder}
-      className="mb-3 rounded-2xl bg-white p-4"
-      style={{ borderWidth: 1, borderColor: Colors.borderDefault }}
+      className="mb-3 rounded-2xl bg-surface p-4"
+      style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
     >
       <View className="flex-row items-center gap-3">
         {/* Avatar */}
@@ -40,7 +42,7 @@ function PastOrderCard({ order }: { readonly order: TechnicianOrder }) {
           className="h-11 w-11 items-center justify-center rounded-full"
           style={{ backgroundColor: getAvatarColor(order.user_name) }}
         >
-          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.surfaceBase }}>
+          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: themeColors.surfaceBase }}>
             {getInitials(order.user_name)}
           </Text>
         </View>
@@ -48,14 +50,14 @@ function PastOrderCard({ order }: { readonly order: TechnicianOrder }) {
         {/* Info */}
         <View className="flex-1">
           <Text
-            style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.textPrimary }}
+            style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: themeColors.textPrimary }}
             numberOfLines={1}
           >
             {order.user_name ?? "Unknown Client"}
           </Text>
           <View className="mt-0.5 flex-row items-center gap-1.5">
             <CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
-            <Text style={{ fontSize: 12, color: Colors.textSecondary }} numberOfLines={1}>
+            <Text style={{ fontSize: 12, color: themeColors.textSecondary }} numberOfLines={1}>
               {order.service_name ?? "Service"}
             </Text>
           </View>
@@ -63,7 +65,7 @@ function PastOrderCard({ order }: { readonly order: TechnicianOrder }) {
 
         {/* Date + status */}
         <View className="items-end">
-          <Text style={{ fontSize: 11, color: Colors.textMuted }}>
+          <Text style={{ fontSize: 11, color: themeColors.textMuted }}>
             {formatDate(order.scheduled_date)}
           </Text>
           <View
@@ -81,6 +83,7 @@ function PastOrderCard({ order }: { readonly order: TechnicianOrder }) {
 }
 
 export default function PastOrdersScreen() {
+  const themeColors = useThemeColors();
   const { data: orders } = useTechPastOrders();
 
   return (
@@ -89,16 +92,16 @@ export default function PastOrdersScreen() {
         {/* Header */}
         <View
           className="flex-row items-center gap-3 px-4 pb-4 pt-2"
-          style={{ backgroundColor: Colors.surfaceBase }}
+          style={{ backgroundColor: themeColors.surfaceBase }}
         >
           <TouchableOpacity
             onPress={() => router.back()}
             className="h-9 w-9 items-center justify-center rounded-full"
-            style={{ backgroundColor: Colors.surfaceElevated }}
+            style={{ backgroundColor: themeColors.surfaceElevated }}
           >
-            <ChevronLeft size={20} color={Colors.textPrimary} />
+            <ChevronLeft size={20} color={themeColors.textPrimary} />
           </TouchableOpacity>
-          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 18, color: Colors.textPrimary }}>
+          <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 18, color: themeColors.textPrimary }}>
             Past Orders
           </Text>
         </View>
@@ -110,7 +113,7 @@ export default function PastOrdersScreen() {
         >
           {orders.length === 0 ? (
             <View className="items-center py-16">
-              <Text style={{ fontSize: 14, color: Colors.textMuted }}>No past orders yet</Text>
+              <Text style={{ fontSize: 14, color: themeColors.textMuted }}>No past orders yet</Text>
             </View>
           ) : (
             orders.map((o) => <PastOrderCard key={o.id} order={o} />)

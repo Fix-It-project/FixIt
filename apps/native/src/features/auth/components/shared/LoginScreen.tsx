@@ -14,7 +14,7 @@ import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import OAuthDivider from "@/src/features/auth/components/shared/OAuthDivider";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 interface LoginMutationResult {
   mutate: (data: { email: string; password: string }) => void;
@@ -42,6 +42,7 @@ export default function LoginScreen({
   signupPrefixText,
   signupActionText,
 }: LoginScreenProps) {
+  const themeColors = useThemeColors();
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -91,7 +92,7 @@ export default function LoginScreen({
       {/* Forgot Password */}
       <View className="items-end -mt-3">
         <Pressable onPress={goToForgotPassword}>
-          <Text className="text-[14px] font-medium text-content-forgot">
+          <Text className="text-[14px] font-medium text-app-primary">
             Forgot Password?
           </Text>
         </Pressable>
@@ -103,7 +104,7 @@ export default function LoginScreen({
         className="mt-2"
       >
         {loginMutation.isPending ? (
-          <ActivityIndicator color={Colors.surfaceBase} />
+          <ActivityIndicator color={themeColors.surfaceBase} />
         ) : (
           <BtnText>Log in</BtnText>
         )}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { router } from "expo-router";
 import { View, FlatList } from "react-native";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
-import { CATEGORIES } from "@/src/lib/categories";
+import { CATEGORIES } from "@/src/lib/helpers/categories";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
 import CategoryChip from "@/src/features/auth/components/shared/CategoryChip";
 import { Button } from "@/src/components/ui/button";

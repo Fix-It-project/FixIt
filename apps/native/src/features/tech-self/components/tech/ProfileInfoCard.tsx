@@ -2,7 +2,7 @@ import { ActivityIndicator, View } from "react-native";
 import { FileText, Mail, Phone, Wrench, type LucideIcon } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Separator } from "@/src/components/ui/separator";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import type { TechnicianSelfProfile } from "@/src/features/tech-self/schemas/response.schema";
 
 function InfoRow({

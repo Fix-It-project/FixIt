@@ -1,26 +1,38 @@
 import { router } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { View, Text, Image } from "react-native";
 import { ArrowRight } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 import { useDebounce } from "@/src/hooks/useDebounce";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function GetStartedScreen() {
-  const goToRoleSelection = useDebounce(() => router.push("/(auth)/role-selection"));
+  const themeColors = useThemeColors();
+  const insets = useSafeAreaInsets();
+  const goToRoleSelection = useDebounce(() =>
+    router.push("/(auth)/role-selection"),
+  );
 
   return (
     <LinearGradient
-      colors={[Colors.gradientStart, Colors.gradientMid, Colors.gradientEnd]}
+      colors={[
+        themeColors.gradientStart,
+        themeColors.gradientMid,
+        themeColors.gradientEnd,
+      ]}
       locations={[0, 0.5, 1]}
       className="flex-1"
     >
-      <StatusBar style="dark" />
-
       {/* Main Content */}
-      <View className="flex-1 items-center pt-[189px] px-8">
+      <View
+        className="flex-1 items-center px-8"
+        style={{
+          paddingTop: insets.top + 145,
+          paddingBottom: insets.bottom + 20,
+        }}
+      >
         {/* Logo Container */}
         <View className="mb-[33px]">
           <Image
@@ -32,12 +44,18 @@ export default function GetStartedScreen() {
 
         {/* App Name */}
         <View className="flex-row items-center mb-2">
-          <Text className="text-[41px] font-bold text-content-slate tracking-tight">Fix</Text>
-          <Text className="text-[41px] font-bold text-app-primary-dark tracking-tight">IT</Text>
+          <Text className="text-[41px] font-bold text-content tracking-tight">
+            Fix
+          </Text>
+          <Text className="text-[41px] font-bold text-app-primary-dark tracking-tight">
+            IT
+          </Text>
         </View>
 
         {/* Subtitle */}
-        <Text className="text-[17px] font-light text-content-slate-light mb-[76px]">Fast & Reliable</Text>
+        <Text className="text-[17px] font-light text-content-secondary mb-[76px]">
+          Fast & Reliable
+        </Text>
 
         {/* Buttons */}
         <View className="w-full max-w-[327px] gap-4">
@@ -46,13 +64,13 @@ export default function GetStartedScreen() {
             className="flex-row gap-2 shadow-sm"
           >
             <BtnText className="text-[17px]">Get Started</BtnText>
-            <ArrowRight size={20} color={Colors.surfaceBase} />
+            <ArrowRight size={20} color={themeColors.surfaceBase} />
           </Button>
         </View>
 
         {/* Terms and Privacy */}
-        <View className="absolute bottom-[34px] px-8">
-          <Text className="text-[10.2px] text-content-slate-dim text-center leading-4">
+        <View className="absolute px-8" style={{ bottom: insets.bottom + 18 }}>
+          <Text className="text-[10.2px] text-content-muted text-center leading-4">
             By pressing on "Sign Up", you agree to our{" "}
             <Text className="underline">Terms of Service</Text>
             {"\n"}and <Text className="underline">Privacy Policy</Text>

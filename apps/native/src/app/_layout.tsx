@@ -1,165 +1,98 @@
 import "../../global.css";
 
-import * as SplashScreen from 'expo-splash-screen';
-import * as Sentry from '@sentry/react-native';
-import { useFonts, GoogleSans_400Regular, GoogleSans_500Medium, GoogleSans_600SemiBold, GoogleSans_700Bold } from "@expo-google-fonts/google-sans";
-
-import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
-import { Stack, router } from "expo-router";
-import * as Linking from "expo-linking";
+import {
+  GoogleSans_400Regular,
+  GoogleSans_500Medium,
+  GoogleSans_600SemiBold,
+  GoogleSans_700Bold,
+  useFonts,
+} from "@expo-google-fonts/google-sans";
+import { ThemeProvider } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
+import * as Sentry from "@sentry/react-native";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Platform, StyleSheet } from "react-native";
+import { useMemo } from "react";
+import { vars } from "react-native-css-interop";
+import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { CustomToast } from "@/src/components/ui/toast";
-import { PortalHost } from "@rn-primitives/portal";
+import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
+import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
+import { useRecoveryDeepLink } from "@/src/hooks/useRecoveryDeepLink";
 import queryClient from "@/src/lib/query-client";
-
-import { setAndroidNavigationBar } from "@/src/lib/android-navigation-bar";
-import { NAV_THEME } from "@/src/lib/theme";
-import { useColorScheme } from "@/src/hooks/use-color-scheme";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { useLocationStore } from "@/src/stores/location-store";
+import {
+  createNavigationTheme,
+  getThemeVariableRecord,
+  useThemeTokens,
+} from "@/src/lib/theme";
 
 SplashScreen.preventAutoHideAsync();
 
 Sentry.init({
-  dsn: 'https://bd466622828fff10dd93d712742852e5@o4510789900500992.ingest.us.sentry.io/4510789900763136',
-
-  // Adds more context data to events (IP address, cookies, user, etc.)
-  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/       
-  //sendDefaultPii: true,
-
-  // Enable Logs
+  dsn: "https://bd466622828fff10dd93d712742852e5@o4510789900500992.ingest.us.sentry.io/4510789900763136",
   enableLogs: true,
-
-  // Configure Session Replay
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
   integrations: [Sentry.mobileReplayIntegration()],
-
-  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
-  // spotlight: __DEV__,
 });
 
-
-
-const useIsomorphicLayoutEffect =
-  Platform.OS === "web" && typeof window === "undefined" ? useEffect : useLayoutEffect;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
 });
 
 function RootLayout() {
-  const hasMounted = useRef(false);
-  const { colorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
-
   const [fontsLoaded] = useFonts({
     GoogleSans_400Regular,
     GoogleSans_500Medium,
     GoogleSans_600SemiBold,
     GoogleSans_700Bold,
   });
+  const { isReady } = useAppBootstrap(fontsLoaded);
+  const tokens = useThemeTokens();
+  const navigationTheme = useMemo(
+    () => createNavigationTheme(tokens),
+    [tokens.id],
+  );
+  const themeVariables = useMemo(
+    () => vars(getThemeVariableRecord(tokens)),
+    [tokens.id],
+  );
 
-  // ── Auth state ──────────────────────────────────────────────────────────────
-  const { isLoading, loadStoredSession } = useAuthStore();
-  const { requestLocationPermission } = useLocationStore();
+  useRecoveryDeepLink();
+  useAndroidSystemUi(tokens.androidNavigationBarStyle, isReady);
 
-  // Load persisted session & request location on first mount
-  useEffect(() => {
-    loadStoredSession();
-    requestLocationPermission();
-  }, []);
-
-  // Dismiss splash screen once everything is ready
-  useEffect(() => {
-    if (isColorSchemeLoaded && !isLoading && fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [isColorSchemeLoaded, isLoading, fontsLoaded]);
-
-  // ── Deep link handler for password reset ─────────────────────────────────
-  useEffect(() => {
-    const handleDeepLink = (event: { url: string }) => {
-      const url = event.url;
-      if (!url) return;
-
-      // Supabase redirects with tokens in the URL fragment:
-      // FixITapp://reset-password#access_token=...&refresh_token=...&type=recovery
-      const hashIndex = url.indexOf("#");
-      if (hashIndex === -1) return;
-
-      const fragment = url.substring(hashIndex + 1);
-      const params = new URLSearchParams(fragment);
-      const accessToken = params.get("access_token");
-      const refreshToken = params.get("refresh_token");
-      const type = params.get("type");
-
-      if (type === "recovery" && accessToken && refreshToken) {
-        router.replace({
-          pathname: "/(auth)/(forgotpassword)/reset-password",
-          params: {
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            userType: "user", // Default; user will already be on the correct flow
-          },
-        });
-      }
-    };
-
-    // Handle deep link if app was opened from a link
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
-    });
-
-    // Handle deep link while app is running
-    const subscription = Linking.addEventListener("url", handleDeepLink);
-    return () => subscription.remove();
-  }, []);
-
-  useIsomorphicLayoutEffect(() => {
-    if (hasMounted.current) {
-      return;
-    }
-    setAndroidNavigationBar(colorScheme);
-    setIsColorSchemeLoaded(true);
-    hasMounted.current = true;
-  }, []);
-
-  // Wait until colour-scheme, auth state, AND fonts are resolved
-  if (!isColorSchemeLoaded || isLoading || !fontsLoaded) {
+  if (!isReady) {
     return null;
   }
 
   return (
     <SafeAreaProvider>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={isDarkColorScheme ? NAV_THEME.dark : NAV_THEME.light}>
-        <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+      <QueryClientProvider client={queryClient}>
+        <StatusBar style={tokens.statusBarStyle} />
+
         <GestureHandlerRootView style={styles.container}>
-          <KeyboardProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(app)" />
-            <Stack.Screen name="(tech-app)" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen
-              name="settings"
-              options={{ headerShown: false }}
-            />
-          </Stack>
-          </KeyboardProvider>
+          <ThemeProvider value={navigationTheme}>
+            <View className="flex-1 bg-surface" style={themeVariables}>
+              <KeyboardProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(app)" />
+                  <Stack.Screen name="(tech-app)" />
+                  <Stack.Screen name="(auth)" />
+                  <Stack.Screen name="settings" />
+                </Stack>
+
+                <PortalHost />
+                <CustomToast />
+              </KeyboardProvider>
+            </View>
+          </ThemeProvider>
         </GestureHandlerRootView>
-        <PortalHost />
-        <CustomToast />
-      </ThemeProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

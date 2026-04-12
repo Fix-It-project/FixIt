@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
 import {
   useBookingById,
@@ -16,15 +17,29 @@ import BookingDescriptionCard from "@/src/features/booking-orders/components/sha
 import BookingAttachmentCard from "@/src/features/booking-orders/components/shared/BookingAttachmentCard";
 import BookingActionButtons from "@/src/features/booking-orders/components/tech/BookingActionButtons";
 import BookingCancelModal from "@/src/features/booking-orders/components/tech/BookingCancelModal";
+import { useSafeBack } from "@/src/lib/navigation";
+import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 
 export default function BookingDetailScreen() {
+  const themeColors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const booking = useBookingById(id);
+  const goBack = useSafeBack("/(tech-app)/(schedule)?view=bookings");
 
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const cancelMutation = useCancelOrderByTechnicianMutation();
   const completeMutation = useCompleteOrderMutation();
+
+  useFocusBackHandler(() => {
+    if (cancelModalVisible) {
+      setCancelModalVisible(false);
+      return true;
+    }
+
+    goBack();
+    return true;
+  });
 
   if (!booking) {
     return (
@@ -43,7 +58,7 @@ export default function BookingDetailScreen() {
         {
           text: "Complete",
           onPress: () =>
-            completeMutation.mutate(booking.id, { onSuccess: () => router.back() }),
+            completeMutation.mutate(booking.id, { onSuccess: () => goBack() }),
         },
       ],
     );
@@ -56,7 +71,7 @@ export default function BookingDetailScreen() {
         onSuccess: () => {
           setCancelModalVisible(false);
           setCancelReason("");
-          router.back();
+          goBack();
         },
       },
     );
@@ -69,7 +84,7 @@ export default function BookingDetailScreen() {
   return (
     <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
-        <BookingDetailHeader booking={booking} />
+        <BookingDetailHeader booking={booking} onBack={goBack} />
 
         <ScrollView
           className="flex-1"
@@ -103,7 +118,7 @@ export default function BookingDetailScreen() {
                     : "Cancelled by you"}
               </Text>
               {booking.cancellation_reason && (
-                <Text style={{ fontSize: 12, color: Colors.textSecondary, marginTop: 4, paddingHorizontal: 16, textAlign: "center" }}>
+                <Text style={{ fontSize: 12, color: themeColors.textSecondary, marginTop: 4, paddingHorizontal: 16, textAlign: "center" }}>
                   {booking.cancellation_reason}
                 </Text>
               )}

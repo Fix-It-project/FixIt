@@ -8,8 +8,8 @@ const addressFieldsSchema = z.object({
     .string()
     .min(5, "Street address must be at least 5 characters")
     .max(200, "Street address must be less than 200 characters"),
-  buildingNumber: z.string().min(1, "Building number is required"),
-  apartmentNumber: z.string().min(1, "Apartment number is required"),
+  buildingNumber: z.string().optional().or(z.literal("")),
+  apartmentNumber: z.string().optional().or(z.literal("")),
 });
 
 // ─── User Auth Forms ─────────────────────────────────────────────────────────
@@ -179,8 +179,8 @@ export const technicianSignupSchema = z
       .string()
       .min(5, "Address must be at least 5 characters")
       .max(200, "Address must be less than 200 characters"),
-    buildingNumber: z.string().min(1, "Building number is required"),
-    apartmentNumber: z.string().min(1, "Apartment number is required"),
+    buildingNumber: z.string().optional().or(z.literal("")),
+    apartmentNumber: z.string().optional().or(z.literal("")),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

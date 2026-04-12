@@ -16,9 +16,10 @@ import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import OAuthDivider from "@/src/features/auth/components/shared/OAuthDivider";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 export default function SignUp() {
+  const themeColors = useThemeColors();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -49,8 +50,8 @@ export default function SignUp() {
       password: result.data.password,
       city: result.data.city,
       street: result.data.street,
-      building_no: result.data.buildingNumber,
-      apartment_no: result.data.apartmentNumber,
+      building_no: result.data.buildingNumber ?? "",
+      apartment_no: result.data.apartmentNumber ?? "",
       latitude: location?.latitude ?? null,
       longitude: location?.longitude ?? null,
     });
@@ -65,9 +66,7 @@ export default function SignUp() {
     password.length > 0 &&
     confirmPassword.length > 0 &&
     city.trim().length > 0 &&
-    street.trim().length > 0 &&
-    buildingNumber.trim().length > 0 &&
-    apartmentNumber.trim().length > 0;
+    street.trim().length > 0;
 
   return (
     <AuthPageLayout
@@ -155,7 +154,7 @@ export default function SignUp() {
         className="mt-2"
       >
         {signUpMutation.isPending ? (
-          <ActivityIndicator color={Colors.surfaceBase} />
+          <ActivityIndicator color={themeColors.surfaceBase} />
         ) : (
           <BtnText>Sign Up</BtnText>
         )}

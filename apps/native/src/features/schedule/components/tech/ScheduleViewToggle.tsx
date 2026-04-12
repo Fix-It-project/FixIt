@@ -7,8 +7,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 
 interface Props {
   activeView: "schedule" | "bookings";
@@ -21,6 +22,7 @@ interface Props {
  * inactive side fires onToggle — no navigation involved.
  */
 export default function ScheduleViewToggle({ activeView, onToggle }: Props) {
+  const themeColors = useThemeColors();
   const [pillWidth, setPillWidth] = useState(0);
   const pillPosition = useSharedValue(activeView === "bookings" ? 1 : 0);
   const hasLayout = useRef(false);
@@ -65,7 +67,7 @@ export default function ScheduleViewToggle({ activeView, onToggle }: Props) {
               width: pillWidth,
               bottom: 4,
               borderRadius: 8,
-              backgroundColor: Colors.surfaceBase,
+              backgroundColor: themeColors.surfaceBase,
               shadowColor: Colors.shadow,
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.1,

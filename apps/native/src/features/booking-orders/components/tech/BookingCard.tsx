@@ -3,10 +3,11 @@ import { router } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Calendar, ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
-import { CATEGORIES } from "@/src/lib/categories";
+import { Colors } from "@/src/lib/theme";
+import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 
 interface BookingCardProps {
@@ -15,6 +16,7 @@ interface BookingCardProps {
 }
 
 export default function BookingCard({ booking, index }: BookingCardProps) {
+  const themeColors = useThemeColors();
   const goToBooking = useDebounce(() => router.push(`/(tech-app)/(bookings)/${booking.id}` as any));
   const category = CATEGORIES.find((c) => c.id === booking.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
@@ -35,10 +37,10 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
       className="mb-3"
     >
       <View
-        className="overflow-hidden rounded-2xl bg-white"
+        className="overflow-hidden rounded-2xl bg-surface"
         style={{
           borderWidth: 1,
-          borderColor: isCancelled ? `${Colors.danger}30` : Colors.borderDefault,
+          borderColor: isCancelled ? `${Colors.danger}30` : themeColors.borderDefault,
           opacity: isCancelled ? 0.7 : 1,
           shadowColor: Colors.shadow,
           shadowOffset: { width: 0, height: 2 },
@@ -57,7 +59,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
               className="h-12 w-12 items-center justify-center rounded-full"
               style={{ backgroundColor: avatarColor }}
             >
-              <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 15, color: Colors.surfaceBase }}>
+              <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 15, color: themeColors.surfaceBase }}>
                 {initials}
               </Text>
             </View>
@@ -65,7 +67,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
             {/* Info */}
             <View className="flex-1">
               <Text
-                style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.textPrimary }}
+                style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: themeColors.textPrimary }}
                 numberOfLines={1}
               >
                 {booking.user_name ?? "Unknown Client"}
@@ -73,14 +75,14 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 
               <View className="mt-0.5 flex-row items-center gap-1.5">
                 <CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
-                <Text style={{ fontSize: 12, color: Colors.textSecondary }} numberOfLines={1}>
+                <Text style={{ fontSize: 12, color: themeColors.textSecondary }} numberOfLines={1}>
                   {booking.service_name ?? "Service"}
                 </Text>
               </View>
 
               <View className="mt-1 flex-row items-center gap-1">
-                <Calendar size={11} color={Colors.textMuted} strokeWidth={2} />
-                <Text style={{ fontSize: 11, color: Colors.textMuted }}>
+                <Calendar size={11} color={themeColors.textMuted} strokeWidth={2} />
+                <Text style={{ fontSize: 11, color: themeColors.textMuted }}>
                   {formatDate(booking.scheduled_date)}
                 </Text>
               </View>

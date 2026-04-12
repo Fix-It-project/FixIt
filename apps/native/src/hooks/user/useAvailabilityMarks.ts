@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { MarkingProps } from 'react-native-calendars/src/calendar/day/marking';
-import { Colors } from '@/src/lib/colors';
+import { useThemeColors } from '@/src/lib/theme';
 
 type MarkedDates = Record<string, MarkingProps>;
 
@@ -23,6 +23,7 @@ export function useAvailabilityMarks(
   exceptions: Exception[],
   selectedDate: string | null,
 ): MarkedDates {
+  const themeColors = useThemeColors();
   return useMemo(() => {
     const marks: MarkedDates = {};
     if (!templates.length) return marks;
@@ -45,13 +46,13 @@ export function useAvailabilityMarks(
       if (isSelected && !isUnavailable) {
         marks[dateStr] = {
           selected: true,
-          selectedColor: Colors.primary,
+          selectedColor: themeColors.primary,
           customStyles: {
             container: {
-              backgroundColor: Colors.primary,
+              backgroundColor: themeColors.primary,
               borderRadius: 20,
             },
-            text: { color: Colors.surfaceBase, fontWeight: '700' },
+            text: { color: themeColors.surfaceBase, fontWeight: '700' },
           },
         };
       } else if (isUnavailable) {
@@ -60,7 +61,7 @@ export function useAvailabilityMarks(
           disableTouchEvent: true,
           customStyles: {
             container: { backgroundColor: 'transparent' },
-            text: { color: Colors.borderDefault },
+            text: { color: themeColors.borderDefault },
           },
         };
       }
@@ -68,5 +69,5 @@ export function useAvailabilityMarks(
       cursor.setDate(cursor.getDate() + 1);
     }
     return marks;
-  }, [templates, exceptions, selectedDate]);
+  }, [templates, exceptions, selectedDate, themeColors]);
 }

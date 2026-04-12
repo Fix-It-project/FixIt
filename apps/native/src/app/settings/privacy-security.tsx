@@ -1,7 +1,7 @@
-import { View, ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Shield } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 
 export default function PrivacySecurityScreen() {
   return (

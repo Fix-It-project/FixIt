@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
-import { Colors } from '@/src/lib/colors';
+import { Colors } from '@/src/lib/theme';
+import { useThemeColors } from '@/src/lib/theme';
 import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 
 export const STATUS_LABEL: Record<TechnicianOrder['status'], string> = {
@@ -25,18 +26,16 @@ interface ScheduleOrderCardProps {
 }
 
 export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
+  const themeColors = useThemeColors();
   const color = STATUS_COLOR[order.status];
   const label = STATUS_LABEL[order.status];
 
   return (
     <View
+      className="mb-2.5 rounded-[14px] bg-surface p-3.5"
       style={{
         borderWidth: 1,
-        borderColor: Colors.borderDefault,
-        borderRadius: 14,
-        padding: 14,
-        marginBottom: 10,
-        backgroundColor: Colors.surfaceBase,
+        borderColor: themeColors.borderDefault,
       }}
     >
       {/* Status badge */}
@@ -49,13 +48,13 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
       {/* Primary Description */}
       {order.problem_description ? (
         <Text
-          style={{ color: Colors.textPrimary, fontSize: 13, fontWeight: '500', lineHeight: 18 }}
+          style={{ color: themeColors.textPrimary, fontSize: 13, fontWeight: '500', lineHeight: 18 }}
           numberOfLines={3}
         >
           {order.problem_description}
         </Text>
       ) : (
-        <Text style={{ color: Colors.textMuted, fontSize: 13, fontStyle: 'italic' }}>
+        <Text style={{ color: themeColors.textMuted, fontSize: 13, fontStyle: 'italic' }}>
           No description provided.
         </Text>
       )}

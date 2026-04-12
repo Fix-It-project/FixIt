@@ -4,11 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import Toast from "react-native-toast-message";
-import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
+import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useCreateBookingMutation } from "@/src/hooks/orders/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
 import BackButton from "@/src/components/ui/BackButton";
 import BookingDateStep from "@/src/features/booking-orders/components/user/BookingDateStep";
@@ -16,11 +17,10 @@ import BookingDetailsStep, {
   type AttachmentInfo,
 } from "@/src/features/booking-orders/components/user/BookingDetailsStep";
 
-const BRAND_DEFAULT = Colors.primary;
-
 type Step = "date" | "details";
 
 export default function BookingScreen() {
+  const themeColors = useThemeColors();
   const {
     technicianId,
     technicianName,
@@ -42,9 +42,9 @@ export default function BookingScreen() {
 
   const { mutateAsync: createBooking, isPending } = useCreateBookingMutation();
 
-  const meta = categoryId ? ICON_MAP[categoryId] : undefined;
+  const meta = getCategoryMeta(categoryId);
   const CategoryIcon = meta?.icon ?? Wrench;
-  const categoryColor = meta?.color ?? BRAND_DEFAULT;
+  const categoryColor = meta?.color ?? themeColors.primary;
 
   const stepLabel = step === "date" ? "Step 1 of 2 — Select Date" : "Step 2 of 2 — Details";
 
@@ -106,7 +106,7 @@ export default function BookingScreen() {
             <View
               className="h-10 w-10 items-center justify-center rounded-full bg-overlay-md"
             >
-              <CategoryIcon size={20} color={Colors.surfaceBase} strokeWidth={1.75} />
+              <CategoryIcon size={20} color={themeColors.surfaceBase} strokeWidth={1.75} />
             </View>
           </View>
         </View>

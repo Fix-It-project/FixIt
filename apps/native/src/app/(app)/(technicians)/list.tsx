@@ -10,7 +10,8 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Search } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { useTechniciansQuery } from "@/src/hooks/user/useTechniciansQuery";
 import { useLocationStore } from "@/src/stores/location-store";
 import { useTechnicianSearchStore } from "@/src/stores/technician-search-store";
@@ -81,6 +82,7 @@ function TechnicianListBody({
 }
 
 export default function TechniciansListScreen() {
+  const themeColors = useThemeColors();
   const { categoryId, categoryName, serviceId, serviceName } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
@@ -219,15 +221,15 @@ export default function TechniciansListScreen() {
           {/* Search bar */}
           <View className="mx-4 mt-1">
             <View
-              className="flex-row items-center rounded-xl bg-white px-3.5"
+              className="flex-row items-center rounded-xl bg-surface px-3.5"
               style={{ height: 44 }}
             >
-              <Search size={18} color={Colors.surfaceMuted} strokeWidth={2} />
+              <Search size={18} color={themeColors.surfaceMuted} strokeWidth={2} />
               <TextInput
                 value={searchText}
                 onChangeText={setSearchText}
                 placeholder="Search technicians..."
-                placeholderTextColor={Colors.textMuted}
+                placeholderTextColor={themeColors.textMuted}
                 className="ml-2.5 flex-1 text-[14px] text-content"
                 style={{ fontFamily: "GoogleSans_400Regular", padding: 0, textAlignVertical: "center" }}
                 returnKeyType="search"

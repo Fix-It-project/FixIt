@@ -38,7 +38,7 @@ export default function SocialLoginButtons({ onPress }: SocialLoginButtonsProps)
     <Button
       variant="outline"
       onPress={onPress}
-      className="bg-white border-edge rounded-lg w-full flex-row gap-3 shadow-sm"
+      className="bg-surface border-edge rounded-lg w-full flex-row gap-3 shadow-sm"
     >
       <GoogleIcon />
       <BtnText className="text-social font-medium">

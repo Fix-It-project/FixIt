@@ -1,6 +1,6 @@
 import { View, Text, Pressable, type TextInputProps } from "react-native";
 import { CircleX, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import { Input } from "@/src/components/ui/input";
 
 interface FormInputProps {

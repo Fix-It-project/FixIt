@@ -4,7 +4,8 @@ import FormInput from "@/src/features/auth/components/shared/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { Mail } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface EmailEntryViewProps {
   email: string;
@@ -23,6 +24,7 @@ export default function EmailEntryView({
   mutation,
   onSubmit,
 }: EmailEntryViewProps) {
+  const insets = useSafeAreaInsets();
   const isButtonActive = email.trim().length > 0 && !mutation.isPending;
 
   return (
@@ -64,11 +66,8 @@ export default function EmailEntryView({
       <View className="flex-1" />
 
       {/* Bottom Button */}
-      <View className="px-7 pb-10">
-        <Button
-          onPress={onSubmit}
-          disabled={!isButtonActive}
-        >
+      <View className="px-7" style={{ paddingBottom: insets.bottom + 16 }}>
+        <Button onPress={onSubmit} disabled={!isButtonActive}>
           {mutation.isPending ? (
             <ActivityIndicator color={Colors.surfaceBase} />
           ) : (

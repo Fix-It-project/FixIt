@@ -1,9 +1,20 @@
-import { CATEGORIES } from "@/src/lib/categories";
+import { CATEGORIES } from "@/src/lib/helpers/categories";
 
 /**
- * Lookup map: category UUID → { icon, color }.
- * Shared by CategoryGrid, CategoriesScreen, and any future consumer.
+ * Resolves icon + current theme-aware color for a category id.
  */
-export const ICON_MAP = Object.fromEntries(
-  CATEGORIES.map((c) => [c.id, { icon: c.icon, color: c.color }])
-);
+export function getCategoryMeta(categoryId?: string | null) {
+  if (!categoryId) {
+    return undefined;
+  }
+
+  const category = CATEGORIES.find((item) => item.id === categoryId);
+  if (!category) {
+    return undefined;
+  }
+
+  return {
+    icon: category.icon,
+    color: category.color,
+  };
+}

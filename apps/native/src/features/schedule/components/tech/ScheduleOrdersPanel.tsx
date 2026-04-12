@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Text } from '@/src/components/ui/text';
-import { Colors } from '@/src/lib/colors';
+import { Colors } from '@/src/lib/theme';
+import { useThemeColors } from '@/src/lib/theme';
 import ScheduleOrderCard from './ScheduleOrderCard';
 import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 
@@ -12,6 +13,7 @@ interface ScheduleOrdersPanelProps {
 
 // Keyed by selectedDate from parent so expanded state resets automatically on day change.
 export default function ScheduleOrdersPanel({ orders }: ScheduleOrdersPanelProps) {
+  const themeColors = useThemeColors();
   const [expanded, setExpanded] = useState(false);
 
   if (orders.length === 0) return null;
@@ -30,8 +32,8 @@ export default function ScheduleOrdersPanel({ orders }: ScheduleOrdersPanelProps
           </Text>
         </View>
         {expanded
-          ? <ChevronUp size={18} color={Colors.orderText} strokeWidth={2} />
-          : <ChevronDown size={18} color={Colors.orderText} strokeWidth={2} />}
+          ? <ChevronUp size={18} color={themeColors.orderText} strokeWidth={2} />
+          : <ChevronDown size={18} color={themeColors.orderText} strokeWidth={2} />}
       </TouchableOpacity>
 
       {expanded && (

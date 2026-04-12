@@ -1,12 +1,71 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-    /* FixIt App — static surface & feedback colors (hex, NativeWind-safe) */
-    --surface-white: #ffffff;
+    /* ─── App semantic tokens (light fallback; runtime theme injects overrides) ──── */
+    --app-primary: #2563eb;
+    --app-primary-light: #eef2ff;
+    --app-primary-dark: #1d4ed8;
+    --text-primary: #000000;
+    --text-secondary: #475569;
+    --text-muted: #475569;
+    --text-contrast: #0f172a;
+    --text-calendar: #0f172a;
+    --surface-base: #ffffff;
+    --surface-elevated: #f1f5f9;
+    --surface-muted: #64748b;
+    --border-default: #cbd5e1;
+    --border-chip: #f5f3ff;
+    --success: #10b981;
+    --success-alt: #22c55e;
+    --danger: #ef4444;
     --danger-light: #fef2f2;
+    --danger-soft: #fee2e2;
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --rating-default: #f59e0b;
+    --rating-light: #fde68a;
+    --status-available: #d1fae5;
+    --status-online: #86efac;
+    --status-unavailable: #ea580c;
+    --status-unavailable-bg: #fed7aa;
+    --disabled-text: #cbd5e1;
+    --social-icon: #475569;
+    --order-bg: #f0fdf4;
+    --order-text: #15803d;
+    --accent-cyan: #06b6d4;
+    --accent-purple: #a855f7;
+    --accent-sky: #7dd3fc;
+    --role-user: #dbeafe;
+    --role-tech: #2563eb;
+    --role-accent: #3b82f6;
+    --role-label: #1e40af;
+    --overlay-white: rgba(255,255,255,0.18);
+    --overlay-md: rgba(255,255,255,0.2);
+    --overlay-sm: rgba(255,255,255,0.15);
+    --overlay-sub: rgba(255,255,255,0.55);
+    --overlay-dim: rgba(255,255,255,0.4);
+    --overlay-bright: rgba(255,255,255,0.7);
+    --gradient-start: #eef2ff;
+    --gradient-mid: #e0e7ff;
+    --gradient-end: #eef2ff;
+    --gradient-role-start: #eff6ff;
+    --gradient-role-mid: #e0e7ff;
+    --gradient-role-end: #eff6ff;
+    --shadow: #000000;
+    --category-cyan: #06b6d4;
+    --category-indigo: #6366f1;
+    --category-red: #ef4444;
+    --category-green: #22c55e;
+    --category-rose: #f43f5e;
+    --category-purple: #d946ef;
+    --category-blue: #3b82f6;
+    --category-brown: #78716c;
+    --category-orange: #f59e0b;
+
+    /* ─── shadcn / rn-primitives (HSL) ─────────────────────── */
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -31,31 +90,5 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-  }
- 
-  .dark:root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 70.9% 59.4%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 300 0% 45%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
 }

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import { router } from "expo-router";
 import { FileText, Phone, User } from "lucide-react-native";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
 import { useUpdateTechSelfProfileMutation } from "@/src/hooks/tech/useUpdateTechSelfProfileMutation";
@@ -12,13 +11,16 @@ import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/features/auth/components/shared/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { useSafeBack } from "@/src/lib/navigation";
 
 export default function EditTechProfileScreen() {
+  const themeColors = useThemeColors();
   const { data: profile } = useTechSelfProfileQuery();
   const updateProfile = useUpdateTechSelfProfileMutation();
   const { fieldErrors, clearFieldError, validate } = useFormValidation(editTechProfileSchema);
+  const goBack = useSafeBack("/(tech-app)/(profile)");
 
   const {
     firstName, lastName, phone, description,
@@ -37,15 +39,30 @@ export default function EditTechProfileScreen() {
     });
   }, [profile, hydrate]);
 
+  const originalValues = {
+    firstName: profile?.first_name ?? "",
+    lastName: profile?.last_name ?? "",
+    phone: profile?.phone ?? "",
+    description: profile?.description ?? "",
+  };
+
+  const hasChanges =
+    firstName !== originalValues.firstName ||
+    lastName !== originalValues.lastName ||
+    phone !== originalValues.phone ||
+    description !== originalValues.description;
+
   const handleSave = () => {
+    if (!hasChanges) return;
+
     const result = validate({ first_name: firstName, last_name: lastName, phone, description });
     if (!result.success) return;
 
     const payload: { first_name?: string; last_name?: string; phone?: string; description?: string } = {};
-    if (firstName !== (profile?.first_name ?? "")) payload.first_name = firstName;
-    if (lastName !== (profile?.last_name ?? "")) payload.last_name = lastName;
-    if (phone !== (profile?.phone ?? "")) payload.phone = phone;
-    if (description !== (profile?.description ?? "")) payload.description = description;
+    if (result.data.first_name !== originalValues.firstName) payload.first_name = result.data.first_name;
+    if (result.data.last_name !== originalValues.lastName) payload.last_name = result.data.last_name;
+    if (result.data.phone !== originalValues.phone) payload.phone = result.data.phone;
+    if (result.data.description !== originalValues.description) payload.description = result.data.description;
 
     if (Object.keys(payload).length === 0) {
       Alert.alert("No changes", "You haven't changed anything.");
@@ -53,7 +70,7 @@ export default function EditTechProfileScreen() {
     }
 
     updateProfile.mutate(payload, {
-      onSuccess: () => { reset(); router.back(); },
+      onSuccess: () => { reset(); goBack(); },
       onError: (error) =>
         Alert.alert("Update failed", getErrorMessage(error) || "Something went wrong."),
     });
@@ -122,9 +139,9 @@ export default function EditTechProfileScreen() {
       />
 
       <View className="mt-2">
-        <Button onPress={handleSave} disabled={updateProfile.isPending}>
+        <Button onPress={handleSave} disabled={!hasChanges || updateProfile.isPending}>
           {updateProfile.isPending ? (
-            <ActivityIndicator color={Colors.surfaceBase} />
+            <ActivityIndicator color={themeColors.surfaceBase} />
           ) : (
             <Text>Save Changes</Text>
           )}

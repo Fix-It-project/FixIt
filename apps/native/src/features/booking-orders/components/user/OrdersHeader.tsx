@@ -1,16 +1,23 @@
 import { View } from "react-native";
-import { Colors } from "@/src/lib/colors";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 
 export default function OrdersHeader() {
-  return (
-    <View
-      className="px-4 pb-4 pt-2"
-      style={{ backgroundColor: Colors.surfaceBase }}
-    >
-      <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 18, color: Colors.textPrimary }}>
-        My Orders
-      </Text>
-    </View>
-  );
+	const themeColors = useThemeColors();
+	return (
+		<View
+			className="px-4 pt-2 pb-4"
+			style={{ backgroundColor: themeColors.surfaceBase }}
+		>
+			<Text
+				style={{
+					fontFamily: "GoogleSans_700Bold",
+					fontSize: 18,
+					color: themeColors.textPrimary,
+				}}
+			>
+				My Orders
+			</Text>
+		</View>
+	);
 }

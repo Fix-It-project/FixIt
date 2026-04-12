@@ -2,15 +2,15 @@ import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Wrench } from "lucide-react-native";
-import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
+import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useServicesQuery } from "@/src/hooks/services/useServicesQuery";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
 import ServiceListContent from "@/src/features/services/components/user/ServiceListContent";
-
-const BRAND_DEFAULT = Colors.primary;
+import { useThemeColors } from "@/src/lib/theme";
 
 export default function ServicesListScreen() {
+  const themeColors = useThemeColors();
   const { categoryId, categoryName } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
@@ -18,9 +18,9 @@ export default function ServicesListScreen() {
 
   const { data: services, isLoading, isError, refetch } = useServicesQuery(categoryId ?? "");
 
-  const meta = categoryId ? ICON_MAP[categoryId] : undefined;
+  const meta = getCategoryMeta(categoryId);
   const CategoryIcon = meta?.icon ?? Wrench;
-  const categoryColor = meta?.color ?? BRAND_DEFAULT;
+  const categoryColor = meta?.color ?? themeColors.primary;
 
   const handleServicePress = (serviceId: string, serviceName: string) => {
     router.push({

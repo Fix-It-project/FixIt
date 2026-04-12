@@ -1,19 +1,25 @@
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { NAV_THEME } from "@/src/lib/theme";
-import { useColorScheme } from "@/src/hooks/use-color-scheme";
+import { useThemeTokens } from "@/src/lib/theme";
 
 export function Container({ children }: { children: React.ReactNode }) {
-  const { colorScheme } = useColorScheme();
-  const backgroundColor =
-    colorScheme === "dark" ? NAV_THEME.dark.colors.background : NAV_THEME.light.colors.background;
+	const theme = useThemeTokens();
 
-  return <SafeAreaView style={[styles.container, { backgroundColor }]}>{children}</SafeAreaView>;
+	return (
+		<SafeAreaView
+			style={[
+				styles.container,
+				{ backgroundColor: theme.navigation.background },
+			]}
+		>
+			{children}
+		</SafeAreaView>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+	container: {
+		flex: 1,
+	},
 });

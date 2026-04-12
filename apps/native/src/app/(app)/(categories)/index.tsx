@@ -3,14 +3,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
-import { ICON_MAP } from "@/src/lib/helpers/category-helpers";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
+import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
 
-// Stable fallback colors for categories without a local icon
-const FALLBACK_COLORS = Colors.category.fallbacks;
-
 export default function CategoriesScreen() {
+  const themeColors = useThemeColors();
+  const fallbackColors = themeColors.category.fallbacks;
   const { data: categories, isLoading, isError, refetch } = useCategoriesQuery();
 
   const handleCategoryPress = (categoryId: string, categoryName: string) => {
@@ -61,14 +61,14 @@ export default function CategoriesScreen() {
           >
             <View className="flex-row flex-wrap justify-between">
               {categories?.map((cat, index) => {
-                const meta = ICON_MAP[cat.id];
+                const meta = getCategoryMeta(cat.id);
                 const Icon = meta?.icon ?? Wrench;
-                const color = meta?.color ?? FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+                const color = meta?.color ?? fallbackColors[index % fallbackColors.length];
                 return (
                   <TouchableOpacity
                     key={cat.id}
                     className="mb-3 overflow-hidden rounded-xl"
-                    style={{ width: "48.5%", backgroundColor: Colors.surfaceElevated }}
+                    style={{ width: "48.5%", backgroundColor: themeColors.surfaceElevated }}
                     onPress={() => handleCategoryPress(cat.id, cat.name)}
                     activeOpacity={0.7}
                   >
@@ -77,7 +77,7 @@ export default function CategoriesScreen() {
                         className="h-16 w-16 items-center justify-center"
                         style={{ backgroundColor: color }}
                       >
-                        <Icon size={26} color={Colors.surfaceBase} strokeWidth={1.75} />
+                        <Icon size={26} color={themeColors.surfaceBase} strokeWidth={1.75} />
                       </View>
                       <Text
                         className="flex-1 px-3 text-[14px] font-semibold text-content"

@@ -1,23 +1,18 @@
-import { useColorScheme as useRNColorScheme } from "react-native";
+import { type ThemePreference, useThemeMeta } from "@/src/lib/theme";
+import { useThemeStore } from "@/src/stores/theme-store";
 
 export function useColorScheme() {
-  const systemColorScheme = useRNColorScheme();
-  const colorScheme = systemColorScheme ?? "light";
+  const preference = useThemeStore((state) => state.preference);
+  const setPreference = useThemeStore((state) => state.setPreference);
+  const { appearance, isDark, themeId } = useThemeMeta();
 
   return {
-    colorScheme: colorScheme as "light" | "dark",
-    isDarkColorScheme: colorScheme === "dark",
-    setColorScheme: () => {
-      // Color scheme is managed by the system in bare mode
-      console.warn(
-        "setColorScheme is not available in bare mode. Color scheme is managed by the system.",
-      );
-    },
-    toggleColorScheme: () => {
-      // Color scheme is managed by the system in bare mode
-      console.warn(
-        "toggleColorScheme is not available in bare mode. Color scheme is managed by the system.",
-      );
-    },
+    colorScheme: appearance,
+    isDarkColorScheme: isDark,
+    preference,
+    setPreference,
+    themeId,
   };
 }
+
+export type { ThemePreference };

@@ -1,7 +1,9 @@
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { CalendarDays, BadgeCheck, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
+
 
 interface StatsCardProps {
   icon: LucideIcon;
@@ -11,6 +13,7 @@ interface StatsCardProps {
 }
 
 function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
+  const themeColors = useThemeColors();
   return (
     <View
       className="flex-1 items-center rounded-2xl bg-surface py-5 shadow-sm"
@@ -20,7 +23,7 @@ function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
         className="mb-3 h-12 w-12 items-center justify-center rounded-2xl"
         style={{ backgroundColor: iconBg }}
       >
-        <Icon size={24} color={Colors.surfaceBase} strokeWidth={2} />
+        <Icon size={24} color={themeColors.surfaceBase} strokeWidth={2} />
       </View>
       <Text className="text-2xl font-bold text-content">{count}</Text>
       <Text className="mt-0.5 text-xs text-content-muted">{label}</Text>

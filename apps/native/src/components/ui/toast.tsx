@@ -2,11 +2,11 @@
 import { View, Text } from 'react-native';
 import Toast, { type ToastConfig, type ToastProps } from 'react-native-toast-message';
 import { CheckCircle2, XCircle, Info } from 'lucide-react-native';
-import { Colors } from '@/src/lib/colors';
+import { Colors } from '@/src/lib/theme';
 
 export const toastConfig: ToastConfig = {
   success: ({ text1, text2 }) => (
-    <View className="mt-2 flex-row items-center rounded-2xl border border-edge/50 bg-white p-4 w-[90%] shadow-sm">
+    <View className="mt-2 w-[90%] flex-row items-center rounded-2xl border border-edge/50 bg-surface p-4 shadow-sm">
       <View style={{ marginRight: 12, alignSelf: 'center' }}>
         <CheckCircle2 color={Colors.success} size={20} />
       </View>

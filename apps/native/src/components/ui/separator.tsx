@@ -41,7 +41,8 @@ const Separator = React.forwardRef<View, SeparatorProps>(
 		return (
 			<View
 				ref={ref}
-				accessibilityRole={decorative ? "none" : "separator"}
+				accessible={!decorative}
+				accessibilityLabel={decorative ? undefined : "separator"}
 				className={cn(separatorVariants({ variant, orientation }), className)}
 				{...props}
 			/>

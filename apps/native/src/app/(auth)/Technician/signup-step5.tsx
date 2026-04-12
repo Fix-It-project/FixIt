@@ -12,10 +12,11 @@ import AddressFormSection from "@/src/components/AddressFormSection";
 import DocumentUploadField from "@/src/features/auth/components/shared/DocumentUploadField";
 import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 
 export default function TechnicianSignUpStep5() {
+  const themeColors = useThemeColors();
   const store = useTechnicianSignupStore();
   const [nationalId, setNationalId] = useState(store.nationalId);
   const [criminalRecord, setCriminalRecord] = useState(store.criminalRecord);
@@ -49,7 +50,11 @@ export default function TechnicianSignUpStep5() {
     const result = validate({ nationalId, criminalRecord, certificate, city, address, buildingNumber, apartmentNumber });
     if (!result.success) return;
 
-    store.setStep5Data(result.data);
+    store.setStep5Data({
+      ...result.data,
+      buildingNumber: result.data.buildingNumber ?? "",
+      apartmentNumber: result.data.apartmentNumber ?? "",
+    });
 
     signUpMutation.mutate({
       email: store.email,
@@ -60,8 +65,8 @@ export default function TechnicianSignUpStep5() {
       categoryId: store.categories[0] ?? "",
       city,
       street: address,
-      buildingNumber,
-      apartmentNumber,
+      buildingNumber: result.data.buildingNumber ?? "",
+      apartmentNumber: result.data.apartmentNumber ?? "",
       nationalIdUri: nationalId,
       criminalRecordUri: criminalRecord,
       certificateUri: certificate,
@@ -77,9 +82,7 @@ export default function TechnicianSignUpStep5() {
     criminalRecord.length > 0 &&
     certificate.length > 0 &&
     city.trim().length > 0 &&
-    address.trim().length > 0 &&
-    buildingNumber.trim().length > 0 &&
-    apartmentNumber.trim().length > 0;
+    address.trim().length > 0;
 
   return (
     <AuthPageLayout
@@ -129,7 +132,6 @@ export default function TechnicianSignUpStep5() {
         }}
         disabled={signUpMutation.isPending}
         streetLabel="Address"
-        buildingRequired
       />
 
       <Button
@@ -138,7 +140,7 @@ export default function TechnicianSignUpStep5() {
         className="mt-2"
       >
         {signUpMutation.isPending ? (
-          <ActivityIndicator color={Colors.surfaceBase} />
+          <ActivityIndicator color={themeColors.surfaceBase} />
         ) : (
           <BtnText>Apply as Technician</BtnText>
         )}

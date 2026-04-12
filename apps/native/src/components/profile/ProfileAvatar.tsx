@@ -1,7 +1,8 @@
 import { Image, TouchableOpacity, View } from "react-native";
 import { Camera, User } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 
 interface ProfileAvatarProps {
   readonly name: string | null;
@@ -10,13 +11,14 @@ interface ProfileAvatarProps {
 }
 
 function AvatarContent({ imageUrl, initials }: { readonly imageUrl: string | null | undefined; readonly initials: string | null }) {
+  const themeColors = useThemeColors();
   if (imageUrl) {
     return <Image source={{ uri: imageUrl }} className="h-24 w-24 rounded-full" resizeMode="cover"/>;
   }
   if (initials) {
     return <Text className="text-3xl font-bold text-white">{initials}</Text>;
   }
-  return <User size={44} color={Colors.surfaceBase} strokeWidth={1.5} />;
+  return <User size={44} color={themeColors.surfaceBase} strokeWidth={1.5} />;
 }
 
 export default function ProfileAvatar({ name, imageUrl, onChangePhoto }: ProfileAvatarProps) {

@@ -8,7 +8,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { MapPin } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
 import { useAddAddressMutation } from "@/src/hooks/addresses/useAddAddressMutation";
@@ -18,6 +19,7 @@ import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import PageHeader from "@/src/components/PageHeader";
 
 export default function AddAddressScreen() {
+  const themeColors = useThemeColors();
   const params = useLocalSearchParams<{ latitude: string; longitude: string }>();
   const latitude = Number(params.latitude);
   const longitude = Number(params.longitude);
@@ -53,7 +55,7 @@ export default function AddAddressScreen() {
   }, [city, street, buildingNumber, apartmentNumber, latitude, longitude, validate, addMutation]);
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: Colors.surfaceBase }}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: themeColors.surfaceBase }}>
       {/* Header */}
       <PageHeader title="Address Details" variant="surface" className="px-5 py-3" />
 
@@ -68,7 +70,7 @@ export default function AddAddressScreen() {
         {/* Coords badge */}
         <View
           className="flex-row items-center rounded-lg px-3 py-2.5"
-          style={{ backgroundColor: Colors.primaryLight }}
+          style={{ backgroundColor: themeColors.primaryLight }}
         >
           <MapPin size={14} color={Colors.primary} strokeWidth={2} />
           <Text
@@ -112,7 +114,7 @@ export default function AddAddressScreen() {
           className="w-full rounded-xl"
         >
           {addMutation.isPending ? (
-            <ActivityIndicator size="small" color={Colors.surfaceBase} />
+            <ActivityIndicator size="small" color={themeColors.surfaceBase} />
           ) : (
             <Text>Save Address</Text>
           )}

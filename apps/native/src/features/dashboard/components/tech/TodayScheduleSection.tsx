@@ -1,7 +1,8 @@
 import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { ClipboardList } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
+import type { ThemePalette } from "@/src/lib/theme";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
@@ -13,10 +14,12 @@ function ScheduleCard({
   item,
   index,
   isLast,
+  themeColors,
 }: {
   item: TechnicianOrder;
   index: number;
   isLast: boolean;
+  themeColors: ThemePalette;
 }) {
   const isInProgress = index === 0;
 
@@ -30,26 +33,34 @@ function ScheduleCard({
         <View
           className="h-6 w-6 rounded-full border-4"
           style={{
-            backgroundColor: isInProgress ? Colors.primary : Colors.borderDefault,
-            borderColor: Colors.surfaceElevated,
+            backgroundColor: isInProgress
+              ? themeColors.primary
+              : themeColors.borderDefault,
+            borderColor: themeColors.surfaceElevated,
           }}
         />
         {!isLast && (
           <View
             className="flex-1"
-            style={{ width: 2, backgroundColor: Colors.borderDefault, marginTop: -2 }}
+            style={{
+              width: 2,
+              backgroundColor: themeColors.borderDefault,
+              marginTop: -2,
+            }}
           />
         )}
       </View>
 
       {/* Card */}
       <View
-        className="mb-4 flex-1 rounded-2xl bg-white p-4"
+        className="mb-4 flex-1 rounded-2xl bg-surface p-4"
         style={{
           borderWidth: 1,
-          borderColor: isInProgress ? `${Colors.primary}30` : Colors.borderDefault,
+          borderColor: isInProgress
+            ? `${themeColors.primary}30`
+            : themeColors.borderDefault,
           opacity: isInProgress ? 1 : 0.85,
-          shadowColor: Colors.shadow,
+          shadowColor: themeColors.shadow,
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.04,
           shadowRadius: 4,
@@ -60,7 +71,11 @@ function ScheduleCard({
           <View className="flex-1 mr-2">
             <Text
               className="mb-0.5 text-[10px] font-bold uppercase"
-              style={{ color: isInProgress ? Colors.primary : Colors.textMuted }}
+              style={{
+                color: isInProgress
+                  ? themeColors.primary
+                  : themeColors.textMuted,
+              }}
             >
               {isInProgress ? "In Progress" : "Upcoming"}
             </Text>
@@ -74,14 +89,12 @@ function ScheduleCard({
           </View>
           <ClipboardList
             size={20}
-            color={isInProgress ? Colors.primary : Colors.textMuted}
+            color={isInProgress ? themeColors.primary : themeColors.textMuted}
             strokeWidth={1.8}
           />
         </View>
 
-        <Text className="text-xs text-content-muted">
-          Scheduled for today
-        </Text>
+        <Text className="text-xs text-content-muted">Scheduled for today</Text>
       </View>
     </Animated.View>
   );
@@ -89,9 +102,12 @@ function ScheduleCard({
 
 export default function TodayScheduleSection() {
   const router = useRouter();
+  const themeColors = useThemeColors();
   const todaysOrders = useTodaysAcceptedOrders();
   const { isLoading } = useTechnicianOrdersQuery();
-  const goToBookings = useDebounce(() => router.push("/(tech-app)/(schedule)?view=bookings"));
+  const goToBookings = useDebounce(() =>
+    router.push("/(tech-app)/(schedule)?view=bookings"),
+  );
 
   return (
     <View className="mt-6 px-4">
@@ -101,7 +117,11 @@ export default function TodayScheduleSection() {
         </Text>
         <TouchableOpacity onPress={goToBookings} activeOpacity={0.7}>
           <Text
-            style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 12, color: Colors.primary }}
+            style={{
+              fontFamily: "GoogleSans_600SemiBold",
+              fontSize: 12,
+              color: themeColors.primary,
+            }}
           >
             View All
           </Text>
@@ -110,14 +130,16 @@ export default function TodayScheduleSection() {
 
       {isLoading ? (
         <View className="items-center py-6">
-          <ActivityIndicator color={Colors.primary} />
+          <ActivityIndicator color={themeColors.primary} />
         </View>
       ) : todaysOrders.length === 0 ? (
         <View
-          className="items-center rounded-2xl bg-white px-4 py-6"
-          style={{ borderWidth: 1, borderColor: Colors.borderDefault }}
+          className="items-center rounded-2xl bg-surface px-4 py-6"
+          style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
         >
-          <Text className="text-sm text-content-muted">No bookings for today</Text>
+          <Text className="text-sm text-content-muted">
+            No bookings for today
+          </Text>
         </View>
       ) : (
         <View>
@@ -127,6 +149,7 @@ export default function TodayScheduleSection() {
               item={item}
               index={index}
               isLast={index === todaysOrders.length - 1}
+              themeColors={themeColors}
             />
           ))}
         </View>

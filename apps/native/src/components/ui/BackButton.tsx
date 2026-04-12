@@ -2,7 +2,7 @@ import { TouchableOpacity, type TouchableOpacityProps } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { cn } from "@/src/lib/utils";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 type BackButtonVariant = "light" | "surface";
 
@@ -16,11 +16,6 @@ interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
 	iconSize?: number;
 }
 
-const variantStyles: Record<BackButtonVariant, { bg: string; iconColor: string }> = {
-	light: { bg: "bg-overlay-md", iconColor: Colors.surfaceBase },
-	surface: { bg: "bg-surface-elevated", iconColor: Colors.textPrimary },
-};
-
 export default function BackButton({
 	variant = "light",
 	onPress,
@@ -28,6 +23,11 @@ export default function BackButton({
 	className,
 	...props
 }: BackButtonProps) {
+	const themeColors = useThemeColors();
+	const variantStyles: Record<BackButtonVariant, { bg: string; iconColor: string }> = {
+		light: { bg: "bg-overlay-md", iconColor: themeColors.surfaceBase },
+		surface: { bg: "bg-surface-elevated", iconColor: themeColors.textPrimary },
+	};
 	const { bg, iconColor } = variantStyles[variant];
 
 	return (

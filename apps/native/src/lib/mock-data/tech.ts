@@ -3,7 +3,7 @@
  * Replace with real API calls once the backend is ready.
  */
 
-import { Colors } from "../colors";
+import type { ThemePalette } from "@/src/lib/theme";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -49,51 +49,57 @@ export interface ReviewItem {
 
 // ─── Mock Profile ────────────────────────────────────────────────────────────
 
-export const TECH_PROFILE: TechProfile = {
-  name: "Alex Rivera",
-  specialty: "HVAC Specialist",
-  avatarInitials: "AR",
-  avatarColor: Colors.primary,
-  rating: 4.8,
-  reviewCount: 127,
-  isOnline: true,
-};
+export function getTechProfile(themeColors: ThemePalette): TechProfile {
+  return {
+    name: "Alex Rivera",
+    specialty: "HVAC Specialist",
+    avatarInitials: "AR",
+    avatarColor: themeColors.primary,
+    rating: 4.8,
+    reviewCount: 127,
+    isOnline: true,
+  };
+}
 
 // ─── Incoming Requests ───────────────────────────────────────────────────────
 
-export const INCOMING_REQUESTS: IncomingRequest[] = [
-  {
-    id: "req-1",
-    serviceType: "AC Repair",
-    icon: "Snowflake",
-    iconColor: Colors.primary,
-    description: "Unit not cooling, makes loud noise",
-    distance: "4.2 km away",
-    price: "850 EGP",
-    location: "752 Ocean Ave, Maadi",
-    isHighlighted: true,
-  },
-  {
-    id: "req-2",
-    serviceType: "Pipe Leakage",
-    icon: "Droplets",
-    iconColor: "#2196F3",
-    description: "Kitchen pipe leaking under sink",
-    distance: "1.8 km away",
-    price: "1,200 EGP",
-    location: "120 Tahrir St, Downtown",
-  },
-  {
-    id: "req-3",
-    serviceType: "Electrical Issue",
-    icon: "Zap",
-    iconColor: "#FF9800",
-    description: "Frequent power trips in bedroom",
-    distance: "3.5 km away",
-    price: "600 EGP",
-    location: "45 Nile Corniche, Zamalek",
-  },
-];
+export function getIncomingRequests(
+  themeColors: ThemePalette,
+): IncomingRequest[] {
+  return [
+    {
+      id: "req-1",
+      serviceType: "AC Repair",
+      icon: "Snowflake",
+      iconColor: themeColors.primary,
+      description: "Unit not cooling, makes loud noise",
+      distance: "4.2 km away",
+      price: "850 EGP",
+      location: "752 Ocean Ave, Maadi",
+      isHighlighted: true,
+    },
+    {
+      id: "req-2",
+      serviceType: "Pipe Leakage",
+      icon: "Droplets",
+      iconColor: "#2196F3",
+      description: "Kitchen pipe leaking under sink",
+      distance: "1.8 km away",
+      price: "1,200 EGP",
+      location: "120 Tahrir St, Downtown",
+    },
+    {
+      id: "req-3",
+      serviceType: "Electrical Issue",
+      icon: "Zap",
+      iconColor: "#FF9800",
+      description: "Frequent power trips in bedroom",
+      distance: "3.5 km away",
+      price: "600 EGP",
+      location: "45 Nile Corniche, Zamalek",
+    },
+  ];
+}
 
 // ─── Today's Schedule ────────────────────────────────────────────────────────
 

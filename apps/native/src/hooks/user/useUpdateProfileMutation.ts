@@ -7,7 +7,8 @@ export function useUpdateProfileMutation() {
 
   return useMutation({
     mutationFn: (data: UpdateProfileRequest) => updateProfile(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      queryClient.setQueryData(["user", "profile"], response.profile);
       queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
     },
   });

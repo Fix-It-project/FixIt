@@ -1,7 +1,8 @@
 import { ActivityIndicator, Modal, Pressable, TextInput, TouchableOpacity, View } from "react-native";
 import { X } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 
 interface Props {
   readonly visible: boolean;
@@ -22,6 +23,7 @@ export default function BookingCancelModal({
   onConfirm,
   isLoading,
 }: Props) {
+  const themeColors = useThemeColors();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
@@ -30,24 +32,24 @@ export default function BookingCancelModal({
       >
         <Pressable
           onPress={() => {}}
-          style={{ width: "88%", backgroundColor: Colors.surfaceBase, borderRadius: 20, padding: 20 }}
+          style={{ width: "88%", backgroundColor: themeColors.surfaceBase, borderRadius: 20, padding: 20 }}
         >
           <View className="mb-4 flex-row items-center justify-between">
-            <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 18, color: Colors.textPrimary }}>
+            <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 18, color: themeColors.textPrimary }}>
               Cancel Booking
             </Text>
             <TouchableOpacity
               onPress={onClose}
               className="h-8 w-8 items-center justify-center rounded-full"
-              style={{ backgroundColor: Colors.surfaceElevated }}
+              style={{ backgroundColor: themeColors.surfaceElevated }}
             >
-              <X size={16} color={Colors.textSecondary} />
+              <X size={16} color={themeColors.textSecondary} />
             </TouchableOpacity>
           </View>
 
-          <Text style={{ fontSize: 14, color: Colors.textSecondary, lineHeight: 20, marginBottom: 16 }}>
+          <Text style={{ fontSize: 14, color: themeColors.textSecondary, lineHeight: 20, marginBottom: 16 }}>
             Are you sure you want to cancel the booking with{" "}
-            <Text style={{ fontFamily: "GoogleSans_600SemiBold", color: Colors.textPrimary }}>
+            <Text style={{ fontFamily: "GoogleSans_600SemiBold", color: themeColors.textPrimary }}>
               {clientName ?? "this client"}
             </Text>
             ?
@@ -57,16 +59,16 @@ export default function BookingCancelModal({
             value={reason}
             onChangeText={onReasonChange}
             placeholder="Reason for cancellation (optional)"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={themeColors.textMuted}
             multiline
             numberOfLines={3}
             style={{
               borderWidth: 1,
-              borderColor: Colors.borderDefault,
+              borderColor: themeColors.borderDefault,
               borderRadius: 14,
               padding: 14,
               fontSize: 14,
-              color: Colors.textPrimary,
+              color: themeColors.textPrimary,
               textAlignVertical: "top",
               minHeight: 80,
               marginBottom: 16,
@@ -76,13 +78,13 @@ export default function BookingCancelModal({
           <View style={{ flexDirection: "row", gap: 10 }}>
             <TouchableOpacity
               onPress={onClose}
-              style={{
+            style={{
                 flex: 1, alignItems: "center", borderRadius: 14, paddingVertical: 12,
-                borderWidth: 1, borderColor: Colors.borderDefault, backgroundColor: Colors.surfaceBase,
+                borderWidth: 1, borderColor: themeColors.borderDefault, backgroundColor: themeColors.surfaceBase,
               }}
               activeOpacity={0.7}
             >
-              <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: Colors.textPrimary }}>
+              <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: themeColors.textPrimary }}>
                 Keep
               </Text>
             </TouchableOpacity>
@@ -92,14 +94,14 @@ export default function BookingCancelModal({
               disabled={isLoading}
               style={{
                 flex: 1, alignItems: "center", borderRadius: 14, paddingVertical: 12,
-                backgroundColor: isLoading ? Colors.borderDefault : Colors.danger,
+                backgroundColor: isLoading ? themeColors.borderDefault : Colors.danger,
               }}
               activeOpacity={0.85}
             >
               {isLoading ? (
-                <ActivityIndicator size="small" color={Colors.surfaceBase} />
+                <ActivityIndicator size="small" color={themeColors.surfaceBase} />
               ) : (
-                <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: Colors.surfaceBase }}>
+                <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: themeColors.surfaceBase }}>
                   Cancel Booking
                 </Text>
               )}

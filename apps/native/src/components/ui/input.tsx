@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { TextInput, type TextInputProps } from "react-native";
 import { cn } from "@/src/lib/utils";
-import { Colors } from "@/src/lib/colors";
+import { useThemeColors } from "@/src/lib/theme";
 
 const inputVariants = cva(
 	"font-normal text-base text-content",
@@ -12,7 +12,7 @@ const inputVariants = cva(
 				/** Transparent bg with visible border — address/settings forms */
 				outline: "h-14 rounded-2xl border px-4",
 				/** White-filled bg, pill shape — login/signup forms */
-				filled: "h-14 rounded-full bg-white px-6",
+				filled: "h-14 rounded-full bg-surface px-6",
 			},
 		},
 		defaultVariants: {
@@ -41,6 +41,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
 		},
 		ref
 	) => {
+		const themeColors = useThemeColors();
 		const [isFocused, setIsFocused] = React.useState(false);
 
 		/** Derive the dynamic border class for the outline variant */
@@ -63,7 +64,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
 					borderClass,
 					className
 				)}
-				placeholderTextColor={placeholderTextColor ?? Colors.textMuted}
+				placeholderTextColor={placeholderTextColor ?? themeColors.textMuted}
 				onFocus={(e) => {
 					setIsFocused(true);
 					onFocus?.(e);

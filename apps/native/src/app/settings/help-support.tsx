@@ -2,7 +2,7 @@ import { View, ScrollView, Linking, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Separator } from "@/src/components/ui/separator";
 import { Mail, MessageCircle, CircleHelp, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 
 function ContactItem({
   icon: Icon,

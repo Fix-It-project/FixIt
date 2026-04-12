@@ -1,8 +1,10 @@
 import { View, TextInput } from "react-native";
 import { Search } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 
 export default function SearchBar() {
+  const themeColors = useThemeColors();
   return (
     <View className="px-5 pb-4 pt-1">
       <View
@@ -17,7 +19,7 @@ export default function SearchBar() {
           style={{
             flex: 1,
             fontSize: 15,
-            color: Colors.surfaceBase,
+            color: themeColors.surfaceBase,
             fontFamily: "GoogleSans_400Regular",
             padding: 0,
           }}
