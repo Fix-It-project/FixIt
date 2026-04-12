@@ -9,10 +9,10 @@ import { useThemeColors } from "@/src/lib/theme";
 import { useAuthStore, type UserType } from "@/src/stores/auth-store";
 
 export interface ProtectedTabsLayoutProps extends PropsWithChildren {
-  allowedUserType: UserType;
-  unauthenticatedRedirect: Href;
-  wrongRoleRedirect: Href;
-  overlay?: ReactNode;
+  readonly allowedUserType: UserType;
+  readonly unauthenticatedRedirect: Href;
+  readonly wrongRoleRedirect: Href;
+  readonly overlay?: ReactNode;
 }
 
 export function ProtectedTabsLayout({
@@ -21,7 +21,7 @@ export function ProtectedTabsLayout({
   wrongRoleRedirect,
   overlay,
   children,
-}: ProtectedTabsLayoutProps) {
+}: Readonly<ProtectedTabsLayoutProps>) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
   const userType = useAuthStore((state) => state.userType);

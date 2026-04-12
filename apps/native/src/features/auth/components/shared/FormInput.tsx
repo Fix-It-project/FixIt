@@ -4,23 +4,23 @@ import { Colors } from "@/src/lib/theme";
 import { Input } from "@/src/components/ui/input";
 
 interface FormInputProps {
-	label?: string;
-	value: string;
-	onChangeText: (text: string) => void;
-	placeholder: string;
-	icon?: LucideIcon;
-	error?: string;
-	disabled?: boolean;
-	keyboardType?: TextInputProps["keyboardType"];
-	autoCapitalize?: TextInputProps["autoCapitalize"];
+	readonly label?: string;
+	readonly value: string;
+	readonly onChangeText: (text: string) => void;
+	readonly placeholder: string;
+	readonly icon?: LucideIcon;
+	readonly error?: string;
+	readonly disabled?: boolean;
+	readonly keyboardType?: TextInputProps["keyboardType"];
+	readonly autoCapitalize?: TextInputProps["autoCapitalize"];
 	/** "filled" = white bg, rounded-full (login/signup). "outline" = transparent bg, rounded-2xl, border (forgot/reset). */
-	variant?: "filled" | "outline";
+	readonly variant?: "filled" | "outline";
 	/** Show a clear (✕) button when the field has text */
-	clearable?: boolean;
+	readonly clearable?: boolean;
 	/** Called when the clear button is pressed */
-	onClear?: () => void;
+	readonly onClear?: () => void;
 	/** Show red asterisk next to label */
-	required?: boolean;
+	readonly required?: boolean;
 }
 
 export default function FormInput({

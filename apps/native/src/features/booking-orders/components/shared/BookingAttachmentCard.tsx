@@ -1,4 +1,4 @@
-import { Image, Linking, TouchableOpacity, View } from "react-native";
+import { Image, Linking, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 
@@ -8,6 +8,8 @@ interface Props {
 
 export default function BookingAttachmentCard({ uri }: Props) {
 	const themeColors = useThemeColors();
+	const { width } = useWindowDimensions();
+	const imageHeight = Math.max(180, Math.min(width * 0.58, 280));
 	return (
 		<View
 			className="mb-4 overflow-hidden rounded-2xl bg-surface"
@@ -30,7 +32,7 @@ export default function BookingAttachmentCard({ uri }: Props) {
 			>
 				<Image
 					source={{ uri }}
-					style={{ width: "100%", height: 220 }}
+					style={{ width: "100%", height: imageHeight }}
 					resizeMode="cover"
 				/>
 			</TouchableOpacity>

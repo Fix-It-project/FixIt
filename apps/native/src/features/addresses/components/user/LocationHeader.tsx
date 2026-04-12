@@ -6,7 +6,7 @@ import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface LocationHeaderProps {
-	onLocationPress?: () => void;
+	readonly onLocationPress?: () => void;
 }
 
 export default function LocationHeader({

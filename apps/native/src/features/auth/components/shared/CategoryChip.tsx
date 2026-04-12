@@ -6,14 +6,14 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { Colors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface CategoryChipProps {
-  label: string;
-  icon: LucideIcon;
-  color: string;
-  selected: boolean;
-  onPress: () => void;
+  readonly label: string;
+  readonly icon: LucideIcon;
+  readonly color: string;
+  readonly selected: boolean;
+  readonly onPress: () => void;
 }
 
 /** Convert a hex colour to rgba */
@@ -31,6 +31,7 @@ export default function CategoryChip({
   selected,
   onPress,
 }: CategoryChipProps) {
+  const themeColors = useThemeColors();
   const scale = useSharedValue(1);
   const shadowOpacity = useSharedValue(0.08);
 
@@ -54,7 +55,7 @@ export default function CategoryChip({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      android_ripple={{ color: "rgba(0,0,0,0.06)" }}
+      android_ripple={{ color: hexToRgba(themeColors.shadow, 0.06) }}
     >
       <Animated.View
         className="mx-4 my-1.5 flex-row items-center overflow-hidden rounded-[14px] border-[1.5px] bg-surface py-3 pl-0 pr-3.5"

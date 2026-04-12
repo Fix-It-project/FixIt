@@ -40,21 +40,22 @@ const Input = React.forwardRef<TextInput, InputProps>(
 			...props
 		},
 		ref
-	) => {
-		const themeColors = useThemeColors();
-		const [isFocused, setIsFocused] = React.useState(false);
+		) => {
+			const themeColors = useThemeColors();
+			const [isFocused, setIsFocused] = React.useState(false);
 
-		/** Derive the dynamic border class for the outline variant */
-		const borderClass =
-			variant === "outline"
-				? hasError
-					? "border-red-400"
-					: isFocused
-						? "border-app-primary"
-						: "border-edge"
-				: hasError
-					? "border border-red-400"
-					: "";
+			let borderClass = "";
+			if (variant === "outline") {
+				if (hasError) {
+					borderClass = "border-red-400";
+				} else if (isFocused) {
+					borderClass = "border-app-primary";
+				} else {
+					borderClass = "border-edge";
+				}
+			} else if (hasError) {
+				borderClass = "border border-red-400";
+			}
 
 		return (
 			<TextInput

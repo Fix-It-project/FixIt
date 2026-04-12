@@ -4,6 +4,7 @@ import {
   Grid2X2,
   House,
   MessageCircle,
+  type LucideProps,
   User,
 } from "lucide-react-native";
 import { Platform, TouchableOpacity } from "react-native";
@@ -23,6 +24,61 @@ const HIDDEN_TAB_OPTIONS = {
   tabBarItemStyle: { display: "none" as const },
 };
 
+interface ChatFabProps {
+  readonly bottom: number;
+  readonly onPress: () => void;
+  readonly primaryColor: string;
+  readonly surfaceColor: string;
+}
+
+function HomeTabIcon({ color, size }: Readonly<LucideProps>) {
+  return <House size={size} color={color} strokeWidth={1.8} />;
+}
+
+function CategoriesTabIcon({ color, size }: Readonly<LucideProps>) {
+  return <Grid2X2 size={size} color={color} strokeWidth={1.8} />;
+}
+
+function OrdersTabIcon({ color, size }: Readonly<LucideProps>) {
+  return <ClipboardList size={size} color={color} strokeWidth={1.8} />;
+}
+
+function ProfileTabIcon({ color, size }: Readonly<LucideProps>) {
+  return <User size={size} color={color} strokeWidth={1.8} />;
+}
+
+function ChatFab({
+  bottom,
+  onPress,
+  primaryColor,
+  surfaceColor,
+}: ChatFabProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      style={{
+        position: "absolute",
+        right: 20,
+        bottom,
+        width: CHAT_FAB_SIZE,
+        height: CHAT_FAB_SIZE,
+        borderRadius: CHAT_FAB_SIZE / 2,
+        backgroundColor: primaryColor,
+        alignItems: "center",
+        justifyContent: "center",
+        elevation: Platform.OS === "android" ? 6 : 0,
+        shadowColor: primaryColor,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: Platform.OS === "ios" ? 0.35 : 0,
+        shadowRadius: Platform.OS === "ios" ? 10 : 0,
+      }}
+    >
+      <MessageCircle size={26} color={surfaceColor} strokeWidth={1.8} />
+    </TouchableOpacity>
+  );
+}
+
 export default function AppLayout() {
   const themeColors = useThemeColors();
   const { tabBarHeight } = useBottomTabMetrics();
@@ -34,50 +90,26 @@ export default function AppLayout() {
       unauthenticatedRedirect={AUTH_GET_STARTED_ROUTE}
       wrongRoleRedirect={TECH_ROOT_ROUTE}
       overlay={
-        <TouchableOpacity
+        <ChatFab
           onPress={goToChatbot}
-          activeOpacity={0.85}
-          style={{
-            position: "absolute",
-            right: 20,
-            bottom: tabBarHeight + 12,
-            width: CHAT_FAB_SIZE,
-            height: CHAT_FAB_SIZE,
-            borderRadius: CHAT_FAB_SIZE / 2,
-            backgroundColor: themeColors.primary,
-            alignItems: "center",
-            justifyContent: "center",
-            elevation: Platform.OS === "android" ? 6 : 0,
-            shadowColor: themeColors.primary,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: Platform.OS === "ios" ? 0.35 : 0,
-            shadowRadius: Platform.OS === "ios" ? 10 : 0,
-          }}
-        >
-          <MessageCircle
-            size={26}
-            color={themeColors.surfaceBase}
-            strokeWidth={1.8}
-          />
-        </TouchableOpacity>
+          bottom={tabBarHeight + 12}
+          primaryColor={themeColors.primary}
+          surfaceColor={themeColors.surfaceBase}
+        />
       }
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <House size={size} color={color} strokeWidth={1.8} />
-          ),
+          tabBarIcon: HomeTabIcon,
         }}
       />
       <Tabs.Screen
         name="(categories)"
         options={{
           title: "Categories",
-          tabBarIcon: ({ color, size }) => (
-            <Grid2X2 size={size} color={color} strokeWidth={1.8} />
-          ),
+          tabBarIcon: CategoriesTabIcon,
         }}
       />
       <Tabs.Screen name="(chatbot)" options={HIDDEN_TAB_OPTIONS} />
@@ -88,18 +120,14 @@ export default function AppLayout() {
         name="(orders)"
         options={{
           title: "My Orders",
-          tabBarIcon: ({ color, size }) => (
-            <ClipboardList size={size} color={color} strokeWidth={1.8} />
-          ),
+          tabBarIcon: OrdersTabIcon,
         }}
       />
       <Tabs.Screen
         name="(profile)"
         options={{
           title: "My Profile",
-          tabBarIcon: ({ color, size }) => (
-            <User size={size} color={color} strokeWidth={1.8} />
-          ),
+          tabBarIcon: ProfileTabIcon,
         }}
       />
     </ProtectedTabsLayout>

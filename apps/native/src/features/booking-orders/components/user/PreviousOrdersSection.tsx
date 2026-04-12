@@ -15,10 +15,10 @@ const CARD_SPACING = 8;
 function OrderCard({
 	item,
 	cardWidth,
-}: {
+}: Readonly<{
 	item: PreviousOrder;
 	cardWidth: number;
-}) {
+}>) {
 	const themeColors = useThemeColors();
 	return (
 		<View

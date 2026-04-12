@@ -7,9 +7,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface AuthPageLayoutProps {
-  title: string;
-  subtitle: string;
-  children: ReactNode;
+  readonly title: string;
+  readonly subtitle: string;
+  readonly children: ReactNode;
 }
 
 export default function AuthPageLayout({

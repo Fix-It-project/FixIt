@@ -7,6 +7,15 @@ import { useAcceptOrderMutation, useRejectOrderMutation } from "@/src/hooks/tech
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 
+function withAlpha(hexColor: string, alpha: number) {
+  const normalized = hexColor.replace("#", "");
+  if (normalized.length !== 6) return hexColor;
+  const r = Number.parseInt(normalized.slice(0, 2), 16);
+  const g = Number.parseInt(normalized.slice(2, 4), 16);
+  const b = Number.parseInt(normalized.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function timeAgo(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
   const minutes = Math.floor(diff / 60000);
@@ -50,7 +59,11 @@ export default function RequestReviewModal() {
       onRequestClose={closeModal}
     >
       <Pressable
-        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" }}
+        style={{
+          flex: 1,
+          backgroundColor: withAlpha(themeColors.shadow, 0.4),
+          justifyContent: "flex-end",
+        }}
         onPress={closeModal}
       >
         <Pressable onPress={() => {}}>

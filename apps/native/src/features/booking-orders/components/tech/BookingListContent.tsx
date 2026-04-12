@@ -3,7 +3,7 @@ import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-he
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingsQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";
 
@@ -26,8 +26,8 @@ export default function BookingListContent() {
         <RefreshControl
           refreshing={isRefetching}
           onRefresh={refetch}
-          colors={[Colors.primary]}
-          tintColor={Colors.primary}
+          colors={[themeColors.primary]}
+          tintColor={themeColors.primary}
         />
       }
     >
@@ -55,7 +55,7 @@ export default function BookingListContent() {
             style={{
               fontFamily: "GoogleSans_600SemiBold",
               fontSize: 12,
-              color: Colors.primary,
+              color: themeColors.primary,
             }}
           >
             {formatDateLabel(selectedDate)}

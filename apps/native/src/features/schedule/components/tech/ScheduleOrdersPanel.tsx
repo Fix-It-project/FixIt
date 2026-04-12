@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Text } from '@/src/components/ui/text';
-import { Colors } from '@/src/lib/theme';
 import { useThemeColors } from '@/src/lib/theme';
 import ScheduleOrderCard from './ScheduleOrderCard';
 import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
@@ -15,6 +14,7 @@ interface ScheduleOrdersPanelProps {
 export default function ScheduleOrdersPanel({ orders }: ScheduleOrdersPanelProps) {
   const themeColors = useThemeColors();
   const [expanded, setExpanded] = useState(false);
+  const ChevronIcon = expanded ? ChevronUp : ChevronDown;
 
   if (orders.length === 0) return null;
 
@@ -31,9 +31,7 @@ export default function ScheduleOrdersPanel({ orders }: ScheduleOrdersPanelProps
             {orders.length} order{orders.length > 1 ? 's' : ''} this day
           </Text>
         </View>
-        {expanded
-          ? <ChevronUp size={18} color={themeColors.orderText} strokeWidth={2} />
-          : <ChevronDown size={18} color={themeColors.orderText} strokeWidth={2} />}
+        <ChevronIcon size={18} color={themeColors.orderText} strokeWidth={2} />
       </TouchableOpacity>
 
       {expanded && (

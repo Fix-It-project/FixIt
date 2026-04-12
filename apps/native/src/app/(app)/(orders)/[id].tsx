@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { useUserOrderById, useCancelOrderByUserMutation } from "@/src/hooks/orders/useUserOrders";
 import OrderDetailHeader from "@/src/features/booking-orders/components/user/OrderDetailHeader";
 import OrderTechnicianCard from "@/src/features/booking-orders/components/user/OrderTechnicianCard";
@@ -16,6 +16,7 @@ import { useSafeBack } from "@/src/lib/navigation";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 
 export default function OrderDetailScreen() {
+  const themeColors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const order = useUserOrderById(id);
   const goBack = useSafeBack("/(app)/(orders)");
@@ -32,7 +33,7 @@ export default function OrderDetailScreen() {
   if (!order) {
     return (
       <View className="flex-1 items-center justify-center bg-surface-elevated">
-        <ActivityIndicator color={Colors.primary} />
+        <ActivityIndicator color={themeColors.primary} />
       </View>
     );
   }

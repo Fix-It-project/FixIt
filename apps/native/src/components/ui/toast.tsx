@@ -1,4 +1,3 @@
-
 import { View, Text } from 'react-native';
 import Toast, { type ToastConfig, type ToastProps } from 'react-native-toast-message';
 import { CheckCircle2, XCircle, Info } from 'lucide-react-native';
@@ -41,7 +40,7 @@ export const toastConfig: ToastConfig = {
 };
 
 // Simple wrapper so we can import Toast and config together easily from Reusables path
-export function CustomToast(props: ToastProps) {
+export function CustomToast(props: Readonly<ToastProps>) {
   return <Toast config={toastConfig} {...props} />;
 }
 

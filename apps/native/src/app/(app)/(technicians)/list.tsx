@@ -26,6 +26,7 @@ import {
 } from "@/src/features/technicians/recommendations.service";
 import BackButton from "@/src/components/ui/BackButton";
 import { useRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useSafeBack } from "@/src/lib/navigation";
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
@@ -82,11 +83,12 @@ function TechnicianListBody({
 
 export default function TechniciansListScreen() {
   const themeColors = useThemeColors();
-  const { categoryId, categoryName, serviceId, serviceName } = useLocalSearchParams<{
+  const { categoryId, categoryName, serviceId, serviceName, origin } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
     serviceId: string;
     serviceName: string;
+    origin?: string;
   }>();
 
   const { searchText, setSearchText, activeSort, setActiveSort } = useTechnicianSearchStore();
@@ -99,6 +101,14 @@ export default function TechniciansListScreen() {
     searchText,
     coords,
   );
+  const goBack = useSafeBack({
+    pathname: "/(app)/(services)/list",
+    params: {
+      categoryId,
+      categoryName,
+      origin,
+    },
+  });
 
   const [recommendedRank, setRecommendedRank] = useState<Map<string, number> | null>(null);
 
@@ -117,7 +127,7 @@ export default function TechniciansListScreen() {
       setRecommendedRank(
         new Map(recs.map((r: { technician_id: string }, i: number) => [r.technician_id, i])),
       );
-    } catch (error) {
+    } catch {
       Toast.show({ type: "error", text1: "Could not load recommendations" });
       setRecommendedRank(null);
     }
@@ -176,10 +186,11 @@ export default function TechniciansListScreen() {
           serviceName,
           categoryId,
           categoryName,
+          origin,
         },
       });
     },
-    [serviceId, serviceName, categoryId, categoryName],
+    [serviceId, serviceName, categoryId, categoryName, origin],
   );
 
   const displayedTechnicians = useMemo(() => {
@@ -191,6 +202,8 @@ export default function TechniciansListScreen() {
       return ar - br;
     });
   }, [technicians, activeSort, recommendedRank]);
+  const technicianCountLabel =
+    technicians.length === 1 ? "technician found" : "technicians found";
 
   return (
     <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: Colors.primary }}>
@@ -199,7 +212,7 @@ export default function TechniciansListScreen() {
         <View style={{ backgroundColor: Colors.primary }} className="pb-4">
           {/* Top row: back + title */}
           <View className="flex-row items-center px-4 pb-2 pt-2">
-            <BackButton variant="light" className="mr-3" />
+            <BackButton variant="light" className="mr-3" onPress={goBack} />
             <View className="flex-1">
               <Text
                 className="text-[20px] font-bold text-white"
@@ -212,7 +225,7 @@ export default function TechniciansListScreen() {
                 className="text-[12px] text-white/70"
                 style={{ fontFamily: "GoogleSans_400Regular" }}
               >
-                {technicians.length} technician{technicians.length !== 1 ? "s" : ""} found
+                {technicians.length} {technicianCountLabel}
               </Text>
             </View>
           </View>

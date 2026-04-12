@@ -3,12 +3,11 @@ import { Text } from "@/src/components/ui/text";
 import { CalendarDays, BadgeCheck, type LucideIcon } from "lucide-react-native";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
-
 interface StatsCardProps {
-  icon: LucideIcon;
-  iconBg: string;
-  count: number;
-  label: string;
+  readonly icon: LucideIcon;
+  readonly iconBg: string;
+  readonly count: number;
+  readonly label: string;
 }
 
 function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
@@ -31,8 +30,8 @@ function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
 }
 
 interface ProfileStatsSectionProps {
-  bookings: number;
-  completed: number;
+  readonly bookings: number;
+  readonly completed: number;
 }
 
 export default function ProfileStatsSection({ bookings, completed }: ProfileStatsSectionProps) {

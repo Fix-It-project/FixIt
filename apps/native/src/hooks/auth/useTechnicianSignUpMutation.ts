@@ -5,13 +5,15 @@ import { technicianSignUp } from "@/src/features/auth/api/technician-auth";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useLocationStore } from "@/src/stores/location-store";
 
-import { buildFormData, type TechnicianSignUpInput } from "@/src/lib/helpers/signup-helpers";
+import { buildFormData } from "@/src/lib/helpers/signup-helpers";
 
-export type { TechnicianSignUpInput };
+export type { TechnicianSignUpInput } from "@/src/lib/helpers/signup-helpers";
 
 export function useTechnicianSignUpMutation() {
 	return useMutation({
-		mutationFn: (data: TechnicianSignUpInput) => {
+		mutationFn: (
+			data: import("@/src/lib/helpers/signup-helpers").TechnicianSignUpInput
+		) => {
 			const location = useLocationStore.getState().location;
 			const formData = buildFormData(data, location);
 			return technicianSignUp(formData);

@@ -3,11 +3,11 @@ import { CheckCircle2, CloudUpload, ChevronRight } from "lucide-react-native";
 import { Colors } from "@/src/lib/theme";
 
 interface DocumentUploadFieldProps {
-  label: string;
-  value: string;
-  onPick: () => void;
-  error?: string;
-  required?: boolean;
+  readonly label: string;
+  readonly value: string;
+  readonly onPick: () => void;
+  readonly error?: string;
+  readonly required?: boolean;
 }
 
 export default function DocumentUploadField({

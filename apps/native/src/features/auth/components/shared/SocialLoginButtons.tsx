@@ -3,7 +3,7 @@ import { Text as BtnText } from "@/src/components/ui/text";
 import { Svg, Path, G } from "react-native-svg";
 
 interface SocialLoginButtonsProps {
-  onPress?: () => void;
+  readonly onPress?: () => void;
 }
 //will be changed later instead of manually implementing google styling
 function GoogleIcon() {

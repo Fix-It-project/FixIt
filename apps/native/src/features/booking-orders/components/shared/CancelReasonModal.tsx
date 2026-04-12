@@ -1,7 +1,16 @@
 import { X } from "lucide-react-native";
 import { ActivityIndicator, Modal, Pressable, TextInput, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
+
+function withAlpha(hexColor: string, alpha: number) {
+  const normalized = hexColor.replace("#", "");
+  if (normalized.length !== 6) return hexColor;
+  const r = Number.parseInt(normalized.slice(0, 2), 16);
+  const g = Number.parseInt(normalized.slice(2, 4), 16);
+  const b = Number.parseInt(normalized.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 interface Props {
   readonly confirmLabel: string;
@@ -35,7 +44,12 @@ export default function CancelReasonModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
-        style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", alignItems: "center" }}
+        style={{
+          flex: 1,
+          backgroundColor: withAlpha(themeColors.shadow, 0.45),
+          justifyContent: "center",
+          alignItems: "center",
+        }}
         onPress={onClose}
       >
         <Pressable
@@ -110,7 +124,7 @@ export default function CancelReasonModal({
                 alignItems: "center",
                 borderRadius: 14,
                 paddingVertical: 12,
-                backgroundColor: isLoading ? themeColors.borderDefault : Colors.danger,
+                backgroundColor: isLoading ? themeColors.borderDefault : themeColors.danger,
               }}
               activeOpacity={0.85}
             >

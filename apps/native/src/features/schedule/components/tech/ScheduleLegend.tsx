@@ -1,8 +1,7 @@
 import { View, Text } from 'react-native';
-import { Colors } from '@/src/lib/theme';
 import { useThemeColors } from '@/src/lib/theme';
 
-function LegendItem({ color, label }: { color: string; label: string }) {
+function LegendItem({ color, label }: Readonly<{ color: string; label: string }>) {
   const themeColors = useThemeColors();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -20,10 +19,10 @@ export default function ScheduleLegend() {
         Legend
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16 }}>
-        <LegendItem color={Colors.primary} label="Selected date" />
+        <LegendItem color={themeColors.primary} label="Selected date" />
         <LegendItem color={themeColors.borderDefault} label="Day off" />
-        <LegendItem color={Colors.successAlt} label="Has orders" />
-        <LegendItem color={Colors.statusUnavailable} label="Overridden (unavailable)" />
+        <LegendItem color={themeColors.successAlt} label="Has orders / selected order day" />
+        <LegendItem color={themeColors.statusUnavailable} label="Overridden (unavailable)" />
       </View>
     </View>
   );

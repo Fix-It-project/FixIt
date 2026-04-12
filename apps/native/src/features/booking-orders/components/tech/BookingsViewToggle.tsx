@@ -1,6 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 /** Schedule / Bookings pill toggle — Bookings tab is always active for now. */
@@ -10,7 +10,7 @@ export default function BookingsViewToggle() {
     <Animated.View
       entering={FadeInDown.delay(80).duration(400)}
       className="mb-4 flex-row rounded-xl p-1"
-      style={{ backgroundColor: Colors.overlaySm }}
+      style={{ backgroundColor: themeColors.overlaySm }}
     >
       {/* Schedule (no-op) */}
       <TouchableOpacity
@@ -21,7 +21,7 @@ export default function BookingsViewToggle() {
           style={{
             fontFamily: "GoogleSans_600SemiBold",
             fontSize: 14,
-            color: Colors.overlaySub,
+            color: themeColors.overlaySub,
           }}
         >
           Schedule
@@ -33,7 +33,7 @@ export default function BookingsViewToggle() {
         className="flex-1 flex-row items-center justify-center gap-1.5 rounded-lg py-2.5"
         style={{
           backgroundColor: themeColors.surfaceBase,
-          shadowColor: Colors.shadow,
+          shadowColor: themeColors.shadow,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -44,7 +44,7 @@ export default function BookingsViewToggle() {
           style={{
             fontFamily: "GoogleSans_600SemiBold",
             fontSize: 14,
-            color: Colors.primary,
+            color: themeColors.primary,
           }}
         >
           Bookings

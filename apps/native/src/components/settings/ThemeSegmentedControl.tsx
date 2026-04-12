@@ -4,7 +4,6 @@ import { Text } from "@/src/components/ui/text";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import { type ThemeOption, useThemeEasterEgg } from "@/src/lib/easter";
 import { useThemeColors } from "@/src/lib/theme";
-import type { ThemePreference } from "@/src/lib/theme";
 
 const OPTIONS: ThemeOption[] = [
   { value: "light", label: "Light", Icon: Sun },

@@ -1,7 +1,18 @@
-export const AVATAR_COLORS = [
-  "#2196F3", "#4CAF50", "#FF9800", "#9C27B0",
-  "#00BCD4", "#F44336", "#3F51B5", "#795548",
-];
+import { getActiveThemeTokens } from "@/src/lib/theme";
+
+export function getAvatarColors() {
+  const tokens = getActiveThemeTokens();
+  return [
+    tokens.category.blue,
+    tokens.category.green,
+    tokens.category.orange,
+    tokens.category.purple,
+    tokens.category.cyan,
+    tokens.category.red,
+    tokens.category.indigo,
+    tokens.category.brown,
+  ];
+}
 
 const HASH_MODULUS = 2_147_483_647;
 
@@ -14,7 +25,8 @@ export function seededIndex(id: string, max: number): number {
 }
 
 export function getAvatarColor(id: string): string {
-  return AVATAR_COLORS[seededIndex(id, AVATAR_COLORS.length)];
+  const avatarColors = getAvatarColors();
+  return avatarColors[seededIndex(id, avatarColors.length)];
 }
 
 const SPECIALTIES = [

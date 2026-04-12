@@ -17,26 +17,10 @@ interface HeaderPolygonPalette {
   bottomCenter: string;
 }
 
-const DARK_BLUE_POLYGON_PALETTE: HeaderPolygonPalette = {
-  gradientStart: "#0284c7",
-  gradientEnd: "#0369a1",
-  glowStart: "#38bdf8",
-  glowEnd: "#0ea5e9",
-  topRight: "#0284c7",
-  accent: "#7dd3fc",
-  bottomRight: "#0369a1",
-  sliver: "#38bdf8",
-  bottomCenter: "#bae6fd",
-};
-
 export function getHeaderPolygonPalette(
   themeColors: ThemePalette,
-  themeId: ThemeId,
+  _themeId: ThemeId,
 ): HeaderPolygonPalette {
-  if (themeId === "dark") {
-    return DARK_BLUE_POLYGON_PALETTE;
-  }
-
   return {
     gradientStart: themeColors.primary,
     gradientEnd: themeColors.primaryDark,
@@ -51,7 +35,7 @@ export function getHeaderPolygonPalette(
 }
 
 interface HeaderPolygonsProps {
-  palette: HeaderPolygonPalette;
+  readonly palette: HeaderPolygonPalette;
 }
 
 /**

@@ -6,8 +6,8 @@ export default function OrdersHeader() {
 	const themeColors = useThemeColors();
 	return (
 		<View
-			className="px-4 pt-2 pb-4"
-			style={{ backgroundColor: themeColors.surfaceBase }}
+			className="px-4 pt-4 pb-4"
+			style={{ backgroundColor: themeColors.surfaceBase, minHeight: 64 }}
 		>
 			<Text
 				style={{

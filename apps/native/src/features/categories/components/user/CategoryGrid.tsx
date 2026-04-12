@@ -8,10 +8,10 @@ import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface CategoryGridProps {
-	categories?: Category[];
-	isLoading?: boolean;
-	onCategoryPress?: (categoryId: string, categoryName: string) => void;
-	onMorePress?: () => void;
+	readonly categories?: Category[];
+	readonly isLoading?: boolean;
+	readonly onCategoryPress?: (categoryId: string, categoryName: string) => void;
+	readonly onMorePress?: () => void;
 }
 
 export default function CategoryGrid({
@@ -27,6 +27,56 @@ export default function CategoryGrid({
 		onMorePress?.();
 		router.push("/(app)/(categories)");
 	});
+	let content = (
+		<View className="flex-row flex-wrap justify-between">
+			{displayCategories.map((cat, index) => {
+				const meta = getCategoryMeta(cat.id);
+				const Icon = meta?.icon ?? Wrench;
+				const color =
+					meta?.color ?? fallbackColors[index % fallbackColors.length];
+				return (
+					<TouchableOpacity
+						key={cat.id}
+						className="mb-2.5 overflow-hidden rounded-xl"
+						style={{
+							width: "48.5%",
+							backgroundColor: themeColors.surfaceElevated,
+						}}
+						onPress={() => onCategoryPress?.(cat.id, cat.name)}
+						activeOpacity={0.7}
+					>
+						<View className="flex-row items-center">
+							<View
+								className="h-16 w-16 items-center justify-center"
+								style={{ backgroundColor: color }}
+							>
+								<Icon
+									size={26}
+									color={themeColors.surfaceBase}
+									strokeWidth={1.75}
+								/>
+							</View>
+							<Text
+								className="flex-1 px-3 font-semibold text-[14px] text-content"
+								style={{ fontFamily: "GoogleSans_600SemiBold" }}
+								numberOfLines={2}
+							>
+								{cat.name}
+							</Text>
+						</View>
+					</TouchableOpacity>
+				);
+			})}
+		</View>
+	);
+
+	if (isLoading) {
+		content = (
+			<View className="h-16 items-center justify-center">
+				<ActivityIndicator size="small" color={Colors.primary} />
+			</View>
+		);
+	}
 
 	return (
 		<View className="px-5">
@@ -47,57 +97,7 @@ export default function CategoryGrid({
 					</Text>
 				</TouchableOpacity>
 			</View>
-
-			{/* Loading */}
-			{isLoading && (
-				<View className="h-16 items-center justify-center">
-					<ActivityIndicator size="small" color={Colors.primary} />
-				</View>
-			)}
-
-			{/* 2×2 grid */}
-			{!isLoading && (
-				<View className="flex-row flex-wrap justify-between">
-					{displayCategories.map((cat, index) => {
-						const meta = getCategoryMeta(cat.id);
-						const Icon = meta?.icon ?? Wrench;
-						const color =
-							meta?.color ?? fallbackColors[index % fallbackColors.length];
-						return (
-							<TouchableOpacity
-								key={cat.id}
-								className="mb-2.5 overflow-hidden rounded-xl"
-								style={{
-									width: "48.5%",
-									backgroundColor: themeColors.surfaceElevated,
-								}}
-								onPress={() => onCategoryPress?.(cat.id, cat.name)}
-								activeOpacity={0.7}
-							>
-								<View className="flex-row items-center">
-									<View
-										className="h-16 w-16 items-center justify-center"
-										style={{ backgroundColor: color }}
-									>
-										<Icon
-											size={26}
-											color={themeColors.surfaceBase}
-											strokeWidth={1.75}
-										/>
-									</View>
-									<Text
-										className="flex-1 px-3 font-semibold text-[14px] text-content"
-										style={{ fontFamily: "GoogleSans_600SemiBold" }}
-										numberOfLines={2}
-									>
-										{cat.name}
-									</Text>
-								</View>
-							</TouchableOpacity>
-						);
-					})}
-				</View>
-			)}
+			{content}
 		</View>
 	);
 }

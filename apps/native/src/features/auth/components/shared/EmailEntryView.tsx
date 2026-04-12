@@ -8,12 +8,12 @@ import { Colors } from "@/src/lib/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface EmailEntryViewProps {
-  email: string;
-  setEmail: (text: string) => void;
-  fieldErrors: Record<string, string | undefined>;
-  clearFieldError: (field: string) => void;
-  mutation: ReturnType<typeof useForgotPasswordMutation>;
-  onSubmit: () => void;
+  readonly email: string;
+  readonly setEmail: (text: string) => void;
+  readonly fieldErrors: Record<string, string | undefined>;
+  readonly clearFieldError: (field: string) => void;
+  readonly mutation: ReturnType<typeof useForgotPasswordMutation>;
+  readonly onSubmit: () => void;
 }
 
 export default function EmailEntryView({

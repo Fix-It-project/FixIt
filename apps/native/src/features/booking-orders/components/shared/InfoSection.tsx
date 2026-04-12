@@ -16,7 +16,6 @@ interface Props {
 
 function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
   const themeColors = useThemeColors();
-  const color = onPress ? themeColors.primary : themeColors.textPrimary;
   const content = (
     <>
       <View
@@ -25,7 +24,7 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
       >
         <Icon size={18} color={themeColors.primary} strokeWidth={2} />
       </View>
-      <View className="flex-1">
+      <View style={{ flex: 1, minWidth: 0 }}>
         <Text
           style={{
             fontSize: 11,
@@ -40,10 +39,10 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
           style={{
             fontFamily: "GoogleSans_600SemiBold",
             fontSize: 14,
-            color,
-            marginTop: 1,
+            color: themeColors.textPrimary,
+            marginTop: 2,
+            lineHeight: 20,
           }}
-          numberOfLines={2}
         >
           {value}
         </Text>
@@ -54,7 +53,8 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
   if (onPress) {
     return (
       <TouchableOpacity
-        className="flex-row items-center gap-3"
+        className="flex-row gap-3"
+        style={{ alignItems: "flex-start" }}
         activeOpacity={0.7}
         onPress={onPress}
       >
@@ -63,7 +63,11 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
     );
   }
 
-  return <View className="flex-row items-center gap-3">{content}</View>;
+  return (
+    <View className="flex-row gap-3" style={{ alignItems: "flex-start" }}>
+      {content}
+    </View>
+  );
 }
 
 export default function InfoSection({ rows }: Props) {

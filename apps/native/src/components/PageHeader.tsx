@@ -1,4 +1,4 @@
-import type React from "react";
+import type { ReactNode } from "react";
 import { View, type ViewProps } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import BackButton from "@/src/components/ui/BackButton";
@@ -6,16 +6,16 @@ import { cn } from "@/src/lib/utils";
 
 interface PageHeaderProps extends ViewProps {
 	/** Main title text */
-	title: string;
+	readonly title: string;
 	/** Optional subtitle beneath the title */
-	subtitle?: string;
+	readonly subtitle?: string;
 	/** "app-primary" = coloured header (BackButton light variant).
 	 *  "surface" = white/light header (BackButton surface variant). */
-	variant?: "app-primary" | "surface";
+	readonly variant?: "app-primary" | "surface";
 	/** Optional element rendered on the right side */
-	rightContent?: React.ReactNode;
+	readonly rightContent?: ReactNode;
 	/** Override default back behaviour */
-	onBackPress?: () => void;
+	readonly onBackPress?: () => void;
 }
 
 export default function PageHeader({
@@ -26,7 +26,7 @@ export default function PageHeader({
 	onBackPress,
 	className,
 	...props
-}: PageHeaderProps) {
+}: Readonly<PageHeaderProps>) {
 	const isBrand = variant === "app-primary";
 
 	return (

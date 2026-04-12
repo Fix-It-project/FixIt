@@ -10,7 +10,7 @@ import FormInput from "@/src/features/auth/components/shared/FormInput";
 import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { useSafeBack } from "@/src/lib/navigation";
 

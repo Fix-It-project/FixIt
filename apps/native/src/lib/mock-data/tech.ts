@@ -264,7 +264,7 @@ export const TECH_BOOKINGS: TechBooking[] = [
     avatarColor: "#795548",
     serviceType: "Wall Painting",
     rating: 4.3,
-    distance: 6.0,
+    distance: 6,
     city: "New Cairo",
     address: "88 Fifth Settlement",
     price: 720,

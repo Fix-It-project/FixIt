@@ -1,7 +1,7 @@
 import { CalendarClock, Check, X } from "lucide-react-native";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly onComplete: () => void;
@@ -26,24 +26,24 @@ export default function BookingActionButtons({
 				style={{
 					backgroundColor: isCompleting
 						? themeColors.borderDefault
-						: Colors.success,
+						: themeColors.primary,
 				}}
 				activeOpacity={0.85}
 			>
 				{isCompleting ? (
-					<ActivityIndicator size="small" color={themeColors.surfaceBase} />
+					<ActivityIndicator size="small" color={themeColors.onPrimaryHeader} />
 				) : (
 					<>
 						<Check
 							size={18}
-							color={themeColors.surfaceBase}
+							color={themeColors.onPrimaryHeader}
 							strokeWidth={2.5}
 						/>
 						<Text
 							style={{
 								fontFamily: "GoogleSans_700Bold",
 								fontSize: 15,
-								color: themeColors.surfaceBase,
+								color: themeColors.onPrimaryHeader,
 							}}
 						>
 							Complete Booking
@@ -80,15 +80,15 @@ export default function BookingActionButtons({
 			<TouchableOpacity
 				onPress={onCancel}
 				className="flex-row items-center justify-center gap-2 rounded-2xl border py-4"
-				style={{ borderColor: Colors.danger }}
+				style={{ borderColor: themeColors.danger }}
 				activeOpacity={0.7}
 			>
-				<X size={18} color={Colors.danger} strokeWidth={2} />
+				<X size={18} color={themeColors.danger} strokeWidth={2} />
 				<Text
 					style={{
 						fontFamily: "GoogleSans_600SemiBold",
 						fontSize: 15,
-						color: Colors.danger,
+						color: themeColors.danger,
 					}}
 				>
 					Cancel Booking

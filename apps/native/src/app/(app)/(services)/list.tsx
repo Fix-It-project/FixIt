@@ -6,25 +6,27 @@ import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { useServicesQuery } from "@/src/hooks/services/useServicesQuery";
 import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
 import ServiceListContent from "@/src/features/services/components/user/ServiceListContent";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors } from "@/src/lib/theme";
+import { useSafeBack } from "@/src/lib/navigation";
 
 export default function ServicesListScreen() {
-  const themeColors = useThemeColors();
-  const { categoryId, categoryName } = useLocalSearchParams<{
+  const { categoryId, categoryName, origin } = useLocalSearchParams<{
     categoryId: string;
     categoryName: string;
+    origin?: string;
   }>();
 
   const { data: services, isLoading, isError, refetch } = useServicesQuery(categoryId ?? "");
 
   const meta = getCategoryMeta(categoryId);
   const CategoryIcon = meta?.icon ?? Wrench;
-  const categoryColor = meta?.color ?? themeColors.primary;
+  const categoryColor = meta?.color ?? Colors.primary;
+  const goBack = useSafeBack(origin === "categories" ? "/(app)/(categories)" : "/(app)");
 
   const handleServicePress = (serviceId: string, serviceName: string) => {
     router.push({
       pathname: "/(app)/(technicians)/list",
-      params: { categoryId, categoryName, serviceId, serviceName },
+      params: { categoryId, categoryName, serviceId, serviceName, origin },
     });
   };
 
@@ -35,6 +37,7 @@ export default function ServicesListScreen() {
           categoryName={categoryName ?? "Services"}
           categoryColor={categoryColor}
           CategoryIcon={CategoryIcon}
+          onBackPress={goBack}
         />
         <ServiceListContent
           services={services}

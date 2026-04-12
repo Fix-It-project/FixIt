@@ -1,6 +1,5 @@
 import { Leaf, type LucideIcon } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { InteractionManager } from "react-native";
 import Toast from "react-native-toast-message";
 import type { ThemePreference } from "@/src/lib/theme";
 
@@ -13,9 +12,9 @@ const TAP_WINDOW_MS = 1000;
 type PreferenceSetter = (preference: ThemePreference) => Promise<void> | void;
 
 export interface ThemeOption {
-  value: ThemePreference;
-  label: string;
-  Icon: LucideIcon;
+  readonly value: ThemePreference;
+  readonly label: string;
+  readonly Icon: LucideIcon;
 }
 
 const JUNGLE_OPTION: ThemeOption = {
@@ -39,45 +38,43 @@ export function useThemeEasterEgg(
 
   const handlePreferencePress = useCallback(
     (nextPreference: ThemePreference) => {
-      InteractionManager.runAfterInteractions(() => {
-        if (nextPreference !== LIGHT_MODE_VALUE) {
-          lastLightTapAtRef.current = null;
-          lightTapStreakRef.current = 0;
-          void setPreference(nextPreference);
-          return;
-        }
-
-        const now = Date.now();
-        const previousTapAt = lastLightTapAtRef.current;
-        const isContinuingStreak =
-          previousTapAt !== null && now - previousTapAt <= TAP_WINDOW_MS;
-
-        lightTapStreakRef.current = isContinuingStreak
-          ? lightTapStreakRef.current + 1
-          : 1;
-        lastLightTapAtRef.current = now;
-
-        if (lightTapStreakRef.current >= REQUIRED_LIGHT_TAPS) {
-          lastLightTapAtRef.current = null;
-          lightTapStreakRef.current = 0;
-          setIsJungleUnlocked(true);
-          Toast.show({
-            type: "info",
-            text1: "WELCOME TO THE JUNGLE",
-          });
-          return;
-        }
-
-        if (lightTapStreakRef.current >= MESSAGE_LIGHT_TAP_THRESHOLD) {
-          const tapsRemaining = REQUIRED_LIGHT_TAPS - lightTapStreakRef.current;
-          Toast.show({
-            type: "info",
-            text1: `You hear the african music! Knock ${tapsRemaining} more times....`,
-          });
-        }
-
+      if (nextPreference !== LIGHT_MODE_VALUE) {
+        lastLightTapAtRef.current = null;
+        lightTapStreakRef.current = 0;
         void setPreference(nextPreference);
-      });
+        return;
+      }
+
+      const now = Date.now();
+      const previousTapAt = lastLightTapAtRef.current;
+      const isContinuingStreak =
+        previousTapAt !== null && now - previousTapAt <= TAP_WINDOW_MS;
+
+      lightTapStreakRef.current = isContinuingStreak
+        ? lightTapStreakRef.current + 1
+        : 1;
+      lastLightTapAtRef.current = now;
+
+      if (lightTapStreakRef.current >= REQUIRED_LIGHT_TAPS) {
+        lastLightTapAtRef.current = null;
+        lightTapStreakRef.current = 0;
+        setIsJungleUnlocked(true);
+        Toast.show({
+          type: "info",
+          text1: "WELCOME TO THE JUNGLE",
+        });
+        return;
+      }
+
+      if (lightTapStreakRef.current >= MESSAGE_LIGHT_TAP_THRESHOLD) {
+        const tapsRemaining = REQUIRED_LIGHT_TAPS - lightTapStreakRef.current;
+        Toast.show({
+          type: "info",
+          text1: `You hear the african music! Knock ${tapsRemaining} more times....`,
+        });
+      }
+
+      void setPreference(nextPreference);
     },
     [setPreference],
   );

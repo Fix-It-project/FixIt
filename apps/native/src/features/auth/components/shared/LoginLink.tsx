@@ -3,9 +3,9 @@ import { router, type Href } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
 
 interface LoginLinkProps {
-  route?: Href;
-  prefixText?: string;
-  actionText?: string;
+  readonly route?: Href;
+  readonly prefixText?: string;
+  readonly actionText?: string;
 }
 
 export default function LoginLink({

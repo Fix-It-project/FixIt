@@ -3,7 +3,6 @@ import type { Theme as CalendarTheme } from "react-native-calendars/src/types";
 import { themeRegistry } from "./definitions";
 import type {
   ThemeId,
-  ThemePalette,
   ThemePreference,
   ThemeTokens,
 } from "./types";
@@ -108,6 +107,7 @@ export function getThemeVariableRecord(
     "--surface-base": tokens.surfaceBase,
     "--surface-elevated": tokens.surfaceElevated,
     "--surface-muted": tokens.surfaceMuted,
+    "--surface-on-primary": tokens.surfaceOnPrimary,
     "--border-default": tokens.borderDefault,
     "--border-chip": tokens.borderChip,
     "--success": tokens.success,

@@ -73,6 +73,7 @@ export interface ThemePalette {
   surfaceBase: string;
   surfaceElevated: string;
   surfaceMuted: string;
+  surfaceOnPrimary: string;
   ratingDefault: string;
   ratingLight: string;
   statusAvailable: string;

@@ -56,7 +56,14 @@ export default function ForgotPassword() {
   return (
     <AuthFormScreen errorMessage={errorMessage}>
       <View style={{ flex: 1 }}>
-        {!emailSent ? (
+        {emailSent ? (
+          <CheckInboxView
+            email={email}
+            cooldown={cooldown}
+            isResending={forgotMutation.isPending}
+            onResend={handleResend}
+          />
+        ) : (
           <EmailEntryView
             email={email}
             setEmail={setEmail}
@@ -64,13 +71,6 @@ export default function ForgotPassword() {
             clearFieldError={clearFieldError}
             mutation={forgotMutation}
             onSubmit={handleSendLink}
-          />
-        ) : (
-          <CheckInboxView
-            email={email}
-            cooldown={cooldown}
-            isResending={forgotMutation.isPending}
-            onResend={handleResend}
           />
         )}
       </View>

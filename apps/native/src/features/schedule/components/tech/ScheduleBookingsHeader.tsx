@@ -61,7 +61,7 @@ const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
             style={{
               fontFamily: "GoogleSans_700Bold",
               fontSize: 22,
-              color: themeColors.surfaceBase,
+              color: themeColors.onPrimaryHeader,
             }}
           >
             Fix
@@ -69,7 +69,7 @@ const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 26,
-                color: Colors.accentSky,
+                color: themeColors.accentSky,
               }}
             >
               IT
@@ -79,7 +79,7 @@ const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 22,
-                color: themeColors.surfaceBase,
+                color: themeColors.onPrimaryHeader,
               }}
             >
               Technicians

@@ -3,7 +3,7 @@ import { TouchableOpacity, View } from "react-native";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface SectionEndArrowProps {
-	onPress?: () => void;
+	readonly onPress?: () => void;
 }
 
 export default function SectionFooterArrow({ onPress }: SectionEndArrowProps) {

@@ -1,8 +1,7 @@
 import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { ClipboardList } from "lucide-react-native";
-import { useThemeColors } from "@/src/lib/theme";
-import type { ThemePalette } from "@/src/lib/theme";
+import { useThemeColors, type ThemePalette } from "@/src/lib/theme";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
@@ -15,12 +14,12 @@ function ScheduleCard({
   index,
   isLast,
   themeColors,
-}: {
+}: Readonly<{
   item: TechnicianOrder;
   index: number;
   isLast: boolean;
   themeColors: ThemePalette;
-}) {
+}>) {
   const isInProgress = index === 0;
 
   return (
@@ -108,6 +107,38 @@ export default function TodayScheduleSection() {
   const goToBookings = useDebounce(() =>
     router.push("/(tech-app)/(schedule)?view=bookings"),
   );
+  let content = (
+    <View>
+      {todaysOrders.map((item, index) => (
+        <ScheduleCard
+          key={item.id}
+          item={item}
+          index={index}
+          isLast={index === todaysOrders.length - 1}
+          themeColors={themeColors}
+        />
+      ))}
+    </View>
+  );
+
+  if (isLoading) {
+    content = (
+      <View className="items-center py-6">
+        <ActivityIndicator color={themeColors.primary} />
+      </View>
+    );
+  } else if (todaysOrders.length === 0) {
+    content = (
+      <View
+        className="items-center rounded-2xl bg-surface px-4 py-6"
+        style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
+      >
+        <Text className="text-sm text-content-muted">
+          No bookings for today
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View className="mt-6 px-4">
@@ -128,32 +159,7 @@ export default function TodayScheduleSection() {
         </TouchableOpacity>
       </View>
 
-      {isLoading ? (
-        <View className="items-center py-6">
-          <ActivityIndicator color={themeColors.primary} />
-        </View>
-      ) : todaysOrders.length === 0 ? (
-        <View
-          className="items-center rounded-2xl bg-surface px-4 py-6"
-          style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
-        >
-          <Text className="text-sm text-content-muted">
-            No bookings for today
-          </Text>
-        </View>
-      ) : (
-        <View>
-          {todaysOrders.map((item, index) => (
-            <ScheduleCard
-              key={item.id}
-              item={item}
-              index={index}
-              isLast={index === todaysOrders.length - 1}
-              themeColors={themeColors}
-            />
-          ))}
-        </View>
-      )}
+      {content}
     </View>
   );
 }

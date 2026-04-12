@@ -7,8 +7,7 @@ import {
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
-import { useThemeColors } from "@/src/lib/theme";
-import type { ThemePalette } from "@/src/lib/theme";
+import { useThemeColors, type ThemePalette } from "@/src/lib/theme";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import {
   usePendingOrders,
@@ -40,14 +39,14 @@ function RequestCard({
   CategoryIcon,
   categoryColor,
   themeColors,
-}: {
+}: Readonly<{
   item: TechnicianOrder;
   index: number;
   cardWidth: number;
   CategoryIcon: LucideIcon;
   categoryColor: string;
   themeColors: ThemePalette;
-}) {
+}>) {
   const openModal = useTechRequestsStore((s) => s.openModal);
   const acceptMutation = useAcceptOrderMutation();
   const rejectMutation = useRejectOrderMutation();
@@ -184,6 +183,44 @@ export default function IncomingRequestsSection() {
   );
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? themeColors.primary;
+  let content = (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ paddingHorizontal: 16 }}
+    >
+      {pendingOrders.map((item, index) => (
+        <RequestCard
+          key={item.id}
+          item={item}
+          index={index}
+          cardWidth={cardWidth}
+          CategoryIcon={CategoryIcon}
+          categoryColor={categoryColor}
+          themeColors={themeColors}
+        />
+      ))}
+    </ScrollView>
+  );
+
+  if (isLoading) {
+    content = (
+      <View className="items-center py-6">
+        <ActivityIndicator color={themeColors.primary} />
+      </View>
+    );
+  } else if (pendingOrders.length === 0) {
+    content = (
+      <View
+        className="mx-4 items-center rounded-2xl bg-surface px-4 py-6"
+        style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
+      >
+        <Text className="text-sm text-content-muted">
+          No pending requests
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View className="mt-6">
@@ -210,38 +247,7 @@ export default function IncomingRequestsSection() {
         )}
       </View>
 
-      {isLoading ? (
-        <View className="items-center py-6">
-          <ActivityIndicator color={themeColors.primary} />
-        </View>
-      ) : pendingOrders.length === 0 ? (
-        <View
-          className="mx-4 items-center rounded-2xl bg-surface px-4 py-6"
-          style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
-        >
-          <Text className="text-sm text-content-muted">
-            No pending requests
-          </Text>
-        </View>
-      ) : (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
-        >
-          {pendingOrders.map((item, index) => (
-            <RequestCard
-              key={item.id}
-              item={item}
-              index={index}
-              cardWidth={cardWidth}
-              CategoryIcon={CategoryIcon}
-              categoryColor={categoryColor}
-              themeColors={themeColors}
-            />
-          ))}
-        </ScrollView>
-      )}
+      {content}
 
       {/* Single modal instance for all cards */}
       <RequestDetailsModal />

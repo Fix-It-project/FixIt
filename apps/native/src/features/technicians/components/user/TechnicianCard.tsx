@@ -11,10 +11,10 @@ const AVATAR_SIZE = 68;
 const AVATAR_OVERLAP = AVATAR_SIZE / 2;
 
 interface TechnicianCardProps {
-	item: Technician;
-	cardWidth: number;
-	showReviewCount?: boolean;
-	showDistance?: boolean;
+	readonly item: Technician;
+	readonly cardWidth: number;
+	readonly showReviewCount?: boolean;
+	readonly showDistance?: boolean;
 }
 
 export default function TechnicianCard({

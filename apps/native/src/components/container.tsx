@@ -1,9 +1,10 @@
+import type { ReactNode } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useThemeTokens } from "@/src/lib/theme";
 
-export function Container({ children }: { children: React.ReactNode }) {
+export function Container({ children }: Readonly<{ children: ReactNode }>) {
 	const theme = useThemeTokens();
 
 	return (

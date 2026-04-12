@@ -17,12 +17,12 @@ function MenuItem({
   label,
   onPress,
   destructive = false,
-}: {
+}: Readonly<{
   icon: LucideIcon;
   label: string;
   onPress: () => void;
   destructive?: boolean;
-}) {
+}>) {
   const themeColors = useThemeColors();
   return (
     <TouchableOpacity
@@ -56,11 +56,11 @@ function MenuItem({
 }
 
 interface ProfileMenuSectionProps {
-  onLogout: () => void;
-  isLoggingOut: boolean;
-  onEditProfile: () => void;
-  onSettings: () => void;
-  onPastOrders?: () => void;
+  readonly onLogout: () => void;
+  readonly isLoggingOut: boolean;
+  readonly onEditProfile: () => void;
+  readonly onSettings: () => void;
+  readonly onPastOrders?: () => void;
 }
 
 export default function ProfileMenuSection({ onLogout, isLoggingOut, onEditProfile, onSettings, onPastOrders }: ProfileMenuSectionProps) {

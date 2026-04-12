@@ -12,10 +12,10 @@ import type { Address } from "@/src/features/addresses/schemas/response.schema";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface AddressListItemProps {
-	address: Address;
-	isActive: boolean;
-	onPress: () => void;
-	disabled?: boolean;
+	readonly address: Address;
+	readonly isActive: boolean;
+	readonly onPress: () => void;
+	readonly disabled?: boolean;
 }
 
 export default function AddressListItem({

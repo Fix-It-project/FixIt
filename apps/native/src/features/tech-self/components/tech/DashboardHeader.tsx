@@ -15,6 +15,18 @@ import { getHeaderPolygonPalette } from "@/src/components/home/HeaderPolygons";
 
 const HEADER_HEIGHT = 160;
 
+interface DashboardHeaderPolygonsProps {
+  readonly screenWidth: number;
+  readonly gradientStart: string;
+  readonly gradientEnd: string;
+  readonly glowStart: string;
+  readonly glowEnd: string;
+  readonly topRight: string;
+  readonly accent: string;
+  readonly bottomRight: string;
+  readonly sliver: string;
+}
+
 /** Decorative polygon background — same faceted style as the user home page */
 function DashboardHeaderPolygons({
   screenWidth,
@@ -26,17 +38,7 @@ function DashboardHeaderPolygons({
   accent,
   bottomRight,
   sliver,
-}: {
-  screenWidth: number;
-  gradientStart: string;
-  gradientEnd: string;
-  glowStart: string;
-  glowEnd: string;
-  topRight: string;
-  accent: string;
-  bottomRight: string;
-  sliver: string;
-}) {
+}: DashboardHeaderPolygonsProps) {
   return (
     <Svg
       width={screenWidth}
@@ -218,7 +220,7 @@ export default function DashboardHeader() {
               >
                 <Text
                   className="font-bold text-base"
-                  style={{ color: themeColors.surfaceBase }}
+                  style={{ color: themeColors.onPrimaryHeader }}
                 >
                   {initials}
                 </Text>
@@ -239,7 +241,7 @@ export default function DashboardHeader() {
             <Text
               style={{
                 fontFamily: "GoogleSans_600SemiBold",
-                color: themeColors.surfaceBase,
+                color: themeColors.onPrimaryHeader,
                 fontWeight: "700",
               }}
               numberOfLines={1}

@@ -24,13 +24,13 @@ interface LoginMutationResult {
 }
 
 interface LoginScreenProps {
-  subtitle: string;
-  loginMutation: LoginMutationResult;
-  forgotPasswordUserType: "user" | "technician";
-  showOAuth?: boolean;
-  signupRoute: Href;
-  signupPrefixText?: string;
-  signupActionText?: string;
+  readonly subtitle: string;
+  readonly loginMutation: LoginMutationResult;
+  readonly forgotPasswordUserType: "user" | "technician";
+  readonly showOAuth?: boolean;
+  readonly signupRoute: Href;
+  readonly signupPrefixText?: string;
+  readonly signupActionText?: string;
 }
 
 export default function LoginScreen({

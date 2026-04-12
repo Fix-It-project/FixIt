@@ -9,12 +9,12 @@ function ContactItem({
   label,
   value,
   onPress,
-}: {
+}: Readonly<{
   icon: LucideIcon;
   label: string;
   value: string;
   onPress: () => void;
-}) {
+}>) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -50,14 +50,18 @@ export default function HelpSupportScreen() {
           icon={Mail}
           label="Email us"
           value="support@fixit.app"
-          onPress={() => Linking.openURL("mailto:support@fixit.app")}
+          onPress={() => {
+            void Linking.openURL("mailto:support@fixit.app");
+          }}
         />
         <Separator />
         <ContactItem
           icon={MessageCircle}
           label="WhatsApp"
           value="+20 100 000 0000"
-          onPress={() => Linking.openURL("whatsapp://send?phone=201000000000")}
+          onPress={() => {
+            void Linking.openURL("whatsapp://send?phone=201000000000");
+          }}
         />
       </View>
     </ScrollView>

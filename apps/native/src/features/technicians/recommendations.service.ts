@@ -1,4 +1,3 @@
-import { recommendationsResponseSchema } from "./schemas/response.schema";
 import { supabase } from "@/src/lib/supabase";
 import * as SecureStore from "expo-secure-store";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -117,11 +116,12 @@ export async function getUserAddressCoords(): Promise<{ latitude: number; longit
     // handle both response shapes:
     // 1) Address[]
     // 2) { addresses: Address[] }
-    const rows: UserAddressDto[] = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.addresses)
-        ? data.addresses
-        : [];
+    let rows: UserAddressDto[] = [];
+    if (Array.isArray(data)) {
+      rows = data;
+    } else if (Array.isArray(data?.addresses)) {
+      rows = data.addresses;
+    }
 
     if (!rows.length) return null;
 

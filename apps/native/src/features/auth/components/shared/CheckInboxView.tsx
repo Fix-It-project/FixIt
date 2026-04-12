@@ -5,10 +5,10 @@ import { openMailApp } from "@/src/lib/helpers/open-mail-app";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface CheckInboxViewProps {
-  email: string;
-  cooldown: number;
-  isResending: boolean;
-  onResend: () => void;
+  readonly email: string;
+  readonly cooldown: number;
+  readonly isResending: boolean;
+  readonly onResend: () => void;
 }
 
 export default function CheckInboxView({

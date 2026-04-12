@@ -3,30 +3,30 @@ import { MapPin, Navigation, Building2, Home } from "lucide-react-native";
 import FormInput from "@/src/features/auth/components/shared/FormInput";
 
 interface AddressFormSectionProps {
-  city: string;
-  onCityChange: (text: string) => void;
-  street: string;
-  onStreetChange: (text: string) => void;
-  buildingNumber: string;
-  onBuildingNumberChange: (text: string) => void;
-  apartmentNumber: string;
-  onApartmentNumberChange: (text: string) => void;
-  errors?: {
-    city?: string;
-    street?: string;
-    buildingNumber?: string;
-    apartmentNumber?: string;
+  readonly city: string;
+  readonly onCityChange: (text: string) => void;
+  readonly street: string;
+  readonly onStreetChange: (text: string) => void;
+  readonly buildingNumber: string;
+  readonly onBuildingNumberChange: (text: string) => void;
+  readonly apartmentNumber: string;
+  readonly onApartmentNumberChange: (text: string) => void;
+  readonly errors?: {
+    readonly city?: string;
+    readonly street?: string;
+    readonly buildingNumber?: string;
+    readonly apartmentNumber?: string;
   };
-  disabled?: boolean;
-  variant?: "filled" | "outline";
+  readonly disabled?: boolean;
+  readonly variant?: "filled" | "outline";
   /** Label for the street field (defaults to "Street Address") */
-  streetLabel?: string;
+  readonly streetLabel?: string;
   /** Whether city and street fields are required (defaults to true) */
-  required?: boolean;
+  readonly required?: boolean;
   /** Whether building and apartment fields are required (defaults to false) */
-  buildingRequired?: boolean;
+  readonly buildingRequired?: boolean;
   /** Show icons on the inputs (defaults to true) */
-  showIcons?: boolean;
+  readonly showIcons?: boolean;
 }
 
 export default function AddressFormSection({

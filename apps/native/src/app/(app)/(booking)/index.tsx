@@ -15,6 +15,7 @@ import BookingDateStep from "@/src/features/booking-orders/components/user/Booki
 import BookingDetailsStep, {
   type AttachmentInfo,
 } from "@/src/features/booking-orders/components/user/BookingDetailsStep";
+import { useSafeBack } from "@/src/lib/navigation";
 
 type Step = "date" | "details";
 
@@ -27,6 +28,7 @@ export default function BookingScreen() {
     serviceName,
     categoryId,
     categoryName,
+    origin,
   } = useLocalSearchParams<{
     technicianId: string;
     technicianName: string;
@@ -34,6 +36,7 @@ export default function BookingScreen() {
     serviceName: string;
     categoryId: string;
     categoryName: string;
+    origin?: string;
   }>();
 
   const [step, setStep] = useState<Step>("date");
@@ -46,6 +49,25 @@ export default function BookingScreen() {
   const categoryColor = meta?.color ?? themeColors.primary;
 
   const stepLabel = step === "date" ? "Step 1 of 2 — Select Date" : "Step 2 of 2 — Details";
+  const goBack = useSafeBack({
+    pathname: "/(app)/(technicians)/list",
+    params: {
+      categoryId,
+      categoryName,
+      serviceId,
+      serviceName,
+      origin,
+    },
+  });
+
+  const handleBackPress = () => {
+    if (step === "details") {
+      setStep("date");
+      return;
+    }
+
+    goBack();
+  };
 
   const handleConfirm = async (
     description: string,
@@ -66,7 +88,7 @@ export default function BookingScreen() {
       });
 
       Toast.show({ type: "success", text1: "Booking submitted pending approval!" });
-      setTimeout(() => router.back(), 1500);
+      setTimeout(() => goBack(), 1500);
     } catch (error: unknown) {
       Toast.show({ type: "error", text1: getErrorMessage(error) });
     }
@@ -85,7 +107,7 @@ export default function BookingScreen() {
             <BackButton
               variant="light"
               className="mr-3"
-              onPress={step === "details" ? () => setStep("date") : undefined}
+              onPress={handleBackPress}
             />
             <View className="flex-1">
               <Text

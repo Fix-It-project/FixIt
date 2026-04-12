@@ -6,7 +6,7 @@ import { Calendar, ClipboardList, type LucideIcon } from "lucide-react-native";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 
 interface BookingCardProps {
@@ -19,16 +19,22 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
   const goToBooking = useDebounce(() => router.push(`/(tech-app)/(bookings)/${booking.id}` as any));
   const category = CATEGORIES.find((c) => c.id === booking.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-  const categoryColor = category?.color ?? Colors.primary;
+  const categoryColor = category?.color ?? themeColors.primary;
   const initials = getInitials(booking.user_name);
   const avatarColor = getAvatarColor(booking.user_name);
   const isCancelled = booking.status === "cancelled_by_user" || booking.status === "cancelled_by_technician";
   const isCompleted = booking.status === "completed";
+  let statusLabel: string | null = null;
+  let statusColor: string | null = null;
 
-  const statusLabel = isCancelled
-    ? booking.status === "cancelled_by_user" ? "Cancelled by client" : "Cancelled"
-    : isCompleted ? "Completed" : null;
-  const statusColor = isCancelled ? Colors.danger : isCompleted ? Colors.success : null;
+  if (isCancelled) {
+    statusLabel =
+      booking.status === "cancelled_by_user" ? "Cancelled by client" : "Cancelled";
+    statusColor = themeColors.danger;
+  } else if (isCompleted) {
+    statusLabel = "Completed";
+    statusColor = themeColors.success;
+  }
 
   return (
     <Animated.View
@@ -39,9 +45,9 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
         className="overflow-hidden rounded-2xl bg-surface"
         style={{
           borderWidth: 1,
-          borderColor: isCancelled ? `${Colors.danger}30` : themeColors.borderDefault,
+          borderColor: isCancelled ? `${themeColors.danger}30` : themeColors.borderDefault,
           opacity: isCancelled ? 0.7 : 1,
-          shadowColor: Colors.shadow,
+          shadowColor: themeColors.shadow,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.06,
           shadowRadius: 8,

@@ -7,11 +7,11 @@ export function SettingsItem({
   icon: Icon,
   label,
   onPress,
-}: {
+}: Readonly<{
   icon: LucideIcon;
   label: string;
   onPress: () => void;
-}) {
+}>) {
   const themeColors = useThemeColors();
   return (
     <TouchableOpacity

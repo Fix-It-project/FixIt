@@ -7,7 +7,7 @@ import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface InvalidResetLinkViewProps {
-  loginRoute: Href;
+  readonly loginRoute: Href;
 }
 
 export default function InvalidResetLinkView({

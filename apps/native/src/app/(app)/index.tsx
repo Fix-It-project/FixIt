@@ -38,6 +38,7 @@ export default function Home() {
       params: {
         categoryId,
         categoryName,
+        origin: "home",
       },
     });
   };

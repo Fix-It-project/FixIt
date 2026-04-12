@@ -16,18 +16,18 @@ interface StatusActionButtonProps {
 }
 
 interface Props {
-  selectedDate: string;
-  today: string;
-  selectedDayName: string;
-  isSelectedDatePast: boolean;
-  isSelectedDateException: boolean;
-  isSelectedDayWorking: boolean;
-  canMarkUnavailable: boolean;
-  orders: TechnicianOrder[];
-  onMarkUnavailable: () => void;
-  onRemoveOverride: () => void;
-  isAddingException: boolean;
-  isDeletingException: boolean;
+  readonly selectedDate: string;
+  readonly today: string;
+  readonly selectedDayName: string;
+  readonly isSelectedDatePast: boolean;
+  readonly isSelectedDateException: boolean;
+  readonly isSelectedDayWorking: boolean;
+  readonly canMarkUnavailable: boolean;
+  readonly orders: TechnicianOrder[];
+  readonly onMarkUnavailable: () => void;
+  readonly onRemoveOverride: () => void;
+  readonly isAddingException: boolean;
+  readonly isDeletingException: boolean;
 }
 
 function StatusActionButton({
@@ -98,7 +98,7 @@ function renderDayStatus({
           onPress={onRemoveOverride}
           disabled={isDeletingException}
           disabledBackgroundClassName="border-status-unavailable bg-edge"
-          enabledBackgroundClassName="bg-status-unstatus-available"
+          enabledBackgroundClassName="bg-status-unavailable-bg"
           enabledBorderClassName="border-status-unavailable"
           disabledTextClassName="text-content-muted"
           enabledTextClassName="text-status-unavailable"

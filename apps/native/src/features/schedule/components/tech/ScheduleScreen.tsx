@@ -39,7 +39,7 @@ const ALL_DAYS = [
 const TODAY = new Date().toISOString().split("T")[0];
 
 interface Props {
-  onDismissSetup: () => void;
+  readonly onDismissSetup: () => void;
 }
 
 export default function ScheduleScreen({ onDismissSetup }: Props) {
@@ -154,11 +154,11 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 
   const selectedDayOfWeek = new Date(`${selectedDate}T00:00:00`).getDay();
   const selectedDayName = ALL_DAYS[selectedDayOfWeek];
-  const isSelectedDayWorking =
-    techSchedule.find((d) => d.day_of_week === selectedDayOfWeek)?.enabled ??
-    false;
-  const isSelectedDateException = !!exceptions.find(
-    (e) => e.date === selectedDate,
+  const isSelectedDayWorking = techSchedule.some(
+    (day) => day.day_of_week === selectedDayOfWeek && day.enabled,
+  );
+  const isSelectedDateException = exceptions.some(
+    (exception) => exception.date === selectedDate,
   );
   const isSelectedDatePast = selectedDate < TODAY;
   const ordersForSelectedDay = ordersByDate[selectedDate] ?? [];
@@ -212,6 +212,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 
         <View className="mt-2 px-2">
           <Calendar
+            key={themeTokens.id}
             onDayPress={onMonthDayPress}
             markingType="multi-dot"
             markedDates={markedDates}

@@ -35,6 +35,17 @@ interface AddressBottomSheetProps {
 	onAddNewAddress: () => void;
 }
 
+function AddressSeparator() {
+	return (
+		<View
+			style={{
+				height: 1,
+				backgroundColor: Colors.surfaceElevated,
+			}}
+		/>
+	);
+}
+
 const AddressBottomSheet = forwardRef<
 	AddressBottomSheetRef,
 	AddressBottomSheetProps
@@ -175,14 +186,7 @@ const AddressBottomSheet = forwardRef<
 							keyExtractor={(item) => item.id}
 							extraData={optimisticActiveId}
 							showsVerticalScrollIndicator={false}
-							ItemSeparatorComponent={() => (
-								<View
-									style={{
-										height: 1,
-										backgroundColor: themeColors.surfaceElevated,
-									}}
-								/>
-							)}
+							ItemSeparatorComponent={AddressSeparator}
 							renderItem={({ item }) => (
 								<AddressListItem
 									address={item}

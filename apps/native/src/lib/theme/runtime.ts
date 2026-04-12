@@ -11,7 +11,6 @@ import {
 import type {
   ThemeId,
   ThemePalette,
-  ThemePreference,
   ThemeTokens,
 } from "./types";
 
@@ -83,4 +82,4 @@ export function useThemeVariables() {
   return useMemo(() => vars(getThemeVariableRecord(tokens)), [tokens.id]);
 }
 
-export type { ThemeId, ThemePreference, ThemeTokens, ThemePalette };
+export type { ThemeId, ThemePreference, ThemeTokens, ThemePalette } from "./types";

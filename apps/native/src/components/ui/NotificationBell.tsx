@@ -4,9 +4,9 @@ import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface NotificationBellProps {
   /** Background color of the circular button. Defaults to `Colors.overlayMd`. */
-  bgColor?: string;
+  readonly bgColor?: string;
   /** Icon color for header contexts that should always stay bright. */
-  iconColor?: string;
+  readonly iconColor?: string;
 }
 
 export default function NotificationBell({

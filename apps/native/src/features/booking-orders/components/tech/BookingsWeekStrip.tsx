@@ -3,14 +3,14 @@ import { toIso } from "@/src/lib/helpers/date-helpers";
 import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { scheduleOnRN } from "react-native-worklets";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -54,7 +54,7 @@ export default function BookingsWeekStrip() {
     translateX.value = withTiming(direction * -screenWidth, { duration: 180 }, (finished) => {
       "worklet";
       if (!finished) return;
-      runOnJS(goFn)();
+      scheduleOnRN(goFn);
       translateX.value = direction * screenWidth;
       translateX.value = withTiming(0, { duration: 180 });
     });
@@ -101,8 +101,8 @@ export default function BookingsWeekStrip() {
                   width: circleSize,
                   height: circleSize,
                   opacity: isPast ? 0.35 : 1,
-                  backgroundColor: selected ? Colors.primary : themeColors.surfaceBase,
-                  shadowColor: selected ? Colors.primary : Colors.shadow,
+                  backgroundColor: selected ? themeColors.primary : themeColors.surfaceBase,
+                  shadowColor: selected ? themeColors.primary : themeColors.shadow,
                   shadowOffset: { width: 0, height: selected ? 3 : 1 },
                   shadowOpacity: selected ? 0.35 : 0.08,
                   shadowRadius: selected ? 6 : 3,
@@ -114,7 +114,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(7, circleSize * 0.18),
                     textTransform: "uppercase",
-                    color: selected ? Colors.overlayBright : themeColors.textSecondary,
+                    color: selected ? themeColors.overlayBright : themeColors.textSecondary,
                     lineHeight: Math.max(9, circleSize * 0.23),
                   }}
                 >
@@ -139,7 +139,9 @@ export default function BookingsWeekStrip() {
                       width: 4,
                       height: 4,
                       borderRadius: 2,
-                      backgroundColor: selected ? themeColors.surfaceBase : Colors.ratingDefault,
+                      backgroundColor: selected
+                        ? themeColors.surfaceOnPrimary
+                        : themeColors.ratingDefault,
                     }}
                   />
                 )}
@@ -151,9 +153,9 @@ export default function BookingsWeekStrip() {
 
       {/* Swipe indicator dots */}
       <View className="mt-2 flex-row items-center justify-center gap-1">
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayBright }} />
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: themeColors.overlayDim }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: themeColors.overlayBright }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: themeColors.overlayDim }} />
       </View>
     </View>
   );

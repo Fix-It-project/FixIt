@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,8 +11,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/src/lib/theme';
-import { useThemeColors } from '@/src/lib/theme';
+import { Colors, useThemeColors } from '@/src/lib/theme';
 import type { DaySchedule } from '@/src/features/schedule/types/calendar';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -24,11 +23,11 @@ const DEFAULT_SCHEDULE: DaySchedule[] = DAYS.map((dayName, i) => ({
 }));
 
 interface Props {
-  visible: boolean;
-  onConfirm: (schedule: DaySchedule[]) => void;
-  onDismiss?: () => void;
-  existingSchedule?: DaySchedule[];
-  isLoading?: boolean;
+  readonly visible: boolean;
+  readonly onConfirm: (schedule: DaySchedule[]) => void;
+  readonly onDismiss?: () => void;
+  readonly existingSchedule?: DaySchedule[];
+  readonly isLoading?: boolean;
 }
 
 export default function ScheduleSetupModal({
@@ -56,24 +55,32 @@ export default function ScheduleSetupModal({
     }
   }, [visible, existingSchedule]);
 
+  const handleDismiss = useCallback(() => {
+    if (step === 'custom' && !isEditing) {
+      setStep('choose');
+      return;
+    }
+
+    if (onDismiss) {
+      onDismiss();
+      return;
+    }
+
+    router.back();
+  }, [isEditing, onDismiss, router, step]);
+
   // Android hardware back button
   useEffect(() => {
     if (!visible) return;
 
     const onBackPress = () => {
-      // Only allow going back to "choose" during first-time setup, not while editing.
-      if (step === 'custom' && !isEditing) {
-        setStep('choose');
-        return true;
-      }
-      if (onDismiss) onDismiss();
-      else router.back();
+      handleDismiss();
       return true;
     };
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => subscription.remove();
-  }, [visible, step, isEditing, onDismiss, router]);
+  }, [handleDismiss, visible]);
 
   const toggleDay = (index: number) => {
     setSchedule((prev) =>
@@ -86,11 +93,7 @@ export default function ScheduleSetupModal({
       visible={visible}
       animationType="fade"
       transparent
-      onRequestClose={() => {
-        if (step === 'custom' && !isEditing) setStep('choose');
-        else if (onDismiss) onDismiss();
-        else router.back();
-      }}
+      onRequestClose={handleDismiss}
     >
       <View
         className="flex-1 items-center justify-center px-4 py-6"
@@ -98,11 +101,7 @@ export default function ScheduleSetupModal({
       >
         <Pressable
           className="absolute inset-0"
-          onPress={() => {
-            if (step === 'custom' && !isEditing) setStep('choose');
-            else if (onDismiss) onDismiss();
-            else router.back();
-          }}
+          onPress={handleDismiss}
         />
 
         <View

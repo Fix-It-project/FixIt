@@ -9,11 +9,11 @@ type BackButtonVariant = "light" | "surface";
 interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
 	/** "light" → translucent white circle (on brand/dark headers).
 	 *  "surface" → gray circle (on white/light pages). */
-	variant?: BackButtonVariant;
+	readonly variant?: BackButtonVariant;
 	/** Override the default `router.back()` behaviour */
-	onPress?: () => void;
+	readonly onPress?: () => void;
 	/** Icon size, default 22 */
-	iconSize?: number;
+	readonly iconSize?: number;
 }
 
 export default function BackButton({
@@ -22,7 +22,7 @@ export default function BackButton({
 	iconSize = 22,
 	className,
 	...props
-}: BackButtonProps) {
+}: Readonly<BackButtonProps>) {
 	const themeColors = useThemeColors();
 	const variantStyles: Record<BackButtonVariant, { bg: string; iconColor: string }> = {
 		light: { bg: "bg-overlay-md", iconColor: themeColors.surfaceBase },

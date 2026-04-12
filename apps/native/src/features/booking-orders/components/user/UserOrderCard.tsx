@@ -16,7 +16,7 @@ const STATUS_CONFIG: Record<
 	{ label: string; color: string; bg: string }
 > = {
 	pending: { label: "Pending", color: Colors.warning, bg: Colors.warningLight },
-	accepted: { label: "Accepted", color: Colors.success, bg: "#d1fae5" },
+	accepted: { label: "Accepted", color: Colors.success, bg: Colors.statusAvailable },
 	rejected: { label: "Rejected", color: Colors.danger, bg: Colors.dangerSoft },
 	cancelled_by_user: {
 		label: "Cancelled",
@@ -28,7 +28,7 @@ const STATUS_CONFIG: Record<
 		color: Colors.danger,
 		bg: Colors.dangerSoft,
 	},
-	completed: { label: "Completed", color: Colors.success, bg: "#d1fae5" },
+	completed: { label: "Completed", color: Colors.success, bg: Colors.statusAvailable },
 };
 
 interface Props {

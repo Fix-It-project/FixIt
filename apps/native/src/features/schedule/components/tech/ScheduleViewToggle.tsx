@@ -11,8 +11,8 @@ import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
-  activeView: "schedule" | "bookings";
-  onToggle: (view: "schedule" | "bookings") => void;
+  readonly activeView: "schedule" | "bookings";
+  readonly onToggle: (view: "schedule" | "bookings") => void;
 }
 
 /**
@@ -66,7 +66,7 @@ export default function ScheduleViewToggle({ activeView, onToggle }: Props) {
               width: pillWidth,
               bottom: 4,
               borderRadius: 8,
-              backgroundColor: themeColors.surfaceBase,
+              backgroundColor: themeColors.surfaceOnPrimary,
               shadowColor: Colors.shadow,
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.1,

@@ -9,15 +9,17 @@ export function buildMarkedDates(
   selectedDate: string,
   themeColors: ThemePalette,
 ) {
+  const selectedDayColor = themeColors.primary;
+  const selectedDayTextColor = themeColors.surfaceBase;
   const dotOrder = {
     key: "order",
     color: themeColors.successAlt,
-    selectedDotColor: themeColors.surfaceBase,
+    selectedDotColor: selectedDayTextColor,
   };
   const dotException = {
     key: "exception",
     color: themeColors.statusUnavailable,
-    selectedDotColor: themeColors.surfaceBase,
+    selectedDotColor: selectedDayTextColor,
   };
   const marked: Record<string, any> = {};
   const enabledSet = new Set(schedule.filter((d) => d.enabled).map((d) => d.day_of_week));
@@ -42,14 +44,11 @@ export function buildMarkedDates(
     if (hasOrders) dots.push(dotOrder);
     if (hasException) dots.push(dotException);
 
-    // Dynamic highlight color for selected dates to match the legend
-    let highlightColor: string = themeColors.primary;
+    let selectedColor = selectedDayColor;
     if (hasException) {
-      highlightColor = themeColors.statusUnavailable;
-    } else if (!isWorkingDay) {
-      highlightColor = themeColors.textMuted;
+      selectedColor = themeColors.statusUnavailable;
     } else if (hasOrders) {
-      highlightColor = themeColors.successAlt;
+      selectedColor = themeColors.successAlt;
     }
 
     if (hasException) {
@@ -57,21 +56,24 @@ export function buildMarkedDates(
         disabled: false, // keep tappable so user can remove it
         dots,
         selected: isSelected,
-        selectedColor: highlightColor,
+        selectedColor,
+        selectedTextColor: selectedDayTextColor,
       };
-    } else if (!isWorkingDay) {
+    } else if (isWorkingDay) {
+      marked[str] = {
+        dots,
+        selected: isSelected,
+        selectedColor,
+        selectedTextColor: selectedDayTextColor,
+      };
+    } else {
       marked[str] = {
         disabled: true,
         disableTouchEvent: false, // still tappable to show "day off" info
         dots,
         selected: isSelected,
-        selectedColor: highlightColor,
-      };
-    } else {
-      marked[str] = {
-        dots,
-        selected: isSelected,
-        selectedColor: highlightColor,
+        selectedColor,
+        selectedTextColor: selectedDayTextColor,
       };
     }
 

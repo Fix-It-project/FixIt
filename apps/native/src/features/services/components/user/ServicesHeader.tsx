@@ -8,18 +8,20 @@ interface ServicesHeaderProps {
 	readonly categoryName: string;
 	readonly categoryColor: string;
 	readonly CategoryIcon: LucideIcon;
+	readonly onBackPress?: () => void;
 }
 
 export default function ServicesHeader({
 	categoryName,
 	categoryColor,
 	CategoryIcon,
+	onBackPress,
 }: ServicesHeaderProps) {
 	const themeColors = useThemeColors();
 	return (
 		<View style={{ backgroundColor: categoryColor }} className="pb-5">
 			<View className="flex-row items-center px-4 pt-2 pb-1">
-				<BackButton variant="light" className="mr-3" />
+				<BackButton variant="light" className="mr-3" onPress={onBackPress} />
 				<View className="flex-1">
 					<Text
 						className="font-bold text-[20px] text-white"

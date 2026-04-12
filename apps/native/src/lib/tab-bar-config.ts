@@ -1,7 +1,7 @@
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { ThemeColors } from "@/src/lib/theme";
+import type { ThemePalette } from "@/src/lib/theme";
 
 const TAB_BAR_CONTENT_HEIGHT = 52;
 const TAB_BAR_TOP_PADDING = 8;
@@ -37,7 +37,7 @@ export function useBottomTabMetrics(): BottomTabMetrics {
 }
 
 export function getBaseTabScreenOptions(
-  themeColors: ThemeColors,
+  themeColors: ThemePalette,
   metrics: BottomTabMetrics,
 ): BottomTabNavigationOptions {
   const isIos = Platform.OS === "ios";
@@ -51,14 +51,14 @@ export function getBaseTabScreenOptions(
       backgroundColor: themeColors.surfaceBase,
       borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: themeColors.borderDefault,
-	      height: metrics.tabBarHeight,
-	      paddingTop: metrics.tabBarPaddingTop,
-	      paddingBottom: metrics.tabBarPaddingBottom,
-	      elevation: 0,
-	      shadowColor: themeColors.shadow,
-	      shadowOffset: { width: 0, height: -2 },
-	      shadowOpacity: isIos ? 0.06 : 0,
-	      shadowRadius: isIos ? 8 : 0,
-	    },
+      height: metrics.tabBarHeight,
+      paddingTop: metrics.tabBarPaddingTop,
+      paddingBottom: metrics.tabBarPaddingBottom,
+      elevation: 0,
+      shadowColor: themeColors.shadow,
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: isIos ? 0.06 : 0,
+      shadowRadius: isIos ? 8 : 0,
+    },
   };
 }

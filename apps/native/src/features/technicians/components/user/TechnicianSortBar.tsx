@@ -7,12 +7,11 @@ import {
 } from "@/src/features/technicians/types/sort";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
-export type { SortKey } from "@/src/features/technicians/types/sort";
-export { SORT_OPTIONS } from "@/src/features/technicians/types/sort";
+export { SORT_OPTIONS, type SortKey } from "@/src/features/technicians/types/sort";
 
 interface TechnicianSortBarProps {
-	activeSort: SortKey;
-	onSortPress: (option: SortKey) => void;
+	readonly activeSort: SortKey;
+	readonly onSortPress: (option: SortKey) => void;
 }
 
 export default function TechnicianSortBar({
