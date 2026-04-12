@@ -1,4 +1,4 @@
-import ProfileScreen from "@/src/components/user/profile/ProfileScreen";
+import UserProfileScreen from "@/src/features/users/components/user/UserProfileScreen";
 
-export default ProfileScreen;
+export default UserProfileScreen;
 

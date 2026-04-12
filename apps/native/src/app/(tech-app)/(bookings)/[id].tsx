@@ -9,13 +9,13 @@ import {
   useCancelOrderByTechnicianMutation,
   useCompleteOrderMutation,
 } from "@/src/hooks/tech/useTechOrders";
-import BookingDetailHeader from "@/src/components/tech/booking/BookingDetailHeader";
-import BookingClientCard from "@/src/components/tech/booking/BookingClientCard";
-import BookingInfoSection from "@/src/components/tech/booking/BookingInfoSection";
-import BookingDescriptionCard from "@/src/components/tech/booking/BookingDescriptionCard";
-import BookingAttachmentCard from "@/src/components/tech/booking/BookingAttachmentCard";
-import BookingActionButtons from "@/src/components/tech/booking/BookingActionButtons";
-import BookingCancelModal from "@/src/components/tech/booking/BookingCancelModal";
+import BookingDetailHeader from "@/src/features/booking-orders/components/tech/BookingDetailHeader";
+import BookingClientCard from "@/src/features/booking-orders/components/tech/BookingClientCard";
+import BookingInfoSection from "@/src/features/booking-orders/components/tech/BookingInfoSection";
+import BookingDescriptionCard from "@/src/features/booking-orders/components/shared/BookingDescriptionCard";
+import BookingAttachmentCard from "@/src/features/booking-orders/components/shared/BookingAttachmentCard";
+import BookingActionButtons from "@/src/features/booking-orders/components/tech/BookingActionButtons";
+import BookingCancelModal from "@/src/features/booking-orders/components/tech/BookingCancelModal";
 
 export default function BookingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,8 +28,8 @@ export default function BookingDetailScreen() {
 
   if (!booking) {
     return (
-      <View className="flex-1 items-center justify-center bg-surface-gray">
-        <ActivityIndicator color={Colors.brand} />
+      <View className="flex-1 items-center justify-center bg-surface-elevated">
+        <ActivityIndicator color={Colors.primary} />
       </View>
     );
   }
@@ -67,7 +67,7 @@ export default function BookingDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-surface-gray">
+    <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
         <BookingDetailHeader booking={booking} />
 
@@ -87,13 +87,13 @@ export default function BookingDetailScreen() {
           {booking.status !== "accepted" ? (
             <View
               className="mt-2 items-center rounded-2xl py-4"
-              style={{ backgroundColor: `${booking.status === "completed" ? Colors.success : Colors.error}12` }}
+              style={{ backgroundColor: `${booking.status === "completed" ? Colors.success : Colors.danger}12` }}
             >
               <Text
                 style={{
                   fontFamily: "GoogleSans_600SemiBold",
                   fontSize: 14,
-                  color: booking.status === "completed" ? Colors.success : Colors.error,
+                  color: booking.status === "completed" ? Colors.success : Colors.danger,
                 }}
               >
                 {booking.status === "completed"

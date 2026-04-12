@@ -21,12 +21,12 @@ function ContactItem({
       activeOpacity={0.7}
       className="flex-row items-center gap-3 py-3.5"
     >
-      <View className="h-10 w-10 items-center justify-center rounded-full bg-brand-light">
-        <Icon size={18} color={Colors.brand} strokeWidth={1.8} />
+      <View className="h-10 w-10 items-center justify-center rounded-full bg-app-primary-light">
+        <Icon size={18} color={Colors.primary} strokeWidth={1.8} />
       </View>
       <View className="flex-1">
         <Text className="text-[13px] text-content-muted">{label}</Text>
-        <Text className="text-[15px] font-medium text-brand">{value}</Text>
+        <Text className="text-[15px] font-medium text-app-primary">{value}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -34,10 +34,10 @@ function ContactItem({
 
 export default function HelpSupportScreen() {
   return (
-    <ScrollView className="flex-1 bg-surface-gray" contentContainerClassName="px-5 py-6 gap-4">
-      <View className="rounded-2xl bg-surface-white px-5 py-6 shadow-sm" style={{ elevation: 2 }}>
-        <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-brand-light">
-          <CircleHelp size={28} color={Colors.brand} strokeWidth={1.8} />
+    <ScrollView className="flex-1 bg-surface-elevated" contentContainerClassName="px-5 py-6 gap-4">
+      <View className="rounded-2xl bg-surface px-5 py-6 shadow-sm" style={{ elevation: 2 }}>
+        <View className="mb-4 h-14 w-14 items-center justify-center rounded-full bg-app-primary-light">
+          <CircleHelp size={28} color={Colors.primary} strokeWidth={1.8} />
         </View>
         <Text className="text-lg font-bold text-content">Help & Support</Text>
         <Text className="mt-2 text-[14px] leading-5 text-content-muted">
@@ -45,7 +45,7 @@ export default function HelpSupportScreen() {
         </Text>
       </View>
 
-      <View className="rounded-2xl bg-surface-white px-5 py-2 shadow-sm" style={{ elevation: 2 }}>
+      <View className="rounded-2xl bg-surface px-5 py-2 shadow-sm" style={{ elevation: 2 }}>
         <ContactItem
           icon={Mail}
           label="Email us"

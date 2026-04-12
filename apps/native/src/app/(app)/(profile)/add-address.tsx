@@ -10,12 +10,12 @@ import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
 import { Colors } from "@/src/lib/colors";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { addAddressSchema } from "@/src/services/addresses/schemas/form.schema";
+import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
 import { useAddAddressMutation } from "@/src/hooks/addresses/useAddAddressMutation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import AddressFormSection from "@/src/components/shared/AddressFormSection";
+import AddressFormSection from "@/src/components/AddressFormSection";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
-import PageHeader from "@/src/components/shared/PageHeader";
+import PageHeader from "@/src/components/PageHeader";
 
 export default function AddAddressScreen() {
   const params = useLocalSearchParams<{ latitude: string; longitude: string }>();
@@ -53,7 +53,7 @@ export default function AddAddressScreen() {
   }, [city, street, buildingNumber, apartmentNumber, latitude, longitude, validate, addMutation]);
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: Colors.white }}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: Colors.surfaceBase }}>
       {/* Header */}
       <PageHeader title="Address Details" variant="surface" className="px-5 py-3" />
 
@@ -68,12 +68,12 @@ export default function AddAddressScreen() {
         {/* Coords badge */}
         <View
           className="flex-row items-center rounded-lg px-3 py-2.5"
-          style={{ backgroundColor: Colors.brandLight }}
+          style={{ backgroundColor: Colors.primaryLight }}
         >
-          <MapPin size={14} color={Colors.brand} strokeWidth={2} />
+          <MapPin size={14} color={Colors.primary} strokeWidth={2} />
           <Text
             className="ml-2 text-[13px]"
-            style={{ fontFamily: "GoogleSans_400Regular", color: Colors.brand }}
+            style={{ fontFamily: "GoogleSans_400Regular", color: Colors.primary }}
           >
             Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
           </Text>
@@ -99,7 +99,7 @@ export default function AddAddressScreen() {
         {addMutation.isError && (
           <Text
             className="text-[13px] text-center"
-            style={{ color: Colors.error, fontFamily: "GoogleSans_400Regular" }}
+            style={{ color: Colors.danger, fontFamily: "GoogleSans_400Regular" }}
           >
             {getErrorMessage(addMutation.error)}
           </Text>
@@ -112,7 +112,7 @@ export default function AddAddressScreen() {
           className="w-full rounded-xl"
         >
           {addMutation.isPending ? (
-            <ActivityIndicator size="small" color={Colors.white} />
+            <ActivityIndicator size="small" color={Colors.surfaceBase} />
           ) : (
             <Text>Save Address</Text>
           )}

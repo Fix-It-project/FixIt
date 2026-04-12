@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TechnicianOrder } from '@/src/services/tech-calendar/schemas/response.schema';
+import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 
 interface TechRequestsStore {
   selectedOrder: TechnicianOrder | null;

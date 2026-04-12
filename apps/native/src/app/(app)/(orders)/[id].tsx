@@ -4,14 +4,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "@/src/lib/colors";
 import { useUserOrderById, useCancelOrderByUserMutation } from "@/src/hooks/orders/useUserOrders";
-import OrderDetailHeader from "@/src/components/user/orders/OrderDetailHeader";
-import OrderTechnicianCard from "@/src/components/user/orders/OrderTechnicianCard";
-import OrderInfoSection from "@/src/components/user/orders/OrderInfoSection";
-import OrderStatusBanner from "@/src/components/user/orders/OrderStatusBanner";
-import OrderActionButtons from "@/src/components/user/orders/OrderActionButtons";
-import OrderCancelModal from "@/src/components/user/orders/OrderCancelModal";
-import BookingDescriptionCard from "@/src/components/tech/booking/BookingDescriptionCard";
-import BookingAttachmentCard from "@/src/components/tech/booking/BookingAttachmentCard";
+import OrderDetailHeader from "@/src/features/booking-orders/components/user/OrderDetailHeader";
+import OrderTechnicianCard from "@/src/features/booking-orders/components/user/OrderTechnicianCard";
+import OrderInfoSection from "@/src/features/booking-orders/components/user/OrderInfoSection";
+import OrderStatusBanner from "@/src/features/booking-orders/components/user/OrderStatusBanner";
+import OrderActionButtons from "@/src/features/booking-orders/components/user/OrderActionButtons";
+import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
+import BookingDescriptionCard from "@/src/features/booking-orders/components/shared/BookingDescriptionCard";
+import BookingAttachmentCard from "@/src/features/booking-orders/components/shared/BookingAttachmentCard";
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,8 +23,8 @@ export default function OrderDetailScreen() {
 
   if (!order) {
     return (
-      <View className="flex-1 items-center justify-center bg-surface-gray">
-        <ActivityIndicator color={Colors.brand} />
+      <View className="flex-1 items-center justify-center bg-surface-elevated">
+        <ActivityIndicator color={Colors.primary} />
       </View>
     );
   }
@@ -49,7 +49,7 @@ export default function OrderDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-surface-gray">
+    <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
         <OrderDetailHeader order={order} />
 

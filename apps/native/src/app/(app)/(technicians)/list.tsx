@@ -14,15 +14,16 @@ import { Colors } from "@/src/lib/colors";
 import { useTechniciansQuery } from "@/src/hooks/user/useTechniciansQuery";
 import { useLocationStore } from "@/src/stores/location-store";
 import { useTechnicianSearchStore } from "@/src/stores/technician-search-store";
-import TechnicianListCard from "@/src/components/user/browse/TechnicianListCard";
-import TechnicianSortBar, { type SortKey } from "@/src/components/user/browse/TechnicianSortBar";
+import TechnicianListCard from "@/src/features/technicians/components/user/TechnicianListCard";
+import TechnicianSortBar from "@/src/features/technicians/components/user/TechnicianSortBar";
+import type { SortKey } from "@/src/features/technicians/types/sort";
 import TechnicianProfileSheet, {
   type TechnicianProfileSheetRef,
-} from "@/src/components/user/browse/TechnicianProfileSheet";
-import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
+} from "@/src/features/technicians/components/user/TechnicianProfileSheet";
+import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import {
   getRecommendedTechnicians,
-} from "@/src/services/technicians/recommendations.service";
+} from "@/src/features/technicians/recommendations.service";
 import BackButton from "@/src/components/ui/BackButton";
 import { useRef, useCallback, useEffect, useMemo, useState } from "react";
 
@@ -41,7 +42,7 @@ function TechnicianListBody({
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color={Colors.brand} />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -191,10 +192,10 @@ export default function TechniciansListScreen() {
   }, [technicians, activeSort, recommendedRank]);
 
   return (
-    <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: Colors.brand }}>
-      <View className="flex-1 bg-surface-gray">
+    <SafeAreaView className="flex-1" edges={["top"]} style={{ backgroundColor: Colors.primary }}>
+      <View className="flex-1 bg-surface-elevated">
         {/* ── Blue header ── */}
-        <View style={{ backgroundColor: Colors.brand }} className="pb-4">
+        <View style={{ backgroundColor: Colors.primary }} className="pb-4">
           {/* Top row: back + title */}
           <View className="flex-row items-center px-4 pb-2 pt-2">
             <BackButton variant="light" className="mr-3" />

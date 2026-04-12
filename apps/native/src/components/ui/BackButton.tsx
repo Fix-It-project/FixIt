@@ -17,8 +17,8 @@ interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
 }
 
 const variantStyles: Record<BackButtonVariant, { bg: string; iconColor: string }> = {
-	light: { bg: "bg-overlay-md", iconColor: Colors.white },
-	surface: { bg: "bg-surface-gray", iconColor: Colors.textPrimary },
+	light: { bg: "bg-overlay-md", iconColor: Colors.surfaceBase },
+	surface: { bg: "bg-surface-elevated", iconColor: Colors.textPrimary },
 };
 
 export default function BackButton({

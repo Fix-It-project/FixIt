@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { View, Text } from "react-native";
-import { Wrench, ArrowRight } from "lucide-react-native";
+import { View, Text, Image } from "react-native";
+import { ArrowRight } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -23,15 +23,17 @@ export default function GetStartedScreen() {
       <View className="flex-1 items-center pt-[189px] px-8">
         {/* Logo Container */}
         <View className="mb-[33px]">
-          <View className="w-28 h-28 bg-white rounded-3xl items-center justify-center shadow-lg shadow-blue-100">
-            <Wrench size={64} color={Colors.brandDark} />
-          </View>
+          <Image
+            source={require("../../assets/images/fixit.png")}
+            style={{ width: 112, height: 112, borderRadius: 26 }}
+            resizeMode="contain"
+          />
         </View>
 
         {/* App Name */}
         <View className="flex-row items-center mb-2">
           <Text className="text-[41px] font-bold text-content-slate tracking-tight">Fix</Text>
-          <Text className="text-[41px] font-bold text-brand-dark tracking-tight">IT</Text>
+          <Text className="text-[41px] font-bold text-app-primary-dark tracking-tight">IT</Text>
         </View>
 
         {/* Subtitle */}
@@ -44,7 +46,7 @@ export default function GetStartedScreen() {
             className="flex-row gap-2 shadow-sm"
           >
             <BtnText className="text-[17px]">Get Started</BtnText>
-            <ArrowRight size={20} color={Colors.white} />
+            <ArrowRight size={20} color={Colors.surfaceBase} />
           </Button>
         </View>
 

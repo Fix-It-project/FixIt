@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View, Text, Pressable, ScrollView, Image } from "react-native";
-import { Wrench, HelpCircle, Hammer } from "lucide-react-native";
+import { HelpCircle, Hammer } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/src/lib/colors";
 import { useDebounce } from "@/src/hooks/useDebounce";
@@ -23,12 +23,14 @@ export default function RoleSelectionScreen() {
         {/* Header */}
         <View className="w-full flex items-center mt-6 mb-6">
           <View className="flex-row items-center gap-2">
-            <View className="w-10 h-10 bg-brand-alt rounded-xl items-center justify-center shadow-lg shadow-blue-500/30">
-              <Wrench size={24} color={Colors.white} />
-            </View>
+            <Image
+              source={require("../../assets/images/fixit.png")}
+              style={{ width: 40, height: 40, borderRadius: 10 }}
+              resizeMode="contain"
+            />
             <View className="flex-row">
               <Text className="text-[24px] font-extrabold text-content-slate tracking-tight">Fix</Text>
-              <Text className="text-[24px] font-extrabold text-brand-alt tracking-tight">IT</Text>
+              <Text className="text-[24px] font-extrabold text-app-primary tracking-tight">IT</Text>
             </View>
           </View>
         </View>
@@ -44,7 +46,7 @@ export default function RoleSelectionScreen() {
           <Pressable
             className="relative w-full h-[250px] bg-role-user rounded-3xl p-8 active:opacity-90 overflow-hidden border-2 border-blue-200/50"
             style={{
-              shadowColor: '#3b82f6',
+              shadowColor: Colors.roleAccent,
               shadowOffset: { width: 0, height: 10 },
               shadowOpacity: 0.2,
               shadowRadius: 20,
@@ -69,7 +71,7 @@ export default function RoleSelectionScreen() {
             <View className="absolute bottom-6 left-6 right-6">
               <View className="flex-row items-center gap-2 mb-1">
                 <View className="bg-white/80 p-1.5 rounded-lg">
-                  <HelpCircle size={16} color={Colors.brandAlt} />
+                  <HelpCircle size={16} color={Colors.primary} />
                 </View>
                 <Text className="text-[10px] font-semibold uppercase tracking-wider text-role-label">
                   I NEED HELP
@@ -88,7 +90,7 @@ export default function RoleSelectionScreen() {
           <Pressable
             className="relative w-full h-[250px] bg-role-tech rounded-3xl p-8 active:opacity-90 overflow-hidden"
             style={{
-              shadowColor: Colors.brandAlt,
+              shadowColor: Colors.primary,
               shadowOffset: { width: 0, height: 10 },
               shadowOpacity: 0.3,
               shadowRadius: 20,
@@ -117,7 +119,7 @@ export default function RoleSelectionScreen() {
                   I AM A PRO
                 </Text>
                 <View className="bg-white/20 p-1.5 rounded-lg">
-                  <Hammer size={16} color={Colors.white} />
+                  <Hammer size={16} color={Colors.surfaceBase} />
                 </View>
               </View>
               <Text className="text-[24px] font-extrabold text-white leading-tight text-right">
@@ -137,7 +139,7 @@ export default function RoleSelectionScreen() {
             onPress={goToLogin}
           >
             <Text className="text-[14px] font-medium text-content-slate-light">Already have an account? </Text>
-            <Text className="text-[14px] font-bold text-brand-alt">Log in</Text>
+            <Text className="text-[14px] font-bold text-app-primary">Log in</Text>
           </Pressable>
         </View>
 
@@ -145,9 +147,9 @@ export default function RoleSelectionScreen() {
         <View className="w-full max-w-sm mb-8 px-4">
           <Text className="text-[11px] text-center text-content-slate-dim leading-4">
             By signing up, you agree to our{' '}
-            <Text className="text-brand-alt font-semibold">Terms of Service</Text>
+            <Text className="text-app-primary font-semibold">Terms of Service</Text>
             {' '}and{' '}
-            <Text className="text-brand-alt font-semibold">Privacy Policy</Text>
+            <Text className="text-app-primary font-semibold">Privacy Policy</Text>
           </Text>
         </View>
       </ScrollView>

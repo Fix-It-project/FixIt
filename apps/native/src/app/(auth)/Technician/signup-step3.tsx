@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { User as UserIcon } from "lucide-react-native";
-import { techStep3Schema } from "@/src/services/auth/schemas/form.schema";
+import { techStep3Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import AuthPageLayout from "@/src/components/shared/auth/AuthPageLayout";
-import FormInput from "@/src/components/shared/auth/FormInput";
-import PasswordInput from "@/src/components/shared/auth/PasswordInput";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
+import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import FormInput from "@/src/features/auth/components/shared/FormInput";
+import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 
 
 export default function TechnicianSignUpStep3() {

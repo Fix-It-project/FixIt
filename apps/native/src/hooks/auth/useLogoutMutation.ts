@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { signOut } from "@/src/services/auth/api/auth";
-import { technicianSignOut } from "@/src/services/auth/api/technician-auth";
+import { signOut } from "@/src/features/auth/api/auth";
+import { technicianSignOut } from "@/src/features/auth/api/technician-auth";
 import { useAuthStore } from "@/src/stores/auth-store";
 import queryClient from "@/src/lib/query-client";
 

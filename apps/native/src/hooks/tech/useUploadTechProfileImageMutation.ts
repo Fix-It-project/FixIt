@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { uploadTechnicianProfileImage } from "@/src/services/tech-self/api/tech-self";
+import { uploadTechnicianProfileImage } from "@/src/features/tech-self/api/tech-self";
 
 interface UploadImageArgs {
   imageUri: string;

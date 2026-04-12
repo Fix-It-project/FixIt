@@ -4,7 +4,7 @@
     "slug": "fixit",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.png",
+    "icon": "./src/assets/images/fixit.png",
     "scheme": "fixitapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -40,12 +40,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./src/assets/images/fixit.png",
+          "imageWidth": 250,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#1565D8",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#0D3F8F"
           }
         }
       ],

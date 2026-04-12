@@ -187,7 +187,7 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 
 // ─── Technician Listings (mock API fallback) ─────────────────────────────────
 
-import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
+import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 
 /** Mock technicians indexed by category ID (matches CATEGORIES ids). */
 export const MOCK_TECHNICIANS_BY_CATEGORY: Record<string, TechnicianListItem[]> = {

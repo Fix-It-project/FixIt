@@ -8,7 +8,7 @@ import { CATEGORIES } from "@/src/lib/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
 import { useUserPastOrders } from "@/src/hooks/orders/useUserOrders";
-import type { Order } from "@/src/services/orders/schemas/response.schema";
+import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 
 function statusLabel(status: string): string {
   if (status === "completed") return "Completed";
@@ -17,13 +17,13 @@ function statusLabel(status: string): string {
 }
 
 function statusColor(status: string): string {
-  return status === "completed" ? Colors.success : Colors.error;
+  return status === "completed" ? Colors.success : Colors.danger;
 }
 
 function PastOrderCard({ order }: { readonly order: Order }) {
   const category = order.category_id ? CATEGORIES.find((c) => c.id === order.category_id) : undefined;
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-  const categoryColor = category?.color ?? Colors.brand;
+  const categoryColor = category?.color ?? Colors.primary;
   const color = statusColor(order.status);
   const goToOrder = useDebounce(() => router.push({ pathname: "/(app)/(orders)/[id]", params: { id: order.id } }));
 
@@ -32,7 +32,7 @@ function PastOrderCard({ order }: { readonly order: Order }) {
       activeOpacity={0.85}
       onPress={goToOrder}
       className="mb-3 rounded-2xl bg-white p-4"
-      style={{ borderWidth: 1, borderColor: Colors.borderLight }}
+      style={{ borderWidth: 1, borderColor: Colors.borderDefault }}
     >
       <View className="flex-row items-center gap-3">
         {/* Avatar */}
@@ -40,14 +40,14 @@ function PastOrderCard({ order }: { readonly order: Order }) {
           <Image
             source={{ uri: order.technician_image }}
             className="h-11 w-11 rounded-full"
-            style={{ backgroundColor: Colors.surfaceGray }}
+            style={{ backgroundColor: Colors.surfaceElevated }}
           />
         ) : (
           <View
             className="h-11 w-11 items-center justify-center rounded-full"
             style={{ backgroundColor: getAvatarColor(order.technician_name) }}
           >
-            <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.white }}>
+            <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: Colors.surfaceBase }}>
               {getInitials(order.technician_name)}
             </Text>
           </View>
@@ -92,17 +92,17 @@ export default function PastOrdersScreen() {
   const { data: orders } = useUserPastOrders();
 
   return (
-    <View className="flex-1 bg-surface-gray">
+    <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
         {/* Header */}
         <View
           className="flex-row items-center gap-3 px-4 pb-4 pt-2"
-          style={{ backgroundColor: Colors.white }}
+          style={{ backgroundColor: Colors.surfaceBase }}
         >
           <TouchableOpacity
             onPress={() => router.back()}
             className="h-9 w-9 items-center justify-center rounded-full"
-            style={{ backgroundColor: Colors.surfaceGray }}
+            style={{ backgroundColor: Colors.surfaceElevated }}
           >
             <ChevronLeft size={20} color={Colors.textPrimary} />
           </TouchableOpacity>

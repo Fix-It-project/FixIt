@@ -4,7 +4,7 @@ import { Colors } from "@/src/lib/colors";
  * Shared tab-bar styling for both customer and technician layouts.
  */
 export const TAB_BAR_STYLE = {
-  backgroundColor: Colors.white,
+  backgroundColor: Colors.surfaceBase,
   borderTopWidth: 0,
   height: 80,
   paddingBottom: 20,

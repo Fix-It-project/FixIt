@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getTechnicianSelf } from "@/src/services/tech-self/api/tech-self";
+import { getTechnicianSelf } from "@/src/features/tech-self/api/tech-self";
 
 export function useTechSelfProfileQuery() {
   return useQuery({

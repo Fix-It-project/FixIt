@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
-import { technicianSignUp } from "@/src/services/auth/api/technician-auth";
+import { technicianSignUp } from "@/src/features/auth/api/technician-auth";
 import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useLocationStore } from "@/src/stores/location-store";
 

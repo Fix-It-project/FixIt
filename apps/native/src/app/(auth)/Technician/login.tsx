@@ -1,4 +1,4 @@
-import LoginScreen from "@/src/components/shared/auth/LoginScreen";
+import LoginScreen from "@/src/features/auth/components/shared/LoginScreen";
 import { useTechnicianLoginMutation } from "@/src/hooks/auth/useTechnicianLoginMutation";
 
 export default function Login() {
@@ -8,7 +8,9 @@ export default function Login() {
       loginMutation={loginMutation}
       subtitle="Sign in to your technician account"
       forgotPasswordUserType="technician"
-      signupRoute="/(auth)/role-selection"
+      signupRoute="/(auth)/Technician/signup"
+      signupPrefixText="Not a Technician yet? "
+      signupActionText="Apply now!"
     />
   );
 }

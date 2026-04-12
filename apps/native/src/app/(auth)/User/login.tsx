@@ -1,4 +1,4 @@
-import LoginScreen from "@/src/components/shared/auth/LoginScreen";
+import LoginScreen from "@/src/features/auth/components/shared/LoginScreen";
 import { useLoginMutation } from "@/src/hooks/auth/useLoginMutation";
 
 export default function Login() {
@@ -9,7 +9,9 @@ export default function Login() {
       subtitle="Sign in to book your next repair"
       forgotPasswordUserType="user"
       showOAuth
-      signupRoute="/(auth)/role-selection"
+      signupRoute="/(auth)/User/signup"
+      signupPrefixText="Don't have an account? "
+      signupActionText="Sign up"
     />
   );
 }

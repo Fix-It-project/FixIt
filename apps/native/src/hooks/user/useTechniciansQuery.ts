@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getTechniciansByCategory,
   searchTechniciansInCategory,
-} from "@/src/services/technicians/api/technicians";
+} from "@/src/features/technicians/api/technicians";
 import { MOCK_TECHNICIANS_BY_CATEGORY } from "@/src/lib/mock-data/user";
-import type { TechnicianListItem } from "@/src/services/technicians/schemas/response.schema";
+import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 
 /**
  * TanStack Query hook that fetches technicians for a given category.

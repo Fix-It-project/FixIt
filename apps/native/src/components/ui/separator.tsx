@@ -6,9 +6,9 @@ import { cn } from "@/src/lib/utils";
 const separatorVariants = cva("shrink-0", {
 	variants: {
 		variant: {
-			default: "bg-edge-outline",
-			brand: "bg-brand/20",
-			muted: "bg-surface-gray",
+			default: "bg-edge",
+			brand: "bg-app-primary/20",
+			muted: "bg-surface-elevated",
 		},
 		orientation: {
 			horizontal: "h-px w-full",

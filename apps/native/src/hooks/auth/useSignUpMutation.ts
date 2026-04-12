@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
-import { signUp } from "@/src/services/auth/api/auth";
-import type { SignUpRequest } from "@/src/services/auth/types/auth";
+import { signUp } from "@/src/features/auth/api/auth";
+import type { SignUpRequest } from "@/src/features/auth/types/auth";
 
 export function useSignUpMutation() {
 	return useMutation({

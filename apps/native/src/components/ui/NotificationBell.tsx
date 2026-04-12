@@ -16,10 +16,10 @@ export default function NotificationBell({
       style={{ backgroundColor: bgColor }}
       activeOpacity={0.7}
     >
-      <Bell size={20} color={Colors.white} strokeWidth={1.8} />
+      <Bell size={20} color={Colors.surfaceBase} strokeWidth={1.8} />
       <View
         className="absolute right-2 top-2 h-2 w-2 rounded-full"
-        style={{ backgroundColor: Colors.error }}
+        style={{ backgroundColor: Colors.danger }}
       />
     </TouchableOpacity>
   );

@@ -6,10 +6,10 @@ import { FileText, Phone, User } from "lucide-react-native";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
 import { useUpdateTechSelfProfileMutation } from "@/src/hooks/tech/useUpdateTechSelfProfileMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { editTechProfileSchema } from "@/src/services/tech-self/schemas/form.schema";
+import { editTechProfileSchema } from "@/src/features/tech-self/schemas/form.schema";
 import { useEditTechProfileStore } from "@/src/stores/edit-tech-profile-store";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
-import FormInput from "@/src/components/shared/auth/FormInput";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import FormInput from "@/src/features/auth/components/shared/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/colors";
@@ -65,7 +65,7 @@ export default function EditTechProfileScreen() {
       style={{ flex: 1 }}
     >
     <ScrollView
-      className="flex-1 bg-surface-gray"
+      className="flex-1 bg-surface-elevated"
       contentContainerClassName="px-5 py-6 gap-4"
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="interactive"
@@ -124,7 +124,7 @@ export default function EditTechProfileScreen() {
       <View className="mt-2">
         <Button onPress={handleSave} disabled={updateProfile.isPending}>
           {updateProfile.isPending ? (
-            <ActivityIndicator color={Colors.white} />
+            <ActivityIndicator color={Colors.surfaceBase} />
           ) : (
             <Text>Save Changes</Text>
           )}

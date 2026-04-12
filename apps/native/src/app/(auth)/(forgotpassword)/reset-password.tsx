@@ -5,15 +5,15 @@ import { Text as BtnText } from "@/src/components/ui/text";
 import { StatusBar } from "expo-status-bar";
 import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
-import { resetPasswordSchema } from "@/src/services/auth/schemas/form.schema";
+import { resetPasswordSchema } from "@/src/features/auth/schemas/form.schema";
 import { useResetPasswordMutation } from "@/src/hooks/auth/useResetPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { Colors } from "@/src/lib/colors";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import ErrorBanner from "@/src/components/shared/auth/ErrorBanner";
-import InvalidResetLinkView from "@/src/components/shared/auth/InvalidResetLinkView";
-import PasswordInput from "@/src/components/shared/auth/PasswordInput";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import InvalidResetLinkView from "@/src/features/auth/components/shared/InvalidResetLinkView";
+import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 
 export default function ResetPassword() {
   const { access_token, refresh_token, userType } = useLocalSearchParams<{
@@ -63,7 +63,7 @@ export default function ResetPassword() {
   return (
     <KeyboardAvoidingView
       behavior="padding"
-      style={{ flex: 1, backgroundColor: Colors.brandLight }}
+      style={{ flex: 1, backgroundColor: Colors.primaryLight }}
     >
       <StatusBar style="dark" />
       <View style={{ flex: 1 }}>
@@ -148,7 +148,7 @@ export default function ResetPassword() {
             disabled={!isButtonActive}
           >
             {resetMutation.isPending ? (
-              <ActivityIndicator color={Colors.white} />
+              <ActivityIndicator color={Colors.surfaceBase} />
             ) : (
               <BtnText>Reset Password</BtnText>
             )}

@@ -4,8 +4,8 @@ import { router } from "expo-router";
 import { Colors } from "@/src/lib/colors";
 import { Text } from "@/src/components/ui/text";
 import { useUserOrdersQuery } from "@/src/hooks/orders/useUserOrders";
-import OrdersHeader from "@/src/components/user/orders/OrdersHeader";
-import UserOrderCard from "@/src/components/user/orders/UserOrderCard";
+import OrdersHeader from "@/src/features/booking-orders/components/user/OrdersHeader";
+import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
 import { useDebounce } from "@/src/hooks/useDebounce";
 
 export default function MyOrdersScreen() {
@@ -13,13 +13,13 @@ export default function MyOrdersScreen() {
   const goToOrder = useDebounce((id: string) => router.push({ pathname: "/(app)/(orders)/[id]", params: { id } }));
 
   return (
-    <View className="flex-1 bg-surface-gray">
+    <View className="flex-1 bg-surface-elevated">
       <SafeAreaView className="flex-1" edges={["top"]}>
         <OrdersHeader />
 
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={Colors.brand} />
+            <ActivityIndicator size="large" color={Colors.primary} />
           </View>
         ) : orders.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
@@ -38,7 +38,7 @@ export default function MyOrdersScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
             refreshControl={
-              <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.brand} />
+              <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
             }
           >
             {orders.map((order) => (

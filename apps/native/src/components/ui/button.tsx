@@ -8,7 +8,7 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "bg-brand active:opacity-90",
+				default: "bg-app-primary active:opacity-90",
 				destructive: "bg-destructive active:opacity-90",
 				outline:
 					"border border-input bg-background active:bg-accent",
@@ -38,7 +38,7 @@ const buttonTextVariants = cva("font-bold text-[16px]", {
 			outline: "text-foreground",
 			secondary: "text-secondary-foreground",
 			ghost: "text-foreground",
-			link: "text-brand underline",
+			link: "text-app-primary underline",
 		},
 		size: {
 			default: "",
