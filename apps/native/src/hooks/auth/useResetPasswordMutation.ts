@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
+import { clearRecoverySession } from "@/src/lib/auth/recovery-session";
 import { supabase } from "@/src/lib/supabase";
 
 export function useResetPasswordMutation(userType: string) {
@@ -17,11 +18,12 @@ export function useResetPasswordMutation(userType: string) {
 			});
 			if (updateError) throw updateError;
 			await supabase.auth.signOut();
-		},
-		onSuccess: () => {
-			Toast.show({
-				type: "success",
-				text1: "Password Reset!",
+			},
+			onSuccess: () => {
+				clearRecoverySession();
+				Toast.show({
+					type: "success",
+					text1: "Password Reset!",
 				text2: "Your password has been updated. Please log in.",
 				position: "top",
 				visibilityTime: 3000,

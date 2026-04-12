@@ -3,10 +3,14 @@ export const AVATAR_COLORS = [
   "#00BCD4", "#F44336", "#3F51B5", "#795548",
 ];
 
+const HASH_MODULUS = 2_147_483_647;
+
 export function seededIndex(id: string, max: number): number {
   let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
-  return Math.abs(hash) % max;
+  for (const char of id) {
+    hash = Math.trunc((hash * 31 + (char.codePointAt(0) ?? 0)) % HASH_MODULUS);
+  }
+  return hash % max;
 }
 
 export function getAvatarColor(id: string): string {

@@ -168,7 +168,7 @@ export default function DashboardHeader() {
               style={{
                 color: isOnline
                   ? themeColors.statusOnline
-                  : "rgba(255,255,255,0.5)",
+                  : themeColors.overlaySub,
               }}
             >
               {isOnline ? "Online" : "Offline"}

@@ -94,7 +94,7 @@ export default function ScheduleSetupModal({
     >
       <View
         className="flex-1 items-center justify-center px-4 py-6"
-        style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}
+        style={{ backgroundColor: themeColors.overlayDim }}
       >
         <Pressable
           className="absolute inset-0"

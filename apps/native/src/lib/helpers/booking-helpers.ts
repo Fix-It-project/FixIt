@@ -23,6 +23,6 @@ export function getInitials(name: string | null | undefined): string {
 export function getAvatarColor(name: string | null | undefined): string {
   if (!name) return AVATAR_PALETTE[0];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (const char of name) hash = (char.codePointAt(0) ?? 0) + ((hash << 5) - hash);
   return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length];
 }
