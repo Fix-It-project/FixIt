@@ -9,12 +9,11 @@ import { useResetPasswordMutation } from "@/src/hooks/auth/useResetPasswordMutat
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { useThemeColors } from "@/src/lib/theme";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import AuthFormScreen from "@/src/features/auth/components/shared/AuthFormScreen";
 import InvalidResetLinkView from "@/src/features/auth/components/shared/InvalidResetLinkView";
 import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { getRecoverySession } from "@/src/lib/auth/recovery-session";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ResetPassword() {
 	const themeColors = useThemeColors();
@@ -63,28 +62,8 @@ export default function ResetPassword() {
 
   // ─── Reset Password Form ────────────────────────────────────────────────────
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      className="flex-1 bg-app-primary-light"
-    >
+    <AuthFormScreen errorMessage={errorMessage}>
       <View style={{ flex: 1 }}>
-        {/* ── Top Bar ────────────────────────────────────────────────── */}
-        <View
-          className="flex-row items-center justify-between px-4 pb-2"
-          style={{ paddingTop: insets.top + 8 }}
-        >
-          <Pressable
-            onPress={() => router.back()}
-            className="h-10 w-10 items-center justify-center rounded-full active:opacity-70"
-          >
-            <ArrowLeft size={24} color={themeColors.textPrimary} />
-          </Pressable>
-          <View className="h-10 w-10" />
-        </View>
-
-        {/* ── Error Banner ───────────────────────────────────────────── */}
-        <ErrorBanner message={errorMessage} variant="warning" />
-
         {/* ── Header ─────────────────────────────────────────────────── */}
         <View className="px-7 mt-2 mb-8">
           <Text className="text-[26px] font-bold text-content mb-2">
@@ -156,6 +135,6 @@ export default function ResetPassword() {
           </Button>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </AuthFormScreen>
   );
 }
