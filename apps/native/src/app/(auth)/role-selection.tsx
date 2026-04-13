@@ -4,16 +4,17 @@ import { HelpCircle, Hammer } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/routes";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function RoleSelectionScreen() {
   const themeColors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const goToUserSignup = useDebounce(() => router.push("/(auth)/User/signup"));
+  const goToUserSignup = useDebounce(() => router.push(ROUTES.auth.signup));
   const goToTechSignup = useDebounce(() =>
-    router.push("/(auth)/Technician/signup"),
+    router.push(ROUTES.auth.techSignup),
   );
-  const goToLogin = useDebounce(() => router.push("/(auth)/User/login"));
+  const goToLogin = useDebounce(() => router.push(ROUTES.auth.login));
 
   return (
     <LinearGradient
