@@ -9,6 +9,7 @@ import ProfileStatsSection from "@/src/components/profile/ProfileStatsSection";
 import ProfileInfoCard from "@/src/components/profile/ProfileInfoCard";
 import ProfileMenuSection from "@/src/components/profile/ProfileMenuSection";
 import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/routes";
 
 export default function UserProfileScreen() {
   const { data: profile, isLoading } = useProfileQuery();
@@ -17,9 +18,9 @@ export default function UserProfileScreen() {
   const completedBookings = orders.filter((o) => o.status === "completed").length;
   const logout = useLogoutMutation();
 
-  const handleEditProfile = useDebounce(() => router.push("/(app)/(tabs)/(profile)/edit-profile"));
-  const handlePastOrders = useDebounce(() => router.push("/(app)/(tabs)/(profile)/past-orders"));
-  const handleSettings = useDebounce(() => router.push("/settings"));
+  const handleEditProfile = useDebounce(() => router.push(ROUTES.user.profileEdit));
+  const handlePastOrders = useDebounce(() => router.push(ROUTES.user.profileOrderHistory));
+  const handleSettings = useDebounce(() => router.push(ROUTES.user.settings));
 
   const handleLogout = () => {
     Alert.alert("Log Out", "Are you sure you want to log out?", [

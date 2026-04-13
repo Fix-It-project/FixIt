@@ -80,10 +80,10 @@ function RootLayout() {
             <View className="flex-1 bg-surface" style={themeVariables}>
               <KeyboardProvider>
                 <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(app)" />
-                  <Stack.Screen name="(tech-app)" />
+                  <Stack.Screen name="index" />
                   <Stack.Screen name="(auth)" />
-                  <Stack.Screen name="settings" />
+                  <Stack.Screen name="user" />
+                  <Stack.Screen name="technician" />
                 </Stack>
 
                 <PortalHost />

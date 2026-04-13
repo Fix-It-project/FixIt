@@ -6,6 +6,7 @@ import { useTechnicianSignupStore } from "@/src/stores/technician-signup-store";
 import { useLocationStore } from "@/src/stores/location-store";
 
 import { buildFormData } from "@/src/lib/helpers/signup-helpers";
+import { ROUTES } from "@/src/lib/routes";
 
 export type { TechnicianSignUpInput } from "@/src/lib/helpers/signup-helpers";
 
@@ -30,7 +31,7 @@ export function useTechnicianSignUpMutation() {
 			});
 			setTimeout(() => {
 				router.dismissAll();
-				router.push("/(auth)/Technician/login");
+				router.push(ROUTES.auth.techLogin);
 			}, 2000);
 		},
 		onSettled: () => {

@@ -8,6 +8,7 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { useTodaysAcceptedOrders } from "@/src/hooks/tech/useTechOrders";
 import { useTechnicianOrdersQuery } from "@/src/hooks/tech/useCalendar";
 import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
+import { ROUTES } from "@/src/lib/routes";
 
 function ScheduleCard({
   item,
@@ -105,7 +106,7 @@ export default function TodayScheduleSection() {
   const todaysOrders = useTodaysAcceptedOrders();
   const { isLoading } = useTechnicianOrdersQuery();
   const goToBookings = useDebounce(() =>
-    router.push("/(tech-app)/(schedule)?view=bookings"),
+    router.push(ROUTES.technician.bookings),
   );
   let content = (
     <View>

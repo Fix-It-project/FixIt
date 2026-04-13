@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { technicianSignIn } from "@/src/features/auth/api/technician-auth";
+import { ROUTES } from "@/src/lib/routes";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export function useTechnicianLoginMutation() {
@@ -16,7 +17,7 @@ export function useTechnicianLoginMutation() {
 				response.session.refreshToken,
 				"technician",
 			);
-			router.replace("/(tech-app)");
+			router.replace(ROUTES.technician.home);
 		},
 	});
 }

@@ -5,6 +5,7 @@ import { Text } from "@/src/components/ui/text";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
+import { ROUTES } from "@/src/lib/routes";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface CategoryGridProps {
@@ -25,7 +26,7 @@ export default function CategoryGrid({
 	const displayCategories = categories?.slice(0, 4) ?? [];
 	const goToCategories = useDebounce(() => {
 		onMorePress?.();
-		router.push("/(app)/(tabs)/(categories)");
+		router.push(ROUTES.user.categories);
 	});
 	const handleCategoryTap = useDebounce((categoryId: string, categoryName: string) => {
 		onCategoryPress?.(categoryId, categoryName);

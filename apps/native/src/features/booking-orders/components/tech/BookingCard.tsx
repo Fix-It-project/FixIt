@@ -6,6 +6,7 @@ import { Calendar, ClipboardList, type LucideIcon } from "lucide-react-native";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
+import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
 import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 
@@ -16,7 +17,7 @@ interface BookingCardProps {
 
 export default function BookingCard({ booking, index }: BookingCardProps) {
   const themeColors = useThemeColors();
-  const goToBooking = useDebounce(() => router.push(`/(tech-app)/(bookings)/${booking.id}` as any));
+  const goToBooking = useDebounce(() => router.push(ROUTES.technician.bookingDetail(booking.id)));
   const category = CATEGORIES.find((c) => c.id === booking.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? themeColors.primary;

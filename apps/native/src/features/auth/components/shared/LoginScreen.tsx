@@ -14,6 +14,7 @@ import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import OAuthDivider from "@/src/features/auth/components/shared/OAuthDivider";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface LoginMutationResult {
@@ -55,7 +56,12 @@ export default function LoginScreen({
     loginMutation.mutate({ email: result.data.email, password: result.data.password });
   };
 
-  const goToForgotPassword = useDebounce(() => router.push(`/(auth)/(forgotpassword)/forgot-password?userType=${forgotPasswordUserType}`));
+  const goToForgotPassword = useDebounce(() =>
+    router.push({
+      pathname: ROUTES.auth.forgotPassword,
+      params: { userType: forgotPasswordUserType },
+    }),
+  );
 
   const errorMessage = loginMutation.error ? getErrorMessage(loginMutation.error) : null;
   const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;

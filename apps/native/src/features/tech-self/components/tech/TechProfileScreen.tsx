@@ -11,6 +11,7 @@ import ProfileStatsSection from "@/src/components/profile/ProfileStatsSection";
 import ProfileMenuSection from "@/src/components/profile/ProfileMenuSection";
 import ProfileInfoCard from "@/src/features/tech-self/components/tech/ProfileInfoCard";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { ROUTES } from "@/src/lib/routes";
 
 export default function TechProfileScreen() {
   const { data: profile, isLoading } = useTechSelfProfileQuery();
@@ -57,9 +58,9 @@ export default function TechProfileScreen() {
   };
 
   const fullName = profile ? `${profile.first_name} ${profile.last_name}` : null;
-  const handleEditProfile = useDebounce(() => router.push("/(tech-app)/(profile)/edit-profile"));
-  const handlePastOrders = useDebounce(() => router.push("/(tech-app)/(profile)/past-orders" as any));
-  const handleSettings = useDebounce(() => router.push("/settings"));
+  const handleEditProfile = useDebounce(() => router.push(ROUTES.technician.profileEdit));
+  const handlePastOrders = useDebounce(() => router.push(ROUTES.technician.profileBookingHistory));
+  const handleSettings = useDebounce(() => router.push(ROUTES.technician.settings));
 
   return (
     <View className="flex-1 bg-surface-elevated">

@@ -1,5 +1,5 @@
 import { Redirect, Stack } from "expo-router";
-import { APP_ROOT_ROUTE, TECH_ROOT_ROUTE } from "@/src/lib/navigation-routes";
+import { ROUTES } from "@/src/lib/routes";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function AuthLayout() {
@@ -9,9 +9,9 @@ export default function AuthLayout() {
 
   if (!isLoading && isAuthenticated) {
     if (userType === "technician") {
-      return <Redirect href={TECH_ROOT_ROUTE} />;
+      return <Redirect href={ROUTES.technician.home} />;
     }
-    return <Redirect href={APP_ROOT_ROUTE} />;
+    return <Redirect href={ROUTES.user.home} />;
   }
 
   return (
@@ -20,17 +20,14 @@ export default function AuthLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="get-started" />
+      <Stack.Screen name="welcome" />
       <Stack.Screen name="role-selection" />
-      <Stack.Screen name="Technician/login" />
-      <Stack.Screen name="User/login" />
-      <Stack.Screen name="User/signup" />
-      <Stack.Screen name="Technician/signup" />
-      <Stack.Screen name="Technician/signup-step2" />
-      <Stack.Screen name="Technician/signup-step3" />
-      <Stack.Screen name="Technician/signup-step4" />
-      <Stack.Screen name="Technician/signup-step5" />
-      <Stack.Screen name="(forgotpassword)" />
+      <Stack.Screen name="login" />
+      <Stack.Screen name="signup" />
+      <Stack.Screen name="tech-login" />
+      <Stack.Screen name="tech-signup" />
+      <Stack.Screen name="forgot-password" />
+      <Stack.Screen name="reset-password" />
     </Stack>
   );
 }

@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
+import { ROUTES } from "@/src/lib/routes";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useLocationStore } from "@/src/stores/location-store";
 
@@ -84,7 +85,7 @@ const AddNewAddressSheet = forwardRef<
 		if (location) {
 			bottomSheetRef.current?.close();
 			router.push({
-				pathname: "/(app)/(tabs)/(profile)/add-address",
+				pathname: ROUTES.user.profileAddressNew,
 				params: {
 					latitude: String(location.latitude),
 					longitude: String(location.longitude),

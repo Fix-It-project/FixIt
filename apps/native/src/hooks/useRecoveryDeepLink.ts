@@ -2,8 +2,9 @@ import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { setRecoverySession } from "@/src/lib/auth/recovery-session";
+import { ROUTES } from "@/src/lib/routes";
 
-const RESET_PASSWORD_ROUTE = "/(auth)/(forgotpassword)/reset-password" as const;
+const RESET_PASSWORD_ROUTE = ROUTES.auth.resetPassword;
 const RECOVERY_DEEP_LINK_SCHEME = "fixitapp";
 const RECOVERY_DEEP_LINK_PATH = "reset-password";
 

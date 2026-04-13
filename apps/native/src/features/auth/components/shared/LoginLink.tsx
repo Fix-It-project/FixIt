@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import { router, type Href } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/routes";
 
 interface LoginLinkProps {
   readonly route?: Href;
@@ -9,7 +10,7 @@ interface LoginLinkProps {
 }
 
 export default function LoginLink({
-  route = "/(auth)/User/login",
+  route = ROUTES.auth.login,
   prefixText = "Already have an account? ",
   actionText = "Log In",
 }: LoginLinkProps) {
