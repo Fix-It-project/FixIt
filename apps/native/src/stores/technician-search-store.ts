@@ -12,10 +12,10 @@ interface TechnicianSearchStore {
 export const useTechnicianSearchStore = create<TechnicianSearchStore>(
   (set) => ({
     searchText: "",
-    activeSort: "Recommended",
+    activeSort: "Top Rated",
     setSearchText: (text) => set({ searchText: text }),
     setActiveSort: (sort) => set({ activeSort: sort }),
-    reset: () => set({ searchText: "", activeSort: "Recommended" }),
+    reset: () => set({ searchText: "", activeSort: "Top Rated" }),
   }),
 );
 

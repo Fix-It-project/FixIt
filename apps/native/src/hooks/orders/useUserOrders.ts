@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserOrders, cancelUserOrder } from "@/src/features/booking-orders/api/orders";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 
-const USER_ORDERS_KEY = ["user-orders"] as const;
+export const USER_ORDERS_KEY = ["user-orders"] as const;
 
 export function useUserOrdersQuery() {
   return useQuery({

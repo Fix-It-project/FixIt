@@ -16,7 +16,7 @@ export const editTechProfileSchema = z
       .or(z.literal("")),
     phone: z
       .string()
-      .regex(/^[\d\s\-\+\(\)]+$/, "Please enter a valid phone number")
+      .regex(/^[\d\s+()-]+$/, "Please enter a valid phone number")
       .optional()
       .or(z.literal("")),
     description: z

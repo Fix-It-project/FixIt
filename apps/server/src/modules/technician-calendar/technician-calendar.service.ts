@@ -13,7 +13,7 @@ export class TechnicianCalendarService {
 
   private normalizeDate(date: string) {
     const d = new Date(date);
-    if (isNaN(d.getTime())) {
+    if (Number.isNaN(d.getTime())) {
       throw { status: 400, message: 'Invalid date format. Use YYYY-MM-DD.' };
     }
     return d.toISOString().slice(0, 10); // YYYY-MM-DD

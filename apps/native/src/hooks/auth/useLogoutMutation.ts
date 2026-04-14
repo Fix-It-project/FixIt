@@ -4,6 +4,7 @@ import { signOut } from "@/src/features/auth/api/auth";
 import { technicianSignOut } from "@/src/features/auth/api/technician-auth";
 import { useAuthStore } from "@/src/stores/auth-store";
 import queryClient from "@/src/lib/query-client";
+import { ROUTES } from "@/src/lib/routes";
 
 export function useLogoutMutation() {
 	const { clearSession, userType } = useAuthStore();
@@ -14,7 +15,7 @@ export function useLogoutMutation() {
 		onSuccess: async () => {
 			await clearSession();
 			queryClient.clear();
-			router.replace("/(auth)/get-started");
+			router.replace(ROUTES.auth.welcome);
 		},
 	});
 }

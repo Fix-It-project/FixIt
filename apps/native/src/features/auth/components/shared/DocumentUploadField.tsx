@@ -1,13 +1,13 @@
 import { View, Text, Pressable, Image } from "react-native";
 import { CheckCircle2, CloudUpload, ChevronRight } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 
 interface DocumentUploadFieldProps {
-  label: string;
-  value: string;
-  onPick: () => void;
-  error?: string;
-  required?: boolean;
+  readonly label: string;
+  readonly value: string;
+  readonly onPick: () => void;
+  readonly error?: string;
+  readonly required?: boolean;
 }
 
 export default function DocumentUploadField({
@@ -27,7 +27,7 @@ export default function DocumentUploadField({
       </Text>
       <Pressable
         onPress={onPick}
-        className={`flex-row items-center rounded-2xl bg-white px-6 py-4 ${
+        className={`flex-row items-center rounded-2xl bg-surface px-6 py-4 ${
           error ? "border border-red-400" : ""
         }`}
       >

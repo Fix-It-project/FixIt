@@ -11,7 +11,7 @@ export const editProfileSchema = z
     email: z.email("Please enter a valid email address").optional().or(z.literal("")),
     phone: z
       .string()
-      .regex(/^[\d\s\-\+\(\)]+$/, "Please enter a valid phone number")
+      .regex(/^[\d\s+()-]+$/, "Please enter a valid phone number")
       .optional()
       .or(z.literal("")),
   })

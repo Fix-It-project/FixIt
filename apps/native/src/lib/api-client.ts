@@ -113,7 +113,9 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    throw error;
+  }
 );
 
 // ─── Response Interceptor: Handle 401 Fallback ───────────────────────────────
@@ -131,7 +133,7 @@ apiClient.interceptors.response.use(
       originalRequest.url?.includes("/api/technician-auth/signin") ||
       originalRequest.url?.includes("/api/technician-auth/refresh")
     ) {
-      return Promise.reject(error);
+      throw error;
     }
 
     originalRequest._retry = true;
@@ -144,7 +146,7 @@ apiClient.interceptors.response.use(
       return apiClient(originalRequest);
     } catch (refreshError) {
       console.error("[apiClient] Refresh failed, clearing session");
-      return Promise.reject(refreshError);
+      throw refreshError;
     }
   }
 );

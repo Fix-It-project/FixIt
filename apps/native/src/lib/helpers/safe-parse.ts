@@ -9,9 +9,12 @@ export function safeParseResponse<T extends z.ZodTypeAny>(
   if (!result.success) {
     console.error(
       `[API Validation] ${context ?? "Unknown"}:`,
-      result.error.flatten(),
+      z.flattenError(result.error),
     );
-    throw new Error(`Invalid API response${context ? ` in ${context}` : ""}`);
+    const errorMessage = context
+      ? `Invalid API response in ${context}`
+      : "Invalid API response";
+    throw new Error(errorMessage);
   }
   return result.data;
 }

@@ -1,9 +1,9 @@
 import { RefreshControl, ScrollView, View } from "react-native";
-import { Colors } from "@/src/lib/colors";
 import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-helpers";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingsQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";
 
@@ -12,6 +12,7 @@ import BookingsEmptyState from "./BookingsEmptyState";
  * when the unified Schedule/Bookings surface is in "bookings" mode.
  */
 export default function BookingListContent() {
+  const themeColors = useThemeColors();
   const { selectedDate } = useBookingsDateStore();
   const dateStr = toIso(selectedDate);
   const { data: bookings = [], isPending, isRefetching, refetch } = useTechBookingsQuery(dateStr);
@@ -25,8 +26,8 @@ export default function BookingListContent() {
         <RefreshControl
           refreshing={isRefetching}
           onRefresh={refetch}
-          colors={[Colors.primary]}
-          tintColor={Colors.primary}
+          colors={[themeColors.primary]}
+          tintColor={themeColors.primary}
         />
       }
     >
@@ -37,14 +38,14 @@ export default function BookingListContent() {
             style={{
               fontFamily: "GoogleSans_700Bold",
               fontSize: 18,
-              color: Colors.textPrimary,
+              color: themeColors.textPrimary,
             }}
           >
             {formatHeading(selectedDate)}
           </Text>
           <Text
             className="mt-0.5"
-            style={{ fontSize: 13, color: Colors.textSecondary }}
+            style={{ fontSize: 13, color: themeColors.textSecondary }}
           >
             {bookings.length} booking{bookings.length === 1 ? "" : "s"}
           </Text>
@@ -54,7 +55,7 @@ export default function BookingListContent() {
             style={{
               fontFamily: "GoogleSans_600SemiBold",
               fontSize: 12,
-              color: Colors.primary,
+              color: themeColors.primary,
             }}
           >
             {formatDateLabel(selectedDate)}

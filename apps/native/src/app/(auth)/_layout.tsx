@@ -1,36 +1,33 @@
 import { Redirect, Stack } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ROUTES } from "@/src/lib/routes";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function AuthLayout() {
-  const { isAuthenticated, isLoading, userType } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const userType = useAuthStore((state) => state.userType);
 
   if (!isLoading && isAuthenticated) {
     if (userType === "technician") {
-      return <Redirect href="/(tech-app)" />;
+      return <Redirect href={ROUTES.technician.home} />;
     }
-    return <Redirect href="/(app)" />;
+    return <Redirect href={ROUTES.user.home} />;
   }
 
   return (
-    <SafeAreaView className="flex-1" edges={["bottom"]}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="get-started" />
-        <Stack.Screen name="role-selection" />
-        <Stack.Screen name="Technician/login" />
-        <Stack.Screen name="User/login" />
-        <Stack.Screen name="User/signup" />
-        <Stack.Screen name="Technician/signup" />
-        <Stack.Screen name="Technician/signup-step2" />
-        <Stack.Screen name="Technician/signup-step3" />
-        <Stack.Screen name="Technician/signup-step4" />
-        <Stack.Screen name="Technician/signup-step5" />
-        <Stack.Screen name="(forgotpassword)" />
-      </Stack>
-    </SafeAreaView>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="welcome" />
+      <Stack.Screen name="role-selection" />
+      <Stack.Screen name="login" />
+      <Stack.Screen name="signup" />
+      <Stack.Screen name="tech-login" />
+      <Stack.Screen name="tech-signup" />
+      <Stack.Screen name="forgot-password" />
+      <Stack.Screen name="reset-password" />
+    </Stack>
   );
 }

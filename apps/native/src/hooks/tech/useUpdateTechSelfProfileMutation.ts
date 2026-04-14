@@ -7,7 +7,8 @@ export function useUpdateTechSelfProfileMutation() {
 
   return useMutation({
     mutationFn: (data: UpdateTechnicianSelfRequest) => updateTechnicianSelf(data),
-    onSuccess: () => {
+    onSuccess: (profile) => {
+      queryClient.setQueryData(["technician", "self"], profile);
       queryClient.invalidateQueries({ queryKey: ["technician", "self"] });
     },
   });

@@ -1,63 +1,90 @@
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from "react";
-import { TouchableOpacity, useWindowDimensions } from "react-native";
-import { CalendarDays } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useWindowDimensions } from "react-native";
 import { todayIso, toIso } from "@/src/lib/helpers/date-helpers";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import { CalendarList, type DateData } from "react-native-calendars";
+import {
+  getCalendarTheme,
+  useThemeColors,
+  useThemeTokens,
+} from "@/src/lib/theme";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { Calendar, type DateData } from "react-native-calendars";
+import BookingsCalendarTrigger from "./BookingsCalendarTrigger";
+import { buildBookingsCalendarMarks } from "../../utils/buildBookingsCalendarMarks";
 
-const MONTHS_AHEAD = 24;
-
-/**
- * "Jump" button + bottom-sheet month calendar.
- *
- * Uses BottomSheetModal (portal-based) so it renders above all content.
- * CalendarList with horizontal + pagingEnabled gives a native swipe-to-navigate-months
- * slide animation with no manual animation code.
- */
 export interface BookingsCalendarSheetRef {
   closeIfOpen: () => boolean;
 }
 
+function getLaterMonthIso(firstIso: string, secondIso: string) {
+  const laterTimestamp = Math.max(Date.parse(firstIso), Date.parse(secondIso));
+  return toIso(new Date(laterTimestamp));
+}
+
 const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
   function BookingsCalendarSheet(_, ref) {
+    const themeColors = useThemeColors();
+    const themeTokens = useThemeTokens();
     const sheetRef = useRef<BottomSheetModal>(null);
     const isSheetOpenRef = useRef(false);
     const { selectedDate, setSelectedDate } = useBookingsDateStore();
     const { data: bookingDates } = useTechBookingDatesQuery();
-    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+    const { height: screenHeight } = useWindowDimensions();
+    const [calendarRenderKey, setCalendarRenderKey] = useState(0);
 
+    const currentMonthIso = `${todayIso.slice(0, 7)}-01`;
     const selectedIso = toIso(selectedDate);
+    const selectedMonthIso = toIso(
+      new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1),
+    );
+    const [visibleMonthIso, setVisibleMonthIso] = useState(
+      getLaterMonthIso(currentMonthIso, selectedMonthIso),
+    );
+    const markedDates = useMemo(
+      () => buildBookingsCalendarMarks(bookingDates, selectedIso, themeColors),
+      [bookingDates, selectedIso, themeColors],
+    );
 
-    const markedDates = useMemo(() => {
-      const marks: Record<string, { marked?: boolean; dotColor?: string; selected?: boolean; selectedColor?: string }> = {};
-
-      if (bookingDates) {
-        for (const dateStr of bookingDates) {
-          marks[dateStr] = { marked: true, dotColor: Colors.ratingDefault };
-        }
-      }
-
-      marks[selectedIso] = {
-        ...marks[selectedIso],
-        selected: true,
-        selectedColor: Colors.primary,
-      };
-
-      return marks;
-    }, [bookingDates, selectedIso]);
+    const calendarTheme = useMemo(
+      () => getCalendarTheme(themeTokens),
+      [themeTokens.id],
+    );
 
     const handleOpen = useCallback(() => {
+      setVisibleMonthIso(getLaterMonthIso(currentMonthIso, selectedMonthIso));
+      setCalendarRenderKey((current) => current + 1);
       isSheetOpenRef.current = true;
       sheetRef.current?.present();
-    }, []);
+    }, [currentMonthIso, selectedMonthIso]);
 
     const handleSheetChange = useCallback((index: number) => {
       isSheetOpenRef.current = index >= 0;
     }, []);
+
+    const renderBackdrop = useCallback(
+      (props: any) => (
+        <BottomSheetBackdrop
+          {...props}
+          appearsOnIndex={0}
+          disappearsOnIndex={-1}
+          pressBehavior="close"
+        />
+      ),
+      [],
+    );
 
     useImperativeHandle(
       ref,
@@ -73,6 +100,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 
     const handleDayPress = useCallback(
       (day: DateData) => {
+        if (day.dateString < todayIso) return;
         const d = new Date(day.year, day.month - 1, day.day);
         setSelectedDate(d);
         sheetRef.current?.dismiss();
@@ -80,82 +108,51 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
       [setSelectedDate],
     );
 
+    const handleMonthChange = useCallback((month: DateData) => {
+      const monthIso = `${month.year}-${String(month.month).padStart(2, "0")}-01`;
+      setVisibleMonthIso(monthIso);
+    }, []);
+
     return (
       <>
-        {/* Jump button */}
-        <TouchableOpacity
-          onPress={handleOpen}
-          className="flex-row items-center gap-1.5 self-end rounded-xl px-3 py-2"
-          style={{
-            backgroundColor: Colors.primaryLight,
-            shadowColor: Colors.shadow,
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.08,
-            shadowRadius: 3,
-            elevation: 2,
-          }}
-          activeOpacity={0.7}
-        >
-          <CalendarDays size={14} color={Colors.primary} strokeWidth={2} />
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: "GoogleSans_600SemiBold",
-              color: Colors.primary,
-            }}
-          >
-            Jump
-          </Text>
-        </TouchableOpacity>
+        <BookingsCalendarTrigger onPress={handleOpen} themeColors={themeColors} />
 
-        {/* Bottom sheet calendar — renders via portal above all content */}
         <BottomSheetModal
           ref={sheetRef}
           snapPoints={[Math.min(screenHeight * 0.6, 520)]}
           enablePanDownToClose
           onChange={handleSheetChange}
-          backgroundStyle={{ backgroundColor: Colors.surfaceBase }}
-          handleIndicatorStyle={{ backgroundColor: Colors.borderDefault, width: 40 }}
+          backdropComponent={renderBackdrop}
+          backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
+          handleIndicatorStyle={{
+            backgroundColor: themeColors.borderDefault,
+            width: 40,
+          }}
         >
-          <BottomSheetView className="flex-1 px-4 pb-4">
+          <BottomSheetView
+            className="flex-1 px-4 pb-4"
+            style={{ backgroundColor: themeColors.surfaceBase }}
+          >
             <Text
               className="mb-2 text-center"
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 16,
-                color: Colors.textPrimary,
+                color: themeColors.textPrimary,
               }}
             >
               Jump to Date
             </Text>
-            <CalendarList
-              current={selectedIso}
+            <Calendar
+              key={`bookings-calendar-${calendarRenderKey}`}
+              current={visibleMonthIso}
               minDate={todayIso}
-              pastScrollRange={0}
-              futureScrollRange={MONTHS_AHEAD}
               onDayPress={handleDayPress}
+              onMonthChange={handleMonthChange}
               markedDates={markedDates}
-              horizontal
-              pagingEnabled
-              staticHeader
-              calendarWidth={screenWidth - 32}
-              showScrollIndicator={false}
-              theme={{
-                arrowColor: Colors.primary,
-                todayTextColor: Colors.primary,
-                selectedDayBackgroundColor: Colors.primary,
-                selectedDayTextColor: Colors.surfaceBase,
-                textDayFontFamily: "GoogleSans_400Regular",
-                textMonthFontFamily: "GoogleSans_700Bold",
-                textDayHeaderFontFamily: "GoogleSans_500Medium",
-                textDayFontSize: 14,
-                textMonthFontSize: 16,
-                textDayHeaderFontSize: 12,
-                monthTextColor: Colors.textPrimary,
-                textSectionTitleColor: Colors.textSecondary,
-                dayTextColor: Colors.textPrimary,
-                textDisabledColor: Colors.borderDefault,
-              }}
+              enableSwipeMonths
+              disableArrowLeft={visibleMonthIso <= currentMonthIso}
+              theme={calendarTheme}
             />
           </BottomSheetView>
         </BottomSheetModal>

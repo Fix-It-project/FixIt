@@ -1,17 +1,29 @@
-import { useCallback, useMemo, useState, forwardRef, useImperativeHandle, useRef } from "react";
-import { View, ActivityIndicator, TouchableOpacity, useWindowDimensions } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
-  BottomSheetView,
   type BottomSheetBackdropProps,
+  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { Briefcase, ClipboardList, Star } from "lucide-react-native";
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  ActivityIndicator,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/colors";
 import { useTechnicianProfileQuery } from "@/src/hooks/user/useTechnicianProfileQuery";
-import TechnicianAvatar from "./TechnicianAvatar";
-import StatCard from "./StatCard";
+import { useThemeColors } from "@/src/lib/theme";
 import InfoRow from "./InfoRow";
+import StatCard from "./StatCard";
+import TechnicianAvatar from "./TechnicianAvatar";
 
 // ─── Public handle ──────────────────────────────────────────────────────────
 export interface TechnicianProfileSheetRef {
@@ -27,15 +39,19 @@ interface SheetState {
 // ─── Component ──────────────────────────────────────────────────────────────
 const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
   function TechnicianProfileSheet(_, ref) {
+    const themeColors = useThemeColors();
     const bottomSheetRef = useRef<BottomSheet>(null);
     const [sheetState, setSheetState] = useState<SheetState>({
       technicianId: null,
       initials: "",
     });
 
-    const { data: profile, isLoading, isError, refetch } = useTechnicianProfileQuery(
-      sheetState.technicianId,
-    );
+    const {
+      data: profile,
+      isLoading,
+      isError,
+      refetch,
+    } = useTechnicianProfileQuery(sheetState.technicianId);
 
     const { height } = useWindowDimensions();
     const snapPoints = useMemo(() => [Math.min(height * 0.55, 480)], [height]);
@@ -60,11 +76,12 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
           {...props}
           disappearsOnIndex={-1}
           appearsOnIndex={0}
-          opacity={0.5}
+          opacity={1}
           pressBehavior="close"
+          style={{ backgroundColor: themeColors.overlayDim }}
         />
       ),
-      [],
+      [themeColors.overlayDim],
     );
 
     return (
@@ -75,13 +92,23 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
         enablePanDownToClose
         onClose={handleClose}
         backdropComponent={renderBackdrop}
-        backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-        handleIndicatorStyle={{ backgroundColor: Colors.borderDefault, width: 40 }}
+        backgroundStyle={{
+          backgroundColor: themeColors.surfaceBase,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+        }}
+        handleIndicatorStyle={{
+          backgroundColor: themeColors.borderDefault,
+          width: 40,
+        }}
       >
-        <BottomSheetView className="flex-1 px-6 pb-6">
+        <BottomSheetView
+          className="flex-1 px-6 pb-6"
+          style={{ backgroundColor: themeColors.surfaceBase }}
+        >
           {isLoading && (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color={Colors.primary} />
+              <ActivityIndicator size="large" color={themeColors.primary} />
               <Text
                 className="mt-3 text-[13px] text-content-muted"
                 style={{ fontFamily: "GoogleSans_400Regular" }}
@@ -94,7 +121,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
           {isError && !isLoading && (
             <View className="flex-1 items-center justify-center">
               <Text
-                className="text-center text-[15px] font-semibold text-danger"
+                className="text-center font-semibold text-[15px] text-danger"
                 style={{ fontFamily: "GoogleSans_600SemiBold" }}
               >
                 Unable to load profile
@@ -109,10 +136,10 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
                 onPress={() => refetch()}
                 activeOpacity={0.7}
                 className="mt-3 rounded-xl px-5 py-2.5"
-                style={{ backgroundColor: Colors.primary }}
+                style={{ backgroundColor: themeColors.primary }}
               >
                 <Text
-                  className="text-[14px] font-semibold text-white"
+                  className="font-semibold text-[14px] text-white"
                   style={{ fontFamily: "GoogleSans_600SemiBold" }}
                 >
                   Retry
@@ -132,7 +159,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
               </View>
 
               <Text
-                className="mt-3 text-center text-[20px] font-bold text-content"
+                className="mt-3 text-center font-bold text-[20px] text-content"
                 style={{ fontFamily: "GoogleSans_700Bold" }}
                 numberOfLines={1}
               >
@@ -149,12 +176,24 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 
               <View className="mt-5 w-full flex-row" style={{ gap: 12 }}>
                 <StatCard
-                  icon={<Briefcase size={18} color={Colors.primary} strokeWidth={2} />}
+                  icon={
+                    <Briefcase
+                      size={18}
+                      color={themeColors.primary}
+                      strokeWidth={2}
+                    />
+                  }
                   label="Completed"
                   value={profile.completedOrders}
                 />
                 <StatCard
-                  icon={<ClipboardList size={18} color={Colors.primary} strokeWidth={2} />}
+                  icon={
+                    <ClipboardList
+                      size={18}
+                      color={themeColors.primary}
+                      strokeWidth={2}
+                    />
+                  }
                   label="Bookings"
                   value={profile.totalBookings}
                 />
@@ -162,7 +201,14 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 
               <View className="mt-4">
                 <InfoRow
-                  icon={<Star size={16} color={Colors.ratingDefault} fill={Colors.ratingDefault} strokeWidth={0} />}
+                  icon={
+                    <Star
+                      size={16}
+                      color={themeColors.ratingDefault}
+                      fill={themeColors.ratingDefault}
+                      strokeWidth={0}
+                    />
+                  }
                   text={profile.reviews}
                 />
               </View>

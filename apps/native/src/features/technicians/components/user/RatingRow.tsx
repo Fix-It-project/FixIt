@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Star } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 
 interface RatingRowProps {
   readonly rating: number;

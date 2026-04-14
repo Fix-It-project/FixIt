@@ -1,10 +1,10 @@
 import { View, Text } from "react-native";
 import { TriangleAlert } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 
 interface ErrorBannerProps {
-	message: string | null;
-	variant?: "default" | "warning";
+	readonly message: string | null;
+	readonly variant?: "default" | "warning";
 }
 
 export default function ErrorBanner({

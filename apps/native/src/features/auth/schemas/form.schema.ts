@@ -8,8 +8,8 @@ const addressFieldsSchema = z.object({
     .string()
     .min(5, "Street address must be at least 5 characters")
     .max(200, "Street address must be less than 200 characters"),
-  buildingNumber: z.string().min(1, "Building number is required"),
-  apartmentNumber: z.string().min(1, "Apartment number is required"),
+  buildingNumber: z.string().optional().or(z.literal("")),
+  apartmentNumber: z.string().optional().or(z.literal("")),
 });
 
 // ─── User Auth Forms ─────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ export const signUpSchema = z
       .string()
       .min(1, "Phone number is required")
       .regex(
-        /^[\d\s\-\+\(\)]+$/,
+        /^[\d\s+()-]+$/,
         "Please enter a valid phone number"
       ),
     password: z
@@ -35,8 +35,8 @@ export const signUpSchema = z
     confirmPassword: z
       .string()
       .min(1, "Please confirm your password"),
+    ...addressFieldsSchema.shape,
   })
-  .merge(addressFieldsSchema)
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
@@ -65,7 +65,7 @@ export const techStep2Schema = z.object({
   phone: z
     .string()
     .min(1, "Phone number is required")
-    .regex(/^[\d\s\-\+\(\)]+$/, "Please enter a valid phone number"),
+    .regex(/^[\d\s+()-]+$/, "Please enter a valid phone number"),
 });
 
 export type TechStep2Data = z.infer<typeof techStep2Schema>;
@@ -102,8 +102,9 @@ export const techStep5Schema = z
       .string()
       .min(5, "Address must be at least 5 characters")
       .max(200, "Address must be less than 200 characters"),
+    ...addressFieldsSchema.omit({ street: true }).shape,
   })
-  .merge(addressFieldsSchema.omit({ street: true }));
+  ;
 
 export type TechStep5Data = z.infer<typeof techStep5Schema>;
 
@@ -146,7 +147,7 @@ export const technicianSignupSchema = z
     phone: z
       .string()
       .min(1, "Phone number is required")
-      .regex(/^[\d\s\-\+\(\)]+$/, "Please enter a valid phone number"),
+      .regex(/^[\d\s+()-]+$/, "Please enter a valid phone number"),
     categories: z
       .array(z.string().min(1))
       .min(1, "At least one category must be selected"),
@@ -179,8 +180,8 @@ export const technicianSignupSchema = z
       .string()
       .min(5, "Address must be at least 5 characters")
       .max(200, "Address must be less than 200 characters"),
-    buildingNumber: z.string().min(1, "Building number is required"),
-    apartmentNumber: z.string().min(1, "Apartment number is required"),
+    buildingNumber: z.string().optional().or(z.literal("")),
+    apartmentNumber: z.string().optional().or(z.literal("")),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

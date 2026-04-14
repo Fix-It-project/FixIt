@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   Modal,
+  Pressable,
   TouchableOpacity,
   ScrollView,
   Switch,
   BackHandler,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '@/src/lib/colors';
+import { Colors, useThemeColors } from '@/src/lib/theme';
 import type { DaySchedule } from '@/src/features/schedule/types/calendar';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -21,11 +23,11 @@ const DEFAULT_SCHEDULE: DaySchedule[] = DAYS.map((dayName, i) => ({
 }));
 
 interface Props {
-  visible: boolean;
-  onConfirm: (schedule: DaySchedule[]) => void;
-  onDismiss?: () => void;
-  existingSchedule?: DaySchedule[];
-  isLoading?: boolean;
+  readonly visible: boolean;
+  readonly onConfirm: (schedule: DaySchedule[]) => void;
+  readonly onDismiss?: () => void;
+  readonly existingSchedule?: DaySchedule[];
+  readonly isLoading?: boolean;
 }
 
 export default function ScheduleSetupModal({
@@ -41,6 +43,8 @@ export default function ScheduleSetupModal({
   const [step, setStep] = useState<'choose' | 'custom'>(isEditing ? 'custom' : 'choose');
   const [schedule, setSchedule] = useState<DaySchedule[]>(existingSchedule ?? DEFAULT_SCHEDULE);
   const router = useRouter();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const themeColors = useThemeColors();
 
   // Sync state whenever the modal opens or existingSchedule changes.
   useEffect(() => {
@@ -51,24 +55,32 @@ export default function ScheduleSetupModal({
     }
   }, [visible, existingSchedule]);
 
+  const handleDismiss = useCallback(() => {
+    if (step === 'custom' && !isEditing) {
+      setStep('choose');
+      return;
+    }
+
+    if (onDismiss) {
+      onDismiss();
+      return;
+    }
+
+    router.back();
+  }, [isEditing, onDismiss, router, step]);
+
   // Android hardware back button
   useEffect(() => {
     if (!visible) return;
 
     const onBackPress = () => {
-      // Only allow going back to "choose" during first-time setup, not while editing.
-      if (step === 'custom' && !isEditing) {
-        setStep('choose');
-        return true;
-      }
-      if (onDismiss) onDismiss();
-      else router.back();
+      handleDismiss();
       return true;
     };
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => subscription.remove();
-  }, [visible, step, isEditing, onDismiss, router]);
+  }, [handleDismiss, visible]);
 
   const toggleDay = (index: number) => {
     setSchedule((prev) =>
@@ -79,129 +91,143 @@ export default function ScheduleSetupModal({
   return (
     <Modal
       visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={() => {
-        if (step === 'custom' && !isEditing) setStep('choose');
-        else if (onDismiss) onDismiss();
-        else router.back();
-      }}
+      animationType="fade"
+      transparent
+      onRequestClose={handleDismiss}
     >
-      <ScrollView
-        className="flex-1"
-        style={{ backgroundColor: Colors.surfaceBase }}
-        keyboardShouldPersistTaps="handled"
+      <View
+        className="flex-1 items-center justify-center px-4 py-6"
+        style={{ backgroundColor: themeColors.overlayDim }}
       >
-        <View className="p-6">
-          <Text className="text-2xl font-bold mb-1" style={{ color: Colors.textPrimary }}>
-            {isEditing ? 'Edit Schedule' : 'Set Your Schedule'}
-          </Text>
-          <Text className="text-sm mb-6" style={{ color: Colors.textMuted }}>
-            Define your weekly availability. It repeats every week.
-          </Text>
+        <Pressable
+          className="absolute inset-0"
+          onPress={handleDismiss}
+        />
 
-          {step === 'choose' ? (
-            <View className="gap-4">
-              {/* Default Schedule */}
-              <TouchableOpacity
-                onPress={() => onConfirm(DEFAULT_SCHEDULE)}
-                className="p-5 rounded-2xl border-2"
-                style={{ borderColor: Colors.primary, backgroundColor: Colors.primaryLight }}
-              >
-                <Text className="text-base font-bold mb-1" style={{ color: Colors.primary }}>
-                  ⚡ Default Schedule
-                </Text>
-                <Text className="text-sm" style={{ color: Colors.textSecondary }}>
-                  Sunday – Thursday.{'\n'}
-                  Applied automatically every week.
-                </Text>
-              </TouchableOpacity>
+        <View
+          className="w-full overflow-hidden rounded-3xl"
+          style={{
+            backgroundColor: themeColors.surfaceBase,
+            maxWidth: 520,
+            maxHeight: Math.min(screenHeight * 0.88, 720),
+            width: Math.min(screenWidth - 32, 520),
+            shadowColor: Colors.shadow,
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.2,
+            shadowRadius: 18,
+            elevation: 16,
+          }}
+        >
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ padding: 24, paddingBottom: 28 }}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text className="mb-1 font-bold text-2xl text-content">
+              {isEditing ? 'Edit Schedule' : 'Set Your Schedule'}
+            </Text>
+            <Text className="mb-6 text-sm text-content-muted">
+              Define your weekly availability. It repeats every week.
+            </Text>
 
-              {/* Custom Schedule */}
-              <TouchableOpacity
-                onPress={() => setStep('custom')}
-                className="p-5 rounded-2xl border-2"
-                style={{ borderColor: Colors.borderDefault, backgroundColor: Colors.surfaceElevated }}
-              >
-                <Text className="text-base font-bold mb-1" style={{ color: Colors.textPrimary }}>
-                  🛠 Custom Schedule
-                </Text>
-                <Text className="text-sm" style={{ color: Colors.textSecondary }}>
-                  Pick your working days.{'\n'}
-                  Repeats weekly throughout the year.
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View>
-              <Text
-                className="text-base font-semibold mb-3 mt-2"
-                style={{ color: Colors.textSecondary }}
-              >
-                Working days
-              </Text>
-
-              {schedule.map((item, index) => (
-                <View
-                  key={item.day_of_week}
-                  className="mb-3 rounded-2xl overflow-hidden"
-                  style={{
-                    borderWidth: 1,
-                    borderColor: item.enabled ? Colors.primary : Colors.borderDefault,
-                  }}
-                >
-                  <View
-                    className="flex-row items-center justify-between px-4 py-3"
-                    style={{
-                      backgroundColor: item.enabled ? Colors.primaryLight : Colors.surfaceElevated,
-                    }}
-                  >
-                    <Text
-                      className="text-base font-semibold"
-                      style={{ color: item.enabled ? Colors.textPrimary : Colors.textMuted }}
-                    >
-                      {item.dayName}
-                    </Text>
-                    <Switch
-                      value={item.enabled}
-                      onValueChange={() => toggleDay(index)}
-                      trackColor={{ true: Colors.primary, false: Colors.borderDefault }}
-                      thumbColor={Colors.surfaceBase}
-                    />
-                  </View>
-                </View>
-              ))}
-
-              {/* Save */}
-              <TouchableOpacity
-                onPress={() => onConfirm(schedule)}
-                disabled={isLoading}
-                className="mt-6 py-4 rounded-2xl items-center"
-                style={{ backgroundColor: isLoading ? Colors.borderDefault : Colors.primary }}
-              >
-                <Text
-                  className="font-bold text-base"
-                  style={{ color: isLoading ? Colors.textMuted : Colors.surfaceBase }}
-                >
-                  {isLoading ? 'Saving...' : 'Save My Schedule'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Back — only shown during first-time setup, not while editing */}
-              {!isEditing && (
+            {step === 'choose' ? (
+              <View className="gap-4">
                 <TouchableOpacity
-                  onPress={() => setStep('choose')}
-                  className="mt-4 mb-8 items-center"
+                  onPress={() => onConfirm(DEFAULT_SCHEDULE)}
+                  className="rounded-2xl border-2 p-5"
+                  style={{ borderColor: Colors.primary, backgroundColor: themeColors.primaryLight }}
                 >
-                  <Text className="text-sm" style={{ color: Colors.textMuted }}>
-                    ← Back
+                  <Text className="mb-1 text-base font-bold" style={{ color: Colors.primary }}>
+                    Default Schedule
+                  </Text>
+                  <Text className="text-sm text-content-secondary">
+                    Sunday – Thursday.{'\n'}
+                    Applied automatically every week.
                   </Text>
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
+
+                <TouchableOpacity
+                  onPress={() => setStep('custom')}
+                  className="rounded-2xl border-2 p-5"
+                  style={{ borderColor: themeColors.borderDefault, backgroundColor: themeColors.surfaceElevated }}
+                >
+                  <Text className="mb-1 text-base font-bold text-content">
+                    Custom Schedule
+                  </Text>
+                  <Text className="text-sm text-content-secondary">
+                    Pick your working days.{'\n'}
+                    Repeats weekly throughout the year.
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View>
+                <Text
+                  className="mb-3 mt-2 text-base font-semibold text-content-secondary"
+                >
+                  Working days
+                </Text>
+
+                {schedule.map((item, index) => (
+                  <View
+                    key={item.day_of_week}
+                    className="mb-3 overflow-hidden rounded-2xl"
+                    style={{
+                      borderWidth: 1,
+                      borderColor: item.enabled ? Colors.primary : themeColors.borderDefault,
+                    }}
+                  >
+                    <View
+                      className="flex-row items-center justify-between px-4 py-3"
+                      style={{
+                        backgroundColor: item.enabled ? themeColors.primaryLight : themeColors.surfaceElevated,
+                      }}
+                    >
+                      <Text
+                        className="text-base font-semibold"
+                        style={{ color: item.enabled ? themeColors.textPrimary : themeColors.textMuted }}
+                      >
+                        {item.dayName}
+                      </Text>
+                      <Switch
+                        value={item.enabled}
+                        onValueChange={() => toggleDay(index)}
+                        trackColor={{ true: Colors.primary, false: themeColors.borderDefault }}
+                        thumbColor={themeColors.surfaceBase}
+                      />
+                    </View>
+                  </View>
+                ))}
+
+                <TouchableOpacity
+                  onPress={() => onConfirm(schedule)}
+                  disabled={isLoading}
+                  className="mt-6 items-center rounded-2xl py-4"
+                  style={{ backgroundColor: isLoading ? themeColors.borderDefault : Colors.primary }}
+                >
+                  <Text
+                    className="text-base font-bold"
+                    style={{ color: isLoading ? themeColors.textMuted : themeColors.surfaceBase }}
+                  >
+                    {isLoading ? 'Saving...' : 'Save My Schedule'}
+                  </Text>
+                </TouchableOpacity>
+
+                {!isEditing && (
+                  <TouchableOpacity
+                    onPress={() => setStep('choose')}
+                    className="mb-2 mt-4 items-center"
+                  >
+                    <Text className="text-sm text-content-muted">
+                      Back
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </ScrollView>
         </View>
-      </ScrollView>
+      </View>
     </Modal>
   );
 }

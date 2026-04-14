@@ -1,12 +1,14 @@
-import { View, Text, Pressable, Linking } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
+import { openMailApp } from "@/src/lib/helpers/open-mail-app";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface CheckInboxViewProps {
-  email: string;
-  cooldown: number;
-  isResending: boolean;
-  onResend: () => void;
+  readonly email: string;
+  readonly cooldown: number;
+  readonly isResending: boolean;
+  readonly onResend: () => void;
 }
 
 export default function CheckInboxView({
@@ -15,6 +17,8 @@ export default function CheckInboxView({
   isResending,
   onResend,
 }: CheckInboxViewProps) {
+  const insets = useSafeAreaInsets();
+
   return (
     <>
       {/* Header */}
@@ -36,9 +40,7 @@ export default function CheckInboxView({
         {cooldown > 0 ? (
           <Text className="text-[15px] text-content-secondary">
             Didn't get an email?{" "}
-            <Text className="font-semibold">
-              Resend in {cooldown}
-            </Text>
+            <Text className="font-semibold">Resend in {cooldown}</Text>
           </Text>
         ) : (
           <View className="flex-row items-center">
@@ -59,8 +61,8 @@ export default function CheckInboxView({
       </View>
 
       {/* Open Email App Button */}
-      <View className="px-7 pb-10">
-        <Button onPress={() => Linking.openURL("mailto:")}>
+      <View className="px-7" style={{ paddingBottom: insets.bottom + 16 }}>
+        <Button onPress={() => void openMailApp()}>
           <BtnText>Open email app</BtnText>
         </Button>
       </View>

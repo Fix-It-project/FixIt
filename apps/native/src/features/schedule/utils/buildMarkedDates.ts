@@ -1,16 +1,26 @@
-import { Colors } from '@/src/lib/colors';
+import type { ThemePalette } from "@/src/lib/theme";
 import type { DaySchedule } from '../types/calendar';
 import type { TechnicianOrder } from '../schemas/response.schema';
-
-const DOT_ORDER = { key: 'order', color: Colors.successAlt, selectedDotColor: Colors.surfaceBase };
-const DOT_EXCEPTION = { key: 'exception', color: Colors.statusUnavailable, selectedDotColor: Colors.surfaceBase };
 
 export function buildMarkedDates(
   schedule: DaySchedule[],
   exceptions: { id: string; date: string }[],
   ordersByDate: Record<string, TechnicianOrder[]>,
   selectedDate: string,
+  themeColors: ThemePalette,
 ) {
+  const selectedDayColor = themeColors.primary;
+  const selectedDayTextColor = themeColors.surfaceBase;
+  const dotOrder = {
+    key: "order",
+    color: themeColors.successAlt,
+    selectedDotColor: selectedDayTextColor,
+  };
+  const dotException = {
+    key: "exception",
+    color: themeColors.statusUnavailable,
+    selectedDotColor: selectedDayTextColor,
+  };
   const marked: Record<string, any> = {};
   const enabledSet = new Set(schedule.filter((d) => d.enabled).map((d) => d.day_of_week));
   const exceptionSet = new Set(exceptions.map((e) => e.date));
@@ -31,17 +41,14 @@ export function buildMarkedDates(
     const isWorkingDay = enabledSet.has(dow);
     const isSelected = str === selectedDate;
 
-    if (hasOrders) dots.push(DOT_ORDER);
-    if (hasException) dots.push(DOT_EXCEPTION);
+    if (hasOrders) dots.push(dotOrder);
+    if (hasException) dots.push(dotException);
 
-    // Dynamic highlight color for selected dates to match the legend
-    let highlightColor: string = Colors.primary;
+    let selectedColor = selectedDayColor;
     if (hasException) {
-      highlightColor = Colors.statusUnavailable;
-    } else if (!isWorkingDay) {
-      highlightColor = '#9CA3AF'; // Gray (Day off)
+      selectedColor = themeColors.statusUnavailable;
     } else if (hasOrders) {
-      highlightColor = Colors.successAlt;
+      selectedColor = themeColors.successAlt;
     }
 
     if (hasException) {
@@ -49,21 +56,24 @@ export function buildMarkedDates(
         disabled: false, // keep tappable so user can remove it
         dots,
         selected: isSelected,
-        selectedColor: highlightColor,
+        selectedColor,
+        selectedTextColor: selectedDayTextColor,
       };
-    } else if (!isWorkingDay) {
+    } else if (isWorkingDay) {
+      marked[str] = {
+        dots,
+        selected: isSelected,
+        selectedColor,
+        selectedTextColor: selectedDayTextColor,
+      };
+    } else {
       marked[str] = {
         disabled: true,
         disableTouchEvent: false, // still tappable to show "day off" info
         dots,
         selected: isSelected,
-        selectedColor: highlightColor,
-      };
-    } else {
-      marked[str] = {
-        dots,
-        selected: isSelected,
-        selectedColor: highlightColor,
+        selectedColor,
+        selectedTextColor: selectedDayTextColor,
       };
     }
 

@@ -5,7 +5,7 @@ import { Text } from "@/src/components/ui/text";
 import NotificationBell from "@/src/components/ui/NotificationBell";
 import BookingsCalendarSheet from "@/src/features/booking-orders/components/tech/BookingsCalendarSheet";
 import BookingsWeekStrip from "@/src/features/booking-orders/components/tech/BookingsWeekStrip";
-import { Colors } from "@/src/lib/colors";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 import ScheduleBookingsToggle from "./ScheduleViewToggle";
 import type { BookingsCalendarSheetRef } from "@/src/features/booking-orders/components/tech/BookingsCalendarSheet";
 
@@ -26,6 +26,7 @@ interface Props {
 const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
   function ScheduleBookingsHeader({ activeView, onToggle }, ref) {
     const calendarRef = useRef<BookingsCalendarSheetRef>(null);
+    const themeColors = useThemeColors();
 
     useImperativeHandle(
       ref,
@@ -60,7 +61,7 @@ const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
             style={{
               fontFamily: "GoogleSans_700Bold",
               fontSize: 22,
-              color: Colors.surfaceBase,
+              color: themeColors.onPrimaryHeader,
             }}
           >
             Fix
@@ -68,7 +69,7 @@ const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 26,
-                color: Colors.accentSky,
+                color: themeColors.accentSky,
               }}
             >
               IT
@@ -78,7 +79,7 @@ const ScheduleBookingsHeader = forwardRef<ScheduleBookingsHeaderRef, Props>(
               style={{
                 fontFamily: "GoogleSans_700Bold",
                 fontSize: 22,
-                color: Colors.surfaceBase,
+                color: themeColors.onPrimaryHeader,
               }}
             >
               Technicians

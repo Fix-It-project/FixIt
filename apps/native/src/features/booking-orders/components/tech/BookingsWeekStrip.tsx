@@ -1,16 +1,16 @@
 import { I18nManager, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { Colors } from "@/src/lib/colors";
 import { toIso } from "@/src/lib/helpers/date-helpers";
 import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
 import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { scheduleOnRN } from "react-native-worklets";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -19,6 +19,7 @@ today.setHours(0, 0, 0, 0);
 
 /** Horizontal week strip – 7 day circles, swipe left/right to navigate weeks with slide animation. */
 export default function BookingsWeekStrip() {
+  const themeColors = useThemeColors();
   const { selectedDate, weekStart, setSelectedDate, goToPrevWeek, goToNextWeek } =
     useBookingsDateStore();
   const { data: bookingDates } = useTechBookingDatesQuery();
@@ -53,7 +54,7 @@ export default function BookingsWeekStrip() {
     translateX.value = withTiming(direction * -screenWidth, { duration: 180 }, (finished) => {
       "worklet";
       if (!finished) return;
-      runOnJS(goFn)();
+      scheduleOnRN(goFn);
       translateX.value = direction * screenWidth;
       translateX.value = withTiming(0, { duration: 180 });
     });
@@ -100,8 +101,8 @@ export default function BookingsWeekStrip() {
                   width: circleSize,
                   height: circleSize,
                   opacity: isPast ? 0.35 : 1,
-                  backgroundColor: selected ? Colors.primary : Colors.surfaceBase,
-                  shadowColor: selected ? Colors.primary : Colors.shadow,
+                  backgroundColor: selected ? themeColors.primary : themeColors.surfaceBase,
+                  shadowColor: selected ? themeColors.primary : themeColors.shadow,
                   shadowOffset: { width: 0, height: selected ? 3 : 1 },
                   shadowOpacity: selected ? 0.35 : 0.08,
                   shadowRadius: selected ? 6 : 3,
@@ -113,7 +114,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(7, circleSize * 0.18),
                     textTransform: "uppercase",
-                    color: selected ? Colors.overlayBright : Colors.textSecondary,
+                    color: selected ? themeColors.surfaceOnPrimary : themeColors.textSecondary,
                     lineHeight: Math.max(9, circleSize * 0.23),
                   }}
                 >
@@ -123,7 +124,7 @@ export default function BookingsWeekStrip() {
                   style={{
                     fontSize: Math.max(11, circleSize * 0.32),
                     fontFamily: "GoogleSans_700Bold",
-                    color: selected ? Colors.surfaceBase : Colors.textPrimary,
+                    color: selected ? themeColors.surfaceOnPrimary : themeColors.textPrimary,
                     lineHeight: Math.max(14, circleSize * 0.41),
                   }}
                 >
@@ -138,7 +139,9 @@ export default function BookingsWeekStrip() {
                       width: 4,
                       height: 4,
                       borderRadius: 2,
-                      backgroundColor: selected ? Colors.surfaceBase : Colors.ratingDefault,
+                      backgroundColor: selected
+                        ? themeColors.surfaceOnPrimary
+                        : themeColors.ratingDefault,
                     }}
                   />
                 )}
@@ -150,9 +153,9 @@ export default function BookingsWeekStrip() {
 
       {/* Swipe indicator dots */}
       <View className="mt-2 flex-row items-center justify-center gap-1">
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayBright }} />
-        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.overlayDim }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: themeColors.overlayDim }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: themeColors.overlayBright }} />
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: themeColors.overlayDim }} />
       </View>
     </View>
   );

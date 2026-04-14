@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { Colors } from '@/src/lib/colors';
+import { useThemeColors } from '@/src/lib/theme';
 import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 
 export const STATUS_LABEL: Record<TechnicianOrder['status'], string> = {
@@ -11,32 +11,31 @@ export const STATUS_LABEL: Record<TechnicianOrder['status'], string> = {
   completed: 'Completed',
 };
 
-export const STATUS_COLOR: Record<TechnicianOrder['status'], string> = {
-  pending: '#F59E0B',
-  accepted: Colors.successAlt,
-  rejected: '#EF4444',
-  cancelled_by_user: '#9CA3AF',
-  cancelled_by_technician: '#9CA3AF',
-  completed: '#3B82F6',
-};
-
 interface ScheduleOrderCardProps {
   readonly order: TechnicianOrder;
 }
 
 export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
+  const themeColors = useThemeColors();
+
+  const STATUS_COLOR: Record<TechnicianOrder['status'], string> = {
+    pending: themeColors.warning,
+    accepted: themeColors.successAlt,
+    rejected: themeColors.danger,
+    cancelled_by_user: themeColors.textMuted,
+    cancelled_by_technician: themeColors.textMuted,
+    completed: themeColors.primary,
+  };
+
   const color = STATUS_COLOR[order.status];
   const label = STATUS_LABEL[order.status];
 
   return (
     <View
+      className="mb-2.5 rounded-[14px] bg-surface p-3.5"
       style={{
         borderWidth: 1,
-        borderColor: Colors.borderDefault,
-        borderRadius: 14,
-        padding: 14,
-        marginBottom: 10,
-        backgroundColor: Colors.surfaceBase,
+        borderColor: themeColors.borderDefault,
       }}
     >
       {/* Status badge */}
@@ -49,13 +48,13 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
       {/* Primary Description */}
       {order.problem_description ? (
         <Text
-          style={{ color: Colors.textPrimary, fontSize: 13, fontWeight: '500', lineHeight: 18 }}
+          style={{ color: themeColors.textPrimary, fontSize: 13, fontWeight: '500', lineHeight: 18 }}
           numberOfLines={3}
         >
           {order.problem_description}
         </Text>
       ) : (
-        <Text style={{ color: Colors.textMuted, fontSize: 13, fontStyle: 'italic' }}>
+        <Text style={{ color: themeColors.textMuted, fontSize: 13, fontStyle: 'italic' }}>
           No description provided.
         </Text>
       )}
@@ -63,8 +62,8 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
       {/* Active indicator */}
       {order.active && (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.successAlt }} />
-          <Text style={{ color: Colors.successAlt, fontSize: 12, fontWeight: '600' }}>Active booking</Text>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: themeColors.successAlt }} />
+          <Text style={{ color: themeColors.successAlt, fontSize: 12, fontWeight: '600' }}>Active booking</Text>
         </View>
       )}
     </View>

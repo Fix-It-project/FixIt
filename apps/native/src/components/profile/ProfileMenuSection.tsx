@@ -10,19 +10,20 @@ import {
   LogOut,
   type LucideIcon,
 } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 function MenuItem({
   icon: Icon,
   label,
   onPress,
   destructive = false,
-}: {
+}: Readonly<{
   icon: LucideIcon;
   label: string;
   onPress: () => void;
   destructive?: boolean;
-}) {
+}>) {
+  const themeColors = useThemeColors();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -48,18 +49,18 @@ function MenuItem({
         {label}
       </Text>
       {!destructive && (
-        <ChevronRight size={18} color={Colors.textSecondary} strokeWidth={1.8} />
+        <ChevronRight size={18} color={themeColors.textSecondary} strokeWidth={1.8} />
       )}
     </TouchableOpacity>
   );
 }
 
 interface ProfileMenuSectionProps {
-  onLogout: () => void;
-  isLoggingOut: boolean;
-  onEditProfile: () => void;
-  onSettings: () => void;
-  onPastOrders?: () => void;
+  readonly onLogout: () => void;
+  readonly isLoggingOut: boolean;
+  readonly onEditProfile: () => void;
+  readonly onSettings: () => void;
+  readonly onPastOrders?: () => void;
 }
 
 export default function ProfileMenuSection({ onLogout, isLoggingOut, onEditProfile, onSettings, onPastOrders }: ProfileMenuSectionProps) {

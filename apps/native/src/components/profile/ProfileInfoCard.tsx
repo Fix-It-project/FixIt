@@ -2,18 +2,18 @@ import { View, ActivityIndicator } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Separator } from "@/src/components/ui/separator";
 import { Mail, Phone, MapPin, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/colors";
+import { Colors } from "@/src/lib/theme";
 import type { UserProfile } from "@/src/features/users/schemas/response.schema";
 
 function InfoRow({
   icon: Icon,
   label,
   value,
-}: {
+}: Readonly<{
   icon: LucideIcon;
   label: string;
   value: string;
-}) {
+}>) {
   return (
     <View className="flex-row items-center gap-3 py-3">
       <View className="h-10 w-10 items-center justify-center rounded-full bg-app-primary-light">
@@ -28,8 +28,8 @@ function InfoRow({
 }
 
 interface ProfileInfoCardProps {
-  profile: UserProfile | undefined;
-  isLoading: boolean;
+  readonly profile: UserProfile | undefined;
+  readonly isLoading: boolean;
 }
 
 export default function ProfileInfoCard({ profile, isLoading }: ProfileInfoCardProps) {
