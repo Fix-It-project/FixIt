@@ -1,85 +1,78 @@
 import type { Request, Response } from 'express';
 import { ordersService } from './orders.service.js';
+import { normalizeError } from '../../shared/errors/index.js';
 
 export class OrdersController {
-  // USER endpoints -----------------------------------------------------------
-
   async createOrder(req: Request, res: Response) {
     try {
-      const user = (req as any).user;
-      const order = await ordersService.createOrderForUser(user.id, {
+      const order = await ordersService.createOrderForUser(req.user!.id, {
         ...req.body,
         attachment: req.file,
       });
       return res.status(201).json({ data: order });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 
   async getUserOrders(req: Request, res: Response) {
     try {
-      const user = (req as any).user;
-      const orders = await ordersService.getUserOrders(user.id);
+      const orders = await ordersService.getUserOrders(req.user!.id);
       return res.status(200).json({ data: orders });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 
   async getUserOrderById(req: Request, res: Response) {
     try {
-      const user = (req as any).user;
-      const { id } = req.params as any;
-      const order = await ordersService.getUserOrderById(user.id, id);
+      const order = await ordersService.getUserOrderById(req.user!.id, req.params.id as string);
       return res.status(200).json({ data: order });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 
   async userUpdateOrder(req: Request, res: Response) {
     try {
-      const user = (req as any).user;
-      const { id } = req.params as any;
-      const order = await ordersService.userUpdateOrder(user.id, id, req.body);
+      const order = await ordersService.userUpdateOrder(req.user!.id, req.params.id as string, req.body);
       return res.status(200).json({ data: order });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 
-  // TECHNICIAN endpoints -----------------------------------------------------
-
   async getTechnicianOrders(req: Request, res: Response) {
     try {
-      const technician = (req as any).technician;
-      const orders = await ordersService.getTechnicianOrders(technician.id);
+      const orders = await ordersService.getTechnicianOrders(req.technician!.id);
       return res.status(200).json({ data: orders });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 
   async getTechnicianOrderById(req: Request, res: Response) {
     try {
-      const technician = (req as any).technician;
-      const { id } = req.params as any;
-      const order = await ordersService.getTechnicianOrderById(technician.id, id);
+      const order = await ordersService.getTechnicianOrderById(req.technician!.id, req.params.id as string);
       return res.status(200).json({ data: order });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 
   async technicianUpdateOrder(req: Request, res: Response) {
     try {
-      const technician = (req as any).technician;
-      const { id } = req.params as any;
-      const order = await ordersService.technicianUpdateOrder(technician.id, id, req.body);
+      const order = await ordersService.technicianUpdateOrder(req.technician!.id, req.params.id as string, req.body);
       return res.status(200).json({ data: order });
-    } catch (err: any) {
-      return res.status(err.status ?? 500).json({ error: err.message ?? 'Internal server error' });
+    } catch (err: unknown) {
+      const { status, message } = normalizeError(err);
+      return res.status(status).json({ error: message });
     }
   }
 }

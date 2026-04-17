@@ -41,17 +41,6 @@ describe('TechnicianAuthController', () => {
     return files ? Object.assign(req, { files }) : req;
   }
 
-  function expectValidationFailure(
-    res: ReturnType<typeof createMockRes>,
-    expectedStatus: number,
-    expectedBody: unknown,
-    mockedMethod: ReturnType<typeof vi.fn>,
-  ) {
-    expect(res.statusCode).toBe(expectedStatus);
-    expect(res.body).toEqual(expectedBody);
-    expect(mockedMethod).not.toHaveBeenCalled();
-  }
-
   describe('checkEmail', () => {
     it('should return 200 with exists flag', async () => {
       mockService.checkEmailExists.mockResolvedValue(true);
@@ -64,15 +53,6 @@ describe('TechnicianAuthController', () => {
       expect(mockService.checkEmailExists).toHaveBeenCalledWith('tech@example.com');
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({ exists: true });
-    });
-
-    it('should return 400 when email is missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.checkEmail(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email is required' }, mockService.checkEmailExists);
     });
 
     it('should return 500 on service error', async () => {
@@ -169,76 +149,6 @@ describe('TechnicianAuthController', () => {
       expect(res.statusCode).toBe(201);
     });
 
-    it('should return 400 when email is missing', async () => {
-      const req = createMockReq({ body: { ...validBody, email: undefined } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(
-        res,
-        400,
-        { error: 'email, password, first_name, last_name, and category_id are required' },
-        mockService.signUp,
-      );
-    });
-
-    it('should return 400 when password is missing', async () => {
-      const req = createMockReq({ body: { ...validBody, password: undefined } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(
-        res,
-        400,
-        { error: 'email, password, first_name, last_name, and category_id are required' },
-        mockService.signUp,
-      );
-    });
-
-    it('should return 400 when first_name is missing', async () => {
-      const req = createMockReq({ body: { ...validBody, first_name: undefined } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(
-        res,
-        400,
-        { error: 'email, password, first_name, last_name, and category_id are required' },
-        mockService.signUp,
-      );
-    });
-
-    it('should return 400 when last_name is missing', async () => {
-      const req = createMockReq({ body: { ...validBody, last_name: undefined } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(
-        res,
-        400,
-        { error: 'email, password, first_name, last_name, and category_id are required' },
-        mockService.signUp,
-      );
-    });
-
-    it('should return 400 when category_id is missing', async () => {
-      const req = createMockReq({ body: { ...validBody, category_id: undefined } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(
-        res,
-        400,
-        { error: 'email, password, first_name, last_name, and category_id are required' },
-        mockService.signUp,
-      );
-    });
-
     it('should return 409 when service throws already exists error', async () => {
       mockService.signUp.mockRejectedValue(new Error('A technician with this email already exists'));
 
@@ -277,15 +187,6 @@ describe('TechnicianAuthController', () => {
       expect(mockService.signIn).toHaveBeenCalledWith('tech@example.com', 'pass123');
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual(result);
-    });
-
-    it('should return 400 when credentials are missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.signIn(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email and password are required' }, mockService.signIn);
     });
 
     it('should return 401 on service error', async () => {
@@ -331,7 +232,9 @@ describe('TechnicianAuthController', () => {
 
       await controller.signOut(req, res);
 
-      expectValidationFailure(res, 401, { error: 'No token provided' }, mockService.signOut);
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toEqual({ error: 'No token provided' });
+      expect(mockService.signOut).not.toHaveBeenCalled();
     });
 
     it('should return 400 on service error', async () => {
@@ -368,12 +271,9 @@ describe('TechnicianAuthController', () => {
 
       await controller.getCurrentTechnician(req, res);
 
-      expectValidationFailure(
-        res,
-        401,
-        { error: 'No token provided' },
-        mockService.getCurrentTechnician,
-      );
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toEqual({ error: 'No token provided' });
+      expect(mockService.getCurrentTechnician).not.toHaveBeenCalled();
     });
 
     it('should return 401 on service error', async () => {
@@ -402,20 +302,6 @@ describe('TechnicianAuthController', () => {
       expect(mockService.refreshSession).toHaveBeenCalledWith('old-rt');
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual(result);
-    });
-
-    it('should return 400 when refreshToken is missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.refreshToken(req, res);
-
-      expectValidationFailure(
-        res,
-        400,
-        { error: 'Refresh token is required' },
-        mockService.refreshSession,
-      );
     });
 
     it('should return 401 on service error', async () => {

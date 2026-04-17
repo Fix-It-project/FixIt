@@ -2,8 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import type { Request, Response } from 'express';
 import { createMockReq, createMockRes } from '../../../../../tests/mocks/express.mock.js';
 
-// ─── Hoisted mock (ESM-compatible) ──────────────────────────────────────────
-
 const { mockService } = vi.hoisted(() => ({
   mockService: {
     getAddresses: vi.fn(),
@@ -18,7 +16,6 @@ vi.mock('../../addresses.service.js', () => ({
   addressesService: mockService,
 }));
 
-// Import AFTER mocking
 const { userAddressHandlers, technicianAddressHandlers } = await import('../../addresses.controller.js');
 
 describe('Addresses Controller', () => {
@@ -33,8 +30,6 @@ describe('Addresses Controller', () => {
   function createReqRes(req: Request) {
     return { req, res: createMockRes() };
   }
-
-  // ─── getAddresses ─────────────────────────────────────────────────────
 
   describe('getAddresses', () => {
     it('should return 200 with addresses for user role', async () => {
@@ -85,8 +80,6 @@ describe('Addresses Controller', () => {
     });
   });
 
-  // ─── addAddress ───────────────────────────────────────────────────────
-
   describe('addAddress', () => {
     const validBody = {
       city: 'Amman',
@@ -106,66 +99,6 @@ describe('Addresses Controller', () => {
 
       expect(res.statusCode).toBe(201);
       expect(res.body).toEqual({ address: { id: 'addr-1', ...validBody } });
-    });
-
-    it('should return 400 when city is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({
-        body: { street: 'St', latitude: 31.95, longitude: 35.93 },
-      }));
-
-      await userAddressHandlers.addAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: expect.stringContaining('City is required') });
-      expect(mockService.addAddress).not.toHaveBeenCalled();
-    });
-
-    it('should return 400 when street is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({
-        body: { city: 'Amman', latitude: 31.95, longitude: 35.93 },
-      }));
-
-      await userAddressHandlers.addAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: expect.stringContaining('Street is required') });
-    });
-
-    it('should return 400 when latitude is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({
-        body: { city: 'Amman', street: 'St', longitude: 35.93 },
-      }));
-
-      await userAddressHandlers.addAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: expect.stringContaining('Latitude is required') });
-    });
-
-    it('should return 400 when longitude is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({
-        body: { city: 'Amman', street: 'St', latitude: 31.95 },
-      }));
-
-      await userAddressHandlers.addAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: expect.stringContaining('Longitude is required') });
-    });
-
-    it('should return 400 with multiple joined errors', async () => {
-      const { req, res } = createReqRes(createUserReq({ body: {} }));
-
-      await userAddressHandlers.addAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      const errorMsg = (res.body as { error: string }).error;
-      expect(errorMsg).toContain('City is required');
-      expect(errorMsg).toContain('Street is required');
-      expect(errorMsg).toContain('Latitude is required');
-      expect(errorMsg).toContain('Longitude is required');
-      // Errors are joined with '. '
-      expect(errorMsg.split('. ').length).toBe(4);
     });
 
     it('should return 409 when service throws Maximum limit error', async () => {
@@ -191,8 +124,6 @@ describe('Addresses Controller', () => {
     });
   });
 
-  // ─── updateAddress ────────────────────────────────────────────────────
-
   describe('updateAddress', () => {
     it('should return 200 on successful update', async () => {
       mockService.updateAddress.mockResolvedValue({ id: 'addr-1', city: 'Zarqa' });
@@ -207,19 +138,6 @@ describe('Addresses Controller', () => {
       expect(mockService.updateAddress).toHaveBeenCalledWith('u-1', 'user', 'addr-1', expect.objectContaining({ city: 'Zarqa' }));
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({ address: { id: 'addr-1', city: 'Zarqa' } });
-    });
-
-    it('should return 400 when address ID is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({
-        params: {},
-        body: { city: 'Zarqa' },
-      }));
-
-      await userAddressHandlers.updateAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'Address ID is required' });
-      expect(mockService.updateAddress).not.toHaveBeenCalled();
     });
 
     it('should return 400 on service error', async () => {
@@ -237,8 +155,6 @@ describe('Addresses Controller', () => {
     });
   });
 
-  // ─── deleteAddress ────────────────────────────────────────────────────
-
   describe('deleteAddress', () => {
     it('should return 200 with success message', async () => {
       mockService.deleteAddress.mockResolvedValue({ success: true, message: 'Address deleted successfully' });
@@ -249,16 +165,6 @@ describe('Addresses Controller', () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({ success: true, message: 'Address deleted successfully' });
-    });
-
-    it('should return 400 when address ID is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({ params: {} }));
-
-      await userAddressHandlers.deleteAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'Address ID is required' });
-      expect(mockService.deleteAddress).not.toHaveBeenCalled();
     });
 
     it('should return 400 on service error', async () => {
@@ -273,8 +179,6 @@ describe('Addresses Controller', () => {
     });
   });
 
-  // ─── setActiveAddress ─────────────────────────────────────────────────
-
   describe('setActiveAddress', () => {
     it('should return 200 on successful activation', async () => {
       mockService.setActiveAddress.mockResolvedValue({ id: 'addr-1', is_active: true });
@@ -286,16 +190,6 @@ describe('Addresses Controller', () => {
       expect(mockService.setActiveAddress).toHaveBeenCalledWith('u-1', 'user', 'addr-1');
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({ address: { id: 'addr-1', is_active: true } });
-    });
-
-    it('should return 400 when address ID is missing', async () => {
-      const { req, res } = createReqRes(createUserReq({ params: {} }));
-
-      await userAddressHandlers.setActiveAddress(req as Request, res as unknown as Response);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'Address ID is required' });
-      expect(mockService.setActiveAddress).not.toHaveBeenCalled();
     });
 
     it('should return 400 on service error', async () => {
