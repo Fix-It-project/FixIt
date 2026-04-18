@@ -1,50 +1,69 @@
-import { useCallback, useRef, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useLocalSearchParams } from "expo-router";
-import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import BookingListContent from "@/src/features/booking-orders/components/tech/BookingListContent";
-import ScheduleScreen from "@/src/features/schedule/components/tech/ScheduleScreen";
-import ScheduleBookingsHeader, {
-  type ScheduleBookingsHeaderRef,
-} from "@/src/features/schedule/components/tech/ScheduleBookingsHeader";
-import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
+import BookingsTabContent from "@/src/features/booking-orders/components/tech/BookingsTabContent";
+import ScheduleTabContent from "@/src/features/schedule/components/tech/ScheduleTabContent";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 type ActiveView = "schedule" | "bookings";
+type ScheduleTopTabParamList = {
+  schedule: undefined;
+  bookings: undefined;
+};
+
+const TopTabs = createMaterialTopTabNavigator<ScheduleTopTabParamList>();
 
 export default function UnifiedSchedulePage() {
+  const themeColors = useThemeColors();
   const params = useLocalSearchParams<{ view?: string }>();
-  const [activeView, setActiveView] = useState<ActiveView>(
-    params.view === "bookings" ? "bookings" : "schedule",
-  );
-  const headerRef = useRef<ScheduleBookingsHeaderRef>(null);
-
-  // When the Schedule footer tab is tapped with no params, default back to schedule view
-  useFocusEffect(
-    useCallback(() => {
-      setActiveView(params.view === "bookings" ? "bookings" : "schedule");
-    }, [params.view]),
-  );
-
-  // Only intercept back to close the calendar sheet; otherwise let system handle root-tab back
-  useFocusBackHandler(() => {
-    if (activeView === "bookings" && headerRef.current?.closeCalendarIfOpen()) return true;
-    return false;
-  });
+  const requestedView: ActiveView =
+    params.view === "bookings" ? "bookings" : "schedule";
 
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-surface-elevated">
-      <ScheduleBookingsHeader ref={headerRef} activeView={activeView} onToggle={setActiveView} />
-
-      {activeView === "schedule" ? (
-        <Animated.View key="schedule" entering={FadeIn.duration(200)} className="flex-1">
-          <ScheduleScreen onDismissSetup={() => setActiveView("bookings")} />
-        </Animated.View>
-      ) : (
-        <Animated.View key="bookings" entering={FadeIn.duration(200)} className="flex-1">
-          <BookingListContent />
-        </Animated.View>
-      )}
+      <TopTabs.Navigator
+        key={requestedView}
+        initialRouteName={requestedView}
+        screenOptions={{
+          swipeEnabled: true,
+          animationEnabled: true,
+          lazy: false,
+          sceneStyle: { backgroundColor: "transparent" },
+          tabBarStyle: {
+            backgroundColor: Colors.primaryDark,
+            shadowColor: "transparent",
+            elevation: 0,
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: themeColors.surfaceOnPrimary,
+            height: 3,
+            borderRadius: 999,
+          },
+          tabBarItemStyle: {
+            minHeight: 48,
+          },
+          tabBarLabelStyle: {
+            fontFamily: "GoogleSans_600SemiBold",
+            fontSize: 14,
+            textTransform: "none",
+          },
+          tabBarActiveTintColor: themeColors.surfaceOnPrimary,
+          tabBarInactiveTintColor: Colors.overlaySub,
+          tabBarPressColor: "transparent",
+          tabBarAndroidRipple: { borderless: false, color: "transparent" },
+        }}
+      >
+        <TopTabs.Screen
+          name="schedule"
+          component={ScheduleTabContent}
+          options={{ title: "Schedule" }}
+        />
+        <TopTabs.Screen
+          name="bookings"
+          component={BookingsTabContent}
+          options={{ title: "Bookings" }}
+        />
+      </TopTabs.Navigator>
     </SafeAreaView>
   );
 }

@@ -7,10 +7,7 @@ import { useThemeColors } from "@/src/lib/theme";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";
 
-/**
- * Booking list body — scrollable content rendered below ScheduleBookingsHeader
- * when the unified Schedule/Bookings surface is in "bookings" mode.
- */
+/** Booking list body for the technician bookings surface. */
 export default function BookingListContent() {
   const themeColors = useThemeColors();
   const { selectedDate } = useBookingsDateStore();

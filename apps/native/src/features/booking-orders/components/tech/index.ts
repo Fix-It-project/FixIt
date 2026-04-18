@@ -5,7 +5,7 @@ export { default as BookingClientCard } from './BookingClientCard';
 export { default as BookingDetailHeader } from './BookingDetailHeader';
 export { default as BookingInfoSection } from './BookingInfoSection';
 export { default as BookingListContent } from './BookingListContent';
-export { default as BookingListHeader } from './BookingListHeader';
+export { default as BookingsTabContent } from './BookingsTabContent';
 export { default as BookingsCalendarSheet } from './BookingsCalendarSheet';
 export { default as BookingsEmptyState } from './BookingsEmptyState';
 export { default as BookingsViewToggle } from './BookingsViewToggle';
