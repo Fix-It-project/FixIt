@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
+import type { DashboardOrder } from '@/src/features/dashboard/schemas/response.schema';
 
 interface TechRequestsStore {
-  selectedOrder: TechnicianOrder | null;
+  selectedOrder: DashboardOrder | null;
   isModalVisible: boolean;
-  openModal: (order: TechnicianOrder) => void;
+  openModal: (order: DashboardOrder) => void;
   closeModal: () => void;
 }
 

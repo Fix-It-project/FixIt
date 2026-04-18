@@ -1,6 +1,6 @@
 import { TouchableOpacity, View } from 'react-native';
 import { Text } from '@/src/components/ui/text';
-import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
+import type { ScheduledEvent } from '@/src/features/schedule/schemas/response.schema';
 import ScheduleOrdersPanel from './ScheduleOrdersPanel';
 
 interface StatusActionButtonProps {
@@ -23,7 +23,7 @@ interface Props {
   readonly isSelectedDateException: boolean;
   readonly isSelectedDayWorking: boolean;
   readonly canMarkUnavailable: boolean;
-  readonly orders: TechnicianOrder[];
+  readonly orders: ScheduledEvent[];
   readonly onMarkUnavailable: () => void;
   readonly onRemoveOverride: () => void;
   readonly isAddingException: boolean;

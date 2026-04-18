@@ -3,9 +3,12 @@ import { Text } from "@/src/components/ui/text";
 import { ClipboardList, X, MapPin } from "lucide-react-native";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
-import { useAcceptOrderMutation, useRejectOrderMutation } from "@/src/hooks/tech/useTechOrders";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
+import {
+  useAcceptDashboardOrderMutation,
+  useRejectDashboardOrderMutation,
+} from "../../hooks/useDashboardOrderMutations";
 
 function withAlpha(hexColor: string, alpha: number) {
   const normalized = hexColor.replace("#", "");
@@ -29,8 +32,8 @@ function timeAgo(isoString: string): string {
 export default function RequestReviewModal() {
   const themeColors = useThemeColors();
   const { selectedOrder, isModalVisible, closeModal } = useTechRequestsStore();
-  const acceptMutation = useAcceptOrderMutation();
-  const rejectMutation = useRejectOrderMutation();
+  const acceptMutation = useAcceptDashboardOrderMutation();
+  const rejectMutation = useRejectDashboardOrderMutation();
   const { data: profile } = useTechSelfProfileQuery();
 
   const category = CATEGORIES.find(

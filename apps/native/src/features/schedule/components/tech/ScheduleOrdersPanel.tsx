@@ -3,11 +3,11 @@ import { TouchableOpacity, View } from 'react-native';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Text } from '@/src/components/ui/text';
 import { useThemeColors } from '@/src/lib/theme';
+import type { ScheduledEvent } from '@/src/features/schedule/schemas/response.schema';
 import ScheduleOrderCard from './ScheduleOrderCard';
-import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
 
 interface ScheduleOrdersPanelProps {
-  readonly orders: TechnicianOrder[];
+  readonly orders: ScheduledEvent[];
 }
 
 // Keyed by selectedDate from parent so expanded state resets automatically on day change.

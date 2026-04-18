@@ -1,8 +1,8 @@
 import { View, Text } from 'react-native';
 import { useThemeColors } from '@/src/lib/theme';
-import type { TechnicianOrder } from '@/src/features/schedule/schemas/response.schema';
+import type { ScheduledEvent } from '@/src/features/schedule/schemas/response.schema';
 
-export const STATUS_LABEL: Record<TechnicianOrder['status'], string> = {
+export const STATUS_LABEL: Record<ScheduledEvent['status'], string> = {
   pending: 'Pending',
   accepted: 'Accepted',
   rejected: 'Rejected',
@@ -12,13 +12,13 @@ export const STATUS_LABEL: Record<TechnicianOrder['status'], string> = {
 };
 
 interface ScheduleOrderCardProps {
-  readonly order: TechnicianOrder;
+  readonly order: ScheduledEvent;
 }
 
 export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
   const themeColors = useThemeColors();
 
-  const STATUS_COLOR: Record<TechnicianOrder['status'], string> = {
+  const STATUS_COLOR: Record<ScheduledEvent['status'], string> = {
     pending: themeColors.warning,
     accepted: themeColors.successAlt,
     rejected: themeColors.danger,

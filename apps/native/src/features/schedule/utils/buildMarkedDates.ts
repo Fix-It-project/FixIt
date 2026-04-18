@@ -1,11 +1,11 @@
 import type { ThemePalette } from "@/src/lib/theme";
 import type { DaySchedule } from '../types/calendar';
-import type { TechnicianOrder } from '../schemas/response.schema';
+import type { ScheduledEvent } from '../schemas/response.schema';
 
 export function buildMarkedDates(
   schedule: DaySchedule[],
   exceptions: { id: string; date: string }[],
-  ordersByDate: Record<string, TechnicianOrder[]>,
+  ordersByDate: Record<string, ScheduledEvent[]>,
   selectedDate: string,
   themeColors: ThemePalette,
 ) {

@@ -12,7 +12,6 @@ import {
   useAddExceptionMutation,
   useDeleteExceptionMutation,
   useExceptionsQuery,
-  useOrdersByDate,
   useSaveTemplatesMutation,
   useTemplatesQuery,
 } from "@/src/hooks/tech/useCalendar";
@@ -22,6 +21,7 @@ import {
   useThemeTokens,
 } from "@/src/lib/theme";
 import type { DaySchedule } from "@/src/features/schedule/types/calendar";
+import { useScheduledEventsByDate } from "../../hooks/useScheduledEvents";
 import { buildMarkedDates } from "@/src/features/schedule/utils/buildMarkedDates";
 import ScheduleDayPanel from "./ScheduleDayPanel";
 import ScheduleLegend from "./ScheduleLegend";
@@ -49,7 +49,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
     useTemplatesQuery();
   const { data: exceptions = [], isLoading: isLoadingExceptions } =
     useExceptionsQuery();
-  const ordersByDate = useOrdersByDate();
+  const ordersByDate = useScheduledEventsByDate();
   const saveMutation = useSaveTemplatesMutation();
   const addException = useAddExceptionMutation();
   const deleteException = useDeleteExceptionMutation();

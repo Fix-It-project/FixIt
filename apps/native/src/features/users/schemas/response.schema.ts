@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { addressSchema } from "@/src/features/addresses/schemas/response.schema";
+
+const userProfileAddressSchema = z.object({
+  id: z.string(),
+  city: z.string(),
+  street: z.string(),
+  building_no: z.string().nullable(),
+  apartment_no: z.string().nullable(),
+});
 
 export const userProfileSchema = z.object({
   id: z.string(),
@@ -7,7 +14,7 @@ export const userProfileSchema = z.object({
   full_name: z.string().nullable(),
   phone: z.string().nullable(),
   created_at: z.string(),
-  addresses: z.array(addressSchema),
+  addresses: z.array(userProfileAddressSchema),
 });
 
 export const getProfileResponseSchema = z.object({ profile: userProfileSchema });

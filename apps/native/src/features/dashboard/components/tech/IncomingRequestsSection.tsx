@@ -10,15 +10,17 @@ import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { useThemeColors, type ThemePalette } from "@/src/lib/theme";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import {
-  usePendingOrders,
-  useAcceptOrderMutation,
-  useRejectOrderMutation,
-} from "@/src/hooks/tech/useTechOrders";
+  usePendingDashboardOrders,
+} from "../../hooks/useDashboardOrdersQuery";
+import {
+  useAcceptDashboardOrderMutation,
+  useRejectDashboardOrderMutation,
+} from "../../hooks/useDashboardOrderMutations";
 import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
 import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import RequestDetailsModal from "./RequestReviewModal";
-import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
+import type { DashboardOrder } from "../../schemas/response.schema";
 
 const CARD_WIDTH_RATIO = 0.72;
 
@@ -40,7 +42,7 @@ function RequestCard({
   categoryColor,
   themeColors,
 }: Readonly<{
-  item: TechnicianOrder;
+  item: DashboardOrder;
   index: number;
   cardWidth: number;
   CategoryIcon: LucideIcon;
@@ -48,8 +50,8 @@ function RequestCard({
   themeColors: ThemePalette;
 }>) {
   const openModal = useTechRequestsStore((s) => s.openModal);
-  const acceptMutation = useAcceptOrderMutation();
-  const rejectMutation = useRejectOrderMutation();
+  const acceptMutation = useAcceptDashboardOrderMutation();
+  const rejectMutation = useRejectDashboardOrderMutation();
   const isBusy = acceptMutation.isPending || rejectMutation.isPending;
 
   return (
@@ -174,7 +176,7 @@ export default function IncomingRequestsSection() {
   const { width } = useWindowDimensions();
   const themeColors = useThemeColors();
   const cardWidth = width * CARD_WIDTH_RATIO;
-  const { data: pendingOrders, isLoading } = usePendingOrders();
+  const { data: pendingOrders, isLoading } = usePendingDashboardOrders();
   const { data: profile } = useTechSelfProfileQuery();
 
   const category = CATEGORIES.find(

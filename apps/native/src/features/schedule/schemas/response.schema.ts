@@ -15,23 +15,12 @@ export const calendarExceptionSchema = z.object({
   created_at: z.string(),
 });
 
-export const technicianOrderSchema = z.object({
+export const scheduledEventSchema = z.object({
   id: z.string(),
-  technician_id: z.string(),
-  user_id: z.string(),
-  service_id: z.string(),
   status: orderStatusSchema,
-  problem_description: z.string().nullable(),
   scheduled_date: z.string(),
+  problem_description: z.string().nullable(),
   active: z.boolean(),
-  created_at: z.string(),
-  user_address: z.string().nullable().optional(),
-  service_name: z.string().nullable().optional(),
-  category_id: z.string().nullable().optional(),
-  attachment: z.string().nullable().optional(),
-  cancellation_reason: z.string().nullable().optional(),
-  user_name: z.string().nullable().optional(),
-  user_phone: z.string().nullable().optional(),
 });
 
 export const getTemplatesResponseSchema = z.object({
@@ -46,11 +35,8 @@ export const getExceptionsResponseSchema = z.object({
 export const exceptionResponseSchema = z.object({
   data: calendarExceptionSchema,
 });
-export const getTechnicianOrdersResponseSchema = z.object({
-  data: z.array(technicianOrderSchema),
-});
-export const technicianOrderResponseSchema = z.object({
-  data: technicianOrderSchema,
+export const scheduledEventsResponseSchema = z.object({
+  data: z.array(scheduledEventSchema),
 });
 export const publicScheduleResponseSchema = z.object({
   data: z.object({
@@ -61,11 +47,10 @@ export const publicScheduleResponseSchema = z.object({
 
 export type AvailabilityTemplate = z.infer<typeof availabilityTemplateSchema>;
 export type CalendarException = z.infer<typeof calendarExceptionSchema>;
-export type TechnicianOrder = z.infer<typeof technicianOrderSchema>;
+export type ScheduledEvent = z.infer<typeof scheduledEventSchema>;
 export type GetTemplatesResponse = z.infer<typeof getTemplatesResponseSchema>;
 export type TemplateResponse = z.infer<typeof templateResponseSchema>;
 export type GetExceptionsResponse = z.infer<typeof getExceptionsResponseSchema>;
 export type ExceptionResponse = z.infer<typeof exceptionResponseSchema>;
-export type GetTechnicianOrdersResponse = z.infer<typeof getTechnicianOrdersResponseSchema>;
-export type TechnicianOrderResponse = z.infer<typeof technicianOrderResponseSchema>;
+export type ScheduledEventsResponse = z.infer<typeof scheduledEventsResponseSchema>;
 export type PublicScheduleResponse = z.infer<typeof publicScheduleResponseSchema>;

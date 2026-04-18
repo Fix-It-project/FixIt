@@ -5,10 +5,12 @@ import { useThemeColors, type ThemePalette } from "@/src/lib/theme";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { useTodaysAcceptedOrders } from "@/src/hooks/tech/useTechOrders";
-import { useTechnicianOrdersQuery } from "@/src/hooks/tech/useCalendar";
-import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 import { ROUTES } from "@/src/lib/routes";
+import {
+  useDashboardOrdersQuery,
+  useTodayAcceptedDashboardOrders,
+} from "../../hooks/useDashboardOrdersQuery";
+import type { DashboardOrder } from "../../schemas/response.schema";
 
 function ScheduleCard({
   item,
@@ -16,7 +18,7 @@ function ScheduleCard({
   isLast,
   themeColors,
 }: Readonly<{
-  item: TechnicianOrder;
+  item: DashboardOrder;
   index: number;
   isLast: boolean;
   themeColors: ThemePalette;
@@ -103,8 +105,8 @@ function ScheduleCard({
 export default function TodayScheduleSection() {
   const router = useRouter();
   const themeColors = useThemeColors();
-  const todaysOrders = useTodaysAcceptedOrders();
-  const { isLoading } = useTechnicianOrdersQuery();
+  const todaysOrders = useTodayAcceptedDashboardOrders();
+  const { isLoading } = useDashboardOrdersQuery();
   const goToBookings = useDebounce(() =>
     router.push(ROUTES.technician.bookings),
   );

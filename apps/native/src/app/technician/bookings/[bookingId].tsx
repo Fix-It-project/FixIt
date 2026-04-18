@@ -5,10 +5,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
 import {
-  useBookingById,
-  useCancelOrderByTechnicianMutation,
-  useCompleteOrderMutation,
-} from "@/src/hooks/tech/useTechOrders";
+  useTechnicianBookingById,
+} from "@/src/features/booking-orders/hooks/useTechnicianBookingsQuery";
+import {
+  useCancelTechnicianBookingMutation,
+  useCompleteTechnicianBookingMutation,
+} from "@/src/features/booking-orders/hooks/useTechnicianBookingMutations";
 import BookingDetailHeader from "@/src/features/booking-orders/components/tech/BookingDetailHeader";
 import BookingClientCard from "@/src/features/booking-orders/components/tech/BookingClientCard";
 import BookingInfoSection from "@/src/features/booking-orders/components/tech/BookingInfoSection";
@@ -23,13 +25,13 @@ import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 export default function BookingDetailScreen() {
   const themeColors = useThemeColors();
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
-  const booking = useBookingById(bookingId);
+  const booking = useTechnicianBookingById(bookingId);
   const goBack = useSafeBack(ROUTES.technician.bookings);
 
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const cancelMutation = useCancelOrderByTechnicianMutation();
-  const completeMutation = useCompleteOrderMutation();
+  const cancelMutation = useCancelTechnicianBookingMutation();
+  const completeMutation = useCompleteTechnicianBookingMutation();
 
   useFocusBackHandler(() => {
     if (cancelModalVisible) {

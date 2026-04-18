@@ -8,10 +8,10 @@ import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booki
 import { Text } from "@/src/components/ui/text";
 import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
-import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
+import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface BookingCardProps {
-  readonly booking: TechnicianOrder;
+  readonly booking: TechnicianBooking;
   readonly index: number;
 }
 

@@ -1,9 +1,9 @@
 import { RefreshControl, ScrollView, View } from "react-native";
 import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-helpers";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
-import { useTechBookingsQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
+import { useVisibleTechnicianBookings } from "../../hooks/useTechnicianBookingsQuery";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";
 
@@ -12,7 +12,8 @@ export default function BookingListContent() {
   const themeColors = useThemeColors();
   const { selectedDate } = useBookingsDateStore();
   const dateStr = toIso(selectedDate);
-  const { data: bookings = [], isPending, isRefetching, refetch } = useTechBookingsQuery(dateStr);
+  const { data: bookings = [], isPending, isRefetching, refetch } =
+    useVisibleTechnicianBookings(dateStr);
 
   return (
     <ScrollView

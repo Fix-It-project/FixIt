@@ -9,7 +9,6 @@ import {
 import { useWindowDimensions } from "react-native";
 import { todayIso, toIso } from "@/src/lib/helpers/date-helpers";
 import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
-import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
 import {
   getCalendarTheme,
@@ -22,6 +21,7 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { Calendar, type DateData } from "react-native-calendars";
+import { useTechnicianBookingDates } from "../../hooks/useTechnicianBookingsQuery";
 import BookingsCalendarTrigger from "./BookingsCalendarTrigger";
 import { buildBookingsCalendarMarks } from "../../utils/buildBookingsCalendarMarks";
 
@@ -41,7 +41,7 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
     const sheetRef = useRef<BottomSheetModal>(null);
     const isSheetOpenRef = useRef(false);
     const { selectedDate, setSelectedDate } = useBookingsDateStore();
-    const { data: bookingDates } = useTechBookingDatesQuery();
+    const { data: bookingDates } = useTechnicianBookingDates();
     const { height: screenHeight } = useWindowDimensions();
     const [calendarRenderKey, setCalendarRenderKey] = useState(0);
 

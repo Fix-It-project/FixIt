@@ -1,11 +1,11 @@
 import { Linking } from "react-native";
 import { Calendar, MapPin, Phone } from "lucide-react-native";
 import { formatDate } from "@/src/lib/helpers/booking-helpers";
-import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
 import InfoSection, { type InfoSectionRow } from "@/src/features/booking-orders/components/shared/InfoSection";
+import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface Props {
-  readonly booking: TechnicianOrder;
+  readonly booking: TechnicianBooking;
 }
 
 export default function BookingInfoSection({ booking }: Props) {

@@ -1,8 +1,8 @@
-import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
+import type { TechnicianBooking } from "../../schemas/response.schema";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 
 interface Props {
-	readonly booking: TechnicianOrder;
+	readonly booking: TechnicianBooking;
 	readonly onBack: () => void;
 }
 

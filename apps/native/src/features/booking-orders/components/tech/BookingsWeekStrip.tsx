@@ -1,9 +1,9 @@
 import { I18nManager, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { toIso } from "@/src/lib/helpers/date-helpers";
 import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
-import { useTechBookingDatesQuery } from "@/src/hooks/tech/useTechBookingsQuery";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
+import { useTechnicianBookingDates } from "../../hooks/useTechnicianBookingsQuery";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,7 +22,7 @@ export default function BookingsWeekStrip() {
   const themeColors = useThemeColors();
   const { selectedDate, weekStart, setSelectedDate, goToPrevWeek, goToNextWeek } =
     useBookingsDateStore();
-  const { data: bookingDates } = useTechBookingDatesQuery();
+  const { data: bookingDates } = useTechnicianBookingDates();
   const { width: screenWidth } = useWindowDimensions();
 
   // Responsive circle size: fit 7 circles with gaps inside the strip (px-1 = 4px each side)

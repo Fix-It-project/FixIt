@@ -4,10 +4,10 @@ import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
-import type { TechnicianOrder } from "@/src/features/schedule/schemas/response.schema";
+import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface Props {
-  readonly booking: TechnicianOrder;
+  readonly booking: TechnicianBooking;
 }
 
 export default function BookingClientCard({ booking }: Props) {

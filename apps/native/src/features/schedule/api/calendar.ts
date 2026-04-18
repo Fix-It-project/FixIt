@@ -1,17 +1,11 @@
 import apiClient from "@/src/lib/api-client";
 import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
-import type {
-	AvailabilityTemplate,
-	CalendarException,
-	TechnicianOrder,
-} from "../schemas/response.schema";
+import type { AvailabilityTemplate, CalendarException } from "../schemas/response.schema";
 import {
 	exceptionResponseSchema,
 	getExceptionsResponseSchema,
-	getTechnicianOrdersResponseSchema,
 	getTemplatesResponseSchema,
 	publicScheduleResponseSchema,
-	technicianOrderResponseSchema,
 	templateResponseSchema,
 } from "../schemas/response.schema";
 import type {
@@ -103,33 +97,6 @@ export async function deleteException(
 	await apiClient.delete(
 		`/api/technician-calendar/${technicianId}/${exceptionId}`,
 	);
-}
-
-export async function getTechnicianOrders(
-	_technicianId: string,
-): Promise<TechnicianOrder[]> {
-	const response = await apiClient.get("/api/orders/technician/orders");
-	return safeParseResponse(
-		getTechnicianOrdersResponseSchema,
-		response.data,
-		"getTechnicianOrders",
-	).data;
-}
-
-export async function updateTechnicianOrderStatus(
-	orderId: string,
-	status: 'accepted' | 'rejected' | 'cancelled_by_technician' | 'completed',
-	cancellation_reason?: string,
-): Promise<TechnicianOrder> {
-	const response = await apiClient.patch(
-		`/api/orders/technician/orders/${orderId}`,
-		{ status, ...(cancellation_reason !== undefined && { cancellation_reason }) },
-	);
-	return safeParseResponse(
-		technicianOrderResponseSchema,
-		response.data,
-		'updateTechnicianOrderStatus',
-	).data;
 }
 
 export async function getPublicSchedule(technicianId: string) {
