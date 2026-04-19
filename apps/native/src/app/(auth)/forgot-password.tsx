@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { forgotPasswordSchema } from "@/src/features/auth/schemas/form.schema";
-import { useForgotPasswordMutation } from "@/src/hooks/auth/useForgotPasswordMutation";
+import { useForgotPasswordMutation } from "@/src/features/auth/hooks/useForgotPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { useCooldownTimer } from "@/src/hooks/auth/useCooldownTimer";
+import { useCooldownTimer } from "@/src/features/auth/hooks/useCooldownTimer";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import AuthFormScreen from "@/src/features/auth/components/shared/AuthFormScreen";
 import EmailEntryView from "@/src/features/auth/components/shared/EmailEntryView";

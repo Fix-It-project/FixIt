@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ErrorBanner from "@/src/components/feedback/ErrorBanner";
 import { useThemeColors } from "@/src/lib/theme";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 
 interface Props {
 	readonly children: ReactNode;

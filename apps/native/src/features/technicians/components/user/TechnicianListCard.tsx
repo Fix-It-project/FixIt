@@ -5,7 +5,8 @@ import type { TechnicianListItem } from "@/src/features/technicians/schemas/resp
 import {
 	deriveTechnicianExtras,
 	formatLocation,
-} from "@/src/lib/helpers/technician-utils";
+} from "@/src/features/technicians/utils/technician-utils";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import AvailabilityBadge from "./AvailabilityBadge";
 import RatingRow from "./RatingRow";
@@ -26,8 +27,8 @@ export default function TechnicianListCard({
 }: Readonly<TechnicianListCardProps>) {
 	const themeColors = useThemeColors();
 	const extras = deriveTechnicianExtras(item.id);
-	const initials = `${item.first_name[0]}${item.last_name[0]}`;
 	const fullName = `${item.first_name} ${item.last_name}`;
+	const initials = getPfpInitialsFallback(fullName);
 
 	return (
 		<TouchableOpacity

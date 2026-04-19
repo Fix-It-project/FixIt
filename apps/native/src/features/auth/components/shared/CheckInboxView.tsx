@@ -1,7 +1,7 @@
 import { View, Text, Pressable } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
-import { openMailApp } from "@/src/lib/helpers/open-mail-app";
+import { openMailApp } from "@/src/features/auth/utils/open-mail-app";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface CheckInboxViewProps {

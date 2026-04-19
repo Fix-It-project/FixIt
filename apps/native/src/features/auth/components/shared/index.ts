@@ -3,8 +3,6 @@ export { default as CategoryChip } from './CategoryChip';
 export { default as CheckInboxView } from './CheckInboxView';
 export { default as DocumentUploadField } from './DocumentUploadField';
 export { default as EmailEntryView } from './EmailEntryView';
-export { default as ErrorBanner } from './ErrorBanner';
-export { default as FormInput } from './FormInput';
 export { default as InvalidResetLinkView } from './InvalidResetLinkView';
 export { default as LoginLink } from './LoginLink';
 export { default as LoginScreen } from './LoginScreen';

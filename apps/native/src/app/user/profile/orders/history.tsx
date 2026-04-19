@@ -1,5 +1,5 @@
 import PastOrdersList, { type PastOrdersListItem } from "@/src/features/booking-orders/components/shared/PastOrdersList";
-import { useUserPastOrders } from "@/src/hooks/orders/useUserOrders";
+import { useUserPastOrders } from "@/src/features/booking-orders/hooks/useUserOrders";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
 

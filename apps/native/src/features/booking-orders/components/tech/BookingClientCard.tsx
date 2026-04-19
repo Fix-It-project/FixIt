@@ -1,7 +1,8 @@
 import { View, useWindowDimensions } from "react-native";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
+import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 import type { TechnicianBooking } from "../../schemas/response.schema";
@@ -16,7 +17,7 @@ export default function BookingClientCard({ booking }: Props) {
   const category = CATEGORIES.find((c) => c.id === booking.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? themeColors.primary;
-  const initials = getInitials(booking.user_name);
+  const initials = getPfpInitialsFallback(booking.user_name);
   const avatarColor = getAvatarColor(booking.user_name);
   const avatarSize = width < 360 ? 52 : 64;
   const nameFontSize = width < 360 ? 16 : 18;

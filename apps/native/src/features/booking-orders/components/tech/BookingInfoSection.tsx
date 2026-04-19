@@ -1,6 +1,6 @@
 import { Linking } from "react-native";
 import { Calendar, MapPin, Phone } from "lucide-react-native";
-import { formatDate } from "@/src/lib/helpers/booking-helpers";
+import { formatDate } from "@/src/features/booking-orders/utils/booking-helpers";
 import InfoSection, { type InfoSectionRow } from "@/src/features/booking-orders/components/shared/InfoSection";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 

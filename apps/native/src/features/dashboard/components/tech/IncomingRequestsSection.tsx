@@ -16,8 +16,7 @@ import {
   useAcceptDashboardOrderMutation,
   useRejectDashboardOrderMutation,
 } from "../../hooks/useDashboardOrderMutations";
-import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
-import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
+import { useTechRequestsStore } from "@/src/features/dashboard/stores/tech-requests-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import RequestDetailsModal from "./RequestReviewModal";
 import type { DashboardOrder } from "../../schemas/response.schema";
@@ -172,16 +171,20 @@ function RequestCard({
   );
 }
 
-export default function IncomingRequestsSection() {
+interface IncomingRequestsSectionProps {
+  readonly categoryName?: string | null;
+}
+
+export default function IncomingRequestsSection({
+  categoryName,
+}: IncomingRequestsSectionProps = {}) {
   const { width } = useWindowDimensions();
   const themeColors = useThemeColors();
   const cardWidth = width * CARD_WIDTH_RATIO;
   const { data: pendingOrders, isLoading } = usePendingDashboardOrders();
-  const { data: profile } = useTechSelfProfileQuery();
 
   const category = CATEGORIES.find(
-    (c) =>
-      c.label.toLowerCase() === (profile?.category_name ?? "").toLowerCase(),
+    (c) => c.label.toLowerCase() === (categoryName ?? "").toLowerCase(),
   );
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? themeColors.primary;
@@ -252,7 +255,7 @@ export default function IncomingRequestsSection() {
       {content}
 
       {/* Single modal instance for all cards */}
-      <RequestDetailsModal />
+      <RequestDetailsModal categoryName={categoryName} />
     </View>
   );
 }

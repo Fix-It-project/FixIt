@@ -1,7 +1,7 @@
 import * as Linking from "expo-linking";
 import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
-import { setRecoverySession } from "@/src/lib/auth/recovery-session";
+import { setRecoverySession } from "@/src/features/auth/utils/recovery-session";
 import { ROUTES } from "@/src/lib/routes";
 
 const RESET_PASSWORD_ROUTE = ROUTES.auth.resetPassword;

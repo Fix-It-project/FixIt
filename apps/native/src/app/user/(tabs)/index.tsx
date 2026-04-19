@@ -5,8 +5,8 @@ import { router } from "expo-router";
 import LocationHeader from "@/src/features/addresses/components/user/LocationHeader";
 import HeaderPolygons, {
   getHeaderPolygonPalette,
-} from "@/src/components/home/HeaderPolygons";
-import SearchBar from "@/src/components/home/SearchBar";
+} from "@/src/features/tech-self/components/tech/HeaderPolygons";
+import HomeSearchBar from "@/src/features/users/components/user/HomeSearchBar";
 import PreviousOrdersSection from "@/src/features/booking-orders/components/user/PreviousOrdersSection";
 import CategoryGrid from "@/src/features/categories/components/user/CategoryGrid";
 import RecommendedTechnicians from "@/src/features/technicians/components/user/RecommendedTechnicians";
@@ -17,7 +17,7 @@ import AddressBottomSheet, {
 import AddNewAddressSheet, {
   type AddNewAddressSheetRef,
 } from "@/src/features/addresses/components/user/AddNewAddressSheet";
-import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
+import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useThemeColors, useThemeMeta } from "@/src/lib/theme";
 import { ROUTES } from "@/src/lib/routes";
@@ -75,7 +75,7 @@ export default function Home() {
           >
             <HeaderPolygons palette={headerPolygonPalette} />
             <LocationHeader onLocationPress={handleLocationPress} />
-            <SearchBar />
+            <HomeSearchBar />
           </View>
 
           <View

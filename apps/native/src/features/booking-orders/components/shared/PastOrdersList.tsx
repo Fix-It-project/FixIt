@@ -6,7 +6,8 @@ import PageHeader from "@/src/components/PageHeader";
 import { Text } from "@/src/components/ui/text";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
+import { formatDate, getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export interface PastOrdersListItem {
@@ -61,7 +62,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
             style={{ backgroundColor: getAvatarColor(item.avatarName) }}
           >
             <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 14, color: themeColors.surfaceBase }}>
-              {getInitials(item.avatarName)}
+              {getPfpInitialsFallback(item.avatarName)}
             </Text>
           </View>
         )}

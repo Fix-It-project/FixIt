@@ -6,12 +6,14 @@ import IncomingRequestsSection from "@/src/features/dashboard/components/tech/In
 import TodayScheduleSection from "@/src/features/dashboard/components/tech/TodayScheduleSection";
 import EarningsWallet from "@/src/features/dashboard/components/tech/EarningsWallet";
 import { useDashboardOrdersQuery } from "@/src/features/dashboard/hooks/useDashboardOrdersQuery";
+import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 
 const SECTION_GAP = 8;
 
 export default function TechHome() {
   const themeColors = useThemeColors();
   const { isRefetching, refetch } = useDashboardOrdersQuery();
+  const { data: profile } = useTechSelfProfileQuery();
 
   return (
     <View className="flex-1 bg-surface-elevated">
@@ -34,7 +36,7 @@ export default function TechHome() {
           }
         >
           {/* Incoming job requests */}
-          <IncomingRequestsSection />
+          <IncomingRequestsSection categoryName={profile?.category_name} />
 
           {/* Today's schedule timeline */}
           <TodayScheduleSection />

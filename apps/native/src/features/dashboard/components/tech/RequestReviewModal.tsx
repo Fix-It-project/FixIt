@@ -2,8 +2,7 @@ import { View, TouchableOpacity, ActivityIndicator, Modal, Pressable } from "rea
 import { Text } from "@/src/components/ui/text";
 import { ClipboardList, X, MapPin } from "lucide-react-native";
 import { Colors, useThemeColors } from "@/src/lib/theme";
-import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
-import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
+import { useTechRequestsStore } from "@/src/features/dashboard/stores/tech-requests-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import {
   useAcceptDashboardOrderMutation,
@@ -29,15 +28,20 @@ function timeAgo(isoString: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export default function RequestReviewModal() {
+interface RequestReviewModalProps {
+  readonly categoryName?: string | null;
+}
+
+export default function RequestReviewModal({
+  categoryName,
+}: RequestReviewModalProps = {}) {
   const themeColors = useThemeColors();
   const { selectedOrder, isModalVisible, closeModal } = useTechRequestsStore();
   const acceptMutation = useAcceptDashboardOrderMutation();
   const rejectMutation = useRejectDashboardOrderMutation();
-  const { data: profile } = useTechSelfProfileQuery();
 
   const category = CATEGORIES.find(
-    (c) => c.label.toLowerCase() === (profile?.category_name ?? "").toLowerCase(),
+    (c) => c.label.toLowerCase() === (categoryName ?? "").toLowerCase(),
   );
   const CategoryIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? Colors.primary;

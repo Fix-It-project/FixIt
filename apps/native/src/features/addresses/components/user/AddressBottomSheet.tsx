@@ -20,8 +20,8 @@ import {
 	View,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { useAddressesQuery } from "@/src/hooks/addresses/useAddressesQuery";
-import { useSetActiveAddressMutation } from "@/src/hooks/addresses/useSetActiveAddressMutation";
+import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
+import { useSetActiveAddressMutation } from "@/src/features/addresses/hooks/useSetActiveAddressMutation";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import AddressListItem from "./AddressListItem";

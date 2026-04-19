@@ -1,12 +1,12 @@
 import { FileText, Phone, User } from "lucide-react-native";
-import ProfileEditScreenLayout from "@/src/components/profile/ProfileEditScreenLayout";
-import FormInput from "@/src/features/auth/components/shared/FormInput";
+import FormInput from "@/src/components/forms/FormInput";
+import ProfileEditScreenLayout from "@/src/features/profile/components/ProfileEditScreenLayout";
+import { useTechProfileEditController } from "@/src/features/tech-self/hooks/useTechProfileEditController";
 import { editTechProfileSchema } from "@/src/features/tech-self/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { useProfileEditController } from "@/src/hooks/useProfileEditController";
-import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
-import { useUpdateTechSelfProfileMutation } from "@/src/hooks/tech/useUpdateTechSelfProfileMutation";
-import { useEditTechProfileStore } from "@/src/stores/edit-tech-profile-store";
+import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
+import { useUpdateTechSelfProfileMutation } from "@/src/features/tech-self/hooks/useUpdateTechSelfProfileMutation";
+import { useEditTechProfileStore } from "@/src/features/tech-self/stores/edit-tech-profile-store";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
 
@@ -36,7 +36,7 @@ export default function EditTechProfileScreen() {
     description: profile?.description ?? "",
   };
 
-  const { errorMessage, handleSave, hasChanges, isPending } = useProfileEditController({
+  const { errorMessage, handleSave, hasChanges, isPending } = useTechProfileEditController({
     formValues,
     originalValues,
     hydrate,

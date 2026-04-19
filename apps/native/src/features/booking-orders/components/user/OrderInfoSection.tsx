@@ -2,7 +2,7 @@ import { Calendar, Phone } from "lucide-react-native";
 import { Linking } from "react-native";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import InfoSection, { type InfoSectionRow } from "@/src/features/booking-orders/components/shared/InfoSection";
-import { formatDate } from "@/src/lib/helpers/booking-helpers";
+import { formatDate } from "@/src/features/booking-orders/utils/booking-helpers";
 
 interface Props {
   readonly order: Order;

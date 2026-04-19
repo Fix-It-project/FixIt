@@ -1,5 +1,5 @@
 import LoginScreen from "@/src/features/auth/components/shared/LoginScreen";
-import { useTechnicianLoginMutation } from "@/src/hooks/auth/useTechnicianLoginMutation";
+import { useTechnicianLoginMutation } from "@/src/features/auth/hooks/useTechnicianLoginMutation";
 import { ROUTES } from "@/src/lib/routes";
 
 export default function TechLogin() {

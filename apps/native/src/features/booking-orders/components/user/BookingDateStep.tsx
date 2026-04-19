@@ -2,8 +2,8 @@ import { ActivityIndicator, View } from "react-native";
 import { Calendar, type DateData } from "react-native-calendars";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { useTechnicianPublicSchedule } from "@/src/hooks/tech/usePublicSchedule";
-import { useAvailabilityMarks } from "@/src/hooks/user/useAvailabilityMarks";
+import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
+import { useAvailabilityMarks } from "@/src/features/booking-orders/hooks/useAvailabilityMarks";
 import {
   getCalendarTheme,
   useThemeColors,

@@ -19,7 +19,7 @@ import {
   View,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { useTechnicianProfileQuery } from "@/src/hooks/user/useTechnicianProfileQuery";
+import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useThemeColors } from "@/src/lib/theme";
 import InfoRow from "./InfoRow";
 import StatCard from "./StatCard";

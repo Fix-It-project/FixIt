@@ -11,9 +11,9 @@ import { Button } from "@/src/components/ui/button";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
-import { useAddAddressMutation } from "@/src/hooks/addresses/useAddAddressMutation";
+import AddressFormSection from "@/src/features/address-entry/components/AddressFormSection";
+import { useAddAddressMutation } from "@/src/features/addresses/hooks/useAddAddressMutation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import AddressFormSection from "@/src/components/AddressFormSection";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import PageHeader from "@/src/components/PageHeader";
 

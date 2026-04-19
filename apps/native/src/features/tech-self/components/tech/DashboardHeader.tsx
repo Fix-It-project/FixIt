@@ -7,11 +7,11 @@ import {
 import { Text } from "@/src/components/ui/text";
 import { Bell, Star, ClipboardList } from "lucide-react-native";
 import { useThemeColors, useThemeMeta } from "@/src/lib/theme";
-import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
-import { getInitials } from "@/src/lib/helpers/booking-helpers";
+import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Svg, { Polygon, Defs, LinearGradient, Stop } from "react-native-svg";
-import { getHeaderPolygonPalette } from "@/src/components/home/HeaderPolygons";
+import { getHeaderPolygonPalette } from "@/src/features/tech-self/components/tech/HeaderPolygons";
 
 const HEADER_HEIGHT = 160;
 
@@ -98,7 +98,7 @@ export default function DashboardHeader() {
   const fullName = profile
     ? `${profile.first_name} ${profile.last_name}`
     : "...";
-  const initials = getInitials(fullName);
+  const initials = getPfpInitialsFallback(fullName);
   const isOnline = false;
   const specialty = profile?.category_name ?? "Technician";
 

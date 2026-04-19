@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { useGoogleOAuth } from "@/src/hooks/auth/useGoogleOAuth";
+import { useGoogleOAuth } from "@/src/features/auth/hooks/useGoogleOAuth";
 import SocialLoginButtons from "./SocialLoginButtons";
 
 export default function OAuthDivider() {

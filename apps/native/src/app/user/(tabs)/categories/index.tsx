@@ -5,7 +5,7 @@ import { Wrench } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
-import { useCategoriesQuery } from "@/src/hooks/categories/useCategoriesQuery";
+import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/routes";
 

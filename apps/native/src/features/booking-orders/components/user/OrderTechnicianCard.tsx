@@ -3,7 +3,8 @@ import { Image, View, useWindowDimensions } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
+import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
@@ -18,7 +19,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
 	const categoryColor = category?.color ?? Colors.primary;
-	const initials = getInitials(order.technician_name);
+	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const avatarSize = width < 360 ? 52 : 64;
 	const nameFontSize = width < 360 ? 16 : 18;

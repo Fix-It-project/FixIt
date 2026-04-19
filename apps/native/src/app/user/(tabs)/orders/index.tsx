@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { Text } from "@/src/components/ui/text";
-import { useUserOrdersQuery } from "@/src/hooks/orders/useUserOrders";
+import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
 import OrdersHeader from "@/src/features/booking-orders/components/user/OrdersHeader";
 import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
 import { useDebounce } from "@/src/hooks/useDebounce";

@@ -1,6 +1,6 @@
 import { I18nManager, TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { toIso } from "@/src/lib/helpers/date-helpers";
-import { getMonday, useBookingsDateStore } from "@/src/stores/bookings-date-store";
+import { toIso } from "@/src/features/booking-orders/utils/date-helpers";
+import { getMonday, useBookingsDateStore } from "@/src/features/booking-orders/stores/bookings-date-store";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 import { useTechnicianBookingDates } from "../../hooks/useTechnicianBookingsQuery";

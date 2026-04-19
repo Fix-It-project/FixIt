@@ -7,8 +7,8 @@ import {
   useState,
 } from "react";
 import { useWindowDimensions } from "react-native";
-import { todayIso, toIso } from "@/src/lib/helpers/date-helpers";
-import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
+import { todayIso, toIso } from "@/src/features/booking-orders/utils/date-helpers";
+import { useBookingsDateStore } from "@/src/features/booking-orders/stores/bookings-date-store";
 import { Text } from "@/src/components/ui/text";
 import {
   getCalendarTheme,

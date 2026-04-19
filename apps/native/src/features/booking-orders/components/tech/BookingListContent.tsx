@@ -1,6 +1,6 @@
 import { RefreshControl, ScrollView, View } from "react-native";
-import { formatDateLabel, formatHeading, toIso } from "@/src/lib/helpers/date-helpers";
-import { useBookingsDateStore } from "@/src/stores/bookings-date-store";
+import { formatDateLabel, formatHeading, toIso } from "@/src/features/booking-orders/utils/date-helpers";
+import { useBookingsDateStore } from "@/src/features/booking-orders/stores/bookings-date-store";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 import { useVisibleTechnicianBookings } from "../../hooks/useTechnicianBookingsQuery";

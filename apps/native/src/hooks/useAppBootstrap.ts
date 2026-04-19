@@ -1,7 +1,7 @@
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
-import { useLocationStore } from "@/src/stores/location-store";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLocationStore } from "@/src/stores/location-store";
 import { useThemeStore } from "@/src/stores/theme-store";
 
 interface AppBootstrapState {
@@ -15,9 +15,7 @@ export function useAppBootstrap(fontsLoaded: boolean): AppBootstrapState {
   const isAuthLoading = useAuthStore((state) => state.isLoading);
   const loadStoredSession = useAuthStore((state) => state.loadStoredSession);
   const isThemeLoaded = useThemeStore((state) => state.isLoaded);
-  const loadThemePreference = useThemeStore(
-    (state) => state.loadThemePreference,
-  );
+  const loadThemePreference = useThemeStore((state) => state.loadThemePreference);
   const requestLocationPermission = useLocationStore(
     (state) => state.requestLocationPermission,
   );

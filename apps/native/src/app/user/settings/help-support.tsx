@@ -1,4 +1,4 @@
-import HelpSupportContent from "@/src/components/settings/HelpSupportContent";
+import HelpSupportContent from "@/src/features/settings/components/HelpSupportContent";
 
 export default function HelpSupportScreen() {
   return (

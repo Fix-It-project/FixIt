@@ -1,5 +1,5 @@
 import LoginScreen from "@/src/features/auth/components/shared/LoginScreen";
-import { useLoginMutation } from "@/src/hooks/auth/useLoginMutation";
+import { useLoginMutation } from "@/src/features/auth/hooks/useLoginMutation";
 import { ROUTES } from "@/src/lib/routes";
 
 export default function Login() {

@@ -6,14 +6,14 @@ import { Text as BtnText } from "@/src/components/ui/text";
 import { ArrowLeft } from "lucide-react-native";
 import { useState } from "react";
 import { resetPasswordSchema } from "@/src/features/auth/schemas/form.schema";
-import { useResetPasswordMutation } from "@/src/hooks/auth/useResetPasswordMutation";
+import { useResetPasswordMutation } from "@/src/features/auth/hooks/useResetPasswordMutation";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { useThemeColors } from "@/src/lib/theme";
 import AuthFormScreen from "@/src/features/auth/components/shared/AuthFormScreen";
 import InvalidResetLinkView from "@/src/features/auth/components/shared/InvalidResetLinkView";
 import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
-import { getRecoverySession } from "@/src/lib/auth/recovery-session";
+import { getRecoverySession } from "@/src/features/auth/utils/recovery-session";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ResetPassword() {

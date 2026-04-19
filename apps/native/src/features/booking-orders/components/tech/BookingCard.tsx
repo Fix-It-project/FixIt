@@ -4,7 +4,8 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Calendar, ClipboardList, type LucideIcon } from "lucide-react-native";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { formatDate, getAvatarColor, getInitials } from "@/src/lib/helpers/booking-helpers";
+import { formatDate, getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Text } from "@/src/components/ui/text";
 import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
@@ -21,7 +22,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
   const category = CATEGORIES.find((c) => c.id === booking.category_id);
   const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
   const categoryColor = category?.color ?? themeColors.primary;
-  const initials = getInitials(booking.user_name);
+  const initials = getPfpInitialsFallback(booking.user_name);
   const avatarColor = getAvatarColor(booking.user_name);
   const isCancelled = booking.status === "cancelled_by_user" || booking.status === "cancelled_by_technician";
   const isCompleted = booking.status === "completed";

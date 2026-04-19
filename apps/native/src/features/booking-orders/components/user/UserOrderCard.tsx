@@ -6,8 +6,8 @@ import { CATEGORIES } from "@/src/lib/helpers/categories";
 import {
 	formatDate,
 	getAvatarColor,
-	getInitials,
-} from "@/src/lib/helpers/booking-helpers";
+} from "@/src/features/booking-orders/utils/booking-helpers";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
 
@@ -43,7 +43,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
 	const categoryColor = category?.color ?? Colors.primary;
-	const initials = getInitials(order.technician_name);
+	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const status = STATUS_CONFIG[order.status];
 

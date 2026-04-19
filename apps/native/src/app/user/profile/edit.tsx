@@ -1,12 +1,12 @@
 import { Mail, Phone, User } from "lucide-react-native";
-import ProfileEditScreenLayout from "@/src/components/profile/ProfileEditScreenLayout";
-import FormInput from "@/src/features/auth/components/shared/FormInput";
+import FormInput from "@/src/components/forms/FormInput";
+import ProfileEditScreenLayout from "@/src/features/profile/components/ProfileEditScreenLayout";
+import { useUserProfileEditController } from "@/src/features/users/hooks/useUserProfileEditController";
 import { editProfileSchema } from "@/src/features/users/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { useProfileEditController } from "@/src/hooks/useProfileEditController";
-import { useProfileQuery } from "@/src/hooks/user/useProfileQuery";
-import { useUpdateProfileMutation } from "@/src/hooks/user/useUpdateProfileMutation";
-import { useEditProfileStore } from "@/src/stores/edit-profile-store";
+import { useProfileQuery } from "@/src/features/users/hooks/useProfileQuery";
+import { useUpdateProfileMutation } from "@/src/features/users/hooks/useUpdateProfileMutation";
+import { useEditProfileStore } from "@/src/features/users/stores/edit-profile-store";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
 
@@ -31,7 +31,7 @@ export default function EditProfileScreen() {
     phone: profile?.phone ?? "",
   };
 
-  const { errorMessage, handleSave, hasChanges, isPending } = useProfileEditController({
+  const { errorMessage, handleSave, hasChanges, isPending } = useUserProfileEditController({
     formValues,
     originalValues,
     hydrate,

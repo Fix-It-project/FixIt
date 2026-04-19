@@ -1,6 +1,6 @@
 import { View, Text, ActivityIndicator } from "react-native";
-import type { useForgotPasswordMutation } from "@/src/hooks/auth/useForgotPasswordMutation";
-import FormInput from "@/src/features/auth/components/shared/FormInput";
+import FormInput from "@/src/components/forms/FormInput";
+import type { useForgotPasswordMutation } from "@/src/features/auth/hooks/useForgotPasswordMutation";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import { Mail } from "lucide-react-native";

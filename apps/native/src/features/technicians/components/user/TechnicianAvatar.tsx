@@ -1,6 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { getAvatarColor } from "@/src/lib/helpers/technician-utils";
+import { getAvatarColor } from "@/src/features/technicians/utils/technician-utils";
 
 interface TechnicianAvatarProps {
   readonly id: string;

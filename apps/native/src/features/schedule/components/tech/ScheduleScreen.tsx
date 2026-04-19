@@ -14,7 +14,7 @@ import {
   useExceptionsQuery,
   useSaveTemplatesMutation,
   useTemplatesQuery,
-} from "@/src/hooks/tech/useCalendar";
+} from "@/src/features/schedule/hooks/useCalendar";
 import {
   getCalendarTheme,
   useThemeColors,
