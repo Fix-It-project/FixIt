@@ -1,0 +1,85 @@
+name: Deploy Server (main)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/server/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/deploy-server.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-server-main
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (server)
+        run: pnpm --filter ./apps/server run check-types
+
+      - name: Test (server)
+        run: pnpm --filter ./apps/server run test
+
+      - name: Package check (serverless)
+        run: pnpm --dir apps/server exec serverless package --stage dev
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      - name: Deploy with Serverless
+        run: pnpm --dir apps/server exec serverless deploy
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_CONNECTION_STRING: ${{ secrets.SUPABASE_CONNECTION_STRING }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
+          ORDER_BUCKET: ${{ secrets.ORDER_BUCKET }}
