@@ -6,16 +6,10 @@ export default function OrdersHeader() {
 	const themeColors = useThemeColors();
 	return (
 		<View
-			className="px-4 pt-4 pb-4"
-			style={{ backgroundColor: themeColors.surfaceBase, minHeight: 64 }}
+			className="min-h-header px-4 pt-4 pb-4"
+			style={{ backgroundColor: themeColors.surfaceBase }}
 		>
-			<Text
-				style={{
-					fontFamily: "GoogleSans_700Bold",
-					fontSize: 18,
-					color: themeColors.textPrimary,
-				}}
-			>
+			<Text variant="h3" style={{ color: themeColors.textPrimary }}>
 				My Orders
 			</Text>
 		</View>

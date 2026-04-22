@@ -6,12 +6,12 @@ import { setActiveUserAddress } from "@/src/features/addresses/api";
  * Invalidates the user-addresses cache on success so the list refreshes.
  */
 export function useSetActiveAddressMutation() {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (addressId: string) => setActiveUserAddress(addressId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
-    },
-  });
+	return useMutation({
+		mutationFn: (addressId: string) => setActiveUserAddress(addressId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+		},
+	});
 }

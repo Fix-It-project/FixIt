@@ -14,7 +14,7 @@ build
 
 # IDEs and editors
 .vscode/*
-!.vscode/settings.json
+.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
@@ -59,3 +59,4 @@ CLAUDE*
 documentation/agent_docs/*
 .mcp.json
 .codex
+.scannerwork

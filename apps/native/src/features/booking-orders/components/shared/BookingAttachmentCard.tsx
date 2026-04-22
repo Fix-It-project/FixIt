@@ -1,4 +1,10 @@
-import { Image, Linking, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import {
+	Image,
+	Linking,
+	TouchableOpacity,
+	useWindowDimensions,
+	View,
+} from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 
@@ -16,13 +22,7 @@ export default function BookingAttachmentCard({ uri }: Props) {
 			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
 		>
 			<View className="px-4 pt-4 pb-3">
-				<Text
-					style={{
-						fontFamily: "GoogleSans_600SemiBold",
-						fontSize: 13,
-						color: themeColors.textPrimary,
-					}}
-				>
+				<Text variant="buttonMd" style={{ color: themeColors.textPrimary }}>
 					Attachment
 				</Text>
 			</View>

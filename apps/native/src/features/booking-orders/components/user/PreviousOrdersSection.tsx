@@ -44,7 +44,7 @@ function OrderCard({
 						marginRight: 10,
 					}}
 				>
-					<Text className="font-bold text-[14px] text-white">
+					<Text variant="label" className="font-bold text-white">
 						{item.initials}
 					</Text>
 				</View>
@@ -52,13 +52,13 @@ function OrderCard({
 				{/* Name + category */}
 				<View style={{ flex: 1 }}>
 					<Text
-						className="font-semibold text-[14px] text-content"
-						style={{ fontFamily: "GoogleSans_600SemiBold" }}
+						variant="label"
+						className="font-semibold text-content"
 						numberOfLines={1}
 					>
 						{item.technicianName}
 					</Text>
-					<Text className="text-[12px] text-content-muted">
+					<Text variant="caption" className="text-content-muted">
 						{item.category}
 					</Text>
 				</View>
@@ -85,10 +85,7 @@ function OrderCard({
 						strokeWidth={2.5}
 						style={{ marginTop: -1 }}
 					/>
-					<Text
-						className="font-bold text-[13px] text-content"
-						style={{ fontFamily: "GoogleSans_700Bold", lineHeight: 16 }}
-					>
+					<Text variant="buttonMd" className="font-bold text-content">
 						Reorder
 					</Text>
 				</TouchableOpacity>
@@ -106,11 +103,10 @@ function OrderCard({
 					borderTopColor: themeColors.surfaceElevated,
 				}}
 			>
-				<Text className="text-[12px] text-content-muted">{item.date}</Text>
-				<Text
-					className="font-semibold text-[13px] text-content"
-					style={{ fontFamily: "GoogleSans_600SemiBold" }}
-				>
+				<Text variant="caption" className="text-content-muted">
+					{item.date}
+				</Text>
+				<Text variant="buttonMd" className="text-content">
 					{item.price}
 				</Text>
 			</View>
@@ -128,10 +124,7 @@ export default function PreviousOrdersSection() {
 		<View>
 			{/* Header */}
 			<View className="mb-2 flex-row items-center px-5">
-				<Text
-					className="font-bold text-[22px] text-content"
-					style={{ fontFamily: "GoogleSans_700Bold" }}
-				>
+				<Text variant="h2" className="text-content">
 					Previous Orders
 				</Text>
 			</View>

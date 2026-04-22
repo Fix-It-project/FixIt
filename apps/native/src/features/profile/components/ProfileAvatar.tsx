@@ -1,64 +1,64 @@
-import { Image, TouchableOpacity, View } from "react-native";
 import { Camera, User } from "lucide-react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, elevation, shadowStyle, useThemeColors } from "@/src/lib/theme";
 
 interface ProfileAvatarProps {
-  readonly name: string | null;
-  readonly imageUrl?: string | null;
-  readonly onChangePhoto?: () => void;
+	readonly name: string | null;
+	readonly imageUrl?: string | null;
+	readonly onChangePhoto?: () => void;
 }
 
 function AvatarContent({
-  imageUrl,
-  initials,
+	imageUrl,
+	initials,
 }: {
-  readonly imageUrl: string | null | undefined;
-  readonly initials: string | null;
+	readonly imageUrl: string | null | undefined;
+	readonly initials: string | null;
 }) {
-  const themeColors = useThemeColors();
+	const themeColors = useThemeColors();
 
-  if (imageUrl) {
-    return (
-      <Image
-        source={{ uri: imageUrl }}
-        className="h-24 w-24 rounded-full"
-        resizeMode="cover"
-      />
-    );
-  }
+	if (imageUrl) {
+		return (
+			<Image
+				source={{ uri: imageUrl }}
+				className="h-24 w-24 rounded-full"
+				resizeMode="cover"
+			/>
+		);
+	}
 
-  if (initials) {
-    return <Text className="text-3xl font-bold text-white">{initials}</Text>;
-  }
+	if (initials) {
+		return <Text className="font-bold text-3xl text-white">{initials}</Text>;
+	}
 
-  return <User size={44} color={themeColors.surfaceBase} strokeWidth={1.5} />;
+	return <User size={44} color={themeColors.surfaceBase} strokeWidth={1.5} />;
 }
 
 export default function ProfileAvatar({
-  name,
-  imageUrl,
-  onChangePhoto,
+	name,
+	imageUrl,
+	onChangePhoto,
 }: ProfileAvatarProps) {
-  const initials = getPfpInitialsFallback(name);
+	const initials = getPfpInitialsFallback(name);
 
-  return (
-    <View className="relative h-24 w-24">
-      <View className="h-24 w-24 items-center justify-center rounded-full bg-white/25">
-        <AvatarContent imageUrl={imageUrl} initials={initials} />
-      </View>
+	return (
+		<View className="relative h-24 w-24">
+			<View className="h-24 w-24 items-center justify-center rounded-full bg-white/25">
+				<AvatarContent imageUrl={imageUrl} initials={initials} />
+			</View>
 
-      {onChangePhoto && (
-        <TouchableOpacity
-          onPress={onChangePhoto}
-          activeOpacity={0.8}
-          className="absolute bottom-0 right-0 h-8 w-8 items-center justify-center rounded-full bg-white"
-          style={{ elevation: 3 }}
-        >
-          <Camera size={14} color={Colors.primary} strokeWidth={2} />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
+			{onChangePhoto && (
+				<TouchableOpacity
+					onPress={onChangePhoto}
+					activeOpacity={0.8}
+					className="absolute right-0 bottom-0 h-8 w-8 items-center justify-center rounded-full bg-white"
+					style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
+				>
+					<Camera size={14} color={Colors.primary} strokeWidth={2} />
+				</TouchableOpacity>
+			)}
+		</View>
+	);
 }

@@ -61,7 +61,7 @@ export default function TechnicianCard({
 						borderColor: themeColors.surfaceElevated,
 					}}
 				>
-					<Text className="font-bold text-[18px] text-white">
+					<Text variant="bodyLg" className="font-bold text-white">
 						{item.initials}
 					</Text>
 				</View>
@@ -69,16 +69,13 @@ export default function TechnicianCard({
 
 			{/* Info below avatar */}
 			<View className="mt-1 pr-2 pl-3">
-				<Text
-					className="font-semibold text-[16px] text-content"
-					style={{ fontFamily: "GoogleSans_600SemiBold" }}
-					numberOfLines={1}
-				>
+				<Text variant="buttonLg" className="text-content" numberOfLines={1}>
 					{item.name}
 				</Text>
 				<View className="mt-px flex-row items-center gap-1.5">
 					<Text
-						className="shrink text-[13px] text-content-muted"
+						variant="bodySm"
+						className="shrink text-content-muted"
 						numberOfLines={1}
 					>
 						{item.category}
@@ -90,11 +87,11 @@ export default function TechnicianCard({
 							fill={Colors.ratingDefault}
 							strokeWidth={0}
 						/>
-						<Text className="font-semibold text-[13px] text-content">
+						<Text variant="bodySm" className="font-semibold text-content">
 							{item.rating}
 						</Text>
 						{showReviewCount && (
-							<Text className="text-[11px] text-content-muted">
+							<Text variant="caption" className="text-content-muted">
 								({item.reviewCount})
 							</Text>
 						)}
@@ -106,14 +103,15 @@ export default function TechnicianCard({
 								color={themeColors.surfaceMuted}
 								strokeWidth={2}
 							/>
-							<Text className="text-[11px] text-content-muted">
+							<Text variant="caption" className="text-content-muted">
 								{item.distance}
 							</Text>
 						</View>
 					)}
 				</View>
 				<Text
-					className="mt-px text-[13px] text-content-muted"
+					variant="bodySm"
+					className="mt-px text-content-muted"
 					numberOfLines={1}
 				>
 					{item.tagline}

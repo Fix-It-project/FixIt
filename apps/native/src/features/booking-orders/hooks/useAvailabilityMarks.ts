@@ -1,16 +1,16 @@
-import { useMemo } from 'react';
-import type { MarkingProps } from 'react-native-calendars/src/calendar/day/marking';
-import { useThemeColors } from '@/src/lib/theme';
+import { useMemo } from "react";
+import type { MarkingProps } from "react-native-calendars/src/calendar/day/marking";
+import { useThemeColors } from "@/src/lib/theme";
 
 type MarkedDates = Record<string, MarkingProps>;
 
 interface Template {
-  active: boolean;
-  day_of_week: number;
+	active: boolean;
+	day_of_week: number;
 }
 
 interface Exception {
-  date: string;
+	date: string;
 }
 
 /**
@@ -19,55 +19,58 @@ interface Exception {
  * the currently-selected date.
  */
 export function useAvailabilityMarks(
-  templates: Template[],
-  exceptions: Exception[],
-  selectedDate: string | null,
+	templates: Template[],
+	exceptions: Exception[],
+	selectedDate: string | null,
 ): MarkedDates {
-  const themeColors = useThemeColors();
-  return useMemo(() => {
-    const marks: MarkedDates = {};
-    if (!templates.length) return marks;
+	const themeColors = useThemeColors();
+	return useMemo(() => {
+		const marks: MarkedDates = {};
+		if (!templates.length) return marks;
 
-    const activeDays = new Set(templates.filter((t) => t.active).map((t) => t.day_of_week));
-    const exceptionDates = new Set(exceptions.map((e) => e.date));
+		const activeDays = new Set(
+			templates.filter((t) => t.active).map((t) => t.day_of_week),
+		);
+		const exceptionDates = new Set(exceptions.map((e) => e.date));
 
-    const today = new Date();
-    const end = new Date();
-    end.setMonth(today.getMonth() + 3);
+		const today = new Date();
+		const end = new Date();
+		end.setMonth(today.getMonth() + 3);
 
-    const cursor = new Date(today);
-    while (cursor <= end) {
-      const dateStr = cursor.toISOString().split('T')[0];
-      const dayOfWeek = cursor.getDay();
+		const cursor = new Date(today);
+		while (cursor <= end) {
+			const dateStr = cursor.toISOString().split("T")[0];
+			const dayOfWeek = cursor.getDay();
 
-      const isUnavailable = !activeDays.has(dayOfWeek) || exceptionDates.has(dateStr);
-      const isSelected = dateStr === selectedDate;
+			const isUnavailable =
+				!activeDays.has(dayOfWeek) || exceptionDates.has(dateStr);
+			const isSelected = dateStr === selectedDate;
 
-      if (isSelected && !isUnavailable) {
-        marks[dateStr] = {
-          selected: true,
-          selectedColor: themeColors.primary,
-          customStyles: {
-            container: {
-              backgroundColor: themeColors.primary,
-              borderRadius: 20,
-            },
-            text: { color: themeColors.surfaceOnPrimary, fontWeight: '700' },
-          },
-        };
-      } else if (isUnavailable) {
-        marks[dateStr] = {
-          disabled: true,
-          disableTouchEvent: true,
-          customStyles: {
-            container: { backgroundColor: 'transparent' },
-            text: { color: themeColors.borderDefault },
-          },
-        };
-      }
+			if (isSelected && !isUnavailable) {
+				marks[dateStr] = {
+					selected: true,
+					selectedColor: themeColors.primary,
+					customStyles: {
+						container: {
+							backgroundColor: themeColors.primary,
+							borderRadius: 20,
+						},
+						text: { color: themeColors.surfaceOnPrimary, fontWeight: "700" },
+					},
+				};
+			} else if (isUnavailable) {
+				marks[dateStr] = {
+					disabled: true,
+					disableTouchEvent: true,
+					customStyles: {
+						container: { backgroundColor: "transparent" },
+						text: { color: themeColors.borderDefault },
+					},
+				};
+			}
 
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    return marks;
-  }, [templates, exceptions, selectedDate, themeColors]);
+			cursor.setDate(cursor.getDate() + 1);
+		}
+		return marks;
+	}, [templates, exceptions, selectedDate, themeColors]);
 }

@@ -59,27 +59,23 @@ export default function AddressListItem({
 			onPress={onPress}
 			disabled={disabled || isActive}
 			activeOpacity={0.7}
-			className="flex-row items-center py-3.5"
-			style={{ gap: 12, opacity: disabled ? 0.5 : 1 }}
+			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
+			style={{ opacity: disabled ? 0.5 : 1 }}
 		>
 			<View
-				className="h-10 w-10 items-center justify-center rounded-full"
+				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full"
 				style={{ backgroundColor: themeColors.surfaceElevated }}
 			>
 				<MapPin size={18} color={themeColors.textSecondary} strokeWidth={2} />
 			</View>
 
 			<View className="flex-1">
-				<Text
-					className="text-[15px] text-content"
-					style={{ fontFamily: "GoogleSans_600SemiBold" }}
-					numberOfLines={1}
-				>
+				<Text variant="buttonLg" className="text-content" numberOfLines={1}>
 					{address.city}
 				</Text>
 				<Text
-					className="mt-0.5 text-[13px] text-content-secondary"
-					style={{ fontFamily: "GoogleSans_400Regular" }}
+					variant="bodySm"
+					className="mt-0.5 text-content-secondary"
 					numberOfLines={2}
 				>
 					{address.street}

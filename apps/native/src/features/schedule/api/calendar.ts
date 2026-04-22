@@ -1,6 +1,9 @@
 import apiClient from "@/src/lib/api-client";
 import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
-import type { AvailabilityTemplate, CalendarException } from "../schemas/response.schema";
+import type {
+	AvailabilityTemplate,
+	CalendarException,
+} from "../schemas/response.schema";
 import {
 	exceptionResponseSchema,
 	getExceptionsResponseSchema,

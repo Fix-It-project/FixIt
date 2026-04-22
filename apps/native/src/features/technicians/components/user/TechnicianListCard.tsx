@@ -7,7 +7,12 @@ import {
 	formatLocation,
 } from "@/src/features/technicians/utils/technician-utils";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import {
+	elevation,
+	shadowStyle,
+	spacing,
+	useThemeColors,
+} from "@/src/lib/theme";
 import AvailabilityBadge from "./AvailabilityBadge";
 import RatingRow from "./RatingRow";
 import TechnicianAvatar from "./TechnicianAvatar";
@@ -34,16 +39,15 @@ export default function TechnicianListCard({
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mx-4 mb-3 overflow-hidden rounded-2xl bg-surface"
+			className="mx-4 mb-3 overflow-hidden rounded-card bg-surface"
 			style={{
-				shadowColor: themeColors.textPrimary,
-				shadowOffset: { width: 0, height: 1 },
-				shadowOpacity: 0.06,
-				shadowRadius: 6,
-				elevation: 2,
+				...shadowStyle(elevation.flat, {
+					shadowColor: themeColors.textPrimary,
+					opacity: 0.06,
+				}),
 			}}
 		>
-			<View className="flex-row p-3.5">
+			<View className="flex-row p-card-compact">
 				{/* ── Left: avatar ── */}
 				<View className="mr-3 items-center">
 					<TechnicianAvatar
@@ -57,15 +61,15 @@ export default function TechnicianListCard({
 				{/* ── Center: details ── */}
 				<View className="flex-1">
 					<Text
-						className="font-bold text-[15px] text-content"
-						style={{ fontFamily: "GoogleSans_700Bold" }}
+						variant="buttonLg"
+						className="font-bold text-content"
 						numberOfLines={1}
 					>
 						{fullName}
 					</Text>
 					<Text
-						className="text-[12px] text-content-secondary"
-						style={{ fontFamily: "GoogleSans_400Regular" }}
+						variant="caption"
+						className="text-content-secondary"
 						numberOfLines={1}
 					>
 						{extras.specialty}
@@ -74,21 +78,32 @@ export default function TechnicianListCard({
 					<RatingRow rating={extras.rating} reviewCount={extras.reviewCount} />
 
 					{/* Location · experience */}
-					<View className="mt-0.5 flex-row items-center" style={{ gap: 4 }}>
+					<View className="mt-0.5 flex-row items-center gap-1">
 						<MapPin
-							size={11}
+							size={spacing.icon.xs}
 							color={themeColors.surfaceMuted}
 							strokeWidth={2}
 						/>
 						<Text
-							className="shrink text-[11px] text-content-muted"
+							variant="caption"
+							className="shrink text-content-muted"
 							numberOfLines={1}
 						>
 							{formatLocation(item.distance_km, item.city, item.street)}
 						</Text>
-						<Text className="text-[11px] text-content-muted">·</Text>
-						<Clock size={11} color={themeColors.surfaceMuted} strokeWidth={2} />
-						<Text className="text-[11px] text-content-muted" numberOfLines={1}>
+						<Text variant="caption" className="text-content-muted">
+							·
+						</Text>
+						<Clock
+							size={spacing.icon.xs}
+							color={themeColors.surfaceMuted}
+							strokeWidth={2}
+						/>
+						<Text
+							variant="caption"
+							className="text-content-muted"
+							numberOfLines={1}
+						>
 							{extras.yearsExp} yrs exp
 						</Text>
 					</View>
@@ -99,14 +114,11 @@ export default function TechnicianListCard({
 						<TouchableOpacity
 							onPress={() => onBookPress?.(item.id, fullName)}
 							activeOpacity={0.7}
-							style={{
-								backgroundColor: Colors.primary,
-								paddingHorizontal: 16,
-								paddingVertical: 6,
-								borderRadius: 100,
-							}}
+							className="rounded-pill bg-app-primary px-control-pill-x py-control-pill-y"
 						>
-							<Text className="font-bold text-[12px] text-white">Book Now</Text>
+							<Text variant="caption" className="font-bold text-white">
+								Book Now
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>

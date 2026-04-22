@@ -1,30 +1,29 @@
-import { View, TextInput } from "react-native";
 import { Search } from "lucide-react-native";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { TextInput, View } from "react-native";
+import { Colors, spacing, typography, useThemeColors } from "@/src/lib/theme";
 
 export default function HomeSearchBar() {
-  const themeColors = useThemeColors();
+	const themeColors = useThemeColors();
 
-  return (
-    <View className="px-5 pb-4 pt-1">
-      <View
-        className="flex-row items-center gap-2.5 rounded-xl px-3.5 py-3"
-        style={{ backgroundColor: Colors.overlayWhite }}
-      >
-        <Search size={18} color={Colors.overlaySub} strokeWidth={2} />
-        <TextInput
-          placeholder="Search services & technicians"
-          placeholderTextColor={Colors.overlaySub}
-          editable={false}
-          style={{
-            flex: 1,
-            fontSize: 15,
-            color: themeColors.onPrimaryHeader,
-            fontFamily: "GoogleSans_400Regular",
-            padding: 0,
-          }}
-        />
-      </View>
-    </View>
-  );
+	return (
+		<View className="px-5 pt-1 pb-4">
+			<View
+				className="h-control-search flex-row items-center gap-control-search rounded-input px-control-search"
+				style={{ backgroundColor: Colors.overlayWhite }}
+			>
+				<Search
+					size={spacing.icon.sm}
+					color={Colors.overlaySub}
+					strokeWidth={2}
+				/>
+				<TextInput
+					placeholder="Search services & technicians"
+					placeholderTextColor={Colors.overlaySub}
+					editable={false}
+					className="flex-1 p-0 text-white"
+					style={[typography.body, { color: themeColors.onPrimaryHeader }]}
+				/>
+			</View>
+		</View>
+	);
 }

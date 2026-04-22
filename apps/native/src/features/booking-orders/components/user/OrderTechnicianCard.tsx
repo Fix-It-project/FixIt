@@ -1,11 +1,11 @@
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Image, View, useWindowDimensions } from "react-native";
+import { Image, useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, fontFamily, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly order: Order;
@@ -26,7 +26,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 
 	return (
 		<View
-			className="mb-4 rounded-2xl bg-surface p-5"
+			className="mb-4 rounded-card bg-surface p-card-roomy"
 			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
 		>
 			<View className="flex-row gap-4" style={{ alignItems: "center" }}>
@@ -51,7 +51,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 					>
 						<Text
 							style={{
-								fontFamily: "GoogleSans_700Bold",
+								fontFamily: fontFamily.bold,
 								fontSize: avatarSize * 0.32,
 								color: themeColors.surfaceBase,
 							}}
@@ -60,10 +60,10 @@ export default function OrderTechnicianCard({ order }: Props) {
 						</Text>
 					</View>
 				)}
-				<View style={{ flex: 1, minWidth: 0 }}>
+				<View className="min-w-0 flex-1">
 					<Text
 						style={{
-							fontFamily: "GoogleSans_700Bold",
+							fontFamily: fontFamily.bold,
 							fontSize: nameFontSize,
 							color: themeColors.textPrimary,
 						}}
@@ -71,10 +71,11 @@ export default function OrderTechnicianCard({ order }: Props) {
 					>
 						{order.technician_name ?? "Technician"}
 					</Text>
-					<View className="mt-1 flex-row items-center gap-1.5" style={{ minWidth: 0 }}>
+					<View className="mt-1 min-w-0 flex-row items-center gap-1.5">
 						<CategoryIcon size={14} color={categoryColor} strokeWidth={2} />
 						<Text
-							style={{ flex: 1, fontSize: 13, color: themeColors.textSecondary }}
+							variant="bodySm"
+							style={{ flex: 1, color: themeColors.textSecondary }}
 							numberOfLines={2}
 						>
 							{order.service_name ?? "Service"}

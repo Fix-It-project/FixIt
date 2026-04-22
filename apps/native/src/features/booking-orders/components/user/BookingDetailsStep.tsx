@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, fontFamily, useThemeColors } from "@/src/lib/theme";
 
 export interface AttachmentInfo {
 	uri: string;
@@ -86,23 +86,17 @@ export default function BookingDetailsStep({
 			>
 				{/* Date badge */}
 				<View className="mb-4 rounded-xl bg-app-primary-light px-4 py-2.5">
-					<Text
-						className="text-center font-semibold text-[13px] text-app-primary"
-						style={{ fontFamily: "GoogleSans_600SemiBold" }}
-					>
+					<Text variant="buttonMd" className="text-center text-app-primary">
 						Scheduled for: {selectedDate}
 					</Text>
 				</View>
 
 				{/* Description */}
 				<View className="mb-4">
-					<Text
-						className="mb-2 font-semibold text-[15px] text-content"
-						style={{ fontFamily: "GoogleSans_600SemiBold" }}
-					>
+					<Text variant="buttonLg" className="mb-2 text-content">
 						Describe the Problem
 					</Text>
-					<Text className="mb-3 text-[12px] text-content-muted">
+					<Text variant="caption" className="mb-3 text-content-muted">
 						Optional — help the technician prepare for the job
 					</Text>
 					<TextInput
@@ -113,9 +107,9 @@ export default function BookingDetailsStep({
 						multiline
 						numberOfLines={5}
 						textAlignVertical="top"
-						className="rounded-xl border border-edge bg-surface px-4 py-3 text-[14px] text-content"
+						className="rounded-xl border border-edge bg-surface px-4 py-3 text-content text-sm"
 						style={{
-							fontFamily: "GoogleSans_400Regular",
+							fontFamily: fontFamily.regular,
 							minHeight: 120,
 						}}
 					/>
@@ -123,13 +117,10 @@ export default function BookingDetailsStep({
 
 				{/* Attachment */}
 				<View className="mb-4">
-					<Text
-						className="mb-2 font-semibold text-[15px] text-content"
-						style={{ fontFamily: "GoogleSans_600SemiBold" }}
-					>
+					<Text variant="buttonLg" className="mb-2 text-content">
 						Attach a Photo
 					</Text>
-					<Text className="mb-3 text-[12px] text-content-muted">
+					<Text variant="caption" className="mb-3 text-content-muted">
 						Optional — a photo can help diagnose the issue faster
 					</Text>
 
@@ -153,7 +144,8 @@ export default function BookingDetailsStep({
 							</TouchableOpacity>
 							<View className="px-3 py-2">
 								<Text
-									className="text-[12px] text-content-muted"
+									variant="caption"
+									className="text-content-muted"
 									numberOfLines={1}
 								>
 									{attachment.name}
@@ -168,10 +160,7 @@ export default function BookingDetailsStep({
 								activeOpacity={0.7}
 							>
 								<Paperclip size={18} color={Colors.primary} strokeWidth={2} />
-								<Text
-									className="font-semibold text-[13px] text-app-primary"
-									style={{ fontFamily: "GoogleSans_600SemiBold" }}
-								>
+								<Text variant="buttonMd" className="text-app-primary">
 									Gallery
 								</Text>
 							</TouchableOpacity>
@@ -182,10 +171,7 @@ export default function BookingDetailsStep({
 								activeOpacity={0.7}
 							>
 								<Camera size={18} color={Colors.primary} strokeWidth={2} />
-								<Text
-									className="font-semibold text-[13px] text-app-primary"
-									style={{ fontFamily: "GoogleSans_600SemiBold" }}
-								>
+								<Text variant="buttonMd" className="text-app-primary">
 									Camera
 								</Text>
 							</TouchableOpacity>
@@ -200,7 +186,7 @@ export default function BookingDetailsStep({
 						disabled={isPending}
 						className="w-full"
 					>
-						<Text className="font-semibold text-[15px] text-white">
+						<Text variant="buttonLg" className="text-white">
 							{isPending ? "Submitting..." : "Confirm Booking"}
 						</Text>
 					</Button>
@@ -211,7 +197,7 @@ export default function BookingDetailsStep({
 						className="mt-3 items-center py-2"
 						activeOpacity={0.7}
 					>
-						<Text className="font-medium text-[14px] text-content-muted">
+						<Text variant="label" className="text-content-muted">
 							Back to Date Selection
 						</Text>
 					</TouchableOpacity>

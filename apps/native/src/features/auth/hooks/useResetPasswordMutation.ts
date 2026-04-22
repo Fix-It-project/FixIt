@@ -7,7 +7,11 @@ import { supabase } from "@/src/lib/supabase";
 
 export function useResetPasswordMutation(userType: string) {
 	return useMutation({
-		mutationFn: async (data: { accessToken: string; refreshToken: string; newPassword: string }) => {
+		mutationFn: async (data: {
+			accessToken: string;
+			refreshToken: string;
+			newPassword: string;
+		}) => {
 			const { error: sessionError } = await supabase.auth.setSession({
 				access_token: data.accessToken,
 				refresh_token: data.refreshToken,
@@ -19,12 +23,12 @@ export function useResetPasswordMutation(userType: string) {
 			});
 			if (updateError) throw updateError;
 			await supabase.auth.signOut();
-			},
-			onSuccess: () => {
-				clearRecoverySession();
-				Toast.show({
-					type: "success",
-					text1: "Password Reset!",
+		},
+		onSuccess: () => {
+			clearRecoverySession();
+			Toast.show({
+				type: "success",
+				text1: "Password Reset!",
 				text2: "Your password has been updated. Please log in.",
 				position: "top",
 				visibilityTime: 3000,

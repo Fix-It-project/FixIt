@@ -10,11 +10,11 @@ import type { TechnicianProfile } from "@/src/features/technicians/schemas/respo
  * the user taps a technician's avatar.
  */
 export function useTechnicianProfileQuery(technicianId: string | null) {
-  return useQuery<TechnicianProfile>({
-    queryKey: ["technician-profile", technicianId],
-    queryFn: () => getTechnicianProfile(technicianId!),
-    enabled: !!technicianId,
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  });
+	return useQuery<TechnicianProfile>({
+		queryKey: ["technician-profile", technicianId],
+		queryFn: () => getTechnicianProfile(technicianId!),
+		enabled: !!technicianId,
+		staleTime: 5 * 60 * 1000,
+		retry: 1,
+	});
 }

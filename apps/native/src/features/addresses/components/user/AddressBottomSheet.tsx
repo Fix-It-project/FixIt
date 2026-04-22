@@ -23,7 +23,7 @@ import { Text } from "@/src/components/ui/text";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useSetActiveAddressMutation } from "@/src/features/addresses/hooks/useSetActiveAddressMutation";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import AddressListItem from "./AddressListItem";
 
 export interface AddressBottomSheetRef {
@@ -126,16 +126,13 @@ const AddressBottomSheet = forwardRef<
 			}}
 			handleIndicatorStyle={{
 				backgroundColor: themeColors.borderDefault,
-				width: 40,
+				width: spacing.sheet.handleWidth,
 			}}
 			onChange={setSheetIndex}
 		>
 			<BottomSheetView className="flex-1 px-6 pb-6">
 				<View className="mb-2 flex-row items-center justify-between">
-					<Text
-						className="font-bold text-[18px] text-content"
-						style={{ fontFamily: "GoogleSans_700Bold" }}
-					>
+					<Text variant="bodyLg" className="font-bold text-content">
 						Choose delivery location
 					</Text>
 					<TouchableOpacity onPress={handleClose} activeOpacity={0.7}>
@@ -146,10 +143,7 @@ const AddressBottomSheet = forwardRef<
 				{isLoading && (
 					<View className="flex-1 items-center justify-center">
 						<ActivityIndicator size="large" color={Colors.primary} />
-						<Text
-							className="mt-3 text-[13px] text-content-muted"
-							style={{ fontFamily: "GoogleSans_400Regular" }}
-						>
+						<Text variant="bodySm" className="mt-3 text-content-muted">
 							Loading addresses…
 						</Text>
 					</View>
@@ -157,15 +151,12 @@ const AddressBottomSheet = forwardRef<
 
 				{isError && !isLoading && (
 					<View className="flex-1 items-center justify-center">
-						<Text
-							className="text-center font-semibold text-[15px] text-danger"
-							style={{ fontFamily: "GoogleSans_600SemiBold" }}
-						>
+						<Text variant="buttonLg" className="text-center text-danger">
 							Unable to load addresses
 						</Text>
 						<Text
-							className="mt-1 text-center text-[13px] text-content-muted"
-							style={{ fontFamily: "GoogleSans_400Regular" }}
+							variant="bodySm"
+							className="mt-1 text-center text-content-muted"
 						>
 							Please try again later.
 						</Text>
@@ -175,8 +166,8 @@ const AddressBottomSheet = forwardRef<
 				{addresses && !isLoading && (
 					<View className="flex-1">
 						<Text
-							className="mb-1 text-[13px] text-content-secondary"
-							style={{ fontFamily: "GoogleSans_600SemiBold" }}
+							variant="bodySm"
+							className="mb-1 font-semibold text-content-secondary"
 						>
 							Saved addresses
 						</Text>
@@ -200,17 +191,11 @@ const AddressBottomSheet = forwardRef<
 						<TouchableOpacity
 							onPress={onAddNewAddress}
 							activeOpacity={0.7}
-							className="mt-3 flex-row items-center justify-center rounded-xl py-3.5"
+							className="mt-3 flex-row items-center justify-center rounded-button py-control-cta-y"
 							style={{ backgroundColor: themeColors.primaryLight }}
 						>
 							<Plus size={18} color={Colors.primary} strokeWidth={2.5} />
-							<Text
-								className="ml-2 text-[15px]"
-								style={{
-									fontFamily: "GoogleSans_600SemiBold",
-									color: Colors.primary,
-								}}
-							>
+							<Text variant="buttonMd" className="ml-2 text-app-primary">
 								Add New Location
 							</Text>
 						</TouchableOpacity>

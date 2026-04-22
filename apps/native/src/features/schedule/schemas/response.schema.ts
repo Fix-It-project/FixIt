@@ -2,47 +2,47 @@ import { z } from "zod";
 import { orderStatusSchema } from "@/src/schemas/shared.schema";
 
 export const availabilityTemplateSchema = z.object({
-  id: z.string(),
-  technician_id: z.string(),
-  day_of_week: z.number().int().min(0).max(6),
-  active: z.boolean(),
+	id: z.string(),
+	technician_id: z.string(),
+	day_of_week: z.number().int().min(0).max(6),
+	active: z.boolean(),
 });
 
 export const calendarExceptionSchema = z.object({
-  id: z.string(),
-  technician_id: z.string(),
-  date: z.string(),
-  created_at: z.string(),
+	id: z.string(),
+	technician_id: z.string(),
+	date: z.string(),
+	created_at: z.string(),
 });
 
 export const scheduledEventSchema = z.object({
-  id: z.string(),
-  status: orderStatusSchema,
-  scheduled_date: z.string(),
-  problem_description: z.string().nullable(),
-  active: z.boolean(),
+	id: z.string(),
+	status: orderStatusSchema,
+	scheduled_date: z.string(),
+	problem_description: z.string().nullable(),
+	active: z.boolean(),
 });
 
 export const getTemplatesResponseSchema = z.object({
-  data: z.array(availabilityTemplateSchema),
+	data: z.array(availabilityTemplateSchema),
 });
 export const templateResponseSchema = z.object({
-  data: availabilityTemplateSchema,
+	data: availabilityTemplateSchema,
 });
 export const getExceptionsResponseSchema = z.object({
-  data: z.array(calendarExceptionSchema),
+	data: z.array(calendarExceptionSchema),
 });
 export const exceptionResponseSchema = z.object({
-  data: calendarExceptionSchema,
+	data: calendarExceptionSchema,
 });
 export const scheduledEventsResponseSchema = z.object({
-  data: z.array(scheduledEventSchema),
+	data: z.array(scheduledEventSchema),
 });
 export const publicScheduleResponseSchema = z.object({
-  data: z.object({
-    templates: z.array(availabilityTemplateSchema),
-    exceptions: z.array(calendarExceptionSchema),
-  }),
+	data: z.object({
+		templates: z.array(availabilityTemplateSchema),
+		exceptions: z.array(calendarExceptionSchema),
+	}),
 });
 
 export type AvailabilityTemplate = z.infer<typeof availabilityTemplateSchema>;
@@ -52,5 +52,9 @@ export type GetTemplatesResponse = z.infer<typeof getTemplatesResponseSchema>;
 export type TemplateResponse = z.infer<typeof templateResponseSchema>;
 export type GetExceptionsResponse = z.infer<typeof getExceptionsResponseSchema>;
 export type ExceptionResponse = z.infer<typeof exceptionResponseSchema>;
-export type ScheduledEventsResponse = z.infer<typeof scheduledEventsResponseSchema>;
-export type PublicScheduleResponse = z.infer<typeof publicScheduleResponseSchema>;
+export type ScheduledEventsResponse = z.infer<
+	typeof scheduledEventsResponseSchema
+>;
+export type PublicScheduleResponse = z.infer<
+	typeof publicScheduleResponseSchema
+>;

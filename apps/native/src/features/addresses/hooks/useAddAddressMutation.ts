@@ -7,12 +7,12 @@ import type { CreateAddressRequest } from "@/src/features/addresses/types/types"
  * Invalidates the user-addresses cache on success so the list refreshes.
  */
 export function useAddAddressMutation() {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: CreateAddressRequest) => addUserAddress(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
-    },
-  });
+	return useMutation({
+		mutationFn: (data: CreateAddressRequest) => addUserAddress(data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+		},
+	});
 }

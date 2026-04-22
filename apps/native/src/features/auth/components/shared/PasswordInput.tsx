@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
+import { useState } from "react";
+import { Pressable, TextInput, View } from "react-native";
+import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface PasswordInputProps {
@@ -32,13 +33,14 @@ export default function PasswordInput({
 	const isFilled = variant === "filled";
 	const hasValue = value.length > 0;
 	const labelClassName = isFilled
-		? "font-semibold text-[14px] text-content"
-		: "mb-1 font-semibold text-[14px] text-content";
+		? "font-semibold text-content"
+		: "mb-1 font-semibold text-content";
 	const errorClassName = isFilled
-		? "text-red-500 text-[12px] ml-4"
-		: "text-red-500 text-[12px] ml-2 mt-1";
+		? "text-red-500 ml-4"
+		: "text-red-500 ml-2 mt-1";
 
-	let containerClass = "bg-surface h-14 rounded-full flex-row items-center px-6";
+	let containerClass =
+		"bg-surface h-14 rounded-full flex-row items-center px-6";
 	if (isFilled) {
 		if (error) {
 			containerClass += " border border-red-400";
@@ -56,9 +58,14 @@ export default function PasswordInput({
 	return (
 		<View className={isFilled ? "gap-3" : ""}>
 			{label && (
-				<Text className={labelClassName}>
+				<Text variant="label" className={labelClassName}>
 					{label}
-					{required && <Text className="text-red-500"> *</Text>}
+					{required && (
+						<Text variant="label" className="text-red-500">
+							{" "}
+							*
+						</Text>
+					)}
 				</Text>
 			)}
 			<View className={containerClass}>
@@ -69,7 +76,7 @@ export default function PasswordInput({
 					placeholderTextColor={themeColors.textMuted}
 					secureTextEntry={!visible}
 					editable={!disabled}
-					className="flex-1 text-[16px] text-content"
+					className="flex-1 text-base text-content"
 				/>
 				<Pressable onPress={() => setVisible((v) => !v)} hitSlop={8}>
 					{visible ? (
@@ -80,7 +87,7 @@ export default function PasswordInput({
 				</Pressable>
 			</View>
 			{error && (
-				<Text className={errorClassName}>
+				<Text variant="caption" className={errorClassName}>
 					{error}
 				</Text>
 			)}

@@ -1,7 +1,8 @@
-import { View, Text, Pressable, type TextInputProps } from "react-native";
 import { CircleX, type LucideIcon } from "lucide-react-native";
-import { Colors } from "@/src/lib/theme";
+import { Pressable, type TextInputProps, View } from "react-native";
 import { Input } from "@/src/components/ui/input";
+import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/lib/theme";
 
 interface FormInputProps {
 	readonly label?: string;
@@ -37,9 +38,14 @@ export default function FormInput({
 	return (
 		<View className={variant === "filled" ? "gap-3" : ""}>
 			{label && (
-				<Text className="text-[14px] font-semibold text-content">
+				<Text variant="buttonMd" className="text-content">
 					{label}
-					{required && <Text className="text-red-500"> *</Text>}
+					{required && (
+						<Text variant="buttonMd" className="text-red-500">
+							{" "}
+							*
+						</Text>
+					)}
 				</Text>
 			)}
 			<View className="flex-row items-center">
@@ -71,10 +77,11 @@ export default function FormInput({
 			</View>
 			{error && (
 				<Text
+					variant="caption"
 					className={
 						variant === "filled"
-							? "ml-4 text-[12px] text-red-500"
-							: "ml-2 mt-1 text-[12px] text-red-500"
+							? "ml-4 text-red-500"
+							: "mt-1 ml-2 text-red-500"
 					}
 				>
 					{error}

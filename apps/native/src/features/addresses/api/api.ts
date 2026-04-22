@@ -1,11 +1,11 @@
 import apiClient from "@/src/lib/api-client";
 import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
-import type { Address } from "./schemas/response.schema";
+import type { Address } from "../schemas/response.schema";
 import {
 	addressesResponseSchema,
 	addressResponseSchema,
-} from "./schemas/response.schema";
-import type { CreateAddressRequest } from "./types";
+} from "../schemas/response.schema";
+import type { CreateAddressRequest } from "../types/types";
 
 export async function getUserAddresses(): Promise<Address[]> {
 	const { data } = await apiClient.get("/api/addresses/user/addresses");

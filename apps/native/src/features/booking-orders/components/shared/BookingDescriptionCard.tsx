@@ -14,22 +14,13 @@ export default function BookingDescriptionCard({ description }: Props) {
 			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
 		>
 			<Text
-				style={{
-					fontFamily: "GoogleSans_600SemiBold",
-					fontSize: 13,
-					color: themeColors.textPrimary,
-					marginBottom: 8,
-				}}
+				variant="buttonMd"
+				className="mb-2"
+				style={{ color: themeColors.textPrimary }}
 			>
 				Problem Description
 			</Text>
-			<Text
-				style={{
-					fontSize: 13,
-					color: themeColors.textSecondary,
-					lineHeight: 20,
-				}}
-			>
+			<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
 				{description}
 			</Text>
 		</View>

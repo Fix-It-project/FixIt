@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { View, type ViewProps } from "react-native";
-import { Text } from "@/src/components/ui/text";
 import BackButton from "@/src/components/ui/BackButton";
+import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
 
@@ -41,7 +41,7 @@ export default function PageHeader({
 	return (
 		<View
 			className={cn(
-				"min-h-16 flex-row items-center border-b border-border px-5 py-3",
+				"min-h-header flex-row items-center border-border border-b px-screen-x py-3",
 				isBrand && "border-transparent",
 				className,
 			)}
@@ -62,19 +62,12 @@ export default function PageHeader({
 			/>
 
 			<View className="flex-1">
-				<Text
-					className="font-bold text-[20px]"
-					style={{ fontFamily: "GoogleSans_700Bold", color: titleColor }}
-					numberOfLines={1}
-				>
+				<Text variant="h3" style={{ color: titleColor }} numberOfLines={1}>
 					{title}
 				</Text>
 
 				{subtitle && (
-					<Text
-						className="text-[12px]"
-						style={{ fontFamily: "GoogleSans_400Regular", color: subtitleColor }}
-					>
+					<Text variant="caption" style={{ color: subtitleColor }}>
 						{subtitle}
 					</Text>
 				)}

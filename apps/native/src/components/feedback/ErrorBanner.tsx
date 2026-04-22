@@ -1,5 +1,6 @@
-import { View, Text } from "react-native";
 import { TriangleAlert } from "lucide-react-native";
+import { View } from "react-native";
+import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/theme";
 
 interface ErrorBannerProps {
@@ -16,15 +17,19 @@ export default function ErrorBanner({
 	if (variant === "warning") {
 		return (
 			<View className="mx-5 mb-4 flex-row items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-				<TriangleAlert size={18} color={Colors.warning} style={{ marginRight: 8 }} />
-				<Text className="flex-1 text-[13px] text-amber-800">{message}</Text>
+				<TriangleAlert size={18} color={Colors.warning} className="mr-2" />
+				<Text variant="bodySm" className="flex-1 text-amber-800">
+					{message}
+				</Text>
 			</View>
 		);
 	}
 
 	return (
 		<View className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
-			<Text className="text-center text-[14px] text-red-600">{message}</Text>
+			<Text variant="bodySm" className="text-center text-red-600">
+				{message}
+			</Text>
 		</View>
 	);
 }

@@ -5,9 +5,12 @@ import {
 	SORT_OPTIONS,
 	type SortKey,
 } from "@/src/features/technicians/types/sort";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
-export { SORT_OPTIONS, type SortKey } from "@/src/features/technicians/types/sort";
+export {
+	SORT_OPTIONS,
+	type SortKey,
+} from "@/src/features/technicians/types/sort";
 
 interface TechnicianSortBarProps {
 	readonly activeSort: SortKey;
@@ -33,11 +36,11 @@ export default function TechnicianSortBar({
 				contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
 			>
 				<View
-					className="mr-1 h-8 w-8 items-center justify-center rounded-lg"
+					className="mr-1 h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-button"
 					style={{ backgroundColor: themeColors.surfaceElevated }}
 				>
 					<SlidersHorizontal
-						size={16}
+						size={spacing.icon.xs}
 						color={themeColors.surfaceMuted}
 						strokeWidth={2}
 					/>
@@ -49,18 +52,17 @@ export default function TechnicianSortBar({
 							key={option}
 							onPress={() => onSortPress(option)}
 							activeOpacity={0.7}
-							className="items-center justify-center rounded-full px-4"
+							className="h-control-chip items-center justify-center rounded-chip px-control-chip"
 							style={{
-								height: 32,
 								backgroundColor: isActive
 									? Colors.primary
 									: themeColors.surfaceElevated,
 							}}
 						>
 							<Text
-								className="font-semibold text-[12px]"
+								variant="caption"
+								className="font-semibold"
 								style={{
-									fontFamily: "GoogleSans_600SemiBold",
 									color: isActive
 										? themeColors.surfaceBase
 										: themeColors.textSecondary,

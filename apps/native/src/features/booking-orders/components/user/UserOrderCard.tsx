@@ -2,11 +2,11 @@ import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { Image, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
 import {
 	formatDate,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
+import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
@@ -16,7 +16,11 @@ const STATUS_CONFIG: Record<
 	{ label: string; color: string; bg: string }
 > = {
 	pending: { label: "Pending", color: Colors.warning, bg: Colors.warningLight },
-	accepted: { label: "Accepted", color: Colors.success, bg: Colors.statusAvailable },
+	accepted: {
+		label: "Accepted",
+		color: Colors.success,
+		bg: Colors.statusAvailable,
+	},
 	rejected: { label: "Rejected", color: Colors.danger, bg: Colors.dangerSoft },
 	cancelled_by_user: {
 		label: "Cancelled",
@@ -28,7 +32,11 @@ const STATUS_CONFIG: Record<
 		color: Colors.danger,
 		bg: Colors.dangerSoft,
 	},
-	completed: { label: "Completed", color: Colors.success, bg: Colors.statusAvailable },
+	completed: {
+		label: "Completed",
+		color: Colors.success,
+		bg: Colors.statusAvailable,
+	},
 };
 
 interface Props {
@@ -51,7 +59,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mb-3 rounded-2xl bg-surface p-4"
+			className="mb-3 rounded-card bg-surface p-card"
 			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
 		>
 			<View className="flex-row items-center gap-3">
@@ -59,21 +67,15 @@ export default function UserOrderCard({ order, onPress }: Props) {
 				{order.technician_image ? (
 					<Image
 						source={{ uri: order.technician_image }}
-						className="h-12 w-12 rounded-full"
+						className="h-control-icon-box-lg w-control-icon-box-lg rounded-full"
 						style={{ backgroundColor: themeColors.surfaceElevated }}
 					/>
 				) : (
 					<View
-						className="h-12 w-12 items-center justify-center rounded-full"
+						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-full"
 						style={{ backgroundColor: avatarColor }}
 					>
-						<Text
-							style={{
-								fontFamily: "GoogleSans_700Bold",
-								fontSize: 16,
-								color: themeColors.surfaceBase,
-							}}
-						>
+						<Text variant="buttonLg" style={{ color: themeColors.surfaceBase }}>
 							{initials}
 						</Text>
 					</View>
@@ -82,11 +84,8 @@ export default function UserOrderCard({ order, onPress }: Props) {
 				{/* Info */}
 				<View className="flex-1">
 					<Text
-						style={{
-							fontFamily: "GoogleSans_600SemiBold",
-							fontSize: 15,
-							color: themeColors.textPrimary,
-						}}
+						variant="buttonLg"
+						style={{ color: themeColors.textPrimary }}
 						numberOfLines={1}
 					>
 						{order.technician_name ?? "Technician"}
@@ -94,7 +93,8 @@ export default function UserOrderCard({ order, onPress }: Props) {
 					<View className="mt-0.5 flex-row items-center gap-1.5">
 						<CategoryIcon size={13} color={categoryColor} strokeWidth={2} />
 						<Text
-							style={{ fontSize: 12, color: themeColors.textSecondary }}
+							variant="caption"
+							style={{ color: themeColors.textSecondary }}
 							numberOfLines={1}
 						>
 							{order.service_name ?? "Service"}
@@ -108,11 +108,9 @@ export default function UserOrderCard({ order, onPress }: Props) {
 					style={{ backgroundColor: status.bg }}
 				>
 					<Text
-						style={{
-							fontSize: 11,
-							fontFamily: "GoogleSans_600SemiBold",
-							color: status.color,
-						}}
+						variant="caption"
+						className="font-semibold"
+						style={{ color: status.color }}
 					>
 						{status.label}
 					</Text>
@@ -124,15 +122,13 @@ export default function UserOrderCard({ order, onPress }: Props) {
 				className="mt-3 flex-row items-center justify-between border-t pt-3"
 				style={{ borderColor: themeColors.borderDefault }}
 			>
-				<Text style={{ fontSize: 12, color: themeColors.textMuted }}>
+				<Text variant="caption" style={{ color: themeColors.textMuted }}>
 					{formatDate(order.scheduled_date)}
 				</Text>
 				<Text
-					style={{
-						fontSize: 12,
-						color: Colors.primary,
-						fontFamily: "GoogleSans_600SemiBold",
-					}}
+					variant="caption"
+					className="font-semibold"
+					style={{ color: Colors.primary }}
 				>
 					View Details
 				</Text>

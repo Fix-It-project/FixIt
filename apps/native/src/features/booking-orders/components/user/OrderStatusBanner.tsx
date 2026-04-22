@@ -73,22 +73,14 @@ export default function OrderStatusBanner({
 		>
 			<config.icon size={22} color={config.color} strokeWidth={1.8} />
 			<View className="flex-1">
-				<Text
-					style={{
-						fontFamily: "GoogleSans_600SemiBold",
-						fontSize: 14,
-						color: config.color,
-					}}
-				>
+				<Text variant="buttonMd" style={{ color: config.color }}>
 					{config.label}
 				</Text>
 				{cancellationReason ? (
 					<Text
-						style={{
-							fontSize: 12,
-							color: themeColors.textSecondary,
-							marginTop: 2,
-						}}
+						variant="caption"
+						className="mt-0.5"
+						style={{ color: themeColors.textSecondary }}
 					>
 						{cancellationReason}
 					</Text>

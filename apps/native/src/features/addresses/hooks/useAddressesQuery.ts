@@ -7,10 +7,10 @@ import type { Address } from "@/src/features/addresses/schemas/response.schema";
  * Enabled by default — addresses are needed for the location header display.
  */
 export function useAddressesQuery() {
-  return useQuery<Address[]>({
-    queryKey: ["user-addresses"],
-    queryFn: getUserAddresses,
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  });
+	return useQuery<Address[]>({
+		queryKey: ["user-addresses"],
+		queryFn: getUserAddresses,
+		staleTime: 5 * 60 * 1000,
+		retry: 1,
+	});
 }

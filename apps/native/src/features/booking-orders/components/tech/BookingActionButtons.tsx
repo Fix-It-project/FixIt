@@ -1,5 +1,6 @@
 import { CalendarClock, Check, X } from "lucide-react-native";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 
@@ -18,17 +19,17 @@ export default function BookingActionButtons({
 }: Props) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="mt-2" style={{ gap: 10 }}>
-			<TouchableOpacity
+		<View className="mt-2 gap-2.5">
+			<Button
 				onPress={onComplete}
 				disabled={isCompleting}
-				className="flex-row items-center justify-center gap-2 rounded-2xl py-4"
+				size="action"
+				className="w-full"
 				style={{
 					backgroundColor: isCompleting
 						? themeColors.borderDefault
 						: themeColors.primary,
 				}}
-				activeOpacity={0.85}
 			>
 				{isCompleting ? (
 					<ActivityIndicator size="small" color={themeColors.onPrimaryHeader} />
@@ -40,60 +41,49 @@ export default function BookingActionButtons({
 							strokeWidth={2.5}
 						/>
 						<Text
-							style={{
-								fontFamily: "GoogleSans_700Bold",
-								fontSize: 15,
-								color: themeColors.onPrimaryHeader,
-							}}
+							variant="buttonLg"
+							className="font-bold"
+							style={{ color: themeColors.onPrimaryHeader }}
 						>
 							Complete Booking
 						</Text>
 					</>
 				)}
-			</TouchableOpacity>
+			</Button>
 
-			<TouchableOpacity
+			<Button
 				onPress={onReschedule}
-				className="flex-row items-center justify-center gap-2 rounded-2xl border py-4"
+				variant="secondary"
+				size="action"
+				className="w-full"
 				style={{
 					borderColor: themeColors.borderDefault,
 					backgroundColor: themeColors.surfaceBase,
 				}}
-				activeOpacity={0.7}
 			>
 				<CalendarClock
 					size={18}
 					color={themeColors.textPrimary}
 					strokeWidth={2}
 				/>
-				<Text
-					style={{
-						fontFamily: "GoogleSans_600SemiBold",
-						fontSize: 15,
-						color: themeColors.textPrimary,
-					}}
-				>
+				<Text variant="buttonLg" style={{ color: themeColors.textPrimary }}>
 					Reschedule
 				</Text>
-			</TouchableOpacity>
+			</Button>
 
-			<TouchableOpacity
+			<Button
 				onPress={onCancel}
-				className="flex-row items-center justify-center gap-2 rounded-2xl border py-4"
+				variant="secondary"
+				size="action"
+				className="w-full"
 				style={{ borderColor: themeColors.danger }}
-				activeOpacity={0.7}
+				textClass="text-danger"
 			>
 				<X size={18} color={themeColors.danger} strokeWidth={2} />
-				<Text
-					style={{
-						fontFamily: "GoogleSans_600SemiBold",
-						fontSize: 15,
-						color: themeColors.danger,
-					}}
-				>
+				<Text variant="buttonLg" style={{ color: themeColors.danger }}>
 					Cancel Booking
 				</Text>
-			</TouchableOpacity>
+			</Button>
 		</View>
 	);
 }
