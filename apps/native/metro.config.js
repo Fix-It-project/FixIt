@@ -7,5 +7,6 @@ config.resolver.unstable_enablePackageExports = true;
 
 module.exports = withNativeWind(config, {
 	input: "./global.css",
+	configPath: "./tailwind.config.ts",
 	inlineRem: 16,
 });

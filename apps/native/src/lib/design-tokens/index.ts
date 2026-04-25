@@ -6,10 +6,11 @@ export type { Radius } from "./radius";
 export { radius } from "./radius";
 export type { SpacePrimitive, Spacing } from "./spacing";
 export { space, spacing } from "./spacing";
-export type { FontFamilyToken, TypographyVariant } from "./typography";
+export type { FontFamilyToken } from "./fonts";
+export { fontFamily } from "./fonts";
+export type { TypographyVariant } from "./typography";
 export {
 	fontAssets,
-	fontFamily,
 	fontSize,
 	lineHeight,
 	typography,

@@ -5,17 +5,7 @@ import {
 	GoogleSans_700Bold,
 } from "@expo-google-fonts/google-sans";
 import type { TextStyle } from "react-native";
-
-/**
- * Font-family primitives — mapped to the GoogleSans weights already loaded
- * via `@expo-google-fonts/google-sans` in app bootstrap.
- */
-export const fontFamily = {
-	regular: "GoogleSans_400Regular",
-	medium: "GoogleSans_500Medium",
-	semibold: "GoogleSans_600SemiBold",
-	bold: "GoogleSans_700Bold",
-} as const;
+import { fontFamily } from "./fonts";
 
 export const fontAssets = {
 	[fontFamily.regular]: GoogleSans_400Regular,
@@ -23,8 +13,6 @@ export const fontAssets = {
 	[fontFamily.semibold]: GoogleSans_600SemiBold,
 	[fontFamily.bold]: GoogleSans_700Bold,
 } as const;
-
-export type FontFamilyToken = keyof typeof fontFamily;
 
 export const fontSize = {
 	xs: 12,

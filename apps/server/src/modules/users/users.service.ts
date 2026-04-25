@@ -19,7 +19,8 @@ export class UsersService {
       await usersRepository.updateAuthEmail(userId, data.email);
     }
 
-    return await usersRepository.updateUserProfile(userId, data);
+    await usersRepository.updateUserProfile(userId, data);
+    return await usersRepository.getProfileWithAddresses(userId);
   }
 }
 

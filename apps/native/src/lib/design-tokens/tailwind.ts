@@ -1,5 +1,5 @@
 import { borderWidth } from "./border";
-import { fontFamily } from "./typography";
+import { fontFamily } from "./fonts";
 import { radius } from "./radius";
 import { spacing } from "./spacing";
 
