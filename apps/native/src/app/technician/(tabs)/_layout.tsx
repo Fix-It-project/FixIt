@@ -10,12 +10,12 @@ import {
 } from "lucide-react-native";
 import { Platform, View } from "react-native";
 import { ProtectedTabsLayout } from "@/src/components/navigation/ProtectedTabsLayout";
-import { elevation, shadowStyle } from "@/src/lib/design-tokens";
+import { elevation, radius, shadowStyle, spacing } from "@/src/lib/design-tokens";
 import { ROUTES } from "@/src/lib/routes";
 import { useBottomTabMetrics } from "@/src/lib/tab-bar-config";
 import { useThemeColors } from "@/src/lib/theme";
 
-const CENTER_ACTION_SIZE = 56;
+const CENTER_ACTION_SIZE = spacing.button.height.lg;
 type TabBarIconProps = LucideProps & { focused: boolean };
 
 interface CenterChatTabIconProps {
@@ -55,7 +55,7 @@ function CenterChatTabIcon({
 				marginTop: -centerActionLift,
 				width: CENTER_ACTION_SIZE,
 				height: CENTER_ACTION_SIZE,
-				borderRadius: CENTER_ACTION_SIZE / 2,
+				borderRadius: radius.pill,
 				alignItems: "center",
 				justifyContent: "center",
 				backgroundColor: focused ? primaryColor : primaryDarkColor,

@@ -126,7 +126,7 @@ export default function BookingDetailScreen() {
 						/>
 					) : (
 						<View
-							className="mt-2 items-center rounded-2xl py-4"
+							className="mt-stack-sm items-center rounded-card py-card"
 							style={{ backgroundColor: statusBackgroundColor }}
 						>
 							<Text variant="buttonMd" style={{ color: statusColor }}>
@@ -135,7 +135,7 @@ export default function BookingDetailScreen() {
 							{booking.cancellation_reason && (
 								<Text
 									variant="caption"
-									className="mt-1 px-4 text-center"
+									className="mt-stack-xs px-card text-center"
 									style={{ color: themeColors.textSecondary }}
 								>
 									{booking.cancellation_reason}

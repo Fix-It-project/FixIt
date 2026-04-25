@@ -95,8 +95,8 @@ export default function TechnicianSignUpStep3() {
 				required
 			/>
 
-			<Button onPress={handleNext} disabled={!isFormValid} className="mt-2">
-				<BtnText>Next</BtnText>
+			<Button onPress={handleNext} disabled={!isFormValid} className="mt-stack-sm">
+				<BtnText variant="buttonLg">Next</BtnText>
 			</Button>
 		</AuthPageLayout>
 	);

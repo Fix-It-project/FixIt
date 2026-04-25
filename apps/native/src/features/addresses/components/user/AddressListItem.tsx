@@ -63,7 +63,7 @@ export default function AddressListItem({
 			style={{ opacity: disabled ? 0.5 : 1 }}
 		>
 			<View
-				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full"
+				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"
 				style={{ backgroundColor: themeColors.surfaceElevated }}
 			>
 				<MapPin size={18} color={themeColors.textSecondary} strokeWidth={2} />
@@ -75,7 +75,7 @@ export default function AddressListItem({
 				</Text>
 				<Text
 					variant="bodySm"
-					className="mt-0.5 text-content-secondary"
+					className="mt-stack-xs text-content-secondary"
 					numberOfLines={2}
 				>
 					{address.street}
@@ -84,14 +84,14 @@ export default function AddressListItem({
 			</View>
 
 			<Animated.View
-				className="h-5 w-5 items-center justify-center rounded-full"
+				className="h-icon-sm w-icon-sm items-center justify-center rounded-pill border-selected"
 				style={[
-					{ borderWidth: 2, borderColor: themeColors.borderDefault },
+					{ borderColor: themeColors.borderDefault },
 					ringStyle,
 				]}
 			>
 				<Animated.View
-					className="h-2.5 w-2.5 rounded-full"
+					className="h-status-dot-sm w-status-dot-sm rounded-pill"
 					style={[{ backgroundColor: themeColors.surfaceBase }, dotStyle]}
 				/>
 			</Animated.View>

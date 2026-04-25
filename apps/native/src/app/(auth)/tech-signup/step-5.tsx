@@ -159,12 +159,12 @@ export default function TechnicianSignUpStep5() {
 			<Button
 				onPress={handleSubmit}
 				disabled={!isFormValid || signUpMutation.isPending}
-				className="mt-2"
+				className="mt-stack-sm"
 			>
 				{signUpMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceBase} />
 				) : (
-					<BtnText>Apply as Technician</BtnText>
+					<BtnText variant="buttonLg">Apply as Technician</BtnText>
 				)}
 			</Button>
 		</AuthPageLayout>

@@ -35,12 +35,12 @@ export default function RoleSelectionScreen() {
 		>
 			<ScrollView
 				className="flex-1"
-				contentContainerClassName="items-center px-6 pt-6"
+				contentContainerClassName="items-center px-button-x pt-stack-xl"
 				contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
 			>
 				{/* Header */}
-				<View className="mt-6 mb-6 flex w-full items-center">
-					<View className="flex-row items-center gap-2">
+				<View className="mt-stack-xl mb-stack-xl flex w-full items-center">
+					<View className="flex-row items-center gap-stack-sm">
 						<Image
 							source={require("../../assets/images/fixit.png")}
 							style={{
@@ -62,17 +62,17 @@ export default function RoleSelectionScreen() {
 				</View>
 
 				{/* Subtitle */}
-				<View className="mb-4 w-full max-w-sm">
+				<View className="mb-stack-lg w-full max-w-sm">
 					<Text variant="h2" className="text-content">
 						Select Role{" "}
 					</Text>
 				</View>
 
 				{/* Role Cards Container */}
-				<View className="w-full max-w-sm flex-1 justify-center gap-6 pb-8">
+				<View className="w-full max-w-sm flex-1 justify-center gap-stack-xl pb-stack-2xl">
 					{/* User Card - Light Blue */}
 					<Pressable
-						className="relative h-[250px] w-full overflow-hidden rounded-3xl border-2 border-blue-200/50 bg-role-user p-8 active:opacity-90"
+						className="relative h-media-attachment w-full overflow-hidden rounded-hero border-selected border-overlay-md bg-role-user p-stack-2xl active:opacity-90"
 						style={{
 							...shadowStyle(elevation.modal, {
 								shadowColor: Colors.roleAccent,
@@ -82,11 +82,11 @@ export default function RoleSelectionScreen() {
 						onPress={goToUserSignup}
 					>
 						{/* Profile Icon - Top Right */}
-						<View className="absolute top-4 right-4 h-32 w-32">
-							<View className="h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-blue-300/30 bg-role-accent shadow-lg">
+						<View className="absolute top-card right-4 h-media-role-avatar w-media-role-avatar">
+							<View className="h-full w-full items-center justify-center overflow-hidden rounded-pill border-selected border-overlay-md bg-role-accent shadow-lg">
 								<Image
 									source={require("../../assets/avatars/business-man-user-icon-vector-4333097-removebg-preview.png")}
-									className="h-40 w-32"
+									className="h-media-role-avatar w-media-role-avatar"
 									resizeMode="cover"
 								/>
 							</View>
@@ -94,8 +94,8 @@ export default function RoleSelectionScreen() {
 
 						{/* Content - Bottom Left */}
 						<View className="absolute right-6 bottom-6 left-6">
-							<View className="mb-1 flex-row items-center gap-2">
-								<View className="rounded-lg bg-white/80 p-1.5">
+							<View className="mb-stack-xs flex-row items-center gap-stack-sm">
+								<View className="rounded-compact bg-surface/80 p-stack-sm">
 									<HelpCircle size={16} color={Colors.primary} />
 								</View>
 								<Text
@@ -108,7 +108,7 @@ export default function RoleSelectionScreen() {
 							<Text variant="h2" className="text-content leading-tight">
 								Sign up as{"\n"}a User
 							</Text>
-							<Text variant="caption" className="mt-1 text-role-label">
+							<Text variant="caption" className="mt-stack-xs text-role-label">
 								Find trusted experts for repairs & cleaning instantly.
 							</Text>
 						</View>
@@ -116,7 +116,7 @@ export default function RoleSelectionScreen() {
 
 					{/* Technician Card - Primary Blue */}
 					<Pressable
-						className="relative h-[250px] w-full overflow-hidden rounded-3xl bg-role-tech p-8 active:opacity-90"
+						className="relative h-media-attachment w-full overflow-hidden rounded-hero bg-role-tech p-stack-2xl active:opacity-90"
 						style={{
 							...shadowStyle(elevation.modal, {
 								shadowColor: Colors.primary,
@@ -127,16 +127,16 @@ export default function RoleSelectionScreen() {
 					>
 						{/* Background blur effect */}
 						<View
-							className="absolute -bottom-10 -left-10 h-56 w-56 rounded-full bg-white/10"
+							className="absolute -bottom-10 -left-10 h-media-role-orb w-media-role-orb rounded-pill bg-overlay-sm"
 							style={{ opacity: 0.3 }}
 						/>
 
 						{/* Profile Icon - Top Left */}
-						<View className="absolute top-4 left-4 h-32 w-32">
-							<View className="h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-blue-300/30 bg-role-accent shadow-lg">
+						<View className="absolute top-card left-4 h-media-role-avatar w-media-role-avatar">
+							<View className="h-full w-full items-center justify-center overflow-hidden rounded-pill border-selected border-overlay-md bg-role-accent shadow-lg">
 								<Image
 									source={require("../../assets/avatars/technician.png")}
-									className="h-32 w-32"
+									className="h-media-role-avatar w-media-role-avatar"
 									resizeMode="cover"
 								/>
 							</View>
@@ -144,26 +144,26 @@ export default function RoleSelectionScreen() {
 
 						{/* Content - Bottom Right */}
 						<View className="absolute right-6 bottom-6 left-6 items-end">
-							<View className="mb-1 flex-row items-center gap-2">
+							<View className="mb-stack-xs flex-row items-center gap-stack-sm">
 								<Text
 									variant="caption"
-									className="font-semibold text-blue-100 uppercase tracking-wider"
+									className="font-semibold text-overlay-bright uppercase tracking-wider"
 								>
 									I AM A PRO
 								</Text>
-								<View className="rounded-lg bg-white/20 p-1.5">
+								<View className="rounded-compact bg-overlay-md p-stack-sm">
 									<Hammer size={16} color={themeColors.surfaceBase} />
 								</View>
 							</View>
 							<Text
 								variant="h2"
-								className="text-right text-white leading-tight"
+								className="text-right text-surface-on-primary leading-tight"
 							>
 								Apply as a{"\n"}Technician
 							</Text>
 							<Text
 								variant="caption"
-								className="mt-1 max-w-[85%] text-right text-blue-100"
+								className="mt-stack-xs max-w-[85%] text-right text-overlay-bright"
 							>
 								Grow your business and connect with local customers.
 							</Text>
@@ -172,9 +172,9 @@ export default function RoleSelectionScreen() {
 				</View>
 
 				{/* Login Section */}
-				<View className="mb-6 w-full max-w-sm">
+				<View className="mb-stack-xl w-full max-w-sm">
 					<Pressable
-						className="w-full flex-row items-center justify-center px-6 py-4 active:opacity-70"
+						className="w-full flex-row items-center justify-center px-button-x py-card active:opacity-70"
 						onPress={goToLogin}
 					>
 						<Text variant="label" className="text-content-secondary">
@@ -187,7 +187,7 @@ export default function RoleSelectionScreen() {
 				</View>
 
 				{/* Terms of Service */}
-				<View className="mb-8 w-full max-w-sm px-4">
+				<View className="mb-stack-2xl w-full max-w-sm px-card">
 					<Text variant="caption" className="text-center text-content-muted">
 						By signing up, you agree to our{" "}
 						<Text variant="caption" className="font-semibold text-app-primary">

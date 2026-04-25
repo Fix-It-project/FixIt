@@ -30,8 +30,8 @@ export default function EmailEntryView({
 	return (
 		<>
 			{/* Header */}
-			<View className="mt-2 mb-8 px-screen-x">
-				<Text variant="h2" className="mb-2 text-content">
+			<View className="mt-stack-sm mb-stack-2xl px-screen-x">
+				<Text variant="h2" className="mb-stack-sm text-content">
 					Reset your password
 				</Text>
 				<Text variant="body" className="text-content-secondary">
@@ -74,7 +74,7 @@ export default function EmailEntryView({
 					{mutation.isPending ? (
 						<ActivityIndicator color={Colors.surfaceBase} />
 					) : (
-						<BtnText>Reset Password</BtnText>
+						<BtnText variant="buttonLg">Reset Password</BtnText>
 					)}
 				</Button>
 			</View>

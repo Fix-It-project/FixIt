@@ -9,20 +9,18 @@ export default function EarningsWallet() {
 	return (
 		<Animated.View
 			entering={FadeInUp.delay(300).duration(400)}
-			className="mt-6 px-4"
+			className="mt-stack-xl px-card"
 		>
 			{/* Wallet card */}
 			<View
-				className="rounded-2xl bg-surface p-4"
+				className="rounded-card border border-edge bg-surface p-card"
 				style={{
-					borderWidth: 1,
-					borderColor: themeColors.borderDefault,
 					...shadowStyle(elevation.flat, { shadowColor: themeColors.shadow }),
 				}}
 			>
 				<Text
 					variant="caption"
-					className="mb-1 font-bold text-content-muted uppercase tracking-wider"
+					className="mb-stack-xs font-bold text-content-muted uppercase tracking-wider"
 				>
 					Wallet Balance
 				</Text>
@@ -31,7 +29,7 @@ export default function EarningsWallet() {
 				</Text>
 
 				<TouchableOpacity
-					className="mt-4 items-center rounded-button border px-control-compact-cta-x py-control-compact-cta-y"
+					className="mt-stack-lg items-center rounded-button border px-control-compact-cta-x py-control-compact-cta-y"
 					style={{
 						backgroundColor: `${themeColors.primary}10`,
 						borderColor: `${themeColors.primary}30`,

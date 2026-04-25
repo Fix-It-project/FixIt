@@ -27,17 +27,16 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
 			<View className="min-w-0 flex-1">
 				<Text
 					variant="caption"
+					className="text-content-muted uppercase tracking-wider"
 					style={{
-						color: themeColors.textMuted,
 						textTransform: "uppercase",
-						letterSpacing: 0.5,
 					}}
 				>
 					{label}
 				</Text>
 				<Text
 					variant="buttonMd"
-					className="mt-0.5"
+					className="mt-stack-xs"
 					style={{ color: themeColors.textPrimary }}
 				>
 					{value}
@@ -49,7 +48,7 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
 	if (onPress) {
 		return (
 			<TouchableOpacity
-				className="flex-row items-start gap-3"
+				className="flex-row items-start gap-stack-md"
 				activeOpacity={0.7}
 				onPress={onPress}
 			>
@@ -58,20 +57,14 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
 		);
 	}
 
-	return <View className="flex-row items-start gap-3">{content}</View>;
+	return <View className="flex-row items-start gap-stack-md">{content}</View>;
 }
 
 export default function InfoSection({ rows }: Props) {
 	const themeColors = useThemeColors();
 
 	return (
-		<View
-			className="mb-4 gap-4 rounded-card bg-surface p-card"
-			style={{
-				borderWidth: 1,
-				borderColor: themeColors.borderDefault,
-			}}
-		>
+		<View className="mb-stack-lg gap-stack-lg rounded-card border border-edge bg-surface p-card">
 			{rows.map((row) => (
 				<InfoRow
 					key={`${row.label}:${row.value}`}

@@ -64,10 +64,9 @@ export default function OrderStatusBanner({
 
 	return (
 		<View
-			className="mb-4 flex-row items-center gap-3 rounded-2xl p-4"
+			className="mb-stack-lg flex-row items-center gap-stack-md rounded-card border p-card"
 			style={{
 				backgroundColor: config.bg,
-				borderWidth: 1,
 				borderColor: `${config.color}20`,
 			}}
 		>
@@ -79,7 +78,7 @@ export default function OrderStatusBanner({
 				{cancellationReason ? (
 					<Text
 						variant="caption"
-						className="mt-0.5"
+						className="mt-stack-xs"
 						style={{ color: themeColors.textSecondary }}
 					>
 						{cancellationReason}

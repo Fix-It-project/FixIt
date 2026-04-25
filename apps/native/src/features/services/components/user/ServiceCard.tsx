@@ -23,7 +23,7 @@ export default function ServiceCard({
 	const themeColors = useThemeColors();
 	return (
 		<TouchableOpacity
-			className="mb-3 overflow-hidden rounded-card bg-surface"
+			className="mb-stack-md overflow-hidden rounded-card bg-surface"
 			style={shadowStyle(elevation.raised, { shadowColor: themeColors.shadow })}
 			onPress={() => onPress(service.id, service.name)}
 			activeOpacity={0.7}
@@ -31,7 +31,7 @@ export default function ServiceCard({
 			<View className="flex-row items-center p-card">
 				{/* Color accent bar */}
 				<View
-					className="mr-3.5 h-btn-lg w-1 rounded-pill"
+					className="mr-card h-btn-lg w-icon-2xs rounded-pill"
 					style={{ backgroundColor: accentColor }}
 				/>
 
@@ -47,7 +47,7 @@ export default function ServiceCard({
 					{service.description ? (
 						<Text
 							variant="bodySm"
-							className="mt-0.5 text-content-muted"
+							className="mt-stack-xs text-content-muted"
 							numberOfLines={2}
 						>
 							{service.description}
@@ -55,7 +55,7 @@ export default function ServiceCard({
 					) : null}
 					<Text
 						variant="bodySm"
-						className="mt-1.5 font-semibold"
+						className="mt-stack-xs font-semibold"
 						style={{ color: accentColor }}
 					>
 						{formatPrice(service.min_price, service.max_price)}

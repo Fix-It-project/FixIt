@@ -16,6 +16,7 @@
 		--surface-base: #ffffff;
 		--surface-elevated: #f1f5f9;
 		--surface-muted: #64748b;
+		--surface-on-primary: #ffffff;
 		--border-default: #cbd5e1;
 		--border-chip: #f5f3ff;
 		--success: #10b981;
@@ -48,6 +49,7 @@
 		--overlay-sub: rgba(255, 255, 255, 0.55);
 		--overlay-dim: rgba(255, 255, 255, 0.4);
 		--overlay-bright: rgba(255, 255, 255, 0.7);
+		--backdrop: rgba(0, 0, 0, 0.45);
 		--gradient-start: #eef2ff;
 		--gradient-mid: #e0e7ff;
 		--gradient-end: #eef2ff;

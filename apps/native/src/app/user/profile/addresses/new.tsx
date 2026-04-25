@@ -83,13 +83,13 @@ export default function AddAddressScreen() {
 			>
 				{/* Coords badge */}
 				<View
-					className="flex-row items-center rounded-lg px-3 py-2.5"
+					className="flex-row items-center rounded-input px-stack-md py-control-trigger-y"
 					style={{ backgroundColor: themeColors.primaryLight }}
 				>
 					<MapPin size={14} color={Colors.primary} strokeWidth={2} />
 					<Text
 						variant="bodySm"
-						className="ml-2"
+						className="ml-stack-sm"
 						style={{ color: Colors.primary }}
 					>
 						Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
@@ -133,12 +133,12 @@ export default function AddAddressScreen() {
 				<Button
 					onPress={handleSubmit}
 					disabled={addMutation.isPending}
-					className="w-full rounded-xl"
+					className="w-full rounded-button"
 				>
 					{addMutation.isPending ? (
 						<ActivityIndicator size="small" color={themeColors.surfaceBase} />
 					) : (
-						<Text>Save Address</Text>
+						<Text variant="buttonLg">Save Address</Text>
 					)}
 				</Button>
 			</KeyboardAwareScrollView>

@@ -55,7 +55,7 @@ export default function ForgotPassword() {
 	// ─── Render ─────────────────────────────────────────────────────────────────
 	return (
 		<AuthFormScreen errorMessage={errorMessage}>
-			<View style={{ flex: 1 }}>
+			<View className="flex-1">
 				{emailSent ? (
 					<CheckInboxView
 						email={email}

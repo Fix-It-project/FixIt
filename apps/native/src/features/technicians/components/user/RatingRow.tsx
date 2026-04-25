@@ -10,7 +10,7 @@ interface RatingRowProps {
 
 export default function RatingRow({ rating, reviewCount }: RatingRowProps) {
 	return (
-		<View className="mt-1 flex-row items-center gap-1">
+		<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 			<Star
 				size={12}
 				color={Colors.ratingDefault}

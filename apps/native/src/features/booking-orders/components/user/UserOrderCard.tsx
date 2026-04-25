@@ -59,20 +59,19 @@ export default function UserOrderCard({ order, onPress }: Props) {
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mb-3 rounded-card bg-surface p-card"
-			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
+			className="mb-stack-md rounded-card border border-edge bg-surface p-card"
 		>
-			<View className="flex-row items-center gap-3">
+			<View className="flex-row items-center gap-stack-md">
 				{/* Avatar */}
 				{order.technician_image ? (
 					<Image
 						source={{ uri: order.technician_image }}
-						className="h-control-icon-box-lg w-control-icon-box-lg rounded-full"
+						className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
 						style={{ backgroundColor: themeColors.surfaceElevated }}
 					/>
 				) : (
 					<View
-						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-full"
+						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
 						style={{ backgroundColor: avatarColor }}
 					>
 						<Text variant="buttonLg" style={{ color: themeColors.surfaceBase }}>
@@ -90,7 +89,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 					>
 						{order.technician_name ?? "Technician"}
 					</Text>
-					<View className="mt-0.5 flex-row items-center gap-1.5">
+					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 						<CategoryIcon size={13} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="caption"
@@ -104,7 +103,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 
 				{/* Status badge */}
 				<View
-					className="rounded-full px-2.5 py-1"
+					className="rounded-pill px-stack-md py-stack-xs"
 					style={{ backgroundColor: status.bg }}
 				>
 					<Text
@@ -119,8 +118,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 
 			{/* Date row */}
 			<View
-				className="mt-3 flex-row items-center justify-between border-t pt-3"
-				style={{ borderColor: themeColors.borderDefault }}
+				className="mt-stack-md flex-row items-center justify-between border-t border-edge pt-stack-md"
 			>
 				<Text variant="caption" style={{ color: themeColors.textMuted }}>
 					{formatDate(order.scheduled_date)}

@@ -39,7 +39,7 @@ export default function TechnicianListCard({
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mx-4 mb-3 overflow-hidden rounded-card bg-surface"
+			className="mx-card mb-stack-md overflow-hidden rounded-card bg-surface"
 			style={{
 				...shadowStyle(elevation.flat, {
 					shadowColor: themeColors.textPrimary,
@@ -49,7 +49,7 @@ export default function TechnicianListCard({
 		>
 			<View className="flex-row p-card-compact">
 				{/* ── Left: avatar ── */}
-				<View className="mr-3 items-center">
+				<View className="mr-stack-md items-center">
 					<TechnicianAvatar
 						id={item.id}
 						initials={initials}
@@ -78,7 +78,7 @@ export default function TechnicianListCard({
 					<RatingRow rating={extras.rating} reviewCount={extras.reviewCount} />
 
 					{/* Location · experience */}
-					<View className="mt-0.5 flex-row items-center gap-1">
+					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 						<MapPin
 							size={spacing.icon.xs}
 							color={themeColors.surfaceMuted}
@@ -108,7 +108,7 @@ export default function TechnicianListCard({
 						</Text>
 					</View>
 
-					<View className="mt-1.5 flex-row items-center justify-between">
+					<View className="mt-stack-xs flex-row items-center justify-between">
 						<AvailabilityBadge isAvailable={item.is_available} />
 
 						<TouchableOpacity
@@ -116,7 +116,7 @@ export default function TechnicianListCard({
 							activeOpacity={0.7}
 							className="rounded-pill bg-app-primary px-control-pill-x py-control-pill-y"
 						>
-							<Text variant="caption" className="font-bold text-white">
+							<Text variant="caption" className="font-bold text-surface-on-primary">
 								Book Now
 							</Text>
 						</TouchableOpacity>

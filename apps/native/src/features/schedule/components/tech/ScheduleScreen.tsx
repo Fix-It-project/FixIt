@@ -192,13 +192,13 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 				}}
 			>
 				{hasSchedule && (
-					<View className="flex-row items-center justify-between px-4 pt-4 pb-2">
+					<View className="flex-row items-center justify-between px-card pt-card pb-stack-sm">
 						<Text variant="h3" className="text-content">
 							My Schedule
 						</Text>
 						<TouchableOpacity
 							onPress={() => setIsEditingSchedule(true)}
-							className="rounded-xl bg-app-primary-light px-3 py-1.5"
+							className="rounded-input bg-app-primary-light px-stack-md py-control-badge-y"
 						>
 							<Text
 								variant="caption"
@@ -210,7 +210,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 					</View>
 				)}
 
-				<View className="mt-2 px-2">
+				<View className="mt-stack-sm px-stack-sm">
 					<Calendar
 						key={themeTokens.id}
 						onDayPress={onMonthDayPress}

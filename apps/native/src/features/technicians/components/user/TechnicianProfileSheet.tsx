@@ -78,10 +78,10 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 					appearsOnIndex={0}
 					opacity={1}
 					pressBehavior="close"
-					style={{ backgroundColor: themeColors.overlayDim }}
+					style={{ backgroundColor: themeColors.backdrop }}
 				/>
 			),
-			[themeColors.overlayDim],
+			[themeColors.backdrop],
 		);
 
 		return (
@@ -103,13 +103,13 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 				}}
 			>
 				<BottomSheetView
-					className="flex-1 px-6 pb-6"
+					className="flex-1 px-button-x pb-stack-xl"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
 					{isLoading && (
 						<View className="flex-1 items-center justify-center">
 							<ActivityIndicator size="large" color={themeColors.primary} />
-							<Text variant="bodySm" className="mt-3 text-content-muted">
+							<Text variant="bodySm" className="mt-stack-md text-content-muted">
 								Loading profile…
 							</Text>
 						</View>
@@ -122,17 +122,17 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 							</Text>
 							<Text
 								variant="bodySm"
-								className="mt-1 text-center text-content-muted"
+								className="mt-stack-xs text-center text-content-muted"
 							>
 								Please try again later.
 							</Text>
 							<TouchableOpacity
 								onPress={() => refetch()}
 								activeOpacity={0.7}
-								className="mt-3 rounded-button px-control-compact-cta-x py-control-compact-cta-y"
+								className="mt-stack-md rounded-button px-control-compact-cta-x py-control-compact-cta-y"
 								style={{ backgroundColor: themeColors.primary }}
 							>
-								<Text variant="buttonMd" className="text-white">
+								<Text variant="buttonMd" className="text-surface-on-primary">
 									Retry
 								</Text>
 							</TouchableOpacity>
@@ -141,7 +141,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 
 					{profile && !isLoading && (
 						<View className="flex-1 items-center">
-							<View className="mt-1">
+							<View className="mt-stack-xs">
 								<TechnicianAvatar
 									id={sheetState.technicianId ?? ""}
 									initials={sheetState.initials}
@@ -151,7 +151,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 
 							<Text
 								variant="h3"
-								className="mt-3 text-center text-content"
+								className="mt-stack-md text-center text-content"
 								numberOfLines={1}
 							>
 								{profile.name}
@@ -159,13 +159,13 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 
 							<Text
 								variant="bodySm"
-								className="mt-1 px-4 text-center text-content-secondary"
+								className="mt-stack-xs px-card text-center text-content-secondary"
 								numberOfLines={2}
 							>
 								{profile.description}
 							</Text>
 
-							<View className="mt-5 w-full flex-row gap-3">
+							<View className="mt-card-roomy w-full flex-row gap-stack-md">
 								<StatCard
 									icon={
 										<Briefcase
@@ -190,7 +190,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 								/>
 							</View>
 
-							<View className="mt-4">
+							<View className="mt-stack-lg">
 								<InfoRow
 									icon={
 										<Star

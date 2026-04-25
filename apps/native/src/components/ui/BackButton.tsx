@@ -57,7 +57,7 @@ export default function BackButton({
 			activeOpacity={0.7}
 			hitSlop={8}
 			className={cn(
-				"items-center justify-center rounded-full",
+				"items-center justify-center rounded-pill",
 				sizeClassName,
 				bgClassName,
 				className,

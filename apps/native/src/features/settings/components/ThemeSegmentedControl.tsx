@@ -57,7 +57,7 @@ export function ThemeSegmentedControl() {
 								strokeWidth={1.8}
 								color={isActive ? themeColors.primary : themeColors.textMuted}
 							/>
-							<Text
+							<Text variant="bodySm"
 								className="font-medium text-sm"
 								style={{
 									color: isActive ? themeColors.primary : themeColors.textMuted,

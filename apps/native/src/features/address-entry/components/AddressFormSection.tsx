@@ -68,7 +68,7 @@ export default function AddressFormSection({
 				variant={variant}
 			/>
 
-			<View className="flex-row gap-3">
+			<View className="flex-row gap-stack-md">
 				<View className="flex-1">
 					<FormInput
 						label="Building No."

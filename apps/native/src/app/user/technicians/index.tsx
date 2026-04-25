@@ -49,11 +49,11 @@ function TechnicianListBody({
 
 	if (technicians.length === 0) {
 		return (
-			<View className="flex-1 items-center justify-center px-8">
+			<View className="flex-1 items-center justify-center px-button-lg-x">
 				<Text variant="buttonLg" className="text-center text-content">
 					No technicians found
 				</Text>
-				<Text variant="bodySm" className="mt-1 text-center text-content-muted">
+				<Text variant="bodySm" className="mt-stack-xs text-center text-content-muted">
 					Try adjusting your search or pick a different category.
 				</Text>
 			</View>
@@ -231,11 +231,11 @@ export default function TechniciansListScreen() {
 			style={{ backgroundColor: Colors.primary }}
 		>
 			<View className="flex-1 bg-surface-elevated">
-				<View style={{ backgroundColor: Colors.primary }} className="pb-4">
-					<View className="flex-row items-center px-4 pt-2 pb-2">
+				<View style={{ backgroundColor: Colors.primary }} className="pb-card">
+					<View className="flex-row items-center px-card pt-stack-sm pb-stack-sm">
 						<BackButton
 							variant="header-inverse"
-							className="mr-3"
+							className="mr-stack-md"
 							onPress={goBack}
 						/>
 						<View className="flex-1">
@@ -255,7 +255,7 @@ export default function TechniciansListScreen() {
 						</View>
 					</View>
 
-					<View className="mx-4 mt-1">
+					<View className="mx-card mt-stack-xs">
 						<View className="h-control-search flex-row items-center gap-control-search rounded-input bg-surface px-control-search">
 							<Search
 								size={spacing.icon.sm}
@@ -303,7 +303,7 @@ export default function TechniciansListScreen() {
 
 				{activeSort === "Recommended" && isFetchingRecommended && (
 					<View
-						className="flex-row items-center gap-2 px-4 py-3"
+						className="flex-row items-center gap-stack-sm px-card py-stack-md"
 						style={{
 							borderBottomWidth: 1,
 							borderBottomColor: themeColors.borderDefault,

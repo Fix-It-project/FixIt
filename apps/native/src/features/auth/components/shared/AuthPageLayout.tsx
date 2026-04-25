@@ -36,13 +36,13 @@ export default function AuthPageLayout({
 				<BackButton
 					variant="header"
 					size="md"
-					className="ml-5"
+					className="ml-card-roomy"
 					style={{ marginTop: insets.top + 12 }}
 				/>
 
 				{/* Header */}
-				<View className="mt-3 mb-10 px-screen-x">
-					<Text variant="h1" className="mb-2 text-content">
+				<View className="mt-stack-md mb-screen-bottom-inset px-screen-x">
+					<Text variant="h1" className="mb-stack-sm text-content">
 						{title}
 					</Text>
 					<Text variant="body" className="text-content-secondary">
@@ -51,7 +51,7 @@ export default function AuthPageLayout({
 				</View>
 
 				{/* Form Content */}
-				<View className="gap-6 px-screen-x">{children}</View>
+				<View className="gap-stack-xl px-screen-x">{children}</View>
 			</ScrollView>
 		</KeyboardAvoidingView>
 	);

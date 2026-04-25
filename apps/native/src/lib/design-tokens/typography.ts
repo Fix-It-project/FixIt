@@ -1,3 +1,9 @@
+import {
+	GoogleSans_400Regular,
+	GoogleSans_500Medium,
+	GoogleSans_600SemiBold,
+	GoogleSans_700Bold,
+} from "@expo-google-fonts/google-sans";
 import type { TextStyle } from "react-native";
 
 /**
@@ -9,6 +15,13 @@ export const fontFamily = {
 	medium: "GoogleSans_500Medium",
 	semibold: "GoogleSans_600SemiBold",
 	bold: "GoogleSans_700Bold",
+} as const;
+
+export const fontAssets = {
+	[fontFamily.regular]: GoogleSans_400Regular,
+	[fontFamily.medium]: GoogleSans_500Medium,
+	[fontFamily.semibold]: GoogleSans_600SemiBold,
+	[fontFamily.bold]: GoogleSans_700Bold,
 } as const;
 
 export type FontFamilyToken = keyof typeof fontFamily;
@@ -46,6 +59,13 @@ export const typography = {
 	h3: { fontSize: 20, lineHeight: 26, fontFamily: fontFamily.semibold },
 	bodyLg: { fontSize: 18, lineHeight: 27, fontFamily: fontFamily.regular },
 	body: { fontSize: 16, lineHeight: 24, fontFamily: fontFamily.regular },
+	input: {
+		fontSize: 16,
+		lineHeight: 24,
+		fontFamily: fontFamily.regular,
+		includeFontPadding: false,
+		textAlignVertical: "center",
+	},
 	bodySm: { fontSize: 14, lineHeight: 20, fontFamily: fontFamily.regular },
 	label: { fontSize: 14, lineHeight: 18, fontFamily: fontFamily.medium },
 	caption: { fontSize: 12, lineHeight: 16, fontFamily: fontFamily.regular },

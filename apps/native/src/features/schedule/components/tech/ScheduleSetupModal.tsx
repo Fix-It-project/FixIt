@@ -6,17 +6,18 @@ import {
 	Pressable,
 	ScrollView,
 	Switch,
-	Text,
 	TouchableOpacity,
 	useWindowDimensions,
 	View,
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
+import { Text } from "@/src/components/ui/text";
 import type { DaySchedule } from "@/src/features/schedule/types/calendar";
 import {
 	Colors,
 	elevation,
 	shadowStyle,
+	spacing,
 	useThemeColors,
 } from "@/src/lib/theme";
 
@@ -117,18 +118,18 @@ export default function ScheduleSetupModal({
 			onRequestClose={handleDismiss}
 		>
 			<View
-				className="flex-1 items-center justify-center px-4 py-6"
-				style={{ backgroundColor: themeColors.overlayDim }}
+				className="flex-1 items-center justify-center px-screen-x py-stack-xl"
+				style={{ backgroundColor: themeColors.backdrop }}
 			>
 				<Pressable className="absolute inset-0" onPress={handleDismiss} />
 
 				<View
-					className="w-full overflow-hidden rounded-3xl"
+					className="w-full overflow-hidden rounded-sheet"
 					style={{
 						backgroundColor: themeColors.surfaceBase,
 						maxWidth: 520,
 						maxHeight: Math.min(screenHeight * 0.88, 720),
-						width: Math.min(screenWidth - 32, 520),
+						width: Math.min(screenWidth - spacing.screen.paddingX * 2, 520),
 						...shadowStyle(elevation.modal, {
 							shadowColor: Colors.shadow,
 							opacity: 0.2,
@@ -137,33 +138,37 @@ export default function ScheduleSetupModal({
 				>
 					<ScrollView
 						keyboardShouldPersistTaps="handled"
-						contentContainerStyle={{ padding: 24, paddingBottom: 28 }}
+						contentContainerStyle={{
+							padding: spacing.sheet.padding,
+							paddingBottom: spacing.screen.paddingBottom,
+						}}
 						showsVerticalScrollIndicator={false}
 					>
-						<Text className="mb-1 font-bold text-2xl text-content">
+						<Text variant="h2" className="mb-stack-xs text-content">
 							{isEditing ? "Edit Schedule" : "Set Your Schedule"}
 						</Text>
-						<Text className="mb-6 text-content-muted text-sm">
+						<Text variant="bodySm" className="mb-stack-xl text-content-muted">
 							Define your weekly availability. It repeats every week.
 						</Text>
 
 						{step === "choose" ? (
-							<View className="gap-4">
+							<View className="gap-stack-lg">
 								<TouchableOpacity
 									onPress={() => onConfirm(DEFAULT_SCHEDULE)}
-									className="rounded-2xl border-2 p-5"
+									className="rounded-card border-selected p-card-roomy"
 									style={{
 										borderColor: Colors.primary,
 										backgroundColor: themeColors.primaryLight,
 									}}
 								>
 									<Text
-										className="mb-1 font-bold text-base"
+										variant="buttonLg"
+										className="mb-stack-xs"
 										style={{ color: Colors.primary }}
 									>
 										Default Schedule
 									</Text>
-									<Text className="text-content-secondary text-sm">
+									<Text variant="bodySm" className="text-content-secondary">
 										Sunday – Thursday.{"\n"}
 										Applied automatically every week.
 									</Text>
@@ -171,16 +176,16 @@ export default function ScheduleSetupModal({
 
 								<TouchableOpacity
 									onPress={() => setStep("custom")}
-									className="rounded-2xl border-2 p-5"
+									className="rounded-card border-selected p-card-roomy"
 									style={{
 										borderColor: themeColors.borderDefault,
 										backgroundColor: themeColors.surfaceElevated,
 									}}
 								>
-									<Text className="mb-1 font-bold text-base text-content">
+									<Text variant="buttonLg" className="mb-stack-xs text-content">
 										Custom Schedule
 									</Text>
-									<Text className="text-content-secondary text-sm">
+									<Text variant="bodySm" className="text-content-secondary">
 										Pick your working days.{"\n"}
 										Repeats weekly throughout the year.
 									</Text>
@@ -188,23 +193,25 @@ export default function ScheduleSetupModal({
 							</View>
 						) : (
 							<View>
-								<Text className="mt-2 mb-3 font-semibold text-base text-content-secondary">
+								<Text
+									variant="buttonLg"
+									className="mt-stack-sm mb-stack-md text-content-secondary"
+								>
 									Working days
 								</Text>
 
 								{schedule.map((item, index) => (
 									<View
 										key={item.day_of_week}
-										className="mb-3 overflow-hidden rounded-2xl"
+										className="mb-stack-md overflow-hidden rounded-card border"
 										style={{
-											borderWidth: 1,
 											borderColor: item.enabled
 												? Colors.primary
 												: themeColors.borderDefault,
 										}}
 									>
 										<View
-											className="flex-row items-center justify-between px-4 py-3"
+											className="flex-row items-center justify-between px-card py-stack-md"
 											style={{
 												backgroundColor: item.enabled
 													? themeColors.primaryLight
@@ -212,7 +219,7 @@ export default function ScheduleSetupModal({
 											}}
 										>
 											<Text
-												className="font-semibold text-base"
+												variant="buttonLg"
 												style={{
 													color: item.enabled
 														? themeColors.textPrimary
@@ -238,7 +245,7 @@ export default function ScheduleSetupModal({
 									onPress={() => onConfirm(schedule)}
 									disabled={isLoading}
 									size="action"
-									className="mt-6 w-full"
+									className="mt-stack-xl w-full"
 									style={{
 										backgroundColor: isLoading
 											? themeColors.borderDefault
@@ -246,7 +253,7 @@ export default function ScheduleSetupModal({
 									}}
 								>
 									<Text
-										className="font-bold text-base"
+										variant="buttonLg"
 										style={{
 											color: isLoading
 												? themeColors.textMuted
@@ -260,9 +267,11 @@ export default function ScheduleSetupModal({
 								{!isEditing && (
 									<TouchableOpacity
 										onPress={() => setStep("choose")}
-										className="mt-4 mb-2 items-center"
+										className="mt-stack-lg mb-stack-sm items-center"
 									>
-										<Text className="text-content-muted text-sm">Back</Text>
+										<Text variant="bodySm" className="text-content-muted">
+											Back
+										</Text>
 									</TouchableOpacity>
 								)}
 							</View>

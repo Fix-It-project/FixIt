@@ -1,7 +1,13 @@
 import { BadgeCheck, CalendarDays, type LucideIcon } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, elevation, shadowStyle, useThemeColors } from "@/src/lib/theme";
+import {
+	Colors,
+	elevation,
+	shadowStyle,
+	spacing,
+	useThemeColors,
+} from "@/src/lib/theme";
 
 interface StatsCardProps {
 	readonly icon: LucideIcon;
@@ -15,17 +21,17 @@ function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
 
 	return (
 		<View
-			className="flex-1 items-center rounded-card bg-surface py-5"
+			className="flex-1 items-center rounded-card bg-surface py-card-roomy"
 			style={shadowStyle(elevation.raised, { shadowColor: themeColors.shadow })}
 		>
 			<View
-				className="mb-3 h-12 w-12 items-center justify-center rounded-2xl"
+				className="mb-stack-md h-avatar-md w-avatar-md items-center justify-center rounded-card"
 				style={{ backgroundColor: iconBg }}
 			>
 				<Icon size={24} color={themeColors.surfaceBase} strokeWidth={2} />
 			</View>
-			<Text className="font-bold text-2xl text-content">{count}</Text>
-			<Text className="mt-0.5 text-content-muted text-xs">{label}</Text>
+			<Text variant="h2" className="font-bold text-2xl text-content">{count}</Text>
+			<Text variant="caption" className="mt-stack-xs text-content-muted text-xs">{label}</Text>
 		</View>
 	);
 }
@@ -40,7 +46,10 @@ export default function ProfileStatsSection({
 	completed,
 }: ProfileStatsSectionProps) {
 	return (
-		<View className="flex-row gap-3 px-5" style={{ marginTop: -16 }}>
+		<View
+			className="flex-row gap-stack-md px-screen-x"
+			style={{ marginTop: -spacing.card.padding }}
+		>
 			<StatsCard
 				icon={CalendarDays}
 				iconBg={Colors.accentCyan}

@@ -341,7 +341,7 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 	// Plumbing
 	"57954692-2cf3-489f-aa9d-42d0da4cf95c": [
 		{
-			id: "t-pl-1",
+			id: "tech-plumbing-1",
 			first_name: "Ali",
 			last_name: "Mostafa",
 			email: "ali@fix.it",
@@ -353,7 +353,7 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			distance_km: null,
 		},
 		{
-			id: "t-pl-2",
+			id: "tech-plumbing-2",
 			first_name: "Waleed",
 			last_name: "Sami",
 			email: "waleed@fix.it",
@@ -365,7 +365,7 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			distance_km: null,
 		},
 		{
-			id: "t-pl-3",
+			id: "tech-plumbing-3",
 			first_name: "Ibrahim",
 			last_name: "Gamal",
 			email: "ibrahim@fix.it",

@@ -8,6 +8,7 @@ import { ROUTES } from "@/src/lib/routes";
 import {
 	elevation,
 	shadowStyle,
+	space,
 	type ThemePalette,
 	useThemeColors,
 } from "@/src/lib/theme";
@@ -36,9 +37,9 @@ function ScheduleCard({
 			className="flex-row"
 		>
 			{/* Timeline column */}
-			<View className="mr-3 w-6 items-center">
+			<View className="mr-stack-md w-icon-md items-center">
 				<View
-					className="h-6 w-6 rounded-full border-4"
+					className="h-icon-md w-icon-md rounded-pill border-4"
 					style={{
 						backgroundColor: isInProgress
 							? themeColors.primary
@@ -50,9 +51,9 @@ function ScheduleCard({
 					<View
 						className="flex-1"
 						style={{
-							width: 2,
+							width: space[0.5],
 							backgroundColor: themeColors.borderDefault,
-							marginTop: -2,
+							marginTop: -space[0.5],
 						}}
 					/>
 				)}
@@ -60,9 +61,8 @@ function ScheduleCard({
 
 			{/* Card */}
 			<View
-				className="mb-4 flex-1 rounded-2xl bg-surface p-4"
+				className="mb-stack-lg flex-1 rounded-card border bg-surface p-card"
 				style={{
-					borderWidth: 1,
 					borderColor: isInProgress
 						? `${themeColors.primary}30`
 						: themeColors.borderDefault,
@@ -70,11 +70,11 @@ function ScheduleCard({
 					...shadowStyle(elevation.flat, { shadowColor: themeColors.shadow }),
 				}}
 			>
-				<View className="mb-2 flex-row items-start justify-between">
-					<View className="mr-2 flex-1">
+				<View className="mb-stack-sm flex-row items-start justify-between">
+					<View className="mr-stack-sm flex-1">
 						<Text
 							variant="caption"
-							className="mb-0.5 font-bold uppercase"
+							className="mb-stack-xs font-bold uppercase"
 							style={{
 								color: isInProgress
 									? themeColors.primary
@@ -98,7 +98,9 @@ function ScheduleCard({
 					/>
 				</View>
 
-				<Text className="text-content-muted text-xs">Scheduled for today</Text>
+				<Text variant="caption" className="text-content-muted">
+					Scheduled for today
+				</Text>
 			</View>
 		</Animated.View>
 	);
@@ -128,17 +130,14 @@ export default function TodayScheduleSection() {
 
 	if (isLoading) {
 		content = (
-			<View className="items-center py-6">
+			<View className="items-center py-stack-xl">
 				<ActivityIndicator color={themeColors.primary} />
 			</View>
 		);
 	} else if (todaysOrders.length === 0) {
 		content = (
-			<View
-				className="items-center rounded-2xl bg-surface px-4 py-6"
-				style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
-			>
-				<Text className="text-content-muted text-sm">
+			<View className="items-center rounded-card border border-edge bg-surface px-card py-stack-xl">
+				<Text variant="bodySm" className="text-content-muted">
 					No bookings for today
 				</Text>
 			</View>
@@ -146,8 +145,8 @@ export default function TodayScheduleSection() {
 	}
 
 	return (
-		<View className="mt-6 px-4">
-			<View className="mb-4 flex-row items-center justify-between">
+		<View className="mt-stack-xl px-screen-x">
+			<View className="mb-stack-lg flex-row items-center justify-between">
 				<Text
 					variant="caption"
 					className="font-bold text-content-muted uppercase tracking-widest"

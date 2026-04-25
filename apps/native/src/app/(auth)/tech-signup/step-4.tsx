@@ -31,13 +31,7 @@ export default function TechnicianSignUpStep4() {
 			title="Your specialty."
 			subtitle="Select the category that matches your skills."
 		>
-			<View
-				style={{
-					marginHorizontal: -28,
-					paddingTop: 4,
-					paddingBottom: 8,
-				}}
-			>
+			<View className="-mx-screen-form-bleed pt-stack-xs pb-stack-sm">
 				<FlatList
 					data={CATEGORIES}
 					keyExtractor={(item) => item.id}
@@ -57,9 +51,9 @@ export default function TechnicianSignUpStep4() {
 			<Button
 				onPress={handleNext}
 				disabled={selectedId === null}
-				className="mt-2"
+				className="mt-stack-sm"
 			>
-				<BtnText>Next</BtnText>
+				<BtnText variant="buttonLg">Next</BtnText>
 			</Button>
 		</AuthPageLayout>
 	);

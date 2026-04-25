@@ -186,12 +186,12 @@ export default function SignUp() {
 			<Button
 				onPress={handleSignUp}
 				disabled={!isFormValid || signUpMutation.isPending}
-				className="mt-2"
+				className="mt-stack-sm"
 			>
 				{signUpMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceBase} />
 				) : (
-					<BtnText>Sign Up</BtnText>
+					<BtnText variant="buttonLg">Sign Up</BtnText>
 				)}
 			</Button>
 

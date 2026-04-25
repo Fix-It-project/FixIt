@@ -10,8 +10,8 @@ interface TechnicianAvatarProps {
 }
 
 const sizeClasses = {
-	sm: "h-14 w-14",
-	lg: "h-20 w-20",
+	sm: "h-avatar-lg w-avatar-lg",
+	lg: "h-avatar-hero w-avatar-hero",
 } as const;
 
 const variantBySize = {
@@ -27,10 +27,13 @@ export default function TechnicianAvatar({
 }: TechnicianAvatarProps) {
 	const content = (
 		<View
-			className={`${sizeClasses[size]} items-center justify-center rounded-full`}
+			className={`${sizeClasses[size]} items-center justify-center rounded-pill`}
 			style={{ backgroundColor: getAvatarColor(id) }}
 		>
-			<Text variant={variantBySize[size]} className="font-bold text-white">
+			<Text
+				variant={variantBySize[size]}
+				className="font-bold text-surface-on-primary"
+			>
 				{initials}
 			</Text>
 		</View>

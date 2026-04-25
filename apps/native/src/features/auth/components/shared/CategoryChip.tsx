@@ -64,7 +64,7 @@ export default function CategoryChip({
 			android_ripple={{ color: hexToRgba(themeColors.shadow, 0.06) }}
 		>
 			<Animated.View
-				className="mx-4 my-1.5 flex-row items-center overflow-hidden rounded-[14px] border-[1.5px] bg-surface py-3 pr-3.5 pl-0"
+				className="mx-card my-stack-xs flex-row items-center overflow-hidden rounded-card border-focus bg-surface py-stack-md pr-card pl-0"
 				style={[
 					{
 						borderColor: selected ? color : Colors.borderChip,
@@ -76,11 +76,11 @@ export default function CategoryChip({
 				]}
 			>
 				{/* Left spacing/accent bar area (no longer colored) */}
-				<View className="mr-3 w-1 self-stretch rounded-md" />
+				<View className="mr-stack-md w-icon-2xs self-stretch rounded-compact" />
 
 				{/* Icon container */}
 				<View
-					className="mr-3.5 h-12 w-12 items-center justify-center rounded-[13px] border"
+					className="mr-card h-avatar-md w-avatar-md items-center justify-center rounded-input border"
 					style={{
 						backgroundColor: hexToRgba(color, selected ? 0.22 : 0.13),
 						borderColor: hexToRgba(color, selected ? 0.35 : 0.18),
@@ -101,7 +101,7 @@ export default function CategoryChip({
 				{/* Right badge */}
 				{selected ? (
 					<View
-						className="h-6 w-6 items-center justify-center rounded-full"
+						className="h-icon-md w-icon-md items-center justify-center rounded-pill"
 						style={{ backgroundColor: color }}
 					>
 						<Check size={13} color={Colors.surfaceBase} strokeWidth={3} />

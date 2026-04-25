@@ -1,16 +1,16 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { TextInput, type TextInputProps } from "react-native";
-import { useThemeColors } from "@/src/lib/theme";
+import { typography, useThemeColors } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
 
-const inputVariants = cva("font-normal text-base text-content", {
+const inputVariants = cva("font-google-sans text-base text-content py-0", {
 	variants: {
 		variant: {
 			/** Transparent bg with visible border — address/settings forms */
-			outline: "h-input rounded-2xl border px-4",
+			outline: "h-input rounded-input border px-card",
 			/** White-filled bg, pill shape — login/signup forms */
-			filled: "h-input rounded-full bg-surface px-6",
+			filled: "h-input rounded-pill bg-surface px-button-x",
 		},
 	},
 	defaultVariants: {
@@ -32,6 +32,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
 			variant = "outline",
 			hasError = false,
 			placeholderTextColor,
+			style,
 			onFocus,
 			onBlur,
 			...props
@@ -44,14 +45,14 @@ const Input = React.forwardRef<TextInput, InputProps>(
 		let borderClass = "";
 		if (variant === "outline") {
 			if (hasError) {
-				borderClass = "border-red-400";
+				borderClass = "border-danger";
 			} else if (isFocused) {
 				borderClass = "border-app-primary";
 			} else {
 				borderClass = "border-edge";
 			}
 		} else if (hasError) {
-			borderClass = "border border-red-400";
+			borderClass = "border border-danger";
 		}
 
 		return (
@@ -59,6 +60,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
 				ref={ref}
 				className={cn(inputVariants({ variant }), borderClass, className)}
 				placeholderTextColor={placeholderTextColor ?? themeColors.textMuted}
+				style={[typography.input, style]}
 				onFocus={(e) => {
 					setIsFocused(true);
 					onFocus?.(e);

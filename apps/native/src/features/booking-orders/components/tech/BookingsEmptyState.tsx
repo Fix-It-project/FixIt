@@ -10,11 +10,11 @@ export default function BookingsEmptyState() {
 	return (
 		<Animated.View
 			entering={FadeIn.duration(400)}
-			className="items-center justify-center px-6 py-16"
+			className="items-center justify-center px-button-x py-screen-bottom-inset"
 		>
 			{/* Icon */}
 			<View
-				className="mb-5 h-20 w-20 items-center justify-center rounded-full"
+				className="mb-stack-xl h-avatar-hero w-avatar-hero items-center justify-center rounded-pill"
 				style={{ backgroundColor: themeColors.primaryLight }}
 			>
 				<CalendarOff size={36} color={themeColors.primary} strokeWidth={1.5} />
@@ -28,7 +28,7 @@ export default function BookingsEmptyState() {
 			</Text>
 			<Text
 				variant="bodySm"
-				className="mt-2"
+				className="mt-stack-sm"
 				style={{ color: themeColors.textSecondary, textAlign: "center" }}
 			>
 				No bookings scheduled. Enjoy your free time{"\n"}or check another day!

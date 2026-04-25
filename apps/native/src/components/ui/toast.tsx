@@ -9,8 +9,8 @@ import { Colors } from "@/src/lib/theme";
 
 export const toastConfig: ToastConfig = {
 	success: ({ text1, text2 }) => (
-		<View className="mt-2 w-[90%] flex-row items-center rounded-2xl border border-edge/50 bg-surface p-4 shadow-sm">
-			<View className="mr-3 self-center">
+		<View className="mt-stack-sm w-toast flex-row items-center rounded-card border border-edge/50 bg-surface p-card shadow-sm">
+			<View className="mr-stack-md self-center">
 				<CheckCircle2 color={Colors.success} size={20} />
 			</View>
 			<View className="flex-1">
@@ -20,7 +20,7 @@ export const toastConfig: ToastConfig = {
 					</Text>
 				) : null}
 				{text2 ? (
-					<Text variant="bodySm" className="mt-1 text-content-secondary">
+					<Text variant="bodySm" className="mt-stack-xs text-content-secondary">
 						{text2}
 					</Text>
 				) : null}
@@ -28,18 +28,18 @@ export const toastConfig: ToastConfig = {
 		</View>
 	),
 	error: ({ text1, text2 }) => (
-		<View className="mt-2 w-[90%] flex-row items-center rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm">
-			<View className="mr-3 self-center">
+		<View className="mt-stack-sm w-toast flex-row items-center rounded-card border border-danger bg-danger-light p-card shadow-sm">
+			<View className="mr-stack-md self-center">
 				<XCircle color={Colors.danger} size={20} />
 			</View>
 			<View className="flex-1">
 				{text1 ? (
-					<Text variant="buttonLg" className="font-bold text-red-800">
+					<Text variant="buttonLg" className="font-bold text-danger">
 						{text1}
 					</Text>
 				) : null}
 				{text2 ? (
-					<Text variant="bodySm" className="mt-1 text-red-600">
+					<Text variant="bodySm" className="mt-stack-xs text-danger">
 						{text2}
 					</Text>
 				) : null}
@@ -47,8 +47,8 @@ export const toastConfig: ToastConfig = {
 		</View>
 	),
 	info: ({ text1, text2 }) => (
-		<View className="mt-2 w-[90%] flex-row items-center rounded-2xl border border-app-primary/30 bg-app-primary-light p-4 shadow-sm">
-			<View className="mr-3 self-center">
+		<View className="mt-stack-sm w-toast flex-row items-center rounded-card border border-app-primary/30 bg-app-primary-light p-card shadow-sm">
+			<View className="mr-stack-md self-center">
 				<Info color={Colors.primary} size={20} />
 			</View>
 			<View className="flex-1">
@@ -58,7 +58,7 @@ export const toastConfig: ToastConfig = {
 					</Text>
 				) : null}
 				{text2 ? (
-					<Text variant="bodySm" className="mt-1 text-content-secondary">
+					<Text variant="bodySm" className="mt-stack-xs text-content-secondary">
 						{text2}
 					</Text>
 				) : null}

@@ -95,6 +95,7 @@ export interface ThemePalette {
 	overlaySub: string;
 	overlayDim: string;
 	overlayBright: string;
+	backdrop: string;
 	gradientStart: string;
 	gradientMid: string;
 	gradientEnd: string;

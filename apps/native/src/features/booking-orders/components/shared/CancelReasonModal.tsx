@@ -8,16 +8,7 @@ import {
 	View,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { fontFamily, radius, useThemeColors } from "@/src/lib/theme";
-
-function withAlpha(hexColor: string, alpha: number) {
-	const normalized = hexColor.replace("#", "");
-	if (normalized.length !== 6) return hexColor;
-	const r = Number.parseInt(normalized.slice(0, 2), 16);
-	const g = Number.parseInt(normalized.slice(2, 4), 16);
-	const b = Number.parseInt(normalized.slice(4, 6), 16);
-	return `rgba(${r},${g},${b},${alpha})`;
-}
+import { radius, typography, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly confirmLabel: string;
@@ -58,7 +49,7 @@ export default function CancelReasonModal({
 			<Pressable
 				style={{
 					flex: 1,
-					backgroundColor: withAlpha(themeColors.shadow, 0.45),
+					backgroundColor: themeColors.backdrop,
 					justifyContent: "center",
 					alignItems: "center",
 				}}
@@ -66,16 +57,16 @@ export default function CancelReasonModal({
 			>
 				<Pressable
 					onPress={() => {}}
-					className="w-[88%] rounded-sheet p-sheet"
+					className="w-modal rounded-sheet p-sheet"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
-					<View className="mb-4 flex-row items-center justify-between">
+					<View className="mb-stack-lg flex-row items-center justify-between">
 						<Text variant="h3" style={{ color: themeColors.textPrimary }}>
 							{title}
 						</Text>
 						<TouchableOpacity
 							onPress={onClose}
-							className="h-8 w-8 items-center justify-center rounded-full"
+							className="h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill"
 							style={{ backgroundColor: themeColors.surfaceElevated }}
 						>
 							<X size={16} color={themeColors.textSecondary} />
@@ -84,7 +75,7 @@ export default function CancelReasonModal({
 
 					<Text
 						variant="bodySm"
-						className="mb-4"
+						className="mb-stack-lg"
 						style={{ color: themeColors.textSecondary }}
 					>
 						Are you sure you want to cancel the {subjectRole} with{" "}
@@ -105,24 +96,22 @@ export default function CancelReasonModal({
 						placeholderTextColor={themeColors.textMuted}
 						multiline
 						numberOfLines={3}
-						className="mb-4 rounded-xl border px-4 py-3 text-sm"
+						className="mb-stack-lg rounded-input border px-card py-stack-md text-sm"
 						style={{
-							borderWidth: 1,
+							...typography.bodySm,
 							borderColor: themeColors.borderDefault,
 							borderRadius: radius.button,
-							fontFamily: fontFamily.regular,
 							color: themeColors.textPrimary,
 							textAlignVertical: "top",
 							minHeight: 80,
 						}}
 					/>
 
-					<View className="flex-row gap-2.5">
+					<View className="flex-row gap-card-compact">
 						<TouchableOpacity
 							onPress={onClose}
-							className="flex-1 items-center rounded-xl border py-3"
+							className="flex-1 items-center rounded-input border py-stack-md"
 							style={{
-								borderWidth: 1,
 								borderColor: themeColors.borderDefault,
 								backgroundColor: themeColors.surfaceBase,
 							}}
@@ -139,7 +128,7 @@ export default function CancelReasonModal({
 						<TouchableOpacity
 							onPress={onConfirm}
 							disabled={isLoading}
-							className="flex-1 items-center rounded-xl py-3"
+							className="flex-1 items-center rounded-input py-stack-md"
 							style={{
 								backgroundColor: isLoading
 									? themeColors.borderDefault

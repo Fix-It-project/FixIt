@@ -6,7 +6,7 @@ import TodayScheduleSection from "@/src/features/dashboard/components/tech/Today
 import { useDashboardOrdersQuery } from "@/src/features/dashboard/hooks/useDashboardOrdersQuery";
 import DashboardHeader from "@/src/features/tech-self/components/tech/DashboardHeader";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 const SECTION_GAP = 8;
 
@@ -25,7 +25,10 @@ export default function TechHome() {
 				<ScrollView
 					className="flex-1"
 					showsVerticalScrollIndicator={false}
-					contentContainerStyle={{ paddingBottom: 24, gap: SECTION_GAP }}
+					contentContainerStyle={{
+						paddingBottom: spacing.stack.xl,
+						gap: SECTION_GAP,
+					}}
 					refreshControl={
 						<RefreshControl
 							refreshing={isRefetching}

@@ -18,13 +18,13 @@ export default function SettingsContent({
 	return (
 		<ScrollView
 			className="flex-1 bg-surface-elevated"
-			contentContainerClassName="gap-5 px-5 py-6"
+			contentContainerClassName="gap-card-roomy px-screen-x py-stack-xl"
 		>
 			<View
-				className="rounded-card bg-surface px-card-roomy py-4"
+				className="rounded-card bg-surface px-card-roomy py-card"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
-				<Text className="mb-3 font-semibold text-content-secondary text-sm">
+				<Text variant="bodySm" className="mb-stack-md font-semibold text-content-secondary text-sm">
 					Appearance
 				</Text>
 				<ThemeSegmentedControl />

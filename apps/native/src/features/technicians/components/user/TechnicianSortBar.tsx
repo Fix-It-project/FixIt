@@ -24,7 +24,7 @@ export default function TechnicianSortBar({
 	const themeColors = useThemeColors();
 	return (
 		<View
-			className="bg-surface py-2.5"
+			className="bg-surface py-stack-md"
 			style={{
 				borderBottomWidth: 1,
 				borderBottomColor: themeColors.borderDefault,
@@ -33,10 +33,13 @@ export default function TechnicianSortBar({
 			<ScrollView
 				horizontal
 				showsHorizontalScrollIndicator={false}
-				contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
+				contentContainerStyle={{
+					paddingHorizontal: spacing.card.padding,
+					gap: spacing.stack.sm,
+				}}
 			>
 				<View
-					className="mr-1 h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-button"
+					className="mr-stack-xs h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-button"
 					style={{ backgroundColor: themeColors.surfaceElevated }}
 				>
 					<SlidersHorizontal

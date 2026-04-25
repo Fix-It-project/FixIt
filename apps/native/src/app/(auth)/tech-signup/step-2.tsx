@@ -49,9 +49,9 @@ export default function TechnicianSignUpStep2() {
 			<Button
 				onPress={handleNext}
 				disabled={phone.trim().length === 0}
-				className="mt-2"
+				className="mt-stack-sm"
 			>
-				<BtnText>Next</BtnText>
+				<BtnText variant="buttonLg">Next</BtnText>
 			</Button>
 		</AuthPageLayout>
 	);

@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors, fontFamily, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, typography, useThemeColors } from "@/src/lib/theme";
 
 export interface AttachmentInfo {
 	uri: string;
@@ -79,24 +79,24 @@ export default function BookingDetailsStep({
 			keyboardVerticalOffset={100}
 		>
 			<ScrollView
-				className="flex-1 px-4 pt-4"
+				className="flex-1 px-screen-x pt-card"
 				showsVerticalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
 				{/* Date badge */}
-				<View className="mb-4 rounded-xl bg-app-primary-light px-4 py-2.5">
+				<View className="mb-stack-lg rounded-input bg-app-primary-light px-card py-control-trigger-y">
 					<Text variant="buttonMd" className="text-center text-app-primary">
 						Scheduled for: {selectedDate}
 					</Text>
 				</View>
 
 				{/* Description */}
-				<View className="mb-4">
-					<Text variant="buttonLg" className="mb-2 text-content">
+				<View className="mb-stack-lg">
+					<Text variant="buttonLg" className="mb-stack-sm text-content">
 						Describe the Problem
 					</Text>
-					<Text variant="caption" className="mb-3 text-content-muted">
+					<Text variant="caption" className="mb-stack-md text-content-muted">
 						Optional — help the technician prepare for the job
 					</Text>
 					<TextInput
@@ -107,33 +107,33 @@ export default function BookingDetailsStep({
 						multiline
 						numberOfLines={5}
 						textAlignVertical="top"
-						className="rounded-xl border border-edge bg-surface px-4 py-3 text-content text-sm"
+						className="rounded-input border border-edge bg-surface px-card py-stack-md text-content"
 						style={{
-							fontFamily: fontFamily.regular,
-							minHeight: 120,
+							...typography.bodySm,
+							minHeight: spacing.button.height.xl + spacing.avatar.lg,
 						}}
 					/>
 				</View>
 
 				{/* Attachment */}
-				<View className="mb-4">
-					<Text variant="buttonLg" className="mb-2 text-content">
+				<View className="mb-stack-lg">
+					<Text variant="buttonLg" className="mb-stack-sm text-content">
 						Attach a Photo
 					</Text>
-					<Text variant="caption" className="mb-3 text-content-muted">
+					<Text variant="caption" className="mb-stack-md text-content-muted">
 						Optional — a photo can help diagnose the issue faster
 					</Text>
 
 					{attachment ? (
-						<View className="overflow-hidden rounded-xl border border-edge">
+						<View className="overflow-hidden rounded-input border border-edge">
 							<Image
 								source={{ uri: attachment.uri }}
-								className="h-48 w-full"
+								className="h-media-attachment w-full"
 								resizeMode="cover"
 							/>
 							<TouchableOpacity
 								onPress={() => setAttachment(null)}
-								className="absolute top-2 right-2 h-8 w-8 items-center justify-center rounded-full bg-shadow/50"
+								className="absolute top-stack-sm right-stack-sm h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill bg-shadow/50"
 								activeOpacity={0.7}
 							>
 								<X
@@ -142,7 +142,7 @@ export default function BookingDetailsStep({
 									strokeWidth={2.5}
 								/>
 							</TouchableOpacity>
-							<View className="px-3 py-2">
+							<View className="px-stack-md py-stack-sm">
 								<Text
 									variant="caption"
 									className="text-content-muted"
@@ -153,10 +153,10 @@ export default function BookingDetailsStep({
 							</View>
 						</View>
 					) : (
-						<View className="flex-row gap-3">
+						<View className="flex-row gap-stack-md">
 							<TouchableOpacity
 								onPress={pickImage}
-								className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-edge border-dashed bg-surface py-4"
+								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-surface py-card"
 								activeOpacity={0.7}
 							>
 								<Paperclip size={18} color={Colors.primary} strokeWidth={2} />
@@ -167,7 +167,7 @@ export default function BookingDetailsStep({
 
 							<TouchableOpacity
 								onPress={takePhoto}
-								className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-edge border-dashed bg-surface py-4"
+								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-surface py-card"
 								activeOpacity={0.7}
 							>
 								<Camera size={18} color={Colors.primary} strokeWidth={2} />
@@ -180,13 +180,13 @@ export default function BookingDetailsStep({
 				</View>
 
 				{/* Spacer + buttons */}
-				<View className="flex-1 justify-end pb-6">
+				<View className="flex-1 justify-end pb-stack-xl">
 					<Button
 						onPress={() => onConfirm(description, attachment)}
 						disabled={isPending}
 						className="w-full"
 					>
-						<Text variant="buttonLg" className="text-white">
+						<Text variant="buttonLg" className="text-surface-on-primary">
 							{isPending ? "Submitting..." : "Confirm Booking"}
 						</Text>
 					</Button>
@@ -194,7 +194,7 @@ export default function BookingDetailsStep({
 					<TouchableOpacity
 						onPress={onBack}
 						disabled={isPending}
-						className="mt-3 items-center py-2"
+						className="mt-stack-md items-center py-stack-sm"
 						activeOpacity={0.7}
 					>
 						<Text variant="label" className="text-content-muted">

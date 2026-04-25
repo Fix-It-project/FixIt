@@ -14,11 +14,12 @@ import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback"
 import {
 	elevation,
 	shadowStyle,
+	spacing,
 	useThemeColors,
 	useThemeMeta,
 } from "@/src/lib/theme";
 
-const HEADER_HEIGHT = 160;
+const HEADER_HEIGHT = spacing.header.dashboardHeight;
 
 interface DashboardHeaderPolygonsProps {
 	readonly screenWidth: number;
@@ -111,9 +112,9 @@ export default function DashboardHeader() {
 		<View
 			style={{
 				backgroundColor: themeColors.primaryDark,
-				paddingHorizontal: 16,
-				paddingBottom: 16,
-				paddingTop: 8,
+				paddingHorizontal: spacing.header.shellPaddingX,
+				paddingBottom: spacing.header.shellPaddingBottom,
+				paddingTop: spacing.header.shellPaddingTop,
 				overflow: "hidden",
 				...shadowStyle(elevation.header, {
 					shadowColor: themeColors.shadow,
@@ -136,7 +137,7 @@ export default function DashboardHeader() {
 			{/* Title row */}
 			<Animated.View
 				entering={FadeInDown.duration(400)}
-				className="mb-4 flex-row items-center justify-between"
+				className="mb-stack-lg flex-row items-center justify-between"
 			>
 				<Text variant="h2" style={{ color: themeColors.onPrimaryHeader }}>
 					Fix
@@ -149,10 +150,11 @@ export default function DashboardHeader() {
 					</Text>
 				</Text>
 
-				<View className="flex-row items-center gap-3">
-					<View className="flex-row items-center gap-1.5">
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-row items-center gap-stack-xs">
 						<Text
-							className="font-bold text-xs uppercase"
+							variant="caption"
+							className="font-bold uppercase"
 							style={{
 								color: isOnline
 									? themeColors.statusOnline
@@ -162,7 +164,7 @@ export default function DashboardHeader() {
 							{isOnline ? "Online" : "Offline"}
 						</Text>
 						<View
-							className="h-2 w-2 rounded-full"
+							className="h-status-dot-sm w-status-dot-sm rounded-pill"
 							style={{
 								backgroundColor: isOnline
 									? themeColors.statusOnline
@@ -172,7 +174,7 @@ export default function DashboardHeader() {
 					</View>
 
 					<TouchableOpacity
-						className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full"
+						className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"
 						style={{ backgroundColor: themeColors.overlayMd }}
 						activeOpacity={0.7}
 					>
@@ -188,24 +190,25 @@ export default function DashboardHeader() {
 			{/* Profile card */}
 			<Animated.View
 				entering={FadeInDown.delay(100).duration(400)}
-				className="flex-row items-center justify-between rounded-2xl p-4"
+				className="flex-row items-center justify-between rounded-card p-card"
 				style={{ backgroundColor: themeColors.overlaySm }}
 			>
-				<View className="flex-1 flex-row items-center gap-3">
+				<View className="flex-1 flex-row items-center gap-stack-md">
 					<View className="relative">
 						{profile?.profile_image ? (
 							<Image
 								source={{ uri: profile.profile_image }}
-								className="h-12 w-12 rounded-full"
+								className="h-avatar-md w-avatar-md rounded-pill"
 								style={{ backgroundColor: themeColors.overlayMd }}
 							/>
 						) : (
 							<View
-								className="h-12 w-12 items-center justify-center rounded-full"
+								className="h-avatar-md w-avatar-md items-center justify-center rounded-pill"
 								style={{ backgroundColor: themeColors.ratingDefault }}
 							>
 								<Text
-									className="font-bold text-base"
+									variant="buttonLg"
+									className="font-bold"
 									style={{ color: themeColors.onPrimaryHeader }}
 								>
 									{initials}
@@ -213,7 +216,7 @@ export default function DashboardHeader() {
 							</View>
 						)}
 						<View
-							className="absolute right-0 bottom-0 h-3.5 w-3.5 rounded-full border-2"
+							className="absolute right-0 bottom-0 h-status-dot-md w-status-dot-md rounded-pill border-selected"
 							style={{
 								borderColor: themeColors.primaryDark,
 								backgroundColor: isOnline
@@ -226,7 +229,10 @@ export default function DashboardHeader() {
 					<View style={{ flex: 1 }}>
 						<Text
 							variant="buttonLg"
-							style={{ color: themeColors.onPrimaryHeader, fontWeight: "700" }}
+							className="font-bold"
+							style={{
+								color: themeColors.onPrimaryHeader,
+							}}
 							numberOfLines={1}
 						>
 							{fullName}
@@ -242,24 +248,26 @@ export default function DashboardHeader() {
 				</View>
 
 				{/* Stats */}
-				<View className="items-end gap-2" style={{ flexShrink: 0 }}>
-					<View className="flex-row items-center gap-1.5">
+				<View className="items-end gap-stack-sm" style={{ flexShrink: 0 }}>
+					<View className="flex-row items-center gap-stack-xs">
 						<ClipboardList size={14} color={themeColors.overlayBright} />
 						<Text
-							className="font-bold text-sm"
+							variant="bodySm"
+							className="font-bold"
 							style={{ color: themeColors.surfaceBase }}
 						>
 							{profile?.total_orders ?? 0}
 						</Text>
 					</View>
-					<View className="flex-row items-center gap-1.5">
+					<View className="flex-row items-center gap-stack-xs">
 						<Star
 							size={14}
 							color={themeColors.ratingDefault}
 							fill={themeColors.ratingDefault}
 						/>
 						<Text
-							className="font-bold text-sm"
+							variant="bodySm"
+							className="font-bold"
 							style={{ color: themeColors.surfaceBase }}
 						>
 							4.8

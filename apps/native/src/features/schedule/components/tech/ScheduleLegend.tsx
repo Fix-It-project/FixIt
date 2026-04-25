@@ -8,9 +8,9 @@ function LegendItem({
 }: Readonly<{ color: string; label: string }>) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="flex-row items-center gap-1.5">
+		<View className="flex-row items-center gap-stack-xs">
 			<View
-				className="h-2.5 w-2.5 rounded-full"
+				className="h-status-dot-sm w-status-dot-sm rounded-pill"
 				style={{ backgroundColor: color }}
 			/>
 			<Text variant="caption" style={{ color: themeColors.textMuted }}>
@@ -23,15 +23,15 @@ function LegendItem({
 export default function ScheduleLegend() {
 	const themeColors = useThemeColors();
 	return (
-		<View className="mt-4 px-4">
+		<View className="mt-stack-lg px-screen-x">
 			<Text
 				variant="bodySm"
-				className="mb-2.5 font-semibold"
+				className="mb-stack-sm font-semibold"
 				style={{ color: themeColors.textSecondary }}
 			>
 				Legend
 			</Text>
-			<View className="flex-row flex-wrap gap-4">
+			<View className="flex-row flex-wrap gap-stack-lg">
 				<LegendItem color={themeColors.primary} label="Selected date" />
 				<LegendItem color={themeColors.borderDefault} label="Day off" />
 				<LegendItem

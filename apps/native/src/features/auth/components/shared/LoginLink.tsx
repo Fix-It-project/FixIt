@@ -18,7 +18,7 @@ export default function LoginLink({
 	const goToLogin = useDebounce(() => router.push(route));
 
 	return (
-		<View className="mt-4 mb-8 flex-row items-center justify-center">
+		<View className="mt-stack-lg mb-stack-2xl flex-row items-center justify-center">
 			<Text variant="bodySm" className="text-content-secondary">
 				{prefixText}
 			</Text>

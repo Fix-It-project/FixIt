@@ -29,7 +29,7 @@ export default function ProfileContentLayout({
 				<ScrollView
 					className="flex-1"
 					showsVerticalScrollIndicator={false}
-					contentContainerClassName="pb-10"
+					contentContainerClassName="pb-screen-bottom-inset"
 				>
 					<ProfileHeader
 						name={name}

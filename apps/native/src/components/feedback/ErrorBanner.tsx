@@ -16,9 +16,13 @@ export default function ErrorBanner({
 
 	if (variant === "warning") {
 		return (
-			<View className="mx-5 mb-4 flex-row items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-				<TriangleAlert size={18} color={Colors.warning} className="mr-2" />
-				<Text variant="bodySm" className="flex-1 text-amber-800">
+			<View className="mx-screen-x mb-stack-lg flex-row items-center rounded-input border border-warning bg-warning-light px-card py-stack-md">
+				<TriangleAlert
+					size={18}
+					color={Colors.warning}
+					className="mr-stack-sm"
+				/>
+				<Text variant="bodySm" className="flex-1 text-warning">
 					{message}
 				</Text>
 			</View>
@@ -26,8 +30,8 @@ export default function ErrorBanner({
 	}
 
 	return (
-		<View className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
-			<Text variant="bodySm" className="text-center text-red-600">
+		<View className="rounded-card border border-danger bg-danger-light px-card py-stack-md">
+			<Text variant="bodySm" className="text-center text-danger">
 				{message}
 			</Text>
 		</View>

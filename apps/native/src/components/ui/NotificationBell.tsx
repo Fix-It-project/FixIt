@@ -18,13 +18,13 @@ export default function NotificationBell({
 
 	return (
 		<TouchableOpacity
-			className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full"
+			className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"
 			style={{ backgroundColor: bgColor }}
 			activeOpacity={0.7}
 		>
 			<Bell size={20} color={resolvedIconColor} strokeWidth={1.8} />
 			<View
-				className="absolute top-2 right-2 h-2 w-2 rounded-full"
+				className="absolute top-stack-sm right-2 h-status-dot-sm w-status-dot-sm rounded-pill"
 				style={{ backgroundColor: Colors.danger }}
 			/>
 		</TouchableOpacity>

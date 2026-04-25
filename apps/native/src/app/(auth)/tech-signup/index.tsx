@@ -75,12 +75,12 @@ export default function TechnicianSignUpStep1() {
 			<Button
 				onPress={handleNext}
 				disabled={email.trim().length === 0 || isChecking}
-				className="mt-2"
+				className="mt-stack-sm"
 			>
 				{isChecking ? (
 					<ActivityIndicator color={themeColors.surfaceBase} />
 				) : (
-					<BtnText>Next</BtnText>
+					<BtnText variant="buttonLg">Next</BtnText>
 				)}
 			</Button>
 

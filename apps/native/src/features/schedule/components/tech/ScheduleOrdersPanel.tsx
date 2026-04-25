@@ -21,14 +21,14 @@ export default function ScheduleOrdersPanel({
 	if (orders.length === 0) return null;
 
 	return (
-		<View className="mt-2.5 overflow-hidden rounded-button border border-success-alt/25 bg-order-bg">
+		<View className="mt-stack-md overflow-hidden rounded-button border border-success-alt/25 bg-order-bg">
 			<TouchableOpacity
 				onPress={() => setExpanded((prev) => !prev)}
-				className="flex-row items-center justify-between px-card-compact py-3"
+				className="flex-row items-center justify-between px-card-compact py-stack-md"
 				activeOpacity={0.7}
 			>
-				<View className="flex-row items-center gap-2">
-					<View className="h-2 w-2 rounded-full bg-success-alt" />
+				<View className="flex-row items-center gap-stack-sm">
+					<View className="h-status-dot-sm w-status-dot-sm rounded-pill bg-success-alt" />
 					<Text variant="bodySm" className="font-semibold text-order-text">
 						{orders.length} order{orders.length > 1 ? "s" : ""} this day
 					</Text>
@@ -37,7 +37,7 @@ export default function ScheduleOrdersPanel({
 			</TouchableOpacity>
 
 			{expanded && (
-				<View className="px-card-compact pb-3">
+				<View className="px-card-compact pb-stack-md">
 					{orders.map((o) => (
 						<ScheduleOrderCard key={o.id} order={o} />
 					))}

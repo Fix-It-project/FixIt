@@ -41,7 +41,7 @@ export default function PageHeader({
 	return (
 		<View
 			className={cn(
-				"min-h-header flex-row items-center border-border border-b px-screen-x py-3",
+				"min-h-header flex-row items-center border-border border-b px-screen-x py-stack-md",
 				isBrand && "border-transparent",
 				className,
 			)}
@@ -58,7 +58,7 @@ export default function PageHeader({
 			<BackButton
 				variant={isBrand ? "header-inverse" : "header"}
 				onPress={onBackPress}
-				className="mr-3"
+				className="mr-stack-md"
 			/>
 
 			<View className="flex-1">

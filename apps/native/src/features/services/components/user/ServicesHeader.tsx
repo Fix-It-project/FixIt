@@ -19,11 +19,11 @@ export default function ServicesHeader({
 }: ServicesHeaderProps) {
 	const themeColors = useThemeColors();
 	return (
-		<View style={{ backgroundColor: categoryColor }} className="pb-5">
-			<View className="flex-row items-center px-4 pt-2 pb-1">
+		<View style={{ backgroundColor: categoryColor }} className="pb-card-roomy">
+			<View className="flex-row items-center px-card pt-stack-sm pb-stack-xs">
 				<BackButton
 					variant="header-inverse"
-					className="mr-3"
+					className="mr-stack-md"
 					onPress={onBackPress}
 				/>
 				<View className="flex-1">
@@ -38,7 +38,7 @@ export default function ServicesHeader({
 						Choose a service
 					</Text>
 				</View>
-				<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full bg-overlay-md">
+				<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill bg-overlay-md">
 					<CategoryIcon
 						size={20}
 						color={themeColors.onPrimaryHeader}

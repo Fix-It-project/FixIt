@@ -6,7 +6,7 @@ export default function HomeSearchBar() {
 	const themeColors = useThemeColors();
 
 	return (
-		<View className="px-5 pt-1 pb-4">
+		<View className="px-screen-x pt-stack-xs pb-card">
 			<View
 				className="h-control-search flex-row items-center gap-control-search rounded-input px-control-search"
 				style={{ backgroundColor: Colors.overlayWhite }}
@@ -20,7 +20,7 @@ export default function HomeSearchBar() {
 					placeholder="Search services & technicians"
 					placeholderTextColor={Colors.overlaySub}
 					editable={false}
-					className="flex-1 p-0 text-white"
+					className="flex-1 p-0 text-surface-on-primary"
 					style={[typography.body, { color: themeColors.onPrimaryHeader }]}
 				/>
 			</View>

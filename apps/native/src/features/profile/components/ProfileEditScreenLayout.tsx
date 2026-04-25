@@ -6,7 +6,7 @@ import ErrorBanner from "@/src/components/feedback/ErrorBanner";
 import PageHeader from "@/src/components/PageHeader";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 interface ProfileEditScreenLayoutProps {
 	readonly children: ReactNode;
@@ -41,25 +41,25 @@ export default function ProfileEditScreenLayout({
 				className="flex-1"
 				style={{ paddingHorizontal: horizontalPadding }}
 				contentContainerStyle={{
-					paddingTop: 20,
-					paddingBottom: 32,
+					paddingTop: spacing.card.roomy.padding,
+					paddingBottom: spacing.stack["2xl"],
 					alignItems: "center",
 				}}
 				showsVerticalScrollIndicator={false}
 				keyboardShouldPersistTaps="handled"
 				keyboardDismissMode="interactive"
-				bottomOffset={20}
+				bottomOffset={spacing.card.roomy.padding}
 			>
-				<View className="w-full max-w-[560px] gap-4">
+				<View className="w-full max-w-[560px] gap-stack-lg">
 					<ErrorBanner message={errorMessage} />
 					{children}
 
-					<View className="mt-2">
+					<View className="mt-stack-sm">
 						<Button onPress={onSavePress} disabled={isSaveDisabled}>
 							{isPending ? (
 								<ActivityIndicator color={themeColors.surfaceBase} />
 							) : (
-								<Text>Save Changes</Text>
+								<Text variant="body">Save Changes</Text>
 							)}
 						</Button>
 					</View>

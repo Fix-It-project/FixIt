@@ -4,7 +4,7 @@ import { Text } from "@/src/components/ui/text";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { fontFamily, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface Props {
@@ -23,13 +23,10 @@ export default function BookingClientCard({ booking }: Props) {
 	const nameFontSize = width < 360 ? 16 : 18;
 
 	return (
-		<View
-			className="mb-4 rounded-2xl bg-surface p-5"
-			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
-		>
-			<View className="flex-row gap-4" style={{ alignItems: "center" }}>
+		<View className="mb-stack-lg rounded-card border border-edge bg-surface p-card-roomy">
+			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
 				<View
-					className="items-center justify-center rounded-full"
+					className="items-center justify-center rounded-pill"
 					style={{
 						backgroundColor: avatarColor,
 						width: avatarSize,
@@ -37,8 +34,9 @@ export default function BookingClientCard({ booking }: Props) {
 					}}
 				>
 					<Text
+						variant="body"
+						className="font-bold"
 						style={{
-							fontFamily: fontFamily.bold,
 							fontSize: avatarSize * 0.32,
 							color: themeColors.surfaceBase,
 						}}
@@ -48,8 +46,9 @@ export default function BookingClientCard({ booking }: Props) {
 				</View>
 				<View className="min-w-0 flex-1">
 					<Text
+						variant="body"
+						className="font-bold"
 						style={{
-							fontFamily: fontFamily.bold,
 							fontSize: nameFontSize,
 							color: themeColors.textPrimary,
 						}}
@@ -57,7 +56,7 @@ export default function BookingClientCard({ booking }: Props) {
 					>
 						{booking.user_name ?? "Unknown Client"}
 					</Text>
-					<View className="mt-1 min-w-0 flex-row items-center gap-1.5">
+					<View className="mt-stack-xs min-w-0 flex-row items-center gap-stack-xs">
 						<CategoryIcon size={14} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="bodySm"

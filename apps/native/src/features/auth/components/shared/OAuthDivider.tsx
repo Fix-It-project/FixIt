@@ -8,9 +8,9 @@ export default function OAuthDivider() {
 
 	return (
 		<>
-			<View className="my-2 flex-row items-center">
+			<View className="my-stack-sm flex-row items-center">
 				<View className="h-[1px] flex-1 bg-edge" />
-				<Text variant="caption" className="px-4 text-surface-muted">
+				<Text variant="caption" className="px-card text-surface-muted">
 					Or continue with
 				</Text>
 				<View className="h-[1px] flex-1 bg-edge" />

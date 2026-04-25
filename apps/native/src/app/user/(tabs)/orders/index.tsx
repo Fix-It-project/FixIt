@@ -54,7 +54,7 @@ export default function MyOrdersScreen() {
 						}
 					>
 						{orders.length === 0 ? (
-							<View className="flex-1 items-center justify-center px-8">
+							<View className="flex-1 items-center justify-center px-button-lg-x">
 								<Text
 									variant="buttonLg"
 									style={{
@@ -66,7 +66,7 @@ export default function MyOrdersScreen() {
 								</Text>
 								<Text
 									variant="bodySm"
-									className="mt-1 text-center"
+									className="mt-stack-xs text-center"
 									style={{ color: themeColors.textMuted }}
 								>
 									Your bookings will appear here once you book a technician.

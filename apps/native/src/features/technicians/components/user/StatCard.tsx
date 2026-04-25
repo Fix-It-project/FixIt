@@ -9,9 +9,9 @@ interface StatCardProps {
 
 export default function StatCard({ icon, label, value }: StatCardProps) {
 	return (
-		<View className="flex-1 items-center gap-1 rounded-xl bg-surface-elevated px-3 py-3.5">
+		<View className="flex-1 items-center gap-stack-xs rounded-input bg-surface-elevated px-stack-md py-card">
 			{icon}
-			<Text variant="buttonLg" className="mt-1 font-bold text-content">
+			<Text variant="buttonLg" className="mt-stack-xs font-bold text-content">
 				{value}
 			</Text>
 			<Text variant="caption" className="text-content-muted">

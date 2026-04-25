@@ -1,5 +1,6 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
 import type { Theme as CalendarTheme } from "react-native-calendars/src/types";
+import { fontFamily, fontSize, radius, spacing } from "@/src/lib/design-tokens";
 import { themeRegistry } from "./definitions";
 import type { ThemeId, ThemePreference, ThemeTokens } from "./types";
 
@@ -48,12 +49,12 @@ export function getCalendarTheme(tokens: ThemeTokens): CalendarTheme {
 		arrowColor: tokens.primary,
 		monthTextColor: tokens.textCalendar,
 		indicatorColor: tokens.primary,
-		textDayFontFamily: "GoogleSans_400Regular",
-		textMonthFontFamily: "GoogleSans_700Bold",
-		textDayHeaderFontFamily: "GoogleSans_500Medium",
-		textDayFontSize: 14,
-		textMonthFontSize: 16,
-		textDayHeaderFontSize: 12,
+		textDayFontFamily: fontFamily.regular,
+		textMonthFontFamily: fontFamily.bold,
+		textDayHeaderFontFamily: fontFamily.medium,
+		textDayFontSize: fontSize.sm,
+		textMonthFontSize: fontSize.base,
+		textDayHeaderFontSize: fontSize.xs,
 		stylesheet: {
 			calendar: {
 				main: {
@@ -61,7 +62,7 @@ export function getCalendarTheme(tokens: ThemeTokens): CalendarTheme {
 				},
 				header: {
 					week: {
-						marginTop: 8,
+						marginTop: spacing.stack.sm,
 						flexDirection: "row",
 						justifyContent: "space-between",
 					},
@@ -70,11 +71,11 @@ export function getCalendarTheme(tokens: ThemeTokens): CalendarTheme {
 			day: {
 				basic: {
 					base: {
-						width: 32,
-						height: 32,
+						width: spacing.control.iconBoxSm.size,
+						height: spacing.control.iconBoxSm.size,
 						alignItems: "center",
 						justifyContent: "center",
-						borderRadius: 16,
+						borderRadius: radius.card,
 					},
 				},
 			},
@@ -134,6 +135,7 @@ export function getThemeVariableRecord(
 		"--overlay-sub": tokens.overlaySub,
 		"--overlay-dim": tokens.overlayDim,
 		"--overlay-bright": tokens.overlayBright,
+		"--backdrop": tokens.backdrop,
 		"--gradient-start": tokens.gradientStart,
 		"--gradient-mid": tokens.gradientMid,
 		"--gradient-end": tokens.gradientEnd,

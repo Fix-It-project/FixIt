@@ -7,10 +7,10 @@ import {
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/lib/mock-data/user";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 const CARD_WIDTH_RATIO = 0.75;
-const CARD_SPACING = 8;
+const CARD_SPACING = spacing.stack.sm;
 
 function OrderCard({
 	item,
@@ -22,35 +22,26 @@ function OrderCard({
 	const themeColors = useThemeColors();
 	return (
 		<View
+			className="rounded-card bg-surface p-card"
 			style={{
 				width: cardWidth,
 				marginHorizontal: CARD_SPACING / 2,
-				borderRadius: 14,
-				backgroundColor: themeColors.surfaceBase,
-				padding: 14,
 			}}
 		>
 			{/* Top: avatar + info + reorder button */}
-			<View style={{ flexDirection: "row", alignItems: "center" }}>
+			<View className="flex-row items-center">
 				{/* Avatar */}
 				<View
-					style={{
-						width: 44,
-						height: 44,
-						borderRadius: 22,
-						backgroundColor: item.categoryColor,
-						alignItems: "center",
-						justifyContent: "center",
-						marginRight: 10,
-					}}
+					className="mr-control-search h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-pill"
+					style={{ backgroundColor: item.categoryColor }}
 				>
-					<Text variant="label" className="font-bold text-white">
+					<Text variant="label" className="font-bold text-surface-on-primary">
 						{item.initials}
 					</Text>
 				</View>
 
 				{/* Name + category */}
-				<View style={{ flex: 1 }}>
+				<View className="flex-1">
 					<Text
 						variant="label"
 						className="font-semibold text-content"
@@ -66,24 +57,16 @@ function OrderCard({
 				{/* Pill-shaped transparent outline button */}
 				<TouchableOpacity
 					activeOpacity={0.7}
+					className="flex-row items-center justify-center gap-control-btn-compact rounded-pill border bg-transparent px-screen-x py-stack-sm"
 					style={{
-						flexDirection: "row",
-						alignItems: "center",
-						justifyContent: "center",
-						gap: 6,
-						backgroundColor: "transparent",
-						borderWidth: 1.5,
 						borderColor: themeColors.borderDefault,
-						borderRadius: 100, // Pill shape
-						paddingHorizontal: 18, // Generous padding for pill proportions
-						paddingVertical: 8, // A bit of height but proportional
 					}}
 				>
 					<RotateCcw
 						size={14}
 						color={themeColors.textContrast}
 						strokeWidth={2.5}
-						style={{ marginTop: -1 }}
+						style={{ marginTop: spacing.offset.hairlineNudge }}
 					/>
 					<Text variant="buttonMd" className="font-bold text-content">
 						Reorder
@@ -92,17 +75,7 @@ function OrderCard({
 			</View>
 
 			{/* Bottom row: date + price */}
-			<View
-				style={{
-					flexDirection: "row",
-					justifyContent: "space-between",
-					alignItems: "center",
-					marginTop: 10,
-					paddingTop: 8,
-					borderTopWidth: 1,
-					borderTopColor: themeColors.surfaceElevated,
-				}}
-			>
+			<View className="mt-control-search flex-row items-center justify-between border-t border-surface-elevated pt-stack-sm">
 				<Text variant="caption" className="text-content-muted">
 					{item.date}
 				</Text>
@@ -123,7 +96,7 @@ export default function PreviousOrdersSection() {
 	return (
 		<View>
 			{/* Header */}
-			<View className="mb-2 flex-row items-center px-5">
+			<View className="mb-stack-sm flex-row items-center px-screen-x">
 				<Text variant="h2" className="text-content">
 					Previous Orders
 				</Text>
@@ -141,8 +114,8 @@ export default function PreviousOrdersSection() {
 				snapToInterval={cardWidth + CARD_SPACING}
 				decelerationRate="fast"
 				contentContainerStyle={{
-					paddingHorizontal: 20 - CARD_SPACING / 2,
-					paddingVertical: 4,
+					paddingHorizontal: spacing.screen.paddingX - CARD_SPACING / 2,
+					paddingVertical: spacing.stack.xs,
 				}}
 			/>
 		</View>

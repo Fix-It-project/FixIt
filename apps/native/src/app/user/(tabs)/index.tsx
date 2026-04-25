@@ -67,18 +67,18 @@ export default function Home() {
 				<ScrollView
 					className="flex-1 bg-surface-elevated"
 					showsVerticalScrollIndicator={false}
-					contentContainerClassName="pb-6"
+					contentContainerClassName="pb-stack-xl"
 				>
 					<View
 						style={{ backgroundColor: themeColors.primary }}
-						className="pb-6"
+						className="pb-stack-xl"
 					>
 						<HeaderPolygons palette={headerPolygonPalette} />
 						<LocationHeader onLocationPress={handleLocationPress} />
 						<HomeSearchBar />
 					</View>
 
-					<View className="gap-4 bg-surface-elevated pt-3">
+					<View className="gap-stack-lg bg-surface-elevated pt-stack-md">
 						<CategoryGrid
 							categories={categories}
 							isLoading={categoriesLoading}

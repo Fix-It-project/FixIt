@@ -15,12 +15,12 @@ const buttonVariants = cva("group flex-row items-center justify-center", {
 			link: "",
 		},
 		size: {
-			default: "h-btn-lg rounded-full px-6",
-			sm: "h-btn-sm rounded-full px-3",
-			lg: "h-btn-xl rounded-full px-8",
+			default: "h-btn-lg rounded-pill px-button-x",
+			sm: "h-btn-sm rounded-pill px-button-sm-x",
+			lg: "h-btn-xl rounded-pill px-button-lg-x",
 			action: "gap-control-action rounded-card py-control-action-y",
 			cta: "gap-control-cta rounded-button py-control-cta-y",
-			icon: "h-10 w-10",
+			icon: "h-control-back-md w-control-back-md",
 		},
 	},
 	defaultVariants: {
@@ -29,10 +29,10 @@ const buttonVariants = cva("group flex-row items-center justify-center", {
 	},
 });
 
-const buttonTextVariants = cva("font-bold text-base", {
+const buttonTextVariants = cva("font-google-sans-bold text-base", {
 	variants: {
 		variant: {
-			default: "text-white",
+			default: "text-surface-on-primary",
 			destructive: "text-destructive-foreground",
 			outline: "text-foreground",
 			secondary: "text-secondary-foreground",

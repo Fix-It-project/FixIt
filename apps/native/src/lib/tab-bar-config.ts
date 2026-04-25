@@ -1,15 +1,15 @@
 import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { ThemePalette } from "@/src/lib/theme";
+import { fontFamily, spacing, type ThemePalette } from "@/src/lib/theme";
 
-const TAB_BAR_CONTENT_HEIGHT = 52;
-const TAB_BAR_TOP_PADDING = 8;
-const MIN_TAB_BAR_BOTTOM_PADDING = 12;
+const TAB_BAR_CONTENT_HEIGHT = spacing.tabBar.height - 20;
+const TAB_BAR_TOP_PADDING = spacing.stack.sm;
+const MIN_TAB_BAR_BOTTOM_PADDING = spacing.stack.md;
 
 const TAB_BAR_LABEL_STYLE = {
+	fontFamily: fontFamily.semibold,
 	fontSize: 11,
-	fontWeight: "600" as const,
 	marginTop: 2,
 } as const;
 

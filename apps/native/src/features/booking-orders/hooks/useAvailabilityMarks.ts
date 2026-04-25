@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { MarkingProps } from "react-native-calendars/src/calendar/day/marking";
-import { useThemeColors } from "@/src/lib/theme";
+import { fontFamily, radius, useThemeColors } from "@/src/lib/theme";
 
 type MarkedDates = Record<string, MarkingProps>;
 
@@ -53,9 +53,12 @@ export function useAvailabilityMarks(
 					customStyles: {
 						container: {
 							backgroundColor: themeColors.primary,
-							borderRadius: 20,
+							borderRadius: radius.sheet,
 						},
-						text: { color: themeColors.surfaceOnPrimary, fontWeight: "700" },
+						text: {
+							color: themeColors.surfaceOnPrimary,
+							fontFamily: fontFamily.bold,
+						},
 					},
 				};
 			} else if (isUnavailable) {

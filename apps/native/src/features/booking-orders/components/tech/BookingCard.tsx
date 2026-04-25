@@ -51,12 +51,11 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 	return (
 		<Animated.View
 			entering={FadeInDown.delay(index * 100).duration(400)}
-			className="mb-3"
+			className="mb-stack-md"
 		>
 			<View
-				className="overflow-hidden rounded-card bg-surface"
+				className="overflow-hidden rounded-card border bg-surface"
 				style={{
-					borderWidth: 1,
 					borderColor: isCancelled
 						? `${themeColors.danger}30`
 						: themeColors.borderDefault,
@@ -65,10 +64,10 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 				}}
 			>
 				<TouchableOpacity activeOpacity={0.85} onPress={goToBooking}>
-					<View className="flex-row items-center gap-3 p-card">
+					<View className="flex-row items-center gap-stack-md p-card">
 						{/* Avatar */}
 						<View
-							className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-full"
+							className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
 							style={{ backgroundColor: avatarColor }}
 						>
 							<Text
@@ -91,7 +90,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 								{booking.user_name ?? "Unknown Client"}
 							</Text>
 
-							<View className="mt-0.5 flex-row items-center gap-1.5">
+							<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 								<CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
 								<Text
 									variant="caption"
@@ -102,7 +101,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 								</Text>
 							</View>
 
-							<View className="mt-1 flex-row items-center gap-1">
+							<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 								<Calendar
 									size={11}
 									color={themeColors.textMuted}
@@ -119,7 +118,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 							{/* Status badge */}
 							{statusLabel && statusColor && (
 								<View
-									className="mt-1.5 self-start rounded-full px-2.5 py-0.5"
+									className="mt-stack-xs self-start rounded-pill px-stack-md py-stack-xs"
 									style={{ backgroundColor: `${statusColor}15` }}
 								>
 									<Text

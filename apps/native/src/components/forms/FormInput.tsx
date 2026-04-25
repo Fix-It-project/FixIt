@@ -36,12 +36,12 @@ export default function FormInput({
 	required = false,
 }: FormInputProps) {
 	return (
-		<View className={variant === "filled" ? "gap-3" : ""}>
+		<View className={variant === "filled" ? "gap-stack-md" : ""}>
 			{label && (
 				<Text variant="buttonMd" className="text-content">
 					{label}
 					{required && (
-						<Text variant="buttonMd" className="text-red-500">
+						<Text variant="buttonMd" className="text-danger">
 							{" "}
 							*
 						</Text>
@@ -80,8 +80,8 @@ export default function FormInput({
 					variant="caption"
 					className={
 						variant === "filled"
-							? "ml-4 text-red-500"
-							: "mt-1 ml-2 text-red-500"
+							? "ml-card text-danger"
+							: "mt-stack-xs ml-stack-sm text-danger"
 					}
 				>
 					{error}

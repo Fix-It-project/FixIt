@@ -12,7 +12,7 @@ interface Props {
 export default function OrderActionButtons({ onReschedule, onCancel }: Props) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="mt-2 gap-2.5">
+		<View className="mt-stack-sm gap-card-compact">
 			<Button
 				onPress={onReschedule}
 				size="action"

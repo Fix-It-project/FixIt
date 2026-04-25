@@ -13,6 +13,7 @@ import { CATEGORIES } from "@/src/lib/helpers/categories";
 import {
 	elevation,
 	shadowStyle,
+	spacing,
 	type ThemePalette,
 	useThemeColors,
 } from "@/src/lib/theme";
@@ -59,22 +60,20 @@ function RequestCard({
 	return (
 		<Animated.View
 			entering={FadeInRight.delay(index * 100).duration(400)}
-			className="mr-3"
+			className="mr-stack-md"
 			style={{ width: cardWidth }}
 		>
 			<TouchableOpacity activeOpacity={0.95} onPress={() => openModal(item)}>
 				<View
-					className="rounded-card bg-surface p-card"
+					className="rounded-card border border-edge bg-surface p-card"
 					style={{
-						borderWidth: 1,
-						borderColor: themeColors.borderDefault,
 						...shadowStyle(elevation.raised, {
 							shadowColor: themeColors.shadow,
 						}),
 					}}
 				>
 					{/* Top row: category icon + title + received time */}
-					<View className="mb-2 flex-row items-center gap-2">
+					<View className="mb-stack-sm flex-row items-center gap-stack-sm">
 						<View
 							className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-button"
 							style={{ backgroundColor: `${categoryColor}18` }}
@@ -96,25 +95,29 @@ function RequestCard({
 					</View>
 
 					{/* Scheduled date */}
-					<Text className="mb-2 text-content-muted text-xs">
+					<Text variant="caption" className="mb-stack-sm text-content-muted">
 						📅 {item.scheduled_date}
 					</Text>
 
 					{/* Problem description — 1 line only */}
-					<Text className="mb-1 text-content-muted text-xs" numberOfLines={1}>
+					<Text
+						variant="caption"
+						className="mb-stack-xs text-content-muted"
+						numberOfLines={1}
+					>
 						{item.problem_description ?? "No description provided."}
 					</Text>
 
 					<Text
 						variant="caption"
-						className="mb-3 font-semibold"
+						className="mb-stack-md font-semibold"
 						style={{ color: themeColors.primary }}
 					>
 						Tap to view details →
 					</Text>
 
 					{/* Action buttons */}
-					<View className="flex-row gap-2">
+					<View className="flex-row gap-stack-sm">
 						<TouchableOpacity
 							className="flex-1 items-center rounded-button py-control-trigger-y"
 							style={{
@@ -132,7 +135,7 @@ function RequestCard({
 									color={themeColors.surfaceBase}
 								/>
 							) : (
-								<Text variant="caption" className="font-bold text-white">
+								<Text variant="caption" className="font-bold text-surface-on-primary">
 									Accept
 								</Text>
 							)}
@@ -186,7 +189,7 @@ export default function IncomingRequestsSection({
 		<ScrollView
 			horizontal
 			showsHorizontalScrollIndicator={false}
-			contentContainerStyle={{ paddingHorizontal: 16 }}
+			contentContainerStyle={{ paddingHorizontal: spacing.screen.paddingX }}
 		>
 			{pendingOrders.map((item, index) => (
 				<RequestCard
@@ -204,25 +207,24 @@ export default function IncomingRequestsSection({
 
 	if (isLoading) {
 		content = (
-			<View className="items-center py-6">
+			<View className="items-center py-stack-xl">
 				<ActivityIndicator color={themeColors.primary} />
 			</View>
 		);
 	} else if (pendingOrders.length === 0) {
 		content = (
-			<View
-				className="mx-4 items-center rounded-2xl bg-surface px-4 py-6"
-				style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
-			>
-				<Text className="text-content-muted text-sm">No pending requests</Text>
+			<View className="mx-screen-x items-center rounded-card border border-edge bg-surface px-card py-stack-xl">
+				<Text variant="bodySm" className="text-content-muted">
+					No pending requests
+				</Text>
 			</View>
 		);
 	}
 
 	return (
-		<View className="mt-6">
+		<View className="mt-stack-xl">
 			{/* Section header */}
-			<View className="mb-3 flex-row items-center justify-between px-4">
+			<View className="mb-stack-md flex-row items-center justify-between px-screen-x">
 				<Text
 					variant="caption"
 					className="font-bold text-content-muted uppercase tracking-widest"
@@ -231,7 +233,7 @@ export default function IncomingRequestsSection({
 				</Text>
 				{pendingOrders.length > 0 && (
 					<View
-						className="h-5 w-5 items-center justify-center rounded-full"
+						className="h-icon-sm w-icon-sm items-center justify-center rounded-pill"
 						style={{ backgroundColor: themeColors.primary }}
 					>
 						<Text

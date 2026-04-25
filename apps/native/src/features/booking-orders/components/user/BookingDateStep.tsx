@@ -47,12 +47,12 @@ export default function BookingDateStep({
 	}
 
 	return (
-		<View className="flex-1 px-4 pt-4">
-			<View className="mb-4">
+		<View className="flex-1 px-card pt-card">
+			<View className="mb-stack-lg">
 				<Text variant="h3" className="text-content">
 					Select a Date
 				</Text>
-				<Text variant="bodySm" className="mt-1 text-content-muted">
+				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
 					Choose an available date for your booking with {technicianName}
 				</Text>
 			</View>
@@ -73,16 +73,16 @@ export default function BookingDateStep({
 			</View>
 
 			{selectedDate && (
-				<View className="mt-3 rounded-xl bg-app-primary-light px-4 py-2.5">
+				<View className="mt-stack-md rounded-input bg-app-primary-light px-card py-stack-md">
 					<Text variant="buttonMd" className="text-center text-app-primary">
 						Selected: {selectedDate}
 					</Text>
 				</View>
 			)}
 
-			<View className="flex-1 justify-end pb-6">
+			<View className="flex-1 justify-end pb-stack-xl">
 				<Button disabled={!selectedDate} onPress={onNext} className="w-full">
-					<Text variant="buttonLg" className="text-white">
+					<Text variant="buttonLg" className="text-surface-on-primary">
 						Next
 					</Text>
 				</Button>

@@ -20,11 +20,11 @@ export default function AuthFormScreen({ children, errorMessage }: Props) {
 		>
 			<View style={{ flex: 1 }}>
 				<View
-					className="flex-row items-center justify-between px-4 pb-2"
+					className="flex-row items-center justify-between px-card pb-stack-sm"
 					style={{ paddingTop: insets.top + 8 }}
 				>
 					<BackButton variant="header" size="md" />
-					<View className="h-10 w-10" />
+					<View className="h-control-back-md w-control-back-md" />
 				</View>
 
 				<ErrorBanner message={errorMessage ?? null} variant="warning" />

@@ -6,7 +6,7 @@ export default function OrdersHeader() {
 	const themeColors = useThemeColors();
 	return (
 		<View
-			className="min-h-header px-4 pt-4 pb-4"
+			className="min-h-header px-screen-x pt-card pb-card"
 			style={{ backgroundColor: themeColors.surfaceBase }}
 		>
 			<Text variant="h3" style={{ color: themeColors.textPrimary }}>

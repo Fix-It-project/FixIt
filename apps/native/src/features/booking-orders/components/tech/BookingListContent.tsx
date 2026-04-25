@@ -6,7 +6,7 @@ import {
 	formatHeading,
 	toIso,
 } from "@/src/features/booking-orders/utils/date-helpers";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 import { useVisibleTechnicianBookings } from "../../hooks/useTechnicianBookingsQuery";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";
@@ -27,7 +27,7 @@ export default function BookingListContent() {
 		<ScrollView
 			className="flex-1"
 			showsVerticalScrollIndicator={false}
-			contentContainerStyle={{ paddingBottom: 32 }}
+			contentContainerStyle={{ paddingBottom: spacing.screen.scrollBottomInset }}
 			refreshControl={
 				<RefreshControl
 					refreshing={isRefetching}
@@ -38,14 +38,14 @@ export default function BookingListContent() {
 			}
 		>
 			{/* Date heading */}
-			<View className="flex-row items-baseline justify-between px-4 pt-5 pb-2">
+			<View className="flex-row items-baseline justify-between px-screen-x pt-card-roomy pb-stack-sm">
 				<View>
 					<Text variant="h3" style={{ color: themeColors.textPrimary }}>
 						{formatHeading(selectedDate)}
 					</Text>
 					<Text
 						variant="bodySm"
-						className="mt-0.5"
+						className="mt-stack-xs"
 						style={{ color: themeColors.textSecondary }}
 					>
 						{bookings.length} booking{bookings.length === 1 ? "" : "s"}
@@ -63,7 +63,7 @@ export default function BookingListContent() {
 			</View>
 
 			{/* List or empty state */}
-			<View className="px-4">
+			<View className="px-screen-x">
 				{bookings.length === 0 && !isPending ? (
 					<BookingsEmptyState />
 				) : (

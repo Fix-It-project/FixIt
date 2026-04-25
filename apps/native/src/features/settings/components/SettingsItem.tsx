@@ -20,7 +20,7 @@ export function SettingsItem({
 			activeOpacity={0.7}
 			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
 		>
-			<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full bg-app-primary-light">
+			<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill bg-app-primary-light">
 				<Icon size={18} color={Colors.primary} strokeWidth={1.8} />
 			</View>
 			<Text variant="buttonLg" className="flex-1 text-content">

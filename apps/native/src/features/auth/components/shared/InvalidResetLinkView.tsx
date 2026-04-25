@@ -19,15 +19,15 @@ export default function InvalidResetLinkView({
 		<View className="flex-1 bg-app-primary-light">
 			{/* Top Bar */}
 			<View
-				className="flex-row items-center px-4 pb-2"
+				className="flex-row items-center px-card pb-stack-sm"
 				style={{ paddingTop: insets.top + 8 }}
 			>
 				<BackButton variant="header" size="md" />
 			</View>
 
 			{/* Header */}
-			<View className="mt-2 mb-6 px-screen-x">
-				<Text variant="h2" className="mb-2 text-content">
+			<View className="mt-stack-sm mb-stack-xl px-screen-x">
+				<Text variant="h2" className="mb-stack-sm text-content">
 					Invalid Link
 				</Text>
 				<Text variant="body" className="text-content-secondary">
@@ -36,13 +36,13 @@ export default function InvalidResetLinkView({
 			</View>
 
 			{/* Icon */}
-			<View className="mt-6 items-center">
-				<View className="h-20 w-20 items-center justify-center rounded-full bg-red-100">
+			<View className="mt-stack-xl items-center">
+				<View className="h-avatar-hero w-avatar-hero items-center justify-center rounded-pill bg-danger-soft">
 					<AlertCircle size={40} color={Colors.danger} />
 				</View>
 				<Text
 					variant="bodySm"
-					className="mt-4 px-10 text-center text-content-secondary"
+					className="mt-stack-lg px-screen-bottom-inset text-center text-content-secondary"
 				>
 					Please request a new password reset link from the login page.
 				</Text>
@@ -59,9 +59,9 @@ export default function InvalidResetLinkView({
 				<Button
 					variant="outline"
 					onPress={() => router.replace(loginRoute)}
-					className="border-2 border-app-primary"
+					className="border-selected border-app-primary"
 				>
-					<BtnText className="text-app-primary">Back to Login</BtnText>
+					<BtnText variant="buttonLg" className="text-app-primary">Back to Login</BtnText>
 				</Button>
 			</View>
 		</View>

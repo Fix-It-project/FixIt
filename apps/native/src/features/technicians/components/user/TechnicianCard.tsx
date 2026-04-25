@@ -3,11 +3,12 @@ import { Image, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Technician } from "@/src/lib/mock-data/user";
 import { Colors, useThemeColors } from "@/src/lib/theme";
+import { spacing } from "@/src/lib/design-tokens";
 
 export const CARD_WIDTH_RATIO = 0.75;
-export const CARD_SPACING = 6;
+export const CARD_SPACING = spacing.control.segmented.gap;
 
-const AVATAR_SIZE = 68;
+const AVATAR_SIZE = spacing.avatar.card;
 const AVATAR_OVERLAP = AVATAR_SIZE / 2;
 
 interface TechnicianCardProps {
@@ -34,7 +35,7 @@ export default function TechnicianCard({
 			{/* Cover Image */}
 			<Image
 				source={item.coverImage}
-				className="rounded-[14px]"
+				className="rounded-card"
 				style={{
 					width: "100%",
 					height: cardWidth * 0.6,
@@ -46,33 +47,30 @@ export default function TechnicianCard({
 			<View
 				style={{
 					marginTop: -AVATAR_OVERLAP,
-					paddingLeft: 12,
+					paddingLeft: spacing.stack.md,
 				}}
 			>
 				<View
+					className="items-center justify-center rounded-pill border-selected"
 					style={{
 						width: AVATAR_SIZE,
 						height: AVATAR_SIZE,
-						borderRadius: AVATAR_SIZE / 2,
 						backgroundColor: item.avatarColor,
-						alignItems: "center",
-						justifyContent: "center",
-						borderWidth: 2,
 						borderColor: themeColors.surfaceElevated,
 					}}
 				>
-					<Text variant="bodyLg" className="font-bold text-white">
+					<Text variant="bodyLg" className="font-bold text-surface-on-primary">
 						{item.initials}
 					</Text>
 				</View>
 			</View>
 
 			{/* Info below avatar */}
-			<View className="mt-1 pr-2 pl-3">
+			<View className="mt-stack-xs pr-stack-sm pl-stack-md">
 				<Text variant="buttonLg" className="text-content" numberOfLines={1}>
 					{item.name}
 				</Text>
-				<View className="mt-px flex-row items-center gap-1.5">
+				<View className="mt-px flex-row items-center gap-stack-xs">
 					<Text
 						variant="bodySm"
 						className="shrink text-content-muted"
@@ -80,7 +78,7 @@ export default function TechnicianCard({
 					>
 						{item.category}
 					</Text>
-					<View className="flex-row items-center gap-0.5">
+					<View className="flex-row items-center gap-stack-xs">
 						<Star
 							size={11}
 							color={Colors.ratingDefault}
@@ -97,7 +95,7 @@ export default function TechnicianCard({
 						)}
 					</View>
 					{showDistance && item.distance && (
-						<View className="flex-row items-center gap-0.5">
+						<View className="flex-row items-center gap-stack-xs">
 							<MapPin
 								size={11}
 								color={themeColors.surfaceMuted}

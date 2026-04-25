@@ -19,7 +19,7 @@ export default function BookingActionButtons({
 }: Props) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="mt-2 gap-2.5">
+		<View className="mt-stack-sm gap-card-compact">
 			<Button
 				onPress={onComplete}
 				disabled={isCompleting}

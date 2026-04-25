@@ -1,9 +1,9 @@
 import { Dimensions } from "react-native";
 import Svg, { Defs, LinearGradient, Polygon, Stop } from "react-native-svg";
-import type { ThemeId, ThemePalette } from "@/src/lib/theme";
+import { spacing, type ThemeId, type ThemePalette } from "@/src/lib/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const HEIGHT = 180;
+const HEIGHT = spacing.header.homePolygonHeight;
 
 interface HeaderPolygonPalette {
 	gradientStart: string;

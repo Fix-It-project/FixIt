@@ -16,13 +16,13 @@ export default function ProfileHeader({
 	onChangePhoto,
 }: ProfileHeaderProps) {
 	return (
-		<View className="items-center bg-app-primary pt-6 pb-12">
+		<View className="items-center bg-app-primary pt-stack-xl pb-stack-3xl">
 			<ProfileAvatar
 				name={name}
 				imageUrl={imageUrl}
 				onChangePhoto={onChangePhoto}
 			/>
-			<Text className="mt-3 font-bold text-white text-xl">
+			<Text variant="h3" className="mt-stack-md font-bold text-surface-on-primary text-xl">
 				{isLoading ? <ActivityIndicator color="white" /> : (name ?? "User")}
 			</Text>
 		</View>

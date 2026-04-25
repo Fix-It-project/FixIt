@@ -64,8 +64,8 @@ export default function ResetPassword() {
 		<AuthFormScreen errorMessage={errorMessage}>
 			<View style={{ flex: 1 }}>
 				{/* ── Header ─────────────────────────────────────────────────── */}
-				<View className="mt-2 mb-8 px-screen-x">
-					<Text variant="h2" className="mb-2 text-content">
+				<View className="mt-stack-sm mb-stack-2xl px-screen-x">
+					<Text variant="h2" className="mb-stack-sm text-content">
 						Reset your password
 					</Text>
 					<Text variant="body" className="text-content-secondary">
@@ -74,7 +74,7 @@ export default function ResetPassword() {
 				</View>
 
 				{/* ── New Password Input ──────────────────────────────────────── */}
-				<View className="mb-4 px-screen-x">
+				<View className="mb-stack-lg px-screen-x">
 					<PasswordInput
 						value={newPassword}
 						onChangeText={(text) => {
@@ -111,10 +111,10 @@ export default function ResetPassword() {
 				<View style={{ flex: 1 }} />
 
 				{/* ── Back to Login link ──────────────────────────────────────── */}
-				<View className="mb-4 items-center">
+				<View className="mb-stack-lg items-center">
 					<Pressable
 						onPress={() => router.replace(loginRoute)}
-						className="flex-row items-center gap-1 active:opacity-70"
+						className="flex-row items-center gap-stack-xs active:opacity-70"
 					>
 						<ArrowLeft size={16} color={themeColors.textSecondary} />
 						<Text variant="label" className="text-content-secondary">
@@ -132,7 +132,7 @@ export default function ResetPassword() {
 						{resetMutation.isPending ? (
 							<ActivityIndicator color={themeColors.surfaceBase} />
 						) : (
-							<BtnText>Reset Password</BtnText>
+							<BtnText variant="buttonLg">Reset Password</BtnText>
 						)}
 					</Button>
 				</View>

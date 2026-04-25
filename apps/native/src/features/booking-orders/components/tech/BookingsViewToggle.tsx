@@ -14,7 +14,7 @@ export default function BookingsViewToggle() {
 	return (
 		<Animated.View
 			entering={FadeInDown.delay(80).duration(400)}
-			className="mb-4"
+			className="mb-stack-lg"
 		>
 			<SegmentedControl
 				tone="overlay"

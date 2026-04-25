@@ -36,9 +36,10 @@ export const spacing = {
 		paddingBottom: 24,
 		// detail/scroll screens ending in sticky CTA or footer tab bar — extra end-of-scroll breathing room
 		scrollBottomInset: 40,
+		formBleed: 28,
 	},
 	card: {
-		// default density — roomy "bg-surface rounded-2xl" cards (dominant pattern, 21 files)
+		// default density — roomy surface cards (dominant product card pattern)
 		padding: 16,
 		gap: 12,
 		radius: 16,
@@ -48,7 +49,7 @@ export const spacing = {
 			gap: 8,
 			radius: 12,
 		},
-		// roomy density — profile/help/order surfaces using p-5
+		// roomy density — profile/help/order surfaces
 		roomy: {
 			padding: 20,
 			gap: 16,
@@ -93,6 +94,10 @@ export const spacing = {
 			paddingX: 16,
 			gap: 8,
 		},
+		pill: {
+			paddingX: 16,
+			paddingY: 6,
+		},
 		segmented: {
 			shellPadding: 4,
 			itemMinHeight: 40,
@@ -116,6 +121,10 @@ export const spacing = {
 		iconBoxLg: {
 			size: 48,
 		},
+		statusDot: {
+			sm: 8,
+			md: 14,
+		},
 	},
 	section: {
 		gap: 24,
@@ -127,6 +136,9 @@ export const spacing = {
 		md: 12,
 		lg: 16,
 		xl: 24,
+		"2xl": 32,
+		"3xl": 48,
+		"4xl": 64,
 	},
 	button: {
 		height: {
@@ -136,12 +148,15 @@ export const spacing = {
 			xl: 64,
 		},
 		paddingX: 24,
+		paddingXSm: 12,
+		paddingXLg: 32,
 	},
 	input: {
 		height: 56,
 		paddingX: 16,
 	},
 	icon: {
+		"2xs": 4,
 		xs: 16,
 		sm: 20,
 		md: 24,
@@ -151,9 +166,19 @@ export const spacing = {
 	avatar: {
 		sm: 40,
 		md: 48,
+		card: 68,
 		lg: 56,
 		xl: 64,
+		hero: 80,
 		"2xl": 96,
+	},
+	media: {
+		attachmentPreviewHeight: 192,
+		roleAvatarHeight: 160,
+		roleAvatarWidth: 128,
+		roleOrbSize: 224,
+		toastWidthPercent: "90%",
+		modalWidthPercent: "88%",
 	},
 	sheet: {
 		padding: 20,
@@ -162,6 +187,8 @@ export const spacing = {
 	},
 	header: {
 		minHeight: 64,
+		dashboardHeight: 160,
+		homePolygonHeight: 180,
 		paddingX: 20,
 		paddingY: 12,
 		shellPaddingX: 16,
@@ -177,6 +204,10 @@ export const spacing = {
 		rowPaddingY: 14,
 		rowPaddingYComfortable: 16,
 		rowGap: 12,
+	},
+	offset: {
+		avatarOverlap: -16,
+		hairlineNudge: -1,
 	},
 } as const;
 

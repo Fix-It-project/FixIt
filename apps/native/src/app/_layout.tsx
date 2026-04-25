@@ -1,12 +1,6 @@
 import "../../global.css";
 
-import {
-	GoogleSans_400Regular,
-	GoogleSans_500Medium,
-	GoogleSans_600SemiBold,
-	GoogleSans_700Bold,
-	useFonts,
-} from "@expo-google-fonts/google-sans";
+import { useFonts } from "@expo-google-fonts/google-sans";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import * as Sentry from "@sentry/react-native";
@@ -27,6 +21,7 @@ import { useRecoveryDeepLink } from "@/src/hooks/useRecoveryDeepLink";
 import queryClient from "@/src/lib/query-client";
 import {
 	createNavigationTheme,
+	fontAssets,
 	getThemeVariableRecord,
 	useThemeTokens,
 } from "@/src/lib/theme";
@@ -46,12 +41,7 @@ const styles = StyleSheet.create({
 });
 
 function RootLayout() {
-	const [fontsLoaded] = useFonts({
-		GoogleSans_400Regular,
-		GoogleSans_500Medium,
-		GoogleSans_600SemiBold,
-		GoogleSans_700Bold,
-	});
+	const [fontsLoaded] = useFonts(fontAssets);
 	const { isReady } = useAppBootstrap(fontsLoaded);
 	const tokens = useThemeTokens();
 	const navigationTheme = useMemo(

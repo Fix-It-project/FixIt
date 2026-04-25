@@ -30,7 +30,7 @@ export default function WelcomeScreen() {
 		>
 			{/* Main Content */}
 			<View
-				className="flex-1 items-center px-8"
+				className="flex-1 items-center px-button-lg-x"
 				style={{
 					paddingTop: insets.top + 145,
 					paddingBottom: insets.bottom + 20,
@@ -50,7 +50,7 @@ export default function WelcomeScreen() {
 				</View>
 
 				{/* App Name */}
-				<View className="mb-2 flex-row items-center">
+				<View className="mb-stack-sm flex-row items-center">
 					<Text variant="display" className="text-content tracking-tight">
 						Fix
 					</Text>
@@ -71,10 +71,10 @@ export default function WelcomeScreen() {
 				</Text>
 
 				{/* Buttons */}
-				<View className="w-full max-w-[327px] gap-4">
+				<View className="w-full max-w-[327px] gap-stack-lg">
 					<Button
 						onPress={goToRoleSelection}
-						className="flex-row gap-2 shadow-sm"
+						className="flex-row gap-stack-sm shadow-sm"
 					>
 						<Text variant="buttonLg">Get Started</Text>
 						<ArrowRight size={20} color={themeColors.surfaceBase} />
@@ -82,7 +82,7 @@ export default function WelcomeScreen() {
 				</View>
 
 				{/* Terms and Privacy */}
-				<View className="absolute px-8" style={{ bottom: insets.bottom + 18 }}>
+				<View className="absolute px-button-lg-x" style={{ bottom: insets.bottom + 18 }}>
 					<Text variant="caption" className="text-center text-content-muted">
 						By pressing on "Sign Up", you agree to our{" "}
 						<Text variant="caption" className="underline">

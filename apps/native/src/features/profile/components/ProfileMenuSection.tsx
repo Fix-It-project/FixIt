@@ -32,7 +32,7 @@ function MenuItem({
 			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
 		>
 			<View
-				className={`h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-full ${
+				className={`h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill ${
 					destructive ? "bg-danger-light" : "bg-app-primary-light"
 				}`}
 			>
@@ -78,7 +78,7 @@ export default function ProfileMenuSection({
 }: ProfileMenuSectionProps) {
 	return (
 		<>
-			<View className="mt-5 px-5">
+			<View className="mt-card-roomy px-screen-x">
 				<View
 					className="rounded-card bg-surface px-card-roomy"
 					style={shadowStyle(elevation.raised, {
@@ -118,7 +118,7 @@ export default function ProfileMenuSection({
 				</View>
 			</View>
 
-			<View className="mt-5 px-5">
+			<View className="mt-card-roomy px-screen-x">
 				<View
 					className="rounded-card bg-surface px-card-roomy"
 					style={shadowStyle(elevation.raised, {

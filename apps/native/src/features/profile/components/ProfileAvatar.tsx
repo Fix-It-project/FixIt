@@ -23,14 +23,18 @@ function AvatarContent({
 		return (
 			<Image
 				source={{ uri: imageUrl }}
-				className="h-24 w-24 rounded-full"
+				className="h-avatar-2xl w-avatar-2xl rounded-pill"
 				resizeMode="cover"
 			/>
 		);
 	}
 
 	if (initials) {
-		return <Text className="font-bold text-3xl text-white">{initials}</Text>;
+		return (
+			<Text variant="h1" className="font-bold text-surface-on-primary">
+				{initials}
+			</Text>
+		);
 	}
 
 	return <User size={44} color={themeColors.surfaceBase} strokeWidth={1.5} />;
@@ -41,11 +45,15 @@ export default function ProfileAvatar({
 	imageUrl,
 	onChangePhoto,
 }: ProfileAvatarProps) {
+	const themeColors = useThemeColors();
 	const initials = getPfpInitialsFallback(name);
 
 	return (
-		<View className="relative h-24 w-24">
-			<View className="h-24 w-24 items-center justify-center rounded-full bg-white/25">
+		<View className="relative h-avatar-2xl w-avatar-2xl">
+			<View
+				className="h-avatar-2xl w-avatar-2xl items-center justify-center rounded-pill"
+				style={{ backgroundColor: themeColors.overlayMd }}
+			>
 				<AvatarContent imageUrl={imageUrl} initials={initials} />
 			</View>
 
@@ -53,8 +61,10 @@ export default function ProfileAvatar({
 				<TouchableOpacity
 					onPress={onChangePhoto}
 					activeOpacity={0.8}
-					className="absolute right-0 bottom-0 h-8 w-8 items-center justify-center rounded-full bg-white"
-					style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
+					className="absolute right-0 bottom-0 h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill bg-surface"
+					style={shadowStyle(elevation.raised, {
+						shadowColor: Colors.shadow,
+					})}
 				>
 					<Camera size={14} color={Colors.primary} strokeWidth={2} />
 				</TouchableOpacity>

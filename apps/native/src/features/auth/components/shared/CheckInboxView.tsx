@@ -22,8 +22,8 @@ export default function CheckInboxView({
 	return (
 		<>
 			{/* Header */}
-			<View className="mt-2 mb-4 px-screen-x">
-				<Text variant="h2" className="mb-2 text-content">
+			<View className="mt-stack-sm mb-stack-lg px-screen-x">
+				<Text variant="h2" className="mb-stack-sm text-content">
 					Check your inbox
 				</Text>
 				<Text variant="body" className="text-content-secondary">
@@ -38,7 +38,7 @@ export default function CheckInboxView({
 			<View className="flex-1" />
 
 			{/* Resend Section */}
-			<View className="mb-5 items-center">
+			<View className="mb-card-roomy items-center">
 				{cooldown > 0 ? (
 					<Text variant="body" className="text-content-secondary">
 						Didn't get an email?{" "}
@@ -73,7 +73,7 @@ export default function CheckInboxView({
 				style={{ paddingBottom: insets.bottom + 16 }}
 			>
 				<Button onPress={() => void openMailApp()}>
-					<BtnText>Open email app</BtnText>
+					<BtnText variant="buttonLg">Open email app</BtnText>
 				</Button>
 			</View>
 		</>

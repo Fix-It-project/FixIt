@@ -21,15 +21,15 @@ export default function LocationHeader({
 		: "Select Location";
 
 	return (
-		<View className="flex-row items-center justify-between px-5 pt-2 pb-3">
+		<View className="flex-row items-center justify-between px-screen-x pt-stack-sm pb-stack-md">
 			<TouchableOpacity
 				onPress={onLocationPress}
-				className="flex-row items-center gap-2 rounded-full px-3 py-2"
+				className="flex-row items-center gap-stack-sm rounded-pill px-stack-md py-stack-sm"
 				style={{ backgroundColor: Colors.overlaySm }}
 				activeOpacity={0.7}
 			>
 				<View
-					className="h-8 w-8 items-center justify-center rounded-full"
+					className="h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill"
 					style={{ backgroundColor: Colors.overlayMd }}
 				>
 					<MapPin
@@ -40,11 +40,15 @@ export default function LocationHeader({
 				</View>
 
 				<View className="shrink">
-					<Text className="text-xs" style={{ color: Colors.overlayBright }}>
+					<Text variant="caption" style={{ color: Colors.overlayBright }}>
 						Your Location
 					</Text>
-					<View className="flex-row items-center gap-1">
-						<Text variant="body" className="font-semibold text-white" numberOfLines={1}>
+					<View className="flex-row items-center gap-stack-xs">
+						<Text
+							variant="body"
+							className="font-semibold text-surface-on-primary"
+							numberOfLines={1}
+						>
 							{locationLabel}
 						</Text>
 						<ChevronDown

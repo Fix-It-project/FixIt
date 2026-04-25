@@ -21,11 +21,11 @@ export default function DocumentUploadField({
 	const hasFile = value.length > 0;
 
 	return (
-		<View className="gap-3">
+		<View className="gap-stack-md">
 			<Text variant="label" className="font-semibold text-content">
 				{label}
 				{required && (
-					<Text variant="label" className="text-red-500">
+					<Text variant="label" className="text-danger">
 						{" "}
 						*
 					</Text>
@@ -33,15 +33,15 @@ export default function DocumentUploadField({
 			</Text>
 			<Pressable
 				onPress={onPick}
-				className={`flex-row items-center rounded-2xl bg-surface px-6 py-4 ${
-					error ? "border border-red-400" : ""
+				className={`flex-row items-center rounded-card bg-surface px-button-x py-card ${
+					error ? "border border-danger" : ""
 				}`}
 			>
 				{hasFile ? (
-					<View className="flex-1 flex-row items-center gap-3">
+					<View className="flex-1 flex-row items-center gap-stack-md">
 						<Image
 							source={{ uri: value }}
-							className="h-12 w-12 rounded-lg"
+							className="h-avatar-md w-avatar-md rounded-compact"
 							resizeMode="cover"
 						/>
 						<View className="flex-1">
@@ -55,8 +55,8 @@ export default function DocumentUploadField({
 						<CheckCircle2 size={22} color={Colors.successAlt} />
 					</View>
 				) : (
-					<View className="flex-1 flex-row items-center gap-3">
-						<View className="items-center justify-center rounded-lg bg-surface-elevated p-2.5">
+					<View className="flex-1 flex-row items-center gap-stack-md">
+						<View className="items-center justify-center rounded-compact bg-surface-elevated p-card-compact">
 							<CloudUpload size={22} color={Colors.surfaceMuted} />
 						</View>
 						<View className="flex-1">
@@ -72,7 +72,7 @@ export default function DocumentUploadField({
 				)}
 			</Pressable>
 			{error && (
-				<Text variant="caption" className="ml-4 text-red-500">
+				<Text variant="caption" className="ml-card text-danger">
 					{error}
 				</Text>
 			)}

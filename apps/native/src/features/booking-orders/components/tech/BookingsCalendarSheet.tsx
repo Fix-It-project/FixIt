@@ -85,9 +85,11 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 					appearsOnIndex={0}
 					disappearsOnIndex={-1}
 					pressBehavior="close"
+					opacity={1}
+					style={{ backgroundColor: themeColors.backdrop }}
 				/>
 			),
-			[],
+			[themeColors.backdrop],
 		);
 
 		useImperativeHandle(
@@ -132,17 +134,17 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 					backdropComponent={renderBackdrop}
 					backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
 					handleIndicatorStyle={{
-					backgroundColor: themeColors.borderDefault,
-					width: spacing.sheet.handleWidth,
-				}}
+						backgroundColor: themeColors.borderDefault,
+						width: spacing.sheet.handleWidth,
+					}}
 				>
 					<BottomSheetView
-						className="flex-1 px-4 pb-4"
+						className="flex-1 px-screen-x pb-card"
 						style={{ backgroundColor: themeColors.surfaceBase }}
 					>
 						<Text
 							variant="buttonLg"
-							className="mb-2 text-center font-bold"
+							className="mb-stack-sm text-center font-bold"
 							style={{ color: themeColors.textPrimary }}
 						>
 							Jump to Date

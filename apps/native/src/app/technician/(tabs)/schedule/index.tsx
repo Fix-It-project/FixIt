@@ -3,7 +3,15 @@ import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BookingsTabContent from "@/src/features/booking-orders/components/tech/BookingsTabContent";
 import ScheduleTabContent from "@/src/features/schedule/components/tech/ScheduleTabContent";
-import { Colors, fontFamily, fontSize, spacing, useThemeColors } from "@/src/lib/theme";
+import {
+	Colors,
+	fontFamily,
+	fontSize,
+	radius,
+	space,
+	spacing,
+	useThemeColors,
+} from "@/src/lib/theme";
 
 type ActiveView = "schedule" | "bookings";
 type ScheduleTopTabParamList = {
@@ -36,8 +44,8 @@ export default function UnifiedSchedulePage() {
 					},
 					tabBarIndicatorStyle: {
 						backgroundColor: themeColors.surfaceOnPrimary,
-						height: 3,
-						borderRadius: 999,
+						height: space[0.5] + space.px,
+						borderRadius: radius.pill,
 					},
 					tabBarItemStyle: {
 						minHeight: spacing.button.height.md,

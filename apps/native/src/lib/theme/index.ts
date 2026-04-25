@@ -1,4 +1,5 @@
 export type {
+	BorderWidth,
 	ElevationTier,
 	FontFamilyToken,
 	Radius,
@@ -7,7 +8,9 @@ export type {
 	TypographyVariant,
 } from "@/src/lib/design-tokens";
 export {
+	borderWidth,
 	elevation,
+	fontAssets,
 	fontFamily,
 	fontSize,
 	lineHeight,

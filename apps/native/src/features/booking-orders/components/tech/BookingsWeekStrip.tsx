@@ -17,7 +17,7 @@ import {
 	useBookingsDateStore,
 } from "@/src/features/booking-orders/stores/bookings-date-store";
 import { toIso } from "@/src/features/booking-orders/utils/date-helpers";
-import { elevation, fontFamily, shadowStyle, useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle, useThemeColors } from "@/src/lib/theme";
 import { useTechnicianBookingDates } from "../../hooks/useTechnicianBookingsQuery";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -38,8 +38,8 @@ export default function BookingsWeekStrip() {
 	const { data: bookingDates } = useTechnicianBookingDates();
 	const { width: screenWidth } = useWindowDimensions();
 
-	// Responsive circle size: fit 7 circles with gaps inside the strip (px-1 = 4px each side)
-	const availableWidth = screenWidth - 8; // px-1 padding on each side
+	// Responsive circle size: fit 7 circles with gaps inside the strip (px-stack-xs = 4px each side)
+	const availableWidth = screenWidth - 8; // px-stack-xs padding on each side
 	const circleSize = Math.min(44, Math.floor((availableWidth - 6 * 8) / 7)); // 6 gaps of ~8px
 
 	const translateX = useSharedValue(0);
@@ -101,7 +101,7 @@ export default function BookingsWeekStrip() {
 		});
 
 	return (
-		<View className="px-1" style={{ overflow: "hidden" }}>
+		<View className="px-stack-xs" style={{ overflow: "hidden" }}>
 			<GestureDetector gesture={swipeGesture}>
 				<Animated.View
 					className="flex-row justify-around"
@@ -117,7 +117,7 @@ export default function BookingsWeekStrip() {
 								key={toIso(day)}
 								onPress={() => !isPast && setSelectedDate(day)}
 								disabled={isPast}
-								className="items-center justify-center rounded-full"
+								className="items-center justify-center rounded-pill"
 								style={{
 									width: circleSize,
 									height: circleSize,
@@ -139,7 +139,7 @@ export default function BookingsWeekStrip() {
 								}}
 								activeOpacity={0.7}
 							>
-								<Text
+								<Text variant="body"
 									style={{
 										fontSize: Math.max(7, circleSize * 0.18),
 										textTransform: "uppercase",
@@ -152,9 +152,10 @@ export default function BookingsWeekStrip() {
 									{DAYS[i]}
 								</Text>
 								<Text
+									variant="body"
+									className="font-bold"
 									style={{
 										fontSize: Math.max(11, circleSize * 0.32),
-										fontFamily: fontFamily.bold,
 										color: selected
 											? themeColors.surfaceOnPrimary
 											: themeColors.textPrimary,
@@ -166,12 +167,9 @@ export default function BookingsWeekStrip() {
 
 								{hasBookings && (
 									<View
+										className="absolute h-icon-2xs w-icon-2xs rounded-pill"
 										style={{
-											position: "absolute",
 											bottom: Math.max(2, circleSize * 0.07),
-											width: 4,
-											height: 4,
-											borderRadius: 2,
 											backgroundColor: selected
 												? themeColors.surfaceOnPrimary
 												: themeColors.ratingDefault,
@@ -185,17 +183,17 @@ export default function BookingsWeekStrip() {
 			</GestureDetector>
 
 			{/* Swipe indicator dots */}
-			<View className="mt-2 flex-row items-center justify-center gap-1">
+			<View className="mt-stack-sm flex-row items-center justify-center gap-stack-xs">
 				<View
-					className="h-1 w-1 rounded-full"
+					className="h-icon-2xs w-icon-2xs rounded-pill"
 					style={{ backgroundColor: themeColors.overlayDim }}
 				/>
 				<View
-					className="h-1 w-1 rounded-full"
+					className="h-icon-2xs w-icon-2xs rounded-pill"
 					style={{ backgroundColor: themeColors.overlayBright }}
 				/>
 				<View
-					className="h-1 w-1 rounded-full"
+					className="h-icon-2xs w-icon-2xs rounded-pill"
 					style={{ backgroundColor: themeColors.overlayDim }}
 				/>
 			</View>

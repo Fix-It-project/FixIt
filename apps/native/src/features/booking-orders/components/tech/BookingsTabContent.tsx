@@ -41,7 +41,7 @@ export default function BookingsTabContent() {
 			>
 				<Animated.View
 					entering={FadeInDown.duration(400)}
-					className="mb-4 flex-row items-center justify-between"
+					className="mb-stack-lg flex-row items-center justify-between"
 				>
 					<Text variant="h2" style={{ color: themeColors.onPrimaryHeader }}>
 						Fix
@@ -63,7 +63,7 @@ export default function BookingsTabContent() {
 
 				<Animated.View
 					entering={FadeInDown.delay(160).duration(300)}
-					className="mt-2.5 flex-row justify-end"
+					className="mt-stack-md flex-row justify-end"
 				>
 					<BookingsCalendarSheet ref={calendarRef} />
 				</Animated.View>

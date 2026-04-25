@@ -36,7 +36,7 @@ export default function CategoriesScreen() {
 	return (
 		<View className="flex-1 bg-surface-elevated">
 			<SafeAreaView className="flex-1" edges={["top"]}>
-				<View className="px-screen-x pt-4 pb-3">
+				<View className="px-screen-x pt-card pb-stack-md">
 					<Text variant="h2" className="text-content">
 						Categories
 					</Text>
@@ -49,7 +49,7 @@ export default function CategoriesScreen() {
 				)}
 
 				{isError && !isLoading && (
-					<View className="flex-1 items-center justify-center gap-2">
+					<View className="flex-1 items-center justify-center gap-stack-sm">
 						<Text variant="bodySm" className="text-content-muted">
 							Failed to load categories.
 						</Text>
@@ -65,7 +65,7 @@ export default function CategoriesScreen() {
 					<ScrollView
 						className="flex-1"
 						showsVerticalScrollIndicator={false}
-						contentContainerClassName="px-screen-x pb-6"
+						contentContainerClassName="px-screen-x pb-stack-xl"
 					>
 						<View className="flex-row flex-wrap justify-between">
 							{categories?.map((cat, index) => {
@@ -76,7 +76,7 @@ export default function CategoriesScreen() {
 								return (
 									<TouchableOpacity
 										key={cat.id}
-										className="mb-3 overflow-hidden rounded-xl"
+										className="mb-stack-md overflow-hidden rounded-input"
 										style={{
 											width: "48.5%",
 											backgroundColor: themeColors.surfaceElevated,
@@ -86,7 +86,7 @@ export default function CategoriesScreen() {
 									>
 										<View className="flex-row items-center">
 											<View
-												className="h-16 w-16 items-center justify-center"
+												className="h-avatar-xl w-avatar-xl items-center justify-center"
 												style={{ backgroundColor: color }}
 											>
 												<Icon
@@ -97,7 +97,7 @@ export default function CategoriesScreen() {
 											</View>
 											<Text
 												variant="buttonMd"
-												className="flex-1 px-3 text-content"
+												className="flex-1 px-stack-md text-content"
 												numberOfLines={2}
 											>
 												{cat.name}

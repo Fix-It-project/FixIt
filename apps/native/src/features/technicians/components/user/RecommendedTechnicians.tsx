@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { RECOMMENDED_TECHNICIANS } from "@/src/lib/mock-data/user";
+import { spacing } from "@/src/lib/theme";
 import SectionEndArrow from "./SectionFooterArrow";
 import TechnicianCard, {
 	CARD_SPACING,
@@ -16,7 +17,7 @@ export default function RecommendedTechnicians() {
 	return (
 		<View>
 			{/* Header */}
-			<View className="mb-2 flex-row items-center px-5">
+			<View className="mb-stack-sm flex-row items-center px-screen-x">
 				<Text variant="h2" className="text-content">
 					Recommended
 				</Text>
@@ -35,8 +36,8 @@ export default function RecommendedTechnicians() {
 				snapToInterval={cardWidth + CARD_SPACING}
 				decelerationRate="fast"
 				contentContainerStyle={{
-					paddingHorizontal: 20 - CARD_SPACING / 2,
-					paddingVertical: 4,
+					paddingHorizontal: spacing.screen.paddingX - CARD_SPACING / 2,
+					paddingVertical: spacing.stack.xs,
 					alignItems: "center",
 				}}
 				ListFooterComponent={<SectionEndArrow />}

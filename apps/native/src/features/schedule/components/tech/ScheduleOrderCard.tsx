@@ -32,17 +32,11 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 	const label = STATUS_LABEL[order.status];
 
 	return (
-		<View
-			className="mb-2.5 rounded-button bg-surface p-card-compact"
-			style={{
-				borderWidth: 1,
-				borderColor: themeColors.borderDefault,
-			}}
-		>
+		<View className="mb-stack-md rounded-button border border-edge bg-surface p-card-compact">
 			{/* Status badge */}
-			<View className="mb-2 flex-row items-center justify-start">
+			<View className="mb-stack-sm flex-row items-center justify-start">
 				<View
-					className="rounded-lg px-2 py-1"
+					className="rounded-compact px-stack-sm py-stack-xs"
 					style={{ backgroundColor: color + "1A" }}
 				>
 					<Text variant="caption" className="font-bold" style={{ color }}>
@@ -73,9 +67,9 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 
 			{/* Active indicator */}
 			{order.active && (
-				<View className="mt-2.5 flex-row items-center gap-1">
+				<View className="mt-stack-md flex-row items-center gap-stack-xs">
 					<View
-						className="h-2 w-2 rounded-full"
+						className="h-status-dot-sm w-status-dot-sm rounded-pill"
 						style={{ backgroundColor: themeColors.successAlt }}
 					/>
 					<Text

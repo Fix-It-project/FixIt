@@ -1,5 +1,5 @@
 import { Link, Stack } from "expo-router";
-import { StyleSheet, Text as RNText, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { Container } from "@/src/components/container";
 import { Text } from "@/src/components/ui/text";
@@ -34,7 +34,8 @@ export default function NotFoundScreen() {
 							Sorry, the page you're looking for doesn't exist.
 						</Text>
 						<Link href="/" asChild>
-							<RNText
+							<Text
+								variant="label"
 								style={[
 									styles.link,
 									{
@@ -44,7 +45,7 @@ export default function NotFoundScreen() {
 								]}
 							>
 								Go to Home
-							</RNText>
+							</Text>
 						</Link>
 					</View>
 				</View>
@@ -64,15 +65,15 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	emoji: {
-		marginBottom: 16,
+		marginBottom: spacing.stack.lg,
 	},
 	title: {
-		marginBottom: 8,
+		marginBottom: spacing.stack.sm,
 		textAlign: "center",
 	},
 	subtitle: {
 		textAlign: "center",
-		marginBottom: 24,
+		marginBottom: spacing.stack.xl,
 	},
 	link: {
 		padding: spacing.card.compact.padding,

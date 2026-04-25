@@ -105,7 +105,7 @@ export default function LoginScreen({
 			/>
 
 			{/* Forgot Password */}
-			<View className="-mt-3 items-end">
+			<View className="-mt-stack-md items-end">
 				<Pressable onPress={goToForgotPassword}>
 					<Text variant="label" className="text-app-primary">
 						Forgot Password?
@@ -116,12 +116,12 @@ export default function LoginScreen({
 			<Button
 				onPress={handleLogin}
 				disabled={!isFormValid || loginMutation.isPending}
-				className="mt-2"
+				className="mt-stack-sm"
 			>
 				{loginMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceBase} />
 				) : (
-					<BtnText>Log in</BtnText>
+					<BtnText variant="buttonLg">Log in</BtnText>
 				)}
 			</Button>
 

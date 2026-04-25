@@ -41,11 +41,11 @@ export default function SocialLoginButtons({
 		<Button
 			variant="outline"
 			onPress={onPress}
-			className="w-full flex-row gap-3 rounded-lg border-edge bg-surface"
+			className="w-full flex-row gap-stack-md rounded-compact border-edge bg-surface"
 			style={shadowStyle(elevation.raised)}
 		>
 			<GoogleIcon />
-			<BtnText className="font-medium text-social">
+			<BtnText variant="buttonLg" className="font-medium text-social">
 				Continue with Google
 			</BtnText>
 		</Button>

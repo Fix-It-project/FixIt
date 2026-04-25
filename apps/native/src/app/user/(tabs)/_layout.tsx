@@ -10,12 +10,12 @@ import {
 import { Platform, TouchableOpacity } from "react-native";
 import { ProtectedTabsLayout } from "@/src/components/navigation/ProtectedTabsLayout";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { elevation, shadowStyle } from "@/src/lib/design-tokens";
+import { elevation, radius, shadowStyle, spacing } from "@/src/lib/design-tokens";
 import { ROUTES } from "@/src/lib/routes";
 import { useBottomTabMetrics } from "@/src/lib/tab-bar-config";
 import { useThemeColors } from "@/src/lib/theme";
 
-const CHAT_FAB_SIZE = 56;
+const CHAT_FAB_SIZE = spacing.button.height.lg;
 
 interface ChatFabProps {
 	readonly bottom: number;
@@ -52,11 +52,11 @@ function ChatFab({
 			activeOpacity={0.85}
 			style={{
 				position: "absolute",
-				right: 20,
+				right: spacing.screen.paddingX,
 				bottom,
 				width: CHAT_FAB_SIZE,
 				height: CHAT_FAB_SIZE,
-				borderRadius: CHAT_FAB_SIZE / 2,
+				borderRadius: radius.pill,
 				backgroundColor: primaryColor,
 				alignItems: "center",
 				justifyContent: "center",
@@ -86,7 +86,7 @@ export default function UserTabsLayout() {
 			overlay={
 				<ChatFab
 					onPress={goToChatbot}
-					bottom={tabBarHeight + 12}
+					bottom={tabBarHeight + spacing.stack.md}
 					primaryColor={themeColors.primary}
 					surfaceColor={themeColors.surfaceOnPrimary}
 				/>

@@ -10,7 +10,7 @@ interface InfoRowProps {
 export default function InfoRow({ icon, text, className = "" }: InfoRowProps) {
 	return (
 		<View
-			className={`min-h-12 w-full flex-row items-center gap-2 rounded-xl bg-surface-elevated px-4 py-3 ${className}`}
+			className={`min-h-avatar-md w-full flex-row items-center gap-stack-sm rounded-input bg-surface-elevated px-card py-stack-md ${className}`}
 		>
 			{icon}
 			<Text

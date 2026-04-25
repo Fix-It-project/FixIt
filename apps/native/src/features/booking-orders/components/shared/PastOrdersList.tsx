@@ -52,19 +52,18 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 		<TouchableOpacity
 			activeOpacity={0.85}
 			onPress={goToOrder}
-			className="mb-3 rounded-card bg-surface p-card"
-			style={{ borderWidth: 1, borderColor: themeColors.borderDefault }}
+			className="mb-stack-md rounded-card border border-edge bg-surface p-card"
 		>
-			<View className="flex-row items-center gap-3">
+			<View className="flex-row items-center gap-stack-md">
 				{item.avatarImage ? (
 					<Image
 						source={{ uri: item.avatarImage }}
-						className="h-control-icon-box-touch w-control-icon-box-touch rounded-full"
+						className="h-control-icon-box-touch w-control-icon-box-touch rounded-pill"
 						style={{ backgroundColor: themeColors.surfaceElevated }}
 					/>
 				) : (
 					<View
-						className="h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-full"
+						className="h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-pill"
 						style={{ backgroundColor: getAvatarColor(item.avatarName) }}
 					>
 						<Text
@@ -86,7 +85,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 					>
 						{item.name ?? item.fallbackName}
 					</Text>
-					<View className="mt-0.5 flex-row items-center gap-1.5">
+					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 						<CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="caption"
@@ -103,7 +102,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 						{formatDate(item.scheduledDate)}
 					</Text>
 					<View
-						className="mt-1 rounded-full px-2.5 py-0.5"
+						className="mt-stack-xs rounded-pill px-stack-md py-stack-xs"
 						style={{ backgroundColor: `${color}15` }}
 					>
 						<Text variant="caption" className="font-semibold" style={{ color }}>
@@ -137,7 +136,7 @@ export default function PastOrdersList({
 					}}
 				>
 					{items.length === 0 ? (
-						<View className="items-center py-16">
+						<View className="items-center py-stack-4xl">
 							<Text variant="bodySm" style={{ color: themeColors.textMuted }}>
 								No past orders yet
 							</Text>

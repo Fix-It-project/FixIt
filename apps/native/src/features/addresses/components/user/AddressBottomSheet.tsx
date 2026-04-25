@@ -36,14 +36,7 @@ interface AddressBottomSheetProps {
 }
 
 function AddressSeparator() {
-	return (
-		<View
-			style={{
-				height: 1,
-				backgroundColor: Colors.surfaceElevated,
-			}}
-		/>
-	);
+	return <View className="h-px bg-surface-elevated" />;
 }
 
 const AddressBottomSheet = forwardRef<
@@ -85,11 +78,12 @@ const AddressBottomSheet = forwardRef<
 				{...props}
 				disappearsOnIndex={-1}
 				appearsOnIndex={0}
-				opacity={0.5}
+				opacity={1}
 				pressBehavior="close"
+				style={{ backgroundColor: themeColors.backdrop }}
 			/>
 		),
-		[],
+		[themeColors.backdrop],
 	);
 
 	const handleActivate = useCallback(
@@ -130,8 +124,8 @@ const AddressBottomSheet = forwardRef<
 			}}
 			onChange={setSheetIndex}
 		>
-			<BottomSheetView className="flex-1 px-6 pb-6">
-				<View className="mb-2 flex-row items-center justify-between">
+			<BottomSheetView className="flex-1 px-button-x pb-stack-xl">
+				<View className="mb-stack-sm flex-row items-center justify-between">
 					<Text variant="bodyLg" className="font-bold text-content">
 						Choose delivery location
 					</Text>
@@ -143,7 +137,7 @@ const AddressBottomSheet = forwardRef<
 				{isLoading && (
 					<View className="flex-1 items-center justify-center">
 						<ActivityIndicator size="large" color={Colors.primary} />
-						<Text variant="bodySm" className="mt-3 text-content-muted">
+						<Text variant="bodySm" className="mt-stack-md text-content-muted">
 							Loading addresses…
 						</Text>
 					</View>
@@ -156,7 +150,7 @@ const AddressBottomSheet = forwardRef<
 						</Text>
 						<Text
 							variant="bodySm"
-							className="mt-1 text-center text-content-muted"
+							className="mt-stack-xs text-center text-content-muted"
 						>
 							Please try again later.
 						</Text>
@@ -167,7 +161,7 @@ const AddressBottomSheet = forwardRef<
 					<View className="flex-1">
 						<Text
 							variant="bodySm"
-							className="mb-1 font-semibold text-content-secondary"
+							className="mb-stack-xs font-semibold text-content-secondary"
 						>
 							Saved addresses
 						</Text>
@@ -191,11 +185,11 @@ const AddressBottomSheet = forwardRef<
 						<TouchableOpacity
 							onPress={onAddNewAddress}
 							activeOpacity={0.7}
-							className="mt-3 flex-row items-center justify-center rounded-button py-control-cta-y"
+							className="mt-stack-md flex-row items-center justify-center rounded-button py-control-cta-y"
 							style={{ backgroundColor: themeColors.primaryLight }}
 						>
 							<Plus size={18} color={Colors.primary} strokeWidth={2.5} />
-							<Text variant="buttonMd" className="ml-2 text-app-primary">
+							<Text variant="buttonMd" className="ml-stack-sm text-app-primary">
 								Add New Location
 							</Text>
 						</TouchableOpacity>

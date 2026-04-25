@@ -59,30 +59,33 @@ export default function RequestReviewModal({
 				appearsOnIndex={0}
 				disappearsOnIndex={-1}
 				pressBehavior="close"
-				opacity={0.5}
+				opacity={1}
+				style={{ backgroundColor: themeColors.backdrop }}
 			/>
 		),
-		[],
+		[themeColors.backdrop],
 	);
 
-	if (!selectedOrder) return null;
-
 	useEffect(() => {
-		if (isModalVisible) {
+		if (isModalVisible && selectedOrder) {
 			sheetRef.current?.present();
 			return;
 		}
 
 		sheetRef.current?.dismiss();
-	}, [isModalVisible]);
+	}, [isModalVisible, selectedOrder]);
 
 	const handleAccept = () => {
+		if (!selectedOrder) return;
 		acceptMutation.mutate(selectedOrder.id, { onSuccess: closeModal });
 	};
 
 	const handleReject = () => {
+		if (!selectedOrder) return;
 		rejectMutation.mutate(selectedOrder.id, { onSuccess: closeModal });
 	};
+
+	if (!selectedOrder) return null;
 
 	return (
 		<BottomSheetModal
@@ -98,16 +101,16 @@ export default function RequestReviewModal({
 			}}
 		>
 			<BottomSheetView
-				className="px-6"
+				className="px-button-x"
 				style={{
 					backgroundColor: themeColors.surfaceBase,
 					paddingBottom: spacing.screen.paddingBottom + spacing.stack.md,
 				}}
 			>
 				{/* Header row */}
-				<View className="mb-5 flex-row items-center">
+				<View className="mb-card-roomy flex-row items-center">
 					<View
-						className="mr-3 h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-button"
+						className="mr-stack-md h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-button"
 						style={{
 							backgroundColor: `${categoryColor}18`,
 						}}
@@ -124,7 +127,7 @@ export default function RequestReviewModal({
 						</Text>
 						<Text
 							variant="caption"
-							className="mt-0.5"
+							className="mt-stack-xs"
 							style={{ color: themeColors.textMuted }}
 						>
 							Received {timeAgo(selectedOrder.created_at)}
@@ -137,15 +140,14 @@ export default function RequestReviewModal({
 
 				{/* Scheduled date */}
 				<View
-					className="mb-4 rounded-xl p-3"
+					className="mb-stack-lg rounded-input p-card-compact"
 					style={{
 						backgroundColor: themeColors.surfaceElevated,
 					}}
 				>
 					<Text
 						variant="caption"
-						className="mb-0.5 uppercase"
-						style={{ color: themeColors.textMuted, letterSpacing: 0.5 }}
+						className="mb-stack-xs text-content-muted uppercase tracking-wider"
 					>
 						Scheduled Date
 					</Text>
@@ -157,7 +159,7 @@ export default function RequestReviewModal({
 				{/* Location */}
 				{selectedOrder.user_address && (
 					<View
-						className="mb-4 flex-row items-center gap-2 rounded-xl p-3"
+						className="mb-stack-lg flex-row items-center gap-stack-sm rounded-input p-card-compact"
 						style={{
 							backgroundColor: themeColors.surfaceElevated,
 						}}
@@ -174,15 +176,14 @@ export default function RequestReviewModal({
 
 				{/* Problem description */}
 				<View
-					className="mb-6 rounded-xl p-3"
+					className="mb-stack-xl rounded-input p-card-compact"
 					style={{
 						backgroundColor: themeColors.surfaceElevated,
 					}}
 				>
 					<Text
 						variant="caption"
-						className="mb-1.5 uppercase"
-						style={{ color: themeColors.textMuted, letterSpacing: 0.5 }}
+						className="mb-stack-xs text-content-muted uppercase tracking-wider"
 					>
 						Problem Description
 					</Text>
@@ -192,7 +193,7 @@ export default function RequestReviewModal({
 				</View>
 
 				{/* Action buttons */}
-				<View className="flex-row gap-3">
+				<View className="flex-row gap-stack-md">
 					<TouchableOpacity
 						className="flex-1 items-center rounded-button py-control-cta-y"
 						style={{
@@ -219,7 +220,6 @@ export default function RequestReviewModal({
 					<TouchableOpacity
 						className="flex-1 items-center rounded-button border py-control-cta-y"
 						style={{
-							borderWidth: 1,
 							borderColor: themeColors.borderDefault,
 							backgroundColor: isBusy
 								? themeColors.surfaceElevated

@@ -45,7 +45,7 @@ function StatusActionButton({
 		<TouchableOpacity
 			onPress={onPress}
 			disabled={disabled}
-			className={`mt-2.5 items-center rounded-button border py-control-compact-cta-y ${
+			className={`mt-stack-md items-center rounded-button border py-control-compact-cta-y ${
 				disabled
 					? disabledBackgroundClassName
 					: `${enabledBorderClassName} ${enabledBackgroundClassName}`
@@ -85,7 +85,7 @@ function renderDayStatus({
 >) {
 	if (isSelectedDatePast) {
 		return (
-			<Text variant="bodySm" className="mt-1 text-content-muted">
+			<Text variant="bodySm" className="mt-stack-xs text-content-muted">
 				Past dates cannot be modified.
 			</Text>
 		);
@@ -94,7 +94,7 @@ function renderDayStatus({
 	if (isSelectedDateException) {
 		return (
 			<>
-				<Text variant="bodySm" className="mt-1 text-status-unavailable">
+				<Text variant="bodySm" className="mt-stack-xs text-status-unavailable">
 					🚫 Marked as unavailable (override)
 				</Text>
 				<StatusActionButton
@@ -115,7 +115,7 @@ function renderDayStatus({
 	if (isSelectedDayWorking) {
 		return (
 			<>
-				<Text variant="bodySm" className="mt-1 text-content-muted">
+				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
 					✅ Working day — you are available
 				</Text>
 				{canMarkUnavailable ? (
@@ -136,7 +136,7 @@ function renderDayStatus({
 	}
 
 	return (
-		<Text variant="bodySm" className="mt-1 text-content-muted">
+		<Text variant="bodySm" className="mt-stack-xs text-content-muted">
 			Day off — not a working day in your schedule.
 		</Text>
 	);
@@ -168,10 +168,10 @@ export default function ScheduleDayPanel({
 	});
 
 	return (
-		<View className="mx-3 mt-3 rounded-card border border-edge bg-surface-elevated p-card-compact">
+		<View className="mx-stack-md mt-stack-md rounded-card border border-edge bg-surface-elevated p-card-compact">
 			<Text
 				variant="bodySm"
-				className="mb-0.5 font-semibold text-content-secondary"
+				className="mb-stack-xs font-semibold text-content-secondary"
 			>
 				{selectedDate === today ? "Today" : selectedDayName}{" "}
 				<Text variant="bodySm" className="font-normal text-content-muted">

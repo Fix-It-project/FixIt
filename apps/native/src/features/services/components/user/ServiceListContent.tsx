@@ -35,7 +35,7 @@ export default function ServiceListContent({
 
 	if (isError) {
 		return (
-			<View className="flex-1 items-center justify-center gap-2 px-8">
+			<View className="flex-1 items-center justify-center gap-stack-sm px-button-lg-x">
 				<Text variant="buttonLg" className="text-center text-content">
 					Failed to load services
 				</Text>
@@ -45,7 +45,7 @@ export default function ServiceListContent({
 				<TouchableOpacity
 					onPress={onRetry}
 					activeOpacity={0.7}
-					className="mt-2"
+					className="mt-stack-sm"
 				>
 					<Text variant="label" style={{ color: accentColor }}>
 						Retry
@@ -57,11 +57,11 @@ export default function ServiceListContent({
 
 	if (!services || services.length === 0) {
 		return (
-			<View className="flex-1 items-center justify-center px-8">
+			<View className="flex-1 items-center justify-center px-button-lg-x">
 				<Text variant="buttonLg" className="text-center text-content">
 					No services available
 				</Text>
-				<Text variant="bodySm" className="mt-1 text-center text-content-muted">
+				<Text variant="bodySm" className="mt-stack-xs text-center text-content-muted">
 					This category doesn't have any services yet.
 				</Text>
 			</View>
@@ -72,7 +72,7 @@ export default function ServiceListContent({
 		<ScrollView
 			className="flex-1"
 			showsVerticalScrollIndicator={false}
-			contentContainerClassName="px-screen-x pt-4 pb-6"
+			contentContainerClassName="px-screen-x pt-card pb-stack-xl"
 		>
 			{services.map((service) => (
 				<ServiceCard
