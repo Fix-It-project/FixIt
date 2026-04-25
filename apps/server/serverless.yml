@@ -8,7 +8,7 @@ build:
     bundle: true
     format: esm
     platform: node
-    target: node20
+    target: node24
     external:
       - "@supabase/supabase-js"
 
@@ -17,7 +17,7 @@ package:
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs24.x
   region: eu-north-1
   stage: dev
   environment:
@@ -27,6 +27,7 @@ provider:
     SUPABASE_SERVICE_ROLE_KEY: ${env:SUPABASE_SERVICE_ROLE_KEY}
     CORS_ORIGIN: ${env:CORS_ORIGIN}
     STORAGE_BUCKET: ${env:STORAGE_BUCKET}
+    ORDER_BUCKET: ${env:ORDER_BUCKET}
   # Uncomment to easily set up a custom domain. Read the docs for more details:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
   # domain: api.example.com
