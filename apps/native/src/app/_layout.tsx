@@ -8,7 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { vars } from "react-native-css-interop";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -55,6 +55,12 @@ function RootLayout() {
 
 	useRecoveryDeepLink();
 	useAndroidSystemUi(tokens.androidNavigationBarStyle, isReady);
+
+	useEffect(() => {
+		if (isReady) {
+			void SplashScreen.hideAsync();
+		}
+	}, [isReady]);
 
 	if (!isReady) {
 		return null;

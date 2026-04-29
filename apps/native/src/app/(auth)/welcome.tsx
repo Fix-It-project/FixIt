@@ -1,100 +1,113 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ArrowRight } from "lucide-react-native";
-import { Image, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button } from "@/src/components/ui/button";
-import { Text } from "@/src/components/ui/text";
+import { StatusBar } from "expo-status-bar";
+import * as React from "react";
+import { useWindowDimensions, View } from "react-native";
+import Animated, {
+	runOnJS,
+	useAnimatedStyle,
+	useReducedMotion,
+	useSharedValue,
+	withDelay,
+	withTiming,
+} from "react-native-reanimated";
+import {
+	DUR_COLLAPSE,
+	DUR_REVEAL,
+	EASE_OUT_EXPO,
+	SPLASH_HOLD_MS,
+} from "@/src/features/onboarding/animation/constants";
+import { SplashIntroPanel } from "@/src/features/onboarding/components/SplashIntroPanel";
+import { WelcomeContent } from "@/src/features/onboarding/components/WelcomeContent";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/routes";
-import { space, useThemeColors } from "@/src/lib/theme";
+
+const COLLAPSED_RATIO = 0.58;
+const MOTTO = "Home care, fixed faster.";
 
 export default function WelcomeScreen() {
-	const themeColors = useThemeColors();
-	const insets = useSafeAreaInsets();
-	const logoSize = space[20] + space[8];
-	const logoRadius = space[6] + space[0.5];
+	const { height: screenH } = useWindowDimensions();
+	const reducedMotion = useReducedMotion();
+
+	const reveal = useSharedValue(reducedMotion ? 1 : 0);
+	const collapse = useSharedValue(reducedMotion ? 1 : 0);
+	const [contentVisible, setContentVisible] = React.useState(reducedMotion);
+	const [inputReady, setInputReady] = React.useState(reducedMotion);
+
+	React.useEffect(() => {
+		if (reducedMotion) {
+			setContentVisible(true);
+			setInputReady(true);
+			return;
+		}
+
+		reveal.value = withTiming(1, {
+			duration: DUR_REVEAL,
+			easing: EASE_OUT_EXPO,
+		});
+
+		const collapseStartMs = DUR_REVEAL + SPLASH_HOLD_MS;
+		const contentTimer = setTimeout(
+			() => setContentVisible(true),
+			collapseStartMs,
+		);
+
+		collapse.value = withDelay(
+			collapseStartMs,
+			withTiming(
+				1,
+				{ duration: DUR_COLLAPSE, easing: EASE_OUT_EXPO },
+				(finished) => {
+					if (finished) runOnJS(setInputReady)(true);
+				},
+			),
+		);
+
+		return () => clearTimeout(contentTimer);
+	}, [reducedMotion, reveal, collapse]);
+
+	const collapsedH = screenH * COLLAPSED_RATIO;
+	const surfaceH = screenH - collapsedH;
+
+	const surfaceStyle = useAnimatedStyle(() => ({
+		transform: [{ translateY: surfaceH * (1 - collapse.value) }],
+	}));
+
 	const goToRoleSelection = useDebounce(() =>
 		router.push(ROUTES.auth.roleSelection),
 	);
 
 	return (
-		<LinearGradient
-			colors={[
-				themeColors.gradientStart,
-				themeColors.gradientMid,
-				themeColors.gradientEnd,
-			]}
-			locations={[0, 0.5, 1]}
-			className="flex-1"
-		>
-			{/* Main Content */}
-			<View
-				className="flex-1 items-center px-button-lg-x"
-				style={{
-					paddingTop: insets.top + 145,
-					paddingBottom: insets.bottom + 20,
-				}}
+		<View className="flex-1 bg-app-primary">
+			<StatusBar style="light" />
+
+			<SplashIntroPanel
+				motto={MOTTO}
+				collapsedRatio={COLLAPSED_RATIO}
+				reveal={reveal}
+				collapse={collapse}
+			/>
+
+			<Animated.View
+				style={[
+					{
+						position: "absolute",
+						left: 0,
+						right: 0,
+						top: collapsedH,
+						bottom: 0,
+					},
+					surfaceStyle,
+				]}
+				pointerEvents={inputReady ? "auto" : "none"}
 			>
-				{/* Logo Container */}
-				<View className="mb-[33px]">
-					<Image
-						source={require("../../assets/images/fixit.png")}
-						style={{
-							width: logoSize,
-							height: logoSize,
-							borderRadius: logoRadius,
-						}}
-						resizeMode="contain"
+				<View className="flex-1 bg-surface">
+					<WelcomeContent
+						contentVisible={contentVisible}
+						inputReady={inputReady}
+						onPressGetStarted={goToRoleSelection}
 					/>
 				</View>
-
-				{/* App Name */}
-				<View className="mb-stack-sm flex-row items-center">
-					<Text variant="display" className="text-content tracking-tight">
-						Fix
-					</Text>
-					<Text
-						variant="display"
-						className="text-app-primary-dark tracking-tight"
-					>
-						IT
-					</Text>
-				</View>
-
-				{/* Subtitle */}
-				<Text
-					variant="body"
-					className="mb-[76px] font-light text-content-secondary"
-				>
-					Fast & Reliable
-				</Text>
-
-				{/* Buttons */}
-				<View className="w-full max-w-[327px] gap-stack-lg">
-					<Button
-						onPress={goToRoleSelection}
-						className="flex-row gap-stack-sm shadow-sm"
-					>
-						<Text variant="buttonLg">Get Started</Text>
-						<ArrowRight size={20} color={themeColors.surfaceBase} />
-					</Button>
-				</View>
-
-				{/* Terms and Privacy */}
-				<View className="absolute px-button-lg-x" style={{ bottom: insets.bottom + 18 }}>
-					<Text variant="caption" className="text-center text-content-muted">
-						By pressing on "Sign Up", you agree to our{" "}
-						<Text variant="caption" className="underline">
-							Terms of Service
-						</Text>
-						{"\n"}and{" "}
-						<Text variant="caption" className="underline">
-							Privacy Policy
-						</Text>
-					</Text>
-				</View>
-			</View>
-		</LinearGradient>
+			</Animated.View>
+		</View>
 	);
 }

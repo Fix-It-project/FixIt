@@ -60,3 +60,4 @@ documentation/agent_docs/*
 .mcp.json
 .codex
 .scannerwork
+.planning/
