@@ -36,7 +36,7 @@ const Separator = React.forwardRef<View, SeparatorProps>(
 			decorative = true,
 			...props
 		},
-		ref
+		ref,
 	) => {
 		return (
 			<View
@@ -47,9 +47,9 @@ const Separator = React.forwardRef<View, SeparatorProps>(
 				{...props}
 			/>
 		);
-	}
+	},
 );
 Separator.displayName = "Separator";
 
-export { Separator, separatorVariants };
 export type { SeparatorProps };
+export { Separator, separatorVariants };

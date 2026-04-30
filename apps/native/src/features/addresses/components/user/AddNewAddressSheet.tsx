@@ -22,7 +22,7 @@ import {
 import { Text } from "@/src/components/ui/text";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES } from "@/src/lib/routes";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import { useLocationStore } from "@/src/stores/location-store";
 
 export interface AddNewAddressSheetRef {
@@ -62,11 +62,12 @@ const AddNewAddressSheet = forwardRef<
 				{...props}
 				disappearsOnIndex={-1}
 				appearsOnIndex={0}
-				opacity={0.5}
+				opacity={1}
 				pressBehavior="close"
+				style={{ backgroundColor: themeColors.backdrop }}
 			/>
 		),
-		[],
+		[themeColors.backdrop],
 	);
 
 	const handleBack = useCallback(() => {
@@ -108,16 +109,13 @@ const AddNewAddressSheet = forwardRef<
 			}}
 			handleIndicatorStyle={{
 				backgroundColor: themeColors.borderDefault,
-				width: 40,
+				width: spacing.sheet.handleWidth,
 			}}
 			onChange={setSheetIndex}
 		>
-			<BottomSheetView className="flex-1 px-6 pb-10">
-				<View className="mb-2 flex-row items-center justify-between">
-					<Text
-						className="font-bold text-[18px] text-content"
-						style={{ fontFamily: "GoogleSans_700Bold" }}
-					>
+			<BottomSheetView className="flex-1 px-button-x pb-screen-bottom-inset">
+				<View className="mb-stack-sm flex-row items-center justify-between">
+					<Text variant="bodyLg" className="font-bold text-content">
 						Add New Location
 					</Text>
 					<TouchableOpacity onPress={handleBack} activeOpacity={0.7}>
@@ -125,27 +123,21 @@ const AddNewAddressSheet = forwardRef<
 					</TouchableOpacity>
 				</View>
 
-				<View
-					className="flex-1 items-center justify-center"
-					style={{ gap: 20 }}
-				>
+				<View className="flex-1 items-center justify-center gap-card-roomy">
 					<View
-						className="h-20 w-20 items-center justify-center rounded-full"
+						className="h-avatar-hero w-avatar-hero items-center justify-center rounded-pill"
 						style={{ backgroundColor: themeColors.primaryLight }}
 					>
 						<Navigation size={36} color={Colors.primary} strokeWidth={2} />
 					</View>
 
-					<Text
-						className="text-center text-[18px] text-content"
-						style={{ fontFamily: "GoogleSans_700Bold" }}
-					>
+					<Text variant="bodyLg" className="text-center font-bold text-content">
 						Capture Your Location
 					</Text>
 
 					<Text
-						className="px-4 text-center text-[14px] text-content-secondary"
-						style={{ fontFamily: "GoogleSans_400Regular" }}
+						variant="bodySm"
+						className="px-card text-center text-content-secondary"
 					>
 						Tap the button below to capture your current GPS coordinates, then
 						fill in your address details.
@@ -155,7 +147,7 @@ const AddNewAddressSheet = forwardRef<
 						onPress={handleCaptureLocation}
 						disabled={isLocating}
 						activeOpacity={0.7}
-						className="w-full flex-row items-center justify-center rounded-xl py-4"
+						className="w-full flex-row items-center justify-center rounded-card py-control-action-y"
 						style={{
 							backgroundColor: Colors.primary,
 							opacity: isLocating ? 0.6 : 1,
@@ -164,10 +156,7 @@ const AddNewAddressSheet = forwardRef<
 						{isLocating ? (
 							<ActivityIndicator size="small" color={themeColors.surfaceBase} />
 						) : (
-							<Text
-								className="text-[15px] text-white"
-								style={{ fontFamily: "GoogleSans_600SemiBold" }}
-							>
+							<Text variant="buttonLg" className="text-surface-on-primary">
 								Get Current Location
 							</Text>
 						)}

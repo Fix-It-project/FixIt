@@ -12,9 +12,9 @@ export default function SectionFooterArrow({ onPress }: SectionEndArrowProps) {
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="ml-1 w-14 items-center justify-center"
+			className="ml-stack-xs w-avatar-lg items-center justify-center"
 		>
-			<View className="h-11 w-11 items-center justify-center rounded-full bg-app-primary">
+			<View className="h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-pill bg-app-primary">
 				<ChevronRight
 					size={26}
 					color={themeColors.surfaceBase}

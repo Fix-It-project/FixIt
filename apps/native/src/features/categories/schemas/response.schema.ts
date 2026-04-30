@@ -1,17 +1,17 @@
 import { z } from "zod";
 
 export const categorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  created_at: z.string(),
+	id: z.string(),
+	name: z.string(),
+	created_at: z.string(),
 });
 
 export const categoriesResponseSchema = z.object({
-  categories: z.array(categorySchema),
+	categories: z.array(categorySchema),
 });
 
 export const categoryResponseSchema = z.object({
-  category: categorySchema,
+	category: categorySchema,
 });
 
 export type Category = z.infer<typeof categorySchema>;

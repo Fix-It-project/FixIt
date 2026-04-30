@@ -1,46 +1,38 @@
-import { View } from "react-native";
-import { Text } from "@/src/components/ui/text";
 import { CalendarOff } from "lucide-react-native";
-import { useThemeColors } from "@/src/lib/theme";
+import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/lib/theme";
 
 /** Shown when the selected day has no bookings. */
 export default function BookingsEmptyState() {
-  const themeColors = useThemeColors();
-  return (
-    <Animated.View
-      entering={FadeIn.duration(400)}
-      className="items-center justify-center px-6 py-16"
-    >
-      {/* Icon */}
-      <View
-        className="mb-5 h-20 w-20 items-center justify-center rounded-full"
-        style={{ backgroundColor: themeColors.primaryLight }}
-      >
-        <CalendarOff size={36} color={themeColors.primary} strokeWidth={1.5} />
-      </View>
+	const themeColors = useThemeColors();
+	return (
+		<Animated.View
+			entering={FadeIn.duration(400)}
+			className="items-center justify-center px-button-x py-screen-bottom-inset"
+		>
+			{/* Icon */}
+			<View
+				className="mb-stack-xl h-avatar-hero w-avatar-hero items-center justify-center rounded-pill"
+				style={{ backgroundColor: themeColors.primaryLight }}
+			>
+				<CalendarOff size={36} color={themeColors.primary} strokeWidth={1.5} />
+			</View>
 
-      <Text
-        style={{
-          fontFamily: "GoogleSans_700Bold",
-          fontSize: 20,
-          color: themeColors.textPrimary,
-          textAlign: "center",
-        }}
-      >
-        All clear for today
-      </Text>
-      <Text
-        className="mt-2"
-        style={{
-          fontSize: 14,
-          color: themeColors.textSecondary,
-          textAlign: "center",
-          lineHeight: 20,
-        }}
-      >
-        No bookings scheduled. Enjoy your free time{"\n"}or check another day!
-      </Text>
-    </Animated.View>
-  );
+			<Text
+				variant="h3"
+				style={{ color: themeColors.textPrimary, textAlign: "center" }}
+			>
+				All clear for today
+			</Text>
+			<Text
+				variant="bodySm"
+				className="mt-stack-sm"
+				style={{ color: themeColors.textSecondary, textAlign: "center" }}
+			>
+				No bookings scheduled. Enjoy your free time{"\n"}or check another day!
+			</Text>
+		</Animated.View>
+	);
 }

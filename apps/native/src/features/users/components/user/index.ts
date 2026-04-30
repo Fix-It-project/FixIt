@@ -1,1 +1,1 @@
-export { default as UserProfileScreen } from './UserProfileScreen';
+export { default as ProfileInfoCard } from "./ProfileInfoCard";

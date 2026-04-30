@@ -1,49 +1,35 @@
-import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
-import { useLocationStore } from "@/src/stores/location-store";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useThemeStore } from "@/src/stores/theme-store";
 
 interface AppBootstrapState {
-  isReady: boolean;
+	isReady: boolean;
 }
 
 export function useAppBootstrap(fontsLoaded: boolean): AppBootstrapState {
-  const [hasMounted, setHasMounted] = useState(false);
-  const hasStartedRef = useRef(false);
+	const [hasMounted, setHasMounted] = useState(false);
+	const hasStartedRef = useRef(false);
 
-  const isAuthLoading = useAuthStore((state) => state.isLoading);
-  const loadStoredSession = useAuthStore((state) => state.loadStoredSession);
-  const isThemeLoaded = useThemeStore((state) => state.isLoaded);
-  const loadThemePreference = useThemeStore(
-    (state) => state.loadThemePreference,
-  );
-  const requestLocationPermission = useLocationStore(
-    (state) => state.requestLocationPermission,
-  );
+	const isAuthLoading = useAuthStore((state) => state.isLoading);
+	const loadStoredSession = useAuthStore((state) => state.loadStoredSession);
+	const isThemeLoaded = useThemeStore((state) => state.isLoaded);
+	const loadThemePreference = useThemeStore(
+		(state) => state.loadThemePreference,
+	);
 
-  useEffect(() => {
-    if (hasStartedRef.current) {
-      return;
-    }
+	useEffect(() => {
+		if (hasStartedRef.current) {
+			return;
+		}
 
-    hasStartedRef.current = true;
-    setHasMounted(true);
+		hasStartedRef.current = true;
+		setHasMounted(true);
 
-    void loadStoredSession();
-    void loadThemePreference();
-    void requestLocationPermission();
-  }, [loadStoredSession, loadThemePreference, requestLocationPermission]);
+		void loadStoredSession();
+		void loadThemePreference();
+	}, [loadStoredSession, loadThemePreference]);
 
-  const isReady = hasMounted && fontsLoaded && !isAuthLoading && isThemeLoaded;
+	const isReady = hasMounted && fontsLoaded && !isAuthLoading && isThemeLoaded;
 
-  useEffect(() => {
-    if (!isReady) {
-      return;
-    }
-
-    void SplashScreen.hideAsync();
-  }, [isReady]);
-
-  return { isReady };
+	return { isReady };
 }

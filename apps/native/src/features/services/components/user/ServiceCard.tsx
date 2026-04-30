@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Service } from "@/src/features/services/schemas/response.schema";
-import { useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle, spacing, useThemeColors } from "@/src/lib/theme";
 
 function formatPrice(min: number, max: number): string {
 	if (min === max) return `${min} EGP`;
@@ -23,38 +23,40 @@ export default function ServiceCard({
 	const themeColors = useThemeColors();
 	return (
 		<TouchableOpacity
-			className="mb-3 overflow-hidden rounded-xl bg-surface shadow-sm"
-			style={{ elevation: 2 }}
+			className="mb-stack-md overflow-hidden rounded-card bg-surface"
+			style={shadowStyle(elevation.raised, { shadowColor: themeColors.shadow })}
 			onPress={() => onPress(service.id, service.name)}
 			activeOpacity={0.7}
 		>
-			<View className="flex-row items-center p-4">
+			<View className="flex-row items-center p-card">
 				{/* Color accent bar */}
 				<View
-					className="mr-3.5 h-12 w-1 rounded-full"
+					className="mr-card h-btn-lg w-icon-2xs rounded-pill"
 					style={{ backgroundColor: accentColor }}
 				/>
 
 				{/* Content */}
 				<View className="flex-1">
 					<Text
-						className="font-semibold text-[15px] text-content"
-						style={{ fontFamily: "GoogleSans_600SemiBold" }}
+						variant="body"
+						className="font-bold text-content"
 						numberOfLines={1}
 					>
 						{service.name}
 					</Text>
 					{service.description ? (
 						<Text
-							className="mt-0.5 text-[13px] text-content-muted"
+							variant="bodySm"
+							className="mt-stack-xs text-content-muted"
 							numberOfLines={2}
 						>
 							{service.description}
 						</Text>
 					) : null}
 					<Text
-						className="mt-1.5 font-semibold text-[13px]"
-						style={{ color: accentColor, fontFamily: "GoogleSans_600SemiBold" }}
+						variant="bodySm"
+						className="mt-stack-xs font-semibold"
+						style={{ color: accentColor }}
 					>
 						{formatPrice(service.min_price, service.max_price)}
 					</Text>
@@ -62,7 +64,7 @@ export default function ServiceCard({
 
 				{/* Arrow */}
 				<ChevronRight
-					size={20}
+					size={spacing.icon.sm}
 					color={themeColors.surfaceMuted}
 					strokeWidth={1.75}
 				/>

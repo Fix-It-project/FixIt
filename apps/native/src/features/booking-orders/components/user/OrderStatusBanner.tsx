@@ -64,31 +64,22 @@ export default function OrderStatusBanner({
 
 	return (
 		<View
-			className="mb-4 flex-row items-center gap-3 rounded-2xl p-4"
+			className="mb-stack-lg flex-row items-center gap-stack-md rounded-card border p-card"
 			style={{
 				backgroundColor: config.bg,
-				borderWidth: 1,
 				borderColor: `${config.color}20`,
 			}}
 		>
 			<config.icon size={22} color={config.color} strokeWidth={1.8} />
 			<View className="flex-1">
-				<Text
-					style={{
-						fontFamily: "GoogleSans_600SemiBold",
-						fontSize: 14,
-						color: config.color,
-					}}
-				>
+				<Text variant="buttonMd" style={{ color: config.color }}>
 					{config.label}
 				</Text>
 				{cancellationReason ? (
 					<Text
-						style={{
-							fontSize: 12,
-							color: themeColors.textSecondary,
-							marginTop: 2,
-						}}
+						variant="caption"
+						className="mt-stack-xs"
+						style={{ color: themeColors.textSecondary }}
 					>
 						{cancellationReason}
 					</Text>

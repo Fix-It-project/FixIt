@@ -1,6 +1,6 @@
-import { useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { router, type Href } from "expo-router";
+import { type Href, router } from "expo-router";
+import { useCallback } from "react";
 
 /**
  * Navigate back when the current screen has stack history; otherwise replace
@@ -8,14 +8,14 @@ import { router, type Href } from "expo-router";
  * strand the user on the wrong surface.
  */
 export function useSafeBack(fallbackRoute: Href) {
-  const navigation = useNavigation();
+	const navigation = useNavigation();
 
-  return useCallback(() => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-      return;
-    }
+	return useCallback(() => {
+		if (navigation.canGoBack()) {
+			navigation.goBack();
+			return;
+		}
 
-    router.replace(fallbackRoute);
-  }, [fallbackRoute, navigation]);
+		router.replace(fallbackRoute);
+	}, [fallbackRoute, navigation]);
 }
