@@ -1,7 +1,9 @@
 import { Link, Stack } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { Container } from "@/src/components/container";
+import { Text } from "@/src/components/ui/text";
+import { spacing } from "@/src/lib/design-tokens";
 import { useThemeTokens } from "@/src/lib/theme";
 
 export default function NotFoundScreen() {
@@ -13,11 +15,17 @@ export default function NotFoundScreen() {
 			<Container>
 				<View style={styles.container}>
 					<View style={styles.content}>
-						<Text style={styles.emoji}>🤔</Text>
-						<Text style={[styles.title, { color: theme.navigation.text }]}>
+						<Text variant="display" style={styles.emoji}>
+							🤔
+						</Text>
+						<Text
+							variant="h3"
+							style={[styles.title, { color: theme.navigation.text }]}
+						>
 							Page Not Found
 						</Text>
 						<Text
+							variant="bodySm"
 							style={[
 								styles.subtitle,
 								{ color: theme.navigation.text, opacity: 0.7 },
@@ -27,6 +35,7 @@ export default function NotFoundScreen() {
 						</Text>
 						<Link href="/" asChild>
 							<Text
+								variant="label"
 								style={[
 									styles.link,
 									{
@@ -50,27 +59,23 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
-		padding: 16,
+		padding: spacing.card.padding,
 	},
 	content: {
 		alignItems: "center",
 	},
 	emoji: {
-		fontSize: 48,
-		marginBottom: 16,
+		marginBottom: spacing.stack.lg,
 	},
 	title: {
-		fontSize: 20,
-		fontWeight: "bold",
-		marginBottom: 8,
+		marginBottom: spacing.stack.sm,
 		textAlign: "center",
 	},
 	subtitle: {
-		fontSize: 14,
 		textAlign: "center",
-		marginBottom: 24,
+		marginBottom: spacing.stack.xl,
 	},
 	link: {
-		padding: 12,
+		padding: spacing.card.compact.padding,
 	},
 });

@@ -1,83 +1,83 @@
 {
-  "expo": {
-    "name": "FixIt",
-    "slug": "fixit",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./src/assets/images/fixit.png",
-    "scheme": "fixitapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.fixitapp",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
-        "backgroundImage": "./src/assets/images/android-icon-background.png",
-        "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.fixitapp",
-      "permissions": [
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
-      ]
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./src/assets/images/favicon.png",
-      "bundler": "metro"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./src/assets/images/fixit.png",
-          "imageWidth": 250,
-          "resizeMode": "contain",
-          "backgroundColor": "#1565D8",
-          "dark": {
-            "backgroundColor": "#0D3F8F"
-          }
-        }
-      ],
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "react-native",
-          "organization": "zewail-city-of-science-and-tec"
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians.",
-          "locationAlwaysPermission": "FixIt needs your location to connect you with nearby technicians.",
-          "locationWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians."
-        }
-      ],
-      "@sentry/react-native",
-      "expo-font"
-    ],
-    "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "bac43c87-2b51-4268-8876-87395dd3dbca"
-      }
-    },
-    "owner": "meryamrs-organization"
-  }
+	"expo": {
+		"name": "FixIt",
+		"slug": "fixit",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./src/assets/images/fixit.png",
+		"scheme": "fixitapp",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"ios": {
+			"supportsTablet": true,
+			"bundleIdentifier": "com.anonymous.fixitapp",
+			"infoPlist": {
+				"ITSAppUsesNonExemptEncryption": false
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"backgroundColor": "#E6F4FE",
+				"foregroundImage": "./src/assets/images/android-icon-foreground.png",
+				"backgroundImage": "./src/assets/images/android-icon-background.png",
+				"monochromeImage": "./src/assets/images/android-icon-monochrome.png"
+			},
+			"edgeToEdgeEnabled": true,
+			"predictiveBackGestureEnabled": false,
+			"package": "com.anonymous.fixitapp",
+			"permissions": [
+				"android.permission.ACCESS_COARSE_LOCATION",
+				"android.permission.ACCESS_FINE_LOCATION"
+			]
+		},
+		"web": {
+			"output": "static",
+			"favicon": "./src/assets/images/favicon.png",
+			"bundler": "metro"
+		},
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"image": "./src/assets/images/fixit.png",
+					"imageWidth": 250,
+					"resizeMode": "contain",
+					"backgroundColor": "#1565D8",
+					"dark": {
+						"backgroundColor": "#0D3F8F"
+					}
+				}
+			],
+			[
+				"@sentry/react-native/expo",
+				{
+					"url": "https://sentry.io/",
+					"project": "react-native",
+					"organization": "zewail-city-of-science-and-tec"
+				}
+			],
+			[
+				"expo-location",
+				{
+					"locationAlwaysAndWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians.",
+					"locationAlwaysPermission": "FixIt needs your location to connect you with nearby technicians.",
+					"locationWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians."
+				}
+			],
+			"@sentry/react-native",
+			"expo-font"
+		],
+		"experiments": {
+			"typedRoutes": true,
+			"reactCompiler": true
+		},
+		"extra": {
+			"router": {},
+			"eas": {
+				"projectId": "bac43c87-2b51-4268-8876-87395dd3dbca"
+			}
+		},
+		"owner": "meryamrs-organization"
+	}
 }

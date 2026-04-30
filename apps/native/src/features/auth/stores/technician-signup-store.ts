@@ -1,0 +1,70 @@
+import { create } from "zustand";
+
+interface TechnicianSignupState {
+	// Step 1
+	email: string;
+	// Step 2
+	phone: string;
+	// Step 3
+	firstName: string;
+	lastName: string;
+	password: string;
+	// Step 4 – Categories
+	categories: string[];
+	// Step 5
+	nationalId: string;
+	criminalRecord: string;
+	certificate: string;
+	city: string;
+	address: string;
+	buildingNumber: string;
+	apartmentNumber: string;
+
+	// Setters
+	setStep1Data: (data: { email: string }) => void;
+	setStep2Data: (data: { phone: string }) => void;
+	setStep3Data: (data: {
+		firstName: string;
+		lastName: string;
+		password: string;
+	}) => void;
+	setCategoriesData: (data: { categories: string[] }) => void;
+	setStep5Data: (data: {
+		nationalId: string;
+		criminalRecord: string;
+		certificate: string;
+		city: string;
+		address: string;
+		buildingNumber: string;
+		apartmentNumber: string;
+	}) => void;
+	reset: () => void;
+}
+
+const initialState = {
+	email: "",
+	phone: "",
+	firstName: "",
+	lastName: "",
+	password: "",
+	categories: [],
+	nationalId: "",
+	criminalRecord: "",
+	certificate: "",
+	city: "",
+	address: "",
+	buildingNumber: "",
+	apartmentNumber: "",
+};
+
+export const useTechnicianSignupStore = create<TechnicianSignupState>(
+	(set) => ({
+		...initialState,
+		setStep1Data: (data) => set(data),
+		setStep2Data: (data) => set(data),
+		setStep3Data: (data) => set(data),
+		setCategoriesData: (data) => set(data),
+		setStep5Data: (data) => set(data),
+		reset: () => set(initialState),
+	}),
+);

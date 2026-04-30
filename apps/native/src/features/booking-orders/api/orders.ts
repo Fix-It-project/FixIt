@@ -1,7 +1,10 @@
 import apiClient from "@/src/lib/api-client";
 import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
 import type { OrderResponse, OrdersResponse } from "../schemas/response.schema";
-import { orderResponseSchema, ordersResponseSchema } from "../schemas/response.schema";
+import {
+	orderResponseSchema,
+	ordersResponseSchema,
+} from "../schemas/response.schema";
 import type { CreateOrderPayload } from "../types/order";
 
 export interface CreateOrderOptions {
@@ -40,7 +43,11 @@ export async function createOrder(
 
 export async function getUserOrders(): Promise<OrdersResponse> {
 	const response = await apiClient.get("/api/orders/user/orders");
-	return safeParseResponse(ordersResponseSchema, response.data, "getUserOrders");
+	return safeParseResponse(
+		ordersResponseSchema,
+		response.data,
+		"getUserOrders",
+	);
 }
 
 export async function cancelUserOrder(
@@ -51,5 +58,9 @@ export async function cancelUserOrder(
 		cancel: true,
 		...(reason && { cancellation_reason: reason }),
 	});
-	return safeParseResponse(orderResponseSchema, response.data, "cancelUserOrder");
+	return safeParseResponse(
+		orderResponseSchema,
+		response.data,
+		"cancelUserOrder",
+	);
 }

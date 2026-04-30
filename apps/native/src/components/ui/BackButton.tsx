@@ -1,10 +1,11 @@
-import { TouchableOpacity, type TouchableOpacityProps } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import { cn } from "@/src/lib/utils";
+import { TouchableOpacity, type TouchableOpacityProps } from "react-native";
 import { useThemeColors } from "@/src/lib/theme";
+import { cn } from "@/src/lib/utils";
 
 type BackButtonVariant = "header" | "header-inverse" | "light" | "surface";
+type BackButtonSize = "sm" | "md";
 
 interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
 	/** "header" → transparent icon button on surface headers.
@@ -16,12 +17,15 @@ interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
 	readonly onPress?: () => void;
 	/** Icon size, default 22 */
 	readonly iconSize?: number;
+	/** Shared back-button shell size. */
+	readonly size?: BackButtonSize;
 }
 
 export default function BackButton({
 	variant = "light",
 	onPress,
 	iconSize = 22,
+	size = "sm",
 	className,
 	...props
 }: Readonly<BackButtonProps>) {
@@ -32,10 +36,20 @@ export default function BackButton({
 	> = {
 		header: { iconColor: themeColors.textPrimary },
 		"header-inverse": { iconColor: themeColors.onPrimaryHeader },
-		light: { bgClassName: "bg-overlay-md", iconColor: themeColors.onPrimaryHeader },
-		surface: { bgClassName: "bg-surface-elevated", iconColor: themeColors.textPrimary },
+		light: {
+			bgClassName: "bg-overlay-md",
+			iconColor: themeColors.onPrimaryHeader,
+		},
+		surface: {
+			bgClassName: "bg-surface-elevated",
+			iconColor: themeColors.textPrimary,
+		},
 	};
 	const { bgClassName, iconColor } = variantStyles[variant];
+	const sizeClassName =
+		size === "md"
+			? "h-control-back-md w-control-back-md"
+			: "h-control-back-sm w-control-back-sm";
 
 	return (
 		<TouchableOpacity
@@ -43,9 +57,10 @@ export default function BackButton({
 			activeOpacity={0.7}
 			hitSlop={8}
 			className={cn(
-				"h-9 w-9 items-center justify-center rounded-full",
+				"items-center justify-center rounded-pill",
+				sizeClassName,
 				bgClassName,
-				className
+				className,
 			)}
 			{...props}
 		>

@@ -1,5 +1,6 @@
 import { CalendarClock, X } from "lucide-react-native";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 
@@ -11,46 +12,36 @@ interface Props {
 export default function OrderActionButtons({ onReschedule, onCancel }: Props) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="mt-2" style={{ gap: 10 }}>
-			<TouchableOpacity
+		<View className="mt-stack-sm gap-card-compact">
+			<Button
 				onPress={onReschedule}
-				className="flex-row items-center justify-center gap-2 rounded-2xl py-4"
+				size="action"
+				className="w-full"
 				style={{ backgroundColor: Colors.primary }}
-				activeOpacity={0.85}
 			>
 				<CalendarClock
 					size={18}
 					color={themeColors.surfaceBase}
 					strokeWidth={2}
 				/>
-				<Text
-					style={{
-						fontFamily: "GoogleSans_700Bold",
-						fontSize: 15,
-						color: themeColors.surfaceBase,
-					}}
-				>
+				<Text variant="buttonLg" style={{ color: themeColors.surfaceBase }}>
 					Reschedule
 				</Text>
-			</TouchableOpacity>
+			</Button>
 
-			<TouchableOpacity
+			<Button
 				onPress={onCancel}
-				className="flex-row items-center justify-center gap-2 rounded-2xl border py-4"
+				variant="secondary"
+				size="action"
+				className="w-full"
 				style={{ borderColor: Colors.danger }}
-				activeOpacity={0.7}
+				textClass="text-danger"
 			>
 				<X size={18} color={Colors.danger} strokeWidth={2} />
-				<Text
-					style={{
-						fontFamily: "GoogleSans_600SemiBold",
-						fontSize: 15,
-						color: Colors.danger,
-					}}
-				>
+				<Text variant="buttonLg" style={{ color: Colors.danger }}>
 					Cancel Order
 				</Text>
-			</TouchableOpacity>
+			</Button>
 		</View>
 	);
 }
