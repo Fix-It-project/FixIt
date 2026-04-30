@@ -1,0 +1,88 @@
+# ═══════════════════════════════════════════════════════════════
+#  FixIt AI Agent — ZeroClaw Configuration
+#  Place this at:  ~/.zeroclaw/config.toml
+#  Or set ZEROCLAW_WORKSPACE to this directory.
+# ═══════════════════════════════════════════════════════════════
+
+# ── Core Provider ─────────────────────────────────────────────
+# Points at local Ollama server running Gemma 3 4B.
+default_provider    = "ollama"
+default_model       = "gemma3:4b"
+default_temperature = 0.1          # Low temp for deterministic diagnostics
+
+# Ollama-specific: provider URL is resolved from the provider name.
+# ZeroClaw auto-detects Ollama at http://127.0.0.1:11434.
+# If your Ollama runs on a different port, override with:
+#   OLLAMA_HOST=http://127.0.0.1:11434
+
+# ── Gateway (REST API control plane) ─────────────────────────
+[gateway]
+host = "0.0.0.0"                   # Accept connections from Windows host
+port = 3000                        # Custom port for FixIt (default is 42617)
+
+# ── Agent Settings ────────────────────────────────────────────
+[agent]
+max_tool_iterations    = 5          # Max tool-call loop turns per message
+max_history_messages   = 20         # Conversation context window
+compact_context        = true       # Optimized for smaller models (4B)
+
+# ── Pacing (for local Ollama inference) ───────────────────────
+[pacing]
+step_timeout_secs              = 120   # 2 min per LLM inference step
+loop_detection_min_elapsed_secs = 60
+message_timeout_scale_max       = 6
+
+# ── HTTP Request Tool (calls FixIt FastAPI) ───────────────────
+# This built-in tool lets the agent make HTTP calls to the FixIt API.
+[http_request]
+enabled         = true
+allowed_domains = ["*"]             # Allow all (local dev only!)
+max_response_size = 1000000         # 1 MB
+timeout_secs    = 15
+
+# ── Multimodal Settings ──────────────────────────────────────
+# Gemma 3 4B supports text and vision natively.
+[multimodal]
+max_images        = 4
+max_image_size_mb = 5
+allow_remote_fetch = false          # Only local/base64 images
+
+# ── Security / Autonomy ──────────────────────────────────────
+# Full autonomy for demo — no approval gates.
+[autonomy]
+level                               = "full"
+workspace_only                      = false
+allowed_commands                    = ["*"]
+max_actions_per_hour                = 100
+max_cost_per_day_cents              = 0     # Local LLM = $0 cost
+require_approval_for_medium_risk    = false
+block_high_risk_commands            = false
+
+# ── Runtime ──────────────────────────────────────────────────
+[runtime]
+reasoning_enabled = true            # Enable Gemma 3 4B thinking mode
+
+# ── Identity ─────────────────────────────────────────────────
+# Uses the default IDENTITY.md in the workspace root.
+# Copy IDENTITY.md to ~/.zeroclaw/workspace/IDENTITY.md
+
+# ── Skills ───────────────────────────────────────────────────
+[skills]
+open_skills_enabled    = false      # No community skills needed
+prompt_injection_mode  = "full"     # Full skill instructions in prompt
+
+# ── Memory ───────────────────────────────────────────────────
+[memory]
+backend   = "sqlite"
+auto_save = true
+
+# ── Reliability ──────────────────────────────────────────────
+[reliability]
+provider_retries    = 2
+provider_backoff_ms = 500
+
+# ── Observability (optional — enable for debugging) ──────────
+[observability]
+backend             = "log"
+runtime_trace_mode  = "rolling"
+runtime_trace_max_entries = 100

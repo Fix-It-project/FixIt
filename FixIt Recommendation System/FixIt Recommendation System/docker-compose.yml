@@ -1,0 +1,135 @@
+# ═══════════════════════════════════════════════════════════════
+#  FixIt AI — Docker Compose (Full Stack)
+#
+#  Usage:
+#    docker compose up --build        # First run (builds images + pulls Gemma)
+#    docker compose up                # Subsequent runs (uses cache)
+#    docker compose down              # Stop all services
+#    docker compose logs -f           # Tail all logs in one stream
+#
+#  Services:
+#    ollama         → Local LLM engine (Gemma 3 4B)      :11434
+#    fixit-api      → Python FastAPI + Whisper STT        :8000
+#    fixit-fallback → Node.js Express diagnoser (Flow 1)  :3001
+#    zeroclaw       → Rust AI orchestrator (Flow 2)       :3000
+# ═══════════════════════════════════════════════════════════════
+
+services:
+
+  # ── 1. Ollama — Local LLM Engine ───────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: fixit-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./ollama/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    environment:
+      - OLLAMA_MODEL=gemma3:4b
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags | grep -q 'gemma3' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - fixit-net
+    restart: unless-stopped
+
+  # ── 2. FixIt API — Python FastAPI + Whisper STT ────────────
+  fixit-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fixit-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 45s
+    networks:
+      - fixit-net
+    restart: unless-stopped
+
+  # ── 3. FixIt Fallback — Node.js Diagnoser (Flow 1) ────────
+  fixit-fallback:
+    build:
+      context: ./ollama-fallback
+      dockerfile: Dockerfile
+    container_name: fixit-fallback
+    ports:
+      - "3001:3001"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=gemma3:4b
+      - FIXIT_API_URL=http://fixit-api:8000
+      - PORT=3001
+      - OLLAMA_TIMEOUT_MS=120000
+      - MAX_TOOL_ITERATIONS=5
+    depends_on:
+      ollama:
+        condition: service_healthy
+      fixit-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - fixit-net
+    restart: unless-stopped
+
+  # ── 4. ZeroClaw — Rust AI Orchestrator (Flow 2) ────────────
+  zeroclaw:
+    build:
+      context: ./zeroclaw
+      dockerfile: Dockerfile
+    container_name: fixit-zeroclaw
+    ports:
+      - "3000:3000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - FIXIT_API_HOST=http://fixit-api:8000
+    depends_on:
+      ollama:
+        condition: service_healthy
+      fixit-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - fixit-net
+    restart: unless-stopped
+
+# ── Shared Network ───────────────────────────────────────────
+networks:
+  fixit-net:
+    driver: bridge
+
+# ── Persistent Volumes ───────────────────────────────────────
+volumes:
+  ollama-data:
+    name: fixit-ollama-data

@@ -1,0 +1,4 @@
+MISMATCH: dish -> painter
+   - Need TV wall mounted in the living room.
+MISMATCH: painter -> carpentry
+   - Fill holes and repaint where old shelves were mounted.

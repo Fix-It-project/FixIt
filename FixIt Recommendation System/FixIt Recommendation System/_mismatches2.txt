@@ -1,0 +1,32 @@
+MISMATCH: air condition -> home cleaning
+   - AC deep cleaning, bad smell coming from vents.
+   - Annual AC maintenance and filter cleaning.
+   - Split unit filter and coil cleaning.
+MISMATCH: carpentry -> painter
+   - Wall-mounted bookshelf needs professional installation.
+MISMATCH: carpentry -> None
+   - Need custom shelves built for the living room.
+   - New office desk needs professional assembly.
+MISMATCH: dish -> home cleaning
+   - Hide TV cables inside the wall for clean look.
+MISMATCH: electrical -> air condition
+   - The fuse box keeps tripping when I turn on the AC.
+   - Main circuit breaker needs inspection and replacement.
+   - Chandelier replacement in the living room.
+MISMATCH: fridge/freezer -> air condition
+   - Fridge compressor running but not cooling.
+MISMATCH: electrical -> painter
+   - Wall outlet stopped working and smells like burning.
+MISMATCH: fridge/freezer -> plumbing
+   - Fridge leaking water inside on the shelves.
+MISMATCH: plumbing -> None
+   - The water heater is making strange noises and water is cold.
+MISMATCH: plumbing -> air condition
+   - Need the water heater replaced, it's rusty and old.
+MISMATCH: dish -> painter
+   - Mount a 65-inch TV on the bedroom wall.
+   - Need TV wall mounted in the living room.
+MISMATCH: oven/cooker -> air condition
+   - Stove top electric coil needs replacement.
+MISMATCH: plumbing -> dish
+   - Dishwasher water line needs professional installation.

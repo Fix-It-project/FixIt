@@ -12,6 +12,8 @@ export default function BookingIndex() {
   }>();
   const bookingDateRoute = ROUTES.user.bookingDate(params.technicianId ?? "");
 
+  const { category, summary, estimated_cost } = useLocalSearchParams();
+
   return (
     <Redirect
       href={{
@@ -23,6 +25,9 @@ export default function BookingIndex() {
           serviceName: params.serviceName,
           categoryId: params.categoryId,
           categoryName: params.categoryName,
+          category,
+          summary,
+          estimated_cost,
         },
       }}
     />
