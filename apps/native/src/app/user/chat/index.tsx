@@ -1,4 +1,17 @@
 import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import * as Crypto from "expo-crypto";
+import { useFocusEffect, useRouter } from "expo-router";
+import {
+  ArrowRight,
+  Bot,
+  Camera,
+  ImagePlus,
+  MessageCircle,
+  Sparkles,
+  Star,
+  X,
+} from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,27 +24,36 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import {
-  ArrowRight,
-  Camera,
-  ImagePlus,
-  MessageCircle,
-  Sparkles,
-  Star,
-  X,
-} from "lucide-react-native";
 import { KeyboardAvoidingView as ControllerKeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
-import { useLocationStore } from "@/src/stores/location-store";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { diagnoseIssue } from "@/src/features/ai/api";
+import { diagnoseIssue, placeOrderWithAgent } from "@/src/features/ai/api";
 import type { ServiceOrder } from "@/src/features/ai/schemas/response.schema";
 import { getServicesByCategory } from "@/src/features/services/api/services";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { ROUTES } from "@/src/lib/routes";
+import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { useLocationStore } from "@/src/stores/location-store";
+
+function getErrorMessage(error: unknown) {
+  if (axios.isAxiosError(error)) {
+    const responseMessage =
+      typeof error.response?.data === "string"
+        ? error.response.data
+        : typeof error.response?.data?.error === "string"
+          ? error.response.data.error
+          : typeof error.response?.data?.message === "string"
+            ? error.response.data.message
+            : null;
+
+    if (responseMessage) {
+      return responseMessage;
+    }
+  }
+
+  return error instanceof Error ? error.message : null;
+}
 
 function normalizeText(value: string) {
   return value
@@ -87,6 +109,7 @@ type SelectedImage = {
 type SubmittedPrompt = {
   text: string;
   image: SelectedImage | null;
+  flow: "recommend" | "agent";
 };
 
 type RecommendationCard = {
@@ -100,6 +123,67 @@ type RecommendationCard = {
   isAssigned?: boolean;
 };
 
+type ChatEntry =
+  | {
+      id: string;
+      type: "user";
+      text: string;
+      image: SelectedImage | null;
+      flow: "recommend" | "agent";
+    }
+  | {
+      id: string;
+      type: "assistant";
+      text: string;
+      flow: "recommend" | "agent";
+    }
+  | {
+      id: string;
+      type: "order";
+      serviceOrder: ServiceOrder;
+      flow: "recommend" | "agent";
+      promptText: string;
+    };
+
+function createChatEntryId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function getRecommendationCards(serviceOrder: ServiceOrder) {
+  const assignedId = String(serviceOrder.assigned_technician.id);
+  const cards: RecommendationCard[] = [
+    {
+      id: assignedId,
+      name: serviceOrder.assigned_technician.name,
+      category: serviceOrder.assigned_technician.category,
+      distance_km: serviceOrder.assigned_technician.distance_km,
+      match_score: serviceOrder.assigned_technician.match_score,
+      trust_score: serviceOrder.assigned_technician.trust_score,
+      hourly_rate_egp: serviceOrder.assigned_technician.hourly_rate_egp,
+      isAssigned: true,
+    },
+  ];
+
+  const seen = new Set<string>([assignedId]);
+  for (const technician of serviceOrder.all_recommendations ?? []) {
+    const technicianId = String(technician.id || "");
+    if (!technicianId || seen.has(technicianId)) continue;
+    seen.add(technicianId);
+    cards.push({
+      id: technicianId,
+      name: technician.name,
+      category: technician.category,
+      distance_km: technician.distance_km,
+      match_score: technician.match_score,
+      trust_score: technician.trust_score,
+      hourly_rate_egp: technician.hourly_rate_egp,
+    });
+    if (cards.length === 3) break;
+  }
+
+  return cards;
+}
+
 export default function ChatbotScreen() {
   const router = useRouter();
   const themeColors = useThemeColors();
@@ -108,16 +192,32 @@ export default function ChatbotScreen() {
   const insets = useSafeAreaInsets();
 
   const [message, setMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [activeFlow, setActiveFlow] = useState<"recommend" | "agent" | null>(null);
   const [isOpeningTechnician, setIsOpeningTechnician] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [assistantMessage, setAssistantMessage] = useState<string | null>(null);
   const [serviceOrder, setServiceOrder] = useState<ServiceOrder | null>(null);
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(null);
   const [submittedPrompt, setSubmittedPrompt] = useState<SubmittedPrompt | null>(null);
+  const [chatEntries, setChatEntries] = useState<ChatEntry[]>([]);
+  const [agentSessionId, setAgentSessionId] = useState<string | null>(() =>
+    Crypto.randomUUID(),
+  );
 
   const trimmedMessage = message.trim();
-  const canDiagnose = !!trimmedMessage || !!selectedImage?.base64;
+  const isLoading = activeFlow !== null;
+  const canRecommend = !!trimmedMessage || !!selectedImage?.base64;
+  const canUseAgent = !!trimmedMessage && !!agentSessionId;
+
+  useFocusEffect(
+    useCallback(() => {
+      setAgentSessionId(Crypto.randomUUID());
+
+      return () => {
+        setAgentSessionId(null);
+      };
+    }, []),
+  );
 
   const pickImage = useCallback(async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -172,13 +272,13 @@ export default function ChatbotScreen() {
     });
   }, []);
 
-  const handleDiagnose = useCallback(async () => {
+  const handleRecommend = useCallback(async () => {
     setError(null);
     setAssistantMessage(null);
     setServiceOrder(null);
 
     if (!trimmedMessage && !selectedImage?.base64) {
-      setError("Add a description or image before diagnosing.");
+      setError("Add a description or image before asking for recommendations.");
       return;
     }
 
@@ -190,43 +290,160 @@ export default function ChatbotScreen() {
       return;
     }
 
-    setSubmittedPrompt({
-      text: trimmedMessage,
-      image: selectedImage,
-    });
+    const promptText = trimmedMessage;
+    const promptImage = selectedImage;
+    setChatEntries((entries) => [
+      ...entries,
+      {
+        id: createChatEntryId(),
+        type: "user",
+        text: promptText,
+        image: promptImage,
+        flow: "recommend",
+      },
+    ]);
     Keyboard.dismiss();
+    setMessage("");
+    setSelectedImage(null);
 
-    setIsLoading(true);
+    setActiveFlow("recommend");
     try {
       const response = await diagnoseIssue({
-        text: trimmedMessage,
-        image: selectedImage?.base64,
+        text: promptText,
+        image: promptImage?.base64,
         latitude: location.latitude,
         longitude: location.longitude,
-        userId: user?.id ? Number(user.id) : null,
+        userId: user?.id ?? null,
       });
-      setServiceOrder(response.data.service_order ?? null);
-      setAssistantMessage(response.data.assistant_message ?? null);
-      setMessage("");
-      setSelectedImage(null);
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to diagnose. Please try again.");
+      const nextServiceOrder = response.data.service_order ?? null;
+      const nextAssistantMessage = response.data.assistant_message ?? null;
+
+      setChatEntries((entries) => [
+        ...entries,
+        ...(nextAssistantMessage
+          ? [{
+              id: createChatEntryId(),
+              type: "assistant" as const,
+              text: nextAssistantMessage,
+              flow: "recommend" as const,
+            }]
+          : []),
+        ...(nextServiceOrder
+          ? [{
+              id: createChatEntryId(),
+              type: "order" as const,
+              serviceOrder: nextServiceOrder,
+              flow: "recommend" as const,
+              promptText,
+            }]
+          : []),
+      ]);
+      setServiceOrder(null);
+      setAssistantMessage(null);
+      setSubmittedPrompt(null);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) ?? "Failed to recommend technicians. Please try again.");
     } finally {
-      setIsLoading(false);
+      setActiveFlow(null);
     }
-  }, [requestLocationPermission, selectedImage?.base64, trimmedMessage, user?.id]);
+  }, [requestLocationPermission, selectedImage, trimmedMessage, user?.id]);
+
+  const handleAgentOrder = useCallback(async () => {
+    setError(null);
+    setAssistantMessage(null);
+    setServiceOrder(null);
+
+    if (!trimmedMessage) {
+      setError("Tell the agent what is happening before it starts the order.");
+      return;
+    }
+
+    if (!agentSessionId) {
+      setError("Start a new agent session before sending your message.");
+      return;
+    }
+
+    await requestLocationPermission();
+    const { location } = useLocationStore.getState();
+
+    if (!location) {
+      setError("Location is required for the agent to prepare your order.");
+      return;
+    }
+
+    const promptText = trimmedMessage;
+    setChatEntries((entries) => [
+      ...entries,
+      {
+        id: createChatEntryId(),
+        type: "user",
+        text: promptText,
+        image: null,
+        flow: "agent",
+      },
+    ]);
+    Keyboard.dismiss();
+    setMessage("");
+    setSelectedImage(null);
+
+    setActiveFlow("agent");
+    try {
+      const userId = user?.id ?? null;
+      const response = await placeOrderWithAgent({
+        session_id: agentSessionId,
+        message: [
+          promptText,
+          "",
+          `[User Location: lat=${location.latitude}, lon=${location.longitude}]`,
+          `[User ID: ${userId ?? "guest"}]`,
+        ].join("\n"),
+      });
+      console.log("[AI Agent] session_id:", agentSessionId);
+      const nextServiceOrder = response.data.service_order ?? null;
+      const nextAssistantMessage = response.data.assistant_message ?? null;
+
+      setChatEntries((entries) => [
+        ...entries,
+        ...(nextAssistantMessage
+          ? [{
+              id: createChatEntryId(),
+              type: "assistant" as const,
+              text: nextAssistantMessage,
+              flow: "agent" as const,
+            }]
+          : []),
+        ...(nextServiceOrder
+          ? [{
+              id: createChatEntryId(),
+              type: "order" as const,
+              serviceOrder: nextServiceOrder,
+              flow: "agent" as const,
+              promptText,
+            }]
+          : []),
+      ]);
+      setServiceOrder(null);
+      setAssistantMessage(null);
+      setSubmittedPrompt(null);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) ?? "The agent could not prepare the order. Please try again.");
+    } finally {
+      setActiveFlow(null);
+    }
+  }, [agentSessionId, requestLocationPermission, trimmedMessage, user?.id]);
 
   const handleOpenTechnician = useCallback(async (technician: {
     id: string | number;
     name: string;
-  }) => {
-    if (!serviceOrder) return;
+  }, orderOverride?: ServiceOrder, promptTextOverride?: string) => {
+    const activeServiceOrder = orderOverride ?? serviceOrder;
+    if (!activeServiceOrder) return;
 
     setError(null);
     setIsOpeningTechnician(true);
 
     try {
-      const matchedCategory = findCategoryByDiagnosis(serviceOrder.diagnosed_category);
+      const matchedCategory = findCategoryByDiagnosis(activeServiceOrder.diagnosed_category);
 
       if (!matchedCategory) {
         setError("Could not match this diagnosis to a booking category.");
@@ -243,14 +460,14 @@ export default function ChatbotScreen() {
 
       const rankedServices = [...services].sort((a, b) => {
         const aScore = scoreServiceMatch(a.name, [
-          serviceOrder.problem_summary,
-          serviceOrder.diagnosed_category,
-          trimmedMessage,
+          activeServiceOrder.problem_summary,
+          activeServiceOrder.diagnosed_category,
+          promptTextOverride ?? trimmedMessage,
         ]);
         const bScore = scoreServiceMatch(b.name, [
-          serviceOrder.problem_summary,
-          serviceOrder.diagnosed_category,
-          trimmedMessage,
+          activeServiceOrder.problem_summary,
+          activeServiceOrder.diagnosed_category,
+          promptTextOverride ?? trimmedMessage,
         ]);
         return bScore - aScore;
       });
@@ -267,13 +484,13 @@ export default function ChatbotScreen() {
           categoryName: matchedCategory.label,
           serviceId: selectedService.id,
           serviceName: selectedService.name,
-          category: serviceOrder.diagnosed_category,
-          summary: serviceOrder.problem_summary,
-          estimated_cost: serviceOrder.estimated_cost_range_egp ?? "",
+          category: activeServiceOrder.diagnosed_category,
+          summary: activeServiceOrder.problem_summary,
+          estimated_cost: activeServiceOrder.estimated_cost_range_egp ?? "",
         },
       });
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to open the technician booking flow.");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) ?? "Failed to open the technician booking flow.");
     } finally {
       setIsOpeningTechnician(false);
     }
@@ -356,6 +573,165 @@ export default function ChatbotScreen() {
           </Text>
         </View>
 
+        {chatEntries.map((entry) => {
+          if (entry.type === "user") {
+            return (
+              <View key={entry.id} className="mt-4 max-w-[88%] self-end rounded-[24px] rounded-tr-md bg-[#1565D8] px-4 py-4">
+                {entry.text ? (
+                  <Text className="text-[15px] leading-6 text-white">{entry.text}</Text>
+                ) : null}
+
+                {entry.image ? (
+                  <View className={entry.text ? "mt-3" : ""}>
+                    <Image
+                      source={{ uri: entry.image.uri }}
+                      className="h-40 w-[220px] rounded-2xl"
+                      resizeMode="cover"
+                    />
+                    <Text className="mt-2 text-[12px] text-[#D9E7FF]" numberOfLines={1}>
+                      {entry.image.name}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            );
+          }
+
+          if (entry.type === "assistant") {
+            return (
+              <View key={entry.id} className="mt-4 max-w-[88%] self-start rounded-[24px] rounded-tl-md bg-white px-4 py-4 shadow-sm">
+                <View className="mb-2 flex-row items-center">
+                  <View className={`h-7 w-7 items-center justify-center rounded-full ${entry.flow === "agent" ? "bg-[#24292F]" : "bg-[#E8F1FF]"}`}>
+                    {entry.flow === "agent" ? (
+                      <Bot size={14} color="#FFFFFF" strokeWidth={2.2} />
+                    ) : (
+                      <Sparkles size={14} color={Colors.primary} strokeWidth={2.2} />
+                    )}
+                  </View>
+                  <Text className="ml-2 text-[13px] text-[#48607D]">
+                    {entry.flow === "agent" ? "FixIt Agent" : "FixIt Assistant"}
+                  </Text>
+                </View>
+                <Text className="text-[15px] leading-6 text-[#10233F]">
+                  {entry.text}
+                </Text>
+              </View>
+            );
+          }
+
+          const cards = getRecommendationCards(entry.serviceOrder);
+
+          return (
+            <View key={entry.id} className="mt-4 max-w-[92%] self-start rounded-[24px] rounded-tl-md bg-white px-4 py-4 shadow-sm">
+              <View className="mb-3 flex-row items-center">
+                <View className="h-8 w-8 items-center justify-center rounded-full bg-[#E8F1FF]">
+                  <Sparkles size={15} color={Colors.primary} strokeWidth={2.2} />
+                </View>
+                <Text
+                  className="ml-2 text-[15px] text-[#10233F]"
+                  style={{ fontFamily: "GoogleSans_600SemiBold" }}
+                >
+                  {entry.flow === "agent" ? "Agent order draft" : "Recommendation ready"}
+                </Text>
+              </View>
+
+              <Text className="text-[13px] text-[#5B6B82]">Diagnosed category</Text>
+              <Text
+                className="mt-1 text-[17px] text-[#10233F]"
+                style={{ fontFamily: "GoogleSans_700Bold" }}
+              >
+                {entry.serviceOrder.diagnosed_category}
+              </Text>
+
+              <Text className="mt-4 text-[13px] text-[#5B6B82]">Summary</Text>
+              <Text className="mt-1 text-[15px] leading-6 text-[#1B2B41]">
+                {entry.serviceOrder.problem_summary}
+              </Text>
+
+              <View className="mt-4 rounded-2xl bg-[#F5F8FD] px-4 py-4">
+                <Text className="text-[13px] text-[#5B6B82]">Estimated cost</Text>
+                <Text
+                  className="mt-1 text-[16px] text-[#10233F]"
+                  style={{ fontFamily: "GoogleSans_600SemiBold" }}
+                >
+                  {entry.serviceOrder.estimated_cost_range_egp ?? "N/A"}
+                </Text>
+              </View>
+
+              <Text className="mt-4 text-[13px] text-[#5B6B82]">
+                Recommended technicians
+              </Text>
+              <View className="mt-2 gap-3">
+                {cards.map((technician, index) => {
+                  const isTopPick = index === 0 || technician.isAssigned;
+                  const distanceLabel = `${technician.distance_km.toFixed(1)} km away`;
+                  const scorePercent = `${Math.round(technician.match_score * 100)}% match`;
+                  const rateLabel = technician.hourly_rate_egp
+                    ? `${technician.hourly_rate_egp} EGP/hr`
+                    : null;
+                  const recommendationKey = `${String(technician.id || technician.name)}-${entry.id}-${index}`;
+
+                  return (
+                    <TouchableOpacity
+                      key={recommendationKey}
+                      onPress={() => void handleOpenTechnician({
+                        id: technician.id,
+                        name: technician.name,
+                      }, entry.serviceOrder, entry.promptText)}
+                      activeOpacity={0.85}
+                      disabled={isOpeningTechnician}
+                      className={`rounded-2xl px-4 py-4 ${isTopPick ? "bg-[#1565D8]" : "bg-[#F5F8FD]"}`}
+                    >
+                      <View className="flex-row items-start justify-between">
+                        <View className="flex-1 pr-3">
+                          <View className="flex-row items-center">
+                            {isTopPick ? (
+                              <View className="mr-2 flex-row items-center rounded-full bg-white/16 px-2 py-1">
+                                <Star size={12} color="#FFFFFF" strokeWidth={2.4} fill="#FFFFFF" />
+                                <Text className="ml-1 text-[11px] text-white">Top pick</Text>
+                              </View>
+                            ) : null}
+                            <Text
+                              className={`text-[16px] ${isTopPick ? "text-white" : "text-[#10233F]"}`}
+                              style={{ fontFamily: "GoogleSans_700Bold" }}
+                            >
+                              {technician.name}
+                            </Text>
+                          </View>
+
+                          <Text className={`mt-2 text-[13px] ${isTopPick ? "text-[#D9E7FF]" : "text-[#5B6B82]"}`}>
+                            {distanceLabel} · {scorePercent}
+                          </Text>
+
+                          {rateLabel ? (
+                            <Text className={`mt-1 text-[13px] ${isTopPick ? "text-[#D9E7FF]" : "text-[#5B6B82]"}`}>
+                              {rateLabel}
+                            </Text>
+                          ) : null}
+
+                          <Text className={`mt-2 text-[13px] ${isTopPick ? "text-white" : "text-[#1565D8]"}`}>
+                            Continue to booking
+                          </Text>
+                        </View>
+
+                        {isOpeningTechnician ? (
+                          <ActivityIndicator size="small" color={isTopPick ? "#FFFFFF" : Colors.primary} />
+                        ) : (
+                          <ArrowRight
+                            size={20}
+                            color={isTopPick ? "#FFFFFF" : Colors.primary}
+                            strokeWidth={2.4}
+                          />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          );
+        })}
+
         {submittedPrompt ? (
           <View className="mt-4 max-w-[88%] self-end rounded-[24px] rounded-tr-md bg-[#1565D8] px-4 py-4">
             {submittedPrompt.text ? (
@@ -382,7 +758,9 @@ export default function ChatbotScreen() {
             <View className="flex-row items-center">
               <ActivityIndicator size="small" color={Colors.primary} />
               <Text className="ml-3 text-[14px] text-[#42566F]">
-                Diagnosing your issue...
+                {activeFlow === "agent"
+                  ? "Agent is preparing your order..."
+                  : "Finding technician recommendations..."}
               </Text>
             </View>
           </View>
@@ -394,13 +772,19 @@ export default function ChatbotScreen() {
           </View>
         ) : null}
 
-        {assistantMessage && !serviceOrder ? (
+        {assistantMessage ? (
           <View className="mt-4 max-w-[88%] self-start rounded-[24px] rounded-tl-md bg-white px-4 py-4 shadow-sm">
             <View className="mb-2 flex-row items-center">
-              <View className="h-7 w-7 items-center justify-center rounded-full bg-[#E8F1FF]">
-                <Sparkles size={14} color={Colors.primary} strokeWidth={2.2} />
+              <View className={`h-7 w-7 items-center justify-center rounded-full ${submittedPrompt?.flow === "agent" ? "bg-[#24292F]" : "bg-[#E8F1FF]"}`}>
+                {submittedPrompt?.flow === "agent" ? (
+                  <Bot size={14} color="#FFFFFF" strokeWidth={2.2} />
+                ) : (
+                  <Sparkles size={14} color={Colors.primary} strokeWidth={2.2} />
+                )}
               </View>
-              <Text className="ml-2 text-[13px] text-[#48607D]">FixIt Assistant</Text>
+              <Text className="ml-2 text-[13px] text-[#48607D]">
+                {submittedPrompt?.flow === "agent" ? "FixIt Agent" : "FixIt Assistant"}
+              </Text>
             </View>
             <Text className="text-[15px] leading-6 text-[#10233F]">
               {assistantMessage}
@@ -418,7 +802,7 @@ export default function ChatbotScreen() {
                 className="ml-2 text-[15px] text-[#10233F]"
                 style={{ fontFamily: "GoogleSans_600SemiBold" }}
               >
-                Recommendation ready
+                {submittedPrompt?.flow === "agent" ? "Agent order draft" : "Recommendation ready"}
               </Text>
             </View>
 
@@ -594,26 +978,61 @@ export default function ChatbotScreen() {
 
             <View className="mt-3 flex-row items-center justify-between">
               <Text className="flex-1 pr-3 text-[12px] text-[#6B7A90]">
-                Text can be empty if you attach an image.
+                Text can be empty for recommendations with an image.
               </Text>
+            </View>
+
+            <View className="mt-3 flex-row items-center gap-2">
               <TouchableOpacity
-                onPress={() => void handleDiagnose()}
-                disabled={!canDiagnose || isLoading}
+                onPress={() => void handleRecommend()}
+                disabled={!canRecommend || isLoading}
                 activeOpacity={0.85}
-                className="rounded-full px-4 py-2.5"
+                className="flex-1 flex-row items-center justify-center rounded-full px-4 py-3"
                 style={{
-                  backgroundColor: canDiagnose && !isLoading ? Colors.primary : "#B8C7D9",
+                  backgroundColor: canRecommend && !isLoading ? Colors.primary : "#B8C7D9",
                 }}
               >
-                {isLoading ? (
+                {activeFlow === "recommend" ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
-                  <Text
-                    className="text-[14px] text-white"
-                    style={{ fontFamily: "GoogleSans_600SemiBold" }}
-                  >
-                    Diagnose
-                  </Text>
+                  <>
+                    <Sparkles size={16} color="#FFFFFF" strokeWidth={2.3} />
+                    <Text
+                      className="ml-2 text-[14px] text-white"
+                      style={{ fontFamily: "GoogleSans_600SemiBold" }}
+                    >
+                      Recommend
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => void handleAgentOrder()}
+                disabled={!canUseAgent || isLoading}
+                activeOpacity={0.85}
+                className="flex-1 flex-row items-center justify-center rounded-full border px-4 py-3"
+                style={{
+                  backgroundColor: canUseAgent && !isLoading ? "#24292F" : "#D5DCE6",
+                  borderColor: canUseAgent && !isLoading ? "#57606A" : "#C5CEDB",
+                }}
+              >
+                {activeFlow === "agent" ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Bot
+                      size={16}
+                      color={canUseAgent && !isLoading ? "#FFFFFF" : "#7A8698"}
+                      strokeWidth={2.3}
+                    />
+                    <Text
+                      className={`ml-2 text-[14px] ${canUseAgent && !isLoading ? "text-white" : "text-[#7A8698]"}`}
+                      style={{ fontFamily: "GoogleSans_600SemiBold" }}
+                    >
+                      Agent
+                    </Text>
+                  </>
                 )}
               </TouchableOpacity>
             </View>

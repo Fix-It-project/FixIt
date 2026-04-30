@@ -15,7 +15,8 @@ const assignedTechnicianSchema = z.object({
 });
 
 const recommendationSchema = z.object({
-    technician_id: z.union([z.string(), z.number()]).or(z.undefined()).transform((value) => value ?? ""),
+    id: z.union([z.string(), z.number()]).optional(),
+    technician_id: z.union([z.string(), z.number()]).optional(),
     name: z.string(),
     category: z.string().nullable().optional(),
     match_score: numericLikeSchema.catch(0),
@@ -40,7 +41,7 @@ const serviceOrderSchema = rawServiceOrderSchema.transform((value) => ({
     ...value,
     all_recommendations: (value.all_recommendations ?? value.recommendations)?.map((recommendation) => ({
         ...recommendation,
-        id: String(recommendation.technician_id),
+        id: String(recommendation.id ?? recommendation.technician_id ?? ""),
     })),
 }));
 
