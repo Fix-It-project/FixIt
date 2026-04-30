@@ -28,9 +28,11 @@ export default function CategoryGrid({
 		onMorePress?.();
 		router.push(ROUTES.user.categories);
 	});
-	const handleCategoryTap = useDebounce((categoryId: string, categoryName: string) => {
-		onCategoryPress?.(categoryId, categoryName);
-	});
+	const handleCategoryTap = useDebounce(
+		(categoryId: string, categoryName: string) => {
+			onCategoryPress?.(categoryId, categoryName);
+		},
+	);
 	let content = (
 		<View className="flex-row flex-wrap justify-between">
 			{displayCategories.map((cat, index) => {
@@ -41,7 +43,7 @@ export default function CategoryGrid({
 				return (
 					<TouchableOpacity
 						key={cat.id}
-						className="mb-2.5 overflow-hidden rounded-xl"
+						className="mb-stack-md overflow-hidden rounded-input"
 						style={{
 							width: "48.5%",
 							backgroundColor: themeColors.surfaceElevated,
@@ -51,7 +53,7 @@ export default function CategoryGrid({
 					>
 						<View className="flex-row items-center">
 							<View
-								className="h-16 w-16 items-center justify-center"
+								className="h-avatar-xl w-avatar-xl items-center justify-center"
 								style={{ backgroundColor: color }}
 							>
 								<Icon
@@ -61,8 +63,8 @@ export default function CategoryGrid({
 								/>
 							</View>
 							<Text
-								className="flex-1 px-3 font-semibold text-[14px] text-content"
-								style={{ fontFamily: "GoogleSans_600SemiBold" }}
+								variant="buttonMd"
+								className="flex-1 px-stack-md text-content"
 								numberOfLines={2}
 							>
 								{cat.name}
@@ -76,25 +78,23 @@ export default function CategoryGrid({
 
 	if (isLoading) {
 		content = (
-			<View className="h-16 items-center justify-center">
+			<View className="h-avatar-xl items-center justify-center">
 				<ActivityIndicator size="small" color={Colors.primary} />
 			</View>
 		);
 	}
 
 	return (
-		<View className="px-5">
+		<View className="px-screen-x">
 			{/* Section header */}
-			<View className="mb-2.5 flex-row items-center justify-between">
-				<Text
-					className="font-bold text-[22px] text-content"
-					style={{ fontFamily: "GoogleSans_700Bold" }}
-				>
+			<View className="mb-stack-md flex-row items-center justify-between">
+				<Text variant="h2" className="text-content">
 					Categories
 				</Text>
 				<TouchableOpacity onPress={goToCategories} activeOpacity={0.6}>
 					<Text
-						className="font-medium text-[13px]"
+						variant="bodySm"
+						className="font-medium"
 						style={{ color: themeColors.surfaceMuted }}
 					>
 						Show all

@@ -1,224 +1,247 @@
-import { View, TouchableOpacity, ActivityIndicator, Modal, Pressable } from "react-native";
+import {
+	BottomSheetBackdrop,
+	BottomSheetModal,
+	BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { ClipboardList, MapPin, X } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+	ActivityIndicator,
+	TouchableOpacity,
+	useWindowDimensions,
+	View,
+} from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { ClipboardList, X, MapPin } from "lucide-react-native";
-import { Colors, useThemeColors } from "@/src/lib/theme";
-import { useTechRequestsStore } from "@/src/stores/tech-requests-store";
-import { useAcceptOrderMutation, useRejectOrderMutation } from "@/src/hooks/tech/useTechOrders";
-import { useTechSelfProfileQuery } from "@/src/hooks/tech/useTechSelfProfileQuery";
+import { useTechRequestsStore } from "@/src/features/dashboard/stores/tech-requests-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-
-function withAlpha(hexColor: string, alpha: number) {
-  const normalized = hexColor.replace("#", "");
-  if (normalized.length !== 6) return hexColor;
-  const r = Number.parseInt(normalized.slice(0, 2), 16);
-  const g = Number.parseInt(normalized.slice(2, 4), 16);
-  const b = Number.parseInt(normalized.slice(4, 6), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import {
+	useAcceptDashboardOrderMutation,
+	useRejectDashboardOrderMutation,
+} from "../../hooks/useDashboardOrderMutations";
 
 function timeAgo(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+	const diff = Date.now() - new Date(isoString).getTime();
+	const minutes = Math.floor(diff / 60000);
+	if (minutes < 1) return "just now";
+	if (minutes < 60) return `${minutes}m ago`;
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${hours}h ago`;
+	return `${Math.floor(hours / 24)}d ago`;
 }
 
-export default function RequestReviewModal() {
-  const themeColors = useThemeColors();
-  const { selectedOrder, isModalVisible, closeModal } = useTechRequestsStore();
-  const acceptMutation = useAcceptOrderMutation();
-  const rejectMutation = useRejectOrderMutation();
-  const { data: profile } = useTechSelfProfileQuery();
+interface RequestReviewModalProps {
+	readonly categoryName?: string | null;
+}
 
-  const category = CATEGORIES.find(
-    (c) => c.label.toLowerCase() === (profile?.category_name ?? "").toLowerCase(),
-  );
-  const CategoryIcon = category?.icon ?? ClipboardList;
-  const categoryColor = category?.color ?? Colors.primary;
+export default function RequestReviewModal({
+	categoryName,
+}: RequestReviewModalProps = {}) {
+	const themeColors = useThemeColors();
+	const { selectedOrder, isModalVisible, closeModal } = useTechRequestsStore();
+	const sheetRef = useRef<BottomSheetModal>(null);
+	const acceptMutation = useAcceptDashboardOrderMutation();
+	const rejectMutation = useRejectDashboardOrderMutation();
+	const { height } = useWindowDimensions();
 
-  const isBusy = acceptMutation.isPending || rejectMutation.isPending;
+	const category = CATEGORIES.find(
+		(c) => c.label.toLowerCase() === (categoryName ?? "").toLowerCase(),
+	);
+	const CategoryIcon = category?.icon ?? ClipboardList;
+	const categoryColor = category?.color ?? Colors.primary;
 
-  if (!selectedOrder) return null;
+	const isBusy = acceptMutation.isPending || rejectMutation.isPending;
+	const snapPoints = useMemo(() => [Math.min(height * 0.72, 560)], [height]);
+	const renderBackdrop = useCallback(
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				pressBehavior="close"
+				opacity={1}
+				style={{ backgroundColor: themeColors.backdrop }}
+			/>
+		),
+		[themeColors.backdrop],
+	);
 
-  const handleAccept = () => {
-    acceptMutation.mutate(selectedOrder.id, { onSuccess: closeModal });
-  };
+	useEffect(() => {
+		if (isModalVisible && selectedOrder) {
+			sheetRef.current?.present();
+			return;
+		}
 
-  const handleReject = () => {
-    rejectMutation.mutate(selectedOrder.id, { onSuccess: closeModal });
-  };
+		sheetRef.current?.dismiss();
+	}, [isModalVisible, selectedOrder]);
 
-  return (
-    <Modal
-      visible={isModalVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={closeModal}
-    >
-      <Pressable
-        style={{
-          flex: 1,
-          backgroundColor: withAlpha(themeColors.shadow, 0.4),
-          justifyContent: "flex-end",
-        }}
-        onPress={closeModal}
-      >
-        <Pressable onPress={() => {}}>
-          <View
-            style={{
-              backgroundColor: themeColors.surfaceBase,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              padding: 24,
-              paddingBottom: 36,
-            }}
-          >
-            {/* Handle */}
-            <View
-              style={{
-                width: 40,
-                height: 4,
-                borderRadius: 2,
-                backgroundColor: themeColors.borderDefault,
-                alignSelf: "center",
-                marginBottom: 20,
-              }}
-            />
+	const handleAccept = () => {
+		if (!selectedOrder) return;
+		acceptMutation.mutate(selectedOrder.id, { onSuccess: closeModal });
+	};
 
-            {/* Header row */}
-            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
-              <View
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  backgroundColor: `${categoryColor}18`,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: 12,
-                }}
-              >
-                <CategoryIcon size={22} color={categoryColor} strokeWidth={1.8} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: "GoogleSans_700Bold", fontSize: 16, color: themeColors.textPrimary }}>
-                  Service Request
-                </Text>
-                <Text style={{ fontSize: 12, color: themeColors.textMuted, marginTop: 2 }}>
-                  Received {timeAgo(selectedOrder.created_at)}
-                </Text>
-              </View>
-              <TouchableOpacity onPress={closeModal} activeOpacity={0.7}>
-                <X size={20} color={themeColors.textMuted} strokeWidth={2} />
-              </TouchableOpacity>
-            </View>
+	const handleReject = () => {
+		if (!selectedOrder) return;
+		rejectMutation.mutate(selectedOrder.id, { onSuccess: closeModal });
+	};
 
-            {/* Scheduled date */}
-            <View
-              style={{
-                backgroundColor: themeColors.surfaceElevated,
-                borderRadius: 12,
-                padding: 12,
-                marginBottom: 16,
-              }}
-            >
-              <Text style={{ fontSize: 11, color: themeColors.textMuted, marginBottom: 2, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Scheduled Date
-              </Text>
-              <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: themeColors.textPrimary }}>
-                📅 {selectedOrder.scheduled_date}
-              </Text>
-            </View>
+	if (!selectedOrder) return null;
 
-            {/* Location */}
-            {selectedOrder.user_address && (
-              <View
-                style={{
-                  backgroundColor: themeColors.surfaceElevated,
-                  borderRadius: 12,
-                  padding: 12,
-                  marginBottom: 16,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                <MapPin size={16} color={themeColors.textMuted} strokeWidth={2} />
-                <Text style={{ flex: 1, fontSize: 14, color: themeColors.textPrimary }}>
-                  {selectedOrder.user_address}
-                </Text>
-              </View>
-            )}
+	return (
+		<BottomSheetModal
+			ref={sheetRef}
+			snapPoints={snapPoints}
+			enablePanDownToClose
+			backdropComponent={renderBackdrop}
+			onDismiss={closeModal}
+			backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
+			handleIndicatorStyle={{
+				backgroundColor: themeColors.borderDefault,
+				width: spacing.sheet.handleWidth,
+			}}
+		>
+			<BottomSheetView
+				className="px-button-x"
+				style={{
+					backgroundColor: themeColors.surfaceBase,
+					paddingBottom: spacing.screen.paddingBottom + spacing.stack.md,
+				}}
+			>
+				{/* Header row */}
+				<View className="mb-card-roomy flex-row items-center">
+					<View
+						className="mr-stack-md h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-button"
+						style={{
+							backgroundColor: `${categoryColor}18`,
+						}}
+					>
+						<CategoryIcon size={22} color={categoryColor} strokeWidth={1.8} />
+					</View>
+					<View className="flex-1">
+						<Text
+							variant="buttonLg"
+							className="font-bold"
+							style={{ color: themeColors.textPrimary }}
+						>
+							Service Request
+						</Text>
+						<Text
+							variant="caption"
+							className="mt-stack-xs"
+							style={{ color: themeColors.textMuted }}
+						>
+							Received {timeAgo(selectedOrder.created_at)}
+						</Text>
+					</View>
+					<TouchableOpacity onPress={closeModal} activeOpacity={0.7}>
+						<X size={20} color={themeColors.textMuted} strokeWidth={2} />
+					</TouchableOpacity>
+				</View>
 
-            {/* Problem description */}
-            <View
-              style={{
-                backgroundColor: themeColors.surfaceElevated,
-                borderRadius: 12,
-                padding: 12,
-                marginBottom: 24,
-              }}
-            >
-              <Text style={{ fontSize: 11, color: themeColors.textMuted, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Problem Description
-              </Text>
-              <Text style={{ fontSize: 14, color: themeColors.textPrimary, lineHeight: 20 }}>
-                {selectedOrder.problem_description ?? "No description provided."}
-              </Text>
-            </View>
+				{/* Scheduled date */}
+				<View
+					className="mb-stack-lg rounded-input p-card-compact"
+					style={{
+						backgroundColor: themeColors.surfaceElevated,
+					}}
+				>
+					<Text
+						variant="caption"
+						className="mb-stack-xs text-content-muted uppercase tracking-wider"
+					>
+						Scheduled Date
+					</Text>
+					<Text variant="buttonMd" style={{ color: themeColors.textPrimary }}>
+						📅 {selectedOrder.scheduled_date}
+					</Text>
+				</View>
 
-            {/* Action buttons */}
-            <View style={{ flexDirection: "row", gap: 12 }}>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  borderRadius: 14,
-                  paddingVertical: 14,
-                  backgroundColor: isBusy ? themeColors.borderDefault : Colors.primary,
-                }}
-                activeOpacity={0.85}
-                disabled={isBusy}
-                onPress={handleAccept}
-              >
-                {acceptMutation.isPending ? (
-                  <ActivityIndicator size="small" color={themeColors.surfaceBase} />
-                ) : (
-                  <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: themeColors.surfaceBase }}>
-                    Accept
-                  </Text>
-                )}
-              </TouchableOpacity>
+				{/* Location */}
+				{selectedOrder.user_address && (
+					<View
+						className="mb-stack-lg flex-row items-center gap-stack-sm rounded-input p-card-compact"
+						style={{
+							backgroundColor: themeColors.surfaceElevated,
+						}}
+					>
+						<MapPin size={16} color={themeColors.textMuted} strokeWidth={2} />
+						<Text
+							variant="bodySm"
+							style={{ flex: 1, color: themeColors.textPrimary }}
+						>
+							{selectedOrder.user_address}
+						</Text>
+					</View>
+				)}
 
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  borderRadius: 14,
-                  paddingVertical: 14,
-                  borderWidth: 1,
-                  borderColor: themeColors.borderDefault,
-                  backgroundColor: isBusy ? themeColors.surfaceElevated : themeColors.surfaceBase,
-                }}
-                activeOpacity={0.7}
-                disabled={isBusy}
-                onPress={handleReject}
-              >
-                {rejectMutation.isPending ? (
-                  <ActivityIndicator size="small" color={themeColors.textMuted} />
-                ) : (
-                  <Text style={{ fontFamily: "GoogleSans_600SemiBold", fontSize: 14, color: themeColors.textPrimary }}>
-                    Decline
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
-  );
+				{/* Problem description */}
+				<View
+					className="mb-stack-xl rounded-input p-card-compact"
+					style={{
+						backgroundColor: themeColors.surfaceElevated,
+					}}
+				>
+					<Text
+						variant="caption"
+						className="mb-stack-xs text-content-muted uppercase tracking-wider"
+					>
+						Problem Description
+					</Text>
+					<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
+						{selectedOrder.problem_description ?? "No description provided."}
+					</Text>
+				</View>
+
+				{/* Action buttons */}
+				<View className="flex-row gap-stack-md">
+					<TouchableOpacity
+						className="flex-1 items-center rounded-button py-control-cta-y"
+						style={{
+							backgroundColor: isBusy
+								? themeColors.borderDefault
+								: Colors.primary,
+						}}
+						activeOpacity={0.85}
+						disabled={isBusy}
+						onPress={handleAccept}
+					>
+						{acceptMutation.isPending ? (
+							<ActivityIndicator size="small" color={themeColors.surfaceBase} />
+						) : (
+							<Text
+								variant="buttonMd"
+								style={{ color: themeColors.surfaceBase }}
+							>
+								Accept
+							</Text>
+						)}
+					</TouchableOpacity>
+
+					<TouchableOpacity
+						className="flex-1 items-center rounded-button border py-control-cta-y"
+						style={{
+							borderColor: themeColors.borderDefault,
+							backgroundColor: isBusy
+								? themeColors.surfaceElevated
+								: themeColors.surfaceBase,
+						}}
+						activeOpacity={0.7}
+						disabled={isBusy}
+						onPress={handleReject}
+					>
+						{rejectMutation.isPending ? (
+							<ActivityIndicator size="small" color={themeColors.textMuted} />
+						) : (
+							<Text
+								variant="buttonMd"
+								style={{ color: themeColors.textPrimary }}
+							>
+								Decline
+							</Text>
+						)}
+					</TouchableOpacity>
+				</View>
+			</BottomSheetView>
+		</BottomSheetModal>
+	);
 }
