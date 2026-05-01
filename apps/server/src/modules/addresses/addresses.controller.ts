@@ -1,16 +1,12 @@
 import type { Request, Response } from 'express';
 import { addressesService } from './addresses.service.js';
+import { normalizeError } from '../../shared/errors/index.js';
 
 type OwnerRole = 'user' | 'technician';
 
-/**
- * Creates a set of address controller handlers bound to a specific owner role.
- * The owner ID is read from req.user or req.technician, which are set by
- * the requireUserAuth / requireTechnicianAuth middleware respectively.
- */
 function createAddressHandlers(role: OwnerRole) {
   function getOwnerId(req: Request): string {
-    const owner = role === 'user' ? (req as any).user : (req as any).technician;
+    const owner = role === 'user' ? req.user : req.technician;
     if (!owner?.id) throw new Error('Not authenticated');
     return owner.id;
   }
@@ -21,9 +17,9 @@ function createAddressHandlers(role: OwnerRole) {
         const ownerId = getOwnerId(req);
         const addresses = await addressesService.getAddresses(ownerId, role);
         return res.status(200).json({ addresses });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return res.status(401).json({ error: message });
+      } catch (err: unknown) {
+        const { status, message } = normalizeError(err);
+        return res.status(status === 500 ? 401 : status).json({ error: message });
       }
     },
 
@@ -32,25 +28,14 @@ function createAddressHandlers(role: OwnerRole) {
         const ownerId = getOwnerId(req);
         const { city, street, building_no, apartment_no, latitude, longitude } = req.body;
 
-        // Validate required fields
-        const errors: string[] = [];
-        if (!city || typeof city !== 'string') errors.push('City is required');
-        if (!street || typeof street !== 'string') errors.push('Street is required');
-        if (latitude == null || typeof latitude !== 'number') errors.push('Latitude is required and must be a number');
-        if (longitude == null || typeof longitude !== 'number') errors.push('Longitude is required and must be a number');
-
-        if (errors.length > 0) {
-          return res.status(400).json({ error: errors.join('. ') });
-        }
-
         const address = await addressesService.addAddress(ownerId, role, {
           city, street, building_no, apartment_no, latitude, longitude,
         });
         return res.status(201).json({ address });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        const status = message.includes('Maximum of') ? 409 : 400;
-        return res.status(status).json({ error: message });
+      } catch (err: unknown) {
+        const { status, message } = normalizeError(err);
+        const resolvedStatus = message.includes('Maximum of') ? 409 : (status === 500 ? 400 : status);
+        return res.status(resolvedStatus).json({ error: message });
       }
     },
 
@@ -58,16 +43,14 @@ function createAddressHandlers(role: OwnerRole) {
       try {
         const ownerId = getOwnerId(req);
         const addressId = req.params.id as string;
-        if (!addressId) return res.status(400).json({ error: 'Address ID is required' });
-
         const { city, street, building_no, apartment_no, latitude, longitude } = req.body;
         const address = await addressesService.updateAddress(ownerId, role, addressId, {
           city, street, building_no, apartment_no, latitude, longitude,
         });
         return res.status(200).json({ address });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return res.status(400).json({ error: message });
+      } catch (err: unknown) {
+        const { status, message } = normalizeError(err);
+        return res.status(status === 500 ? 400 : status).json({ error: message });
       }
     },
 
@@ -75,13 +58,11 @@ function createAddressHandlers(role: OwnerRole) {
       try {
         const ownerId = getOwnerId(req);
         const addressId = req.params.id as string;
-        if (!addressId) return res.status(400).json({ error: 'Address ID is required' });
-
         const result = await addressesService.deleteAddress(ownerId, role, addressId);
         return res.status(200).json(result);
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return res.status(400).json({ error: message });
+      } catch (err: unknown) {
+        const { status, message } = normalizeError(err);
+        return res.status(status === 500 ? 400 : status).json({ error: message });
       }
     },
 
@@ -89,13 +70,11 @@ function createAddressHandlers(role: OwnerRole) {
       try {
         const ownerId = getOwnerId(req);
         const addressId = req.params.id as string;
-        if (!addressId) return res.status(400).json({ error: 'Address ID is required' });
-
         const address = await addressesService.setActiveAddress(ownerId, role, addressId);
         return res.status(200).json({ address });
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return res.status(400).json({ error: message });
+      } catch (err: unknown) {
+        const { status, message } = normalizeError(err);
+        return res.status(status === 500 ? 400 : status).json({ error: message });
       }
     },
   };
