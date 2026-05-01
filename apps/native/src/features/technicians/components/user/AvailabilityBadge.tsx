@@ -1,7 +1,7 @@
 import { CircleCheck, Clock } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 interface AvailabilityBadgeProps {
 	readonly isAvailable: boolean;
@@ -14,14 +14,15 @@ export default function AvailabilityBadge({
 	if (isAvailable) {
 		return (
 			<View
-				className="flex-row items-center self-start rounded-full px-2 py-0.5"
-				style={{ backgroundColor: Colors.statusAvailable, gap: 3 }}
+				className="flex-row items-center gap-control-badge self-start rounded-chip px-control-badge-x py-control-badge-y"
+				style={{ backgroundColor: Colors.statusAvailable }}
 			>
-				<CircleCheck size={11} color={Colors.success} strokeWidth={2.5} />
-				<Text
-					className="font-semibold text-[10px] text-success"
-					style={{ fontFamily: "GoogleSans_600SemiBold" }}
-				>
+				<CircleCheck
+					size={spacing.icon.xs}
+					color={Colors.success}
+					strokeWidth={2.25}
+				/>
+				<Text variant="caption" className="font-semibold text-success">
 					Available Now
 				</Text>
 			</View>
@@ -30,14 +31,15 @@ export default function AvailabilityBadge({
 
 	return (
 		<View
-			className="flex-row items-center self-start rounded-full px-2 py-0.5"
-			style={{ backgroundColor: themeColors.surfaceElevated, gap: 3 }}
+			className="flex-row items-center gap-control-badge self-start rounded-chip px-control-badge-x py-control-badge-y"
+			style={{ backgroundColor: themeColors.surfaceElevated }}
 		>
-			<Clock size={11} color={themeColors.surfaceMuted} strokeWidth={2.5} />
-			<Text
-				className="font-semibold text-[10px] text-surface-muted"
-				style={{ fontFamily: "GoogleSans_600SemiBold" }}
-			>
+			<Clock
+				size={spacing.icon.xs}
+				color={themeColors.surfaceMuted}
+				strokeWidth={2.25}
+			/>
+			<Text variant="caption" className="font-semibold text-surface-muted">
 				Unavailable
 			</Text>
 		</View>
