@@ -10,20 +10,21 @@ import { Bot, Camera, ImagePlus, Mic, MicOff, Sparkles, X } from "lucide-react-n
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import type { ChatFlow, SelectedImage } from "../types";
 import type { AudioRecorderState, RecordedAudio } from "../hooks/useAudioRecorder";
 
 type Props = {
+  mode: ChatFlow;
+  onToggleMode: () => void;
   message: string;
   onMessageChange: (value: string) => void;
   selectedImage: SelectedImage | null;
   onClearImage: () => void;
   onPickImage: () => void;
   onTakePhoto: () => void;
-  onRecommend: () => void;
-  onAgent: () => void;
-  canRecommend: boolean;
-  canUseAgent: boolean;
+  onSend: () => void;
+  canSend: boolean;
   isLoading: boolean;
   activeFlow: ChatFlow | null;
   // Audio props
@@ -44,16 +45,16 @@ function formatDuration(ms: number) {
 }
 
 export default function ChatComposer({
+  mode,
+  onToggleMode,
   message,
   onMessageChange,
   selectedImage,
   onClearImage,
   onPickImage,
   onTakePhoto,
-  onRecommend,
-  onAgent,
-  canRecommend,
-  canUseAgent,
+  onSend,
+  canSend,
   isLoading,
   activeFlow,
   recorderState,
@@ -66,247 +67,249 @@ export default function ChatComposer({
 }: Props) {
   const insets = useSafeAreaInsets();
   const themeColors = useThemeColors();
+  const { isDarkColorScheme } = useColorScheme();
 
   const isRecording = recorderState === "recording";
   const hasAudio = recorderState === "recorded" && !!recordedAudio;
+  const disableTyping = isRecording || hasAudio;
+
+  const containerBg = themeColors.surfaceBase;
+  const borderColor = themeColors.borderDefault;
+  const inputBg = themeColors.surfaceElevated;
+  const mutedText = themeColors.textMuted;
+  const bodyText = themeColors.textPrimary;
+
+  const danger = themeColors.danger;
+  const dangerSoft = themeColors.dangerSoft;
+  const overlayMd = themeColors.overlayMd;
+  const overlaySm = themeColors.overlaySm;
+  const micIdleBg = themeColors.surfaceElevated;
+  const micRecordedBg = themeColors.surfaceMuted;
+  const micIcon = themeColors.primary;
+  const primary = themeColors.primary;
 
   return (
-    <KeyboardAvoidingView behavior="height">
-      <View
-        className="border-t border-black/5 bg-white px-4 pt-4"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        {/* Selected image preview */}
-        {selectedImage ? (
-          <View className="mb-3 rounded-2xl border border-[#D6E4F7] bg-[#F7FAFE] px-3 py-3">
-            <View className="flex-row items-center">
-              <Image
-                source={{ uri: selectedImage.uri }}
-                className="h-14 w-14 rounded-xl"
-                resizeMode="cover"
-              />
-              <View className="ml-3 flex-1">
-                <Text className="text-[14px] text-[#10233F]" numberOfLines={1}>
-                  {selectedImage.name}
-                </Text>
-                <Text className="mt-1 text-[12px] text-[#5B6B82]">
-                  Image will be sent with the diagnosis request
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={onClearImage}
-                activeOpacity={0.75}
-                className="h-9 w-9 items-center justify-center rounded-full bg-white"
-              >
-                <X size={16} color="#6B7A90" strokeWidth={2.4} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : null}
-
-        {/* Recorded audio preview */}
-        {hasAudio ? (
-          <View className="mb-3 rounded-2xl border border-[#D6E4F7] bg-[#F0F7FF] px-3 py-3">
-            <View className="flex-row items-center">
-              <View className="h-11 w-11 items-center justify-center rounded-xl bg-[#1565D8]">
-                <Mic size={18} color="#FFFFFF" strokeWidth={2} />
-              </View>
-              <View className="ml-3 flex-1">
-                <Text
-                  className="text-[14px] text-[#10233F]"
-                  style={{ fontFamily: "GoogleSans_600SemiBold" }}
-                >
-                  Voice message
-                </Text>
-                <Text className="mt-1 text-[12px] text-[#5B6B82]">
-                  {formatDuration(recordedAudio.durationMs)} · Will be sent with your request
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={onClearAudio}
-                activeOpacity={0.75}
-                className="h-9 w-9 items-center justify-center rounded-full bg-white"
-              >
-                <X size={16} color="#6B7A90" strokeWidth={2.4} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : null}
-
-        {/* Recording in-progress indicator */}
-        {isRecording ? (
-          <View className="mb-3 rounded-2xl border border-[#FFCDD2] bg-[#FFF5F5] px-3 py-3">
-            <View className="flex-row items-center">
-              {/* Pulsing dot */}
-              <View className="h-3 w-3 rounded-full bg-[#E53935]" />
-              <Text
-                className="ml-2 flex-1 text-[14px] text-[#9F1D1D]"
-                style={{ fontFamily: "GoogleSans_600SemiBold" }}
-              >
-                Recording · {formatDuration(recordingDurationMs)}
+    <View
+      className="border-t border-black/5 px-4 pt-4"
+      style={{ paddingBottom: insets.bottom + 12, backgroundColor: containerBg }}
+    >
+      {/* Selected image preview */}
+      {selectedImage ? (
+        <View className="mb-3 rounded-2xl border px-3 py-3" style={{ borderColor }}>
+          <View className="flex-row items-center">
+            <Image
+              source={{ uri: selectedImage.uri }}
+              className="h-14 w-14 rounded-xl"
+              resizeMode="cover"
+            />
+            <View className="ml-3 flex-1">
+              <Text className="text-[14px]" style={{ color: bodyText }} numberOfLines={1}>
+                {selectedImage.name}
               </Text>
-              <TouchableOpacity
-                onPress={onCancelRecording}
-                activeOpacity={0.75}
-                className="flex-row items-center rounded-full border border-[#FFCDD2] bg-white px-3 py-1.5"
-              >
-                <MicOff size={13} color="#9F1D1D" strokeWidth={2.2} />
-                <Text className="ml-1.5 text-[12px] text-[#9F1D1D]">Cancel</Text>
-              </TouchableOpacity>
+              <Text className="mt-1 text-[12px]" style={{ color: mutedText }}>
+                Image will be sent with the diagnosis request
+              </Text>
             </View>
+            <TouchableOpacity
+              onPress={onClearImage}
+              activeOpacity={0.75}
+              className="h-9 w-9 items-center justify-center rounded-full"
+              style={{ backgroundColor: themeColors.overlaySm }}
+            >
+              <X size={16} color={themeColors.textSecondary} strokeWidth={2.4} />
+            </TouchableOpacity>
           </View>
-        ) : null}
+        </View>
+      ) : null}
 
-        {/* Media picker buttons */}
-        <View className="mb-3 flex-row gap-3">
-          <TouchableOpacity
-            onPress={onPickImage}
-            activeOpacity={0.8}
-            disabled={isRecording}
-            className="flex-1 flex-row items-center justify-center rounded-2xl border border-[#D6E4F7] bg-[#F7FAFE] py-3"
-            style={{ opacity: isRecording ? 0.5 : 1 }}
-          >
-            <ImagePlus size={18} color={Colors.primary} strokeWidth={2} />
-            <Text
-              className="ml-2 text-[14px] text-[#10233F]"
-              style={{ fontFamily: "GoogleSans_600SemiBold" }}
+      {/* Recorded audio preview */}
+      {hasAudio ? (
+        <View className="mb-3 rounded-2xl border px-3 py-3" style={{ borderColor }}>
+          <View className="flex-row items-center">
+            <View className="h-11 w-11 items-center justify-center rounded-xl" style={{ backgroundColor: primary }}>
+              <Mic size={18} color={themeColors.onPrimaryHeader} strokeWidth={2} />
+            </View>
+            <View className="ml-3 flex-1">
+              <Text className="text-[14px]" style={{ color: bodyText }}>
+                Voice message · {formatDuration(recordingDurationMs)}
+              </Text>
+              <Text className="mt-1 text-[12px]" style={{ color: mutedText }}>
+                Voice replaces text input
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={onClearAudio}
+              activeOpacity={0.75}
+              className="h-9 w-9 items-center justify-center rounded-full"
+              style={{ backgroundColor: themeColors.overlaySm }}
             >
-              Gallery
-            </Text>
-          </TouchableOpacity>
+              <X size={16} color={themeColors.textSecondary} strokeWidth={2.4} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
 
-          <TouchableOpacity
-            onPress={onTakePhoto}
-            activeOpacity={0.8}
-            disabled={isRecording}
-            className="flex-1 flex-row items-center justify-center rounded-2xl border border-[#D6E4F7] bg-[#F7FAFE] py-3"
-            style={{ opacity: isRecording ? 0.5 : 1 }}
-          >
-            <Camera size={18} color={Colors.primary} strokeWidth={2} />
+      {/* Recording in-progress indicator */}
+      {isRecording ? (
+        <View className="mb-3 rounded-2xl border px-3 py-3" style={{ borderColor: dangerSoft }}>
+          <View className="flex-row items-center">
+            <View className="h-3 w-3 rounded-full" style={{ backgroundColor: danger }} />
             <Text
-              className="ml-2 text-[14px] text-[#10233F]"
-              style={{ fontFamily: "GoogleSans_600SemiBold" }}
+              className="ml-2 flex-1 text-[14px]"
+              style={{ color: danger, fontFamily: "GoogleSans_600SemiBold" }}
             >
-              Camera
+              Recording · {formatDuration(recordingDurationMs)}
             </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onCancelRecording}
+              activeOpacity={0.75}
+              className="flex-row items-center rounded-full border px-3 py-1.5"
+              style={{ borderColor: dangerSoft, backgroundColor: overlaySm }}
+            >
+              <MicOff size={13} color={danger} strokeWidth={2.2} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
+
+      {/* Mode toggle */}
+      <View className="mb-3">
+        <TouchableOpacity
+          onPress={onToggleMode}
+          activeOpacity={0.8}
+          className="flex-row items-center justify-center rounded-2xl border px-4 py-3"
+          style={{
+            backgroundColor: inputBg,
+            borderColor,
+          }}
+        >
+          <Text
+            className="text-[14px]"
+            style={{ color: bodyText, fontFamily: "GoogleSans_600SemiBold" }}
+          >
+            Mode: {mode === "recommend" ? "Recommend" : "Agent"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Media buttons */}
+      <View className="mb-3 flex-row gap-3">
+        <TouchableOpacity
+          onPress={onPickImage}
+          activeOpacity={0.8}
+          disabled={isRecording}
+          className="flex-1 flex-row items-center justify-center rounded-2xl border py-3"
+          style={{
+            backgroundColor: inputBg,
+            borderColor,
+            opacity: isRecording ? 0.5 : 1,
+          }}
+        >
+          <ImagePlus size={18} color={Colors.primary} strokeWidth={2} />
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            className="ml-2 text-[13px]"
+            style={{ color: bodyText, fontFamily: "GoogleSans_600SemiBold" }}
+          >
+            Gallery
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onTakePhoto}
+          activeOpacity={0.8}
+          disabled={isRecording}
+          className="flex-1 flex-row items-center justify-center rounded-2xl border py-3"
+          style={{
+            backgroundColor: inputBg,
+            borderColor,
+            opacity: isRecording ? 0.5 : 1,
+          }}
+        >
+          <Camera size={18} color={Colors.primary} strokeWidth={2} />
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            className="ml-2 text-[13px]"
+            style={{ color: bodyText, fontFamily: "GoogleSans_600SemiBold" }}
+          >
+            Camera
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Text input + action row */}
+      <View
+        className="rounded-[28px] border px-4 py-3"
+        style={{ backgroundColor: inputBg, borderColor }}
+      >
+        <TextInput
+          placeholder={hasAudio ? "Voice message attached" : "Ask FixIt AI about your problem..."}
+          placeholderTextColor={mutedText}
+          value={message}
+          onChangeText={onMessageChange}
+          multiline
+          editable={!disableTyping}
+          className="min-h-[76px] text-[15px]"
+          style={{
+            fontFamily: "GoogleSans_400Regular",
+            textAlignVertical: "top",
+            color: bodyText,
+            opacity: disableTyping ? 0.4 : 1,
+          }}
+        />
+
+        <View className="mt-3 flex-row items-center justify-between">
+          <Text className="flex-1 pr-3 text-[12px]" style={{ color: mutedText }}>
+            {hasAudio
+              ? "Voice message will be sent instead of text."
+              : "Text can be empty for recommendations with an image or voice."}
+          </Text>
         </View>
 
-        {/* Text input + action row */}
-        <View className="rounded-[28px] border border-[#D6E4F7] bg-[#F7FAFE] px-4 py-3">
-          <TextInput
-            placeholder="Ask FixIt AI about your problem..."
-            placeholderTextColor={themeColors.textMuted}
-            value={message}
-            onChangeText={onMessageChange}
-            multiline
-            editable={!isRecording}
-            className="min-h-[76px] text-[15px] text-[#10233F]"
+        {/* Action buttons */}
+        <View className="mt-3 flex-row items-center gap-2">
+          {/* Mic button */}
+          <TouchableOpacity
+            onPress={isRecording ? onStopRecording : onStartRecording}
+            disabled={isLoading || hasAudio}
+            activeOpacity={0.85}
+            className="h-12 w-12 items-center justify-center rounded-full"
             style={{
-              fontFamily: "GoogleSans_400Regular",
-              textAlignVertical: "top",
-              opacity: isRecording ? 0.4 : 1,
+              backgroundColor: isRecording
+                ? danger
+                : hasAudio
+                  ? micRecordedBg
+                  : micIdleBg,
             }}
-          />
+          >
+            {isRecording ? (
+              <View className="h-4 w-4 rounded-sm" style={{ backgroundColor: themeColors.onPrimaryHeader }} />
+            ) : (
+              <Mic size={18} color={hasAudio ? themeColors.onPrimaryHeader : micIcon} strokeWidth={2.2} />
+            )}
+          </TouchableOpacity>
 
-          <View className="mt-3 flex-row items-center justify-between">
-            <Text className="flex-1 pr-3 text-[12px] text-[#6B7A90]">
-              Text can be empty for recommendations with an image or voice.
-            </Text>
-          </View>
-
-          {/* Action buttons */}
-          <View className="mt-3 flex-row items-center gap-2">
-            {/* Mic button */}
-            <TouchableOpacity
-              onPress={isRecording ? onStopRecording : onStartRecording}
-              disabled={isLoading || hasAudio}
-              activeOpacity={0.85}
-              className="h-12 w-12 items-center justify-center rounded-full"
-              style={{
-                backgroundColor: isRecording
-                  ? "#E53935"
-                  : hasAudio
-                    ? "#B8C7D9"
-                    : "#EDF2FA",
-              }}
-            >
-              {isRecording ? (
-                // Stop icon (square) when recording
-                <View className="h-4 w-4 rounded-sm bg-white" />
-              ) : (
-                <Mic
-                  size={18}
-                  color={hasAudio ? "#FFFFFF" : "#1565D8"}
-                  strokeWidth={2.2}
-                />
-              )}
-            </TouchableOpacity>
-
-            {/* Recommend */}
-            <TouchableOpacity
-              onPress={onRecommend}
-              disabled={!canRecommend || isLoading || isRecording}
-              activeOpacity={0.85}
-              className="flex-1 flex-row items-center justify-center rounded-full px-4 py-3"
-              style={{
-                backgroundColor:
-                  canRecommend && !isLoading && !isRecording
-                    ? Colors.primary
-                    : "#B8C7D9",
-              }}
-            >
-              {activeFlow === "recommend" ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <>
-                  <Sparkles size={16} color="#FFFFFF" strokeWidth={2.3} />
-                  <Text
-                    className="ml-2 text-[14px] text-white"
-                    style={{ fontFamily: "GoogleSans_600SemiBold" }}
-                  >
-                    Recommend
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            {/* Agent */}
-            <TouchableOpacity
-              onPress={onAgent}
-              disabled={!canUseAgent || isLoading || isRecording}
-              activeOpacity={0.85}
-              className="flex-1 flex-row items-center justify-center rounded-full border px-4 py-3"
-              style={{
-                backgroundColor:
-                  canUseAgent && !isLoading && !isRecording ? "#24292F" : "#D5DCE6",
-                borderColor:
-                  canUseAgent && !isLoading && !isRecording ? "#57606A" : "#C5CEDB",
-              }}
-            >
-              {activeFlow === "agent" ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <>
-                  <Bot
-                    size={16}
-                    color={canUseAgent && !isLoading && !isRecording ? "#FFFFFF" : "#7A8698"}
-                    strokeWidth={2.3}
-                  />
-                  <Text
-                    className={`ml-2 text-[14px] ${
-                      canUseAgent && !isLoading && !isRecording ? "text-white" : "text-[#7A8698]"
-                    }`}
-                    style={{ fontFamily: "GoogleSans_600SemiBold" }}
-                  >
-                    Agent
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={onSend}
+            disabled={!canSend || isLoading || isRecording}
+            activeOpacity={0.85}
+            className="flex-1 flex-row items-center justify-center rounded-full px-4 py-3"
+            style={{
+              backgroundColor: canSend && !isLoading && !isRecording ? primary : themeColors.disabledText,
+            }}
+          >
+            {activeFlow === mode ? (
+              <ActivityIndicator size="small" color={themeColors.onPrimaryHeader} />
+            ) : (
+              <Text className="text-[14px]" style={{ color: themeColors.onPrimaryHeader, fontFamily: "GoogleSans_600SemiBold" }}>
+                {mode === "recommend" ? "Recommend" : "Agent"}
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

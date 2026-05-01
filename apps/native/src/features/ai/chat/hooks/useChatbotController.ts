@@ -25,6 +25,7 @@ export function useChatbotController() {
 
   const [message, setMessage] = useState("");
   const [activeFlow, setActiveFlow] = useState<ChatFlow | null>(null);
+  const [mode, setMode] = useState<ChatFlow>("recommend");
   const [isOpeningTechnician, setIsOpeningTechnician] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(null);
@@ -50,7 +51,12 @@ export function useChatbotController() {
 
   // canRecommend: text OR image OR recorded audio
   const canRecommend = !!trimmedMessage || !!selectedImage?.base64 || hasAudio;
-  const canUseAgent = !!trimmedMessage && !!agentSessionId;
+  // canUseAgent: text OR image OR recorded audio
+  const canUseAgent = (!!trimmedMessage || !!selectedImage?.base64 || hasAudio) && !!agentSessionId;
+
+  const toggleMode = useCallback(() => {
+    setMode((prev) => (prev === "recommend" ? "agent" : "recommend"));
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -116,6 +122,11 @@ export function useChatbotController() {
   const handleRecommend = useCallback(async () => {
     setError(null);
 
+    if (hasAudio && trimmedMessage) {
+      setError("Use either voice or text, not both.");
+      return;
+    }
+
     if (!trimmedMessage && !selectedImage?.base64 && !hasAudio) {
       setError("Add a description, image, or voice message before asking for recommendations.");
       return;
@@ -131,13 +142,14 @@ export function useChatbotController() {
     const promptText = trimmedMessage;
     const promptImage = selectedImage;
     const audioBase64 = recordedAudio?.base64 ?? undefined;
+    const userText = promptText || (hasAudio ? "Voice message" : "");
 
     setChatEntries((entries) => [
       ...entries,
       {
         id: createChatEntryId(),
         type: "user",
-        text: promptText,
+        text: userText,
         image: promptImage,
         flow: "recommend",
       },
@@ -202,7 +214,12 @@ export function useChatbotController() {
   const handleAgentOrder = useCallback(async () => {
     setError(null);
 
-    if (!trimmedMessage) {
+    if (hasAudio && trimmedMessage) {
+      setError("Use either voice or text, not both.");
+      return;
+    }
+
+    if (!trimmedMessage && !hasAudio && !selectedImage?.base64) {
       setError("Tell the agent what is happening before it starts the order.");
       return;
     }
@@ -219,19 +236,24 @@ export function useChatbotController() {
     }
 
     const promptText = trimmedMessage;
+    const promptImage = selectedImage;
+    const audioBase64 = recordedAudio?.base64 ?? undefined;
+    const userText = promptText || (hasAudio ? "Voice message" : "");
+
     setChatEntries((entries) => [
       ...entries,
       {
         id: createChatEntryId(),
         type: "user",
-        text: promptText,
-        image: null,
+        text: userText,
+        image: promptImage,
         flow: "agent",
       },
     ]);
     Keyboard.dismiss();
     setMessage("");
     setSelectedImage(null);
+    await clearAudio();
     setActiveFlow("agent");
 
     try {
@@ -244,6 +266,8 @@ export function useChatbotController() {
           `[User Location: lat=${location.latitude}, lon=${location.longitude}]`,
           `[User ID: ${userId ?? "guest"}]`,
         ].join("\n"),
+        audioBuffer: audioBase64,
+        image: promptImage?.base64,
       });
       const nextServiceOrder = response.data.service_order ?? null;
       const nextAssistantMessage = response.data.assistant_message ?? null;
@@ -277,63 +301,25 @@ export function useChatbotController() {
     } finally {
       setActiveFlow(null);
     }
-  }, [agentSessionId, requestLocationPermission, trimmedMessage, user?.id]);
+  }, [agentSessionId, requestLocationPermission, trimmedMessage, user?.id, hasAudio, selectedImage, recordedAudio, clearAudio]);
 
   const handleOpenTechnician = useCallback(
     async (
       technician: { id: string | number; name: string },
       order: ServiceOrder,
-      promptText: string,
+      _promptText: string,
     ) => {
-      setError(null);
       setIsOpeningTechnician(true);
-
       try {
-        const matchedCategory = findCategoryByDiagnosis(order.diagnosed_category);
-        if (!matchedCategory) {
-          setError("Could not match this diagnosis to a booking category.");
-          return;
-        }
-
-        const servicesResponse = await getServicesByCategory(matchedCategory.id);
-        const services = servicesResponse.services;
-        if (!services.length) {
-          setError("No bookable services were found for this diagnosis.");
-          return;
-        }
-
-        const rankedServices = [...services].sort((a, b) => {
-          const aScore = scoreServiceMatch(a.name, [
-            order.problem_summary,
-            order.diagnosed_category,
-            promptText,
-          ]);
-          const bScore = scoreServiceMatch(b.name, [
-            order.problem_summary,
-            order.diagnosed_category,
-            promptText,
-          ]);
-          return bScore - aScore;
-        });
-
-        const selectedService = rankedServices[0];
-        const route = ROUTES.user.bookingRoot(String(technician.id));
+        const route = ROUTES.user.bookingDate(String(technician.id));
         router.push({
           ...route,
           params: {
             ...route.params,
             technicianName: technician.name,
-            categoryId: matchedCategory.id,
-            categoryName: matchedCategory.label,
-            serviceId: selectedService.id,
-            serviceName: selectedService.name,
-            category: order.diagnosed_category,
-            summary: order.problem_summary,
-            estimated_cost: order.estimated_cost_range_egp ?? "",
+            serviceName: order.diagnosed_category,
           },
         });
-      } catch (err: unknown) {
-        setError(getErrorMessage(err) ?? "Failed to open the technician booking flow.");
       } finally {
         setIsOpeningTechnician(false);
       }
@@ -355,6 +341,8 @@ export function useChatbotController() {
     error,
     isLoading,
     activeFlow,
+    mode,
+    toggleMode,
     canRecommend,
     canUseAgent,
     isOpeningTechnician,

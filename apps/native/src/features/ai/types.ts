@@ -11,4 +11,5 @@ export interface AgentOrderRequest {
 	session_id: string;
 	message: string;
 	audioBuffer?: string;
+	image?: string;
 }
