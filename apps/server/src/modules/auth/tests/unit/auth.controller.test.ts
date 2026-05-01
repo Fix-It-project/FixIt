@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockReq, createMockRes } from '../../../../../tests/mocks/express.mock.js';
 
-// ─── Hoisted mock (ESM-compatible) ───────────────────────────────────────────
-
 const { mockService } = vi.hoisted(() => ({
   mockService: {
     signUp: vi.fn(),
@@ -19,7 +17,6 @@ vi.mock('../../auth.service.js', () => ({
   authService: mockService,
 }));
 
-// Import AFTER mocking
 const { AuthController } = await import('../../auth.controller.js');
 
 describe('AuthController', () => {
@@ -28,19 +25,6 @@ describe('AuthController', () => {
   beforeEach(() => {
     controller = new AuthController();
   });
-
-  function expectValidationFailure(
-    res: ReturnType<typeof createMockRes>,
-    expectedStatus: number,
-    expectedBody: unknown,
-    mockedMethod: ReturnType<typeof vi.fn>,
-  ) {
-    expect(res.statusCode).toBe(expectedStatus);
-    expect(res.body).toEqual(expectedBody);
-    expect(mockedMethod).not.toHaveBeenCalled();
-  }
-
-  // ─── signUp ──────────────────────────────────────────────────────────
 
   describe('signUp', () => {
     it('should return 201 on successful signup', async () => {
@@ -58,33 +42,6 @@ describe('AuthController', () => {
       expect(res.body).toEqual(resultData);
     });
 
-    it('should return 400 when email is missing', async () => {
-      const req = createMockReq({ body: { password: 'pass123' } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email and password are required' }, mockService.signUp);
-    });
-
-    it('should return 400 when password is missing', async () => {
-      const req = createMockReq({ body: { email: 'a@b.com' } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email and password are required' }, mockService.signUp);
-    });
-
-    it('should return 400 when email is empty string (boundary)', async () => {
-      const req = createMockReq({ body: { email: '', password: 'pass123' } });
-      const res = createMockRes();
-
-      await controller.signUp(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email and password are required' }, mockService.signUp);
-    });
-
     it('should return 400 when service throws', async () => {
       mockService.signUp.mockRejectedValue(new Error('User with this email already exists'));
 
@@ -97,8 +54,6 @@ describe('AuthController', () => {
       expect(res.body).toEqual({ error: 'User with this email already exists' });
     });
   });
-
-  // ─── signIn ──────────────────────────────────────────────────────────
 
   describe('signIn', () => {
     it('should return 200 on successful sign-in', async () => {
@@ -114,15 +69,6 @@ describe('AuthController', () => {
       expect(res.body).toEqual(resultData);
     });
 
-    it('should return 400 when credentials are missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.signIn(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email and password are required' }, mockService.signIn);
-    });
-
     it('should return 401 when service throws', async () => {
       mockService.signIn.mockRejectedValue(new Error('Invalid credentials'));
 
@@ -135,8 +81,6 @@ describe('AuthController', () => {
       expect(res.body).toEqual({ error: 'Invalid credentials' });
     });
   });
-
-  // ─── signOut ─────────────────────────────────────────────────────────
 
   describe('signOut', () => {
     it('should return 200 and strip Bearer prefix from token', async () => {
@@ -168,7 +112,9 @@ describe('AuthController', () => {
 
       await controller.signOut(req, res);
 
-      expectValidationFailure(res, 401, { error: 'No token provided' }, mockService.signOut);
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toEqual({ error: 'No token provided' });
+      expect(mockService.signOut).not.toHaveBeenCalled();
     });
 
     it('should return 400 when service throws', async () => {
@@ -183,8 +129,6 @@ describe('AuthController', () => {
       expect(res.body).toEqual({ error: 'Session not found' });
     });
   });
-
-  // ─── getCurrentUser ──────────────────────────────────────────────────
 
   describe('getCurrentUser', () => {
     it('should return 200 with user data', async () => {
@@ -206,7 +150,9 @@ describe('AuthController', () => {
 
       await controller.getCurrentUser(req, res);
 
-      expectValidationFailure(res, 401, { error: 'No token provided' }, mockService.getCurrentUser);
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toEqual({ error: 'No token provided' });
+      expect(mockService.getCurrentUser).not.toHaveBeenCalled();
     });
 
     it('should return 401 when service throws', async () => {
@@ -222,8 +168,6 @@ describe('AuthController', () => {
     });
   });
 
-  // ─── refreshToken ───────────────────────────────────────────────────
-
   describe('refreshToken', () => {
     it('should return 200 on successful refresh', async () => {
       const resultData = { session: { accessToken: 'new-at' } };
@@ -236,15 +180,6 @@ describe('AuthController', () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual(resultData);
-    });
-
-    it('should return 400 when refreshToken is missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.refreshToken(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Refresh token is required' }, mockService.refreshSession);
     });
 
     it('should return 401 when service throws', async () => {
@@ -260,8 +195,6 @@ describe('AuthController', () => {
     });
   });
 
-  // ─── requestPasswordReset ────────────────────────────────────────────
-
   describe('requestPasswordReset', () => {
     it('should return 200 with its own success message', async () => {
       mockService.requestPasswordReset.mockResolvedValue({});
@@ -273,15 +206,6 @@ describe('AuthController', () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({ message: 'Password reset email sent. Please check your inbox.' });
-    });
-
-    it('should return 400 when email is missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.requestPasswordReset(req, res);
-
-      expectValidationFailure(res, 400, { error: 'Email is required' }, mockService.requestPasswordReset);
     });
 
     it('should return 400 when service throws', async () => {
@@ -297,8 +221,6 @@ describe('AuthController', () => {
     });
   });
 
-  // ─── resetPassword ──────────────────────────────────────────────────
-
   describe('resetPassword', () => {
     it('should return 200 with success message and user', async () => {
       mockService.updatePassword.mockResolvedValue({ user: { id: 'uuid-1' } });
@@ -313,15 +235,6 @@ describe('AuthController', () => {
         message: 'Password updated successfully',
         user: { id: 'uuid-1' },
       });
-    });
-
-    it('should return 400 when newPassword is missing', async () => {
-      const req = createMockReq({ body: {} });
-      const res = createMockRes();
-
-      await controller.resetPassword(req, res);
-
-      expectValidationFailure(res, 400, { error: 'New password is required' }, mockService.updatePassword);
     });
 
     it('should return 400 when service throws', async () => {

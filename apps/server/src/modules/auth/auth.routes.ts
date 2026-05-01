@@ -1,27 +1,22 @@
 import { Router, type Router as RouterType } from 'express';
 import { authController } from './auth.controller.js';
+import { validate } from '../../shared/middlewares/validate.middleware.js';
+import {
+  SignUpBodySchema,
+  SignInBodySchema,
+  RefreshTokenBodySchema,
+  ForgotPasswordBodySchema,
+  ResetPasswordBodySchema,
+} from '../../shared/dtos/index.js';
 
 const router: RouterType = Router();
 
-// POST /api/auth/signup - Register a new user
-router.post('/signup', (req, res) => authController.signUp(req, res));
-
-// POST /api/auth/signin - Login user
-router.post('/signin', (req, res) => authController.signIn(req, res));
-
-// POST /api/auth/signout - Logout user
+router.post('/signup', validate({ body: SignUpBodySchema }), (req, res) => authController.signUp(req, res));
+router.post('/signin', validate({ body: SignInBodySchema }), (req, res) => authController.signIn(req, res));
 router.post('/signout', (req, res) => authController.signOut(req, res));
-
-// GET /api/auth/me - Get current user
 router.get('/me', (req, res) => authController.getCurrentUser(req, res));
-
-// POST /api/auth/refresh - Refresh access token
-router.post('/refresh', (req, res) => authController.refreshToken(req, res));
-
-// POST /api/auth/forgot-password - Request password reset
-router.post('/forgot-password', (req, res) => authController.requestPasswordReset(req, res));
-
-// POST /api/auth/reset-password - Reset password with new password
-router.post('/reset-password', (req, res) => authController.resetPassword(req, res));
+router.post('/refresh', validate({ body: RefreshTokenBodySchema }), (req, res) => authController.refreshToken(req, res));
+router.post('/forgot-password', validate({ body: ForgotPasswordBodySchema }), (req, res) => authController.requestPasswordReset(req, res));
+router.post('/reset-password', validate({ body: ResetPasswordBodySchema }), (req, res) => authController.resetPassword(req, res));
 
 export default router;

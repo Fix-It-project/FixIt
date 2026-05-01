@@ -7,35 +7,25 @@ import { categoriesRepository } from '../categories/categories.repository.js';
 import { storageRepository } from '../../shared/storage/storage.repository.js';
 import { requireTechnicianAuth } from '../../shared/middlewares/technician-auth.middleware.js';
 import { requireUserAuth } from '../../shared/middlewares/user-auth.middleware.js';
+import { validate } from '../../shared/middlewares/validate.middleware.js';
+import { UpdateTechnicianSelfBodySchema, TechnicianIdParamsSchema } from '../../shared/dtos/index.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 const service = new TechniciansService(techniciansRepository, categoriesRepository, storageRepository);
 const controller = new TechniciansController(service);
 
-// Mounted at /api/categories/:categoryId/technicians
 export const techniciansRoutes: Router = express.Router({ mergeParams: true });
 
-// GET /api/categories/:categoryId/technicians
 techniciansRoutes.get('/', (req, res) => controller.getByCategoryId(req, res));
-
-// GET /api/categories/:categoryId/technicians/search?q=<term>
 techniciansRoutes.get('/search', (req, res) => controller.searchInCategory(req, res));
 
-// Mounted at /api/technicians
 export const technicianProfileRoutes: Router = express.Router();
 
-// GET /api/technicians/:id/profile  (requires authenticated user)
-technicianProfileRoutes.get('/:id/profile', requireUserAuth, (req, res) => controller.getProfile(req, res));
+technicianProfileRoutes.get('/:id/profile', requireUserAuth, validate({ params: TechnicianIdParamsSchema }), (req, res) => controller.getProfile(req, res));
 
-// Mounted at /api/technicians — self-management routes (requires technician auth)
 export const technicianSelfRoutes: Router = express.Router();
 
-// GET /api/technicians/me
 technicianSelfRoutes.get('/me', requireTechnicianAuth, (req, res) => controller.getSelf(req, res));
-
-// PUT /api/technicians/me
-technicianSelfRoutes.put('/me', requireTechnicianAuth, (req, res) => controller.updateSelf(req, res));
-
-// POST /api/technicians/me/profile-image
+technicianSelfRoutes.put('/me', requireTechnicianAuth, validate({ body: UpdateTechnicianSelfBodySchema }), (req, res) => controller.updateSelf(req, res));
 technicianSelfRoutes.post('/me/profile-image', requireTechnicianAuth, upload.single('profile_image'), (req, res) => controller.uploadProfileImage(req, res));
