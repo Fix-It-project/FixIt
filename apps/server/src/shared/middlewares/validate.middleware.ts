@@ -30,7 +30,7 @@ export function validate(schemas: ValidationSchemas) {
         return;
       }
 
-      (req as any)[target] = result.data;
+      Object.defineProperty(req, target, { value: result.data, writable: true, configurable: true });
     }
 
     next();
