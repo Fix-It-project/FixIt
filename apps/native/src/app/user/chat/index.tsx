@@ -18,6 +18,15 @@ export default function ChatbotScreen() {
     canRecommend,
     canUseAgent,
     isOpeningTechnician,
+    // Audio
+    recorderState,
+    recordedAudio,
+    recordingDurationMs,
+    startRecording,
+    stopRecording,
+    clearAudio,
+    cancelRecording,
+    // Handlers
     pickImage,
     takePhoto,
     handleRecommend,
@@ -50,6 +59,14 @@ export default function ChatbotScreen() {
           canUseAgent={canUseAgent}
           isLoading={isLoading}
           activeFlow={activeFlow}
+          // Audio
+          recorderState={recorderState}
+          recordedAudio={recordedAudio}
+          recordingDurationMs={recordingDurationMs}
+          onStartRecording={() => void startRecording()}
+          onStopRecording={() => void stopRecording()}
+          onClearAudio={() => void clearAudio()}
+          onCancelRecording={() => void cancelRecording()}
         />
       </View>
     </ControllerKeyboardAvoidingView>

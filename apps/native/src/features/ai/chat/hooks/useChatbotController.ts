@@ -16,6 +16,7 @@ import {
   getErrorMessage,
   scoreServiceMatch,
 } from "../utils";
+import { useAudioRecorder } from "./useAudioRecorder";
 
 export function useChatbotController() {
   const router = useRouter();
@@ -32,9 +33,23 @@ export function useChatbotController() {
     Crypto.randomUUID(),
   );
 
+  // Audio recorder
+  const {
+    recorderState,
+    recordedAudio,
+    recordingDurationMs,
+    startRecording,
+    stopRecording,
+    clearAudio,
+    cancelRecording,
+  } = useAudioRecorder();
+
   const trimmedMessage = message.trim();
   const isLoading = activeFlow !== null;
-  const canRecommend = !!trimmedMessage || !!selectedImage?.base64;
+  const hasAudio = recorderState === "recorded" && !!recordedAudio;
+
+  // canRecommend: text OR image OR recorded audio
+  const canRecommend = !!trimmedMessage || !!selectedImage?.base64 || hasAudio;
   const canUseAgent = !!trimmedMessage && !!agentSessionId;
 
   useFocusEffect(
@@ -101,8 +116,8 @@ export function useChatbotController() {
   const handleRecommend = useCallback(async () => {
     setError(null);
 
-    if (!trimmedMessage && !selectedImage?.base64) {
-      setError("Add a description or image before asking for recommendations.");
+    if (!trimmedMessage && !selectedImage?.base64 && !hasAudio) {
+      setError("Add a description, image, or voice message before asking for recommendations.");
       return;
     }
 
@@ -115,6 +130,8 @@ export function useChatbotController() {
 
     const promptText = trimmedMessage;
     const promptImage = selectedImage;
+    const audioBase64 = recordedAudio?.base64 ?? undefined;
+
     setChatEntries((entries) => [
       ...entries,
       {
@@ -128,12 +145,14 @@ export function useChatbotController() {
     Keyboard.dismiss();
     setMessage("");
     setSelectedImage(null);
+    await clearAudio();
     setActiveFlow("recommend");
 
     try {
       const response = await diagnoseIssue({
         text: promptText,
         image: promptImage?.base64,
+        audio: audioBase64,
         latitude: location.latitude,
         longitude: location.longitude,
         userId: user?.id ?? null,
@@ -170,7 +189,15 @@ export function useChatbotController() {
     } finally {
       setActiveFlow(null);
     }
-  }, [requestLocationPermission, selectedImage, trimmedMessage, user?.id]);
+  }, [
+    requestLocationPermission,
+    selectedImage,
+    trimmedMessage,
+    user?.id,
+    hasAudio,
+    recordedAudio,
+    clearAudio,
+  ]);
 
   const handleAgentOrder = useCallback(async () => {
     setError(null);
@@ -253,7 +280,11 @@ export function useChatbotController() {
   }, [agentSessionId, requestLocationPermission, trimmedMessage, user?.id]);
 
   const handleOpenTechnician = useCallback(
-    async (technician: { id: string | number; name: string }, order: ServiceOrder, promptText: string) => {
+    async (
+      technician: { id: string | number; name: string },
+      order: ServiceOrder,
+      promptText: string,
+    ) => {
       setError(null);
       setIsOpeningTechnician(true);
 
@@ -328,6 +359,15 @@ export function useChatbotController() {
     canUseAgent,
     isOpeningTechnician,
     activeOrderCount,
+    // Audio
+    recorderState,
+    recordedAudio,
+    recordingDurationMs,
+    startRecording,
+    stopRecording,
+    clearAudio,
+    cancelRecording,
+    // Handlers
     pickImage,
     takePhoto,
     handleRecommend,
