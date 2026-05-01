@@ -37,13 +37,13 @@ describe('SignUpBodySchema', () => {
   it('rejects invalid email format', () => {
     const result = SignUpBodySchema.safeParse({ ...validBody, email: 'not-an-email' });
     expect(result.success).toBe(false);
-    expect(result.error!.issues[0].path).toContain('email');
+    if (!result.success) expect(result.error.issues[0]?.path).toContain('email');
   });
 
   it('rejects password shorter than 8 chars', () => {
     const result = SignUpBodySchema.safeParse({ ...validBody, password: 'short' });
     expect(result.success).toBe(false);
-    expect(result.error!.issues[0].path).toContain('password');
+    if (!result.success) expect(result.error.issues[0]?.path).toContain('password');
   });
 
   it('rejects missing city', () => {
