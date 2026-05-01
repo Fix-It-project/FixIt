@@ -54,6 +54,6 @@ describe('AddressIdParamsSchema', () => {
   it('rejects non-UUID string', () => {
     const result = AddressIdParamsSchema.safeParse({ id: 'not-a-uuid' });
     expect(result.success).toBe(false);
-    expect(result.error!.issues[0].message).toContain('UUID');
+    if (!result.success) expect(result.error.issues[0]?.message).toContain('UUID');
   });
 });
