@@ -7,8 +7,8 @@ import {
 } from "./schemas/response.schema";
 import type { AgentOrderRequest, DiagnoseRequest } from "./types";
 
-const FLOW_1_BASE_URL = "https://b3ae-41-41-230-188.ngrok-free.app";
-const FLOW_2_BASE_URL = "https://a96d-41-41-230-188.ngrok-free.app";
+const FLOW_1_BASE_URL = process.env.EXPO_PUBLIC_AI_DIAGNOSE_BASE_URL;
+const FLOW_2_BASE_URL = process.env.EXPO_PUBLIC_AI_AGENT_BASE_URL;
 
 const diagnoseClient = axios.create({
 	baseURL: FLOW_1_BASE_URL,
