@@ -1,15 +1,19 @@
 import { type Href, Redirect, Stack } from "expo-router";
+import type { ReactNode } from "react";
+import { View } from "react-native";
 import { ROUTES } from "@/src/lib/routes";
 import { useAuthStore, type UserType } from "@/src/stores/auth-store";
 
 interface RoleProtectedLayoutProps {
 	requiredRole: UserType;
 	otherRoleHome: Href;
+	overlay?: ReactNode;
 }
 
 export function RoleProtectedLayout({
 	requiredRole,
 	otherRoleHome,
+	overlay,
 }: RoleProtectedLayoutProps) {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const isLoading = useAuthStore((state) => state.isLoading);
@@ -23,5 +27,10 @@ export function RoleProtectedLayout({
 		return <Redirect href={otherRoleHome} />;
 	}
 
-	return <Stack screenOptions={{ headerShown: false }} />;
+	return (
+		<View style={{ flex: 1 }}>
+			<Stack screenOptions={{ headerShown: false }} />
+			{!isLoading && isAuthenticated && userType === requiredRole ? overlay : null}
+		</View>
+	);
 }

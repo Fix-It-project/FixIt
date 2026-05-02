@@ -1,11 +1,14 @@
+import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Image, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
 	formatDate,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
+import LeaveReviewButton from "@/src/features/reviews/components/user/LeaveReviewButton";
+import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
@@ -54,6 +57,11 @@ export default function UserOrderCard({ order, onPress }: Props) {
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const status = STATUS_CONFIG[order.status];
+	const hasSubmitted = useReviewPromptStore((s) => s.hasSubmitted);
+	const showLeaveReview =
+		order.status === "completed" &&
+		!order.has_review &&
+		!hasSubmitted(order.id);
 
 	return (
 		<TouchableOpacity
@@ -67,6 +75,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 					<Image
 						source={{ uri: order.technician_image }}
 						className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
+						contentFit="cover"
 						style={{ backgroundColor: themeColors.surfaceElevated }}
 					/>
 				) : (
@@ -117,19 +126,26 @@ export default function UserOrderCard({ order, onPress }: Props) {
 			</View>
 
 			{/* Date row */}
-			<View
-				className="mt-stack-md flex-row items-center justify-between border-t border-edge pt-stack-md"
-			>
+			<View className="mt-stack-md flex-row items-center justify-between border-edge border-t pt-stack-md">
 				<Text variant="caption" style={{ color: themeColors.textMuted }}>
 					{formatDate(order.scheduled_date)}
 				</Text>
-				<Text
-					variant="caption"
-					className="font-semibold"
-					style={{ color: Colors.primary }}
-				>
-					View Details
-				</Text>
+				<View className="flex-row items-center gap-stack-md">
+					{showLeaveReview && (
+						<LeaveReviewButton
+							orderId={order.id}
+							technicianId={order.technician_id}
+							technicianName={order.technician_name ?? "Technician"}
+						/>
+					)}
+					<Text
+						variant="caption"
+						className="font-semibold"
+						style={{ color: Colors.primary }}
+					>
+						View Details
+					</Text>
+				</View>
 			</View>
 		</TouchableOpacity>
 	);

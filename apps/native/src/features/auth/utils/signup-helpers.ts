@@ -1,3 +1,9 @@
+export interface UploadDocumentInput {
+	uri: string;
+	name: string;
+	type: string;
+}
+
 export interface TechnicianSignUpInput {
 	email: string;
 	password: string;
@@ -9,9 +15,21 @@ export interface TechnicianSignUpInput {
 	street: string;
 	buildingNumber: string;
 	apartmentNumber: string;
-	nationalIdUri: string;
-	criminalRecordUri: string;
-	certificateUri: string;
+	nationalId: UploadDocumentInput;
+	criminalRecord: UploadDocumentInput;
+	certificate: UploadDocumentInput;
+}
+
+function appendDocument(
+	formData: FormData,
+	field: string,
+	document: UploadDocumentInput,
+): void {
+	formData.append(field, {
+		uri: document.uri,
+		type: document.type,
+		name: document.name,
+	} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
 }
 
 export function buildFormData(
@@ -39,29 +57,9 @@ export function buildFormData(
 	}
 
 	// Document files
-	if (data.nationalIdUri) {
-		formData.append("national_id", {
-			uri: data.nationalIdUri,
-			type: "image/jpeg",
-			name: "national_id.jpg",
-		} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
-	}
-
-	if (data.criminalRecordUri) {
-		formData.append("criminal_record", {
-			uri: data.criminalRecordUri,
-			type: "image/jpeg",
-			name: "criminal_record.jpg",
-		} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
-	}
-
-	if (data.certificateUri) {
-		formData.append("birth_certificate", {
-			uri: data.certificateUri,
-			type: "image/jpeg",
-			name: "birth_certificate.jpg",
-		} as unknown as Blob); // Platform workaround: RN FormData requires Blob cast
-	}
+	appendDocument(formData, "national_id", data.nationalId);
+	appendDocument(formData, "criminal_record", data.criminalRecord);
+	appendDocument(formData, "birth_certificate", data.certificate);
 
 	return formData;
 }

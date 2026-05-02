@@ -1,10 +1,7 @@
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import { Bell, ClipboardList, Star } from "lucide-react-native";
-import {
-	Image,
-	TouchableOpacity,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Svg, { Defs, LinearGradient, Polygon, Stop } from "react-native-svg";
 import { Text } from "@/src/components/ui/text";
@@ -100,6 +97,7 @@ export default function DashboardHeader() {
 	const { themeId } = useThemeMeta();
 	const { data: profile } = useTechSelfProfileQuery();
 	const polygonPalette = getHeaderPolygonPalette(themeColors, themeId);
+	const router = useRouter();
 
 	const fullName = profile
 		? `${profile.first_name} ${profile.last_name}`
@@ -107,6 +105,9 @@ export default function DashboardHeader() {
 	const initials = getPfpInitialsFallback(fullName);
 	const isOnline = false;
 	const specialty = profile?.category_name ?? "Technician";
+	const ratingText =
+		profile?.avg_rating != null ? profile.avg_rating.toFixed(1) : "—";
+	const reviewCount = profile?.review_count ?? 0;
 
 	return (
 		<View
@@ -199,6 +200,7 @@ export default function DashboardHeader() {
 							<Image
 								source={{ uri: profile.profile_image }}
 								className="h-avatar-md w-avatar-md rounded-pill"
+								contentFit="cover"
 								style={{ backgroundColor: themeColors.overlayMd }}
 							/>
 						) : (
@@ -259,7 +261,12 @@ export default function DashboardHeader() {
 							{profile?.total_orders ?? 0}
 						</Text>
 					</View>
-					<View className="flex-row items-center gap-stack-xs">
+					<TouchableOpacity
+						onPress={() => router.push("/technician/reviews")}
+						activeOpacity={0.7}
+						className="flex-row items-center gap-stack-xs rounded-card px-stack-md py-stack-xs"
+						style={{ backgroundColor: themeColors.overlayMd }}
+					>
 						<Star
 							size={14}
 							color={themeColors.ratingDefault}
@@ -270,9 +277,9 @@ export default function DashboardHeader() {
 							className="font-bold"
 							style={{ color: themeColors.surfaceBase }}
 						>
-							4.8
+							{reviewCount > 0 ? `${ratingText} (${reviewCount})` : ratingText}
 						</Text>
-					</View>
+					</TouchableOpacity>
 				</View>
 			</Animated.View>
 		</View>

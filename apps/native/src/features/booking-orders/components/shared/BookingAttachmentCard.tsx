@@ -1,5 +1,5 @@
+import { Image } from "expo-image";
 import {
-	Image,
 	Linking,
 	TouchableOpacity,
 	useWindowDimensions,
@@ -27,8 +27,8 @@ export default function BookingAttachmentCard({ uri }: Props) {
 			>
 				<Image
 					source={{ uri }}
+					contentFit="cover"
 					style={{ width: "100%", height: imageHeight }}
-					resizeMode="cover"
 				/>
 			</TouchableOpacity>
 		</View>

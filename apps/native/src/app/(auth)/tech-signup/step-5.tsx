@@ -1,4 +1,4 @@
-import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
 import ErrorBanner from "@/src/components/feedback/ErrorBanner";
@@ -13,16 +13,40 @@ import {
 	techStep5Schema,
 } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
+import type { UploadDocumentInput } from "@/src/features/auth/utils/signup-helpers";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { useThemeColors } from "@/src/lib/theme";
 
+const DOCUMENT_PICKER_TYPES = [
+	"application/pdf",
+	"image/*",
+	"application/msword",
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+function createStoredDocument(uri: string): UploadDocumentInput | null {
+	if (!uri) return null;
+	return {
+		uri,
+		name: uri.split("/").pop() || "document",
+		type: "application/octet-stream",
+	};
+}
+
 export default function TechnicianSignUpStep5() {
 	const themeColors = useThemeColors();
 	const store = useTechnicianSignupStore();
-	const [nationalId, setNationalId] = useState(store.nationalId);
-	const [criminalRecord, setCriminalRecord] = useState(store.criminalRecord);
-	const [certificate, setCertificate] = useState(store.certificate);
+	const [nationalId, setNationalId] = useState<UploadDocumentInput | null>(
+		createStoredDocument(store.nationalId),
+	);
+	const [criminalRecord, setCriminalRecord] =
+		useState<UploadDocumentInput | null>(
+			createStoredDocument(store.criminalRecord),
+		);
+	const [certificate, setCertificate] = useState<UploadDocumentInput | null>(
+		createStoredDocument(store.certificate),
+	);
 	const [city, setCity] = useState(store.city);
 	const [address, setAddress] = useState(store.address);
 	const [buildingNumber, setBuildingNumber] = useState(store.buildingNumber);
@@ -32,27 +56,32 @@ export default function TechnicianSignUpStep5() {
 	const { fieldErrors, error, clearFieldError, validate } =
 		useFormValidation(techStep5Schema);
 
-	const pickImage = async (
-		setter: (uri: string) => void,
+	const pickDocument = async (
+		setter: (document: UploadDocumentInput) => void,
 		field: keyof TechStep5Data,
 	) => {
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ["images"],
-			allowsEditing: true,
-			quality: 0.8,
+		const result = await DocumentPicker.getDocumentAsync({
+			type: DOCUMENT_PICKER_TYPES,
+			multiple: false,
+			copyToCacheDirectory: true,
 		});
 
 		if (!result.canceled && result.assets[0]) {
-			setter(result.assets[0].uri);
+			const asset = result.assets[0];
+			setter({
+				uri: asset.uri,
+				name: asset.name,
+				type: asset.mimeType ?? "application/octet-stream",
+			});
 			clearFieldError(field);
 		}
 	};
 
 	const handleSubmit = () => {
 		const result = validate({
-			nationalId,
-			criminalRecord,
-			certificate,
+			nationalId: nationalId?.uri ?? "",
+			criminalRecord: criminalRecord?.uri ?? "",
+			certificate: certificate?.uri ?? "",
 			city,
 			address,
 			buildingNumber,
@@ -66,6 +95,8 @@ export default function TechnicianSignUpStep5() {
 			apartmentNumber: result.data.apartmentNumber ?? "",
 		});
 
+		if (!nationalId || !criminalRecord || !certificate) return;
+
 		signUpMutation.mutate({
 			email: store.email,
 			password: store.password,
@@ -77,9 +108,9 @@ export default function TechnicianSignUpStep5() {
 			street: address,
 			buildingNumber: result.data.buildingNumber ?? "",
 			apartmentNumber: result.data.apartmentNumber ?? "",
-			nationalIdUri: nationalId,
-			criminalRecordUri: criminalRecord,
-			certificateUri: certificate,
+			nationalId,
+			criminalRecord,
+			certificate,
 		});
 	};
 
@@ -88,9 +119,9 @@ export default function TechnicianSignUpStep5() {
 		: error;
 
 	const isFormValid =
-		nationalId.length > 0 &&
-		criminalRecord.length > 0 &&
-		certificate.length > 0 &&
+		!!nationalId &&
+		!!criminalRecord &&
+		!!certificate &&
 		city.trim().length > 0 &&
 		address.trim().length > 0;
 
@@ -103,24 +134,27 @@ export default function TechnicianSignUpStep5() {
 
 			<DocumentUploadField
 				label="National ID"
-				value={nationalId}
-				onPick={() => pickImage(setNationalId, "nationalId")}
+				value={nationalId?.uri ?? ""}
+				fileName={nationalId?.name}
+				onPick={() => pickDocument(setNationalId, "nationalId")}
 				error={fieldErrors.nationalId}
 				required
 			/>
 
 			<DocumentUploadField
 				label="Criminal Record"
-				value={criminalRecord}
-				onPick={() => pickImage(setCriminalRecord, "criminalRecord")}
+				value={criminalRecord?.uri ?? ""}
+				fileName={criminalRecord?.name}
+				onPick={() => pickDocument(setCriminalRecord, "criminalRecord")}
 				error={fieldErrors.criminalRecord}
 				required
 			/>
 
 			<DocumentUploadField
 				label="Certificate"
-				value={certificate}
-				onPick={() => pickImage(setCertificate, "certificate")}
+				value={certificate?.uri ?? ""}
+				fileName={certificate?.name}
+				onPick={() => pickDocument(setCertificate, "certificate")}
 				error={fieldErrors.certificate}
 				required
 			/>

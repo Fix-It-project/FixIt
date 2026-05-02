@@ -29,7 +29,7 @@ export default function RecommendedTechnicians() {
 				data={RECOMMENDED_TECHNICIANS}
 				keyExtractor={(item) => item.id}
 				renderItem={({ item }) => (
-					<TechnicianCard item={item} cardWidth={cardWidth} showReviewCount />
+					<TechnicianCard item={item} cardWidth={cardWidth} />
 				)}
 				horizontal
 				showsHorizontalScrollIndicator={false}

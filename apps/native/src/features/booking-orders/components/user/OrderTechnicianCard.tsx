@@ -1,5 +1,6 @@
+import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Image, useWindowDimensions, View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
@@ -30,6 +31,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 				{order.technician_image ? (
 					<Image
 						source={{ uri: order.technician_image }}
+						contentFit="cover"
 						style={{
 							width: avatarSize,
 							height: avatarSize,

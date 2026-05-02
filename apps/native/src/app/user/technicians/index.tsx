@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { Search } from "lucide-react-native";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	ActivityIndicator,
@@ -12,12 +13,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
+import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import TechnicianListCard from "@/src/features/technicians/components/user/TechnicianListCard";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/features/technicians/components/user/TechnicianProfileSheet";
 import TechnicianSortBar from "@/src/features/technicians/components/user/TechnicianSortBar";
 import { useTechniciansQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
+import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { useTechnicianSearchStore } from "@/src/features/technicians/stores/technician-search-store";
 import type { SortKey } from "@/src/features/technicians/types/sort";
@@ -30,11 +33,13 @@ import { useLocationStore } from "@/src/stores/location-store";
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
 function TechnicianListBody({
 	isLoading: loading,
+	isError,
 	technicians,
 	onAvatarPress,
 	onBookPress,
 }: Readonly<{
 	isLoading: boolean;
+	isError: boolean;
 	technicians: TechnicianListItem[];
 	onAvatarPress: (technicianId: string, initials: string) => void;
 	onBookPress: (technicianId: string, name: string) => void;
@@ -43,6 +48,19 @@ function TechnicianListBody({
 		return (
 			<View className="flex-1 items-center justify-center">
 				<ActivityIndicator size="large" color={Colors.primary} />
+			</View>
+		);
+	}
+
+	if (isError) {
+		return (
+			<View className="flex-1 items-center justify-center px-button-lg-x">
+				<Text variant="buttonLg" className="text-center text-content">
+					Unable to load technicians
+				</Text>
+				<Text variant="bodySm" className="mt-stack-xs text-center text-content-muted">
+					Please try again in a moment.
+				</Text>
 			</View>
 		);
 	}
@@ -95,56 +113,70 @@ export default function TechniciansListScreen() {
 	const { location, permissionStatus, requestLocationPermission } =
 		useLocationStore();
 	const coords = activeSort === "Nearest" ? location : null;
+	const [sortRefreshToken, setSortRefreshToken] = useState(0);
 
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
+	const serverSort: TechniciansSortParam | undefined =
+		activeSort === "Top Rated"
+			? "top_rated"
+			: activeSort === "Most Reviews"
+				? "most_reviews"
+				: undefined;
+
 	const {
 		data: technicians = [],
 		isLoading,
+		isError,
 		refetch,
-	} = useTechniciansQuery(categoryId ?? "", searchText, coords);
+	} = useTechniciansQuery(
+		categoryId ?? "",
+		searchText,
+		coords,
+		serverSort,
+		sortRefreshToken,
+	);
 	const goBack = useSafeBack({
 		pathname: ROUTES.user.services,
 		params: { categoryId, categoryName },
 	});
 
-	const [recommendedRank, setRecommendedRank] = useState<Map<
-		string,
-		number
-	> | null>(null);
-	const [isFetchingRecommended, setIsFetchingRecommended] = useState(false);
+	const problemDescription =
+		(typeof serviceName === "string" && serviceName.trim()) ||
+		(typeof categoryName === "string" && categoryName.trim()) ||
+		"General home service needed";
 
-	const fetchRecommended = useCallback(async () => {
-		setIsFetchingRecommended(true);
-
-		try {
-			const { getRecommendedTechnicians } = await import(
-				"@/src/features/technicians/recommendations.service"
-			);
-			const problemDescription =
-				(typeof serviceName === "string" && serviceName.trim()) ||
-				(typeof categoryName === "string" && categoryName.trim()) ||
-				"General home service needed";
-
+	const {
+		data: recommendedRank = null,
+		isFetching: isFetchingRecommended,
+		isError: isRecommendedError,
+	} = useQuery({
+		queryKey: [
+			"recommended-technician-rank",
+			categoryId ?? null,
+			serviceId ?? null,
+			problemDescription,
+			location?.latitude ?? null,
+			location?.longitude ?? null,
+			sortRefreshToken,
+		],
+		queryFn: async () => {
 			const recs = await getRecommendedTechnicians({
 				problemDescription,
+				latitude: location?.latitude,
+				longitude: location?.longitude,
 				topK: 10,
 			});
-
-			setRecommendedRank(
-				new Map(
-					recs.map((r: { technician_id: string }, i: number) => [
-						r.technician_id,
-						i,
-					]),
-				),
+			return new Map(
+				recs.map((r: { technician_id: string }, i: number) => [
+					r.technician_id,
+					i,
+				]),
 			);
-		} catch {
-			Toast.show({ type: "error", text1: "Could not load recommendations" });
-			setRecommendedRank(null);
-		} finally {
-			setIsFetchingRecommended(false);
-		}
-	}, [serviceName, categoryName]);
+		},
+		enabled: activeSort === "Recommended",
+		staleTime: 0,
+		retry: 1,
+	});
 
 	useEffect(() => {
 		if (activeSort === "Nearest" && location) {
@@ -153,10 +185,10 @@ export default function TechniciansListScreen() {
 	}, [activeSort, location, refetch]);
 
 	useEffect(() => {
-		if (activeSort === "Recommended") {
-			void fetchRecommended();
+		if (isRecommendedError) {
+			Toast.show({ type: "error", text1: "Could not load recommendations" });
 		}
-	}, [activeSort, fetchRecommended]);
+	}, [isRecommendedError]);
 
 	const handleSortPress = useCallback(
 		async (option: SortKey) => {
@@ -173,21 +205,9 @@ export default function TechniciansListScreen() {
 			}
 
 			setActiveSort(option);
-
-			if (option === "Recommended") {
-				setRecommendedRank(null);
-				await fetchRecommended();
-				return;
-			}
-
-			setRecommendedRank(null);
+			setSortRefreshToken((token) => token + 1);
 		},
-		[
-			permissionStatus,
-			requestLocationPermission,
-			setActiveSort,
-			fetchRecommended,
-		],
+		[permissionStatus, requestLocationPermission, setActiveSort],
 	);
 
 	const handleAvatarPress = useCallback(
@@ -319,6 +339,7 @@ export default function TechniciansListScreen() {
 				{/* ── Technician list ── */}
 				<TechnicianListBody
 					isLoading={isLoading}
+					isError={isError}
 					technicians={displayedTechnicians}
 					onAvatarPress={handleAvatarPress}
 					onBookPress={handleBookPress}

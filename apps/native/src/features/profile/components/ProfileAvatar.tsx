@@ -1,8 +1,14 @@
+import { Image } from "expo-image";
 import { Camera, User } from "lucide-react-native";
-import { Image, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, elevation, shadowStyle, useThemeColors } from "@/src/lib/theme";
+import {
+	Colors,
+	elevation,
+	shadowStyle,
+	useThemeColors,
+} from "@/src/lib/theme";
 
 interface ProfileAvatarProps {
 	readonly name: string | null;
@@ -24,7 +30,7 @@ function AvatarContent({
 			<Image
 				source={{ uri: imageUrl }}
 				className="h-avatar-2xl w-avatar-2xl rounded-pill"
-				resizeMode="cover"
+				contentFit="cover"
 			/>
 		);
 	}
