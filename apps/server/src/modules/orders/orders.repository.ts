@@ -30,6 +30,7 @@ export interface Order {
   technician_name?: string | null;
   technician_image?: string | null;
   technician_phone?: string | null;
+  has_review: boolean;
 }
 
 export interface CreateOrderData {
@@ -46,6 +47,16 @@ export interface UpdateOrderData {
   active?: boolean;
   cancellation_reason?: string | null;
   attachment?: string | null;
+}
+
+export function applyReviewFlagsToOrders(
+  rows: Order[],
+  reviewedOrderIds: ReadonlySet<string>,
+): Order[] {
+  return rows.map((row) => ({
+    ...row,
+    has_review: reviewedOrderIds.has(row.id),
+  }));
 }
 
 export class OrdersRepository {
@@ -78,7 +89,7 @@ export class OrdersRepository {
 
     if (error) throw error;
 
-    return (data ?? []).map((row: any) => {
+    const mapped = (data ?? []).map((row: any) => {
       const tech = Array.isArray(row.technicians) ? row.technicians[0] : row.technicians;
       const svc = Array.isArray(row.services) ? row.services[0] : row.services;
       return {
@@ -92,6 +103,27 @@ export class OrdersRepository {
         category_id: svc?.category_id ?? null,
       };
     }) as Order[];
+
+    const completedOrderIds = mapped
+      .filter((order) => order.status === 'completed')
+      .map((order) => order.id);
+
+    if (completedOrderIds.length === 0) {
+      return applyReviewFlagsToOrders(mapped, new Set());
+    }
+
+    const { data: reviews, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('order_id')
+      .in('order_id', completedOrderIds);
+
+    if (reviewsError) throw reviewsError;
+
+    const reviewedOrderIds = new Set(
+      (reviews ?? []).map((review: { order_id: string }) => review.order_id),
+    );
+
+    return applyReviewFlagsToOrders(mapped, reviewedOrderIds);
   }
 
   async getTechnicianOrders(technicianId: string): Promise<Order[]> {

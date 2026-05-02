@@ -8,7 +8,7 @@ import { storageRepository } from '../../shared/storage/storage.repository.js';
 import { requireTechnicianAuth } from '../../shared/middlewares/technician-auth.middleware.js';
 import { requireUserAuth } from '../../shared/middlewares/user-auth.middleware.js';
 import { validate } from '../../shared/middlewares/validate.middleware.js';
-import { UpdateTechnicianSelfBodySchema, TechnicianIdParamsSchema } from '../../shared/dtos/index.js';
+import { UpdateTechnicianSelfBodySchema, TechnicianIdParamsSchema, TechnicianListQuerySchema } from '../../shared/dtos/index.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -17,8 +17,8 @@ const controller = new TechniciansController(service);
 
 export const techniciansRoutes: Router = express.Router({ mergeParams: true });
 
-techniciansRoutes.get('/', (req, res) => controller.getByCategoryId(req, res));
-techniciansRoutes.get('/search', (req, res) => controller.searchInCategory(req, res));
+techniciansRoutes.get('/', validate({ query: TechnicianListQuerySchema }), (req, res) => controller.getByCategoryId(req, res));
+techniciansRoutes.get('/search', validate({ query: TechnicianListQuerySchema }), (req, res) => controller.searchInCategory(req, res));
 
 export const technicianProfileRoutes: Router = express.Router();
 
