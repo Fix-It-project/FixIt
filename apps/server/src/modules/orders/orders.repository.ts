@@ -1,10 +1,13 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import type { RescheduleRequest } from './reschedule.repository.js';
 
 const supabase = supabaseAdmin;
 
 export type OrderStatus =
   | 'pending'
   | 'accepted'
+  | 'reschedule_requested_by_user'
+  | 'reschedule_requested_by_technician'
   | 'rejected'
   | 'cancelled_by_user'
   | 'cancelled_by_technician'
@@ -30,6 +33,8 @@ export interface Order {
   technician_name?: string | null;
   technician_image?: string | null;
   technician_phone?: string | null;
+  reschedule_request?: RescheduleRequest | null;
+  has_pending_reschedule?: boolean;
 }
 
 export interface CreateOrderData {

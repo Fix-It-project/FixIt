@@ -18,6 +18,7 @@ export const orderSchema = z.object({
 	technician_phone: z.string().nullable().optional(),
 	service_name: z.string().nullable().optional(),
 	category_id: z.string().nullable().optional(),
+	has_pending_reschedule: z.boolean().optional(),
 });
 
 export const technicianBookingSchema = z.object({
@@ -32,6 +33,7 @@ export const technicianBookingSchema = z.object({
 	user_address: z.string().nullable().optional(),
 	service_name: z.string().nullable().optional(),
 	category_id: z.string().nullable().optional(),
+	has_pending_reschedule: z.boolean().optional(),
 });
 
 export const orderResponseSchema = z.object({ data: orderSchema });
