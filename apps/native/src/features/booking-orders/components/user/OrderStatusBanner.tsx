@@ -59,6 +59,18 @@ export default function OrderStatusBanner({
 			bg: themeColors.orderBg,
 			icon: CheckCircle,
 		},
+		reschedule_requested_by_user: {
+			label: "Reschedule requested by you",
+			color: themeColors.warning,
+			bg: themeColors.warningLight,
+			icon: Clock,
+		},
+		reschedule_requested_by_technician: {
+			label: "Reschedule requested by technician",
+			color: themeColors.warning,
+			bg: themeColors.warningLight,
+			icon: Clock,
+		},
 	};
 	const config = bannerConfig[status];
 

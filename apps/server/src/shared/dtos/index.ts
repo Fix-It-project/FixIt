@@ -6,3 +6,4 @@ export * from "./review.dto.js";
 export * from "./technician.dto.js";
 export * from "./technician-auth.dto.js";
 export * from "./user.dto.js";
+export * from './reschedule.dto.js';

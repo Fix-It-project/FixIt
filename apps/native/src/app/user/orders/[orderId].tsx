@@ -43,7 +43,11 @@ export default function OrderDetailScreen() {
 		);
 	}
 
-	const canCancel = order.status === "pending" || order.status === "accepted";
+	const canCancel =
+		order.status === "pending" ||
+		order.status === "accepted" ||
+		order.status === "reschedule_requested_by_user" ||
+		order.status === "reschedule_requested_by_technician";
 
 	const handleCancelConfirm = () => {
 		cancelMutation.mutate(
