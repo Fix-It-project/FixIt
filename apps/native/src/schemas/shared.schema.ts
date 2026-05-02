@@ -7,6 +7,8 @@ export const orderStatusSchema = z.enum([
 	"cancelled_by_user",
 	"cancelled_by_technician",
 	"completed",
+	"reschedule_requested_by_user",
+	"reschedule_requested_by_technician",
 ]);
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 

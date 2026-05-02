@@ -5,3 +5,4 @@ export * from './order.dto.js';
 export * from './user.dto.js';
 export * from './technician.dto.js';
 export * from './calendar.dto.js';
+export * from './reschedule.dto.js';

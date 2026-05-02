@@ -1,6 +1,8 @@
 import { ordersRepository, type Order, type OrderStatus } from './orders.repository.js';
+import { rescheduleRepository } from './reschedule.repository.js';
 import { technicianCalendarService } from '../technician-calendar/technician-calendar.service.js';
 import { storageRepository } from '../../shared/storage/storage.repository.js';
+import { nowInCairo, cairoMidnightUtc, cairoDateString } from '../../shared/time/cairo-time.js';
 
 export interface CreateOrderRequest {
   technician_id: string;
@@ -23,11 +25,26 @@ export interface UserUpdateOrderRequest {
 /** Which statuses a technician can transition FROM → TO */
 const TECHNICIAN_TRANSITIONS: Record<string, OrderStatus[]> = {
   pending:  ['accepted', 'rejected'],
-  accepted: ['cancelled_by_technician', 'completed'],
+  accepted: ['cancelled_by_technician', 'completed', 'reschedule_requested_by_technician'],
+  reschedule_requested_by_user:       ['accepted'],
+  reschedule_requested_by_technician: ['accepted', 'cancelled_by_technician'],
 };
 
-/** Which statuses a user can cancel from */
-const USER_CANCELLABLE: OrderStatus[] = ['pending', 'accepted'];
+/** Which statuses a user can transition FROM → TO (cancel-style). Exported for use by reschedule.service.ts (Plan 1.3). */
+export const USER_TRANSITIONS: Record<string, OrderStatus[]> = {
+  pending:  ['cancelled_by_user'],
+  accepted: ['cancelled_by_user', 'reschedule_requested_by_user'],
+  reschedule_requested_by_technician: ['accepted'],
+  reschedule_requested_by_user:       ['accepted', 'cancelled_by_user'],
+};
+
+/** Which statuses a user can cancel from (derived view of USER_TRANSITIONS) */
+const USER_CANCELLABLE: OrderStatus[] = [
+  'pending',
+  'accepted',
+  'reschedule_requested_by_user',
+  'reschedule_requested_by_technician',
+];
 
 export class OrdersService {
   private normalizeDate(date: string) {
@@ -40,17 +57,12 @@ export class OrdersService {
 
   private ensureFutureBookingDate(date: string) {
     const normalized = this.normalizeDate(date);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const booking = new Date(normalized);
-    booking.setHours(0, 0, 0, 0);
-
-    if (booking < today) {
+    const todayCairoIso = cairoDateString(nowInCairo());
+    const todayUtc = cairoMidnightUtc(todayCairoIso);
+    const bookingUtc = cairoMidnightUtc(normalized);
+    if (bookingUtc < todayUtc) {
       throw { status: 400, message: 'Bookings can only be created for today or a future day.' };
     }
-
     return normalized;
   }
 
@@ -99,11 +111,13 @@ export class OrdersService {
   }
 
   async getUserOrders(userId: string) {
-    return ordersRepository.getUserOrders(userId);
+    const orders = await ordersRepository.getUserOrders(userId);
+    return this.enrichWithPendingFlag(orders);
   }
 
   async getTechnicianOrders(technicianId: string) {
-    return ordersRepository.getTechnicianOrders(technicianId);
+    const orders = await ordersRepository.getTechnicianOrders(technicianId);
+    return this.enrichWithPendingFlag(orders);
   }
 
   async getUserOrderById(userId: string, id: string) {
@@ -111,7 +125,7 @@ export class OrdersService {
     if (!order || order.user_id !== userId) {
       throw { status: 404, message: 'Order not found' };
     }
-    return order;
+    return this.enrichWithReconcile(order);
   }
 
   async getTechnicianOrderById(technicianId: string, id: string) {
@@ -119,7 +133,36 @@ export class OrdersService {
     if (!order || order.technician_id !== technicianId) {
       throw { status: 404, message: 'Order not found' };
     }
-    return order;
+    return this.enrichWithReconcile(order);
+  }
+
+  /**
+   * Single-record read enrichment: lazy auto-reject + embed reschedule_request.
+   * Lazy import avoids circular service↔service cycle.
+   */
+  private async enrichWithReconcile(order: Order): Promise<Order> {
+    const { rescheduleService } = await import('./reschedule.service.js');
+    const { request } = await rescheduleService.loadAndReconcile(order.id);
+    const refreshed = await ordersRepository.getOrderById(order.id);
+    return { ...(refreshed ?? order), reschedule_request: request };
+  }
+
+  /**
+   * List enrichment: cheap pending lookup only — NO auto-reject reconcile (Pitfall 15).
+   */
+  private async enrichWithPendingFlag(orders: Order[]): Promise<Order[]> {
+    const RESCHEDULABLE = new Set([
+      'accepted',
+      'reschedule_requested_by_user',
+      'reschedule_requested_by_technician',
+    ]);
+    return Promise.all(
+      orders.map(async (o) => {
+        if (!RESCHEDULABLE.has(o.status)) return { ...o, has_pending_reschedule: false };
+        const pending = await rescheduleRepository.getPendingByOrderId(o.id);
+        return { ...o, has_pending_reschedule: pending !== null };
+      }),
+    );
   }
 
   // TECHNICIAN: change status with transition guards
@@ -157,6 +200,12 @@ export class OrdersService {
       updates.cancellation_reason = body.cancellation_reason;
     }
 
+    // CASCADE-01..03: cancel any pending reschedule before flipping order to cancelled_by_technician.
+    // Routed through repository (not service) to avoid orders↔reschedule service-level circular import.
+    if (body.status === 'cancelled_by_technician') {
+      await rescheduleRepository.cancelPendingForOrder(order.id, 'auto_rejected_order_cancelled');
+    }
+
     return ordersRepository.updateOrder(order.id, updates);
   }
 
@@ -172,6 +221,9 @@ export class OrdersService {
         message: `Cannot cancel an order that is '${order.status}'.`,
       };
     }
+
+    // CASCADE-01..03: cancel any pending reschedule before flipping order to cancelled_by_user.
+    await rescheduleRepository.cancelPendingForOrder(order.id, 'auto_rejected_order_cancelled');
 
     return ordersRepository.updateOrder(order.id, {
       status: 'cancelled_by_user',
