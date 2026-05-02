@@ -1,0 +1,201 @@
+technician_id,name,phone,category,cluster,latitude,longitude,years_experience,base_hourly_rate
+1,Marisa Braun,413.393.9341x7104,electrical,Nasr City,30.070784,31.301368,3,110
+2,Curtis Rodriguez,001-340-998-2964x51570,plumbing,Dokki,30.045428,31.220095,6,191
+3,Matthew Huang,578.983.9596,plumbing,6th of October,29.968774,30.933643,5,283
+4,William Carroll,923.803.6493x310,plumbing,Nasr City,30.077671,31.30256,4,185
+5,Dustin Reid,587.518.4427x2157,painter,Heliopolis,30.113204,31.352014,4,238
+6,Vanessa Garcia,261.940.3906x1713,air condition,Dokki,30.04482,31.179508,18,583
+7,Tonya Ramirez,+1-675-697-7904x396,dish,Heliopolis,30.093454,31.364322,1,118
+8,Elizabeth Arnold,7166826561,home cleaning,Maadi,29.983347,31.232987,2,128
+9,Brad Payne,2809850546,electrical,Dokki,30.009902,31.204222,7,186
+10,Samuel Freeman,985.482.3144x7309,plumbing,Nasr City,30.067232,31.300924,4,238
+11,Brandon Lynn,262-834-6881,painter,Heliopolis,30.07729,31.35565,13,393
+12,John Short,(931)206-2015x7084,painter,Dokki,30.05075,31.204696,2,120
+13,Amanda Lewis,001-719-710-4785x309,home cleaning,Heliopolis,30.075079,31.359239,12,343
+14,Margaret Allen,227-359-8736x09818,fridge/freezer,Nasr City,30.081945,31.349754,6,236
+15,Catherine Lynch,606-316-3053x5193,carpentry,6th of October,29.960532,30.946432,5,214
+16,Samuel Wilson,001-249-849-5866x7946,carpentry,6th of October,29.983735,30.952804,3,110
+17,Denise Simmons,(302)310-5977,fridge/freezer,Nasr City,30.058432,31.306856,5,229
+18,Caitlyn Ross,691.543.3698x7009,painter,Nasr City,30.041868,31.299827,4,233
+19,Andrew Ramirez,613.358.4951x2645,carpentry,6th of October,29.961836,30.915803,7,233
+20,Cassandra Pacheco,660.314.8268,carpentry,Nasr City,30.073227,31.334647,2,149
+21,John Bennett,205.759.6480x5965,painter,Maadi,29.988482,31.25624,3,148
+22,Brent Whitehead,(856)812-4123,home cleaning,Maadi,29.958335,31.230652,20,476
+23,Jerry Pierce,(828)597-3890x43430,plumbing,Dokki,30.032252,31.18124,5,242
+24,Lisa Watson,+1-866-602-8706x290,dish,6th of October,29.951001,30.912901,7,242
+25,Margaret Perez,001-564-667-3844x213,plumbing,Heliopolis,30.074055,31.365905,20,571
+26,Jessica Newton,001-433-409-5225x343,air condition,Heliopolis,30.075538,31.365204,10,439
+27,Andrew Klein,452-611-3079,fan,Heliopolis,30.115741,31.329204,4,190
+28,Karen Carlson,001-416-797-1845,air condition,Nasr City,30.055731,31.318723,2,123
+29,Jason Moore,+1-931-252-7097x584,dish,6th of October,29.974623,30.944002,14,363
+30,Thomas Stewart,+1-547-638-5236x0466,electrical,6th of October,29.967826,30.92964,2,197
+31,Christopher Nunez,(381)688-8426,electrical,6th of October,29.944859,30.932047,21,464
+32,Jeffrey Martinez,(504)776-2751,air condition,Maadi,29.962663,31.249837,3,169
+33,Jacqueline Garcia,+1-346-621-0921x6380,home cleaning,6th of October,29.968043,30.949074,5,263
+34,Allison Phillips,833-352-2669x9542,air condition,Maadi,29.988831,31.281819,4,211
+35,Christina Knight,(905)446-5996,carpentry,Maadi,29.96644,31.241079,3,119
+36,Jonathan Romero,001-396-269-4336,electrical,Nasr City,30.061133,31.330881,22,571
+37,Angela Esparza DVM,440-751-3910,home cleaning,Heliopolis,30.111267,31.355229,12,374
+38,Danielle Thomas,+1-422-630-6118x96452,plumbing,Nasr City,30.040439,31.345731,12,307
+39,Kathleen Mcintyre,4392976486,fan,6th of October,29.957946,30.964125,3,186
+40,Darrell Jones DDS,663.831.1665,home cleaning,Heliopolis,30.084461,31.370759,11,299
+41,Andrew Meza,+1-704-724-7220,electrical,Maadi,29.964524,31.25152,3,198
+42,David Everett,401-867-7436,home cleaning,Dokki,30.054908,31.202092,4,281
+43,Diana Villanueva,+1-766-429-0786x3731,fan,Maadi,29.963837,31.280935,6,248
+44,William Mitchell,(271)423-3097x294,air condition,6th of October,29.991051,30.957372,16,529
+45,Anna Chen,526.764.2685,oven/cooker,Heliopolis,30.068728,31.318456,7,193
+46,Wayne Jenkins,+1-218-379-8396x83476,plumbing,6th of October,29.992218,30.965085,15,319
+47,Steven Conley,001-239-532-7051x69255,air condition,Dokki,30.036099,31.209526,25,469
+48,Shane Guerrero,+1-358-590-3146x83154,painter,Heliopolis,30.057847,31.340511,14,431
+49,Kirsten Hill,001-956-422-5635,electrical,Nasr City,30.074152,31.306366,4,215
+50,Jason Robinson,5222509977,electrical,Nasr City,30.080866,31.315026,22,545
+51,Jeffrey Rodriguez,(587)653-4100,painter,6th of October,29.941932,30.971369,8,406
+52,Richard Hernandez,511-296-0539x01345,dish,Heliopolis,30.074377,31.312759,11,370
+53,Ronald Brown,001-580-285-3308,dish,6th of October,29.985829,30.920071,12,422
+54,Robert Duncan,526-875-4954x235,oven/cooker,Maadi,29.968712,31.274967,5,272
+55,Samuel Torres,452.667.1414x2578,plumbing,Heliopolis,30.062016,31.341158,5,268
+56,Jeff Mccoy,001-311-204-5074x397,carpentry,Heliopolis,30.081126,31.315861,2,102
+57,Scott Miller,+1-499-685-5006x10084,plumbing,6th of October,29.989894,30.968361,18,503
+58,Jennifer Sparks,914-507-6480x09760,plumbing,Dokki,30.040555,31.196874,6,240
+59,Samuel Parrish,992-296-7111x4829,plumbing,Dokki,30.056871,31.221325,2,154
+60,Denise Kennedy,8583767717,electrical,6th of October,29.965572,30.929217,2,189
+61,Brian Mueller,445.301.0019x2764,carpentry,6th of October,29.989609,30.967254,19,464
+62,Deborah Jenkins,4367078961,electrical,Nasr City,30.05189,31.326886,6,195
+63,David Williams,+1-357-800-9709,carpentry,Nasr City,30.091339,31.33451,5,207
+64,Raymond Ellison,2738122036,home cleaning,6th of October,29.948775,30.96482,6,192
+65,Jessica Jordan,001-853-566-1950,plumbing,6th of October,29.976552,30.948987,5,226
+66,Dr. Michelle Chambers,+1-402-734-9018,oven/cooker,6th of October,29.955916,30.954337,8,416
+67,Troy Rivers,427.251.5055x599,plumbing,Maadi,29.96235,31.26021,8,421
+68,John Nichols,734.273.3579,electrical,Heliopolis,30.072985,31.341702,1,101
+69,Roberto Taylor PhD,254-595-0439x221,dish,6th of October,29.979173,30.91476,7,241
+70,Kenneth Campos,849-459-2762x981,plumbing,6th of October,29.941408,30.942168,1,106
+71,Jacqueline Tucker,(233)563-7650x2742,oven/cooker,Heliopolis,30.099119,31.315661,1,108
+72,Robert Collins,001-785-365-6312x564,carpentry,Heliopolis,30.071509,31.356354,1,173
+73,Adam Oconnor,685-662-1503x55042,oven/cooker,Nasr City,30.054214,31.314524,5,283
+74,Sandra Jones,976-621-2286x41324,home cleaning,6th of October,29.988736,30.965012,16,463
+75,James Villegas,+1-670-713-0948x52426,plumbing,Dokki,30.031839,31.236745,5,279
+76,Samantha Flores,858.545.5710x8642,air condition,Heliopolis,30.086329,31.335159,15,393
+77,Juan Cummings,808-484-3362,painter,6th of October,29.941662,30.921517,4,258
+78,Kayla Perkins,001-881-653-6633,fan,Nasr City,30.090563,31.343962,11,347
+79,Veronica Johnson,927.596.2482,dish,Nasr City,30.050483,31.304622,5,250
+80,Kelly Cervantes,+1-825-495-6326,fan,Nasr City,30.035491,31.319903,4,232
+81,Rebecca Garcia,710-387-9445,electrical,Dokki,30.035164,31.206362,7,217
+82,Kevin Stevens,+1-669-342-2739x267,dish,Nasr City,30.054789,31.301441,6,270
+83,Jacqueline Phillips,942.971.8605x0525,electrical,Heliopolis,30.106031,31.362921,4,267
+84,Teresa Brown,987.451.8361x153,electrical,6th of October,29.969737,30.964309,5,234
+85,Jennifer Higgins,001-786-781-9212,plumbing,Dokki,30.045665,31.196618,5,262
+86,James Martin,(335)434-3556x126,painter,6th of October,29.985716,30.930438,5,189
+87,Brandon Bennett,001-379-424-5735x88979,fridge/freezer,Nasr City,30.075392,31.310253,2,176
+88,David Reed,(315)224-1121,plumbing,6th of October,29.963467,30.914986,7,195
+89,Brandy Phillips,+1-889-404-3762x132,plumbing,6th of October,29.957456,30.961629,7,300
+90,Cynthia Leonard,(255)849-2221x8320,plumbing,Dokki,30.029441,31.18006,7,236
+91,Megan Johnson,506-292-9700x0491,home cleaning,Dokki,30.038772,31.203157,4,293
+92,Julie Benton,991.685.9317x3249,fan,6th of October,29.941995,30.939346,6,183
+93,Jaime Wilson,+1-398-631-8340x32860,dish,Nasr City,30.073253,31.317012,8,348
+94,Mary West,633.835.9533,plumbing,Nasr City,30.063878,31.356861,2,166
+95,Jacob Winters,226-794-4700x98225,plumbing,6th of October,29.987609,30.959929,1,174
+96,Charles Castillo,+1-825-968-7312x41292,dish,Heliopolis,30.057753,31.329499,4,240
+97,Robert Crawford,266.828.6779,plumbing,Heliopolis,30.077586,31.334204,2,141
+98,Patricia Bryan,(899)818-7609x7067,oven/cooker,Nasr City,30.071388,31.356752,2,152
+99,John Reed,+1-910-922-7168x16513,dish,6th of October,29.995314,30.958492,7,284
+100,Marcia Smith,4456703852,plumbing,Maadi,29.95308,31.247175,2,111
+101,John Mendoza,675.916.9154,dish,6th of October,29.956196,30.940545,6,194
+102,Michael Terry,5392629556,fan,Dokki,30.012671,31.236367,8,448
+103,Mrs. Sandra Reyes MD,001-438-397-4133x1093,fan,Heliopolis,30.11618,31.344569,1,124
+104,Kayla Stewart,2513503719,electrical,6th of October,29.963341,30.925023,3,196
+105,Pamela Byrd,+1-438-720-7684x0156,air condition,Heliopolis,30.094045,31.358779,1,126
+106,Mathew Bennett,001-696-312-2934x3506,carpentry,Dokki,30.057867,31.217057,5,298
+107,Rebecca Simmons,437-543-2612,fridge/freezer,Heliopolis,30.072294,31.332612,3,162
+108,Renee Campbell,330.975.2372,painter,Maadi,29.957399,31.282408,3,177
+109,Samantha Wilson,(889)855-8791x843,air condition,Nasr City,30.041438,31.29877,6,250
+110,Deborah Ortiz,719-693-1771,home cleaning,Dokki,30.017256,31.236376,2,111
+111,Shirley Holmes,(980)843-2781,plumbing,Maadi,29.959236,31.269777,2,115
+112,Daniel Bates,327-264-2209x526,air condition,Heliopolis,30.105118,31.33948,6,245
+113,Crystal Smith MD,401-723-5071,home cleaning,Heliopolis,30.059334,31.321845,2,160
+114,Joel Pugh,(488)732-6654x8296,fan,Heliopolis,30.059699,31.362519,10,378
+115,Rachel Sosa,719-830-9160x52218,fan,Maadi,29.980427,31.243519,2,198
+116,Denise Cabrera,504-467-1400,painter,6th of October,29.998486,30.971189,23,468
+117,Alexander Miller,929.617.0088,home cleaning,6th of October,29.975572,30.927073,7,290
+118,Natalie Daugherty,891-806-0578x5623,fan,Heliopolis,30.061085,31.349241,3,161
+119,Faith Shields,817.987.8100x4998,fan,6th of October,29.988956,30.965974,23,595
+120,John Simmons,+1-800-227-5063x91962,dish,Heliopolis,30.087988,31.370538,2,124
+121,Tracy Harrell,323.603.5361x13937,electrical,Dokki,30.037814,31.222,7,209
+122,Pamela Hunter,(450)311-5635x0796,air condition,Maadi,29.969196,31.238762,13,401
+123,Jason Porter,916.629.8043x359,plumbing,Nasr City,30.062534,31.299026,7,184
+124,Samuel Thompson,827-429-3617x916,air condition,Dokki,30.064772,31.192621,3,142
+125,Alexander Sims,369.382.4192x59208,dish,Heliopolis,30.076,31.362783,1,167
+126,Eric Carter,(556)882-0641,home cleaning,Maadi,29.954922,31.23075,5,232
+127,Brian Hansen,980.689.5862x186,carpentry,Maadi,29.93631,31.246333,22,600
+128,Michael Grant,526.704.0753x628,dish,Dokki,30.068795,31.181595,7,263
+129,Glenda Hanna,001-403-215-6805x54395,fridge/freezer,6th of October,29.964947,30.956756,25,536
+130,Brenda Campbell,001-839-279-1951x893,dish,Heliopolis,30.091327,31.333327,3,104
+131,Amanda Thornton,001-226-818-7492x4466,painter,Maadi,29.963044,31.250515,1,180
+132,Lori Thompson,367.511.8402x53472,plumbing,Nasr City,30.044096,31.353394,4,235
+133,Nicole Pugh,674-354-3399,plumbing,Maadi,29.942451,31.231336,2,121
+134,Angela Moran,001-473-943-3296x8051,fan,Maadi,29.981206,31.245949,4,221
+135,Karen Graham,(741)750-4283x939,home cleaning,6th of October,29.967597,30.946305,13,375
+136,Jonathan Griffin,+1-265-704-8749x60720,fridge/freezer,Nasr City,30.04955,31.319483,23,505
+137,Teresa Ochoa,001-831-774-9775,dish,Nasr City,30.086153,31.323467,5,190
+138,Hannah Peterson,444-376-0937x923,air condition,Heliopolis,30.086552,31.324181,3,187
+139,Dominique Maxwell,(343)537-0788x9733,electrical,Heliopolis,30.076594,31.363202,3,118
+140,Michael Hoover,886.304.7917,home cleaning,Heliopolis,30.06084,31.368347,6,238
+141,Patricia Bender,3627068026,carpentry,Maadi,29.977853,31.27915,7,295
+142,Joe Lewis,001-853-206-5889x68151,electrical,Dokki,30.055467,31.218179,10,298
+143,Christine Whitney DDS,001-683-450-5078x617,home cleaning,Dokki,30.041546,31.195848,2,181
+144,Emily Williamson,(757)983-4004x9604,plumbing,6th of October,29.949072,30.957433,7,288
+145,Manuel Howard,(780)600-4477,fan,Nasr City,30.063951,31.301578,2,161
+146,Michelle Jones,258.528.8954x52021,electrical,Nasr City,30.050852,31.316537,2,173
+147,Amanda Gould,(458)616-9678,electrical,Dokki,30.052961,31.236911,6,269
+148,John Cook,+1-449-998-7217,home cleaning,Maadi,29.973714,31.279906,7,215
+149,Casey Smith,9974301486,oven/cooker,Dokki,30.028718,31.221657,3,199
+150,Nina Randall,361-432-4695x739,oven/cooker,Dokki,30.031456,31.233016,22,473
+151,Austin Cain,281.952.3512,air condition,Nasr City,30.077855,31.321892,5,259
+152,Bryan Gonzalez,001-472-292-6988x5158,painter,Nasr City,30.037307,31.33097,3,112
+153,Patrick Ho,(899)740-4823x9793,fan,6th of October,29.988238,30.946526,2,104
+154,Kyle Schroeder,+1-822-784-7313x724,electrical,6th of October,29.95732,30.947593,10,303
+155,Miranda Lozano,871-404-3458x36540,home cleaning,Heliopolis,30.10224,31.318051,5,205
+156,Jeff Clark,949.653.9466,oven/cooker,Dokki,30.031357,31.234875,6,247
+157,Robert Galvan,(712)514-2528x244,fridge/freezer,6th of October,29.98426,30.939203,5,212
+158,Deborah Stevens,394.798.9658,electrical,6th of October,29.985139,30.963201,13,309
+159,Mary Holmes,512.234.3792x5452,carpentry,Nasr City,30.044314,31.319021,18,573
+160,Amanda Nguyen,881-703-4366,dish,Maadi,29.980592,31.27107,7,181
+161,Maria Mann,(310)898-2157,carpentry,Dokki,30.066025,31.208676,1,158
+162,Brooke Velazquez,539-698-7399x915,carpentry,6th of October,29.988572,30.955567,3,148
+163,Stephanie Scott,707-672-7927x69113,painter,Maadi,29.97954,31.229685,25,459
+164,David Ruiz,001-504-726-3451x3633,painter,Dokki,30.03546,31.192998,13,436
+165,Trevor Andersen,(890)877-8791,plumbing,Heliopolis,30.089486,31.369922,6,263
+166,Ashley Stout,(831)488-0351x66903,electrical,Maadi,29.972307,31.280758,10,291
+167,Matthew Lam,+1-764-867-2937x656,plumbing,Heliopolis,30.089862,31.335693,9,304
+168,Steven Webster,(664)237-7984,electrical,Heliopolis,30.066136,31.330487,15,374
+169,Crystal Gentry,(622)593-2178x578,electrical,Dokki,30.049562,31.226701,5,293
+170,Edward Jefferson,+1-354-479-8646x42681,fridge/freezer,Maadi,29.963505,31.27897,2,178
+171,Monica Phillips,(449)515-8691x259,air condition,6th of October,29.981841,30.91461,1,188
+172,Ryan Macdonald,281.737.4085x055,air condition,Nasr City,30.051007,31.319478,7,236
+173,Anthony Burton,001-742-694-2310x54222,plumbing,6th of October,29.985362,30.935772,9,374
+174,David Morris,442.446.0712x7696,painter,Maadi,29.946345,31.254966,7,215
+175,Robert Vasquez,859.698.4946x01098,fan,Maadi,29.932595,31.251435,7,191
+176,Charles Rodriguez,(618)507-5122x917,electrical,Dokki,30.049489,31.216837,4,186
+177,Eric Mays,4924606563,electrical,Nasr City,30.077656,31.304382,1,200
+178,Elizabeth Walker,(445)651-4414,plumbing,Nasr City,30.058521,31.357122,4,286
+179,Stacy Solomon,2786654733,plumbing,Nasr City,30.043362,31.356541,5,284
+180,Cindy Ochoa,+1-599-414-1376x191,home cleaning,6th of October,29.985673,30.953773,5,280
+181,Jordan Brown,286-767-5569x266,electrical,Maadi,29.953057,31.244857,6,289
+182,Jonathan Vaughn,751-775-9500,painter,Nasr City,30.048712,31.315548,23,464
+183,Bethany Dodson,(346)821-6828,plumbing,Maadi,29.965418,31.233619,17,403
+184,Miranda Smith,001-862-553-5482x5513,air condition,Dokki,30.027037,31.184424,6,182
+185,Gloria Allen,+1-909-397-7336x813,plumbing,6th of October,29.98031,30.927544,15,432
+186,Nicholas Vargas,996.756.6990,painter,Maadi,29.944254,31.269562,7,237
+187,Samuel Gibson,(361)805-9098,air condition,Dokki,30.027974,31.195166,9,395
+188,Joseph Obrien,+1-607-876-3947x33877,electrical,Dokki,30.066004,31.185254,15,586
+189,Gary Watkins,(221)502-1640x95468,electrical,Heliopolis,30.100892,31.36488,4,187
+190,Jennifer Graham,+1-658-339-7203x25383,carpentry,Heliopolis,30.098768,31.352707,2,187
+191,Peter Skinner,(703)980-5373x421,home cleaning,Heliopolis,30.091676,31.327086,22,418
+192,Shannon Lucas,7899055161,electrical,Dokki,30.033142,31.229288,5,188
+193,Jeffery Taylor,(451)749-3333x310,plumbing,6th of October,30.00002,30.917614,6,228
+194,Joseph Long,001-619-949-2076x53922,fridge/freezer,Dokki,30.014758,31.223803,6,238
+195,Timothy Sanchez,5553904418,dish,Dokki,30.024723,31.204964,2,112
+196,Crystal Welch,+1-431-880-6857,air condition,Dokki,30.044567,31.215698,3,127
+197,Joseph Palmer,957-223-2024x74539,electrical,Heliopolis,30.099543,31.317383,11,385
+198,Mariah Price,+1-782-509-7731,electrical,Heliopolis,30.101023,31.312725,2,193
+199,James Kelly,788-596-6529x5996,plumbing,6th of October,29.957648,30.926354,7,220
+200,Stephanie Little,342.906.6830,painter,6th of October,29.985364,30.947904,1,187

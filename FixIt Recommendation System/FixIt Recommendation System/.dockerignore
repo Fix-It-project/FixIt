@@ -1,0 +1,33 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+fixit.db
+mlruns/
+models/
+*.egg-info/
+.venv/
+venv/
+
+# Node.js
+node_modules/
+ollama-fallback/node_modules/
+node-bridge/node_modules/
+
+# Docker / Build artifacts
+.git/
+.gitignore
+docker-compose.yml
+*.md
+!app/**/*.md
+
+# Temporary / debug files
+_debug_eval.py
+_mismatches*.txt
+_tmp_metrics*.json
+ollama-fallback/base64_output.txt
+ollama-fallback/test_audio.m4a
+
+# ZeroClaw (handled by its own Dockerfile)
+zeroclaw/
+ollama/

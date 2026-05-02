@@ -1,0 +1,11 @@
+MISMATCH: oven/cooker -> fridge/freezer
+   - Cooker thermostat seems broken, overheating.
+MISMATCH: home cleaning -> oven/cooker
+   - Oven and kitchen appliance cleaning needed.
+MISMATCH: fridge/freezer -> air condition
+   - Fridge compressor running but not cooling.
+MISMATCH: dish -> painter
+   - Mount a 65-inch TV on the bedroom wall.
+   - Need TV wall mounted in the living room.
+MISMATCH: painter -> carpentry
+   - Fill holes and repaint where old shelves were mounted.
