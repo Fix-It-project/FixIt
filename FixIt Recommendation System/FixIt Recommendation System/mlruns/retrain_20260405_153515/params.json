@@ -1,0 +1,13 @@
+{
+  "nmf_latent_factors": 15,
+  "nmf_max_iter": 300,
+  "tfidf_max_features": 500,
+  "train_bookings": 4600,
+  "test_bookings": 1400,
+  "eval_k_values": [
+    3,
+    5
+  ],
+  "data_source": "csv",
+  "num_categories": 10
+}

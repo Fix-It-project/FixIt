@@ -1,0 +1,10 @@
+{
+  "precision@3": 0.0,
+  "category_hit@3": 0.7529330572808834,
+  "precision@5": 0.0,
+  "category_hit@5": 0.7316770186335404,
+  "precision@10": 0.0,
+  "category_hit@10": 0.7059006211180126,
+  "mrr": 0.0,
+  "bookings_evaluated": 966
+}

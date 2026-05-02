@@ -1,0 +1,6 @@
+.env
+*.md
+!SKILL.md
+node_modules/
+base64_output.txt
+test_audio.m4a
