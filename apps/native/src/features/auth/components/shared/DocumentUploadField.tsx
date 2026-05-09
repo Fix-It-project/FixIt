@@ -1,11 +1,17 @@
-import { CheckCircle2, ChevronRight, CloudUpload } from "lucide-react-native";
-import { Image, Pressable, View } from "react-native";
+import {
+	CheckCircle2,
+	ChevronRight,
+	CloudUpload,
+	FileText,
+} from "lucide-react-native";
+import { Pressable, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/theme";
 
 interface DocumentUploadFieldProps {
 	readonly label: string;
 	readonly value: string;
+	readonly fileName?: string;
 	readonly onPick: () => void;
 	readonly error?: string;
 	readonly required?: boolean;
@@ -14,6 +20,7 @@ interface DocumentUploadFieldProps {
 export default function DocumentUploadField({
 	label,
 	value,
+	fileName,
 	onPick,
 	error,
 	required = false,
@@ -39,14 +46,12 @@ export default function DocumentUploadField({
 			>
 				{hasFile ? (
 					<View className="flex-1 flex-row items-center gap-stack-md">
-						<Image
-							source={{ uri: value }}
-							className="h-avatar-md w-avatar-md rounded-compact"
-							resizeMode="cover"
-						/>
+						<View className="h-avatar-md w-avatar-md items-center justify-center rounded-compact bg-surface-elevated">
+							<FileText size={22} color={Colors.primary} strokeWidth={2} />
+						</View>
 						<View className="flex-1">
 							<Text variant="bodySm" className="text-content" numberOfLines={1}>
-								Document uploaded
+								{fileName ?? "Document uploaded"}
 							</Text>
 							<Text variant="caption" className="text-surface-muted">
 								Tap to change
@@ -64,7 +69,7 @@ export default function DocumentUploadField({
 								Upload document
 							</Text>
 							<Text variant="caption" className="text-content-muted">
-								Take a photo or choose from gallery
+								Choose a PDF, image, or document file
 							</Text>
 						</View>
 						<ChevronRight size={18} color={Colors.textMuted} />

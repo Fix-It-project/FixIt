@@ -1,9 +1,11 @@
-import { MapPin, Star } from "lucide-react-native";
-import { Image, View } from "react-native";
+import { Image } from "expo-image";
+import { MapPin } from "lucide-react-native";
+import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import type { Technician } from "@/src/lib/mock-data/user";
-import { Colors, useThemeColors } from "@/src/lib/theme";
 import { spacing } from "@/src/lib/design-tokens";
+import type { Technician } from "@/src/lib/mock-data/user";
+import { useThemeColors } from "@/src/lib/theme";
+import RatingRow from "./RatingRow";
 
 export const CARD_WIDTH_RATIO = 0.75;
 export const CARD_SPACING = spacing.control.segmented.gap;
@@ -14,14 +16,12 @@ const AVATAR_OVERLAP = AVATAR_SIZE / 2;
 interface TechnicianCardProps {
 	readonly item: Technician;
 	readonly cardWidth: number;
-	readonly showReviewCount?: boolean;
 	readonly showDistance?: boolean;
 }
 
 export default function TechnicianCard({
 	item,
 	cardWidth,
-	showReviewCount = false,
 	showDistance = false,
 }: TechnicianCardProps) {
 	const themeColors = useThemeColors();
@@ -40,7 +40,7 @@ export default function TechnicianCard({
 					width: "100%",
 					height: cardWidth * 0.6,
 				}}
-				resizeMode="cover"
+				contentFit="cover"
 			/>
 
 			{/* Avatar overlapping bottom of cover */}
@@ -78,22 +78,6 @@ export default function TechnicianCard({
 					>
 						{item.category}
 					</Text>
-					<View className="flex-row items-center gap-stack-xs">
-						<Star
-							size={11}
-							color={Colors.ratingDefault}
-							fill={Colors.ratingDefault}
-							strokeWidth={0}
-						/>
-						<Text variant="bodySm" className="font-semibold text-content">
-							{item.rating}
-						</Text>
-						{showReviewCount && (
-							<Text variant="caption" className="text-content-muted">
-								({item.reviewCount})
-							</Text>
-						)}
-					</View>
 					{showDistance && item.distance && (
 						<View className="flex-row items-center gap-stack-xs">
 							<MapPin
@@ -114,6 +98,10 @@ export default function TechnicianCard({
 				>
 					{item.tagline}
 				</Text>
+				<RatingRow
+					rating={item.avg_rating ?? null}
+					reviewCount={item.review_count ?? 0}
+				/>
 			</View>
 		</View>
 	);

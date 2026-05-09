@@ -52,6 +52,10 @@ export const ROUTES = {
 			pathname: "/user/booking/[technicianId]/details" as const,
 			params: { technicianId },
 		}),
+		technicianReviews: (id: string) => ({
+			pathname: "/user/technician/[id]/reviews" as const,
+			params: { id },
+		}),
 		chat: "/user/chat" as const,
 		settings: "/user/settings" as const,
 		settingsPrivacy: "/user/settings/privacy-security" as const,
@@ -71,6 +75,7 @@ export const ROUTES = {
 		profile: "/technician/profile" as const,
 		profileEdit: "/technician/profile/edit" as const,
 		profileBookingHistory: "/technician/profile/bookings/history" as const,
+		reviews: "/technician/reviews" as const,
 		settings: "/technician/settings" as const,
 		settingsPrivacy: "/technician/settings/privacy-security" as const,
 		settingsHelp: "/technician/settings/help-support" as const,

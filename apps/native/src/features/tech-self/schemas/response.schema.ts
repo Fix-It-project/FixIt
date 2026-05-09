@@ -12,6 +12,8 @@ export const technicianSelfProfileSchema = z.object({
 
 	total_orders: z.number(),
 	completed_orders: z.number(),
+	avg_rating: z.number().nullable().optional(),
+	review_count: z.number().optional().default(0),
 });
 
 export const technicianSelfResponseSchema = z.object({

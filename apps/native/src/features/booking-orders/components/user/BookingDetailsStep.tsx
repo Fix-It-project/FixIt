@@ -1,8 +1,8 @@
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, Paperclip, X } from "lucide-react-native";
 import { useState } from "react";
 import {
-	Image,
 	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
@@ -129,7 +129,7 @@ export default function BookingDetailsStep({
 							<Image
 								source={{ uri: attachment.uri }}
 								className="h-media-attachment w-full"
-								resizeMode="cover"
+								contentFit="cover"
 							/>
 							<TouchableOpacity
 								onPress={() => setAttachment(null)}

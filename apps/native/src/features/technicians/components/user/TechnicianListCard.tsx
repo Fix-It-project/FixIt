@@ -75,7 +75,7 @@ export default function TechnicianListCard({
 						{extras.specialty}
 					</Text>
 
-					<RatingRow rating={extras.rating} reviewCount={extras.reviewCount} />
+					<RatingRow rating={item.avg_rating ?? null} reviewCount={item.review_count ?? 0} />
 
 					{/* Location · experience */}
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">

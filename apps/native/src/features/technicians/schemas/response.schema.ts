@@ -11,6 +11,8 @@ export const technicianListItemSchema = z.object({
 	city: z.string().nullable(),
 	street: z.string().nullable(),
 	distance_km: z.number().nullable(),
+	avg_rating: z.number().nullable(),
+	review_count: z.number(),
 });
 
 export const techniciansResponseSchema = z.object({
@@ -23,7 +25,8 @@ export const technicianProfileSchema = z.object({
 	description: z.string(),
 	completedOrders: z.number(),
 	totalBookings: z.number(),
-	reviews: z.number(),
+	avg_rating: z.number().nullable(),
+	review_count: z.number(),
 	phoneNumber: z.string(),
 });
 

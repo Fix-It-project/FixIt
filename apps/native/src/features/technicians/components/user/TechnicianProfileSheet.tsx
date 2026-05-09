@@ -1,8 +1,9 @@
 import BottomSheet, {
 	BottomSheetBackdrop,
 	type BottomSheetBackdropProps,
-	BottomSheetView,
+	BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import { Briefcase, ClipboardList, Star } from "lucide-react-native";
 import {
 	forwardRef,
@@ -18,9 +19,11 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import { ReviewRow } from "@/src/components/reviews";
 import { Text } from "@/src/components/ui/text";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import InfoRow from "./InfoRow";
 import StatCard from "./StatCard";
 import TechnicianAvatar from "./TechnicianAvatar";
@@ -53,8 +56,11 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 			refetch,
 		} = useTechnicianProfileQuery(sheetState.technicianId);
 
+		const { data: reviewsData, isLoading: reviewsLoading } =
+			useTechnicianReviewsQuery(sheetState.technicianId, 3, 0);
+
 		const { height } = useWindowDimensions();
-		const snapPoints = useMemo(() => [Math.min(height * 0.55, 480)], [height]);
+		const snapPoints = useMemo(() => [Math.min(height * 0.8, 720)], [height]);
 
 		useImperativeHandle(ref, () => ({
 			open(technicianId: string, initials: string) {
@@ -102,7 +108,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 					width: spacing.sheet.handleWidth,
 				}}
 			>
-				<BottomSheetView
+				<BottomSheetScrollView
 					className="flex-1 px-button-x pb-stack-xl"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
@@ -200,12 +206,48 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 											strokeWidth={0}
 										/>
 									}
-									text={profile.reviews}
+									text={
+									profile.avg_rating !== null && profile.review_count > 0
+										? `${profile.avg_rating.toFixed(2)} · ${profile.review_count} ${profile.review_count === 1 ? "review" : "reviews"}`
+										: "No reviews yet"
+								}
 								/>
 							</View>
+
+							{profile.review_count > 0 && (
+								<View className="mt-stack-lg w-full">
+									{reviewsLoading ? (
+										<ActivityIndicator size="small" color={themeColors.primary} />
+									) : (
+										reviewsData?.reviews.slice(0, 3).map((r) => (
+											<ReviewRow key={r.id} review={r} variant="preview" />
+										))
+									)}
+									<TouchableOpacity
+										onPress={() => {
+											bottomSheetRef.current?.close();
+											router.push({
+												pathname: "/user/technician/[id]/reviews",
+												params: { id: sheetState.technicianId ?? "" },
+											});
+										}}
+										activeOpacity={0.7}
+										className="mt-stack-md py-stack-md"
+										style={{ borderTopWidth: 1, borderTopColor: themeColors.borderDefault }}
+									>
+										<Text
+											variant="buttonMd"
+											className="text-center"
+											style={{ color: Colors.primary }}
+										>
+											View all reviews ({profile.review_count})
+										</Text>
+									</TouchableOpacity>
+								</View>
+							)}
 						</View>
 					)}
-				</BottomSheetView>
+				</BottomSheetScrollView>
 			</BottomSheet>
 		);
 	},

@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+export const TechnicianSortSchema = z.enum(['top_rated', 'most_reviews']);
+export type TechnicianSort = z.infer<typeof TechnicianSortSchema>;
+
+export const TechnicianListQuerySchema = z.object({
+  sort: TechnicianSortSchema.optional(),
+  // Note: lat/lng/q are read directly from req.query elsewhere; do not move them here in this phase.
+});
+export type TechnicianListQuery = z.infer<typeof TechnicianListQuerySchema>;
+
 export const UpdateTechnicianSelfBodySchema = z.object({
   first_name: z.string().min(1).optional(),
   last_name: z.string().min(1).optional(),

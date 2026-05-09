@@ -1,6 +1,7 @@
+import { Image } from "expo-image";
 import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Image, ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PageHeader from "@/src/components/PageHeader";
 import { Text } from "@/src/components/ui/text";
@@ -59,6 +60,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 					<Image
 						source={{ uri: item.avatarImage }}
 						className="h-control-icon-box-touch w-control-icon-box-touch rounded-pill"
+						contentFit="cover"
 						style={{ backgroundColor: themeColors.surfaceElevated }}
 					/>
 				) : (

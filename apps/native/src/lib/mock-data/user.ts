@@ -11,11 +11,11 @@ export interface Technician {
 	initials: string;
 	avatarColor: string;
 	category: string;
-	rating: number;
-	reviewCount: number;
 	distance?: string;
 	coverImage: ImageSourcePropType;
 	tagline: string;
+	avg_rating?: number | null;
+	review_count?: number;
 }
 
 export interface PreviousOrder {
@@ -69,8 +69,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		initials: "AH",
 		avatarColor: "#2196F3",
 		category: "Plumbing",
-		rating: 4.9,
-		reviewCount: 127,
 		tagline: "Expert pipe & leak repair",
 		coverImage: require("@/src/assets/covers/cover_plumbing.png"),
 	},
@@ -80,8 +78,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		initials: "OK",
 		avatarColor: "#4CAF50",
 		category: "Carpenter",
-		rating: 4.8,
-		reviewCount: 98,
 		tagline: "Custom woodwork & furniture",
 		coverImage: require("@/src/assets/covers/cover_carpentry.png"),
 	},
@@ -91,8 +87,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		initials: "YS",
 		avatarColor: "#FF9800",
 		category: "Electrician",
-		rating: 4.7,
-		reviewCount: 84,
 		tagline: "Wiring, panels & smart home",
 		coverImage: require("@/src/assets/covers/cover_electrical.png"),
 	},
@@ -102,8 +96,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		initials: "KF",
 		avatarColor: "#9C27B0",
 		category: "Painter",
-		rating: 4.6,
-		reviewCount: 62,
 		tagline: "Interior & exterior painting",
 		coverImage: require("@/src/assets/covers/cover_painting.png"),
 	},
@@ -113,8 +105,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		initials: "TN",
 		avatarColor: "#F44336",
 		category: "Oven/Cooker",
-		rating: 4.5,
-		reviewCount: 45,
 		tagline: "Appliance repair specialist",
 		coverImage: require("@/src/assets/covers/cover_oven.png"),
 	},
@@ -129,8 +119,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		initials: "AM",
 		avatarColor: "#00BCD4",
 		category: "Air Condition",
-		rating: 4.8,
-		reviewCount: 91,
 		distance: "0.5 km",
 		tagline: "AC install & maintenance",
 		coverImage: require("@/src/assets/covers/cover_ac.png"),
@@ -141,8 +129,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		initials: "HI",
 		avatarColor: "#2196F3",
 		category: "Plumbing",
-		rating: 4.7,
-		reviewCount: 73,
 		distance: "1.2 km",
 		tagline: "Fast fix for any leak",
 		coverImage: require("@/src/assets/covers/cover_plumbing.png"),
@@ -153,8 +139,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		initials: "MA",
 		avatarColor: "#FF9800",
 		category: "Electrician",
-		rating: 4.6,
-		reviewCount: 58,
 		distance: "1.8 km",
 		tagline: "Safe & reliable wiring",
 		coverImage: require("@/src/assets/covers/cover_electrical.png"),
@@ -165,8 +149,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		initials: "SR",
 		avatarColor: "#4CAF50",
 		category: "Carpenter",
-		rating: 4.5,
-		reviewCount: 42,
 		distance: "2.3 km",
 		tagline: "Quality craftsmanship",
 		coverImage: require("@/src/assets/covers/cover_carpentry.png"),
@@ -177,8 +159,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		initials: "KE",
 		avatarColor: "#9C27B0",
 		category: "Home Cleaning",
-		rating: 4.9,
-		reviewCount: 110,
 		distance: "3.1 km",
 		tagline: "Deep clean & sanitizing",
 		coverImage: require("@/src/assets/covers/cover_cleaning.png"),
@@ -207,6 +187,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ac-2",
@@ -219,6 +201,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ac-3",
@@ -231,6 +215,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ac-4",
@@ -243,6 +229,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ac-5",
@@ -255,6 +243,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ac-6",
@@ -267,6 +257,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 	],
 	// Dish
@@ -282,6 +274,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ds-2",
@@ -294,6 +288,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 	],
 	// Fan
@@ -309,6 +305,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 	],
 	// Fridge/Freezer
@@ -324,6 +322,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-ff-2",
@@ -336,6 +336,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 	],
 	// Plumbing
@@ -351,6 +353,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "tech-plumbing-2",
@@ -363,6 +367,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "tech-plumbing-3",
@@ -375,6 +381,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 	],
 	// Electrician
@@ -390,6 +398,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 		{
 			id: "t-el-2",
@@ -402,6 +412,8 @@ export const MOCK_TECHNICIANS_BY_CATEGORY: Record<
 			city: null,
 			street: null,
 			distance_km: null,
+			avg_rating: null,
+			review_count: 0,
 		},
 	],
 };

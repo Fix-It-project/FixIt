@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import type { ITechniciansService } from './technicians.service.js';
+import type { TechnicianSort } from '../../shared/dtos/index.js';
 import { parseCoords } from '../../shared/utils/technicians/index.js';
 import { normalizeError } from '../../shared/errors/index.js';
 
@@ -9,7 +10,8 @@ export class TechniciansController {
   async getByCategoryId(req: Request, res: Response): Promise<void> {
     const categoryId = req.params.categoryId as string;
     const { lat, lng } = parseCoords(req);
-    const technicians = await this.service.getTechniciansByCategory(categoryId, lat, lng);
+    const sort = req.query.sort as TechnicianSort | undefined;
+    const technicians = await this.service.getTechniciansByCategory(categoryId, { lat, lng, sort });
     res.json({ technicians });
   }
 
@@ -21,7 +23,8 @@ export class TechniciansController {
       return;
     }
     const { lat, lng } = parseCoords(req);
-    const technicians = await this.service.searchTechniciansByCategory(categoryId, query, lat, lng);
+    const sort = req.query.sort as TechnicianSort | undefined;
+    const technicians = await this.service.searchTechniciansByCategory(categoryId, query, { lat, lng, sort });
     res.json({ technicians });
   }
 

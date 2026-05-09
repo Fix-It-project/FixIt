@@ -1,5 +1,7 @@
+import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
-import { Image, TouchableOpacity, View } from "react-native";
+import type { ReactNode } from "react";
+import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
@@ -42,9 +44,10 @@ const STATUS_CONFIG: Record<
 interface Props {
 	readonly order: Order;
 	readonly onPress: () => void;
+	readonly actionSlot?: ReactNode;
 }
 
-export default function UserOrderCard({ order, onPress }: Props) {
+export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const themeColors = useThemeColors();
 	const category = order.category_id
 		? CATEGORIES.find((c) => c.id === order.category_id)
@@ -67,6 +70,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 					<Image
 						source={{ uri: order.technician_image }}
 						className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
+						contentFit="cover"
 						style={{ backgroundColor: themeColors.surfaceElevated }}
 					/>
 				) : (
@@ -117,19 +121,20 @@ export default function UserOrderCard({ order, onPress }: Props) {
 			</View>
 
 			{/* Date row */}
-			<View
-				className="mt-stack-md flex-row items-center justify-between border-t border-edge pt-stack-md"
-			>
+			<View className="mt-stack-md flex-row items-center justify-between border-edge border-t pt-stack-md">
 				<Text variant="caption" style={{ color: themeColors.textMuted }}>
 					{formatDate(order.scheduled_date)}
 				</Text>
-				<Text
-					variant="caption"
-					className="font-semibold"
-					style={{ color: Colors.primary }}
-				>
-					View Details
-				</Text>
+				<View className="flex-row items-center gap-stack-md">
+					{actionSlot}
+					<Text
+						variant="caption"
+						className="font-semibold"
+						style={{ color: Colors.primary }}
+					>
+						View Details
+					</Text>
+				</View>
 			</View>
 		</TouchableOpacity>
 	);
