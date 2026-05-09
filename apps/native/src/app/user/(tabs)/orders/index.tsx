@@ -5,7 +5,6 @@ import {
 	ScrollView,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/src/components/ui/text";
 import OrdersHeader from "@/src/features/booking-orders/components/user/OrdersHeader";
 import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
@@ -32,76 +31,74 @@ export default function MyOrdersScreen() {
 
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<SafeAreaView className="flex-1" edges={["top"]}>
-				<OrdersHeader />
+			<OrdersHeader />
 
-				{isLoading ? (
-					<View className="flex-1 items-center justify-center">
-						<ActivityIndicator size="large" color={Colors.primary} />
-					</View>
-				) : (
-					<ScrollView
-						className="flex-1"
-						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{
-							padding: spacing.card.padding,
-							paddingBottom: spacing.screen.paddingBottom + spacing.stack.lg,
-							flexGrow: orders.length === 0 ? 1 : undefined,
-						}}
-						refreshControl={
-							<RefreshControl
-								refreshing={isRefreshing}
-								onRefresh={refetch}
-								tintColor={Colors.primary}
-							/>
-						}
-					>
-						{orders.length === 0 ? (
-							<View className="flex-1 items-center justify-center px-button-lg-x">
-								<Text
-									variant="buttonLg"
-									style={{
-										color: themeColors.textSecondary,
-										textAlign: "center",
-									}}
-								>
-									No orders yet
-								</Text>
-								<Text
-									variant="bodySm"
-									className="mt-stack-xs text-center"
-									style={{ color: themeColors.textMuted }}
-								>
-									Your bookings will appear here once you book a technician.
-								</Text>
-							</View>
-						) : (
-							orders.map((order) => {
-								const showLeaveReview =
-									order.status === "completed" &&
-									!order.has_review &&
-									!hasSubmitted(order.id);
-								return (
-									<UserOrderCard
-										key={order.id}
-										order={order}
-										onPress={() => goToOrder(order.id)}
-										actionSlot={
-											showLeaveReview ? (
-												<LeaveReviewButton
-													orderId={order.id}
-													technicianId={order.technician_id}
-													technicianName={order.technician_name ?? "Technician"}
-												/>
-											) : undefined
-										}
-									/>
-								);
-							})
-						)}
-					</ScrollView>
-				)}
-			</SafeAreaView>
+			{isLoading ? (
+				<View className="flex-1 items-center justify-center">
+					<ActivityIndicator size="large" color={Colors.primary} />
+				</View>
+			) : (
+				<ScrollView
+					className="flex-1"
+					showsVerticalScrollIndicator={false}
+					contentContainerStyle={{
+						padding: spacing.card.padding,
+						paddingBottom: spacing.screen.paddingBottom + spacing.stack.lg,
+						flexGrow: orders.length === 0 ? 1 : undefined,
+					}}
+					refreshControl={
+						<RefreshControl
+							refreshing={isRefreshing}
+							onRefresh={refetch}
+							tintColor={Colors.primary}
+						/>
+					}
+				>
+					{orders.length === 0 ? (
+						<View className="flex-1 items-center justify-center px-button-lg-x">
+							<Text
+								variant="buttonLg"
+								style={{
+									color: themeColors.textSecondary,
+									textAlign: "center",
+								}}
+							>
+								No orders yet
+							</Text>
+							<Text
+								variant="bodySm"
+								className="mt-stack-xs text-center"
+								style={{ color: themeColors.textMuted }}
+							>
+								Your bookings will appear here once you book a technician.
+							</Text>
+						</View>
+					) : (
+						orders.map((order) => {
+							const showLeaveReview =
+								order.status === "completed" &&
+								!order.has_review &&
+								!hasSubmitted(order.id);
+							return (
+								<UserOrderCard
+									key={order.id}
+									order={order}
+									onPress={() => goToOrder(order.id)}
+									actionSlot={
+										showLeaveReview ? (
+											<LeaveReviewButton
+												orderId={order.id}
+												technicianId={order.technician_id}
+												technicianName={order.technician_name ?? "Technician"}
+											/>
+										) : undefined
+									}
+								/>
+							);
+						})
+					)}
+				</ScrollView>
+			)}
 		</View>
 	);
 }

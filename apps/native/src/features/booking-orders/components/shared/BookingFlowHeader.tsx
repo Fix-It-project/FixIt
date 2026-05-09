@@ -1,7 +1,7 @@
 import { type LucideIcon, Wrench } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
@@ -32,13 +32,16 @@ export default function BookingFlowHeader({
 	const categoryColor = meta?.color ?? themeColors.primary;
 
 	return (
-		<SafeAreaView
+		<ScreenSafeAreaView
 			className="flex-1"
 			edges={["top"]}
 			style={{ backgroundColor: categoryColor }}
 		>
 			<View className="flex-1 bg-surface-elevated">
-				<View style={{ backgroundColor: categoryColor }} className="pb-card-roomy">
+				<View
+					style={{ backgroundColor: categoryColor }}
+					className="pb-card-roomy"
+				>
 					<View className="flex-row items-center px-card pt-stack-sm pb-stack-xs">
 						<BackButton
 							variant="header-inverse"
@@ -71,6 +74,6 @@ export default function BookingFlowHeader({
 				</View>
 				{children}
 			</View>
-		</SafeAreaView>
+		</ScreenSafeAreaView>
 	);
 }

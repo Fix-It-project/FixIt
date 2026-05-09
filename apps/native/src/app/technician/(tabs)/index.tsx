@@ -1,5 +1,4 @@
 import { RefreshControl, ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import EarningsWallet from "@/src/features/dashboard/components/tech/EarningsWallet";
 import IncomingRequestsSection from "@/src/features/dashboard/components/tech/IncomingRequestsSection";
 import TodayScheduleSection from "@/src/features/dashboard/components/tech/TodayScheduleSection";
@@ -17,37 +16,35 @@ export default function TechHome() {
 
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<SafeAreaView className="flex-1" edges={["top"]}>
-				{/* Sticky header — outside ScrollView */}
-				<DashboardHeader />
+			{/* Sticky header — outside ScrollView */}
+			<DashboardHeader />
 
-				{/* Scrollable content */}
-				<ScrollView
-					className="flex-1"
-					showsVerticalScrollIndicator={false}
-					contentContainerStyle={{
-						paddingBottom: spacing.stack.xl,
-						gap: SECTION_GAP,
-					}}
-					refreshControl={
-						<RefreshControl
-							refreshing={isRefetching}
-							onRefresh={refetch}
-							colors={[themeColors.primary]}
-							tintColor={themeColors.primary}
-						/>
-					}
-				>
-					{/* Incoming job requests */}
-					<IncomingRequestsSection categoryName={profile?.category_name} />
+			{/* Scrollable content */}
+			<ScrollView
+				className="flex-1"
+				showsVerticalScrollIndicator={false}
+				contentContainerStyle={{
+					paddingBottom: spacing.stack.xl,
+					gap: SECTION_GAP,
+				}}
+				refreshControl={
+					<RefreshControl
+						refreshing={isRefetching}
+						onRefresh={refetch}
+						colors={[themeColors.primary]}
+						tintColor={themeColors.primary}
+					/>
+				}
+			>
+				{/* Incoming job requests */}
+				<IncomingRequestsSection categoryName={profile?.category_name} />
 
-					{/* Today's schedule timeline */}
-					<TodayScheduleSection />
+				{/* Today's schedule timeline */}
+				<TodayScheduleSection />
 
-					{/* Earnings & wallet */}
-					<EarningsWallet />
-				</ScrollView>
-			</SafeAreaView>
+				{/* Earnings & wallet */}
+				<EarningsWallet />
+			</ScrollView>
 		</View>
 	);
 }

@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Text } from "@/src/components/ui/text";
 import BookingAttachmentCard from "@/src/features/booking-orders/components/shared/BookingAttachmentCard";
 import BookingDescriptionCard from "@/src/features/booking-orders/components/shared/BookingDescriptionCard";
@@ -96,7 +96,7 @@ export default function BookingDetailScreen() {
 
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<SafeAreaView className="flex-1" edges={["top"]}>
+			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
 				<BookingDetailHeader booking={booking} onBack={goBack} />
 
 				<ScrollView
@@ -144,7 +144,7 @@ export default function BookingDetailScreen() {
 						</View>
 					)}
 				</ScrollView>
-			</SafeAreaView>
+			</ScreenSafeAreaView>
 
 			{isAcceptedBooking && (
 				<BookingCancelModal

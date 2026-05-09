@@ -3,7 +3,7 @@ import { MapPin } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import PageHeader from "@/src/components/PageHeader";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
@@ -63,7 +63,7 @@ export default function AddAddressScreen() {
 	]);
 
 	return (
-		<SafeAreaView
+		<ScreenSafeAreaView
 			className="flex-1"
 			style={{ backgroundColor: themeColors.surfaceBase }}
 		>
@@ -142,6 +142,6 @@ export default function AddAddressScreen() {
 					)}
 				</Button>
 			</KeyboardAwareScrollView>
-		</SafeAreaView>
+		</ScreenSafeAreaView>
 	);
 }

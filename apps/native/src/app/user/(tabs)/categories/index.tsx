@@ -6,7 +6,6 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Text } from "@/src/components/ui/text";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
@@ -35,81 +34,79 @@ export default function CategoriesScreen() {
 
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<SafeAreaView className="flex-1" edges={["top"]}>
-				<View className="px-screen-x pt-card pb-stack-md">
-					<Text variant="h2" className="text-content">
-						Categories
-					</Text>
+			<View className="px-screen-x pt-card pb-stack-md">
+				<Text variant="h2" className="text-content">
+					Categories
+				</Text>
+			</View>
+
+			{isLoading && (
+				<View className="flex-1 items-center justify-center">
+					<ActivityIndicator size="large" color={Colors.primary} />
 				</View>
+			)}
 
-				{isLoading && (
-					<View className="flex-1 items-center justify-center">
-						<ActivityIndicator size="large" color={Colors.primary} />
-					</View>
-				)}
-
-				{isError && !isLoading && (
-					<View className="flex-1 items-center justify-center gap-stack-sm">
-						<Text variant="bodySm" className="text-content-muted">
-							Failed to load categories.
+			{isError && !isLoading && (
+				<View className="flex-1 items-center justify-center gap-stack-sm">
+					<Text variant="bodySm" className="text-content-muted">
+						Failed to load categories.
+					</Text>
+					<TouchableOpacity onPress={() => refetch()} activeOpacity={0.7}>
+						<Text variant="buttonMd" className="text-app-primary">
+							Retry
 						</Text>
-						<TouchableOpacity onPress={() => refetch()} activeOpacity={0.7}>
-							<Text variant="buttonMd" className="text-app-primary">
-								Retry
-							</Text>
-						</TouchableOpacity>
-					</View>
-				)}
+					</TouchableOpacity>
+				</View>
+			)}
 
-				{!isLoading && !isError && (
-					<ScrollView
-						className="flex-1"
-						showsVerticalScrollIndicator={false}
-						contentContainerClassName="px-screen-x pb-stack-xl"
-					>
-						<View className="flex-row flex-wrap justify-between">
-							{categories?.map((cat, index) => {
-								const meta = getCategoryMeta(cat.id);
-								const Icon = meta?.icon ?? Wrench;
-								const color =
-									meta?.color ?? fallbackColors[index % fallbackColors.length];
-								return (
-									<TouchableOpacity
-										key={cat.id}
-										className="mb-stack-md overflow-hidden rounded-input"
-										style={{
-											width: "48.5%",
-											backgroundColor: themeColors.surfaceElevated,
-										}}
-										onPress={() => handleCategoryPress(cat.id, cat.name)}
-										activeOpacity={0.7}
-									>
-										<View className="flex-row items-center">
-											<View
-												className="h-avatar-xl w-avatar-xl items-center justify-center"
-												style={{ backgroundColor: color }}
-											>
-												<Icon
-													size={26}
-													color={themeColors.surfaceOnPrimary}
-													strokeWidth={1.75}
-												/>
-											</View>
-											<Text
-												variant="buttonMd"
-												className="flex-1 px-stack-md text-content"
-												numberOfLines={2}
-											>
-												{cat.name}
-											</Text>
+			{!isLoading && !isError && (
+				<ScrollView
+					className="flex-1"
+					showsVerticalScrollIndicator={false}
+					contentContainerClassName="px-screen-x pb-stack-xl"
+				>
+					<View className="flex-row flex-wrap justify-between">
+						{categories?.map((cat, index) => {
+							const meta = getCategoryMeta(cat.id);
+							const Icon = meta?.icon ?? Wrench;
+							const color =
+								meta?.color ?? fallbackColors[index % fallbackColors.length];
+							return (
+								<TouchableOpacity
+									key={cat.id}
+									className="mb-stack-md overflow-hidden rounded-input"
+									style={{
+										width: "48.5%",
+										backgroundColor: themeColors.surfaceElevated,
+									}}
+									onPress={() => handleCategoryPress(cat.id, cat.name)}
+									activeOpacity={0.7}
+								>
+									<View className="flex-row items-center">
+										<View
+											className="h-avatar-xl w-avatar-xl items-center justify-center"
+											style={{ backgroundColor: color }}
+										>
+											<Icon
+												size={26}
+												color={themeColors.surfaceOnPrimary}
+												strokeWidth={1.75}
+											/>
 										</View>
-									</TouchableOpacity>
-								);
-							})}
-						</View>
-					</ScrollView>
-				)}
-			</SafeAreaView>
+										<Text
+											variant="buttonMd"
+											className="flex-1 px-stack-md text-content"
+											numberOfLines={2}
+										>
+											{cat.name}
+										</Text>
+									</View>
+								</TouchableOpacity>
+							);
+						})}
+					</View>
+				</ScrollView>
+			)}
 		</View>
 	);
 }

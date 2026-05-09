@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { ActivityIndicator, useWindowDimensions, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { SafeAreaView } from "react-native-safe-area-context";
 import ErrorBanner from "@/src/components/feedback/ErrorBanner";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import PageHeader from "@/src/components/PageHeader";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
@@ -30,7 +30,7 @@ export default function ProfileEditScreenLayout({
 	const horizontalPadding = Math.min(Math.max(width * 0.05, 16), 28);
 
 	return (
-		<SafeAreaView className="flex-1 bg-surface-elevated" edges={["top"]}>
+		<ScreenSafeAreaView className="flex-1 bg-surface-elevated" edges={["top"]}>
 			<PageHeader
 				title="Edit Profile"
 				variant="surface"
@@ -65,6 +65,6 @@ export default function ProfileEditScreenLayout({
 					</View>
 				</View>
 			</KeyboardAwareScrollView>
-		</SafeAreaView>
+		</ScreenSafeAreaView>
 	);
 }

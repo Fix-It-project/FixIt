@@ -1,6 +1,7 @@
+import * as Linking from "expo-linking";
 import { type Href, router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
@@ -10,7 +11,11 @@ import InvalidResetLinkView from "@/src/features/auth/components/shared/InvalidR
 import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { useResetPasswordMutation } from "@/src/features/auth/hooks/useResetPasswordMutation";
 import { resetPasswordSchema } from "@/src/features/auth/schemas/form.schema";
-import { getRecoverySession } from "@/src/features/auth/utils/recovery-session";
+import { consumeRecoveryDeepLink } from "@/src/features/auth/utils/recovery-deep-link";
+import {
+	getRecoverySession,
+	type RecoverySession,
+} from "@/src/features/auth/utils/recovery-session";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
 import { ROUTES } from "@/src/lib/routes";
@@ -19,7 +24,11 @@ import { useThemeColors } from "@/src/lib/theme";
 export default function ResetPassword() {
 	const themeColors = useThemeColors();
 	const insets = useSafeAreaInsets();
-	const recoverySession = getRecoverySession();
+	const [recoverySession, setRecoverySessionState] =
+		useState<RecoverySession | null>(() => getRecoverySession());
+	const [isResolvingRecoveryLink, setIsResolvingRecoveryLink] = useState(
+		() => getRecoverySession() == null,
+	);
 	const accessToken = recoverySession?.accessToken;
 	const refreshToken = recoverySession?.refreshToken;
 	const userType = recoverySession?.userType ?? "user";
@@ -30,6 +39,44 @@ export default function ResetPassword() {
 	const resetMutation = useResetPasswordMutation(userType ?? "user");
 	const { fieldErrors, clearFieldError, validate } =
 		useFormValidation(resetPasswordSchema);
+
+	useEffect(() => {
+		if (recoverySession) {
+			return;
+		}
+
+		let isMounted = true;
+
+		function applyRecoveryUrl(url: string | null | undefined) {
+			const session = consumeRecoveryDeepLink(url);
+			if (session && isMounted) {
+				setRecoverySessionState(session);
+			}
+
+			return session != null;
+		}
+
+		if (applyRecoveryUrl(Linking.getLinkingURL())) {
+			setIsResolvingRecoveryLink(false);
+			return;
+		}
+
+		Linking.getInitialURL()
+			.then((url) => {
+				if (isMounted) {
+					applyRecoveryUrl(url);
+				}
+			})
+			.finally(() => {
+				if (isMounted) {
+					setIsResolvingRecoveryLink(false);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, [recoverySession]);
 
 	// ─── Handlers ───────────────────────────────────────────────────────────────
 	const handleResetPassword = () => {
@@ -53,6 +100,16 @@ export default function ResetPassword() {
 
 	const isFormValid = newPassword.length > 0 && confirmPassword.length > 0;
 	const isButtonActive = isFormValid && !resetMutation.isPending;
+
+	if (isResolvingRecoveryLink) {
+		return (
+			<AuthFormScreen errorMessage={null}>
+				<View className="flex-1 items-center justify-center">
+					<ActivityIndicator color={themeColors.primary} />
+				</View>
+			</AuthFormScreen>
+		);
+	}
 
 	// ─── Invalid Link State ─────────────────────────────────────────────────────
 	if (!accessToken || !refreshToken) {

@@ -1,6 +1,6 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useLocalSearchParams } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
 import BookingsTabContent from "@/src/features/booking-orders/components/tech/BookingsTabContent";
 import ScheduleTabContent from "@/src/features/schedule/components/tech/ScheduleTabContent";
 import {
@@ -28,7 +28,7 @@ export default function UnifiedSchedulePage() {
 		params.view === "bookings" ? "bookings" : "schedule";
 
 	return (
-		<SafeAreaView edges={["top"]} className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface-elevated">
 			<TopTabs.Navigator
 				key={requestedView}
 				initialRouteName={requestedView}
@@ -72,6 +72,6 @@ export default function UnifiedSchedulePage() {
 					options={{ title: "Bookings" }}
 				/>
 			</TopTabs.Navigator>
-		</SafeAreaView>
+		</View>
 	);
 }

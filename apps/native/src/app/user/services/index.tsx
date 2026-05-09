@@ -2,7 +2,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Wrench } from "lucide-react-native";
 import { useCallback, useRef } from "react";
 import { View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import ServiceListContent from "@/src/features/services/components/user/ServiceListContent";
 import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
 import { useServicesQuery } from "@/src/features/services/hooks/useServicesQuery";
@@ -50,7 +50,7 @@ export default function ServicesListScreen() {
 	);
 
 	return (
-		<SafeAreaView
+		<ScreenSafeAreaView
 			className="flex-1"
 			edges={["top"]}
 			style={{ backgroundColor: categoryColor }}
@@ -71,6 +71,6 @@ export default function ServicesListScreen() {
 					onServicePress={handleServicePress}
 				/>
 			</View>
-		</SafeAreaView>
+		</ScreenSafeAreaView>
 	);
 }

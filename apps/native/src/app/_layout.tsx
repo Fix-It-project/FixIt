@@ -17,7 +17,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CustomToast } from "@/src/components/ui/toast";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
-import { useRecoveryDeepLink } from "@/src/hooks/useRecoveryDeepLink";
 import queryClient from "@/src/lib/query-client";
 import {
 	createNavigationTheme,
@@ -25,6 +24,7 @@ import {
 	getThemeVariableRecord,
 	useThemeTokens,
 } from "@/src/lib/theme";
+import { AppSafeAreaFrame } from "@/src/lib/utils/AppSafeAreaFrame";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -46,14 +46,13 @@ function RootLayout() {
 	const tokens = useThemeTokens();
 	const navigationTheme = useMemo(
 		() => createNavigationTheme(tokens),
-		[tokens.id],
+		[tokens],
 	);
 	const themeVariables = useMemo(
 		() => vars(getThemeVariableRecord(tokens)),
-		[tokens.id],
+		[tokens],
 	);
 
-	useRecoveryDeepLink();
 	useAndroidSystemUi(tokens.androidNavigationBarStyle, isReady);
 
 	useEffect(() => {
@@ -74,17 +73,19 @@ function RootLayout() {
 				<GestureHandlerRootView style={styles.container}>
 					<ThemeProvider value={navigationTheme}>
 						<View className="flex-1 bg-surface" style={themeVariables}>
-							<KeyboardProvider>
-								<Stack screenOptions={{ headerShown: false }}>
-									<Stack.Screen name="index" />
-									<Stack.Screen name="(auth)" />
-									<Stack.Screen name="user" />
-									<Stack.Screen name="technician" />
-								</Stack>
+							<AppSafeAreaFrame>
+								<KeyboardProvider>
+									<Stack screenOptions={{ headerShown: false }}>
+										<Stack.Screen name="index" />
+										<Stack.Screen name="(auth)" />
+										<Stack.Screen name="user" />
+										<Stack.Screen name="technician" />
+									</Stack>
 
-								<PortalHost />
-								<CustomToast />
-							</KeyboardProvider>
+									<PortalHost />
+									<CustomToast />
+								</KeyboardProvider>
+							</AppSafeAreaFrame>
 						</View>
 					</ThemeProvider>
 				</GestureHandlerRootView>

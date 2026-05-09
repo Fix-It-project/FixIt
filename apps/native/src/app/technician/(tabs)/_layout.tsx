@@ -1,5 +1,5 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import {
 	CalendarDays,
 	House,
@@ -10,7 +10,12 @@ import {
 } from "lucide-react-native";
 import { Platform, View } from "react-native";
 import { ProtectedTabsLayout } from "@/src/components/navigation/ProtectedTabsLayout";
-import { elevation, radius, shadowStyle, spacing } from "@/src/lib/design-tokens";
+import {
+	elevation,
+	radius,
+	shadowStyle,
+	spacing,
+} from "@/src/lib/design-tokens";
 import { ROUTES } from "@/src/lib/routes";
 import { useBottomTabMetrics } from "@/src/lib/tab-bar-config";
 import { useThemeColors } from "@/src/lib/theme";
@@ -82,7 +87,13 @@ function renderCenterChatTabIcon(
 export default function TechAppTabsLayout() {
 	const themeColors = useThemeColors();
 	const { tabBarHeight } = useBottomTabMetrics();
+	const pathname = usePathname();
 	const centerActionLift = Math.round(tabBarHeight * 0.24);
+	const topSafeAreaBackground =
+		pathname === ROUTES.technician.home ||
+		pathname === ROUTES.technician.schedule
+			? themeColors.primaryDark
+			: themeColors.surfaceElevated;
 
 	return (
 		<BottomSheetModalProvider>
@@ -90,6 +101,7 @@ export default function TechAppTabsLayout() {
 				allowedUserType="technician"
 				unauthenticatedRedirect={ROUTES.auth.welcome}
 				wrongRoleRedirect={ROUTES.user.home}
+				topSafeAreaBackgroundColor={topSafeAreaBackground}
 			>
 				<Tabs.Screen
 					name="index"

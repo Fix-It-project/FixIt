@@ -1,4 +1,4 @@
-import { router, Tabs } from "expo-router";
+import { router, Tabs, usePathname } from "expo-router";
 import {
 	ClipboardList,
 	Grid2X2,
@@ -7,9 +7,15 @@ import {
 	MessageCircle,
 	User,
 } from "lucide-react-native";
-import { Platform, TouchableOpacity } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { elevation, radius, shadowStyle, spacing } from "@/src/lib/design-tokens";
+import {
+	elevation,
+	radius,
+	shadowStyle,
+	spacing,
+} from "@/src/lib/design-tokens";
 import { ROUTES } from "@/src/lib/routes";
 import {
 	getBaseTabScreenOptions,
@@ -78,47 +84,58 @@ function ChatFab({
 export default function UserTabsLayout() {
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
+	const pathname = usePathname();
 	const goToChatbot = useDebounce(() => router.push(ROUTES.user.chat));
 	const screenOptions = getBaseTabScreenOptions(themeColors, metrics);
+	const topSafeAreaBackground =
+		pathname === ROUTES.user.home
+			? themeColors.primary
+			: themeColors.surfaceElevated;
 
 	return (
-		<>
-			<Tabs screenOptions={screenOptions}>
-				<Tabs.Screen
-					name="index"
-					options={{
-						title: "Home",
-						tabBarIcon: HomeTabIcon,
-					}}
+		<ScreenSafeAreaView
+			className="flex-1"
+			edges={["top"]}
+			style={{ backgroundColor: topSafeAreaBackground }}
+		>
+			<View className="flex-1 bg-surface-elevated">
+				<Tabs screenOptions={screenOptions}>
+					<Tabs.Screen
+						name="index"
+						options={{
+							title: "Home",
+							tabBarIcon: HomeTabIcon,
+						}}
+					/>
+					<Tabs.Screen
+						name="categories/index"
+						options={{
+							title: "Categories",
+							tabBarIcon: CategoriesTabIcon,
+						}}
+					/>
+					<Tabs.Screen
+						name="orders/index"
+						options={{
+							title: "My Orders",
+							tabBarIcon: OrdersTabIcon,
+						}}
+					/>
+					<Tabs.Screen
+						name="profile/index"
+						options={{
+							title: "My Profile",
+							tabBarIcon: ProfileTabIcon,
+						}}
+					/>
+				</Tabs>
+				<ChatFab
+					onPress={goToChatbot}
+					bottom={metrics.tabBarHeight + spacing.stack.md}
+					primaryColor={themeColors.primary}
+					surfaceColor={themeColors.surfaceOnPrimary}
 				/>
-				<Tabs.Screen
-					name="categories/index"
-					options={{
-						title: "Categories",
-						tabBarIcon: CategoriesTabIcon,
-					}}
-				/>
-				<Tabs.Screen
-					name="orders/index"
-					options={{
-						title: "My Orders",
-						tabBarIcon: OrdersTabIcon,
-					}}
-				/>
-				<Tabs.Screen
-					name="profile/index"
-					options={{
-						title: "My Profile",
-						tabBarIcon: ProfileTabIcon,
-					}}
-				/>
-			</Tabs>
-			<ChatFab
-				onPress={goToChatbot}
-				bottom={metrics.tabBarHeight + spacing.stack.md}
-				primaryColor={themeColors.primary}
-				surfaceColor={themeColors.surfaceOnPrimary}
-			/>
-		</>
+			</View>
+		</ScreenSafeAreaView>
 	);
 }
