@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Search } from "lucide-react-native";
-import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	ActivityIndicator,
@@ -9,8 +9,8 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
@@ -58,7 +58,10 @@ function TechnicianListBody({
 				<Text variant="buttonLg" className="text-center text-content">
 					Unable to load technicians
 				</Text>
-				<Text variant="bodySm" className="mt-stack-xs text-center text-content-muted">
+				<Text
+					variant="bodySm"
+					className="mt-stack-xs text-center text-content-muted"
+				>
 					Please try again in a moment.
 				</Text>
 			</View>
@@ -71,7 +74,10 @@ function TechnicianListBody({
 				<Text variant="buttonLg" className="text-center text-content">
 					No technicians found
 				</Text>
-				<Text variant="bodySm" className="mt-stack-xs text-center text-content-muted">
+				<Text
+					variant="bodySm"
+					className="mt-stack-xs text-center text-content-muted"
+				>
 					Try adjusting your search or pick a different category.
 				</Text>
 			</View>
@@ -245,7 +251,7 @@ export default function TechniciansListScreen() {
 		technicians.length === 1 ? "technician found" : "technicians found";
 
 	return (
-		<SafeAreaView
+		<ScreenSafeAreaView
 			className="flex-1"
 			edges={["top"]}
 			style={{ backgroundColor: Colors.primary }}
@@ -348,6 +354,6 @@ export default function TechniciansListScreen() {
 
 			{/* Sheets */}
 			<TechnicianProfileSheet ref={profileSheetRef} />
-		</SafeAreaView>
+		</ScreenSafeAreaView>
 	);
 }

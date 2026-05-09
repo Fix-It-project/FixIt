@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { ScrollView, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import PageHeader from "@/src/components/PageHeader";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -126,7 +126,7 @@ export default function PastOrdersList({
 
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<SafeAreaView className="flex-1" edges={["top"]}>
+			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
 				<PageHeader title={title} onBackPress={onBack} />
 
 				<ScrollView
@@ -147,7 +147,7 @@ export default function PastOrdersList({
 						items.map((item) => <PastOrderCard key={item.id} item={item} />)
 					)}
 				</ScrollView>
-			</SafeAreaView>
+			</ScreenSafeAreaView>
 		</View>
 	);
 }

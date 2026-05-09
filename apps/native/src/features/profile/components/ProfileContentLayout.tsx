@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import ProfileHeader from "./ProfileHeader";
 import ProfileStatsSection from "./ProfileStatsSection";
 
@@ -25,22 +24,20 @@ export default function ProfileContentLayout({
 }: ProfileContentLayoutProps) {
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<SafeAreaView className="flex-1" edges={["top"]}>
-				<ScrollView
-					className="flex-1"
-					showsVerticalScrollIndicator={false}
-					contentContainerClassName="pb-screen-bottom-inset"
-				>
-					<ProfileHeader
-						name={name}
-						isLoading={isLoading}
-						imageUrl={imageUrl}
-						onChangePhoto={onChangePhoto}
-					/>
-					<ProfileStatsSection bookings={bookings} completed={completed} />
-					{children}
-				</ScrollView>
-			</SafeAreaView>
+			<ScrollView
+				className="flex-1"
+				showsVerticalScrollIndicator={false}
+				contentContainerClassName="pb-screen-bottom-inset"
+			>
+				<ProfileHeader
+					name={name}
+					isLoading={isLoading}
+					imageUrl={imageUrl}
+					onChangePhoto={onChangePhoto}
+				/>
+				<ProfileStatsSection bookings={bookings} completed={completed} />
+				{children}
+			</ScrollView>
 		</View>
 	);
 }

@@ -1,6 +1,7 @@
 import { type Href, Redirect, Tabs } from "expo-router";
 import { type PropsWithChildren, type ReactNode, useMemo } from "react";
 import { View } from "react-native";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
 	getBaseTabScreenOptions,
 	useBottomTabMetrics,
@@ -13,6 +14,7 @@ export interface ProtectedTabsLayoutProps extends PropsWithChildren {
 	readonly unauthenticatedRedirect: Href;
 	readonly wrongRoleRedirect: Href;
 	readonly overlay?: ReactNode;
+	readonly topSafeAreaBackgroundColor?: string;
 }
 
 export function ProtectedTabsLayout({
@@ -20,6 +22,7 @@ export function ProtectedTabsLayout({
 	unauthenticatedRedirect,
 	wrongRoleRedirect,
 	overlay,
+	topSafeAreaBackgroundColor,
 	children,
 }: Readonly<ProtectedTabsLayoutProps>) {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -30,13 +33,7 @@ export function ProtectedTabsLayout({
 
 	const screenOptions = useMemo(
 		() => getBaseTabScreenOptions(themeColors, metrics),
-		[
-			metrics.bottomInset,
-			metrics.tabBarHeight,
-			metrics.tabBarPaddingBottom,
-			metrics.tabBarPaddingTop,
-			themeColors,
-		],
+		[metrics, themeColors],
 	);
 
 	if (!isLoading && !isAuthenticated) {
@@ -48,9 +45,18 @@ export function ProtectedTabsLayout({
 	}
 
 	return (
-		<View style={{ flex: 1 }}>
-			<Tabs screenOptions={screenOptions}>{children}</Tabs>
-			{overlay}
-		</View>
+		<ScreenSafeAreaView
+			edges={["top"]}
+			style={{
+				flex: 1,
+				backgroundColor:
+					topSafeAreaBackgroundColor ?? themeColors.surfaceElevated,
+			}}
+		>
+			<View style={{ flex: 1 }}>
+				<Tabs screenOptions={screenOptions}>{children}</Tabs>
+				{overlay}
+			</View>
+		</ScreenSafeAreaView>
 	);
 }
