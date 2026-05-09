@@ -18,9 +18,3 @@ export const useTechnicianSearchStore = create<TechnicianSearchStore>(
 		reset: () => set({ searchText: "", activeSort: "Top Rated" }),
 	}),
 );
-
-export type TechnicianSortFilter =
-	| "top_rated"
-	| "nearest"
-	| "most_reviews"
-	| "recommended";

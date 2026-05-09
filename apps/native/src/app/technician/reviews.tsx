@@ -8,12 +8,13 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ReviewRow, ReviewStatsHeader } from "@/src/components/reviews";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
-import { ReviewListItem, ReviewStatsHeader } from "@/src/features/reviews/components/shared";
 import { useMyTechnicianReviewsQuery } from "@/src/features/reviews/hooks/useMyTechnicianReviewsQuery";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { getReviewDistribution } from "@/src/lib/utils/review-distribution";
 
 export default function TechnicianReviewsScreen() {
   const themeColors = useThemeColors();
@@ -32,6 +33,7 @@ export default function TechnicianReviewsScreen() {
     () => data?.pages.flatMap((p) => p.reviews) ?? [],
     [data],
   );
+  const distribution = useMemo(() => getReviewDistribution(reviews), [reviews]);
 
   return (
     <SafeAreaView
@@ -61,16 +63,19 @@ export default function TechnicianReviewsScreen() {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View className="px-button-x">
-                <ReviewListItem review={item} />
+                <ReviewRow review={item} variant="card" />
               </View>
             )}
             ItemSeparatorComponent={() => <View className="h-stack-sm" />}
-            contentContainerStyle={{ paddingVertical: 16, paddingBottom: 32 }}
+            contentContainerStyle={{
+              paddingVertical: spacing.stack.lg,
+              paddingBottom: spacing.stack["2xl"],
+            }}
             ListHeaderComponent={
               <ReviewStatsHeader
                 avgRating={profile?.avg_rating ?? null}
-                totalCount={profile?.review_count ?? 0}
-                reviews={reviews}
+                reviewCount={profile?.review_count ?? 0}
+                distribution={distribution}
               />
             }
             ListEmptyComponent={
@@ -89,7 +94,7 @@ export default function TechnicianReviewsScreen() {
                 <ActivityIndicator
                   size="small"
                   color={Colors.primary}
-                  style={{ marginVertical: 16 }}
+                  style={{ marginVertical: spacing.stack.lg }}
                 />
               ) : null
             }

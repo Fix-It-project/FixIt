@@ -10,6 +10,8 @@ import { Text } from "@/src/components/ui/text";
 import OrdersHeader from "@/src/features/booking-orders/components/user/OrdersHeader";
 import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
+import LeaveReviewButton from "@/src/features/reviews/components/user/LeaveReviewButton";
+import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/routes";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
@@ -22,6 +24,7 @@ export default function MyOrdersScreen() {
 		refetch,
 		isRefetching,
 	} = useUserOrdersQuery();
+	const hasSubmitted = useReviewPromptStore((s) => s.hasSubmitted);
 	const goToOrder = useDebounce((id: string) =>
 		router.push(ROUTES.user.orderDetail(id)),
 	);
@@ -73,13 +76,28 @@ export default function MyOrdersScreen() {
 								</Text>
 							</View>
 						) : (
-							orders.map((order) => (
-								<UserOrderCard
-									key={order.id}
-									order={order}
-									onPress={() => goToOrder(order.id)}
-								/>
-							))
+							orders.map((order) => {
+								const showLeaveReview =
+									order.status === "completed" &&
+									!order.has_review &&
+									!hasSubmitted(order.id);
+								return (
+									<UserOrderCard
+										key={order.id}
+										order={order}
+										onPress={() => goToOrder(order.id)}
+										actionSlot={
+											showLeaveReview ? (
+												<LeaveReviewButton
+													orderId={order.id}
+													technicianId={order.technician_id}
+													technicianName={order.technician_name ?? "Technician"}
+												/>
+											) : undefined
+										}
+									/>
+								);
+							})
 						)}
 					</ScrollView>
 				)}

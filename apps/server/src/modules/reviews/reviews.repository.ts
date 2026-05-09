@@ -30,6 +30,7 @@ export interface TechnicianReviewWithReviewer {
 
 export class ReviewsRepository {
 	async createReview(row: CreateReviewRow): Promise<Review> {
+		// technician_rating_stats is updated automatically by trigger_maintain_technician_rating_stats — do not recompute here.
 		const { data, error } = await supabase
 			.from("reviews")
 			.insert({

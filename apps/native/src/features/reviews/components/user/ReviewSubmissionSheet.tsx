@@ -6,6 +6,7 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  type ComponentType,
   forwardRef,
   useCallback,
   useImperativeHandle,
@@ -15,18 +16,21 @@ import {
 } from "react";
 import {
   ActivityIndicator,
+  type ScrollViewProps,
   TextInput,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Text } from "@/src/components/ui/text";
 import { useCreateReviewMutation } from "@/src/features/reviews/hooks/useCreateReviewMutation";
 import { createReviewClientSchema } from "@/src/features/reviews/schemas/review.schema";
 import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, spacing, useThemeColors } from "@/src/lib/theme";
 import StarRatingInput from "./StarRatingInput";
+
+const KeyboardAwareBottomSheetScrollView = BottomSheetScrollView as unknown as ComponentType<ScrollViewProps>;
 
 export interface ReviewSubmissionSheetRef {
   open: (orderId: string, technicianId: string, technicianName: string) => void;
@@ -155,103 +159,105 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
           className="flex-1 px-button-x pb-stack-xl"
           style={{ backgroundColor: themeColors.surfaceBase }}
         >
-          <KeyboardAvoidingView behavior="padding" className="flex-1">
-            <BottomSheetScrollView
-              showsVerticalScrollIndicator={false}
-              keyboardDismissMode="interactive"
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 24 }}
+          <KeyboardAwareScrollView
+            ScrollViewComponent={KeyboardAwareBottomSheetScrollView}
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            keyboardDismissMode="interactive"
+            keyboardShouldPersistTaps="handled"
+            bottomOffset={spacing.stack.xl}
+            extraKeyboardSpace={spacing.stack.lg}
+            contentContainerStyle={{ paddingBottom: spacing.stack["2xl"] }}
+          >
+            <Text
+              variant="h3"
+              className="mt-stack-md text-center text-content"
+              numberOfLines={1}
             >
-              <Text
-                variant="h3"
-                className="mt-stack-md text-center text-content"
-                numberOfLines={1}
-              >
-                Rate {sheetState.technicianName}
-              </Text>
+              Rate {sheetState.technicianName}
+            </Text>
 
-              <View className="mt-stack-xl items-center">
-                <StarRatingInput value={rating} onChange={setRating} />
-              </View>
+            <View className="mt-stack-xl items-center">
+              <StarRatingInput value={rating} onChange={setRating} />
+            </View>
 
-              <View className="mt-stack-lg" style={{ opacity: rating > 0 ? 1 : 0.45 }}>
-                <TextInput
-                  value={comment}
-                  onChangeText={setComment}
-                  editable={rating > 0}
-                  multiline
-                  maxLength={1000}
-                  placeholder={
+            <View className="mt-stack-lg" style={{ opacity: rating > 0 ? 1 : 0.45 }}>
+              <TextInput
+                value={comment}
+                onChangeText={setComment}
+                editable={rating > 0}
+                multiline
+                maxLength={1000}
+                placeholder={
+                  rating > 0
+                    ? "Share details (optional)"
+                    : "Select a rating to add a comment"
+                }
+                placeholderTextColor={themeColors.textMuted}
+                style={{
+                  borderColor: themeColors.borderDefault,
+                  color: themeColors.textPrimary,
+                  backgroundColor:
                     rating > 0
-                      ? "Share details (optional)"
-                      : "Select a rating to add a comment"
-                  }
-                  placeholderTextColor={themeColors.textMuted}
-                  style={{
-                    borderColor: themeColors.borderDefault,
-                    color: themeColors.textPrimary,
-                    backgroundColor:
-                      rating > 0
-                        ? themeColors.surfaceBase
-                        : themeColors.surfaceElevated,
-                    borderWidth: 1,
-                    borderRadius: 12,
-                    padding: 12,
-                    minHeight: 80,
-                    textAlignVertical: "top",
-                  }}
-                />
-                <Text
-                  variant="caption"
-                  className="mt-stack-xs text-right text-content-muted"
-                >
-                  {comment.length}/1000
-                </Text>
-              </View>
+                      ? themeColors.surfaceBase
+                      : themeColors.surfaceElevated,
+                  borderWidth: 1,
+                  borderRadius: radius.input,
+                  padding: spacing.stack.md,
+                  minHeight: 80,
+                  textAlignVertical: "top",
+                }}
+              />
+              <Text
+                variant="caption"
+                className="mt-stack-xs text-right text-content-muted"
+              >
+                {comment.length}/1000
+              </Text>
+            </View>
 
-              {submitError && (
-                <Text
-                  variant="bodySm"
-                  className="mt-stack-sm text-center text-danger"
-                >
-                  {submitError}
-                </Text>
-              )}
+            {submitError && (
+              <Text
+                variant="bodySm"
+                className="mt-stack-sm text-center text-danger"
+              >
+                {submitError}
+              </Text>
+            )}
 
-              <View className="mt-stack-lg gap-stack-sm">
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  disabled={rating < 1 || mutation.isPending}
-                  activeOpacity={0.8}
-                  className="items-center rounded-button px-button-x py-control-compact-cta-y"
-                  style={{
-                    backgroundColor: rating >= 1 && !mutation.isPending
-                      ? themeColors.primary
-                      : themeColors.borderDefault,
-                    opacity: rating < 1 || mutation.isPending ? 0.5 : 1,
-                  }}
-                >
-                  {mutation.isPending ? (
-                    <ActivityIndicator size="small" color={themeColors.surfaceOnPrimary} />
-                  ) : (
-                    <Text variant="buttonMd" className="text-surface-on-primary">
-                      Submit
-                    </Text>
-                  )}
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={handleSkip}
-                  activeOpacity={0.7}
-                  className="items-center py-control-compact-cta-y"
-                >
-                  <Text variant="buttonMd" className="text-content-muted">
-                    Skip
+            <View className="mt-stack-lg gap-stack-sm">
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={rating < 1 || mutation.isPending}
+                activeOpacity={0.8}
+                className="items-center rounded-button px-button-x py-control-compact-cta-y"
+                style={{
+                  backgroundColor: rating >= 1 && !mutation.isPending
+                    ? themeColors.primary
+                    : themeColors.borderDefault,
+                  opacity: rating < 1 || mutation.isPending ? 0.5 : 1,
+                }}
+              >
+                {mutation.isPending ? (
+                  <ActivityIndicator size="small" color={themeColors.surfaceOnPrimary} />
+                ) : (
+                  <Text variant="buttonMd" className="text-surface-on-primary">
+                    Submit
                   </Text>
-                </TouchableOpacity>
-              </View>
-            </BottomSheetScrollView>
-          </KeyboardAvoidingView>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleSkip}
+                activeOpacity={0.7}
+                className="items-center py-control-compact-cta-y"
+              >
+                <Text variant="buttonMd" className="text-content-muted">
+                  Skip
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAwareScrollView>
         </BottomSheetView>
       </BottomSheet>
     );

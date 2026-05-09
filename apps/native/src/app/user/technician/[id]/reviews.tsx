@@ -7,13 +7,13 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ReviewRow, ReviewStatsHeader } from "@/src/components/reviews";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
-import ReviewListRow from "@/src/features/reviews/components/ReviewListRow";
-import ReviewStatsHeader from "@/src/features/reviews/components/ReviewStatsHeader";
 import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { getReviewDistribution } from "@/src/lib/utils/review-distribution";
 
 export default function TechnicianReviewsScreen() {
   const themeColors = useThemeColors();
@@ -34,16 +34,7 @@ export default function TechnicianReviewsScreen() {
     () => data?.pages.flatMap((p) => p.reviews) ?? [],
     [data],
   );
-
-  const distribution = useMemo(() => {
-    const dist: Record<1 | 2 | 3 | 4 | 5, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    for (const r of reviews) {
-      if (r.rating && r.rating >= 1 && r.rating <= 5) {
-        dist[r.rating as 1 | 2 | 3 | 4 | 5]++;
-      }
-    }
-    return dist;
-  }, [reviews]);
+  const distribution = useMemo(() => getReviewDistribution(reviews), [reviews]);
 
   return (
     <SafeAreaView
@@ -55,7 +46,7 @@ export default function TechnicianReviewsScreen() {
         {/* Header */}
         <View
           style={{ backgroundColor: Colors.primary }}
-          className="flex-row items-center px-card pb-card pt-stack-sm gap-stack-md"
+          className="flex-row items-center gap-stack-md px-card pb-card pt-stack-sm"
         >
           <BackButton variant="header-inverse" onPress={() => router.back()} />
           <View className="flex-1">
@@ -78,8 +69,11 @@ export default function TechnicianReviewsScreen() {
           <FlatList
             data={reviews}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <ReviewListRow review={item} />}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+            renderItem={({ item }) => <ReviewRow review={item} variant="row" />}
+            contentContainerStyle={{
+              paddingHorizontal: spacing.stack.lg,
+              paddingBottom: spacing.stack["2xl"],
+            }}
             ListHeaderComponent={
               <ReviewStatsHeader
                 avgRating={profile?.avg_rating ?? null}
@@ -101,7 +95,11 @@ export default function TechnicianReviewsScreen() {
             }
             ListFooterComponent={
               isFetchingNextPage ? (
-                <ActivityIndicator size="small" color={Colors.primary} style={{ marginVertical: 16 }} />
+                <ActivityIndicator
+                  size="small"
+                  color={Colors.primary}
+                  style={{ marginVertical: spacing.stack.lg }}
+                />
               ) : null
             }
             onEndReached={() => {

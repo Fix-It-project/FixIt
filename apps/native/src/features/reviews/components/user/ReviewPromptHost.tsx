@@ -1,6 +1,6 @@
 import { createRef, useEffect, useRef, useState } from "react";
-import { useReviewPromptTrigger } from "@/src/features/reviews/hooks/useReviewPromptTrigger";
 import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
+import { useReviewPromptTrigger } from "@/src/hooks/useReviewPromptTrigger";
 import ReviewSubmissionSheet, {
   type ReviewSubmissionSheetRef,
 } from "./ReviewSubmissionSheet";

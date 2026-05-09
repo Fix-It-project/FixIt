@@ -9,6 +9,11 @@ export interface PendingReviewOrder {
   technicianName: string;
 }
 
+/**
+ * Cross-feature orchestrator: surfaces the next completed order that needs
+ * a review by joining booking-orders state with the local skipped/submitted
+ * persistence store. Lives in `src/hooks/` because it bridges two features.
+ */
 export function useReviewPromptTrigger(): { pendingOrder: PendingReviewOrder | null } {
   const { data: orders = [] } = useUserOrdersQuery();
   const skippedOrderIds = useReviewPromptStore((s) => s.skippedOrderIds);

@@ -19,10 +19,10 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import { ReviewRow } from "@/src/components/reviews";
 import { Text } from "@/src/components/ui/text";
-import ReviewPreviewRow from "@/src/features/reviews/components/ReviewPreviewRow";
-import { useTechnicianReviewsQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsQuery";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
+import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import InfoRow from "./InfoRow";
 import StatCard from "./StatCard";
@@ -208,7 +208,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 									}
 									text={
 									profile.avg_rating !== null && profile.review_count > 0
-										? `${profile.avg_rating.toFixed(1)} · ${profile.review_count} ${profile.review_count === 1 ? "review" : "reviews"}`
+										? `${profile.avg_rating.toFixed(2)} · ${profile.review_count} ${profile.review_count === 1 ? "review" : "reviews"}`
 										: "No reviews yet"
 								}
 								/>
@@ -220,7 +220,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 										<ActivityIndicator size="small" color={themeColors.primary} />
 									) : (
 										reviewsData?.reviews.slice(0, 3).map((r) => (
-											<ReviewPreviewRow key={r.id} review={r} />
+											<ReviewRow key={r.id} review={r} variant="preview" />
 										))
 									)}
 									<TouchableOpacity

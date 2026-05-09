@@ -2,9 +2,8 @@ import { supabaseAdmin } from '../../shared/db/supabase.js';
 import { distanceKm } from '../../shared/utils/technicians/index.js';
 
 export interface ReviewAggregate {
-  avg_rating: number | null;  // null when review_count === 0
-  review_count: number;       // integer
-  sum_ratings: number;        // integer; needed for Bayesian sort in plan 02
+  avg_rating: number | null;
+  review_count: number;
 }
 
 export interface CreateTechnicianData {
@@ -98,9 +97,8 @@ export interface TechnicianWithAddressRow {
     longitude: number | null;
     is_active: boolean;
   }>;
-  avg_rating?: number | null;   // hydrated by getReviewAggregatesByTechnicianIds
+  avg_rating?: number | null;   // hydrated by getReviewAggregatesByTechnicianIds (or RPC)
   review_count?: number;
-  sum_ratings?: number;         // hydrated by getReviewAggregatesByTechnicianIds; needed for Bayesian sort
 }
 
 export interface TechnicianListDTO {
@@ -114,9 +112,8 @@ export interface TechnicianListDTO {
   city: string | null;
   street: string | null;
   distance_km: number | null;
-  avg_rating: number | null;   // null when review_count === 0
-  review_count: number;        // default 0
-  sum_ratings: number;         // needed for Bayesian sort; not exposed in API response
+  avg_rating: number | null;
+  review_count: number;
 }
 
 export function toDTO(row: TechnicianWithAddressRow, userLat?: number, userLng?: number): TechnicianListDTO {
@@ -140,26 +137,16 @@ export function toDTO(row: TechnicianWithAddressRow, userLat?: number, userLng?:
     distance_km,
     avg_rating: row.avg_rating ?? null,
     review_count: row.review_count ?? 0,
-    sum_ratings: row.sum_ratings ?? 0,
   };
 }
 
-// ── Bayesian ranking helpers ──────────────────────────────────────────────────
-/** Confidence constant: a technician needs at least C reviews to move the needle. */
-export const BAYESIAN_C = 5;
-
-/**
- * Compute a Bayesian-weighted rating to avoid the "5-stars with 1 review beats
- * 4.7-stars with 200 reviews" anti-pattern.
- *
- * Formula: (C * m + sum_ratings) / (C + review_count)
- *   - C = BAYESIAN_C (prior weight)
- *   - m = global mean rating
- *   - Technicians with 0 reviews collapse to m (the global mean) and rank below
- *     anyone with positive signal when m < any real reviewer's average.
- */
-export function bayesianScore(agg: { sum_ratings: number; review_count: number }, m: number): number {
-  return (BAYESIAN_C * m + agg.sum_ratings) / (BAYESIAN_C + agg.review_count);
+export interface TopRatedFilters {
+  categoryId: string;
+  searchQuery?: string;
+  isAvailable?: boolean;
+  minReviewCount?: number;
+  limit?: number;
+  offset?: number;
 }
 
 /** Minimal read interface required by TechniciansService (ISP). */
@@ -168,8 +155,8 @@ export interface ITechnicianQueryRepository {
   searchTechniciansByCategory(categoryId: string, query: string): Promise<TechnicianWithAddressRow[]>;
   getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null>;
   getReviewAggregatesByTechnicianIds(technicianIds: string[]): Promise<Map<string, ReviewAggregate>>;
-  /** Returns the global mean rating across all reviews. Returns 0 when no reviews exist; service treats this as "neutral prior". */
-  getGlobalReviewMean(): Promise<number>;
+  /** Bayesian-ranked list via DB RPC (single source of truth for top-rated math). Order is final. */
+  listTopRatedTechnicians(filters: TopRatedFilters): Promise<TechnicianWithAddressRow[]>;
 }
 
 /** Full CRUD interface — used by modules that manage technician records. */
@@ -185,56 +172,109 @@ export interface ITechniciansRepository extends ITechnicianQueryRepository {
   updateProfileImage(id: string, url: string): Promise<any>;
 }
 
+/** Address-with-flag shape hydrated alongside RPC results. */
+type AddressRow = {
+  city: string;
+  street: string;
+  latitude: number | null;
+  longitude: number | null;
+  is_active: boolean;
+};
+
+/** Row shape returned by list_top_rated_technicians RPC. */
+interface TopRatedRpcRow {
+  technician_id: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+  profile_image: string | null;
+  category_id: string;
+  description: string | null;
+  base_hourly_rate: number | string | null;
+  years_experience: number | string | null;
+  is_available: boolean;
+  review_count: number | string;
+  rating_sum: number | string;
+  rating: number | string;
+  bayesian_rating: number | string | null;
+}
+
 export class TechniciansRepository implements ITechniciansRepository {
-  // In-memory aggregation chosen over RPC/view to avoid migration; revisit if reviews table > 100k rows.
   async getReviewAggregatesByTechnicianIds(technicianIds: string[]): Promise<Map<string, ReviewAggregate>> {
     if (technicianIds.length === 0) return new Map();
 
     const { data, error } = await supabaseAdmin
-      .from('reviews')
-      .select('technician_id, rating')
-      .in('technician_id', technicianIds)
-      .not('rating', 'is', null);
+      .from('technician_rating_stats')
+      .select('technician_id, review_count, rating')
+      .in('technician_id', technicianIds);
 
     if (error) throw new Error(error.message);
 
-    const accumulator = new Map<string, { sum: number; count: number }>();
-    for (const row of data ?? []) {
-      const entry = accumulator.get(row.technician_id) ?? { sum: 0, count: 0 };
-      entry.sum += row.rating as number;
-      entry.count += 1;
-      accumulator.set(row.technician_id, entry);
+    const byId = new Map<string, { review_count: number; rating: number }>();
+    for (const row of (data ?? []) as Array<{ technician_id: string; review_count: number | string; rating: number | string }>) {
+      byId.set(row.technician_id, {
+        review_count: Number(row.review_count),
+        rating: Number(row.rating),
+      });
     }
 
     const result = new Map<string, ReviewAggregate>();
     for (const id of technicianIds) {
-      const entry = accumulator.get(id);
-      if (entry && entry.count > 0) {
-        result.set(id, {
-          avg_rating: Math.round((entry.sum / entry.count) * 100) / 100,
-          review_count: entry.count,
-          sum_ratings: entry.sum,
-        });
+      const stats = byId.get(id);
+      if (stats) {
+        result.set(id, { avg_rating: stats.rating, review_count: stats.review_count });
       } else {
-        result.set(id, { avg_rating: null, review_count: 0, sum_ratings: 0 });
+        result.set(id, { avg_rating: 5, review_count: 0 });
       }
     }
 
     return result;
   }
 
-  // Returns 0 when no reviews exist; service treats this as "neutral prior".
-  async getGlobalReviewMean(): Promise<number> {
-    const { data, error } = await supabaseAdmin
-      .from('reviews')
-      .select('rating')
-      .not('rating', 'is', null);
+  async listTopRatedTechnicians(filters: TopRatedFilters): Promise<TechnicianWithAddressRow[]> {
+    const { data, error } = await supabaseAdmin.rpc('list_top_rated_technicians', {
+      p_category_id:      filters.categoryId,
+      p_search_query:     filters.searchQuery     ?? null,
+      p_is_available:     filters.isAvailable     ?? null,
+      p_prior_weight:     10,
+      p_min_review_count: filters.minReviewCount  ?? 0,
+      p_limit:            filters.limit           ?? 20,
+      p_offset:           filters.offset          ?? 0,
+    });
 
     if (error) throw new Error(error.message);
-    const rows = (data ?? []) as Array<{ rating: number }>;
-    if (rows.length === 0) return 0;
-    const sum = rows.reduce((acc, r) => acc + r.rating, 0);
-    return sum / rows.length;
+    const rpcRows = (data ?? []) as TopRatedRpcRow[];
+    if (rpcRows.length === 0) return [];
+
+    const ids = rpcRows.map((r) => r.technician_id);
+
+    const { data: hydrationData, error: hydrationError } = await supabaseAdmin
+      .from('technicians')
+      .select('id, email, phone, addresses(city, street, latitude, longitude, is_active)')
+      .in('id', ids);
+
+    if (hydrationError) throw new Error(hydrationError.message);
+
+    const byId = new Map<string, { email: string; phone: string | null; addresses: AddressRow[] }>();
+    for (const row of (hydrationData ?? []) as Array<{ id: string; email: string; phone: string | null; addresses: AddressRow[] | null }>) {
+      byId.set(row.id, { email: row.email, phone: row.phone, addresses: row.addresses ?? [] });
+    }
+
+    return rpcRows.map((r) => {
+      const hydration = byId.get(r.technician_id) ?? { email: '', phone: null, addresses: [] };
+      return {
+        id: r.technician_id,
+        first_name: r.first_name,
+        last_name: r.last_name,
+        email: hydration.email,
+        phone: hydration.phone,
+        is_available: r.is_available,
+        category_id: r.category_id,
+        addresses: hydration.addresses,
+        avg_rating: Number(r.rating),
+        review_count: Number(r.review_count),
+      };
+    });
   }
 
   async getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null> {
@@ -248,7 +288,7 @@ export class TechniciansRepository implements ITechniciansRepository {
     if (!data) return null;
 
     const aggregates = await this.getReviewAggregatesByTechnicianIds([id]);
-    const agg = aggregates.get(id) ?? { avg_rating: null, review_count: 0, sum_ratings: 0 };
+    const agg = aggregates.get(id) ?? { avg_rating: 5, review_count: 0 };
 
     return { ...(data as TechnicianProfileRow), avg_rating: agg.avg_rating, review_count: agg.review_count };
   }
@@ -265,8 +305,8 @@ export class TechniciansRepository implements ITechniciansRepository {
 
     const aggregates = await this.getReviewAggregatesByTechnicianIds(rows.map((r) => r.id));
     return rows.map((r) => {
-      const agg = aggregates.get(r.id) ?? { avg_rating: null, review_count: 0, sum_ratings: 0 };
-      return { ...r, avg_rating: agg.avg_rating, review_count: agg.review_count, sum_ratings: agg.sum_ratings };
+      const agg = aggregates.get(r.id) ?? { avg_rating: 5, review_count: 0 };
+      return { ...r, avg_rating: agg.avg_rating, review_count: agg.review_count };
     });
   }
 
@@ -284,8 +324,8 @@ export class TechniciansRepository implements ITechniciansRepository {
 
     const aggregates = await this.getReviewAggregatesByTechnicianIds(rows.map((r) => r.id));
     return rows.map((r) => {
-      const agg = aggregates.get(r.id) ?? { avg_rating: null, review_count: 0, sum_ratings: 0 };
-      return { ...r, avg_rating: agg.avg_rating, review_count: agg.review_count, sum_ratings: agg.sum_ratings };
+      const agg = aggregates.get(r.id) ?? { avg_rating: 5, review_count: 0 };
+      return { ...r, avg_rating: agg.avg_rating, review_count: agg.review_count };
     });
   }
 
@@ -387,7 +427,7 @@ export class TechniciansRepository implements ITechniciansRepository {
       supabaseAdmin.from('orders').select('*', { count: 'exact', head: true }).eq('technician_id', id).eq('status', 'completed'),
     ]);
     const aggregates = await this.getReviewAggregatesByTechnicianIds([id]);
-    const reviewAggregate = aggregates.get(id) ?? { avg_rating: null, review_count: 0, sum_ratings: 0 };
+    const reviewAggregate = aggregates.get(id) ?? { avg_rating: 5, review_count: 0 };
 
     const categoriesRaw = data.categories as unknown as { name: string }[] | { name: string } | null;
     const categories = Array.isArray(categoriesRaw) ? categoriesRaw[0] ?? null : categoriesRaw;

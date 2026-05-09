@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
+import type { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
@@ -7,8 +8,6 @@ import {
 	formatDate,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
-import LeaveReviewButton from "@/src/features/reviews/components/user/LeaveReviewButton";
-import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
@@ -45,9 +44,10 @@ const STATUS_CONFIG: Record<
 interface Props {
 	readonly order: Order;
 	readonly onPress: () => void;
+	readonly actionSlot?: ReactNode;
 }
 
-export default function UserOrderCard({ order, onPress }: Props) {
+export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const themeColors = useThemeColors();
 	const category = order.category_id
 		? CATEGORIES.find((c) => c.id === order.category_id)
@@ -57,11 +57,6 @@ export default function UserOrderCard({ order, onPress }: Props) {
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const status = STATUS_CONFIG[order.status];
-	const hasSubmitted = useReviewPromptStore((s) => s.hasSubmitted);
-	const showLeaveReview =
-		order.status === "completed" &&
-		!order.has_review &&
-		!hasSubmitted(order.id);
 
 	return (
 		<TouchableOpacity
@@ -131,13 +126,7 @@ export default function UserOrderCard({ order, onPress }: Props) {
 					{formatDate(order.scheduled_date)}
 				</Text>
 				<View className="flex-row items-center gap-stack-md">
-					{showLeaveReview && (
-						<LeaveReviewButton
-							orderId={order.id}
-							technicianId={order.technician_id}
-							technicianName={order.technician_name ?? "Technician"}
-						/>
-					)}
+					{actionSlot}
 					<Text
 						variant="caption"
 						className="font-semibold"

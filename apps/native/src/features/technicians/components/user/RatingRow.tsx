@@ -28,7 +28,7 @@ export default function RatingRow({ rating, reviewCount }: RatingRowProps) {
 				strokeWidth={0}
 			/>
 			<Text variant="caption" className="font-semibold text-content">
-				{rating.toFixed(1)}
+				{rating.toFixed(2)}
 			</Text>
 			<Text variant="caption" className="text-content-muted">
 				·

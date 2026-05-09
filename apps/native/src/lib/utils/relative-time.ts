@@ -1,7 +1,12 @@
-export function formatRelativeTime(iso: string): string {
+/**
+ * Format an ISO timestamp as a human-readable relative duration ("Xm ago", "Xy ago").
+ *
+ * `now` is injectable so this stays unit-testable without a mocked global Date.
+ */
+export function formatRelativeTime(iso: string, now: Date = new Date()): string {
   const then = Date.parse(iso);
   if (Number.isNaN(then)) return "";
-  const seconds = Math.floor((Date.now() - then) / 1000);
+  const seconds = Math.floor((now.getTime() - then) / 1000);
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;

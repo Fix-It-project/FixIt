@@ -1,10 +1,10 @@
-import type { ITechnicianQueryRepository, ITechniciansRepository, TechnicianListDTO, TechnicianProfile, TechnicianSelfProfile, UpdateTechnicianSelfData } from './technicians.repository.js';
 import { toDTO } from './technicians.repository.js';
 import type { ICategoriesRepository } from '../categories/categories.repository.js';
 import { sortByDistance } from '../../shared/utils/technicians/index.js';
 import type { IStorageRepository } from '../../shared/storage/storage.repository.js';
 import { supabaseAdmin } from '../../shared/db/supabase.js';
 import type { TechnicianSort } from '../../shared/dtos/index.js';
+import type { ITechnicianQueryRepository, ITechniciansRepository, TechnicianListDTO, TechnicianProfile, TechnicianSelfProfile, UpdateTechnicianSelfData } from './technicians.repository.js';
 
 export interface TechnicianListOpts {
   lat?: number;
@@ -33,9 +33,13 @@ export class TechniciansService implements ITechniciansService {
     const category = await this.categoriesRepo.getCategoryById(categoryId);
     if (!category) throw Object.assign(new Error('Category not found'), { status: 404 });
 
+    if (sort === 'top_rated') {
+      const rows = await this.repo.listTopRatedTechnicians({ categoryId });
+      return rows.map((r) => toDTO(r, lat, lng));
+    }
+
     const rows = await this.repo.getTechniciansByCategory(categoryId);
     const dtos = rows.map((r) => toDTO(r, lat, lng));
-
     return this.applySort(dtos, sort, lat, lng);
   }
 
@@ -44,33 +48,25 @@ export class TechniciansService implements ITechniciansService {
     const category = await this.categoriesRepo.getCategoryById(categoryId);
     if (!category) throw Object.assign(new Error('Category not found'), { status: 404 });
 
+    if (sort === 'top_rated') {
+      const rows = await this.repo.listTopRatedTechnicians({ categoryId, searchQuery: query });
+      return rows.map((r) => toDTO(r, lat, lng));
+    }
+
     const rows = await this.repo.searchTechniciansByCategory(categoryId, query);
     const dtos = rows.map((r) => toDTO(r, lat, lng));
-
     return this.applySort(dtos, sort, lat, lng);
   }
 
-  private async applySort(
+  private applySort(
     dtos: TechnicianListDTO[],
     sort: TechnicianSort | undefined,
     lat: number | undefined,
     lng: number | undefined,
-  ): Promise<TechnicianListDTO[]> {
-    if (sort === 'top_rated') {
-      return [...dtos].sort((a, b) => {
-        const ratingA = a.avg_rating ?? -1;
-        const ratingB = b.avg_rating ?? -1;
-        if (ratingB !== ratingA) return ratingB - ratingA;
-        if (b.review_count !== a.review_count) return b.review_count - a.review_count;
-        return a.first_name.localeCompare(b.first_name);
-      });
-    }
-
+  ): TechnicianListDTO[] {
     if (sort === 'most_reviews') {
       return [...dtos].sort((a, b) => {
-        if (b.review_count !== a.review_count) {
-          return b.review_count - a.review_count;
-        }
+        if (b.review_count !== a.review_count) return b.review_count - a.review_count;
         const ratingA = a.avg_rating ?? -1;
         const ratingB = b.avg_rating ?? -1;
         if (ratingB !== ratingA) return ratingB - ratingA;

@@ -106,7 +106,7 @@ export default function DashboardHeader() {
 	const isOnline = false;
 	const specialty = profile?.category_name ?? "Technician";
 	const ratingText =
-		profile?.avg_rating != null ? profile.avg_rating.toFixed(1) : "—";
+		profile?.avg_rating != null ? profile.avg_rating.toFixed(2) : "—";
 	const reviewCount = profile?.review_count ?? 0;
 
 	return (
