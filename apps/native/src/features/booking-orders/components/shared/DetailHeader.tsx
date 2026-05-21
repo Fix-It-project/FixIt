@@ -2,7 +2,7 @@ import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { View } from "react-native";
 import PageHeader from "@/src/components/PageHeader";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { Colors } from "@/src/lib/theme";
+import { Colors, spacing } from "@/src/lib/theme";
 
 interface Props {
 	readonly categoryId: string | null | undefined;
@@ -26,7 +26,7 @@ export default function DetailHeader({ categoryId, onBack, title }: Props) {
 					className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-button"
 					style={{ backgroundColor: `${categoryColor}18` }}
 				>
-					<CategoryIcon size={18} color={categoryColor} strokeWidth={1.8} />
+					<CategoryIcon size={spacing.icon.sm} color={categoryColor} strokeWidth={1.8} />
 				</View>
 			}
 		/>

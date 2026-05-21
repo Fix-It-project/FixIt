@@ -63,7 +63,7 @@ function OrderCard({
 					}}
 				>
 					<RotateCcw
-						size={14}
+						size={spacing.icon.caption}
 						color={themeColors.textContrast}
 						strokeWidth={2.5}
 						style={{ marginTop: spacing.offset.hairlineNudge }}

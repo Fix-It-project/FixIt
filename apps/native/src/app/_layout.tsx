@@ -1,6 +1,7 @@
 import "../../global.css";
 
 import { useFonts } from "@expo-google-fonts/google-sans";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import * as Sentry from "@sentry/react-native";
@@ -75,15 +76,17 @@ function RootLayout() {
 						<View className="flex-1 bg-surface" style={themeVariables}>
 							<AppSafeAreaFrame>
 								<KeyboardProvider>
-									<Stack screenOptions={{ headerShown: false }}>
-										<Stack.Screen name="index" />
-										<Stack.Screen name="(auth)" />
-										<Stack.Screen name="user" />
-										<Stack.Screen name="technician" />
-									</Stack>
+									<BottomSheetModalProvider>
+										<Stack screenOptions={{ headerShown: false }}>
+											<Stack.Screen name="index" />
+											<Stack.Screen name="(auth)" />
+											<Stack.Screen name="user" />
+											<Stack.Screen name="technician" />
+										</Stack>
 
-									<PortalHost />
-									<CustomToast />
+										<PortalHost />
+										<CustomToast />
+									</BottomSheetModalProvider>
 								</KeyboardProvider>
 							</AppSafeAreaFrame>
 						</View>

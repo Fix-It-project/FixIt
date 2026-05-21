@@ -9,11 +9,16 @@ import {
 	formatDate,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
+import {
+	getOrderStatusBadge,
+	type OrderStatusPerspective,
+} from "@/src/lib/order-status";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { spacing } from "@/src/lib/design-tokens";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { Colors, useThemeColors } from "@/src/lib/theme";
+import type { OrderStatus } from "@/src/schemas/shared.schema";
 
 export interface PastOrdersListItem {
 	readonly avatarImage?: string | null;
@@ -25,21 +30,23 @@ export interface PastOrdersListItem {
 	readonly route: Href;
 	readonly scheduledDate: string;
 	readonly serviceName: string | null | undefined;
-	readonly status: string;
-	readonly statusLabel: string;
+	readonly status: OrderStatus;
 }
 
 interface Props {
 	readonly items: readonly PastOrdersListItem[];
 	readonly onBack?: () => void;
+	readonly statusPerspective?: OrderStatusPerspective;
 	readonly title?: string;
 }
 
-function statusColor(status: string): string {
-	return status === "completed" ? Colors.success : Colors.danger;
-}
-
-function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
+function PastOrderCard({
+	item,
+	statusPerspective,
+}: {
+	readonly item: PastOrdersListItem;
+	readonly statusPerspective: OrderStatusPerspective;
+}) {
 	const themeColors = useThemeColors();
 	const goToOrder = useDebounce(() => router.push(item.route as never));
 	const category = item.categoryId
@@ -47,7 +54,11 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
 	const categoryColor = category?.color ?? Colors.primary;
-	const color = statusColor(item.status);
+	const status = getOrderStatusBadge(
+		item.status,
+		themeColors,
+		statusPerspective,
+	);
 
 	return (
 		<TouchableOpacity
@@ -88,7 +99,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 						{item.name ?? item.fallbackName}
 					</Text>
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-						<CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="caption"
 							style={{ color: themeColors.textSecondary }}
@@ -105,10 +116,14 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 					</Text>
 					<View
 						className="mt-stack-xs rounded-pill px-stack-md py-stack-xs"
-						style={{ backgroundColor: `${color}15` }}
+						style={{ backgroundColor: `${status.color}15` }}
 					>
-						<Text variant="caption" className="font-semibold" style={{ color }}>
-							{item.statusLabel}
+						<Text
+							variant="caption"
+							className="font-semibold"
+							style={{ color: status.color }}
+						>
+							{status.label}
 						</Text>
 					</View>
 				</View>
@@ -120,6 +135,7 @@ function PastOrderCard({ item }: { readonly item: PastOrdersListItem }) {
 export default function PastOrdersList({
 	items,
 	onBack,
+	statusPerspective = "neutral",
 	title = "Past Orders",
 }: Props) {
 	const themeColors = useThemeColors();
@@ -144,7 +160,13 @@ export default function PastOrdersList({
 							</Text>
 						</View>
 					) : (
-						items.map((item) => <PastOrderCard key={item.id} item={item} />)
+						items.map((item) => (
+							<PastOrderCard
+								key={item.id}
+								item={item}
+								statusPerspective={statusPerspective}
+							/>
+						))
 					)}
 				</ScrollView>
 			</ScreenSafeAreaView>

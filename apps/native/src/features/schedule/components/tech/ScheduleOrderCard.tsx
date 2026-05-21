@@ -1,16 +1,8 @@
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { getOrderStatusBadge } from "@/src/lib/order-status";
 import type { ScheduledEvent } from "@/src/features/schedule/schemas/response.schema";
 import { useThemeColors } from "@/src/lib/theme";
-
-export const STATUS_LABEL: Record<ScheduledEvent["status"], string> = {
-	pending: "Pending",
-	accepted: "Accepted",
-	rejected: "Rejected",
-	cancelled_by_user: "Cancelled by user",
-	cancelled_by_technician: "Cancelled by you",
-	completed: "Completed",
-};
 
 interface ScheduleOrderCardProps {
 	readonly order: ScheduledEvent;
@@ -18,18 +10,11 @@ interface ScheduleOrderCardProps {
 
 export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 	const themeColors = useThemeColors();
-
-	const STATUS_COLOR: Record<ScheduledEvent["status"], string> = {
-		pending: themeColors.warning,
-		accepted: themeColors.successAlt,
-		rejected: themeColors.danger,
-		cancelled_by_user: themeColors.textMuted,
-		cancelled_by_technician: themeColors.textMuted,
-		completed: themeColors.primary,
-	};
-
-	const color = STATUS_COLOR[order.status];
-	const label = STATUS_LABEL[order.status];
+	const { color, label } = getOrderStatusBadge(
+		order.status,
+		themeColors,
+		"technician",
+	);
 
 	return (
 		<View className="mb-stack-md rounded-button border border-edge bg-surface p-card-compact">
@@ -37,7 +22,7 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 			<View className="mb-stack-sm flex-row items-center justify-start">
 				<View
 					className="rounded-compact px-stack-sm py-stack-xs"
-					style={{ backgroundColor: color + "1A" }}
+					style={{ backgroundColor: `${color}1A` }}
 				>
 					<Text variant="caption" className="font-bold" style={{ color }}>
 						{label}

@@ -1,24 +1,48 @@
-import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { CheckCircle2, XCircle } from "lucide-react-native";
+import type { ReactNode } from "react";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Text } from "@/src/components/ui/text";
-import BookingAttachmentCard from "@/src/features/booking-orders/components/shared/BookingAttachmentCard";
-import BookingDescriptionCard from "@/src/features/booking-orders/components/shared/BookingDescriptionCard";
-import BookingActionButtons from "@/src/features/booking-orders/components/tech/BookingActionButtons";
-import BookingCancelModal from "@/src/features/booking-orders/components/tech/BookingCancelModal";
-import BookingClientCard from "@/src/features/booking-orders/components/tech/BookingClientCard";
-import BookingDetailHeader from "@/src/features/booking-orders/components/tech/BookingDetailHeader";
-import BookingInfoSection from "@/src/features/booking-orders/components/tech/BookingInfoSection";
+import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import {
-	useCancelTechnicianBookingMutation,
-	useCompleteTechnicianBookingMutation,
-} from "@/src/features/booking-orders/hooks/useTechnicianBookingMutations";
+	OrderInfoCompact,
+	StageHero,
+	StateScreenLayout,
+} from "@/src/features/booking-orders/components/state-machine/shared";
+import {
+	AcceptedActionsView,
+	AcceptedCta,
+	ArrivedInspectingActionsView,
+	ArrivedInspectingCta,
+	CashReceivedActionsView,
+	QuoteActionsView,
+	QuoteCta,
+	TrackingActionsView,
+	TrackingCta,
+	WorkCompleteActionsView,
+	WorkCompleteCta,
+} from "@/src/features/booking-orders/components/state-machine/tech/states";
 import { useTechnicianBookingById } from "@/src/features/booking-orders/hooks/useTechnicianBookingsQuery";
+import {
+	IN_PROGRESS_STATUSES,
+	type OrderStatus as LifecycleOrderStatus,
+} from "@/src/features/booking-orders/schemas/order-status.schema";
+import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
+import { PressableScale } from "@/src/components/ui/PressableScale";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, space, useThemeColors } from "@/src/lib/theme";
+
+function isWizardStatus(status: LifecycleOrderStatus): boolean {
+	return (
+		status === "accepted" ||
+		status === "reschedule_requested_by_user" ||
+		status === "reschedule_requested_by_technician" ||
+		IN_PROGRESS_STATUSES.has(status)
+	);
+}
 
 export default function BookingDetailScreen() {
 	const themeColors = useThemeColors();
@@ -26,137 +50,155 @@ export default function BookingDetailScreen() {
 	const booking = useTechnicianBookingById(bookingId);
 	const goBack = useSafeBack(ROUTES.technician.bookings);
 
-	const [cancelModalVisible, setCancelModalVisible] = useState(false);
-	const [cancelReason, setCancelReason] = useState("");
-	const cancelMutation = useCancelTechnicianBookingMutation();
-	const completeMutation = useCompleteTechnicianBookingMutation();
-
 	useFocusBackHandler(() => {
-		if (cancelModalVisible) {
-			setCancelModalVisible(false);
-			return true;
-		}
-
 		goBack();
 		return true;
 	});
 
 	if (!booking) {
 		return (
-			<View className="flex-1 items-center justify-center bg-surface-elevated">
+			<View className="flex-1 items-center justify-center bg-surface">
 				<ActivityIndicator color={themeColors.primary} />
 			</View>
 		);
 	}
 
-	const handleComplete = () => {
-		Alert.alert(
-			"Complete Booking",
-			`Mark the booking with ${booking.user_name ?? "this client"} as completed?`,
-			[
-				{ text: "Not yet", style: "cancel" },
-				{
-					text: "Complete",
-					onPress: () =>
-						completeMutation.mutate(booking.id, { onSuccess: () => goBack() }),
-				},
-			],
+	const lifecycleStatus = booking.status as unknown as LifecycleOrderStatus;
+	if (isWizardStatus(lifecycleStatus)) {
+		const bookingAsOrder = booking as unknown as Order;
+		let body: ReactNode = null;
+		let cta: ReactNode = null;
+		switch (lifecycleStatus) {
+			case "accepted":
+				body = <AcceptedActionsView order={bookingAsOrder} />;
+				cta = <AcceptedCta order={bookingAsOrder} />;
+				break;
+			case "reschedule_requested_by_user":
+			case "reschedule_requested_by_technician":
+				body = <AcceptedActionsView order={bookingAsOrder} />;
+				cta = <AcceptedCta order={bookingAsOrder} />;
+				break;
+			case "tracking":
+				body = <TrackingActionsView order={bookingAsOrder} />;
+				cta = <TrackingCta order={bookingAsOrder} />;
+				break;
+			case "arrived_inspection":
+				body = <ArrivedInspectingActionsView order={bookingAsOrder} />;
+				cta = <ArrivedInspectingCta order={bookingAsOrder} />;
+				break;
+			case "awaiting_final_cost":
+			case "negotiating":
+				body = <QuoteActionsView order={bookingAsOrder} />;
+				cta = <QuoteCta order={bookingAsOrder} />;
+				break;
+			case "in_progress":
+				body = <WorkCompleteActionsView order={bookingAsOrder} />;
+				cta = <WorkCompleteCta order={bookingAsOrder} />;
+				break;
+			case "awaiting_payment":
+				body = <CashReceivedActionsView order={bookingAsOrder} />;
+				cta = null;
+				break;
+			default:
+				body = null;
+		}
+		return (
+			<StateScreenLayout
+				order={bookingAsOrder}
+				viewer="technician"
+				stickyCta={cta}
+			>
+				{body}
+			</StateScreenLayout>
 		);
-	};
-
-	const handleCancelConfirm = () => {
-		cancelMutation.mutate(
-			{ orderId: booking.id, reason: cancelReason.trim() || undefined },
-			{
-				onSuccess: () => {
-					setCancelModalVisible(false);
-					setCancelReason("");
-					goBack();
-				},
-			},
-		);
-	};
-
-	const handleReschedule = () => {
-		Alert.alert("Coming Soon", "Rescheduling is not available yet.");
-	};
-
-	const isCompleted = booking.status === "completed";
-	const statusBackgroundColor = isCompleted
-		? themeColors.orderBg
-		: themeColors.dangerLight;
-	let statusText = "Cancelled by you";
-	if (isCompleted) {
-		statusText = "Completed";
-	} else if (booking.status === "cancelled_by_user") {
-		statusText = "Cancelled by client";
 	}
-	const statusColor = isCompleted ? themeColors.success : themeColors.danger;
-	const isAcceptedBooking = booking.status === "accepted";
+
+	const bookingAsOrder = booking as unknown as Order;
+	const isCompleted = booking.status === "completed";
+	const isCancelledByUser = booking.status === "cancelled_by_user";
+	const accent = isCompleted ? themeColors.success : themeColors.danger;
+	const title = isCompleted ? "Job complete." : "Booking ended.";
+	const subtitle = isCompleted
+		? "Nice work. Payout follows your standard schedule."
+		: isCancelledByUser
+			? "Customer cancelled this booking."
+			: "You cancelled this booking.";
+	const icon = isCompleted ? CheckCircle2 : XCircle;
+	const eyebrow = isCompleted ? "Done" : "Closed";
+	const handleDone = () => {
+		router.replace(ROUTES.technician.bookings);
+	};
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
-				<BookingDetailHeader booking={booking} onBack={goBack} />
-
+				<DetailHeader
+					categoryId={booking.category_id}
+					onBack={goBack}
+					title="Booking"
+				/>
 				<ScrollView
 					className="flex-1"
+					bounces={false}
 					showsVerticalScrollIndicator={false}
 					contentContainerStyle={{
-						padding: spacing.card.padding,
-						paddingBottom: spacing.screen.paddingBottom + spacing.stack.lg,
+						flexGrow: 1,
+						paddingHorizontal: space[4],
+						paddingTop: space[3],
+						paddingBottom: space[10],
+						gap: space[5],
 					}}
 				>
-					<BookingClientCard booking={booking} />
-					<BookingInfoSection booking={booking} />
-					{booking.problem_description && (
-						<BookingDescriptionCard description={booking.problem_description} />
-					)}
-					{booking.attachment && (
-						<BookingAttachmentCard uri={booking.attachment} />
-					)}
-
-					{/* Status banner for non-active orders */}
-					{isAcceptedBooking ? (
-						<BookingActionButtons
-							onComplete={handleComplete}
-							onReschedule={handleReschedule}
-							onCancel={() => setCancelModalVisible(true)}
-							isCompleting={completeMutation.isPending}
-						/>
-					) : (
+					<StageHero
+						icon={icon}
+						eyebrow={eyebrow}
+						title={title}
+						subtitle={subtitle}
+						accentColor={accent}
+					/>
+					<OrderInfoCompact order={bookingAsOrder} viewer="technician" />
+					{booking.cancellation_reason ? (
 						<View
-							className="mt-stack-sm items-center rounded-card py-card"
-							style={{ backgroundColor: statusBackgroundColor }}
+							style={{
+								padding: space[4],
+								borderRadius: radius.card,
+								backgroundColor: `${themeColors.danger}14`,
+								gap: space[1],
+							}}
 						>
-							<Text variant="buttonMd" style={{ color: statusColor }}>
-								{statusText}
+							<Text
+								variant="caption"
+								className="font-google-sans-bold"
+								style={{ color: themeColors.danger }}
+							>
+								Reason
 							</Text>
-							{booking.cancellation_reason && (
-								<Text
-									variant="caption"
-									className="mt-stack-xs px-card text-center"
-									style={{ color: themeColors.textSecondary }}
-								>
-									{booking.cancellation_reason}
-								</Text>
-							)}
+							<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
+								{booking.cancellation_reason}
+							</Text>
 						</View>
-					)}
+					) : null}
+					<PressableScale
+						onPress={handleDone}
+						accessibilityRole="button"
+						accessibilityLabel="Done"
+						style={{ marginTop: "auto" }}
+					>
+						<View
+							className="w-full items-center rounded-button px-button-x py-control-cta-y"
+							style={{ backgroundColor: themeColors.primary }}
+						>
+							<Text
+								variant="buttonLg"
+								className="font-google-sans-bold"
+								style={{ color: themeColors.onPrimaryHeader }}
+							>
+								Done
+							</Text>
+						</View>
+					</PressableScale>
 				</ScrollView>
 			</ScreenSafeAreaView>
-
-			{isAcceptedBooking && (
-				<BookingCancelModal
-					visible={cancelModalVisible}
-					clientName={booking.user_name}
-					reason={cancelReason}
-					onReasonChange={setCancelReason}
-					onClose={() => setCancelModalVisible(false)}
-					onConfirm={handleCancelConfirm}
-					isLoading={cancelMutation.isPending}
-				/>
-			)}
 		</View>
 	);
 }

@@ -15,6 +15,14 @@ export function useUserOrdersQuery() {
 			const res = await getUserOrders();
 			return res.data;
 		},
+		// Foreground polling keeps the floating ActiveOrderBubble and any list
+		// view fresh without Realtime infrastructure. Polling stops while the
+		// app is backgrounded (foreground-only) to save battery; the AppState
+		// listener in lib/query-client.ts triggers an immediate refetch on
+		// background→active transitions, so the UI reflects current server
+		// state whenever the user reopens the app.
+		refetchInterval: 10_000,
+		refetchIntervalInBackground: false,
 	});
 }
 

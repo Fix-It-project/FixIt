@@ -5,7 +5,7 @@ import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
 import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 interface BookingFlowHeaderProps {
 	readonly categoryId: string | null | undefined;
@@ -65,7 +65,7 @@ export default function BookingFlowHeader({
 						</View>
 						<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill bg-overlay-md">
 							<CategoryIcon
-								size={20}
+								size={spacing.icon.sm}
 								color={themeColors.onPrimaryHeader}
 								strokeWidth={1.75}
 							/>

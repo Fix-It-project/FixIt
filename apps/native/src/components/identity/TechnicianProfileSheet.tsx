@@ -1,6 +1,7 @@
-import BottomSheet, {
+import {
 	BottomSheetBackdrop,
 	type BottomSheetBackdropProps,
+	BottomSheetModal,
 	BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
@@ -9,7 +10,6 @@ import {
 	forwardRef,
 	useCallback,
 	useImperativeHandle,
-	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -24,11 +24,8 @@ import { Text } from "@/src/components/ui/text";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
-import InfoRow from "./InfoRow";
-import StatCard from "./StatCard";
-import TechnicianAvatar from "./TechnicianAvatar";
+import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
 
-// ─── Public handle ──────────────────────────────────────────────────────────
 export interface TechnicianProfileSheetRef {
 	open: (technicianId: string, initials: string) => void;
 	close: () => void;
@@ -39,11 +36,11 @@ interface SheetState {
 	initials: string;
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
 const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 	function TechnicianProfileSheet(_, ref) {
 		const themeColors = useThemeColors();
-		const bottomSheetRef = useRef<BottomSheet>(null);
+		const sheetRef = useRef<BottomSheetModal>(null);
+		const { height } = useWindowDimensions();
 		const [sheetState, setSheetState] = useState<SheetState>({
 			technicianId: null,
 			initials: "",
@@ -59,21 +56,22 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 		const { data: reviewsData, isLoading: reviewsLoading } =
 			useTechnicianReviewsQuery(sheetState.technicianId, 3, 0);
 
-		const { height } = useWindowDimensions();
-		const snapPoints = useMemo(() => [Math.min(height * 0.8, 720)], [height]);
-
 		useImperativeHandle(ref, () => ({
 			open(technicianId: string, initials: string) {
 				setSheetState({ technicianId, initials });
-				bottomSheetRef.current?.snapToIndex(0);
+				sheetRef.current?.present();
 			},
 			close() {
-				bottomSheetRef.current?.close();
+				sheetRef.current?.dismiss();
 			},
 		}));
 
-		const handleClose = useCallback(() => {
-			setSheetState({ technicianId: null, initials: "" });
+		const handleDismiss = useCallback(() => {
+			setSheetState((prev) =>
+				prev.technicianId === null
+					? prev
+					: { technicianId: null, initials: "" },
+			);
 		}, []);
 
 		const renderBackdrop = useCallback(
@@ -91,12 +89,12 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 		);
 
 		return (
-			<BottomSheet
-				ref={bottomSheetRef}
-				index={-1}
-				snapPoints={snapPoints}
+			<BottomSheetModal
+				ref={sheetRef}
+				enableDynamicSizing
+				maxDynamicContentSize={height * 0.9}
 				enablePanDownToClose
-				onClose={handleClose}
+				onDismiss={handleDismiss}
 				backdropComponent={renderBackdrop}
 				backgroundStyle={{
 					backgroundColor: themeColors.surfaceBase,
@@ -109,11 +107,11 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 				}}
 			>
 				<BottomSheetScrollView
-					className="flex-1 px-button-x pb-stack-xl"
+					className="px-button-x pb-stack-xl"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
 					{isLoading && (
-						<View className="flex-1 items-center justify-center">
+						<View className="items-center justify-center py-stack-xl">
 							<ActivityIndicator size="large" color={themeColors.primary} />
 							<Text variant="bodySm" className="mt-stack-md text-content-muted">
 								Loading profile…
@@ -122,7 +120,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 					)}
 
 					{isError && !isLoading && (
-						<View className="flex-1 items-center justify-center">
+						<View className="items-center justify-center py-stack-xl">
 							<Text variant="buttonLg" className="text-center text-danger">
 								Unable to load profile
 							</Text>
@@ -146,7 +144,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 					)}
 
 					{profile && !isLoading && (
-						<View className="flex-1 items-center">
+						<View className="items-center">
 							<View className="mt-stack-xs">
 								<TechnicianAvatar
 									id={sheetState.technicianId ?? ""}
@@ -172,60 +170,77 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 							</Text>
 
 							<View className="mt-card-roomy w-full flex-row gap-stack-md">
-								<StatCard
-									icon={
-										<Briefcase
-											size={18}
-											color={themeColors.primary}
-											strokeWidth={2}
-										/>
-									}
-									label="Completed"
-									value={profile.completedOrders}
-								/>
-								<StatCard
-									icon={
-										<ClipboardList
-											size={18}
-											color={themeColors.primary}
-											strokeWidth={2}
-										/>
-									}
-									label="Bookings"
-									value={profile.totalBookings}
-								/>
+								<View className="flex-1 items-center gap-stack-xs rounded-input bg-surface-elevated px-stack-md py-card">
+									<Briefcase
+										size={18}
+										color={themeColors.primary}
+										strokeWidth={2}
+									/>
+									<Text
+										variant="buttonLg"
+										className="mt-stack-xs font-bold text-content"
+									>
+										{profile.completedOrders}
+									</Text>
+									<Text variant="caption" className="text-content-muted">
+										Completed
+									</Text>
+								</View>
+								<View className="flex-1 items-center gap-stack-xs rounded-input bg-surface-elevated px-stack-md py-card">
+									<ClipboardList
+										size={18}
+										color={themeColors.primary}
+										strokeWidth={2}
+									/>
+									<Text
+										variant="buttonLg"
+										className="mt-stack-xs font-bold text-content"
+									>
+										{profile.totalBookings}
+									</Text>
+									<Text variant="caption" className="text-content-muted">
+										Bookings
+									</Text>
+								</View>
 							</View>
 
-							<View className="mt-stack-lg">
-								<InfoRow
-									icon={
-										<Star
-											size={16}
-											color={themeColors.ratingDefault}
-											fill={themeColors.ratingDefault}
-											strokeWidth={0}
-										/>
-									}
-									text={
-									profile.avg_rating !== null && profile.review_count > 0
-										? `${profile.avg_rating.toFixed(2)} · ${profile.review_count} ${profile.review_count === 1 ? "review" : "reviews"}`
-										: "No reviews yet"
-								}
-								/>
+							<View className="mt-stack-lg w-full">
+								<View className="min-h-avatar-md w-full flex-row items-center gap-stack-sm rounded-input bg-surface-elevated px-card py-stack-md">
+									<Star
+										size={16}
+										color={themeColors.ratingDefault}
+										fill={themeColors.ratingDefault}
+										strokeWidth={0}
+									/>
+									<Text
+										variant="bodySm"
+										className="flex-1 text-content-secondary"
+										style={{ includeFontPadding: false }}
+									>
+										{profile.avg_rating !== null && profile.review_count > 0
+											? `${profile.avg_rating.toFixed(2)} · ${profile.review_count} ${profile.review_count === 1 ? "review" : "reviews"}`
+											: "No reviews yet"}
+									</Text>
+								</View>
 							</View>
 
 							{profile.review_count > 0 && (
 								<View className="mt-stack-lg w-full">
 									{reviewsLoading ? (
-										<ActivityIndicator size="small" color={themeColors.primary} />
+										<ActivityIndicator
+											size="small"
+											color={themeColors.primary}
+										/>
 									) : (
-										reviewsData?.reviews.slice(0, 3).map((r) => (
-											<ReviewRow key={r.id} review={r} variant="preview" />
-										))
+										reviewsData?.reviews
+											.slice(0, 3)
+											.map((r) => (
+												<ReviewRow key={r.id} review={r} variant="preview" />
+											))
 									)}
 									<TouchableOpacity
 										onPress={() => {
-											bottomSheetRef.current?.close();
+											sheetRef.current?.dismiss();
 											router.push({
 												pathname: "/user/technician/[id]/reviews",
 												params: { id: sheetState.technicianId ?? "" },
@@ -233,7 +248,10 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 										}}
 										activeOpacity={0.7}
 										className="mt-stack-md py-stack-md"
-										style={{ borderTopWidth: 1, borderTopColor: themeColors.borderDefault }}
+										style={{
+											borderTopWidth: 1,
+											borderTopColor: themeColors.borderDefault,
+										}}
 									>
 										<Text
 											variant="buttonMd"
@@ -248,7 +266,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 						</View>
 					)}
 				</BottomSheetScrollView>
-			</BottomSheet>
+			</BottomSheetModal>
 		);
 	},
 );

@@ -1,12 +1,7 @@
-import {
-	AlertTriangle,
-	CheckCircle,
-	Clock,
-	XCircle,
-} from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { getOrderStatusBadge } from "@/src/lib/order-status";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
 
 interface Props {
@@ -19,60 +14,7 @@ export default function OrderStatusBanner({
 	cancellationReason,
 }: Props) {
 	const themeColors = useThemeColors();
-	const bannerConfig: Record<
-		OrderStatus,
-		{ label: string; color: string; bg: string; icon: typeof Clock }
-	> = {
-		pending: {
-			label: "Waiting for technician to accept",
-			color: themeColors.warning,
-			bg: themeColors.warningLight,
-			icon: Clock,
-		},
-		accepted: {
-			label: "Accepted by technician",
-			color: themeColors.success,
-			bg: themeColors.orderBg,
-			icon: CheckCircle,
-		},
-		rejected: {
-			label: "Rejected by technician",
-			color: themeColors.danger,
-			bg: themeColors.dangerLight,
-			icon: XCircle,
-		},
-		cancelled_by_user: {
-			label: "Cancelled by you",
-			color: themeColors.danger,
-			bg: themeColors.dangerLight,
-			icon: XCircle,
-		},
-		cancelled_by_technician: {
-			label: "Cancelled by technician",
-			color: themeColors.danger,
-			bg: themeColors.dangerLight,
-			icon: AlertTriangle,
-		},
-		completed: {
-			label: "Completed",
-			color: themeColors.success,
-			bg: themeColors.orderBg,
-			icon: CheckCircle,
-		},
-		reschedule_requested_by_user: {
-			label: "Reschedule requested by you",
-			color: themeColors.warning,
-			bg: themeColors.warningLight,
-			icon: Clock,
-		},
-		reschedule_requested_by_technician: {
-			label: "Reschedule requested by technician",
-			color: themeColors.warning,
-			bg: themeColors.warningLight,
-			icon: Clock,
-		},
-	};
-	const config = bannerConfig[status];
+	const config = getOrderStatusBadge(status, themeColors, "user");
 
 	return (
 		<View
@@ -82,7 +24,7 @@ export default function OrderStatusBanner({
 				borderColor: `${config.color}20`,
 			}}
 		>
-			<config.icon size={22} color={config.color} strokeWidth={1.8} />
+			<config.icon size={spacing.icon.sm} color={config.color} strokeWidth={1.8} />
 			<View className="flex-1">
 				<Text variant="buttonMd" style={{ color: config.color }}>
 					{config.label}

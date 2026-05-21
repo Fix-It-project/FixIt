@@ -7,12 +7,13 @@ import {
 	formatDate,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getOrderStatusBadge } from "@/src/lib/order-status";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { elevation, shadowStyle } from "@/src/lib/design-tokens";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface BookingCardProps {
@@ -34,19 +35,10 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 		booking.status === "cancelled_by_user" ||
 		booking.status === "cancelled_by_technician";
 	const isCompleted = booking.status === "completed";
-	let statusLabel: string | null = null;
-	let statusColor: string | null = null;
-
-	if (isCancelled) {
-		statusLabel =
-			booking.status === "cancelled_by_user"
-				? "Cancelled by client"
-				: "Cancelled";
-		statusColor = themeColors.danger;
-	} else if (isCompleted) {
-		statusLabel = "Completed";
-		statusColor = themeColors.success;
-	}
+	const status =
+		isCancelled || isCompleted
+			? getOrderStatusBadge(booking.status, themeColors, "technician")
+			: null;
 
 	return (
 		<Animated.View
@@ -91,7 +83,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 							</Text>
 
 							<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-								<CategoryIcon size={12} color={categoryColor} strokeWidth={2} />
+								<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
 								<Text
 									variant="caption"
 									style={{ color: themeColors.textSecondary }}
@@ -103,7 +95,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 
 							<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 								<Calendar
-									size={11}
+									size={spacing.icon.caption}
 									color={themeColors.textMuted}
 									strokeWidth={2}
 								/>
@@ -116,17 +108,17 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 							</View>
 
 							{/* Status badge */}
-							{statusLabel && statusColor && (
+							{status && (
 								<View
 									className="mt-stack-xs self-start rounded-pill px-stack-md py-stack-xs"
-									style={{ backgroundColor: `${statusColor}15` }}
+									style={{ backgroundColor: `${status.color}15` }}
 								>
 									<Text
 										variant="caption"
 										className="font-semibold"
-										style={{ color: statusColor }}
+										style={{ color: status.color }}
 									>
-										{statusLabel}
+										{status.label}
 									</Text>
 								</View>
 							)}
@@ -137,7 +129,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 							className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-button"
 							style={{ backgroundColor: `${categoryColor}18` }}
 						>
-							<CategoryIcon size={18} color={categoryColor} strokeWidth={1.8} />
+							<CategoryIcon size={spacing.icon.sm} color={categoryColor} strokeWidth={1.8} />
 						</View>
 					</View>
 				</TouchableOpacity>

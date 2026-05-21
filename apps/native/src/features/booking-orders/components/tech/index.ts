@@ -2,7 +2,6 @@ export { default as BookingActionButtons } from "./BookingActionButtons";
 export { default as BookingCancelModal } from "./BookingCancelModal";
 export { default as BookingCard } from "./BookingCard";
 export { default as BookingClientCard } from "./BookingClientCard";
-export { default as BookingDetailHeader } from "./BookingDetailHeader";
 export { default as BookingInfoSection } from "./BookingInfoSection";
 export { default as BookingListContent } from "./BookingListContent";
 export { default as BookingsCalendarSheet } from "./BookingsCalendarSheet";

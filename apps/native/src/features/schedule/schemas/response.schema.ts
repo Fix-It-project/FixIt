@@ -19,6 +19,7 @@ export const scheduledEventSchema = z.object({
 	id: z.string(),
 	status: orderStatusSchema,
 	scheduled_date: z.string(),
+	scheduled_start_at: z.string().nullable().optional(),
 	problem_description: z.string().nullable(),
 	active: z.boolean(),
 });

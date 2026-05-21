@@ -1,6 +1,7 @@
 import { env } from "@FixIt/env/native";
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { jwtDecode } from "jwt-decode";
+import { supabase } from "@/src/lib/supabase";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 const API_BASE_URL = env.EXPO_PUBLIC_SERVER_URL;
@@ -101,7 +102,9 @@ apiClient.interceptors.request.use(
 			return config;
 		}
 
-		let { accessToken } = useAuthStore.getState();
+		const { data: sessionData } = await supabase.auth.getSession();
+		let accessToken: string | null =
+			sessionData.session?.access_token ?? useAuthStore.getState().accessToken;
 
 		if (accessToken && isTokenExpired(accessToken, 60)) {
 			console.log("[apiClient] Access token expired/expiring, refreshing...");

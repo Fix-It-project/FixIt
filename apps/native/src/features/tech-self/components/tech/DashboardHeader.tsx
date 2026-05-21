@@ -1,5 +1,4 @@
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
 import { Bell, ClipboardList, Star } from "lucide-react-native";
 import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -97,7 +96,6 @@ export default function DashboardHeader() {
 	const { themeId } = useThemeMeta();
 	const { data: profile } = useTechSelfProfileQuery();
 	const polygonPalette = getHeaderPolygonPalette(themeColors, themeId);
-	const router = useRouter();
 
 	const fullName = profile
 		? `${profile.first_name} ${profile.last_name}`
@@ -261,9 +259,7 @@ export default function DashboardHeader() {
 							{profile?.total_orders ?? 0}
 						</Text>
 					</View>
-					<TouchableOpacity
-						onPress={() => router.push("/technician/reviews")}
-						activeOpacity={0.7}
+					<View
 						className="flex-row items-center gap-stack-xs rounded-card px-stack-md py-stack-xs"
 						style={{ backgroundColor: themeColors.overlayMd }}
 					>
@@ -279,7 +275,7 @@ export default function DashboardHeader() {
 						>
 							{reviewCount > 0 ? `${ratingText} (${reviewCount})` : ratingText}
 						</Text>
-					</TouchableOpacity>
+					</View>
 				</View>
 			</Animated.View>
 		</View>

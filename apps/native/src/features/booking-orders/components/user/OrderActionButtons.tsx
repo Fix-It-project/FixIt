@@ -2,7 +2,7 @@ import { CalendarClock, X } from "lucide-react-native";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly onReschedule: () => void;
@@ -20,7 +20,7 @@ export default function OrderActionButtons({ onReschedule, onCancel }: Props) {
 				style={{ backgroundColor: Colors.primary }}
 			>
 				<CalendarClock
-					size={18}
+					size={spacing.icon.sm}
 					color={themeColors.surfaceBase}
 					strokeWidth={2}
 				/>
@@ -37,7 +37,7 @@ export default function OrderActionButtons({ onReschedule, onCancel }: Props) {
 				style={{ borderColor: Colors.danger }}
 				textClass="text-danger"
 			>
-				<X size={18} color={Colors.danger} strokeWidth={2} />
+				<X size={spacing.icon.sm} color={Colors.danger} strokeWidth={2} />
 				<Text variant="buttonLg" style={{ color: Colors.danger }}>
 					Cancel Order
 				</Text>

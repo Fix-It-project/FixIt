@@ -34,6 +34,10 @@ export const ROUTES = {
 			pathname: "/user/orders/[orderId]" as const,
 			params: { orderId },
 		}),
+		placedOrder: (id: string) => ({
+			pathname: "/user/orders/placed/[id]" as const,
+			params: { id },
+		}),
 		profile: "/user/profile" as const,
 		profileEdit: "/user/profile/edit" as const,
 		profileAddressNew: "/user/profile/addresses/new" as const,
@@ -75,7 +79,6 @@ export const ROUTES = {
 		profile: "/technician/profile" as const,
 		profileEdit: "/technician/profile/edit" as const,
 		profileBookingHistory: "/technician/profile/bookings/history" as const,
-		reviews: "/technician/reviews" as const,
 		settings: "/technician/settings" as const,
 		settingsPrivacy: "/technician/settings/privacy-security" as const,
 		settingsHelp: "/technician/settings/help-support" as const,

@@ -1,7 +1,9 @@
 import * as SecureStore from "expo-secure-store";
 import apiClient from "@/src/lib/api-client";
+import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
 import { supabase } from "@/src/lib/supabase";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { recommendationsResponseSchema } from "./schemas/response.schema";
 
 const RECOMMENDER_BASE_URL = process.env.EXPO_PUBLIC_RECOMMENDATION_API_URL;
 
@@ -71,8 +73,12 @@ export async function getRecommendedTechnicians(payload: {
 
 	const addr = await getUserAddressCoords();
 
-	const finalLatitude = addr?.latitude ?? payload.latitude ?? 30.0444;
-	const finalLongitude = addr?.longitude ?? payload.longitude ?? 31.2357;
+	const finalLatitude = addr?.latitude ?? payload.latitude;
+	const finalLongitude = addr?.longitude ?? payload.longitude;
+
+	if (finalLatitude == null || finalLongitude == null) {
+		throw new Error("recommendation_location_required");
+	}
 
 	const body = {
 		user_id: userUuid,
@@ -96,10 +102,12 @@ export async function getRecommendedTechnicians(payload: {
 
 	if (!res.ok) throw new Error(`recommendation_api_${res.status}: ${text}`);
 
-	const json = JSON.parse(text) as {
-		recommendations?: Array<{ technician_id: string }>;
-	};
-	return json.recommendations ?? [];
+	const json = JSON.parse(text);
+	return safeParseResponse(
+		recommendationsResponseSchema,
+		json,
+		"getRecommendedTechnicians",
+	).recommendations;
 }
 
 type UserAddressDto = {

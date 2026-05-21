@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
 	getTechniciansByCategory,
 	searchTechniciansInCategory,
 	type TechniciansSortParam,
 } from "@/src/features/technicians/api/technicians";
+import { technicianQueryKeys } from "@/src/features/technicians/query-keys";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 
 /**
@@ -25,7 +26,7 @@ export function useTechniciansQuery(
 
 	return useQuery<TechnicianListItem[]>({
 		queryKey: [
-			"technicians",
+			...technicianQueryKeys.list(),
 			trimmedCategoryId,
 			trimmedQuery,
 			coords?.latitude ?? null,
@@ -48,5 +49,6 @@ export function useTechniciansQuery(
 		enabled: trimmedCategoryId.length > 0,
 		staleTime: 0,
 		retry: 1,
+		placeholderData: keepPreviousData,
 	});
 }

@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import type { AuthUser } from "@/src/features/auth/schemas/response.schema";
+import { supabase } from "@/src/lib/supabase";
 
 // ─── Secure Storage Keys ─────────────────────────────────────────────────────
 
@@ -60,6 +61,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				SecureStore.setItemAsync(STORAGE_KEYS.USER_TYPE, userType),
 			]);
 
+			await supabase.auth.setSession({
+				access_token: accessToken,
+				refresh_token: refreshToken,
+			});
+			supabase.realtime.setAuth(accessToken);
+
 			set({
 				user,
 				accessToken,
@@ -84,6 +91,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 	clearSession: async () => {
 		console.log("[AuthStore] clearSession called");
+
+		try {
+			await supabase.auth.signOut();
+		} catch (signOutErr) {
+			console.error(
+				"[AuthStore] supabase.auth.signOut failed (continuing logout):",
+				signOutErr,
+			);
+		}
 
 		try {
 			await Promise.all([
@@ -147,6 +163,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				"type:",
 				userType,
 			);
+
+			await supabase.auth.setSession({
+				access_token: accessToken,
+				refresh_token: refreshToken,
+			});
+			supabase.realtime.setAuth(accessToken);
+			console.log("[AuthStore] supabase.auth.setSession rehydrated");
+
 			set({
 				user,
 				accessToken,

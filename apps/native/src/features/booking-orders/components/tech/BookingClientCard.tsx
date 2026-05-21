@@ -4,7 +4,7 @@ import { Text } from "@/src/components/ui/text";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface Props {
@@ -57,7 +57,7 @@ export default function BookingClientCard({ booking }: Props) {
 						{booking.user_name ?? "Unknown Client"}
 					</Text>
 					<View className="mt-stack-xs min-w-0 flex-row items-center gap-stack-xs">
-						<CategoryIcon size={14} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="bodySm"
 							style={{ flex: 1, color: themeColors.textSecondary }}

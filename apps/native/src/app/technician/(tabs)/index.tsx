@@ -1,5 +1,5 @@
 import { RefreshControl, ScrollView, View } from "react-native";
-import EarningsWallet from "@/src/features/dashboard/components/tech/EarningsWallet";
+import { TechActiveOrderBubble } from "@/src/features/booking-orders/components/state-machine/shared";
 import IncomingRequestsSection from "@/src/features/dashboard/components/tech/IncomingRequestsSection";
 import TodayScheduleSection from "@/src/features/dashboard/components/tech/TodayScheduleSection";
 import { useDashboardOrdersQuery } from "@/src/features/dashboard/hooks/useDashboardOrdersQuery";
@@ -41,10 +41,8 @@ export default function TechHome() {
 
 				{/* Today's schedule timeline */}
 				<TodayScheduleSection />
-
-				{/* Earnings & wallet */}
-				<EarningsWallet />
 			</ScrollView>
+			<TechActiveOrderBubble />
 		</View>
 	);
 }

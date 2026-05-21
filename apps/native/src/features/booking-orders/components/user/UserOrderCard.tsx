@@ -8,38 +8,10 @@ import {
 	formatDate,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getOrderStatusBadge } from "@/src/lib/order-status";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, useThemeColors } from "@/src/lib/theme";
-import type { OrderStatus } from "@/src/schemas/shared.schema";
-
-const STATUS_CONFIG: Record<
-	OrderStatus,
-	{ label: string; color: string; bg: string }
-> = {
-	pending: { label: "Pending", color: Colors.warning, bg: Colors.warningLight },
-	accepted: {
-		label: "Accepted",
-		color: Colors.success,
-		bg: Colors.statusAvailable,
-	},
-	rejected: { label: "Rejected", color: Colors.danger, bg: Colors.dangerSoft },
-	cancelled_by_user: {
-		label: "Cancelled",
-		color: Colors.danger,
-		bg: Colors.dangerSoft,
-	},
-	cancelled_by_technician: {
-		label: "Cancelled by tech",
-		color: Colors.danger,
-		bg: Colors.dangerSoft,
-	},
-	completed: {
-		label: "Completed",
-		color: Colors.success,
-		bg: Colors.statusAvailable,
-	},
-};
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly order: Order;
@@ -56,7 +28,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const categoryColor = category?.color ?? Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
-	const status = STATUS_CONFIG[order.status];
+	const status = getOrderStatusBadge(order.status, themeColors, "user");
 
 	return (
 		<TouchableOpacity
@@ -94,7 +66,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						{order.technician_name ?? "Technician"}
 					</Text>
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-						<CategoryIcon size={13} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="caption"
 							style={{ color: themeColors.textSecondary }}

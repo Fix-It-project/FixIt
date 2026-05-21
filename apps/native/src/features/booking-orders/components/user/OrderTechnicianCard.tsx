@@ -6,7 +6,7 @@ import type { Order } from "@/src/features/booking-orders/schemas/response.schem
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly order: Order;
@@ -73,7 +73,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 						{order.technician_name ?? "Technician"}
 					</Text>
 					<View className="mt-stack-xs min-w-0 flex-row items-center gap-stack-xs">
-						<CategoryIcon size={14} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
 						<Text
 							variant="bodySm"
 							style={{ flex: 1, color: themeColors.textSecondary }}

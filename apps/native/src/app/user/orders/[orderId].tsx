@@ -1,34 +1,44 @@
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, View } from "react-native";
+import type { ReactNode } from "react";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import BookingAttachmentCard from "@/src/features/booking-orders/components/shared/BookingAttachmentCard";
-import BookingDescriptionCard from "@/src/features/booking-orders/components/shared/BookingDescriptionCard";
-import OrderActionButtons from "@/src/features/booking-orders/components/user/OrderActionButtons";
-import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
-import OrderDetailHeader from "@/src/features/booking-orders/components/user/OrderDetailHeader";
-import OrderInfoSection from "@/src/features/booking-orders/components/user/OrderInfoSection";
-import OrderStatusBanner from "@/src/features/booking-orders/components/user/OrderStatusBanner";
-import OrderTechnicianCard from "@/src/features/booking-orders/components/user/OrderTechnicianCard";
+import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import {
-	useCancelOrderByUserMutation,
-	useUserOrderById,
-} from "@/src/features/booking-orders/hooks/useUserOrders";
+	PendingWaitingCard,
+	StateScreenLayout,
+} from "@/src/features/booking-orders/components/state-machine/shared";
+import {
+	AcceptedView,
+	AcceptedViewCta,
+	ArrivedInspectingView,
+	ArrivedInspectingViewCta,
+	AwaitingPaymentView,
+	CancelledView,
+	CompletedView,
+	QuoteView,
+	QuoteViewCta,
+	TrackingView,
+	TrackingViewCta,
+	WorkInProgressView,
+	WorkInProgressViewCta,
+} from "@/src/features/booking-orders/components/state-machine/user/states";
+import { useUserOrderById } from "@/src/features/booking-orders/hooks/useUserOrders";
+import {
+	IN_PROGRESS_STATUSES,
+	type OrderStatus as LifecycleOrderStatus,
+} from "@/src/features/booking-orders/schemas/order-status.schema";
+import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { spacing } from "@/src/lib/design-tokens";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { space, useThemeColors } from "@/src/lib/theme";
 
 export default function OrderDetailScreen() {
 	const themeColors = useThemeColors();
 	const { orderId } = useLocalSearchParams<{ orderId: string }>();
 	const order = useUserOrderById(orderId);
 	const goBack = useSafeBack(ROUTES.user.orders);
-
-	const [cancelModalVisible, setCancelModalVisible] = useState(false);
-	const [cancelReason, setCancelReason] = useState("");
-	const cancelMutation = useCancelOrderByUserMutation();
 
 	useFocusBackHandler(() => {
 		goBack();
@@ -37,80 +47,98 @@ export default function OrderDetailScreen() {
 
 	if (!order) {
 		return (
-			<View className="flex-1 items-center justify-center bg-surface-elevated">
+			<View className="flex-1 items-center justify-center bg-surface">
 				<ActivityIndicator color={themeColors.primary} />
 			</View>
 		);
 	}
 
-	const canCancel =
-		order.status === "pending" ||
-		order.status === "accepted" ||
-		order.status === "reschedule_requested_by_user" ||
-		order.status === "reschedule_requested_by_technician";
+	const ui = deriveUiState(order, "user");
+	const lifecycleStatus = order.status as unknown as LifecycleOrderStatus;
+	const isInProgress = IN_PROGRESS_STATUSES.has(lifecycleStatus);
 
-	const handleCancelConfirm = () => {
-		cancelMutation.mutate(
-			{ orderId: order.id, reason: cancelReason.trim() || undefined },
-			{
-				onSuccess: () => {
-					setCancelModalVisible(false);
-					setCancelReason("");
-					goBack();
-				},
-			},
+	if (
+		lifecycleStatus === "accepted" ||
+		lifecycleStatus === "reschedule_requested_by_user" ||
+		lifecycleStatus === "reschedule_requested_by_technician"
+	) {
+		return (
+			<StateScreenLayout
+				order={order}
+				viewer="user"
+				stickyCta={<AcceptedViewCta order={order} />}
+			>
+				<AcceptedView order={order} />
+			</StateScreenLayout>
 		);
-	};
+	}
 
-	const handleReschedule = () => {
-		Alert.alert("Coming Soon", "Rescheduling is not available yet.");
-	};
+	if (isInProgress) {
+		let body: ReactNode;
+		let cta: ReactNode = null;
+		switch (lifecycleStatus) {
+			case "tracking":
+				body = <TrackingView order={order} />;
+				cta = <TrackingViewCta order={order} />;
+				break;
+			case "arrived_inspection":
+				body = <ArrivedInspectingView order={order} />;
+				cta = <ArrivedInspectingViewCta order={order} />;
+				break;
+			case "in_progress":
+				body = <WorkInProgressView order={order} />;
+				cta = <WorkInProgressViewCta order={order} />;
+				break;
+			case "awaiting_final_cost":
+			case "negotiating":
+				body = <QuoteView order={order} />;
+				cta = <QuoteViewCta order={order} />;
+				break;
+			case "awaiting_payment":
+				body = <AwaitingPaymentView order={order} />;
+				cta = null;
+				break;
+			default:
+				body = null;
+		}
+		return (
+			<StateScreenLayout order={order} viewer="user" stickyCta={cta}>
+				{body}
+			</StateScreenLayout>
+		);
+	}
+
+	const isWaitingToAccept = ui.phase === "waiting_to_accept";
+	const isCompleted = ui.phase === "completed";
+	const isCancelled = ui.phase === "cancelled";
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
-				<OrderDetailHeader order={order} onBack={goBack} />
-
-				<ScrollView
-					className="flex-1"
-					showsVerticalScrollIndicator={false}
-					contentContainerStyle={{
-						padding: spacing.card.padding,
-						paddingBottom: spacing.screen.scrollBottomInset,
-					}}
-				>
-					<OrderStatusBanner
-						status={order.status}
-						cancellationReason={order.cancellation_reason}
+				<KeyboardAvoidingView behavior="padding" className="flex-1">
+					<DetailHeader
+						categoryId={order.category_id}
+						onBack={goBack}
+						title="Order"
 					/>
-					<OrderTechnicianCard order={order} />
-					<OrderInfoSection order={order} />
-
-					{order.problem_description && (
-						<BookingDescriptionCard description={order.problem_description} />
-					)}
-					{order.attachment && <BookingAttachmentCard uri={order.attachment} />}
-
-					{canCancel && (
-						<OrderActionButtons
-							onReschedule={handleReschedule}
-							onCancel={() => setCancelModalVisible(true)}
-						/>
-					)}
-				</ScrollView>
+					<ScrollView
+						className="flex-1"
+						bounces={false}
+						showsVerticalScrollIndicator={false}
+						keyboardShouldPersistTaps="handled"
+						contentContainerStyle={{
+							flexGrow: 1,
+							paddingHorizontal: space[4],
+							paddingTop: space[3],
+							paddingBottom: space[10],
+						}}
+					>
+						{isWaitingToAccept && <PendingWaitingCard order={order} />}
+						{isCompleted && <CompletedView order={order} />}
+						{isCancelled && <CancelledView order={order} />}
+					</ScrollView>
+				</KeyboardAvoidingView>
 			</ScreenSafeAreaView>
-
-			{canCancel && (
-				<OrderCancelModal
-					visible={cancelModalVisible}
-					technicianName={order.technician_name}
-					reason={cancelReason}
-					onReasonChange={setCancelReason}
-					onClose={() => setCancelModalVisible(false)}
-					onConfirm={handleCancelConfirm}
-					isLoading={cancelMutation.isPending}
-				/>
-			)}
 		</View>
 	);
 }

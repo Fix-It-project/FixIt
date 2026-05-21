@@ -1,9 +1,10 @@
 import { type Href, Redirect, Tabs } from "expo-router";
 import { type PropsWithChildren, type ReactNode, useMemo } from "react";
-import { View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
 	getBaseTabScreenOptions,
+	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/lib/tab-bar-config";
 import { useThemeColors } from "@/src/lib/theme";
@@ -30,10 +31,12 @@ export function ProtectedTabsLayout({
 	const userType = useAuthStore((state) => state.userType);
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
+	const { width } = useWindowDimensions();
+	const showLabels = width >= NARROW_TAB_BAR_WIDTH;
 
 	const screenOptions = useMemo(
-		() => getBaseTabScreenOptions(themeColors, metrics),
-		[metrics, themeColors],
+		() => getBaseTabScreenOptions(themeColors, metrics, { showLabels }),
+		[metrics, themeColors, showLabels],
 	);
 
 	if (!isLoading && !isAuthenticated) {

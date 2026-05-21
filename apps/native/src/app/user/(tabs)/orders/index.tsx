@@ -6,7 +6,6 @@ import {
 	View,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import OrdersHeader from "@/src/features/booking-orders/components/user/OrdersHeader";
 import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
 import LeaveReviewButton from "@/src/features/reviews/components/user/LeaveReviewButton";
@@ -31,7 +30,14 @@ export default function MyOrdersScreen() {
 
 	return (
 		<View className="flex-1 bg-surface-elevated">
-			<OrdersHeader />
+			<View
+				className="min-h-header px-screen-x pt-card pb-card"
+				style={{ backgroundColor: themeColors.surfaceBase }}
+			>
+				<Text variant="h3" style={{ color: themeColors.textPrimary }}>
+					My Orders
+				</Text>
+			</View>
 
 			{isLoading ? (
 				<View className="flex-1 items-center justify-center">

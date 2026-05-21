@@ -5,6 +5,7 @@ export const dashboardOrderSchema = z.object({
 	id: z.string(),
 	status: orderStatusSchema,
 	scheduled_date: z.string(),
+	scheduled_start_at: z.string().nullable().optional(),
 	problem_description: z.string().nullable(),
 	created_at: z.string(),
 	user_address: z.string().nullable().optional(),

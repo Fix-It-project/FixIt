@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import { RESCHEDULE_PENDING_STATUSES } from "@/src/features/booking-orders/schemas/order-status.schema";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { getScheduledEvents } from "../api/scheduled-events";
 import type { ScheduledEvent } from "../schemas/response.schema";
@@ -25,7 +26,14 @@ export function useScheduledEventsByDate(): Record<string, ScheduledEvent[]> {
 		const map: Record<string, ScheduledEvent[]> = {};
 
 		for (const event of events) {
-			if (event.status !== "accepted") continue;
+			// `accepted` plus reschedule-pending: a pending reschedule keeps the
+			// order on its original date until approved, so it stays on the calendar.
+			if (
+				event.status !== "accepted" &&
+				!RESCHEDULE_PENDING_STATUSES.has(event.status)
+			) {
+				continue;
+			}
 			if (!map[event.scheduled_date]) map[event.scheduled_date] = [];
 			map[event.scheduled_date].push(event);
 		}

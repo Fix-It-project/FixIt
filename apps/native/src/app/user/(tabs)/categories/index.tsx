@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { Wrench } from "lucide-react-native";
 import {
 	ActivityIndicator,
 	ScrollView,
@@ -7,15 +6,13 @@ import {
 	View,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import CategoryTile from "@/src/features/categories/components/user/CategoryTile";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { ROUTES } from "@/src/lib/routes";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors } from "@/src/lib/theme";
 
 export default function CategoriesScreen() {
-	const themeColors = useThemeColors();
-	const fallbackColors = themeColors.category.fallbacks;
 	const {
 		data: categories,
 		isLoading,
@@ -66,44 +63,14 @@ export default function CategoriesScreen() {
 					contentContainerClassName="px-screen-x pb-stack-xl"
 				>
 					<View className="flex-row flex-wrap justify-between">
-						{categories?.map((cat, index) => {
-							const meta = getCategoryMeta(cat.id);
-							const Icon = meta?.icon ?? Wrench;
-							const color =
-								meta?.color ?? fallbackColors[index % fallbackColors.length];
-							return (
-								<TouchableOpacity
-									key={cat.id}
-									className="mb-stack-md overflow-hidden rounded-input"
-									style={{
-										width: "48.5%",
-										backgroundColor: themeColors.surfaceElevated,
-									}}
-									onPress={() => handleCategoryPress(cat.id, cat.name)}
-									activeOpacity={0.7}
-								>
-									<View className="flex-row items-center">
-										<View
-											className="h-avatar-xl w-avatar-xl items-center justify-center"
-											style={{ backgroundColor: color }}
-										>
-											<Icon
-												size={26}
-												color={themeColors.surfaceOnPrimary}
-												strokeWidth={1.75}
-											/>
-										</View>
-										<Text
-											variant="buttonMd"
-											className="flex-1 px-stack-md text-content"
-											numberOfLines={2}
-										>
-											{cat.name}
-										</Text>
-									</View>
-								</TouchableOpacity>
-							);
-						})}
+						{categories?.map((cat, index) => (
+							<CategoryTile
+								key={cat.id}
+								category={cat}
+								index={index}
+								onPress={handleCategoryPress}
+							/>
+						))}
 					</View>
 				</ScrollView>
 			)}
