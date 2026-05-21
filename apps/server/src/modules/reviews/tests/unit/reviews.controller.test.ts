@@ -1,3 +1,4 @@
+import type { Request } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	createMockReq,
@@ -8,7 +9,6 @@ const { mockService } = vi.hoisted(() => ({
 	mockService: {
 		createReviewForUser: vi.fn(),
 		getReviewsForTechnician: vi.fn(),
-		getReviewsForAuthenticatedTechnician: vi.fn(),
 	},
 }));
 
@@ -18,6 +18,14 @@ vi.mock("../../reviews.service.js", () => ({
 
 const { ReviewsController } = await import("../../reviews.controller.js");
 
+function userWithId(id: string): NonNullable<Request["user"]> {
+	return { id } as NonNullable<Request["user"]>;
+}
+
+function validatedReviewQuery(limit: number, offset: number): Request["query"] {
+	return { limit, offset } as unknown as Request["query"];
+}
+
 describe("ReviewsController", () => {
 	let controller: InstanceType<typeof ReviewsController>;
 
@@ -25,7 +33,6 @@ describe("ReviewsController", () => {
 		controller = new ReviewsController();
 		mockService.createReviewForUser.mockReset();
 		mockService.getReviewsForTechnician.mockReset();
-		mockService.getReviewsForAuthenticatedTechnician.mockReset();
 	});
 
 	describe("createReview", () => {
@@ -35,8 +42,8 @@ describe("ReviewsController", () => {
 
 			const req = createMockReq({
 				body: { order_id: "ord-1", rating: 5 },
+				user: userWithId("user-1"),
 			});
-			(req as any).user = { id: "user-1" };
 			const res = createMockRes();
 
 			await controller.createReview(req, res);
@@ -56,7 +63,7 @@ describe("ReviewsController", () => {
 			});
 
 			const req = createMockReq({ body: { order_id: "ord-1", rating: 5 } });
-			(req as any).user = { id: "user-1" };
+			req.user = userWithId("user-1");
 			const res = createMockRes();
 
 			await controller.createReview(req, res);
@@ -71,7 +78,7 @@ describe("ReviewsController", () => {
 			mockService.createReviewForUser.mockRejectedValue(new Error("boom"));
 
 			const req = createMockReq({ body: { order_id: "ord-1", rating: 5 } });
-			(req as any).user = { id: "user-1" };
+			req.user = userWithId("user-1");
 			const res = createMockRes();
 
 			await controller.createReview(req, res);
@@ -95,8 +102,8 @@ describe("ReviewsController", () => {
 			mockService.getReviewsForTechnician.mockResolvedValue(list);
 
 			const req = createMockReq({
-				params: { id: "tech-1" } as any,
-				query: { limit: 10, offset: 0 } as any,
+				params: { id: "tech-1" },
+				query: validatedReviewQuery(10, 0),
 			});
 			const res = createMockRes();
 
@@ -117,58 +124,12 @@ describe("ReviewsController", () => {
 			);
 
 			const req = createMockReq({
-				params: { id: "tech-1" } as any,
-				query: { limit: 10, offset: 0 } as any,
+				params: { id: "tech-1" },
+				query: validatedReviewQuery(10, 0),
 			});
 			const res = createMockRes();
 
 			await controller.getTechnicianReviews(req, res);
-
-			expect(res.statusCode).toBe(500);
-			expect(res.body).toEqual({ error: "db down" });
-		});
-	});
-
-	describe("getMyTechnicianReviews", () => {
-		it("returns 200 with the list and forwards authenticated technician id, limit, offset", async () => {
-			const list = [
-				{
-					id: "r1",
-					rating: 5,
-					comment: "great",
-					created_at: "now",
-					reviewer_name: "A",
-				},
-			];
-			mockService.getReviewsForAuthenticatedTechnician.mockResolvedValue(list);
-
-			const req = createMockReq({
-				query: { limit: 20, offset: 0 } as any,
-			});
-			(req as any).technician = { id: "tech-1" };
-			const res = createMockRes();
-
-			await controller.getMyTechnicianReviews(req, res);
-
-			expect(
-				mockService.getReviewsForAuthenticatedTechnician,
-			).toHaveBeenCalledWith("tech-1", 20, 0);
-			expect(res.statusCode).toBe(200);
-			expect(res.body).toEqual({ data: list });
-		});
-
-		it("maps thrown errors via normalizeError", async () => {
-			mockService.getReviewsForAuthenticatedTechnician.mockRejectedValue(
-				new Error("db down"),
-			);
-
-			const req = createMockReq({
-				query: { limit: 20, offset: 0 } as any,
-			});
-			(req as any).technician = { id: "tech-1" };
-			const res = createMockRes();
-
-			await controller.getMyTechnicianReviews(req, res);
 
 			expect(res.statusCode).toBe(500);
 			expect(res.body).toEqual({ error: "db down" });

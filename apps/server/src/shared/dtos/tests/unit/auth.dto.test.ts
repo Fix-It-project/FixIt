@@ -40,7 +40,7 @@ describe('SignUpBodySchema', () => {
     if (!result.success) expect(result.error.issues[0]?.path).toContain('email');
   });
 
-  it('rejects password shorter than 8 chars', () => {
+  it('rejects password shorter than 6 chars', () => {
     const result = SignUpBodySchema.safeParse({ ...validBody, password: 'short' });
     expect(result.success).toBe(false);
     if (!result.success) expect(result.error.issues[0]?.path).toContain('password');
@@ -107,11 +107,11 @@ describe('ForgotPasswordBodySchema', () => {
 });
 
 describe('ResetPasswordBodySchema', () => {
-  it('rejects password shorter than 8 chars', () => {
+  it('rejects password shorter than 6 chars', () => {
     expect(ResetPasswordBodySchema.safeParse({ newPassword: 'short' }).success).toBe(false);
   });
 
-  it('accepts password of 8+ chars', () => {
-    expect(ResetPasswordBodySchema.safeParse({ newPassword: 'longpassword' }).success).toBe(true);
+  it('accepts password of 6+ chars', () => {
+    expect(ResetPasswordBodySchema.safeParse({ newPassword: 'secret' }).success).toBe(true);
   });
 });

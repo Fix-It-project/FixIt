@@ -35,8 +35,10 @@ export class ReviewsService {
 				rating: body.rating ?? null,
 				comment: body.comment ?? null,
 			});
-		} catch (e: any) {
-			if (e?.code === "23505") {
+		} catch (e: unknown) {
+			const code =
+				typeof e === "object" && e !== null && "code" in e ? e.code : undefined;
+			if (code === "23505") {
 				throw {
 					status: 409,
 					message: "Review already submitted for this order",
@@ -56,14 +58,6 @@ export class ReviewsService {
 			limit,
 			offset,
 		);
-	}
-
-	async getReviewsForAuthenticatedTechnician(
-		technicianId: string,
-		limit: number,
-		offset: number,
-	): Promise<TechnicianReviewWithReviewer[]> {
-		return this.getReviewsForTechnician(technicianId, limit, offset);
 	}
 }
 

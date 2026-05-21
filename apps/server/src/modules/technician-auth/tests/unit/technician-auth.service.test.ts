@@ -117,6 +117,7 @@ describe('TechnicianAuthService', () => {
         apartment_no: '3A',
         latitude: 31.95,
         longitude: 35.93,
+        is_active: true,
       });
       expect(result).toEqual({
         technician: {

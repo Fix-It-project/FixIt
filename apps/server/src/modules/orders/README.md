@@ -1,360 +1,251 @@
 # Orders Module
 
-Manages the full lifecycle of a service booking — from creation through acceptance, completion, cancellation, and rescheduling.
+The orders module owns booking reads, legacy order mutations, reschedule
+requests, and the newer lifecycle command surface backed by Supabase RPCs.
+The database source of truth for the current lifecycle is
+`supabase/migrations/20260512000000_order_state_machine_phase1_lean.sql`.
 
-## 📁 Structure
+## Structure
 
-```
+```text
 orders/
-├── orders.repository.ts      # DB queries against `orders` table
-├── orders.service.ts         # Business logic, state machine, validation
-├── orders.controller.ts      # HTTP request handlers
-├── orders.routes.ts          # Route definitions (user + technician namespaces)
-├── reschedule.repository.ts  # DB queries against `reschedule_requests` table (RPC wrappers)
-├── reschedule.service.ts     # Reschedule state machine, validation, auto-reject logic
-├── reschedule.controller.ts  # Reschedule HTTP request handlers
-├── reschedule.routes.ts      # Reschedule route definitions (user + technician namespaces)
-├── reschedule-schema.sql     # DDL: reschedule_requests table + 5 plpgsql RPCs
-└── index.ts                  # Module exports
+├── orders.routes.ts              # Mounts legacy, reschedule, and lifecycle routes
+├── orders.controller.ts          # Legacy list/detail/create/PATCH handlers
+├── orders.service.ts             # Legacy service orchestration and uploads
+├── orders.repository.ts          # Order reads and legacy DB writes
+├── reschedule.routes.ts          # Reschedule endpoints
+├── reschedule.controller.ts      # Reschedule HTTP handlers
+├── reschedule.service.ts         # Reschedule orchestration
+├── reschedule.repository.ts      # Reschedule RPC wrappers
+├── lifecycle/
+│   ├── lifecycle.routes.ts       # Explicit lifecycle verb routes
+│   ├── lifecycle.controller.ts   # Thin lifecycle HTTP handlers
+│   ├── lifecycle.service.ts      # Lifecycle orchestration and derived reads
+│   ├── lifecycle.repository.ts   # Supabase RPC wrappers
+│   ├── legacy-patch-shim.ts      # Maps old PATCH verbs to lifecycle RPCs
+│   └── README.md                 # Detailed DB lifecycle contract
+└── index.ts
 ```
 
----
-
-## 🌐 Endpoints
+## Route Surfaces
 
 Base path: `/api/orders`
 
-### User routes — requires `requireUserAuth`
+### Legacy User Routes
 
-| Method  | Path                                  | Description                                        |
-|---------|---------------------------------------|----------------------------------------------------|
-| `POST`  | `/user/orders`                        | Create a new order (status: pending)               |
-| `GET`   | `/user/orders`                        | List all orders for the logged-in user             |
-| `GET`   | `/user/orders/:id`                    | Get a single order by id (embeds reschedule_request) |
-| `PATCH` | `/user/orders/:id`                    | Cancel an order `{ cancel: true }`                 |
-| `POST`  | `/user/orders/:id/reschedule`         | Request a reschedule                               |
-| `POST`  | `/user/orders/:id/reschedule/approve` | Approve technician's reschedule request            |
-| `POST`  | `/user/orders/:id/reschedule/reject`  | Reject technician's reschedule request             |
-| `POST`  | `/user/orders/:id/reschedule/withdraw`| Withdraw own reschedule request                    |
+These routes remain for compatibility with the existing native screens.
 
-### Technician routes — requires `requireTechnicianAuth`
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/user/orders` | Create an order. Uses the lifecycle `rpc_submit_order` path internally. |
+| `GET` | `/user/orders` | List the authenticated user's orders. |
+| `GET` | `/user/orders/:id` | Read one order with latest reschedule summary. |
+| `PATCH` | `/user/orders/:id` | Legacy cancel shape: `{ "cancel": true }`. |
 
-| Method  | Path                                       | Description                                        |
-|---------|--------------------------------------------|----------------------------------------------------|
-| `GET`   | `/technician/orders`                       | List all orders for the logged-in technician       |
-| `GET`   | `/technician/orders/:id`                   | Get a single order by id (embeds reschedule_request) |
-| `PATCH` | `/technician/orders/:id`                   | Update order status (see state machine)            |
-| `POST`  | `/technician/orders/:id/reschedule`        | Request a reschedule                               |
-| `POST`  | `/technician/orders/:id/reschedule/approve`| Approve user's reschedule request                  |
-| `POST`  | `/technician/orders/:id/reschedule/reject` | Reject user's reschedule request                   |
-| `POST`  | `/technician/orders/:id/reschedule/withdraw`| Withdraw own reschedule request                   |
+### Legacy Technician Routes
 
----
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/technician/orders` | List the authenticated technician's orders. |
+| `GET` | `/technician/orders/:id` | Read one assigned order. |
+| `PATCH` | `/technician/orders/:id` | Legacy status update shim for accept/decline/cancel/complete. |
 
-## 📋 Request / Response
+### Reschedule Routes
 
-### `POST /api/orders/user/orders`
+Available under both `/user/orders/:id/reschedule...` and
+`/technician/orders/:id/reschedule...`.
 
-Accepts `multipart/form-data`. All fields except `attachment` can also be sent as JSON when no file is attached.
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/:role/orders/:id/reschedule` | Request a new date. |
+| `POST` | `/:role/orders/:id/reschedule/approve` | Counterparty approves. |
+| `POST` | `/:role/orders/:id/reschedule/reject` | Counterparty rejects with reason. |
+| `POST` | `/:role/orders/:id/reschedule/withdraw` | Requester withdraws. |
 
-| Field | Type | Required |
-|---|---|---|
-| `technician_id` | string (UUID) | yes |
-| `service_id` | string (UUID) | yes |
-| `scheduled_date` | string (YYYY-MM-DD) | yes |
-| `problem_description` | string | no |
-| `attachment` | file | no |
+### Lifecycle Routes
 
-If a file is provided it is uploaded to the `ORDER_BUCKET` Supabase storage bucket under `{orderId}/attachment.{ext}` and its public URL is stored in `attachment`.
+These are the preferred explicit command routes. User routes use
+`requireUserAuth`; technician routes use `requireTechnicianAuth`.
 
-Returns `201` with the created order.
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/user/orders/:id/cancel` | User cancellation through `rpc_cancel_order`. |
+| `POST` | `/user/orders/:id/quotes` | User counter quote. |
+| `POST` | `/user/orders/:id/quotes/:quoteId/accept` | User accepts technician quote. |
+| `POST` | `/user/orders/:id/confirm-completion` | User marks work complete. |
+| `POST` | `/user/orders/:id/decline-completion` | User rejects or withdraws a pending completion mark. |
+| `POST` | `/user/orders/:id/checkout` | User chooses payment method. Currently cash-only at DTO layer. |
+| `GET` | `/user/orders/:id/events` | Paginated event log. |
+| `GET` | `/user/orders/:id/quotes` | Quote history. |
+| `GET` | `/user/orders/:id/distance` | Distance, ETA, and geofence flag. |
+| `POST` | `/technician/orders/:id/accept` | Technician accepts pending order. |
+| `POST` | `/technician/orders/:id/decline` | Technician declines pending order. |
+| `POST` | `/technician/orders/:id/cancel` | Technician cancels an active order. |
+| `POST` | `/technician/orders/:id/start-tracking` | Begin travel to destination. |
+| `POST` | `/technician/orders/:id/location` | Upsert tracking point; may record arrival. |
+| `POST` | `/technician/orders/:id/start-inspection` | Start inspection after arrival/geofence pass. |
+| `POST` | `/technician/orders/:id/finish-inspection` | Move to final-cost negotiation. |
+| `POST` | `/technician/orders/:id/quotes` | Technician submits quote or counter quote. |
+| `POST` | `/technician/orders/:id/quotes/:quoteId/accept` | Technician accepts user quote. |
+| `POST` | `/technician/orders/:id/confirm-completion` | Technician marks work complete. |
+| `POST` | `/technician/orders/:id/decline-completion` | Technician rejects or withdraws a pending completion mark. |
+| `POST` | `/technician/orders/:id/mark-cash-received` | Technician confirms cash payment. |
+| `GET` | `/technician/orders/:id/events` | Paginated event log. |
+| `GET` | `/technician/orders/:id/quotes` | Quote history. |
+| `GET` | `/technician/orders/:id/distance` | Distance, ETA, and geofence flag. |
 
-### `PATCH /api/orders/user/orders/:id` — cancel
+## Request Shapes
 
-```json
-{ "cancel": true, "cancellation_reason": "Changed my mind" }
+### Create Order
+
+`POST /api/orders/user/orders` accepts JSON or `multipart/form-data` for legacy
+compatibility. The current controller forwards body fields to
+`lifecycleService.submitOrder`; multipart files are not uploaded by this shim.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `technician_id` | UUID | yes | Assigned technician. |
+| `service_id` | UUID | yes | Requested service. |
+| `scheduled_date` | `YYYY-MM-DD` | yes | Booking date. |
+| `scheduled_start_at` | ISO datetime | no | Optional start time. |
+| `destination_address_id` | UUID | no | If omitted, lifecycle service uses the user's active address. |
+| `problem_description` | string | no | Max 1000 chars on lifecycle DTO. |
+| `attachment` | file/string URL | no | The route accepts the field, but the current lifecycle create shim does not upload or forward files. |
+
+The RPC verifies that `destination_address_id` belongs to the user. In the
+lean migration, unpaid fee obligations block order submission unless the
+temporary testing override migration has been applied.
+
+### Lifecycle Bodies
+
+| Route family | Body |
+| --- | --- |
+| `/cancel`, `/decline` | `{ "reason": "optional, max 500 chars" }` |
+| `/quotes` | `{ "amount": 150, "notes": "optional" }` |
+| `/checkout` | `{ "method": "cash" }` |
+| `/location` | `{ "latitude": 30.0, "longitude": 31.0, "heading": 90, "accuracy": 12 }` |
+| `/confirm-completion`, `/decline-completion`, `/accept`, `/start-*`, `/mark-cash-received` | Empty body |
+
+## Current Order State Machine
+
+The active lifecycle states are:
+
+```text
+pending
+  ├─ tech_accept -> accepted
+  └─ tech_decline -> declined_by_technician
+
+accepted
+  ├─ tech_start_tracking -> tracking
+  ├─ reschedule_create -> reschedule_requested_by_user|technician
+  └─ cancel -> cancelled_no_fee
+
+tracking
+  ├─ location ping within 1km -> arrived_at + tech_arrived event
+  ├─ tech_start_inspection -> arrived_inspection
+  └─ cancel -> cancelled_no_fee
+
+arrived_inspection
+  ├─ tech_finish_inspection -> awaiting_final_cost
+  └─ user cancel -> cancelled_with_fee
+
+awaiting_final_cost
+  ├─ technician quote -> negotiating
+  └─ cancel -> cancelled_with_fee
+
+negotiating
+  ├─ quote/counter quote up to round 5
+  ├─ accept quote -> in_progress
+  └─ cancel -> cancelled_with_fee
+
+in_progress
+  ├─ one party confirm -> stays in_progress with *_completed_at set
+  ├─ other party decline/withdraw -> clears one *_completed_at
+  ├─ both parties confirm -> awaiting_payment
+  └─ cancel -> cancelled_with_fee
+
+awaiting_payment
+  ├─ choose cash -> payment row created
+  ├─ mark cash received -> completed
+  └─ future card flow -> completed after PSP success
 ```
 
-`cancellation_reason` is optional. Returns `400` if the order is not in a cancellable state (`pending`, `accepted`, `reschedule_requested_by_user`, `reschedule_requested_by_technician`). Any pending reschedule request is automatically cancelled when the order is cancelled.
+Terminal statuses are `completed`, `declined_by_technician`,
+`cancelled_no_fee`, and `cancelled_with_fee`. Legacy compatibility statuses
+still exist in the database enum for older code paths:
+`rejected`, `cancelled`, `cancelled_by_user`, `cancelled_by_technician`,
+`reschedule_requested_by_user`, and `reschedule_requested_by_technician`.
 
-### `PATCH /api/orders/technician/orders/:id` — update status
+## Database Tables
 
-```json
-{ "status": "accepted" }
+The lean migration extends `orders` with lifecycle snapshot columns:
+
+| Column | Purpose |
+| --- | --- |
+| `status public.order_status` | Canonical enum status. |
+| `active boolean` | Compatibility projection maintained by trigger. |
+| `destination_address_id` | Address used for geofence and destination validation. |
+| `scheduled_start_at` | Optional precise booking start time. |
+| `arrived_at` | First time technician enters the 1km destination geofence. |
+| `final_price` | Accepted quote amount. |
+| `payment_method` | `cash` or `card`; DTO currently allows cash only. |
+| `user_completed_at` | User completion confirmation timestamp. |
+| `technician_completed_at` | Technician completion confirmation timestamp. |
+
+Lifecycle support tables:
+
+| Table | Purpose |
+| --- | --- |
+| `order_events` | Append-only audit trail for lifecycle events. |
+| `order_locations` | Latest technician location per active tracking order. |
+| `order_quotes` | Quote and counter-quote rounds, capped at 5. |
+| `payments` | Payment attempt records and cash confirmation state. |
+| `user_fee_obligations` | Inspection cancellation fees for user cancellations after arrival/inspection. |
+| `reschedule_requests` | Existing reschedule workflow, preserved and enum-compatible. |
+
+See `lifecycle/README.md` for the full database contract: every index, trigger,
+RPC, helper function, RLS policy, realtime publication entry, and permission
+rule.
+
+## Architecture
+
+```text
+Request
+  -> orders.routes.ts
+    -> legacy orders.controller.ts / reschedule.controller.ts / lifecycle.controller.ts
+      -> service layer
+        -> repository layer
+          -> Supabase tables or lifecycle/reschedule RPCs
 ```
 
-For `rejected` and `cancelled_by_technician` a reason can be provided:
+Lifecycle writes should flow through `lifecycle.repository.ts` and the
+database RPCs. Controllers should not query Supabase directly except for the
+documented read-only lifecycle sub-resources (`events`, `quotes`, `distance`)
+where the controller first asserts order ownership.
 
-```json
-{ "status": "rejected", "cancellation_reason": "Outside service area" }
-```
+## Business Rules To Keep In Mind
 
-Valid values: `accepted` · `rejected` · `cancelled_by_technician` · `completed`
+- Native clients must not spoof actor IDs; lifecycle RPCs are `SECURITY DEFINER`
+  and execute permission is revoked from `anon` and `authenticated`.
+- Service-role backend calls remain the write path for lifecycle mutations.
+- Direct native Supabase reads are limited by RLS policies on `orders`,
+  `order_quotes`, and `order_locations`.
+- A technician can only have one in-flight active lifecycle order from
+  `tracking` through `awaiting_payment`.
+- A technician cannot start a later accepted booking while an earlier accepted
+  or in-flight booking remains unfinished.
+- Location writes are only valid while the order is `tracking`.
+- Inspection can start only after a `tech_arrived` event and a fresh distance
+  check within 1km.
+- Quote rounds alternate technician/user and stop after round 5.
+- Completion requires both parties unless smoke auto-finalization is enabled.
+- `LIFECYCLE_SMOKE_AUTO_COMPLETE` defaults on; set it to `false` to disable
+  cash auto-finalization during development.
 
-Returns `400` if the transition is not allowed. Returns `409` if accepting would exceed the 5 active-orders-per-day limit.
+## Related Modules
 
-### `POST /api/orders/user/orders/:id/reschedule` — request reschedule
-
-```json
-{ "proposed_scheduled_date": "2026-06-15", "reason": "Travel for work" }
-```
-
-| Field | Type | Required |
-|---|---|---|
-| `proposed_scheduled_date` | string (YYYY-MM-DD) | yes |
-| `reason` | string (max 500 chars) | yes |
-
-Returns `201` with the created `reschedule_request` object.
-
-### `POST /api/orders/.../reschedule/reject` — reject reschedule
-
-```json
-{ "reason": "Not available that day" }
-```
-
-`reason` is required (max 500 chars). Returns `200` with the resolved `reschedule_request` object.
-
-### `POST /api/orders/.../reschedule/approve` or `/withdraw`
-
-No body required. Returns `200` with the resolved `reschedule_request` object.
-
-### Order object (single-record GET)
-
-```json
-{
-  "id": "<uuid>",
-  "technician_id": "<uuid>",
-  "user_id": "<uuid>",
-  "service_id": "<uuid>",
-  "status": "accepted",
-  "problem_description": "AC not cooling",
-  "attachment": null,
-  "cancellation_reason": null,
-  "scheduled_date": "2026-06-15",
-  "active": true,
-  "created_at": "2026-03-23T10:00:00Z",
-  "reschedule_request": {
-    "id": "<uuid>",
-    "order_id": "<uuid>",
-    "requested_by": "user",
-    "original_scheduled_date": "2026-05-07",
-    "proposed_scheduled_date": "2026-06-15",
-    "request_reason": "Travel for work",
-    "reject_reason": null,
-    "resolution": "approved",
-    "response_window_hours": 24,
-    "created_at": "2026-05-02T13:40:53Z",
-    "resolved_at": "2026-05-02T13:48:17Z"
-  }
-}
-```
-
-`reschedule_request` is `null` when no reschedule has ever been requested. Resolution is one of: `pending` · `approved` · `rejected` · `withdrawn` · `auto_rejected`.
-
-### Order list object (GET list)
-
-Same as above but `reschedule_request` is replaced by:
-
-```json
-{ "has_pending_reschedule": true }
-```
-
-Cheap boolean flag — no full reconcile per row.
-
----
-
-## 🔄 Order State Machine
-
-```
-                  ┌──────────────┐
-        create    │    pending   │
-        ─────────►│  active=false│
-                  └──────┬───┬──┘
-           accept ▼       │   │ reject
-                  ┌───────┘   └──────────────────┐
-                  ▼                               ▼
-           ┌──────────────┐              ┌────────────────┐
-           │   accepted   │◄─────────────┤  (reschedule   │
-           │  active=true │  approve     │   approved)    │
-           └──┬──┬────────┘              └────────────────┘
-   complete ▼ │  │ reschedule
-              │  ▼
-              │  ┌─────────────────────────────────────────┐
-              │  │ reschedule_requested_by_user            │
-              │  │ reschedule_requested_by_technician      │
-              │  └─────────────────────────────────────────┘
-              │       ▲ counterparty approves → accepted
-              │       ▲ counterparty rejects  → accepted (original date restored)
-              │       ▲ requester withdraws   → accepted
-              │       ▲ 24h expires           → auto_rejected → accepted
-              ▼
-       ┌──────────────┐
-       │  completed   │
-       │ active=false │
-       └──────────────┘
-
-  User can cancel from: pending, accepted, either reschedule status → cancelled_by_user
-  Tech can cancel from: accepted, either reschedule status → cancelled_by_technician
-```
-
-### Transition table
-
-| Current status | Actor      | Allowed transitions                                                         |
-|----------------|------------|-----------------------------------------------------------------------------|
-| `pending`      | Technician | `accepted`, `rejected`                                                      |
-| `accepted`     | Technician | `completed`, `cancelled_by_technician`, `reschedule_requested_by_technician`|
-| `reschedule_requested_by_user` | Technician | `accepted` (approve)                              |
-| `reschedule_requested_by_technician` | Technician | `accepted` (withdraw), `cancelled_by_technician` |
-| `pending`      | User       | `cancelled_by_user`                                                         |
-| `accepted`     | User       | `cancelled_by_user`, `reschedule_requested_by_user`                         |
-| `reschedule_requested_by_technician` | User | `accepted` (approve)                              |
-| `reschedule_requested_by_user` | User | `accepted` (withdraw), `cancelled_by_user`              |
-
-Terminal statuses: `rejected` · `completed` · `cancelled_by_user` · `cancelled_by_technician`
-
----
-
-## 🔄 Reschedule State Machine
-
-```
-  requestReschedule  →  reschedule_requests.resolution = pending
-                             order.status = reschedule_requested_by_{actor}
-
-  approve (counterparty) →  resolution = approved
-                             order.scheduled_date = proposed_scheduled_date
-                             order.status = accepted
-
-  reject (counterparty)  →  resolution = rejected
-                             order.scheduled_date = original_scheduled_date
-                             order.status = accepted
-
-  withdraw (requester)   →  resolution = withdrawn
-                             order.scheduled_date = original_scheduled_date
-                             order.status = accepted
-
-  24h window expires     →  resolution = auto_rejected  (lazy, on next read)
-                             order.scheduled_date = original_scheduled_date
-                             order.status = accepted
-```
-
-### Reschedule business rules
-
-- Only `accepted` orders can initiate a reschedule
-- Only one pending reschedule per order at a time (enforced by partial unique index)
-- Proposed date must be a valid future working day for the technician (availability template + no holiday)
-- Proposed date must be ≥ 48 hours from now (Cairo timezone)
-- Only the counterparty can approve or reject; the requester can only withdraw
-- 24-hour response window — auto-rejected lazily on the next read of that order (no cron)
-- Cancelling an order with a pending reschedule auto-cancels the reschedule first
-
----
-
-## 🏗️ Architecture
-
-```
-Request → orders.routes.ts / reschedule.routes.ts
-              ↓
-         orders.controller.ts / reschedule.controller.ts
-              ↓
-         orders.service.ts / reschedule.service.ts
-              ↓  (reschedule mutations)
-         reschedule.repository.ts   ← Supabase RPC wrappers (atomic plpgsql functions)
-              ↓  (order reads)
-         orders.repository.ts       ← DB queries (orders + availability_templates)
-```
-
-Single-record GET enrichment flow:
-```
-GET /orders/:id  →  ordersService.getUserOrderById
-                        ↓ lazy import (circular-safe)
-                    rescheduleService.loadAndReconcile   ← auto-rejects expired pending
-                        ↓
-                    ordersRepository.getOrderById        ← re-fetch after possible reconcile
-                        ↓
-                    { ...order, reschedule_request }     ← embedded in response
-```
-
----
-
-## 🔒 Business Rules
-
-**Order creation:**
-- `scheduled_date` must be today or a future date (Cairo timezone)
-- User may not have an existing `pending` booking with the same technician
-- Technician must have an availability template for that day of the week
-- Technician must not have a holiday/exception on that specific date
-
-**Acceptance:**
-- Technician may not have more than **5 active orders** on the same `scheduled_date`
-- Accepting sets `active = true`
-
-**Deactivation:**
-- `rejected`, `cancelled_by_technician`, `cancelled_by_user`, and `completed` all set `active = false`
-
-**Cancel cascade:**
-- Any `pending` reschedule request is automatically cancelled (`auto_rejected_order_cancelled`) when the parent order is cancelled by either party
-
----
-
-## 🗄️ Database Tables
-
-### `orders`
-
-```sql
-orders (
-  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  technician_id        uuid NOT NULL REFERENCES technicians(id),
-  user_id              uuid NOT NULL REFERENCES auth.users(id),
-  service_id           uuid NOT NULL REFERENCES services(id),
-  status               text NOT NULL DEFAULT 'pending',
-  problem_description  text,
-  attachment           text,
-  cancellation_reason  text,
-  scheduled_date       date NOT NULL,
-  active               boolean NOT NULL DEFAULT false,
-  created_at           timestamptz DEFAULT now()
-)
-```
-
-`status` values: `pending` · `accepted` · `rejected` · `cancelled_by_user` · `cancelled_by_technician` · `completed` · `reschedule_requested_by_user` · `reschedule_requested_by_technician`
-
-### `reschedule_requests`
-
-```sql
-reschedule_requests (
-  id                      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  order_id                uuid NOT NULL REFERENCES orders(id),
-  requested_by            text NOT NULL CHECK (requested_by IN ('user','technician')),
-  original_scheduled_date date NOT NULL,
-  proposed_scheduled_date date NOT NULL,
-  request_reason          text NOT NULL,
-  reject_reason           text,
-  resolution              text NOT NULL DEFAULT 'pending',
-  response_window_hours   integer NOT NULL DEFAULT 24,
-  created_at              timestamptz NOT NULL DEFAULT now(),
-  resolved_at             timestamptz
-)
--- Partial unique index: only one pending reschedule per order at a time
--- UNIQUE (order_id) WHERE resolution = 'pending'
-```
-
-`resolution` values: `pending` · `approved` · `rejected` · `withdrawn` · `auto_rejected` · `auto_rejected_order_cancelled`
-
-### Supabase RPCs (plpgsql, `SECURITY DEFINER`)
-
-| Function | Description |
-|---|---|
-| `reschedule_create` | Validates + inserts reschedule request, flips order status |
-| `reschedule_approve` | Validates counterparty, updates date, flips order to accepted |
-| `reschedule_reject` | Validates counterparty, restores date, flips order to accepted |
-| `reschedule_withdraw` | Validates requester, restores date, flips order to accepted |
-| `auto_reject_if_expired` | Called on read; auto-rejects if 24h window has passed |
-
----
-
-## 📖 Related Modules
-
-- **technician-calendar** — consulted during order creation and reschedule validation to check for holidays/exceptions
-- **technicians** — `availability_templates` table queried to validate day-of-week availability
-- **services** — `service_id` foreign key references the `services` table
-- **shared/time/cairo-time** — timezone-safe date arithmetic pinned to `Africa/Cairo` (DST-safe)
+- `technician-calendar` supplies holidays/calendar exceptions.
+- `technicians` owns availability templates and technician fees.
+- `services` owns service/category data referenced by orders.
+- `shared/dtos/lifecycle.dto.ts` defines lifecycle request schemas.
+- `shared/errors/app-error.ts` receives mapped lifecycle RPC error tokens.

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const TechnicianSignUpBodySchema = z.object({
   email: z.string().email('Must be a valid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
   first_name: z.string().min(1, 'first_name is required'),
   last_name: z.string().min(1, 'last_name is required'),
   phone: z.string().optional(),

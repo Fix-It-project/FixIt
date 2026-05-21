@@ -78,7 +78,11 @@ function mapRpcError(error: { code?: string; message?: string }): never {
   if (msg.includes('reason_required'))             throw AppError.badRequest('reason_required');
   if (msg.includes('reason_too_long'))             throw AppError.badRequest('reason_too_long');
 
-  throw error;
+  console.error('[reschedule_rpc_failed]', {
+    code: error.code,
+    message: error.message,
+  });
+  throw AppError.internal(`reschedule_rpc_failed: ${msg || 'unknown_rpc_error'}`);
 }
 
 export class RescheduleRepository {
