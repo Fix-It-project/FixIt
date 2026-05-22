@@ -23,6 +23,7 @@ export class AuthService {
         apartment_no: addressData.apartment_no,
         latitude: addressData.latitude ?? null,
         longitude: addressData.longitude ?? null,
+        is_active: true,
       });
     }
     

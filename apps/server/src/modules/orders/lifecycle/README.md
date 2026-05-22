@@ -1,0 +1,682 @@
+# Order Lifecycle Database Contract
+
+This file documents the database objects used by the order lifecycle backend.
+The source of truth is the lean migration:
+
+```text
+supabase/migrations/20260512000000_order_state_machine_phase1_lean.sql
+```
+
+The server-side wrapper for these objects is `lifecycle.repository.ts`.
+Controllers and services should call repository methods instead of calling
+Supabase RPCs directly.
+
+## Database Ownership Model
+
+- Lifecycle mutations are database-atomic RPCs.
+- RPCs are `SECURITY DEFINER` and take actor IDs from the backend service.
+- The permission block revokes execute from `PUBLIC`, `anon`, and
+  `authenticated`, then grants execute to `service_role`.
+- Native clients may directly read selected realtime tables through RLS, but
+  writes should go through the Express API.
+
+## Extensions And Enum
+
+| Object | Purpose |
+| --- | --- |
+| `cube` extension | Required by `earthdistance`. |
+| `earthdistance` extension | Computes distance between destination address and latest technician location. |
+| `public.order_status` enum | Canonical order state type used by `orders.status`, `order_events.from_status`, and `order_events.to_status`. |
+
+`order_status` values:
+
+```text
+pending
+accepted
+tracking
+arrived_inspection
+awaiting_final_cost
+negotiating
+in_progress
+awaiting_payment
+completed
+declined_by_technician
+cancelled_no_fee
+cancelled_with_fee
+reschedule_requested_by_user
+reschedule_requested_by_technician
+rejected
+cancelled
+cancelled_by_user
+cancelled_by_technician
+```
+
+The last six are retained for compatibility with older routes and reschedule
+logic. New lifecycle RPCs should prefer the canonical non-legacy statuses.
+
+## Tables And Columns
+
+### `orders`
+
+The migration converts `orders.status` to `public.order_status`, keeps
+`active` for compatibility, and adds lifecycle snapshot columns.
+
+| Column | Purpose |
+| --- | --- |
+| `status` | Canonical state machine position. |
+| `final_price` | Accepted quote amount; must be positive when present. |
+| `payment_method` | `cash` or `card`; card is reserved for future PSP work. |
+| `destination_address_id` | Address used for ownership and distance/geofence checks. |
+| `scheduled_start_at` | Optional precise start time, used for schedule ordering. |
+| `arrived_at` | Set once when location updates enter the 1km geofence. |
+| `user_completed_at` | User's completion confirmation timestamp. |
+| `technician_completed_at` | Technician's completion confirmation timestamp. |
+
+### `technicians`
+
+| Column | Purpose |
+| --- | --- |
+| `inspection_fee` | Fee charged when eligible cancellations happen after inspection has begun. Defaults to `100`. |
+
+### `order_events`
+
+Append-only lifecycle audit trail.
+
+| Column | Purpose |
+| --- | --- |
+| `order_id` | Parent order. |
+| `actor_id` | User, technician, or `NULL` for system events. |
+| `actor_role` | `user`, `technician`, or `system`. |
+| `from_status` / `to_status` | Status transition snapshot. |
+| `event_type` | Constrained lifecycle event token. |
+| `metadata` | JSON payload for reason, distance, quote id, payment id, fee amount, etc. |
+
+Allowed `event_type` values:
+
+```text
+order_submitted
+tech_accept
+tech_decline
+tech_start_tracking
+tech_arrived
+tech_start_inspection
+tech_finish_inspection
+quote_submitted
+quote_accepted
+user_confirmed_done
+tech_confirmed_done
+user_completion_declined
+tech_completion_declined
+payment_method_chosen
+cash_received
+order_cancelled
+fee_obligation_resolved
+```
+
+### `order_locations`
+
+One latest tracking point per order.
+
+| Column | Purpose |
+| --- | --- |
+| `order_id` | Primary key and parent order. |
+| `technician_id` | Assigned technician; must match the order. |
+| `latitude` / `longitude` | WGS-84 bounded coordinates. |
+| `heading` | Optional direction. |
+| `accuracy` | Optional device accuracy. |
+| `updated_at` | Refreshed on every write. |
+
+### `order_quotes`
+
+Quote negotiation log.
+
+| Column | Purpose |
+| --- | --- |
+| `order_id` | Parent order. |
+| `proposed_by` | `user` or `technician`. |
+| `proposer_id` | Actor ID. |
+| `amount` | Positive integer amount. |
+| `round_number` | `1..5`; odd rounds are technician, even rounds are user. |
+| `status` | `pending`, `accepted`, or `superseded`. |
+| `notes` | Optional quote note. |
+| `resolved_at` | Set when superseded or accepted. |
+
+### `payments`
+
+Payment-attempt table.
+
+| Column | Purpose |
+| --- | --- |
+| `order_id` | Parent order. |
+| `user_id` | Paying user. |
+| `amount` | Final price snapshot. |
+| `payment_method` | `cash` or `card`. |
+| `status` | `created`, `processing`, `paid`, `failed`, or `cancelled`. |
+| `provider` | `paymob` for future card flow, `NULL` for cash, or smoke labels. |
+| `provider_order_id` / `provider_transaction_id` | PSP identifiers. |
+| `failure_reason` | Cancel/failure detail. |
+| `paid_at` | Payment completion timestamp. |
+
+### `user_fee_obligations`
+
+Inspection-fee debt generated by eligible cancellations.
+
+| Column | Purpose |
+| --- | --- |
+| `user_id` | Debtor. |
+| `technician_id` | Technician owed. |
+| `source_order_id` | Order that created the fee. |
+| `amount` | Inspection fee snapshot. |
+| `reason` | Defaults to `inspection_cancellation_fee`. |
+| `status` | `unpaid`, `paid`, or `waived`. |
+| `resolved_at` | Set when paid or waived. |
+
+## Indexes
+
+### `orders`
+
+| Index | Definition | Why it exists |
+| --- | --- | --- |
+| `idx_orders_pending_created_at` | `(created_at) WHERE status = 'pending'` | Fast pending-order queues and old pending sweeps. |
+| `idx_one_active_order_per_technician` | unique `(technician_id) WHERE status IN ('tracking','arrived_inspection','awaiting_final_cost','negotiating','in_progress','awaiting_payment')` | Ensures a technician has only one in-flight active job after travel begins. |
+| `idx_orders_technician_schedule_status` | `(technician_id, scheduled_start_at, scheduled_date, status)` | Supports schedule-order checks and technician order lists. |
+| `idx_orders_user_status` | `(user_id, status)` | Supports user order filters. |
+| `idx_orders_technician_status` | `(technician_id, status)` | Supports technician order filters. |
+
+### `order_events`
+
+| Index | Definition | Why it exists |
+| --- | --- | --- |
+| `idx_order_events_order_created` | `(order_id, created_at DESC)` | Paginated event history. |
+| `idx_order_events_order_type` | `(order_id, event_type)` | Event existence checks. |
+| `idx_one_arrival_event_per_order` | unique `(order_id) WHERE event_type = 'tech_arrived'` | Arrival is recorded once. |
+| `idx_one_user_done_event_per_order` | unique `(order_id) WHERE event_type = 'user_confirmed_done'` | User completion event is recorded once. |
+| `idx_one_tech_done_event_per_order` | unique `(order_id) WHERE event_type = 'tech_confirmed_done'` | Technician completion event is recorded once. |
+
+### `order_quotes`
+
+| Index/Constraint | Definition | Why it exists |
+| --- | --- | --- |
+| `order_quotes_unique_round` | unique `(order_id, round_number)` | No duplicate quote round. |
+| `idx_order_quotes_order_status` | `(order_id, status)` | Quote-history and pending/accepted lookup. |
+| `idx_one_pending_quote_per_order` | unique `(order_id) WHERE status = 'pending'` | Only one actionable quote at a time. |
+| `idx_one_accepted_quote_per_order` | unique `(order_id) WHERE status = 'accepted'` | One final accepted quote. |
+
+### `payments`
+
+| Index | Definition | Why it exists |
+| --- | --- | --- |
+| `idx_payments_order` | `(order_id)` | Payment lookup by order. |
+| `idx_one_paid_payment_per_order` | unique `(order_id) WHERE status = 'paid'` | Prevents duplicate paid records. |
+| `idx_unique_provider_transaction` | unique `(provider_transaction_id) WHERE provider_transaction_id IS NOT NULL` | Prevents PSP transaction replay/collision. |
+| `idx_payments_provider_order` | `(provider_order_id) WHERE provider_order_id IS NOT NULL` | PSP order lookup. |
+
+### `user_fee_obligations`
+
+| Index | Definition | Why it exists |
+| --- | --- | --- |
+| `idx_fee_obligations_user_unpaid` | `(user_id) WHERE status = 'unpaid'` | Fast submit-time unpaid-fee guard. |
+
+## Triggers
+
+| Trigger | Timing | Function | Purpose |
+| --- | --- | --- | --- |
+| `trg_sync_order_active_from_status` | `BEFORE INSERT OR UPDATE OF status ON orders` | `fn_sync_order_active_from_status` | Maintains legacy `orders.active` from lifecycle status. |
+| `trg_validate_order_location_write` | `BEFORE INSERT OR UPDATE ON order_locations` | `fn_validate_order_location_write` | Ensures location writes belong to the assigned technician and only happen while `tracking`. |
+| `trg_dual_confirm_completion` | `BEFORE UPDATE OF user_completed_at, technician_completed_at ON orders` | `fn_dual_confirm_completion` | Moves `in_progress` orders to `awaiting_payment` once both parties confirmed. |
+
+`fn_sync_order_active_from_status` sets `active = true` for:
+
+```text
+accepted
+tracking
+arrived_inspection
+awaiting_final_cost
+negotiating
+in_progress
+awaiting_payment
+reschedule_requested_by_user
+reschedule_requested_by_technician
+```
+
+## Helper Functions
+
+| Function | Purpose |
+| --- | --- |
+| `fn_order_distance_km(p_order_id uuid)` | Returns kilometers between the order destination address and latest technician location. Returns `NULL` if address/location data is incomplete. |
+| `fn_sync_order_active_from_status()` | Trigger function for legacy `active` projection. |
+| `fn_validate_order_location_write()` | Trigger function for raw `order_locations` safety. |
+| `fn_dual_confirm_completion()` | Trigger function for dual completion. |
+
+## Lifecycle RPCs
+
+All lifecycle RPCs are `SECURITY DEFINER SET search_path = public`.
+
+### `rpc_submit_order(...)`
+
+Arguments:
+
+```text
+p_user_id uuid
+p_technician_id uuid
+p_service_id uuid
+p_destination_address_id uuid
+p_problem_description text
+p_attachment text
+p_scheduled_date date
+p_scheduled_start_at timestamptz default null
+```
+
+Behavior:
+
+- Blocks users with unpaid `user_fee_obligations` unless the separate testing
+  override migration replaced the function.
+- Verifies the destination address belongs to the user.
+- Inserts `orders` with `status = 'pending'`.
+- Writes `order_submitted` event.
+
+Main error tokens:
+
+```text
+cannot_submit_order_unpaid_fee
+destination_address_not_owned_by_user
+```
+
+### `rpc_order_action(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_actor_id uuid
+p_actor_role text
+p_action text
+p_reason text default null
+```
+
+Supported actions:
+
+| Action | Required status | Result |
+| --- | --- | --- |
+| `tech_accept` | `pending` | `accepted` |
+| `tech_decline` | `pending` | `declined_by_technician` |
+| `tech_start_tracking` | `accepted` | `tracking` |
+| `tech_start_inspection` | `tracking` plus arrival event and <= 1km | `arrived_inspection` |
+| `tech_finish_inspection` | `arrived_inspection` | `awaiting_final_cost` |
+
+Extra `tech_start_tracking` guards:
+
+- No other in-flight active order for the technician.
+- No earlier accepted/rescheduled/in-flight booking remains unfinished.
+- Unique index catches races across active post-tracking statuses.
+
+Main error tokens include:
+
+```text
+bad_actor_role
+order_not_found_or_not_owner
+invalid_transition
+technician_already_has_active_order
+technician_already_tracking_another_order
+earlier_order_not_completed
+arrival_not_detected_yet
+too_far_from_destination
+bad_order_action
+```
+
+### `rpc_upsert_order_location(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_technician_id uuid
+p_latitude double precision
+p_longitude double precision
+p_heading double precision default null
+p_accuracy double precision default null
+```
+
+Behavior:
+
+- Requires assigned technician and `status = 'tracking'`.
+- Upserts one `order_locations` row for the order.
+- Computes distance with `fn_order_distance_km`.
+- If distance is `<= 1.0`, sets `orders.arrived_at` once and inserts one
+  `tech_arrived` event.
+
+Main error tokens:
+
+```text
+order_not_found_or_not_owner
+location_updates_only_allowed_while_tracking
+```
+
+### `rpc_submit_quote(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_actor_id uuid
+p_actor_role text
+p_amount integer
+p_notes text default null
+```
+
+Behavior:
+
+- Requires `awaiting_final_cost` or `negotiating`.
+- Serializes quote rounds with advisory lock.
+- Computes next round as `MAX(round_number) + 1`.
+- Allows five rounds: technician rounds 1, 3, 5; user rounds 2, 4.
+- Supersedes existing pending quote.
+- Inserts the new pending quote.
+- Moves order from `awaiting_final_cost` to `negotiating` on first quote.
+- Writes `quote_submitted` event.
+
+Main error tokens:
+
+```text
+bad_actor_role
+order_not_found
+not_owner
+invalid_transition
+max_quote_rounds_reached
+wrong_actor_for_round
+```
+
+### `rpc_accept_quote(...)`
+
+Arguments:
+
+```text
+p_quote_id uuid
+p_actor_id uuid
+p_actor_role text
+```
+
+Behavior:
+
+- Requires pending quote and order status `negotiating`.
+- Actor must be the counterparty, not the quote proposer.
+- Marks quote `accepted`.
+- Moves order to `in_progress`.
+- Copies quote amount to `orders.final_price`.
+- Writes `quote_accepted` event.
+
+Main error tokens:
+
+```text
+bad_actor_role
+quote_not_found
+quote_not_pending
+cannot_accept_own_quote
+invalid_transition
+not_owner
+```
+
+### `rpc_confirm_completion(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_actor_id uuid
+p_actor_role text
+```
+
+Behavior:
+
+- Requires order status `in_progress`.
+- Sets `user_completed_at` or `technician_completed_at` with `COALESCE`.
+- Writes `user_confirmed_done` or `tech_confirmed_done` once.
+- The dual-confirm trigger advances to `awaiting_payment` if both timestamps
+  are set.
+
+Main error tokens:
+
+```text
+bad_actor_role
+order_not_found
+invalid_transition
+not_owner
+```
+
+### `rpc_decline_completion(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_actor_id uuid
+p_actor_role text
+```
+
+Behavior:
+
+- Requires order status `in_progress`.
+- If the actor has already confirmed, clears that actor's own confirmation
+  timestamp. This acts as withdraw.
+- Otherwise, clears the other party's pending confirmation timestamp. This acts
+  as decline.
+- Keeps the order in `in_progress`.
+- Writes `user_completion_declined` or `tech_completion_declined`.
+
+Main error tokens:
+
+```text
+bad_actor_role
+order_not_found
+invalid_transition
+not_owner
+no_completion_pending
+```
+
+### `rpc_choose_payment_method(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_user_id uuid
+p_method text
+```
+
+Behavior:
+
+- Allows DB methods `cash` or `card`; current DTO only accepts `cash`.
+- Requires owner user and `awaiting_payment`.
+- Requires `final_price`.
+- Cancels any existing `created`/`processing` payment attempt.
+- Sets `orders.payment_method`.
+- Inserts a `payments` row with status `created`.
+- Uses provider `paymob` for card and `NULL` for cash.
+- Writes `payment_method_chosen` event.
+
+Main error tokens:
+
+```text
+bad_payment_method
+order_not_found_or_not_owner
+invalid_transition
+missing_final_price
+```
+
+### `rpc_mark_cash_received(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_tech_id uuid
+```
+
+Behavior:
+
+- Requires assigned technician, `awaiting_payment`, and `payment_method = 'cash'`.
+- Marks the pending cash payment `paid`.
+- Moves order to `completed`.
+- Writes `cash_received` event.
+
+Main error tokens:
+
+```text
+order_not_found_or_not_owner
+invalid_transition
+no_cash_payment_pending
+```
+
+### `rpc_cancel_order(...)`
+
+Arguments:
+
+```text
+p_order_id uuid
+p_actor_id uuid
+p_actor_role text
+p_reason text default null
+```
+
+Behavior:
+
+- User cancellations:
+  - `pending`, `accepted`, `tracking`, or reschedule statuses ->
+    `cancelled_no_fee`.
+  - `arrived_inspection`, `awaiting_final_cost`, `negotiating`, or
+    `in_progress` -> `cancelled_with_fee`.
+- Technician cancellations:
+  - `pending` -> `declined_by_technician`.
+  - `accepted`, `tracking`, `arrived_inspection`, or
+    `reschedule_requested_by_technician` -> `cancelled_no_fee`.
+  - `awaiting_final_cost`, `negotiating`, or `in_progress` ->
+    `cancelled_with_fee`.
+- Rejects any pending reschedule request with
+  `auto_rejected_order_cancelled`.
+- Supersedes any pending quote.
+- If `cancelled_with_fee`, inserts `user_fee_obligations` using
+  `technicians.inspection_fee`.
+- Writes `order_cancelled` event.
+
+Main error tokens:
+
+```text
+bad_actor_role
+order_not_found
+not_owner
+cannot_cancel_from_status
+```
+
+### `rpc_resolve_fee_obligation(...)`
+
+Arguments:
+
+```text
+p_obligation_id uuid
+p_status text
+```
+
+Behavior:
+
+- Accepts `paid` or `waived`.
+- Updates only unpaid obligations.
+- Writes `fee_obligation_resolved` event against the source order.
+
+Main error tokens:
+
+```text
+bad_status
+fee_not_unpaid
+```
+
+## Reschedule RPCs Preserved By Lean
+
+These predate the lifecycle RPCs but were recreated in the lean migration to
+work with `public.order_status` and `search_path = public`.
+
+| Function | Purpose |
+| --- | --- |
+| `reschedule_create` | Creates a pending reschedule request and moves the order into the matching reschedule status. |
+| `reschedule_approve` | Counterparty approves, validates availability/capacity, updates date, returns to `accepted`. |
+| `reschedule_reject` | Counterparty or system rejects and returns order to `accepted`. |
+| `reschedule_withdraw` | Requester withdraws and returns order to `accepted`. |
+| `auto_reject_if_expired` | Lazy timeout handler for pending reschedule requests. |
+
+## RLS And Realtime
+
+RLS is enabled on:
+
+```text
+orders
+order_events
+order_locations
+order_quotes
+payments
+user_fee_obligations
+```
+
+Client SELECT policies are added only for:
+
+| Table | Policies |
+| --- | --- |
+| `orders` | User can read rows where `user_id = auth.uid()`; technician can read rows where `technician_id = auth.uid()`. |
+| `order_quotes` | User/technician can read quotes through ownership of parent order. |
+| `order_locations` | User/technician can read location through ownership of parent order. |
+
+No client SELECT policies are added for `order_events`, `payments`, or
+`user_fee_obligations` in the lean migration. The API reads events/quotes after
+service-role ownership checks.
+
+Realtime publication `supabase_realtime` includes, when the publication exists:
+
+```text
+orders
+order_quotes
+order_locations
+```
+
+## Repository Mapping
+
+| Repository method | Database object |
+| --- | --- |
+| `submitOrder` | `rpc_submit_order` |
+| `orderAction` | `rpc_order_action` |
+| `upsertLocation` | `rpc_upsert_order_location` |
+| `submitQuote` | `rpc_submit_quote` |
+| `acceptQuote` | `rpc_accept_quote` |
+| `confirmCompletion` | `rpc_confirm_completion` |
+| `declineCompletion` | `rpc_decline_completion` |
+| `choosePaymentMethod` | `rpc_choose_payment_method` |
+| `markCashReceived` | `rpc_mark_cash_received` |
+| `cancelOrder` | `rpc_cancel_order` |
+| `resolveFeeObligation` | `rpc_resolve_fee_obligation` |
+| `getOrderDistance` | `fn_order_distance_km` |
+| `tagPaymentAsSmokeAuto` | Direct `payments` update for smoke-mode provider tagging only. |
+
+## Smoke Auto-Finalization
+
+`LifecycleService.confirmCompletion` contains temporary smoke behavior:
+
+1. Calls `rpc_confirm_completion`.
+2. If the returned order is `awaiting_payment` and
+   `LIFECYCLE_SMOKE_AUTO_COMPLETE !== 'false'`, it chooses cash.
+3. Tags the created payment with `provider = 'smoke_auto'`.
+4. Calls `rpc_mark_cash_received`.
+
+This is a development/testing shortcut and should be removed when the real card
+payment flow ships.
+
+## Applying Follow-Up Migrations
+
+The current lean migration already includes:
+
+- Phase 1 security hardening.
+- Phase 3 RLS/realtime owner-read policies.
+- `scheduled_start_at`.
+- five quote rounds.
+- `rpc_decline_completion`.
+- widened active technician order unique index.
+
+If you run the lean migration against a fresh database, do not separately apply
+standalone migrations that were merged into it unless you have checked that they
+are idempotent and still needed for your target database.

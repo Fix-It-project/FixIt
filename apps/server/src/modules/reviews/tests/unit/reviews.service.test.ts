@@ -148,25 +148,4 @@ describe("ReviewsService", () => {
 			expect(out).toEqual([{ id: "r1" }]);
 		});
 	});
-
-	describe("getReviewsForAuthenticatedTechnician", () => {
-		it("delegates to the technician review listing for the authenticated technician", async () => {
-			mockReviewsRepo.listReviewsForTechnician.mockResolvedValue([
-				{ id: "r1" },
-			]);
-
-			const out = await service.getReviewsForAuthenticatedTechnician(
-				technicianId,
-				20,
-				0,
-			);
-
-			expect(mockReviewsRepo.listReviewsForTechnician).toHaveBeenCalledWith(
-				technicianId,
-				20,
-				0,
-			);
-			expect(out).toEqual([{ id: "r1" }]);
-		});
-	});
 });

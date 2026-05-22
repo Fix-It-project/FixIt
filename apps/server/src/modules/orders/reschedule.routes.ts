@@ -13,6 +13,13 @@ import {
 const router: RouterType = Router();
 
 // User surface
+router.get(
+  '/user/orders/:id/reschedule',
+  requireUserAuth,
+  validate({ params: OrderIdParamsSchema }),
+  (req, res) => rescheduleController.getReschedule(req, res, 'user'),
+);
+
 router.post(
   '/user/orders/:id/reschedule',
   requireUserAuth,
@@ -42,6 +49,13 @@ router.post(
 );
 
 // Technician surface
+router.get(
+  '/technician/orders/:id/reschedule',
+  requireTechnicianAuth,
+  validate({ params: OrderIdParamsSchema }),
+  (req, res) => rescheduleController.getReschedule(req, res, 'technician'),
+);
+
 router.post(
   '/technician/orders/:id/reschedule',
   requireTechnicianAuth,

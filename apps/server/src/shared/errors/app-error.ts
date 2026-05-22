@@ -27,4 +27,8 @@ export class AppError extends Error {
   static conflict(message: string): AppError {
     return new AppError(message, 409);
   }
+
+  static internal(message: string): AppError {
+    return new AppError(message, 500);
+  }
 }

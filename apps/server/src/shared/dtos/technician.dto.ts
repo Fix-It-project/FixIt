@@ -3,11 +3,22 @@ import { z } from 'zod';
 export const TechnicianSortSchema = z.enum(['top_rated', 'most_reviews']);
 export type TechnicianSort = z.infer<typeof TechnicianSortSchema>;
 
+// `lat`/`lng` are kept as raw strings — parseCoords() does the numeric parsing.
+// They MUST be declared here: the validate() middleware replaces req.query with
+// the parsed schema output, and Zod strips any key the schema doesn't list.
 export const TechnicianListQuerySchema = z.object({
   sort: TechnicianSortSchema.optional(),
-  // Note: lat/lng/q are read directly from req.query elsewhere; do not move them here in this phase.
+  lat: z.string().optional(),
+  lng: z.string().optional(),
 });
 export type TechnicianListQuery = z.infer<typeof TechnicianListQuerySchema>;
+
+// Search reuses the list query and additionally requires `q`. Without `q` in the
+// schema the validate() middleware would strip it, breaking every search request.
+export const TechnicianSearchQuerySchema = TechnicianListQuerySchema.extend({
+  q: z.string().trim().min(1, 'Query parameter "q" is required'),
+});
+export type TechnicianSearchQuery = z.infer<typeof TechnicianSearchQuerySchema>;
 
 export const UpdateTechnicianSelfBodySchema = z.object({
   first_name: z.string().min(1).optional(),

@@ -5,7 +5,6 @@ import {
 	TechnicianIdParamsSchema,
 	TechnicianReviewsQuerySchema,
 } from "../../shared/dtos/index.js";
-import { requireTechnicianAuth } from "../../shared/middlewares/technician-auth.middleware.js";
 import { requireUserAuth } from "../../shared/middlewares/user-auth.middleware.js";
 import { validate } from "../../shared/middlewares/validate.middleware.js";
 import { reviewsController } from "./reviews.controller.js";
@@ -17,13 +16,6 @@ router.post(
 	requireUserAuth,
 	validate({ body: CreateReviewBodySchema }),
 	(req, res) => reviewsController.createReview(req, res),
-);
-
-router.get(
-	"/technicians/me/reviews",
-	requireTechnicianAuth,
-	validate({ query: TechnicianReviewsQuerySchema }),
-	(req, res) => reviewsController.getMyTechnicianReviews(req, res),
 );
 
 router.get(
