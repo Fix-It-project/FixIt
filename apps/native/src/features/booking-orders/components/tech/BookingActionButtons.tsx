@@ -2,7 +2,7 @@ import { CalendarClock, Check, X } from "lucide-react-native";
 import { ActivityIndicator, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly onComplete: () => void;
@@ -36,7 +36,7 @@ export default function BookingActionButtons({
 				) : (
 					<>
 						<Check
-							size={18}
+							size={spacing.icon.sm}
 							color={themeColors.onPrimaryHeader}
 							strokeWidth={2.5}
 						/>
@@ -62,7 +62,7 @@ export default function BookingActionButtons({
 				}}
 			>
 				<CalendarClock
-					size={18}
+					size={spacing.icon.sm}
 					color={themeColors.textPrimary}
 					strokeWidth={2}
 				/>
@@ -79,7 +79,7 @@ export default function BookingActionButtons({
 				style={{ borderColor: themeColors.danger }}
 				textClass="text-danger"
 			>
-				<X size={18} color={themeColors.danger} strokeWidth={2} />
+				<X size={spacing.icon.sm} color={themeColors.danger} strokeWidth={2} />
 				<Text variant="buttonLg" style={{ color: themeColors.danger }}>
 					Cancel Booking
 				</Text>

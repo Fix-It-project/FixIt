@@ -36,16 +36,21 @@ export function useBottomTabMetrics(): BottomTabMetrics {
 	};
 }
 
+export const NARROW_TAB_BAR_WIDTH = 360;
+
 export function getBaseTabScreenOptions(
 	themeColors: ThemePalette,
 	metrics: BottomTabMetrics,
+	options: { showLabels?: boolean } = {},
 ): BottomTabNavigationOptions {
 	const isIos = Platform.OS === "ios";
+	const showLabels = options.showLabels ?? true;
 
 	return {
 		headerShown: false,
 		tabBarActiveTintColor: themeColors.primary,
 		tabBarInactiveTintColor: themeColors.textMuted,
+		tabBarShowLabel: showLabels,
 		tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
 		tabBarStyle: {
 			backgroundColor: themeColors.surfaceBase,

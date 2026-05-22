@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 export interface InfoSectionRow {
 	readonly icon: LucideIcon;
@@ -22,7 +22,7 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
 				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-button"
 				style={{ backgroundColor: `${themeColors.primary}12` }}
 			>
-				<Icon size={18} color={themeColors.primary} strokeWidth={2} />
+				<Icon size={spacing.icon.sm} color={themeColors.primary} strokeWidth={2} />
 			</View>
 			<View className="min-w-0 flex-1">
 				<Text

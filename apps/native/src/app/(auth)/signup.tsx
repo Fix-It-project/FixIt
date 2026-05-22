@@ -1,5 +1,5 @@
 import { Mail, Phone, User } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import ErrorBanner from "@/src/components/feedback/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
@@ -29,13 +29,20 @@ export default function SignUp() {
 	const [buildingNumber, setBuildingNumber] = useState("");
 	const [apartmentNumber, setApartmentNumber] = useState("");
 
-	const { location } = useLocationStore();
+	const { location, requestLocationPermission } = useLocationStore();
 
 	const signUpMutation = useSignUpMutation();
 	const { fieldErrors, clearFieldError, validate } =
 		useFormValidation(signUpSchema);
 
-	const handleSignUp = () => {
+	// Ask for device location on mount so coordinates are ready by the time the
+	// user submits. Without this the location store stays empty and signup
+	// persists null lat/long for the new user's address.
+	useEffect(() => {
+		void requestLocationPermission();
+	}, [requestLocationPermission]);
+
+	const handleSignUp = async () => {
 		const result = validate({
 			fullName,
 			email,
@@ -49,6 +56,14 @@ export default function SignUp() {
 		});
 		if (!result.success) return;
 
+		// Fallback: if coordinates still aren't loaded (slow GPS, or the mount
+		// request hasn't resolved), try once more before creating the account.
+		let coords = location;
+		if (!coords) {
+			await requestLocationPermission();
+			coords = useLocationStore.getState().location;
+		}
+
 		signUpMutation.mutate({
 			fullName: result.data.fullName,
 			email: result.data.email,
@@ -58,8 +73,8 @@ export default function SignUp() {
 			street: result.data.street,
 			building_no: result.data.buildingNumber ?? "",
 			apartment_no: result.data.apartmentNumber ?? "",
-			latitude: location?.latitude ?? null,
-			longitude: location?.longitude ?? null,
+			latitude: coords?.latitude ?? null,
+			longitude: coords?.longitude ?? null,
 		});
 	};
 

@@ -13,7 +13,6 @@ import { Text } from "@/src/components/ui/text";
 import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
-import { getReviewDistribution } from "@/src/lib/utils/review-distribution";
 
 export default function TechnicianReviewsScreen() {
 	const themeColors = useThemeColors();
@@ -34,7 +33,6 @@ export default function TechnicianReviewsScreen() {
 		() => data?.pages.flatMap((p) => p.reviews) ?? [],
 		[data],
 	);
-	const distribution = useMemo(() => getReviewDistribution(reviews), [reviews]);
 
 	return (
 		<ScreenSafeAreaView
@@ -86,7 +84,6 @@ export default function TechnicianReviewsScreen() {
 							<ReviewStatsHeader
 								avgRating={profile?.avg_rating ?? null}
 								reviewCount={profile?.review_count ?? 0}
-								distribution={distribution}
 							/>
 						}
 						ListEmptyComponent={

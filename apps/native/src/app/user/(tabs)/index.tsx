@@ -8,6 +8,7 @@ import AddressBottomSheet, {
 	type AddressBottomSheetRef,
 } from "@/src/features/addresses/components/user/AddressBottomSheet";
 import LocationHeader from "@/src/features/addresses/components/user/LocationHeader";
+import { UserActiveOrderBubble } from "@/src/features/booking-orders/components/state-machine/shared";
 import PreviousOrdersSection from "@/src/features/booking-orders/components/user/PreviousOrdersSection";
 import CategoryGrid from "@/src/features/categories/components/user/CategoryGrid";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
@@ -85,6 +86,8 @@ export default function Home() {
 					<PreviousOrdersSection />
 				</View>
 			</ScrollView>
+
+			<UserActiveOrderBubble />
 
 			<AddressBottomSheet
 				ref={addressSheetRef}

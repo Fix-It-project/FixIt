@@ -15,7 +15,7 @@ import {
 	DUR_REVEAL,
 	EASE_OUT_EXPO,
 	SPLASH_HOLD_MS,
-} from "@/src/features/onboarding/animation/constants";
+} from "@/src/lib/animation/constants";
 import { SplashIntroPanel } from "@/src/features/onboarding/components/SplashIntroPanel";
 import { WelcomeContent } from "@/src/features/onboarding/components/WelcomeContent";
 import { useDebounce } from "@/src/hooks/useDebounce";

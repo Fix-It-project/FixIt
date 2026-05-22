@@ -157,6 +157,7 @@ export const spacing = {
 	},
 	icon: {
 		"2xs": 4,
+		caption: 14,
 		xs: 16,
 		sm: 20,
 		md: 24,

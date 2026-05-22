@@ -12,5 +12,5 @@ export const useTechRequestsStore = create<TechRequestsStore>((set) => ({
 	selectedOrder: null,
 	isModalVisible: false,
 	openModal: (order) => set({ selectedOrder: order, isModalVisible: true }),
-	closeModal: () => set({ isModalVisible: false }),
+	closeModal: () => set({ isModalVisible: false, selectedOrder: null }),
 }));

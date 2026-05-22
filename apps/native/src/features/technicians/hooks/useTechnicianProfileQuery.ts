@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTechnicianProfile } from "@/src/features/technicians/api/technicians";
+import { technicianQueryKeys } from "@/src/features/technicians/query-keys";
 import type { TechnicianProfile } from "@/src/features/technicians/schemas/response.schema";
 
 /**
@@ -11,7 +12,7 @@ import type { TechnicianProfile } from "@/src/features/technicians/schemas/respo
  */
 export function useTechnicianProfileQuery(technicianId: string | null) {
 	return useQuery<TechnicianProfile>({
-		queryKey: ["technician-profile", technicianId],
+		queryKey: technicianQueryKeys.profile(technicianId ?? ""),
 		queryFn: () => getTechnicianProfile(technicianId!),
 		enabled: !!technicianId,
 		staleTime: 5 * 60 * 1000,

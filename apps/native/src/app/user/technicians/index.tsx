@@ -10,14 +10,14 @@ import {
 	View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import TechnicianListCard from "@/src/features/technicians/components/user/TechnicianListCard";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/features/technicians/components/user/TechnicianProfileSheet";
 import TechnicianSortBar from "@/src/features/technicians/components/user/TechnicianSortBar";
 import { useTechniciansQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
 import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
@@ -25,6 +25,7 @@ import type { TechnicianListItem } from "@/src/features/technicians/schemas/resp
 import { useTechnicianSearchStore } from "@/src/features/technicians/stores/technician-search-store";
 import type { SortKey } from "@/src/features/technicians/types/sort";
 import { useDebounce } from "@/src/hooks/useDebounce";
+import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
 import { Colors, spacing, typography, useThemeColors } from "@/src/lib/theme";
@@ -52,7 +53,7 @@ function TechnicianListBody({
 		);
 	}
 
-	if (isError) {
+	if (isError && technicians.length === 0) {
 		return (
 			<View className="flex-1 items-center justify-center px-button-lg-x">
 				<Text variant="buttonLg" className="text-center text-content">
@@ -116,6 +117,8 @@ export default function TechniciansListScreen() {
 
 	const { searchText, setSearchText, activeSort, setActiveSort } =
 		useTechnicianSearchStore();
+	// Input stays instant; the query only fires once typing settles.
+	const debouncedSearch = useDebouncedValue(searchText, 350);
 	const { location, permissionStatus, requestLocationPermission } =
 		useLocationStore();
 	const coords = activeSort === "Nearest" ? location : null;
@@ -136,7 +139,7 @@ export default function TechniciansListScreen() {
 		refetch,
 	} = useTechniciansQuery(
 		categoryId ?? "",
-		searchText,
+		debouncedSearch,
 		coords,
 		serverSort,
 		sortRefreshToken,
@@ -195,6 +198,14 @@ export default function TechniciansListScreen() {
 			Toast.show({ type: "error", text1: "Could not load recommendations" });
 		}
 	}, [isRecommendedError]);
+
+	// A transient refetch failure shouldn't blank the screen when results are
+	// already showing — keep the list and just surface a toast.
+	useEffect(() => {
+		if (isError && technicians.length > 0) {
+			Toast.show({ type: "error", text1: "Couldn't refresh technicians" });
+		}
+	}, [isError, technicians.length]);
 
 	const handleSortPress = useCallback(
 		async (option: SortKey) => {

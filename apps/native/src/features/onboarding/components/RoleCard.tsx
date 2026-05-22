@@ -12,7 +12,7 @@ import Animated, {
 import { Text } from "@/src/components/ui/text";
 import { Colors, elevation, shadowStyle, space } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
-import { PressableScale } from "./PressableScale";
+import { PressableScale } from "@/src/components/ui/PressableScale";
 
 export type RoleVariant = "user" | "tech";
 

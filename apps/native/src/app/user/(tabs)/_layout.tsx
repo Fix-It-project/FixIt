@@ -7,7 +7,12 @@ import {
 	MessageCircle,
 	User,
 } from "lucide-react-native";
-import { Platform, TouchableOpacity, View } from "react-native";
+import {
+	Platform,
+	TouchableOpacity,
+	useWindowDimensions,
+	View,
+} from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import {
@@ -19,6 +24,7 @@ import {
 import { ROUTES } from "@/src/lib/routes";
 import {
 	getBaseTabScreenOptions,
+	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/lib/tab-bar-config";
 import { useThemeColors } from "@/src/lib/theme";
@@ -84,9 +90,12 @@ function ChatFab({
 export default function UserTabsLayout() {
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
+	const { width } = useWindowDimensions();
 	const pathname = usePathname();
 	const goToChatbot = useDebounce(() => router.push(ROUTES.user.chat));
-	const screenOptions = getBaseTabScreenOptions(themeColors, metrics);
+	const screenOptions = getBaseTabScreenOptions(themeColors, metrics, {
+		showLabels: width >= NARROW_TAB_BAR_WIDTH,
+	});
 	const topSafeAreaBackground =
 		pathname === ROUTES.user.home
 			? themeColors.primary

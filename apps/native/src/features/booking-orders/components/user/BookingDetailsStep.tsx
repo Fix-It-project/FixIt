@@ -137,7 +137,7 @@ export default function BookingDetailsStep({
 								activeOpacity={0.7}
 							>
 								<X
-									size={16}
+									size={spacing.icon.xs}
 									color={themeColors.surfaceBase}
 									strokeWidth={2.5}
 								/>
@@ -159,7 +159,7 @@ export default function BookingDetailsStep({
 								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-surface py-card"
 								activeOpacity={0.7}
 							>
-								<Paperclip size={18} color={Colors.primary} strokeWidth={2} />
+								<Paperclip size={spacing.icon.sm} color={Colors.primary} strokeWidth={2} />
 								<Text variant="buttonMd" className="text-app-primary">
 									Gallery
 								</Text>
@@ -170,7 +170,7 @@ export default function BookingDetailsStep({
 								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-surface py-card"
 								activeOpacity={0.7}
 							>
-								<Camera size={18} color={Colors.primary} strokeWidth={2} />
+								<Camera size={spacing.icon.sm} color={Colors.primary} strokeWidth={2} />
 								<Text variant="buttonMd" className="text-app-primary">
 									Camera
 								</Text>

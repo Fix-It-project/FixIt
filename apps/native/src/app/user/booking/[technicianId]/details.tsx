@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import Toast from "react-native-toast-message";
+import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import BookingFlowHeader from "@/src/features/booking-orders/components/shared/BookingFlowHeader";
 import BookingDetailsStep, {
 	type AttachmentInfo,
@@ -30,6 +31,13 @@ export default function BookingDetailsScreen() {
 	}>();
 
 	const { mutateAsync: createBooking, isPending } = useCreateBookingMutation();
+	const {
+		data: addresses,
+		isError: isAddressError,
+		isLoading: isLoadingAddresses,
+	} = useAddressesQuery();
+	const selectedAddress =
+		addresses?.find((address) => address.is_active) ?? addresses?.[0];
 
 	const bookingDateRoute = ROUTES.user.bookingDate(technicianId ?? "");
 	const goBack = useSafeBack({
@@ -49,24 +57,43 @@ export default function BookingDetailsScreen() {
 		attachment: AttachmentInfo | null,
 	) => {
 		if (!technicianId || !selectedDate || !serviceId) return;
+		if (isLoadingAddresses) {
+			Toast.show({ type: "info", text1: "Loading your saved location..." });
+			return;
+		}
+		if (isAddressError) {
+			Toast.show({ type: "error", text1: "Unable to load your location." });
+			return;
+		}
+		if (!selectedAddress) {
+			Toast.show({ type: "error", text1: "Add a location before booking." });
+			return;
+		}
 		try {
 			const payload = bookingSchema.parse({
 				technician_id: technicianId,
 				service_id: serviceId,
 				scheduled_date: selectedDate,
 				problem_description: description || undefined,
+				destination_address_id: selectedAddress.id,
 			});
 
-			await createBooking({ payload, attachment: attachment ?? undefined });
-
-			Toast.show({
-				type: "success",
-				text1: "Booking submitted pending approval!",
+			const result = await createBooking({
+				payload,
+				attachment: attachment ?? undefined,
 			});
-			setTimeout(() => {
-				router.dismissAll();
-				router.replace(ROUTES.user.home);
-			}, 1000);
+
+			const createdOrderId = result?.data?.id;
+			// Exit the booking Stack group cleanly so Android hardware back
+			// from the "order placed" screen (or its order-detail follow-up) does
+			// NOT walk back into booking/[technicianId]/details|date|index.
+			// `router.dismissAll()` only dismisses modal stacks; for a nested
+			// Stack group we replace into the user tab root first, then push the
+			// success screen on top of that clean stack.
+			router.replace(ROUTES.user.home);
+			if (createdOrderId) {
+				router.push(ROUTES.user.placedOrder(createdOrderId));
+			}
 		} catch (error: unknown) {
 			Toast.show({ type: "error", text1: getErrorMessage(error) });
 		}
@@ -85,7 +112,7 @@ export default function BookingDetailsScreen() {
 				selectedDate={selectedDate}
 				onBack={goBack}
 				onConfirm={handleConfirm}
-				isPending={isPending}
+				isPending={isPending || isLoadingAddresses}
 			/>
 		</BookingFlowHeader>
 	);

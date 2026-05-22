@@ -37,11 +37,37 @@ export default function BookingDateStep({
 		() => getCalendarTheme(themeTokens),
 		[themeTokens.id],
 	);
+	// Cap the calendar at the same 3-month window useAvailabilityMarks evaluates,
+	// so days the availability logic never marked can't be tapped.
+	const maxDate = useMemo(() => {
+		const d = new Date();
+		d.setMonth(d.getMonth() + 3);
+		return d.toISOString().split("T")[0];
+	}, []);
 
 	if (isLoading) {
 		return (
 			<View className="flex-1 items-center justify-center">
 				<ActivityIndicator size="large" color={themeColors.primary} />
+			</View>
+		);
+	}
+
+	// A technician with no availability templates hasn't set a schedule yet —
+	// block booking entirely instead of leaving every calendar day selectable.
+	if (templates.length === 0) {
+		return (
+			<View className="flex-1 items-center justify-center px-card">
+				<Text variant="h3" className="text-center text-content">
+					No availability yet
+				</Text>
+				<Text
+					variant="bodySm"
+					className="mt-stack-xs text-center text-content-muted"
+				>
+					{technicianName} hasn't set up a schedule yet, so there are no dates
+					to book. Please check back later or pick another technician.
+				</Text>
 			</View>
 		);
 	}
@@ -65,6 +91,7 @@ export default function BookingDateStep({
 			>
 				<Calendar
 					minDate={new Date().toISOString().split("T")[0]}
+					maxDate={maxDate}
 					onDayPress={(day: DateData) => onDateSelect(day.dateString)}
 					markedDates={markedDates}
 					markingType="custom"

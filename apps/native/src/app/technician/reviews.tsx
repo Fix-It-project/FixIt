@@ -11,7 +11,7 @@ import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { ReviewRow, ReviewStatsHeader } from "@/src/components/reviews";
 import BackButton from "@/src/components/ui/BackButton";
 import { Text } from "@/src/components/ui/text";
-import { useMyTechnicianReviewsQuery } from "@/src/features/reviews/hooks/useMyTechnicianReviewsQuery";
+import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import { getReviewDistribution } from "@/src/lib/utils/review-distribution";
@@ -27,7 +27,7 @@ export default function TechnicianReviewsScreen() {
 		fetchNextPage,
 		hasNextPage,
 		isFetchingNextPage,
-	} = useMyTechnicianReviewsQuery();
+	} = useTechnicianReviewsInfiniteQuery(profile?.id ?? null);
 
 	const reviews = useMemo(
 		() => data?.pages.flatMap((p) => p.reviews) ?? [],

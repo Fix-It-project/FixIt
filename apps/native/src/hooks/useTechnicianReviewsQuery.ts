@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTechnicianReviews } from "@/src/features/reviews/api/reviews";
+import { reviewQueryKeys } from "@/src/features/reviews/query-keys";
 import type { TechnicianReviewsResponse } from "@/src/features/reviews/schemas/review.schema";
 
 /**
@@ -9,22 +10,23 @@ import type { TechnicianReviewsResponse } from "@/src/features/reviews/schemas/r
  * (technicians profile sheet preview + reviews routes).
  */
 export function useTechnicianReviewsQuery(
-  technicianId: string | null,
-  limit = 20,
-  offset = 0,
+	technicianId: string | null,
+	limit = 20,
+	offset = 0,
 ) {
-  return useQuery<TechnicianReviewsResponse>({
-    queryKey: ["technician-reviews", technicianId, limit, offset],
-    queryFn: async () => {
-      try {
-        return await getTechnicianReviews(technicianId!, { limit, offset });
-      } catch (error) {
-        console.warn("[useTechnicianReviewsQuery] API error:", error);
-        throw error;
-      }
-    },
-    enabled: !!technicianId,
-    staleTime: 2 * 60 * 1000,
-    retry: 1,
-  });
+	return useQuery<TechnicianReviewsResponse>({
+		queryKey: reviewQueryKeys.technicianPage(technicianId, limit, offset),
+		queryFn: async () => {
+			if (!technicianId) throw new Error("technicianId is required");
+			try {
+				return await getTechnicianReviews(technicianId, { limit, offset });
+			} catch (error) {
+				console.warn("[useTechnicianReviewsQuery] API error:", error);
+				throw error;
+			}
+		},
+		enabled: !!technicianId,
+		staleTime: 2 * 60 * 1000,
+		retry: 1,
+	});
 }

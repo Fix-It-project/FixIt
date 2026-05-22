@@ -93,7 +93,9 @@ export default function RequestReviewModal({
 			snapPoints={snapPoints}
 			enablePanDownToClose
 			backdropComponent={renderBackdrop}
-			onDismiss={closeModal}
+			onDismiss={() => {
+				if (isModalVisible) closeModal();
+			}}
 			backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
 			handleIndicatorStyle={{
 				backgroundColor: themeColors.borderDefault,

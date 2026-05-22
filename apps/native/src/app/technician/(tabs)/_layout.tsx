@@ -1,4 +1,3 @@
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Tabs, usePathname } from "expo-router";
 import {
 	CalendarDays,
@@ -96,54 +95,52 @@ export default function TechAppTabsLayout() {
 			: themeColors.surfaceElevated;
 
 	return (
-		<BottomSheetModalProvider>
-			<ProtectedTabsLayout
-				allowedUserType="technician"
-				unauthenticatedRedirect={ROUTES.auth.welcome}
-				wrongRoleRedirect={ROUTES.user.home}
-				topSafeAreaBackgroundColor={topSafeAreaBackground}
-			>
-				<Tabs.Screen
-					name="index"
-					options={{
-						title: "Home",
-						tabBarIcon: TechHomeTabIcon,
-					}}
-				/>
-				<Tabs.Screen
-					name="schedule/index"
-					options={{
-						title: "Schedule",
-						tabBarIcon: TechScheduleTabIcon,
-					}}
-				/>
-				<Tabs.Screen
-					name="chat/index"
-					options={{
-						title: "",
-						tabBarIcon: renderCenterChatTabIcon.bind(null, {
-							centerActionLift,
-							primaryColor: themeColors.primary,
-							primaryDarkColor: themeColors.primaryDark,
-							surfaceColor: themeColors.surfaceOnPrimary,
-						}),
-					}}
-				/>
-				<Tabs.Screen
-					name="wallet/index"
-					options={{
-						title: "Wallet",
-						tabBarIcon: TechWalletTabIcon,
-					}}
-				/>
-				<Tabs.Screen
-					name="profile/index"
-					options={{
-						title: "My Profile",
-						tabBarIcon: TechProfileTabIcon,
-					}}
-				/>
-			</ProtectedTabsLayout>
-		</BottomSheetModalProvider>
+		<ProtectedTabsLayout
+			allowedUserType="technician"
+			unauthenticatedRedirect={ROUTES.auth.welcome}
+			wrongRoleRedirect={ROUTES.user.home}
+			topSafeAreaBackgroundColor={topSafeAreaBackground}
+		>
+			<Tabs.Screen
+				name="index"
+				options={{
+					title: "Home",
+					tabBarIcon: TechHomeTabIcon,
+				}}
+			/>
+			<Tabs.Screen
+				name="schedule/index"
+				options={{
+					title: "Schedule",
+					tabBarIcon: TechScheduleTabIcon,
+				}}
+			/>
+			<Tabs.Screen
+				name="chat/index"
+				options={{
+					title: "",
+					tabBarIcon: renderCenterChatTabIcon.bind(null, {
+						centerActionLift,
+						primaryColor: themeColors.primary,
+						primaryDarkColor: themeColors.primaryDark,
+						surfaceColor: themeColors.surfaceOnPrimary,
+					}),
+				}}
+			/>
+			<Tabs.Screen
+				name="wallet/index"
+				options={{
+					title: "Wallet",
+					tabBarIcon: TechWalletTabIcon,
+				}}
+			/>
+			<Tabs.Screen
+				name="profile/index"
+				options={{
+					title: "My Profile",
+					tabBarIcon: TechProfileTabIcon,
+				}}
+			/>
+		</ProtectedTabsLayout>
 	);
 }

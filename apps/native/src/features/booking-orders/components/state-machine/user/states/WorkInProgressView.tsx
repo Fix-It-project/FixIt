@@ -1,0 +1,175 @@
+import { Ban, CheckCircle2, Hammer } from "lucide-react-native";
+import { useRef, useState } from "react";
+import { View } from "react-native";
+import Toast from "react-native-toast-message";
+import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
+import {
+	IconActionButton,
+	OrderInfoCompact,
+	StageActionRow,
+	StageHero,
+	StagePrimaryAction,
+} from "@/src/features/booking-orders/components/state-machine/shared";
+import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
+import {
+	useUserCancelOrder,
+	useUserConfirmCompletion,
+	useUserDeclineCompletion,
+} from "@/src/features/booking-orders/hooks";
+import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
+import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
+import { space } from "@/src/lib/theme";
+
+interface Props {
+	readonly order: Order;
+}
+
+export default function WorkInProgressView({ order }: Props) {
+	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
+	const userCompletedAt = order.user_completed_at ?? null;
+	const techCompletedAt = order.technician_completed_at ?? null;
+	const userRequested = userCompletedAt !== null && techCompletedAt === null;
+	const techRequested = techCompletedAt !== null && userCompletedAt === null;
+	const decline = useUserDeclineCompletion();
+	const confirm = useUserConfirmCompletion();
+
+	const fire = (mutation: typeof confirm, label: string) => {
+		mutation.mutate(
+			{ orderId: order.id },
+			{
+				onError: (err) =>
+					Toast.show({
+						type: "error",
+						text1: `Could not ${label}`,
+						text2: err.message,
+					}),
+			},
+		);
+	};
+
+	return (
+		<View style={{ gap: space[5] }}>
+			<StageHero
+				icon={Hammer}
+				eyebrow="In progress"
+				title="Your tech is fixing it."
+				subtitle="Tap finish when the work is done. Tech must agree."
+			/>
+			<OrderInfoCompact
+				order={order}
+				viewer="user"
+				onIdentityPress={() =>
+					profileSheetRef.current?.open(
+						order.technician_id,
+						getPfpInitialsFallback(order.technician_name),
+					)
+				}
+			/>
+			{userRequested ? (
+				<CompletionRequestPendingCard
+					direction="awaiting_them"
+					actorLabel="Technician"
+					requestedAt={userCompletedAt}
+					onDecline={() => fire(decline, "decline")}
+					declinePending={decline.isPending}
+				/>
+			) : null}
+			{techRequested ? (
+				<CompletionRequestPendingCard
+					direction="awaiting_me"
+					actorLabel="Technician"
+					requestedAt={techCompletedAt}
+					onConfirm={() => fire(confirm, "confirm")}
+					onDecline={() => fire(decline, "decline")}
+					confirmPending={confirm.isPending}
+					declinePending={decline.isPending}
+				/>
+			) : null}
+			<TechnicianProfileSheet ref={profileSheetRef} />
+		</View>
+	);
+}
+
+export function WorkInProgressViewCta({ order }: Props) {
+	const userCompletedAt = order.user_completed_at ?? null;
+	const techCompletedAt = order.technician_completed_at ?? null;
+	const noPending = !userCompletedAt && !techCompletedAt;
+	const confirm = useUserConfirmCompletion();
+	const cancel = useUserCancelOrder();
+
+	const [cancelOpen, setCancelOpen] = useState(false);
+	const [cancelReason, setCancelReason] = useState("");
+
+	if (!noPending) return null;
+
+	const handleConfirmCancel = () => {
+		const trimmed = cancelReason.trim();
+		cancel.mutate(
+			{ orderId: order.id, reason: trimmed.length > 0 ? trimmed : undefined },
+			{
+				onSuccess: () => {
+					setCancelOpen(false);
+					setCancelReason("");
+					Toast.show({ type: "success", text1: "Order cancelled" });
+				},
+				onError: (err) =>
+					Toast.show({
+						type: "error",
+						text1: "Failed to cancel order",
+						text2: err.message,
+					}),
+			},
+		);
+	};
+
+	return (
+		<>
+			<StageActionRow
+				primary={
+					<StagePrimaryAction
+						label="Mark work complete"
+						icon={CheckCircle2}
+						onPress={() =>
+							confirm.mutate(
+								{ orderId: order.id },
+								{
+									onError: (err) =>
+										Toast.show({
+											type: "error",
+											text1: "Could not confirm",
+											text2: err.message,
+										}),
+								},
+							)
+						}
+						pending={confirm.isPending}
+					/>
+				}
+				trailing={
+					<IconActionButton
+						icon={Ban}
+						tone="danger"
+						accessibilityLabel="Cancel order"
+						onPress={() => setCancelOpen(true)}
+						pending={cancel.isPending}
+					/>
+				}
+			/>
+			<OrderCancelModal
+				visible={cancelOpen}
+				technicianName={order.technician_name}
+				reason={cancelReason}
+				onReasonChange={setCancelReason}
+				onClose={() => {
+					if (cancel.isPending) return;
+					setCancelOpen(false);
+				}}
+				onConfirm={handleConfirmCancel}
+				isLoading={cancel.isPending}
+			/>
+		</>
+	);
+}

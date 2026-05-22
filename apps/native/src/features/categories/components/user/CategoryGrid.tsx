@@ -1,12 +1,11 @@
 import { router } from "expo-router";
-import { Wrench } from "lucide-react-native";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
 import { ROUTES } from "@/src/lib/routes";
 import { Colors, useThemeColors } from "@/src/lib/theme";
+import CategoryTile from "./CategoryTile";
 
 interface CategoryGridProps {
 	readonly categories?: Category[];
@@ -22,7 +21,6 @@ export default function CategoryGrid({
 	onMorePress,
 }: CategoryGridProps) {
 	const themeColors = useThemeColors();
-	const fallbackColors = themeColors.category.fallbacks;
 	const displayCategories = categories?.slice(0, 4) ?? [];
 	const goToCategories = useDebounce(() => {
 		onMorePress?.();
@@ -35,44 +33,14 @@ export default function CategoryGrid({
 	);
 	let content = (
 		<View className="flex-row flex-wrap justify-between">
-			{displayCategories.map((cat, index) => {
-				const meta = getCategoryMeta(cat.id);
-				const Icon = meta?.icon ?? Wrench;
-				const color =
-					meta?.color ?? fallbackColors[index % fallbackColors.length];
-				return (
-					<TouchableOpacity
-						key={cat.id}
-						className="mb-stack-md overflow-hidden rounded-input"
-						style={{
-							width: "48.5%",
-							backgroundColor: themeColors.surfaceElevated,
-						}}
-						onPress={() => handleCategoryTap(cat.id, cat.name)}
-						activeOpacity={0.7}
-					>
-						<View className="flex-row items-center">
-							<View
-								className="h-avatar-xl w-avatar-xl items-center justify-center"
-								style={{ backgroundColor: color }}
-							>
-								<Icon
-									size={26}
-									color={themeColors.surfaceOnPrimary}
-									strokeWidth={1.75}
-								/>
-							</View>
-							<Text
-								variant="buttonMd"
-								className="flex-1 px-stack-md text-content"
-								numberOfLines={2}
-							>
-								{cat.name}
-							</Text>
-						</View>
-					</TouchableOpacity>
-				);
-			})}
+			{displayCategories.map((cat, index) => (
+				<CategoryTile
+					key={cat.id}
+					category={cat}
+					index={index}
+					onPress={handleCategoryTap}
+				/>
+			))}
 		</View>
 	);
 
