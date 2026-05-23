@@ -4,6 +4,10 @@ import {
 	hoursBetween,
 	nowInCairo,
 } from "../../shared/time/cairo-time.js";
+import {
+	assertFixedSlotStartAtInCairo,
+	getCairoSlotHourFromIso,
+} from "../../shared/time/fixed-slots.js";
 import { technicianCalendarService } from "../technician-calendar/technician-calendar.service.js";
 import { type Order, ordersRepository } from "./orders.repository.js";
 import {
@@ -18,6 +22,7 @@ export interface CreateRequestInput {
 	actor: Actor;
 	actorId: string;
 	proposedDate: string; // YYYY-MM-DD
+	proposedStartAt: string;
 	reason: string;
 }
 
@@ -63,6 +68,7 @@ export class RescheduleService {
 		await this.runValidationChain({
 			order,
 			proposedDate: input.proposedDate,
+			proposedStartAt: input.proposedStartAt,
 			reason: input.reason,
 		});
 		return rescheduleRepository.createRequest({
@@ -223,9 +229,10 @@ export class RescheduleService {
 	private async runValidationChain(args: {
 		order: Order;
 		proposedDate: string;
+		proposedStartAt: string;
 		reason: string;
 	}): Promise<void> {
-		const { order, proposedDate, reason } = args;
+		const { order, proposedDate, proposedStartAt, reason } = args;
 
 		if (!reason || reason.trim().length === 0) {
 			throw AppError.badRequest("reason_required");
@@ -241,6 +248,14 @@ export class RescheduleService {
 		if (!ISO_DATE.test(proposedDate)) {
 			throw AppError.badRequest("Invalid date format. Use YYYY-MM-DD.");
 		}
+		assertFixedSlotStartAtInCairo({
+			dateYmd: proposedDate,
+			startAt: proposedStartAt,
+			requiredCode: "proposed_scheduled_start_at_required",
+			invalidDatetimeCode: "invalid_proposed_scheduled_start_at",
+			invalidSlotCode: "invalid_proposed_scheduled_slot",
+			dateMismatchCode: "proposed_scheduled_date_start_mismatch",
+		});
 		if (proposedDate <= order.scheduled_date) {
 			throw AppError.badRequest("proposed_not_after_original");
 		}
@@ -259,6 +274,7 @@ export class RescheduleService {
 		const availabilityOk = await this.isProposedDateStillAvailable(
 			order.technician_id,
 			proposedDate,
+			getCairoSlotHourFromIso(proposedStartAt),
 		);
 		if (!availabilityOk) {
 			throw AppError.badRequest("tech_unavailable");
@@ -277,11 +293,13 @@ export class RescheduleService {
 	private async isProposedDateStillAvailable(
 		technicianId: string,
 		dateYmd: string,
+		slotHour?: number,
 	): Promise<boolean> {
 		const dayOfWeek = new Date(dateYmd + "T00:00:00Z").getUTCDay();
 		const templateOk = await ordersRepository.checkTechnicianAvailability(
 			technicianId,
 			dayOfWeek,
+			slotHour,
 		);
 		if (!templateOk) return false;
 		const isHoliday = await technicianCalendarService.isDateHoliday(

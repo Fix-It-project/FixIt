@@ -5,6 +5,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import {
 	formatDate,
+	formatTime,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
 import { getOrderStatusBadge } from "@/src/lib/order-status";
@@ -39,6 +40,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 		isCancelled || isCompleted
 			? getOrderStatusBadge(booking.status, themeColors, "technician")
 			: null;
+	const scheduledTime = formatTime(booking.scheduled_start_at);
 
 	return (
 		<Animated.View
@@ -104,6 +106,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 									style={{ color: themeColors.textMuted }}
 								>
 									{formatDate(booking.scheduled_date)}
+									{scheduledTime ? ` • ${scheduledTime}` : ""}
 								</Text>
 							</View>
 

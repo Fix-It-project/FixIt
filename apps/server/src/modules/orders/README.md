@@ -57,7 +57,7 @@ Available under both `/user/orders/:id/reschedule...` and
 
 | Method | Path | Description |
 | --- | --- | --- |
-| `POST` | `/:role/orders/:id/reschedule` | Request a new date. |
+| `POST` | `/:role/orders/:id/reschedule` | Request a new date + fixed-slot start time. |
 | `POST` | `/:role/orders/:id/reschedule/approve` | Counterparty approves. |
 | `POST` | `/:role/orders/:id/reschedule/reject` | Counterparty rejects with reason. |
 | `POST` | `/:role/orders/:id/reschedule/withdraw` | Requester withdraws. |
@@ -107,7 +107,7 @@ compatibility. The current controller forwards body fields to
 | `technician_id` | UUID | yes | Assigned technician. |
 | `service_id` | UUID | yes | Requested service. |
 | `scheduled_date` | `YYYY-MM-DD` | yes | Booking date. |
-| `scheduled_start_at` | ISO datetime | no | Optional start time. |
+| `scheduled_start_at` | ISO datetime | yes | Required start time; must be one of the fixed Cairo slots (`08:00`, `10:00`, `12:00`, `14:00`, `16:00`). |
 | `destination_address_id` | UUID | no | If omitted, lifecycle service uses the user's active address. |
 | `problem_description` | string | no | Max 1000 chars on lifecycle DTO. |
 | `attachment` | file/string URL | no | The route accepts the field, but the current lifecycle create shim does not upload or forward files. |
@@ -185,7 +185,7 @@ The lean migration extends `orders` with lifecycle snapshot columns:
 | `status public.order_status` | Canonical enum status. |
 | `active boolean` | Compatibility projection maintained by trigger. |
 | `destination_address_id` | Address used for geofence and destination validation. |
-| `scheduled_start_at` | Optional precise booking start time. |
+| `scheduled_start_at` | Required for new writes; constrained to fixed Cairo slot hours. |
 | `arrived_at` | First time technician enters the 1km destination geofence. |
 | `final_price` | Accepted quote amount. |
 | `payment_method` | `cash` or `card`; DTO currently allows cash only. |

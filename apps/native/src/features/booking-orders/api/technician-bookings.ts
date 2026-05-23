@@ -321,11 +321,16 @@ export async function getTechOrderQuotes(
 export async function techRequestReschedule(
 	orderId: string,
 	proposedScheduledDate: string,
+	proposedScheduledStartAt: string,
 	reason: string,
 ): Promise<RescheduleResponse> {
 	const response = await apiClient.post(
 		`/api/orders/technician/orders/${orderId}/reschedule`,
-		{ proposed_scheduled_date: proposedScheduledDate, reason },
+		{
+			proposed_scheduled_date: proposedScheduledDate,
+			proposed_scheduled_start_at: proposedScheduledStartAt,
+			reason,
+		},
 	);
 	return safeParseResponse(
 		rescheduleResponseSchema,

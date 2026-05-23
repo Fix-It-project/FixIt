@@ -12,14 +12,14 @@ import { reviewsController } from "./reviews.controller.js";
 const router: RouterType = Router();
 
 router.post(
-	"/reviews",
+	"/",
 	requireUserAuth,
 	validate({ body: CreateReviewBodySchema }),
 	(req, res) => reviewsController.createReview(req, res),
 );
 
 router.get(
-	"/technicians/:id/reviews",
+	"/technicians/:id",
 	requireUserAuth,
 	validate({
 		params: TechnicianIdParamsSchema,

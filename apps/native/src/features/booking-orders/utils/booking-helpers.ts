@@ -36,6 +36,18 @@ export function formatDate(dateStr: string): string {
 	return `${MONTHS[Number(m) - 1]} ${Number(d)}, ${y}`;
 }
 
+/** Format ISO datetime to local 12h time, e.g. "10:00 AM". */
+export function formatTime(iso: string | null | undefined): string | null {
+	if (!iso) return null;
+	const d = new Date(iso);
+	if (Number.isNaN(d.getTime())) return null;
+	return new Intl.DateTimeFormat("en-US", {
+		hour: "numeric",
+		minute: "2-digit",
+		hour12: true,
+	}).format(d);
+}
+
 /** Deterministic avatar background color from a name string. */
 export function getAvatarColor(name: string | null | undefined): string {
 	const avatarPalette = getAvatarPalette();

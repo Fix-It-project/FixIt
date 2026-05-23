@@ -37,6 +37,7 @@ const ALL_DAYS = [
 	"Friday",
 	"Saturday",
 ];
+const SLOT_HOURS = [8, 10, 12, 14, 16] as const;
 const TODAY = new Date().toISOString().split("T")[0];
 
 interface Props {
@@ -67,11 +68,20 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 	const techSchedule = useMemo<DaySchedule[]>(() => {
 		if (!serverTemplates) return [];
 		return ALL_DAYS.map((dayName, index) => {
-			const dbEntry = serverTemplates.find((t) => t.day_of_week === index);
+			const slots = SLOT_HOURS.map((slotHour) => {
+				const dbEntry = serverTemplates.find(
+					(t) => t.day_of_week === index && (t.slot_hour ?? 8) === slotHour,
+				);
+				return {
+					slot_hour: slotHour,
+					active: dbEntry ? dbEntry.active : false,
+				};
+			});
 			return {
 				day_of_week: index,
 				dayName,
-				enabled: dbEntry ? dbEntry.active : false,
+				slots,
+				enabled: slots.some((slot) => slot.active),
 			};
 		});
 	}, [serverTemplates]);
@@ -93,13 +103,12 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 		[themeTokens.id],
 	);
 
-	const handleScheduleConfirm = async (newSchedule: DaySchedule[]) => {
+	const handleScheduleConfirm = async (
+		newSchedule: { day_of_week: number; slot_hour: number; active: boolean }[],
+	) => {
 		try {
 			await saveMutation.mutateAsync({
-				newSchedule: newSchedule.map((s) => ({
-					day_of_week: s.day_of_week,
-					active: s.enabled,
-				})),
+				newSchedule,
 			});
 			setIsEditingSchedule(false);
 			setTimeout(

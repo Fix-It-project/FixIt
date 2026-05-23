@@ -140,11 +140,12 @@ export class TechnicianCalendarController {
       const technicianId = this.checkOwnership(req, res);
       if (!technicianId) return;
 
-      const { day_of_week, active } = req.body;
+      const { day_of_week, slot_hour, active } = req.body;
 
       const template = await technicianCalendarService.createTemplate({
         technician_id: technicianId,
         day_of_week,
+        slot_hour,
         active,
       });
 
@@ -161,8 +162,12 @@ export class TechnicianCalendarController {
       if (!technicianId) return;
 
       const { id } = req.params as any;
-      const { day_of_week, active } = req.body;
-      const template = await technicianCalendarService.updateTemplate(id, { day_of_week, active });
+      const { day_of_week, slot_hour, active } = req.body;
+      const template = await technicianCalendarService.updateTemplate(id, {
+        day_of_week,
+        slot_hour,
+        active,
+      });
       return res.status(200).json({ data: template });
     } catch (err: unknown) {
       const { status, message } = normalizeError(err);

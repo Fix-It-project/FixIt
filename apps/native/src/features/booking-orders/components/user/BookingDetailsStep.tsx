@@ -22,6 +22,7 @@ export interface AttachmentInfo {
 
 interface BookingDetailsStepProps {
 	readonly selectedDate: string;
+	readonly selectedTimeLabel: string;
 	readonly onBack: () => void;
 	readonly onConfirm: (
 		description: string,
@@ -32,6 +33,7 @@ interface BookingDetailsStepProps {
 
 export default function BookingDetailsStep({
 	selectedDate,
+	selectedTimeLabel,
 	onBack,
 	onConfirm,
 	isPending,
@@ -87,7 +89,7 @@ export default function BookingDetailsStep({
 				{/* Date badge */}
 				<View className="mb-stack-lg rounded-input bg-app-primary-light px-card py-control-trigger-y">
 					<Text variant="buttonMd" className="text-center text-app-primary">
-						Scheduled for: {selectedDate}
+						Scheduled for: {selectedDate} at {selectedTimeLabel}
 					</Text>
 				</View>
 
@@ -198,7 +200,7 @@ export default function BookingDetailsStep({
 						activeOpacity={0.7}
 					>
 						<Text variant="label" className="text-content-muted">
-							Back to Date Selection
+							Back to Time Selection
 						</Text>
 					</TouchableOpacity>
 				</View>

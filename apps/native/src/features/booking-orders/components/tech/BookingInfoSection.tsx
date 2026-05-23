@@ -3,7 +3,10 @@ import { Linking } from "react-native";
 import InfoSection, {
 	type InfoSectionRow,
 } from "@/src/features/booking-orders/components/shared/InfoSection";
-import { formatDate } from "@/src/features/booking-orders/utils/booking-helpers";
+import {
+	formatDate,
+	formatTime,
+} from "@/src/features/booking-orders/utils/booking-helpers";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface Props {
@@ -11,6 +14,7 @@ interface Props {
 }
 
 export default function BookingInfoSection({ booking }: Props) {
+	const scheduledTime = formatTime(booking.scheduled_start_at);
 	const rows: InfoSectionRow[] = [
 		{
 			icon: Calendar,
@@ -18,6 +22,14 @@ export default function BookingInfoSection({ booking }: Props) {
 			value: formatDate(booking.scheduled_date),
 		},
 	];
+
+	if (scheduledTime) {
+		rows.push({
+			icon: Calendar,
+			label: "Scheduled Time",
+			value: scheduledTime,
+		});
+	}
 
 	if (booking.user_address) {
 		const address = booking.user_address;

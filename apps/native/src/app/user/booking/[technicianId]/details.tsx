@@ -20,6 +20,9 @@ export default function BookingDetailsScreen() {
 		categoryId,
 		categoryName,
 		selectedDate,
+		selectedTime,
+		selectedTimeLabel,
+		scheduledStartAt,
 	} = useLocalSearchParams<{
 		technicianId: string;
 		technicianName: string;
@@ -28,6 +31,9 @@ export default function BookingDetailsScreen() {
 		categoryId: string;
 		categoryName: string;
 		selectedDate: string;
+		selectedTime: string;
+		selectedTimeLabel: string;
+		scheduledStartAt: string;
 	}>();
 
 	const { mutateAsync: createBooking, isPending } = useCreateBookingMutation();
@@ -39,16 +45,18 @@ export default function BookingDetailsScreen() {
 	const selectedAddress =
 		addresses?.find((address) => address.is_active) ?? addresses?.[0];
 
-	const bookingDateRoute = ROUTES.user.bookingDate(technicianId ?? "");
+	const bookingTimeRoute = ROUTES.user.bookingTime(technicianId ?? "");
 	const goBack = useSafeBack({
-		...bookingDateRoute,
+		...bookingTimeRoute,
 		params: {
-			...bookingDateRoute.params,
+			...bookingTimeRoute.params,
 			technicianName,
 			serviceId,
 			serviceName,
 			categoryId,
 			categoryName,
+			selectedDate,
+			selectedTime,
 		},
 	});
 
@@ -56,7 +64,8 @@ export default function BookingDetailsScreen() {
 		description: string,
 		attachment: AttachmentInfo | null,
 	) => {
-		if (!technicianId || !selectedDate || !serviceId) return;
+		if (!technicianId || !selectedDate || !serviceId || !scheduledStartAt)
+			return;
 		if (isLoadingAddresses) {
 			Toast.show({ type: "info", text1: "Loading your saved location..." });
 			return;
@@ -74,6 +83,7 @@ export default function BookingDetailsScreen() {
 				technician_id: technicianId,
 				service_id: serviceId,
 				scheduled_date: selectedDate,
+				scheduled_start_at: scheduledStartAt,
 				problem_description: description || undefined,
 				destination_address_id: selectedAddress.id,
 			});
@@ -104,12 +114,13 @@ export default function BookingDetailsScreen() {
 			categoryId={categoryId}
 			categoryName={categoryName}
 			serviceName={serviceName}
-			stepLabel="Step 2 of 2 - Details"
+			stepLabel="Step 3 of 3 - Details"
 			technicianName={technicianName}
 			onBackPress={goBack}
 		>
 			<BookingDetailsStep
 				selectedDate={selectedDate}
+				selectedTimeLabel={selectedTimeLabel}
 				onBack={goBack}
 				onConfirm={handleConfirm}
 				isPending={isPending || isLoadingAddresses}

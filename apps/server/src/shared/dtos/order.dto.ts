@@ -9,7 +9,7 @@ export const CreateOrderBodySchema = z.object({
 			/^\d{4}-\d{2}-\d{2}$/,
 			"scheduled_date must be in YYYY-MM-DD format",
 		),
-	scheduled_start_at: z.iso.datetime().optional(),
+	scheduled_start_at: z.iso.datetime({ offset: true }),
 	problem_description: z.string().optional(),
 	// Phase 2 Plan 02-03 (D6): optional explicit destination address. When
 	// omitted, the lifecycle service falls back to the user's single active
