@@ -45,7 +45,6 @@ export default function QuoteBubble({
 				variant="caption"
 				style={{
 					color: themeColors.textMuted,
-					fontSize: 11,
 					alignSelf: isSelf ? "flex-end" : "flex-start",
 				}}
 			>
@@ -67,9 +66,9 @@ export default function QuoteBubble({
 				}}
 			>
 				<Text
+					variant="bodyLg"
+					className="font-google-sans-bold"
 					style={{
-						fontSize: 18,
-						fontWeight: "800",
 						color: isSelf
 							? themeColors.onPrimaryHeader
 							: themeColors.textPrimary,
@@ -77,9 +76,9 @@ export default function QuoteBubble({
 				>
 					{formatAmount(item.amount)}{" "}
 					<Text
+						variant="caption"
+						className="font-google-sans-medium"
 						style={{
-							fontSize: 12,
-							fontWeight: "600",
 							color: isSelf
 								? themeColors.onPrimaryHeader
 								: themeColors.textSecondary,
@@ -106,7 +105,6 @@ export default function QuoteBubble({
 					variant="caption"
 					style={{
 						color: themeColors.textMuted,
-						fontSize: 11,
 						alignSelf: isSelf ? "flex-end" : "flex-start",
 					}}
 				>

@@ -181,8 +181,9 @@ export default function OrderInfoCompact({
 					>
 						<Phone size={spacing.icon.caption} color={themeColors.primary} strokeWidth={2.4} />
 						<Text
+							variant="bodySm"
 							className="font-google-sans-bold"
-							style={{ color: themeColors.primary, fontSize: 13 }}
+							style={{ color: themeColors.primary }}
 						>
 							{phone}
 						</Text>

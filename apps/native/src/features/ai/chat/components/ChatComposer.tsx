@@ -1,10 +1,10 @@
 import {
   ActivityIndicator,
   Image,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Input } from "@/src/components/ui/input";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Bot, Camera, ImagePlus, Mic, MicOff, Sparkles, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -103,10 +103,10 @@ export default function ChatComposer({
               resizeMode="cover"
             />
             <View className="ml-3 flex-1">
-              <Text className="text-[14px]" style={{ color: bodyText }} numberOfLines={1}>
+              <Text variant="bodySm" style={{ color: bodyText }} numberOfLines={1}>
                 {selectedImage.name}
               </Text>
-              <Text className="mt-1 text-[12px]" style={{ color: mutedText }}>
+              <Text variant="caption" className="mt-1" style={{ color: mutedText }}>
                 Image will be sent with the diagnosis request
               </Text>
             </View>
@@ -130,10 +130,10 @@ export default function ChatComposer({
               <Mic size={18} color={themeColors.onPrimaryHeader} strokeWidth={2} />
             </View>
             <View className="ml-3 flex-1">
-              <Text className="text-[14px]" style={{ color: bodyText }}>
+              <Text variant="bodySm" style={{ color: bodyText }}>
                 Voice message · {formatDuration(recordingDurationMs)}
               </Text>
-              <Text className="mt-1 text-[12px]" style={{ color: mutedText }}>
+              <Text variant="caption" className="mt-1" style={{ color: mutedText }}>
                 Voice replaces text input
               </Text>
             </View>
@@ -155,8 +155,9 @@ export default function ChatComposer({
           <View className="flex-row items-center">
             <View className="h-3 w-3 rounded-full" style={{ backgroundColor: danger }} />
             <Text
-              className="ml-2 flex-1 text-[14px]"
-              style={{ color: danger, fontFamily: "GoogleSans_600SemiBold" }}
+              variant="bodySm"
+              className="ml-2 flex-1 font-google-sans-semibold"
+              style={{ color: danger }}
             >
               Recording · {formatDuration(recordingDurationMs)}
             </Text>
@@ -184,8 +185,9 @@ export default function ChatComposer({
           }}
         >
           <Text
-            className="text-[14px]"
-            style={{ color: bodyText, fontFamily: "GoogleSans_600SemiBold" }}
+            variant="bodySm"
+            className="font-google-sans-semibold"
+            style={{ color: bodyText }}
           >
             Mode: {mode === "recommend" ? "Recommend" : "Agent"}
           </Text>
@@ -209,8 +211,9 @@ export default function ChatComposer({
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            className="ml-2 text-[13px]"
-            style={{ color: bodyText, fontFamily: "GoogleSans_600SemiBold" }}
+            variant="bodySm"
+            className="ml-2 font-google-sans-semibold"
+            style={{ color: bodyText }}
           >
             Gallery
           </Text>
@@ -231,8 +234,9 @@ export default function ChatComposer({
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            className="ml-2 text-[13px]"
-            style={{ color: bodyText, fontFamily: "GoogleSans_600SemiBold" }}
+            variant="bodySm"
+            className="ml-2 font-google-sans-semibold"
+            style={{ color: bodyText }}
           >
             Camera
           </Text>
@@ -244,24 +248,22 @@ export default function ChatComposer({
         className="rounded-[28px] border px-4 py-3"
         style={{ backgroundColor: inputBg, borderColor }}
       >
-        <TextInput
+        <Input
           placeholder={hasAudio ? "Voice message attached" : "Ask FixIt AI about your problem..."}
           placeholderTextColor={mutedText}
           value={message}
           onChangeText={onMessageChange}
           multiline
           editable={!disableTyping}
-          className="min-h-[76px] text-[15px]"
+          className="min-h-[76px] border-0"
           style={{
-            fontFamily: "GoogleSans_400Regular",
-            textAlignVertical: "top",
             color: bodyText,
             opacity: disableTyping ? 0.4 : 1,
           }}
         />
 
         <View className="mt-3 flex-row items-center justify-between">
-          <Text className="flex-1 pr-3 text-[12px]" style={{ color: mutedText }}>
+          <Text variant="caption" className="flex-1 pr-3" style={{ color: mutedText }}>
             {hasAudio
               ? "Voice message will be sent instead of text."
               : "Text can be empty for recommendations with an image or voice."}
@@ -303,7 +305,7 @@ export default function ChatComposer({
             {activeFlow === mode ? (
               <ActivityIndicator size="small" color={themeColors.onPrimaryHeader} />
             ) : (
-              <Text className="text-[14px]" style={{ color: themeColors.onPrimaryHeader, fontFamily: "GoogleSans_600SemiBold" }}>
+              <Text variant="bodySm" className="font-google-sans-semibold" style={{ color: themeColors.onPrimaryHeader }}>
                 {mode === "recommend" ? "Recommend" : "Agent"}
               </Text>
             )}

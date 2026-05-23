@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	FlatList,
-	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
@@ -15,6 +14,7 @@ import TechnicianProfileSheet, {
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import BackButton from "@/src/components/ui/BackButton";
+import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import TechnicianListCard from "@/src/features/technicians/components/user/TechnicianListCard";
@@ -28,7 +28,7 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
-import { Colors, spacing, typography, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import { useLocationStore } from "@/src/stores/location-store";
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
@@ -299,19 +299,11 @@ export default function TechniciansListScreen() {
 								color={themeColors.surfaceMuted}
 								strokeWidth={2}
 							/>
-							<TextInput
+							<Input
 								value={searchText}
 								onChangeText={setSearchText}
 								placeholder="Search technicians..."
-								placeholderTextColor={themeColors.textMuted}
-								className="flex-1 p-0 text-content"
-								style={[
-									typography.bodySm,
-									{
-										color: themeColors.textPrimary,
-										textAlignVertical: "center",
-									},
-								]}
+								className="h-auto flex-1 border-0 bg-transparent p-0"
 								returnKeyType="search"
 								autoCorrect={false}
 							/>

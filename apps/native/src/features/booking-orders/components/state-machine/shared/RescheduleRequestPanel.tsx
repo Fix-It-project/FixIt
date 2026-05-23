@@ -281,7 +281,7 @@ export default function RescheduleRequestPanel({
 					>
 						<Text
 							variant="caption"
-							style={{ color: themeColors.primary, fontSize: 11 }}
+							style={{ color: themeColors.primary }}
 						>
 							{countdown}
 						</Text>

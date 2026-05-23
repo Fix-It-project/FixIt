@@ -121,7 +121,6 @@ export function AcceptedViewCta({ order }: Props) {
 						variant="caption"
 						style={{
 							color: themeColors.textMuted,
-							fontSize: 11,
 							textAlign: "center",
 						}}
 					>

@@ -6,13 +6,13 @@ import {
 	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
-	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
-import { Colors, spacing, typography, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 export interface AttachmentInfo {
 	uri: string;
@@ -99,19 +99,13 @@ export default function BookingDetailsStep({
 					<Text variant="caption" className="mb-stack-md text-content-muted">
 						Optional — help the technician prepare for the job
 					</Text>
-					<TextInput
+					<Input
 						value={description}
 						onChangeText={setDescription}
 						placeholder="e.g. AC not cooling, making noise when turned on..."
-						placeholderTextColor={themeColors.textMuted}
 						multiline
 						numberOfLines={5}
-						textAlignVertical="top"
-						className="rounded-input border border-edge bg-surface px-card py-stack-md text-content"
-						style={{
-							...typography.bodySm,
-							minHeight: spacing.button.height.xl + spacing.avatar.lg,
-						}}
+						className="min-h-[120px]"
 					/>
 				</View>
 

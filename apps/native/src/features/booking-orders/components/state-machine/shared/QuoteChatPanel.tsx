@@ -89,8 +89,9 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 					strokeWidth={2.4}
 				/>
 				<Text
+					variant="bodySm"
 					className="font-google-sans-bold"
-					style={{ color: themeColors.textPrimary, fontSize: 13 }}
+					style={{ color: themeColors.textPrimary }}
 				>
 					Negotiation · Round {Math.min(MAX_ROUNDS, Math.max(1, roundCount))}/
 					{MAX_ROUNDS}
