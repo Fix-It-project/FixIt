@@ -72,6 +72,10 @@ function mapRpcError(error: { code?: string; message?: string }): never {
   if (msg.includes('order_not_found'))             throw AppError.notFound('order_not_found');
   if (msg.includes('proposed_not_after_original')) throw AppError.badRequest('proposed_not_after_original');
   if (msg.includes('proposed_not_in_future'))      throw AppError.badRequest('proposed_not_in_future');
+  if (msg.includes('proposed_scheduled_start_at_required')) throw AppError.badRequest('proposed_scheduled_start_at_required');
+  if (msg.includes('invalid_proposed_scheduled_start_at'))  throw AppError.badRequest('invalid_proposed_scheduled_start_at');
+  if (msg.includes('invalid_proposed_scheduled_slot'))      throw AppError.badRequest('invalid_proposed_scheduled_slot');
+  if (msg.includes('proposed_scheduled_date_start_mismatch')) throw AppError.badRequest('proposed_scheduled_date_start_mismatch');
   if (msg.includes('tech_unavailable'))            throw AppError.badRequest('tech_unavailable');
   if (msg.includes('cap_exhausted_for_date'))      throw AppError.conflict('cap_exhausted_for_date');
   if (msg.includes('request_expired'))             throw AppError.conflict('request_expired');

@@ -1,7 +1,12 @@
-import { View } from "react-native";
+import { router } from "expo-router";
+import { Clock3 } from "lucide-react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
 import { getOrderStatusBadge } from "@/src/lib/order-status";
 import type { ScheduledEvent } from "@/src/features/schedule/schemas/response.schema";
+import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface ScheduleOrderCardProps {
@@ -10,6 +15,10 @@ interface ScheduleOrderCardProps {
 
 export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 	const themeColors = useThemeColors();
+	const goToBooking = useDebounce(() =>
+		router.push(ROUTES.technician.bookingDetail(order.id)),
+	);
+	const scheduledTime = formatTime(order.scheduled_start_at);
 	const { color, label } = getOrderStatusBadge(
 		order.status,
 		themeColors,
@@ -50,20 +59,44 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 				</Text>
 			)}
 
+			{scheduledTime ? (
+				<View className="mt-stack-sm flex-row items-center gap-stack-xs">
+					<Clock3 size={14} color={themeColors.textMuted} strokeWidth={2} />
+					<Text variant="caption" style={{ color: themeColors.textMuted }}>
+						{scheduledTime}
+					</Text>
+				</View>
+			) : null}
+
 			{/* Active indicator */}
 			{order.active && (
-				<View className="mt-stack-md flex-row items-center gap-stack-xs">
-					<View
-						className="h-status-dot-sm w-status-dot-sm rounded-pill"
-						style={{ backgroundColor: themeColors.successAlt }}
-					/>
-					<Text
-						variant="caption"
-						className="font-semibold"
-						style={{ color: themeColors.successAlt }}
+				<View className="mt-stack-md flex-row items-center justify-between gap-stack-md">
+					<View className="flex-row items-center gap-stack-xs">
+						<View
+							className="h-status-dot-sm w-status-dot-sm rounded-pill"
+							style={{ backgroundColor: themeColors.successAlt }}
+						/>
+						<Text
+							variant="caption"
+							className="font-semibold"
+							style={{ color: themeColors.successAlt }}
+						>
+							Active booking
+						</Text>
+					</View>
+
+					<TouchableOpacity
+						onPress={goToBooking}
+						activeOpacity={0.8}
+						className="rounded-pill border border-app-primary px-stack-md py-stack-xs"
 					>
-						Active booking
-					</Text>
+						<Text
+							variant="caption"
+							className="font-semibold text-app-primary"
+						>
+							View details
+						</Text>
+					</TouchableOpacity>
 				</View>
 			)}
 		</View>

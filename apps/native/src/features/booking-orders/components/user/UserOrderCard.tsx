@@ -6,6 +6,7 @@ import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
 	formatDate,
+	formatTime,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
 import { getOrderStatusBadge } from "@/src/lib/order-status";
@@ -29,6 +30,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const status = getOrderStatusBadge(order.status, themeColors, "user");
+	const scheduledTime = formatTime(order.scheduled_start_at);
 
 	return (
 		<TouchableOpacity
@@ -92,12 +94,24 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 				</View>
 			</View>
 
-			{/* Date row */}
-			<View className="mt-stack-md flex-row items-center justify-between border-edge border-t pt-stack-md">
-				<Text variant="caption" style={{ color: themeColors.textMuted }}>
-					{formatDate(order.scheduled_date)}
-				</Text>
-				<View className="flex-row items-center gap-stack-md">
+			{/* Date + actions */}
+			<View className="mt-stack-md border-edge border-t pt-stack-md">
+				<View className="min-w-0">
+					<Text variant="caption" style={{ color: themeColors.textMuted }}>
+						{formatDate(order.scheduled_date)}
+					</Text>
+					{scheduledTime ? (
+						<Text
+							variant="caption"
+							className="mt-stack-xs"
+							style={{ color: themeColors.textMuted }}
+						>
+							{scheduledTime}
+						</Text>
+					) : null}
+				</View>
+
+				<View className="mt-stack-md flex-row flex-wrap items-center justify-end gap-stack-sm">
 					{actionSlot}
 					<Text
 						variant="caption"

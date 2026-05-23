@@ -103,7 +103,13 @@ export function AcceptedViewCta({ order }: Props) {
 							<IconActionButton
 								icon={CalendarClock}
 								accessibilityLabel="Reschedule order"
-								onPress={() => rescheduleRef.current?.open(order.id)}
+								onPress={() =>
+									rescheduleRef.current?.open({
+										orderId: order.id,
+										technicianId: order.technician_id,
+										originalScheduledDate: order.scheduled_date,
+									})
+								}
 								disabled={cancel.isPending || hasPendingReschedule}
 							/>
 							<IconActionButton

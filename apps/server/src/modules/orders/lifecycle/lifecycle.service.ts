@@ -3,6 +3,7 @@
 import { AVG_SPEED_KMH } from "../../../config/lifecycle.js";
 import { supabaseAdmin } from "../../../shared/db/supabase.js";
 import { AppError } from "../../../shared/errors/index.js";
+import { assertFixedSlotStartAtInCairo } from "../../../shared/time/fixed-slots.js";
 import type { Order } from "../orders.repository.js";
 import {
 	type ActorRole,
@@ -18,7 +19,7 @@ export interface SubmitOrderInput {
 	technician_id: string;
 	service_id: string;
 	scheduled_date: string;
-	scheduled_start_at?: string | null;
+	scheduled_start_at: string;
 	problem_description?: string | null;
 	attachment?: string | null;
 	destination_address_id?: string | null;
@@ -42,6 +43,15 @@ export class LifecycleService {
 	// Submit
 
 	async submitOrder(userId: string, body: SubmitOrderInput): Promise<Order> {
+		assertFixedSlotStartAtInCairo({
+			dateYmd: body.scheduled_date,
+			startAt: body.scheduled_start_at,
+			requiredCode: "scheduled_start_at_required",
+			invalidDatetimeCode: "invalid_scheduled_start_at",
+			invalidSlotCode: "invalid_scheduled_slot",
+			dateMismatchCode: "scheduled_date_start_mismatch",
+		});
+
 		let destinationAddressId = body.destination_address_id ?? null;
 		if (!destinationAddressId) {
 			destinationAddressId = await this.resolveActiveAddressId(userId);

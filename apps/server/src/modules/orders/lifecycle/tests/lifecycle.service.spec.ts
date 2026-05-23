@@ -148,6 +148,7 @@ describe("LifecycleService.submitOrder", () => {
 			technician_id: "tech-1",
 			service_id: "svc-1",
 			scheduled_date: "2026-06-01",
+			scheduled_start_at: "2026-06-01T08:00:00+03:00",
 			destination_address_id: explicitAddressId,
 		});
 
@@ -173,6 +174,7 @@ describe("LifecycleService.submitOrder", () => {
 			technician_id: "tech-2",
 			service_id: "svc-2",
 			scheduled_date: "2026-06-02",
+			scheduled_start_at: "2026-06-02T10:00:00+03:00",
 		});
 
 		expect(repo.submitOrder).toHaveBeenCalledTimes(1);
@@ -193,6 +195,7 @@ describe("LifecycleService.submitOrder", () => {
 				technician_id: "tech-3",
 				service_id: "svc-3",
 				scheduled_date: "2026-06-03",
+				scheduled_start_at: "2026-06-03T12:00:00+03:00",
 			});
 		} catch (err) {
 			caught = err;
@@ -201,6 +204,51 @@ describe("LifecycleService.submitOrder", () => {
 		expect(caught).toBeInstanceOf(AppError);
 		expect((caught as AppError).status).toBe(400);
 		expect((caught as AppError).message).toContain("no_active_address");
+		expect(repo.submitOrder).not.toHaveBeenCalled();
+	});
+
+	it("throws AppError(scheduled_start_at_required) when start time is missing", async () => {
+		const service = new LifecycleService();
+
+		let caught: unknown;
+		try {
+			await service.submitOrder("user-4", {
+				technician_id: "tech-4",
+				service_id: "svc-4",
+				scheduled_date: "2026-06-04",
+				// runtime guard coverage; API schema also rejects this upstream
+				scheduled_start_at: undefined as unknown as string,
+			});
+		} catch (err) {
+			caught = err;
+		}
+
+		expect(caught).toBeInstanceOf(AppError);
+		expect((caught as AppError).status).toBe(400);
+		expect((caught as AppError).message).toContain(
+			"scheduled_start_at_required",
+		);
+		expect(repo.submitOrder).not.toHaveBeenCalled();
+	});
+
+	it("throws AppError(invalid_scheduled_slot) for non-fixed-hour start", async () => {
+		const service = new LifecycleService();
+
+		let caught: unknown;
+		try {
+			await service.submitOrder("user-5", {
+				technician_id: "tech-5",
+				service_id: "svc-5",
+				scheduled_date: "2026-06-05",
+				scheduled_start_at: "2026-06-05T09:00:00+03:00",
+			});
+		} catch (err) {
+			caught = err;
+		}
+
+		expect(caught).toBeInstanceOf(AppError);
+		expect((caught as AppError).status).toBe(400);
+		expect((caught as AppError).message).toContain("invalid_scheduled_slot");
 		expect(repo.submitOrder).not.toHaveBeenCalled();
 	});
 });

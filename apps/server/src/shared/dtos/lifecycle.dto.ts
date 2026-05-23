@@ -16,6 +16,8 @@ import { z } from "zod";
  * POST /user/orders — extends the legacy CreateOrderBodySchema with the
  * optional `destination_address_id` (D6 — backend auto-picks active address
  * if omitted; explicit override still validated for ownership in service).
+ * `scheduled_start_at` is required and must map to one of the fixed Cairo
+ * slots (08:00, 10:00, 12:00, 14:00, 16:00); service layer enforces this.
  */
 export const SubmitOrderBodySchema = z.object({
 	technician_id: z.string().uuid("technician_id must be a valid UUID"),
@@ -26,7 +28,7 @@ export const SubmitOrderBodySchema = z.object({
 			/^\d{4}-\d{2}-\d{2}$/,
 			"scheduled_date must be in YYYY-MM-DD format",
 		),
-	scheduled_start_at: z.iso.datetime().optional(),
+	scheduled_start_at: z.iso.datetime({ offset: true }),
 	problem_description: z.string().max(1000).optional(),
 	destination_address_id: z
 		.string()

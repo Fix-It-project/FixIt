@@ -7,6 +7,7 @@ import PageHeader from "@/src/components/PageHeader";
 import { Text } from "@/src/components/ui/text";
 import {
 	formatDate,
+	formatTime,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
 import {
@@ -29,6 +30,7 @@ export interface PastOrdersListItem {
 	readonly name: string | null | undefined;
 	readonly route: Href;
 	readonly scheduledDate: string;
+	readonly scheduledStartAt?: string | null;
 	readonly serviceName: string | null | undefined;
 	readonly status: OrderStatus;
 }
@@ -59,6 +61,7 @@ function PastOrderCard({
 		themeColors,
 		statusPerspective,
 	);
+	const scheduledTime = formatTime(item.scheduledStartAt);
 
 	return (
 		<TouchableOpacity
@@ -113,6 +116,7 @@ function PastOrderCard({
 				<View className="items-end">
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
 						{formatDate(item.scheduledDate)}
+						{scheduledTime ? ` • ${scheduledTime}` : ""}
 					</Text>
 					<View
 						className="mt-stack-xs rounded-pill px-stack-md py-stack-xs"

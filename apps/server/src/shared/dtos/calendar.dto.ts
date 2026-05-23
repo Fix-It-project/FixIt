@@ -10,11 +10,17 @@ export const UpdateCalendarEntryBodySchema = z.object({
 
 export const CreateTemplateBodySchema = z.object({
   day_of_week: z.number().int().min(0).max(6, 'day_of_week must be 0–6'),
+  slot_hour: z.number().int().refine((v) => [8, 10, 12, 14, 16].includes(v), {
+    message: "slot_hour must be one of 8, 10, 12, 14, 16",
+  }).optional(),
   active: z.boolean().optional(),
 });
 
 export const UpdateTemplateBodySchema = z.object({
   day_of_week: z.number().int().min(0).max(6).optional(),
+  slot_hour: z.number().int().refine((v) => [8, 10, 12, 14, 16].includes(v), {
+    message: "slot_hour must be one of 8, 10, 12, 14, 16",
+  }).optional(),
   active: z.boolean().optional(),
 });
 

@@ -11,6 +11,7 @@ export class RescheduleController {
 				actor,
 				actorId: requireActorId(req, actor),
 				proposedDate: req.body.proposed_scheduled_date,
+				proposedStartAt: req.body.proposed_scheduled_start_at,
 				reason: req.body.reason,
 			});
 			return res.status(201).json({ data: result });

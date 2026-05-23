@@ -197,6 +197,7 @@ export function useTechMarkCashReceived() {
 interface TechRequestRescheduleArgs {
 	orderId: string;
 	proposedDateIso: string;
+	proposedStartAtIso: string;
 	reason: string;
 }
 interface OrderIdArgs {
@@ -212,8 +213,13 @@ export function useTechRequestReschedule() {
 		TechRequestRescheduleArgs,
 		Awaited<ReturnType<typeof techRequestReschedule>>
 	>(
-		({ orderId, proposedDateIso, reason }) =>
-			techRequestReschedule(orderId, proposedDateIso, reason),
+		({ orderId, proposedDateIso, proposedStartAtIso, reason }) =>
+			techRequestReschedule(
+				orderId,
+				proposedDateIso,
+				proposedStartAtIso,
+				reason,
+			),
 		{
 			optimisticTo: "reschedule_requested_by_technician",
 			extractOrderId: (a) => a.orderId,

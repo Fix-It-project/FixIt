@@ -31,7 +31,7 @@ export default function BookingDateScreen() {
 
 	const handleNext = () => {
 		if (!selectedDate) return;
-		const route = ROUTES.user.bookingDetails(technicianId ?? "");
+		const route = ROUTES.user.bookingTime(technicianId ?? "");
 		router.push({
 			...route,
 			params: {
@@ -51,7 +51,7 @@ export default function BookingDateScreen() {
 			categoryId={categoryId}
 			categoryName={categoryName}
 			serviceName={serviceName}
-			stepLabel="Step 1 of 2 - Select Date"
+			stepLabel="Step 1 of 3 - Select Date"
 			technicianName={technicianName}
 			onBackPress={goBack}
 		>
