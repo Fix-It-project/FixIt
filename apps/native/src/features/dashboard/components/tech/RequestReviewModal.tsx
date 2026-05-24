@@ -12,6 +12,10 @@ import {
 	View,
 } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import {
+	formatDate,
+	formatTime,
+} from "@/src/features/booking-orders/utils/booking-helpers";
 import { useTechRequestsStore } from "@/src/features/dashboard/stores/tech-requests-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
@@ -49,6 +53,7 @@ export default function RequestReviewModal({
 	);
 	const CategoryIcon = category?.icon ?? ClipboardList;
 	const categoryColor = category?.color ?? Colors.primary;
+	const scheduledTime = formatTime(selectedOrder?.scheduled_start_at);
 
 	const isBusy = acceptMutation.isPending || rejectMutation.isPending;
 	const snapPoints = useMemo(() => [Math.min(height * 0.72, 560)], [height]);
@@ -154,7 +159,8 @@ export default function RequestReviewModal({
 						Scheduled Date
 					</Text>
 					<Text variant="buttonMd" style={{ color: themeColors.textPrimary }}>
-						📅 {selectedOrder.scheduled_date}
+						📅 {formatDate(selectedOrder.scheduled_date)}
+						{scheduledTime ? ` • ${scheduledTime}` : ""}
 					</Text>
 				</View>
 

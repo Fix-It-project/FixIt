@@ -12,6 +12,7 @@ import {
 	useUserRejectReschedule,
 	useUserWithdrawReschedule,
 } from "@/src/features/booking-orders/hooks";
+import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
 import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
 import { StageSecondaryAction } from "./StageAction";
@@ -33,6 +34,15 @@ function formatDate(iso: string): string {
 		day: "numeric",
 		year: "numeric",
 	});
+}
+
+function formatDateTime(
+	dateIso: string,
+	startAtIso: string | null | undefined,
+): string {
+	const date = formatDate(dateIso);
+	const time = formatTime(startAtIso);
+	return time ? `${date} • ${time}` : date;
 }
 
 function useCountdown(targetIso: string | null): string | null {
@@ -262,7 +272,11 @@ export default function RescheduleRequestPanel({
 						className="font-google-sans-bold"
 						style={{ color: themeColors.textPrimary }}
 					>
-						Requested date: {formatDate(request.proposed_scheduled_date)}
+						Requested date:{" "}
+						{formatDateTime(
+							request.proposed_scheduled_date,
+							request.proposed_scheduled_start_at,
+						)}
 					</Text>
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
 						{isCounterparty
@@ -305,7 +319,10 @@ export default function RescheduleRequestPanel({
 					Original
 				</Text>
 				<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
-					{formatDate(request.original_scheduled_date)}
+					{formatDateTime(
+						request.original_scheduled_date,
+						request.original_scheduled_start_at,
+					)}
 				</Text>
 				<View
 					style={{

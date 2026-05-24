@@ -10,7 +10,9 @@ export interface RescheduleRequest {
   order_id: string;
   requested_by: 'user' | 'technician';
   original_scheduled_date: string;
+  original_scheduled_start_at?: string | null;
   proposed_scheduled_date: string;
+  proposed_scheduled_start_at?: string | null;
   request_reason: string;
   reject_reason: string | null;
   resolution: RescheduleResolution;
@@ -24,6 +26,7 @@ export interface CreateRequestParams {
   actor: 'user' | 'technician';
   actorId: string;
   proposedDate: string;
+  proposedStartAt: string;
   reason: string;
 }
 
@@ -96,6 +99,7 @@ export class RescheduleRepository {
       p_actor:         p.actor,
       p_actor_id:      p.actorId,
       p_proposed_date: p.proposedDate,
+      p_proposed_start_at: p.proposedStartAt,
       p_reason:        p.reason,
     });
     if (error) mapRpcError(error as { code?: string; message?: string });

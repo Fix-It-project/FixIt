@@ -76,6 +76,7 @@ export class RescheduleService {
 			actor: input.actor,
 			actorId: input.actorId,
 			proposedDate: input.proposedDate,
+			proposedStartAt: input.proposedStartAt,
 			reason: input.reason,
 		});
 	}
@@ -162,6 +163,9 @@ export class RescheduleService {
 			const availabilityOk = await this.isProposedDateStillAvailable(
 				order.technician_id,
 				request.proposed_scheduled_date,
+				request.proposed_scheduled_start_at
+					? getCairoSlotHourFromIso(request.proposed_scheduled_start_at)
+					: undefined,
 			);
 			if (!availabilityOk) {
 				await rescheduleRepository.cancelPendingForOrder(
