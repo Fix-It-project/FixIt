@@ -2,6 +2,7 @@ import { CalendarClock, Check, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import {
 	useOrderRescheduleQuery,
@@ -15,7 +16,7 @@ import {
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
 import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
-import { StageSecondaryAction } from "./StageAction";
+import { Button } from "@/src/components/ui/button";
 
 export type ReschedulePanelViewer = "user" | "technician";
 
@@ -121,7 +122,14 @@ export default function RescheduleRequestPanel({
 		);
 	}, [approveMutation, orderId]);
 
-	const handleReject = useCallback(() => {
+	const handleReject = useCallback(async () => {
+		const ok = await confirm({
+			title: "Decline reschedule request?",
+			description: "The other party will be notified. The original schedule remains active.",
+			primary: { label: "Decline", destructive: true },
+			secondary: { label: "Keep request" },
+		});
+		if (!ok) return;
 		rejectMutation.mutate(
 			{ orderId, reason: "Declined by counterparty" },
 			{
@@ -346,37 +354,44 @@ export default function RescheduleRequestPanel({
 			{isCounterparty ? (
 				<View style={{ flexDirection: "row", gap: space[2] }}>
 					<View style={{ flex: 1 }}>
-						<StageSecondaryAction
-							label="Accept"
-							pendingLabel="Accepting..."
-							icon={Check}
-							tone="success"
+						<Button
+							variant="success"
+							size="lg"
+							fullWidth
+							iconLeft={Check}
 							onPress={handleApprove}
-							pending={approveMutation.isPending}
+							loading={approveMutation.isPending}
 							disabled={rejectMutation.isPending || withdrawMutation.isPending}
-						/>
+						>
+							{approveMutation.isPending ? "Accepting..." : "Accept"}
+						</Button>
 					</View>
 					<View style={{ flex: 1 }}>
-						<StageSecondaryAction
-							label="Decline"
-							pendingLabel="Declining..."
-							icon={X}
-							tone="danger"
+						<Button
+							variant="destructive"
+							size="lg"
+							fullWidth
+							iconLeft={X}
 							onPress={handleReject}
-							pending={rejectMutation.isPending}
+							loading={rejectMutation.isPending}
 							disabled={approveMutation.isPending || withdrawMutation.isPending}
-						/>
+						>
+							{rejectMutation.isPending ? "Declining..." : "Decline"}
+						</Button>
 					</View>
 				</View>
 			) : (
-				<StageSecondaryAction
-					label="Cancel request"
-					pendingLabel="Cancelling..."
-					icon={X}
+				<Button
+					variant="secondary"
+					size="lg"
+					fullWidth
+					iconLeft={X}
 					onPress={handleWithdraw}
+					loading={withdrawMutation.isPending}
 					disabled={approveMutation.isPending || rejectMutation.isPending}
-					pending={withdrawMutation.isPending}
-				/>
+				>
+					{withdrawMutation.isPending ? "Cancelling..." : "Cancel request"}
+				</Button>
 			)}
 		</View>
 	);

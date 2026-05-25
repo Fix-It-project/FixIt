@@ -32,7 +32,7 @@ function FormInput({
 	disabled,
 	keyboardType,
 	autoCapitalize,
-	variant = "filled",
+	variant = "outline",
 	clearable = false,
 	onClear,
 	required = false,
@@ -40,7 +40,7 @@ function FormInput({
 	multiline,
 }: FormInputProps) {
 	return (
-		<View className={variant === "filled" ? "gap-stack-md" : ""}>
+		<View className="gap-stack-sm">
 			{label && (
 				<Text variant="buttonMd" className="text-content">
 					{label}

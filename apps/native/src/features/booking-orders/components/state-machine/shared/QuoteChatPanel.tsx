@@ -7,7 +7,7 @@
 //   • "Cancel order" is a destructive action (Ban icon) — it ends the order.
 
 import { Ban, Check, MessageSquare, Pencil } from "lucide-react-native";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -25,14 +25,10 @@ import {
 import type { OrderQuote } from "@/src/features/booking-orders/schemas/quote.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
-import IconActionButton from "./IconActionButton";
+import { Button } from "@/src/components/ui/button";
+import CancelReasonModal from "../../shared/CancelReasonModal";
 import QuoteBubble from "./QuoteBubble";
 import QuoteOfferSheet, { type QuoteOfferSheetHandle } from "./QuoteOfferSheet";
-import {
-	StageActionRow,
-	StagePrimaryAction,
-	StageSecondaryAction,
-} from "./StageAction";
 
 export type QuoteChatPanelViewer = "user" | "technician";
 
@@ -129,8 +125,9 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 }
 
 export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
-	const themeColors = useThemeColors();
 	const sheetRef = useRef<QuoteOfferSheetHandle>(null);
+	const [cancelOpen, setCancelOpen] = useState(false);
+	const [cancelReason, setCancelReason] = useState("");
 
 	const { data: rounds = [] } = useOrderQuoteHistory(order.id, { viewer });
 	const { roundCount, roundsLeft, isFinalRound, latest, canActOnLatest } =
@@ -195,10 +192,18 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		});
 	}
 
-	function handleCancel() {
-		const args = { orderId: order.id, reason: "Negotiation ended" };
+	function handleConfirmCancel() {
+		const trimmed = cancelReason.trim();
+		const args = {
+			orderId: order.id,
+			reason: trimmed.length > 0 ? trimmed : "Negotiation ended",
+		};
 		const mutation = viewer === "technician" ? techCancel : userCancel;
 		mutation.mutate(args, {
+			onSuccess: () => {
+				setCancelOpen(false);
+				setCancelReason("");
+			},
 			onError: (err) =>
 				Toast.show({
 					type: "error",
@@ -207,6 +212,11 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				}),
 		});
 	}
+
+	const subjectName =
+		viewer === "technician"
+			? ((order as { user_name?: string | null }).user_name ?? null)
+			: order.technician_name;
 
 	const showTechInitial = viewer === "technician" && roundCount === 0;
 	// Counter CTA is shown only to the actor whose turn it is — i.e. the side
@@ -247,60 +257,71 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	return (
 		<View style={{ gap: space[2] }}>
 			{showTechInitial ? (
-				<StageActionRow
-					primary={
-						<StagePrimaryAction
-							label="Offer price"
-							icon={Pencil}
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-1">
+						<Button
+							variant="primary"
+							size="lg"
+							fullWidth
+							iconLeft={Pencil}
 							onPress={openSheet}
-							pending={isSubmitPending}
-						/>
-					}
-					trailing={
-						<IconActionButton
-							icon={Ban}
-							tone="danger"
+							loading={isSubmitPending}
+						>
+							Offer price
+						</Button>
+					</View>
+					<View className="shrink-0">
+						<Button
+							variant="destructive"
+							size="icon"
 							accessibilityLabel="Cancel order"
-							onPress={handleCancel}
-							pending={isCancelPending}
-						/>
-					}
-				/>
+							onPress={() => setCancelOpen(true)}
+							loading={isCancelPending}
+						>
+							<Ban size={20} />
+						</Button>
+					</View>
+				</View>
 			) : null}
 
 			{showAcceptDecline ? (
 				<>
-					<StageActionRow
-						primary={
-							<StagePrimaryAction
-								label={
-									latest
-										? `Accept ${formatCurrency(latest.amount)}`
-										: "Accept"
-								}
-								icon={Check}
-								tint={themeColors.success}
+					<View className="flex-row items-center gap-stack-md">
+						<View className="flex-1">
+							<Button
+								variant="success"
+								size="lg"
+								fullWidth
+								iconLeft={Check}
 								onPress={handleAccept}
-								pending={isAcceptPending}
-							/>
-						}
-						trailing={
-							<IconActionButton
-								icon={Ban}
-								tone="danger"
+								loading={isAcceptPending}
+							>
+								{latest ? `Accept ${formatCurrency(latest.amount)}` : "Accept"}
+							</Button>
+						</View>
+						<View className="shrink-0">
+							<Button
+								variant="destructive"
+								size="icon"
 								accessibilityLabel="Cancel order"
-								onPress={handleCancel}
-								pending={isCancelPending}
-							/>
-						}
-					/>
+								onPress={() => setCancelOpen(true)}
+								loading={isCancelPending}
+							>
+								<Ban size={20} />
+							</Button>
+						</View>
+					</View>
 					{showCounter ? (
-						<StageSecondaryAction
-							label="Suggest another price"
-							icon={Pencil}
+						<Button
+							variant="secondary"
+							size="lg"
+							fullWidth
+							iconLeft={Pencil}
 							onPress={openSheet}
-							pending={isSubmitPending}
-						/>
+							loading={isSubmitPending}
+						>
+							Suggest another price
+						</Button>
 					) : null}
 				</>
 			) : null}
@@ -313,6 +334,23 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				isPending={isSubmitPending}
 				previousAmount={latest?.amount ?? null}
 				onSubmit={handleSheetSubmit}
+			/>
+			<CancelReasonModal
+				visible={cancelOpen}
+				title="Cancel Order"
+				subjectRole="order"
+				subjectName={subjectName}
+				subjectFallback={
+					viewer === "technician" ? "this customer" : "this technician"
+				}
+				reason={cancelReason}
+				onReasonChange={setCancelReason}
+				onClose={() => {
+					if (isCancelPending) return;
+					setCancelOpen(false);
+				}}
+				onConfirm={handleConfirmCancel}
+				isLoading={isCancelPending}
 			/>
 		</View>
 	);

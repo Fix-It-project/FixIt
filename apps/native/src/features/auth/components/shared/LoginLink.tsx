@@ -1,5 +1,6 @@
 import { type Href, router } from "expo-router";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/routes";
@@ -22,11 +23,9 @@ export default function LoginLink({
 			<Text variant="bodySm" className="text-content-secondary">
 				{prefixText}
 			</Text>
-			<Pressable onPress={goToLogin}>
-				<Text variant="label" className="font-bold text-app-primary">
-					{actionText}
-				</Text>
-			</Pressable>
+			<Button variant="link" size="sm" onPress={goToLogin}>
+				{actionText}
+			</Button>
 		</View>
 	);
 }

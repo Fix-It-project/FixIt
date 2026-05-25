@@ -1,18 +1,10 @@
-import { X } from "lucide-react-native";
-import {
-	ActivityIndicator,
-	Modal,
-	Pressable,
-	TouchableOpacity,
-	View,
-} from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { Button } from "@/src/components/ui/button";
+import { Dialog } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
-import { spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
-	readonly confirmLabel: string;
+	readonly confirmLabel?: string;
 	readonly isLoading: boolean;
 	readonly onClose: () => void;
 	readonly onConfirm: () => void;
@@ -26,7 +18,6 @@ interface Props {
 }
 
 export default function CancelReasonModal({
-	confirmLabel,
 	isLoading,
 	onClose,
 	onConfirm,
@@ -37,116 +28,43 @@ export default function CancelReasonModal({
 	subjectRole,
 	title,
 	visible,
+	confirmLabel = "Cancel",
 }: Props) {
-	const themeColors = useThemeColors();
-
 	return (
-		<Modal
-			visible={visible}
-			transparent
-			animationType="fade"
-			onRequestClose={onClose}
-		>
-			<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-				<Pressable
-					style={{
-						flex: 1,
-						backgroundColor: themeColors.backdrop,
-						justifyContent: "center",
-						alignItems: "center",
-					}}
-					onPress={onClose}
+		<Dialog visible={visible} onClose={onClose} dismissible={false}>
+			<Dialog.Header>{title}</Dialog.Header>
+			<Dialog.Body>
+				<Text variant="bodySm">
+					Are you sure you want to cancel the {subjectRole} with{" "}
+					<Text variant="bodySm" className="font-semibold">
+						{subjectName ?? subjectFallback}
+					</Text>
+					?
+				</Text>
+			</Dialog.Body>
+			<Dialog.Form>
+				<Input
+					value={reason}
+					onChangeText={onReasonChange}
+					placeholder="Reason (optional)"
+					multiline
+					numberOfLines={3}
+					className="min-h-[72px]"
+				/>
+			</Dialog.Form>
+			<Dialog.Footer>
+				<Button variant="secondary" onPress={onClose}>
+					Keep
+				</Button>
+				<Button
+					variant="destructive"
+					loading={isLoading}
+					disabled={isLoading}
+					onPress={onConfirm}
 				>
-					<Pressable
-						onPress={() => {}}
-						className="w-modal rounded-sheet p-sheet"
-						style={{ backgroundColor: themeColors.surfaceBase }}
-					>
-						<View className="mb-stack-lg flex-row items-center justify-between">
-							<Text variant="h3" style={{ color: themeColors.textPrimary }}>
-								{title}
-							</Text>
-							<TouchableOpacity
-								onPress={onClose}
-								className="h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill"
-								style={{ backgroundColor: themeColors.surfaceElevated }}
-							>
-								<X size={spacing.icon.xs} color={themeColors.textSecondary} />
-							</TouchableOpacity>
-						</View>
-
-						<Text
-							variant="bodySm"
-							className="mb-stack-lg"
-							style={{ color: themeColors.textSecondary }}
-						>
-							Are you sure you want to cancel the {subjectRole} with{" "}
-							<Text
-								variant="bodySm"
-								className="font-semibold"
-								style={{ color: themeColors.textPrimary }}
-							>
-								{subjectName ?? subjectFallback}
-							</Text>
-							?
-						</Text>
-
-						<Input
-							value={reason}
-							onChangeText={onReasonChange}
-							placeholder="Reason for cancellation (optional)"
-							multiline
-							numberOfLines={3}
-							className="mb-stack-lg min-h-[80px]"
-						/>
-
-						<View className="flex-row gap-card-compact">
-							<TouchableOpacity
-								onPress={onClose}
-								className="flex-1 items-center rounded-input border py-stack-md"
-								style={{
-									borderColor: themeColors.borderDefault,
-									backgroundColor: themeColors.surfaceBase,
-								}}
-								activeOpacity={0.7}
-							>
-								<Text
-									variant="buttonMd"
-									style={{ color: themeColors.textPrimary }}
-								>
-									Keep
-								</Text>
-							</TouchableOpacity>
-
-							<TouchableOpacity
-								onPress={onConfirm}
-								disabled={isLoading}
-								className="flex-1 items-center rounded-input py-stack-md"
-								style={{
-									backgroundColor: isLoading
-										? themeColors.borderDefault
-										: themeColors.danger,
-								}}
-								activeOpacity={0.85}
-							>
-								{isLoading ? (
-									<ActivityIndicator
-										size="small"
-										color={themeColors.surfaceBase}
-									/>
-								) : (
-									<Text
-										variant="buttonMd"
-										style={{ color: themeColors.surfaceBase }}
-									>
-										{confirmLabel}
-									</Text>
-								)}
-							</TouchableOpacity>
-						</View>
-					</Pressable>
-				</Pressable>
-			</KeyboardAvoidingView>
-		</Modal>
+					{confirmLabel}
+				</Button>
+			</Dialog.Footer>
+		</Dialog>
 	);
 }

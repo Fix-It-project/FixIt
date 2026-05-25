@@ -2,22 +2,21 @@ import { Ban, CalendarClock, Clock } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
-import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
+import { Button } from "@/src/components/ui/button";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	useOrderRescheduleQuery,
 	useUserCancelOrder,
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { space } from "@/src/lib/theme";
-import IconActionButton from "./IconActionButton";
 import OrderInfoCompact from "./OrderInfoCompact";
 import RescheduleRequestPanel from "./RescheduleRequestPanel";
 import RescheduleSheet, { type RescheduleSheetHandle } from "./RescheduleSheet";
-import { StageActionRow, StagePrimaryAction } from "./StageAction";
 import StageHero from "./StageHero";
 
 interface Props {
@@ -88,32 +87,41 @@ export default function PendingWaitingCard({ order }: Props) {
 				forceVisible={order.has_pending_reschedule === true}
 			/>
 
-			<StageActionRow
-				primary={
-					<StagePrimaryAction
-						label={hasPendingReschedule ? "Request pending" : "Reschedule"}
-						icon={CalendarClock}
+			<View className="flex-row items-center gap-stack-md">
+				<View className="flex-1">
+					<Button
+						variant="primary"
+						size="lg"
+						fullWidth
+						iconLeft={CalendarClock}
 						onPress={openReschedule}
 						disabled={hasPendingReschedule}
-					/>
-				}
-				trailing={
-					<IconActionButton
-						icon={Ban}
-						tone="danger"
+					>
+						{hasPendingReschedule ? "Request pending" : "Reschedule"}
+					</Button>
+				</View>
+				<View className="shrink-0">
+					<Button
+						variant="destructive"
+						size="icon"
 						accessibilityLabel="Cancel order"
 						onPress={() => setCancelOpen(true)}
-						pending={cancelMutation.isPending}
-					/>
-				}
-			/>
+						loading={cancelMutation.isPending}
+					>
+						<Ban size={20} />
+					</Button>
+				</View>
+			</View>
 
 			<RescheduleSheet ref={rescheduleRef} />
 			<TechnicianProfileSheet ref={profileSheetRef} />
 
-			<OrderCancelModal
+			<CancelReasonModal
 				visible={cancelOpen}
-				technicianName={order.technician_name}
+				title="Cancel Order"
+				subjectRole="order"
+				subjectName={order.technician_name}
+				subjectFallback="this technician"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

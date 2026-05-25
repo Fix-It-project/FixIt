@@ -1,14 +1,14 @@
 import {
-  ActivityIndicator,
   Image,
   TouchableOpacity,
   View,
 } from "react-native";
 import { Input } from "@/src/components/ui/input";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
-import { Bot, Camera, ImagePlus, Mic, MicOff, Sparkles, X } from "lucide-react-native";
+import { Camera, ImagePlus, Mic, MicOff, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/src/components/ui/text";
+import { Button } from "@/src/components/ui/button";
 import { Colors, useThemeColors } from "@/src/lib/theme";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import type { ChatFlow, SelectedImage } from "../types";
@@ -293,23 +293,17 @@ export default function ChatComposer({
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={onSend}
+          <Button
+            variant="primary"
+            className="flex-1"
+            loading={activeFlow === mode}
             disabled={!canSend || isLoading || isRecording}
-            activeOpacity={0.85}
-            className="flex-1 flex-row items-center justify-center rounded-full px-4 py-3"
-            style={{
-              backgroundColor: canSend && !isLoading && !isRecording ? primary : themeColors.disabledText,
-            }}
+            onPress={onSend}
           >
-            {activeFlow === mode ? (
-              <ActivityIndicator size="small" color={themeColors.onPrimaryHeader} />
-            ) : (
-              <Text variant="bodySm" className="font-google-sans-semibold" style={{ color: themeColors.onPrimaryHeader }}>
-                {mode === "recommend" ? "Recommend" : "Agent"}
-              </Text>
-            )}
-          </TouchableOpacity>
+            <Text variant="bodySm" className="font-google-sans-semibold" style={{ color: themeColors.onPrimaryHeader }}>
+              {mode === "recommend" ? "Recommend" : "Agent"}
+            </Text>
+          </Button>
         </View>
       </View>
     </View>

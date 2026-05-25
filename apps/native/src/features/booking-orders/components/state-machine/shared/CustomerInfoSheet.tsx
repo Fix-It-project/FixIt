@@ -1,9 +1,7 @@
 import {
-	BottomSheetBackdrop,
-	type BottomSheetBackdropProps,
-	BottomSheetModal,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
+	BottomSheet,
+	type BottomSheetModalRef,
+} from "@/src/components/ui/bottom-sheet";
 import { MapPin, Phone } from "lucide-react-native";
 import {
 	forwardRef,
@@ -39,7 +37,7 @@ interface SheetState {
 const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 	function CustomerInfoSheet(_, ref) {
 		const themeColors = useThemeColors();
-		const sheetRef = useRef<BottomSheetModal>(null);
+		const sheetRef = useRef<BottomSheetModalRef>(null);
 		const { height } = useWindowDimensions();
 		const [state, setState] = useState<SheetState | null>(null);
 
@@ -57,20 +55,6 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 			[],
 		);
 
-		const renderBackdrop = useCallback(
-			(props: BottomSheetBackdropProps) => (
-				<BottomSheetBackdrop
-					{...props}
-					disappearsOnIndex={-1}
-					appearsOnIndex={0}
-					opacity={1}
-					pressBehavior="close"
-					style={{ backgroundColor: themeColors.backdrop }}
-				/>
-			),
-			[themeColors.backdrop],
-		);
-
 		const handleCall = () => {
 			if (!state?.phone) return;
 			void Linking.openURL(`tel:${state.phone}`);
@@ -86,22 +70,15 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 		const avatarColor = getAvatarColor(state?.name ?? "");
 
 		return (
-			<BottomSheetModal
+			<BottomSheet.Modal
 				ref={sheetRef}
 				snapPoints={[Math.min(height * 0.55, 460)]}
-				enablePanDownToClose
-				backdropComponent={renderBackdrop}
-				backgroundStyle={{
-					backgroundColor: themeColors.surfaceBase,
-					borderTopLeftRadius: 24,
-					borderTopRightRadius: 24,
-				}}
 				handleIndicatorStyle={{
 					backgroundColor: themeColors.borderDefault,
 					width: 44,
 				}}
 			>
-				<BottomSheetView
+				<BottomSheet.View
 					style={{
 						padding: space[5],
 						gap: space[5],
@@ -263,8 +240,8 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 							</View>
 						</PressableScale>
 					</View>
-				</BottomSheetView>
-			</BottomSheetModal>
+				</BottomSheet.View>
+			</BottomSheet.Modal>
 		);
 	},
 );

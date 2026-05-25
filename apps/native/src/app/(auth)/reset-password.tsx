@@ -2,7 +2,7 @@ import * as Linking from "expo-linking";
 import { type Href, router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText, Text } from "@/src/components/ui/text";
@@ -169,15 +169,17 @@ export default function ResetPassword() {
 
 				{/* ── Back to Login link ──────────────────────────────────────── */}
 				<View className="mb-stack-lg items-center">
-					<Pressable
+					<Button
+						variant="ghost"
+						size="sm"
 						onPress={() => router.replace(loginRoute)}
-						className="flex-row items-center gap-stack-xs active:opacity-70"
+						iconLeft={<ArrowLeft size={16} color={themeColors.textSecondary} />}
+						accessibilityLabel="Back to Login"
 					>
-						<ArrowLeft size={16} color={themeColors.textSecondary} />
 						<Text variant="label" className="text-content-secondary">
 							Back to Login
 						</Text>
-					</Pressable>
+					</Button>
 				</View>
 
 				{/* ── Bottom Button ───────────────────────────────────────────── */}

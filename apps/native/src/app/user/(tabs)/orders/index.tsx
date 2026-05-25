@@ -1,14 +1,16 @@
 import { router } from "expo-router";
+import { Star } from "lucide-react-native";
 import {
 	ActivityIndicator,
 	RefreshControl,
 	ScrollView,
 	View,
 } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
-import LeaveReviewButton from "@/src/features/reviews/components/user/LeaveReviewButton";
+import { reviewSheetRef } from "@/src/features/reviews/components/user/ReviewPromptHost";
 import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/routes";
@@ -92,11 +94,28 @@ export default function MyOrdersScreen() {
 									onPress={() => goToOrder(order.id)}
 									actionSlot={
 										showLeaveReview ? (
-											<LeaveReviewButton
-												orderId={order.id}
-												technicianId={order.technician_id}
-												technicianName={order.technician_name ?? "Technician"}
-											/>
+											<Button
+												variant="ghost"
+												size="md"
+												iconLeft={
+													<Star
+														size={14}
+														color={themeColors.ratingDefault}
+														fill={themeColors.ratingDefault}
+														strokeWidth={0}
+													/>
+												}
+												onPress={() =>
+													reviewSheetRef.current?.open(
+														order.id,
+														order.technician_id,
+														order.technician_name ?? "Technician",
+													)
+												}
+												accessibilityLabel={`Leave a review for ${order.technician_name ?? "Technician"}`}
+											>
+												Leave review
+											</Button>
 										) : undefined
 									}
 								/>

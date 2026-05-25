@@ -1,15 +1,12 @@
 import { G, Path, Svg } from "react-native-svg";
-import { Button } from "@/src/components/ui/button";
-import { Text as BtnText } from "@/src/components/ui/text";
-import { elevation, shadowStyle } from "@/src/lib/theme";
 
-interface SocialLoginButtonsProps {
-	readonly onPress?: () => void;
+interface GoogleIconProps {
+	readonly size?: number;
 }
-//will be changed later instead of manually implementing google styling
-function GoogleIcon() {
+
+export function GoogleIcon({ size = 22 }: GoogleIconProps) {
 	return (
-		<Svg width={22} height={22} viewBox="0 0 48 48">
+		<Svg width={size} height={size} viewBox="0 0 48 48">
 			<Path
 				fill="#EA4335"
 				d="M24 9.5c3.14 0 5.95 1.08 8.17 2.86l6.08-6.08C34.46 3.04 29.5 1 24 1 14.82 1 7.02 6.49 3.42 14.24l7.08 5.5C12.27 13.47 17.7 9.5 24 9.5z"
@@ -31,23 +28,5 @@ function GoogleIcon() {
 				<Path fill="none" d="M0 0h48v48H0z" />
 			</G>
 		</Svg>
-	);
-}
-
-export default function SocialLoginButtons({
-	onPress,
-}: SocialLoginButtonsProps) {
-	return (
-		<Button
-			variant="outline"
-			onPress={onPress}
-			className="w-full flex-row gap-stack-md rounded-compact border-edge bg-surface"
-			style={shadowStyle(elevation.raised)}
-		>
-			<GoogleIcon />
-			<BtnText variant="buttonLg" className="font-medium text-social">
-				Continue with Google
-			</BtnText>
-		</Button>
 	);
 }

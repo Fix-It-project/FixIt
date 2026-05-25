@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { Camera, User } from "lucide-react-native";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import {
@@ -64,16 +65,17 @@ export default function ProfileAvatar({
 			</View>
 
 			{onChangePhoto && (
-				<TouchableOpacity
+				<Button
+					variant="secondary"
+					size="icon"
 					onPress={onChangePhoto}
-					activeOpacity={0.8}
-					className="absolute right-0 bottom-0 h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill bg-surface"
+					accessibilityLabel="Change profile photo"
+					className="absolute right-0 bottom-0 h-control-icon-box-sm w-control-icon-box-sm rounded-pill bg-surface"
 					style={shadowStyle(elevation.raised, {
 						shadowColor: Colors.shadow,
 					})}
-				>
-					<Camera size={14} color={Colors.primary} strokeWidth={2} />
-				</TouchableOpacity>
+					iconLeft={<Camera size={14} color={Colors.primary} strokeWidth={2} />}
+				/>
 			)}
 		</View>
 	);

@@ -3,16 +3,14 @@ import { useRef, useState } from "react";
 import { Linking, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
+import { Button } from "@/src/components/ui/button";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
-	IconActionButton,
 	OrderInfoCompact,
-	StageActionRow,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
-import { BookingCancelModal } from "@/src/features/booking-orders/components/tech";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	useOrderDistance,
 	useTechCancel,
@@ -175,28 +173,37 @@ export function TrackingCta({ order }: Props) {
 
 	return (
 		<>
-			<StageActionRow
-				primary={
-					<StagePrimaryAction
-						label={withinGeofence ? "I've arrived" : "Out of range"}
-						icon={MapPin}
+			<View className="flex-row items-center gap-stack-md">
+				<View className="flex-1">
+					<Button
+						variant="primary"
+						size="lg"
+						fullWidth
+						iconLeft={MapPin}
 						onPress={handleArrive}
 						disabled={!withinGeofence}
-						pending={markArrived.isPending}
-					/>
-				}
-				trailing={
-					<IconActionButton
-						icon={Ban}
-						tone="danger"
+						loading={markArrived.isPending}
+					>
+						{withinGeofence ? "I've arrived" : "Out of range"}
+					</Button>
+				</View>
+				<View className="shrink-0">
+					<Button
+						variant="destructive"
+						size="icon"
 						accessibilityLabel="Cancel job"
 						onPress={() => setCancelOpen(true)}
-					/>
-				}
-			/>
-			<BookingCancelModal
+					>
+						<Ban size={20} />
+					</Button>
+				</View>
+			</View>
+			<CancelReasonModal
 				visible={cancelOpen}
-				clientName={booking.user_name}
+				title="Cancel Booking"
+				subjectRole="booking"
+				subjectName={booking.user_name}
+				subjectFallback="this client"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

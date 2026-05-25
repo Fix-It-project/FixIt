@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CustomToast } from "@/src/components/ui/toast";
+import { DialogProvider } from "@/src/components/ui/dialog";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
 import queryClient from "@/src/lib/query-client";
@@ -85,6 +86,8 @@ function RootLayout() {
 										</Stack>
 
 										<PortalHost />
+										<DialogProvider />
+										<PortalHost name="dialog-root" />
 										<CustomToast />
 									</BottomSheetModalProvider>
 								</KeyboardProvider>

@@ -1,8 +1,7 @@
 import {
-	BottomSheetBackdrop,
-	BottomSheetModal,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
+	BottomSheet,
+	type BottomSheetModalRef,
+} from "@/src/components/ui/bottom-sheet";
 import { ClipboardList, MapPin, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
@@ -43,7 +42,7 @@ export default function RequestReviewModal({
 }: RequestReviewModalProps = {}) {
 	const themeColors = useThemeColors();
 	const { selectedOrder, isModalVisible, closeModal } = useTechRequestsStore();
-	const sheetRef = useRef<BottomSheetModal>(null);
+	const sheetRef = useRef<BottomSheetModalRef>(null);
 	const acceptMutation = useAcceptDashboardOrderMutation();
 	const rejectMutation = useRejectDashboardOrderMutation();
 	const { height } = useWindowDimensions();
@@ -57,19 +56,6 @@ export default function RequestReviewModal({
 
 	const isBusy = acceptMutation.isPending || rejectMutation.isPending;
 	const snapPoints = useMemo(() => [Math.min(height * 0.72, 560)], [height]);
-	const renderBackdrop = useCallback(
-		(props: any) => (
-			<BottomSheetBackdrop
-				{...props}
-				appearsOnIndex={0}
-				disappearsOnIndex={-1}
-				pressBehavior="close"
-				opacity={1}
-				style={{ backgroundColor: themeColors.backdrop }}
-			/>
-		),
-		[themeColors.backdrop],
-	);
 
 	useEffect(() => {
 		if (isModalVisible && selectedOrder) {
@@ -93,21 +79,18 @@ export default function RequestReviewModal({
 	if (!selectedOrder) return null;
 
 	return (
-		<BottomSheetModal
+		<BottomSheet.Modal
 			ref={sheetRef}
 			snapPoints={snapPoints}
-			enablePanDownToClose
-			backdropComponent={renderBackdrop}
 			onDismiss={() => {
 				if (isModalVisible) closeModal();
 			}}
-			backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
 			handleIndicatorStyle={{
 				backgroundColor: themeColors.borderDefault,
 				width: spacing.sheet.handleWidth,
 			}}
 		>
-			<BottomSheetView
+			<BottomSheet.View
 				className="px-button-x"
 				style={{
 					backgroundColor: themeColors.surfaceBase,
@@ -249,7 +232,7 @@ export default function RequestReviewModal({
 						)}
 					</TouchableOpacity>
 				</View>
-			</BottomSheetView>
-		</BottomSheetModal>
+			</BottomSheet.View>
+		</BottomSheet.Modal>
 	);
 }

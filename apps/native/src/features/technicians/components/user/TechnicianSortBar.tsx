@@ -1,11 +1,11 @@
 import { SlidersHorizontal } from "lucide-react-native";
-import { ScrollView, TouchableOpacity, View } from "react-native";
-import { Text } from "@/src/components/ui/text";
+import { ScrollView, View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import {
 	SORT_OPTIONS,
 	type SortKey,
 } from "@/src/features/technicians/types/sort";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 export {
 	SORT_OPTIONS,
@@ -51,29 +51,15 @@ export default function TechnicianSortBar({
 				{SORT_OPTIONS.map((option) => {
 					const isActive = activeSort === option;
 					return (
-						<TouchableOpacity
+						<Button
 							key={option}
+							variant={isActive ? "primary" : "ghost"}
+							size="sm"
 							onPress={() => onSortPress(option)}
-							activeOpacity={0.7}
-							className="h-control-chip items-center justify-center rounded-chip px-control-chip"
-							style={{
-								backgroundColor: isActive
-									? Colors.primary
-									: themeColors.surfaceElevated,
-							}}
+							className={isActive ? "" : "bg-surface-elevated"}
 						>
-							<Text
-								variant="caption"
-								className="font-semibold"
-								style={{
-									color: isActive
-										? themeColors.surfaceBase
-										: themeColors.textSecondary,
-								}}
-							>
-								{option}
-							</Text>
-						</TouchableOpacity>
+							{option}
+						</Button>
 					);
 				})}
 			</ScrollView>

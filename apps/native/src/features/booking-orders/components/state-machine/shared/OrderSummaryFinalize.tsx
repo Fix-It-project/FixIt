@@ -8,9 +8,9 @@ import Animated, {
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { formatAmount } from "@/src/lib/helpers/format-currency";
+import { Button } from "@/src/components/ui/button";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
-import { StagePrimaryAction } from "./StageAction";
 import {
 	useTechMarkCashReceived,
 	useUserCheckout,
@@ -310,15 +310,17 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				</Animated.View>
 			) : null}
 
-			<StagePrimaryAction
-				label={
-					meConfirmed ? "Waiting on the other side…" : "Mark order completed"
-				}
-				icon={CheckCircle2}
+			<Button
+				variant="primary"
+				size="lg"
+				fullWidth
+				iconLeft={CheckCircle2}
 				onPress={handleFinalize}
-				pending={finalizePending}
+				loading={finalizePending}
 				disabled={meConfirmed}
-			/>
+			>
+				{meConfirmed ? "Waiting on the other side…" : "Mark order completed"}
+			</Button>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />
 			<CustomerInfoSheet ref={customerSheetRef} />

@@ -3,14 +3,12 @@ import { useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
+import { Button } from "@/src/components/ui/button";
 import {
-	IconActionButton,
 	OrderInfoCompact,
-	StageActionRow,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
-import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	useUserCancelOrder,
 	useUserConfirmCompletion,
@@ -127,11 +125,13 @@ export function WorkInProgressViewCta({ order }: Props) {
 
 	return (
 		<>
-			<StageActionRow
-				primary={
-					<StagePrimaryAction
-						label="Mark work complete"
-						icon={CheckCircle2}
+			<View className="flex-row items-center gap-stack-md">
+				<View className="flex-1">
+					<Button
+						variant="primary"
+						size="lg"
+						fullWidth
+						iconLeft={CheckCircle2}
 						onPress={() =>
 							confirm.mutate(
 								{ orderId: order.id },
@@ -145,22 +145,29 @@ export function WorkInProgressViewCta({ order }: Props) {
 								},
 							)
 						}
-						pending={confirm.isPending}
-					/>
-				}
-				trailing={
-					<IconActionButton
-						icon={Ban}
-						tone="danger"
+						loading={confirm.isPending}
+					>
+						Mark work complete
+					</Button>
+				</View>
+				<View className="shrink-0">
+					<Button
+						variant="destructive"
+						size="icon"
 						accessibilityLabel="Cancel order"
 						onPress={() => setCancelOpen(true)}
-						pending={cancel.isPending}
-					/>
-				}
-			/>
-			<OrderCancelModal
+						loading={cancel.isPending}
+					>
+						<Ban size={20} />
+					</Button>
+				</View>
+			</View>
+			<CancelReasonModal
 				visible={cancelOpen}
-				technicianName={order.technician_name}
+				title="Cancel Order"
+				subjectRole="order"
+				subjectName={order.technician_name}
+				subjectFallback="this technician"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

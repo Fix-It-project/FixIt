@@ -9,15 +9,14 @@ import {
 } from "lucide-react-native";
 import {
 	Platform,
-	TouchableOpacity,
 	useWindowDimensions,
 	View,
 } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { Button } from "@/src/components/ui/button";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import {
 	elevation,
-	radius,
 	shadowStyle,
 	spacing,
 } from "@/src/lib/design-tokens";
@@ -29,7 +28,6 @@ import {
 } from "@/src/lib/tab-bar-config";
 import { useThemeColors } from "@/src/lib/theme";
 
-const CHAT_FAB_SIZE = spacing.button.height.lg;
 
 interface ChatFabProps {
 	readonly bottom: number;
@@ -61,19 +59,15 @@ function ChatFab({
 	surfaceColor,
 }: ChatFabProps) {
 	return (
-		<TouchableOpacity
+		<Button
+			variant="primary"
+			size="icon"
 			onPress={onPress}
-			activeOpacity={0.85}
+			accessibilityLabel="Open AI chat"
 			style={{
 				position: "absolute",
 				right: spacing.screen.paddingX,
 				bottom,
-				width: CHAT_FAB_SIZE,
-				height: CHAT_FAB_SIZE,
-				borderRadius: radius.pill,
-				backgroundColor: primaryColor,
-				alignItems: "center",
-				justifyContent: "center",
 				...shadowStyle(elevation.header, {
 					shadowColor: primaryColor,
 					opacity: Platform.OS === "ios" ? 0.35 : 0,
@@ -83,7 +77,7 @@ function ChatFab({
 			}}
 		>
 			<MessageCircle size={26} color={surfaceColor} strokeWidth={1.8} />
-		</TouchableOpacity>
+		</Button>
 	);
 }
 

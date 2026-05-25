@@ -82,6 +82,7 @@ export function useAudioRecorder() {
       const permission =
         currentPermission.granted ? currentPermission : await requestRecordingPermissionsAsync();
       if (!permission.granted) {
+        // TODO Phase 12: convert to Toast (info-only alert — OVR-02)
         Alert.alert(
           "Microphone access required",
           "Please allow microphone access to record audio.",
@@ -105,6 +106,7 @@ export function useAudioRecorder() {
       setRecorderState("recording");
     } catch (err) {
       console.error("Failed to start recording:", err);
+      // TODO Phase 12: convert to Toast (info-only alert — OVR-02)
       Alert.alert("Recording failed", "Could not start the microphone. Please try again.");
       setRecorderState("idle");
     }

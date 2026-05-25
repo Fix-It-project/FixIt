@@ -1,8 +1,8 @@
 // Auto-growing multiline reason input used by RescheduleSheet.
 // Owns its own grow-to-content height clamp.
 
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useState } from "react";
+import { TextInput } from "react-native";
 import { radius, space, useThemeColors } from "@/src/lib/theme";
 
 const MIN_HEIGHT = 56;
@@ -25,13 +25,15 @@ export default function ReasonTextarea({
 	const [height, setHeight] = useState(MIN_HEIGHT);
 
 	return (
-		<BottomSheetTextInput
+		<TextInput
 			value={value}
 			onChangeText={onChangeText}
 			placeholder={placeholder}
 			placeholderTextColor={themeColors.textMuted}
 			multiline
 			editable={editable}
+			autoCorrect={false}
+			spellCheck={false}
 			onContentSizeChange={(e) => {
 				const next = e.nativeEvent.contentSize.height;
 				setHeight(Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, next)));
@@ -41,13 +43,13 @@ export default function ReasonTextarea({
 				maxHeight: MAX_HEIGHT,
 				marginTop: space[4],
 				paddingHorizontal: space[4],
-				paddingVertical: 0,
+				paddingVertical: space[3],
 				borderRadius: radius.button,
 				borderWidth: 1,
 				borderColor: themeColors.borderDefault,
 				backgroundColor: themeColors.surfaceElevated,
 				color: themeColors.textPrimary,
-				textAlignVertical: "center",
+				textAlignVertical: "top",
 				opacity: editable ? 1 : 0.6,
 			}}
 		/>

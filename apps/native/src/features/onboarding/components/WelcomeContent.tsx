@@ -5,10 +5,10 @@ import Animated, {
 	useReducedMotion,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors, space } from "@/src/lib/theme";
 import { DUR_STAGGER, STAGGER_GAP } from "@/src/lib/animation/constants";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { space } from "@/src/lib/theme";
 
 interface WelcomeContentProps {
 	contentVisible: boolean;
@@ -28,7 +28,7 @@ export function WelcomeContent({
 		reducedMotion ? 0 : index * STAGGER_GAP;
 
 	if (!contentVisible) {
-		return null;
+		return [];
 	}
 
 	return (
@@ -81,24 +81,16 @@ export function WelcomeContent({
 					}
 					style={{ marginTop: space[2] }}
 				>
-					<PressableScale
+					<Button
 						onPress={onPressGetStarted}
 						disabled={!inputReady}
-						accessibilityRole="button"
 						accessibilityLabel="Get started"
-						accessibilityState={{ disabled: !inputReady }}
+						fullWidth
+						size="lg"
+						iconRight={ArrowRight}
 					>
-						<View className="w-full flex-row items-center justify-between gap-stack-sm rounded-button bg-app-primary px-button-x py-control-cta-y">
-							<View style={{ width: space[5] }} />
-							<Text
-								variant="buttonLg"
-								className="font-google-sans-bold text-surface-on-primary"
-							>
-								Get Started
-							</Text>
-							<ArrowRight size={20} color={Colors.surfaceBase} />
-						</View>
-					</PressableScale>
+						Get Started
+					</Button>
 				</Animated.View>
 
 				<Animated.View

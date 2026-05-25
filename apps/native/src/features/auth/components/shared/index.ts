@@ -8,4 +8,3 @@ export { default as LoginLink } from "./LoginLink";
 export { default as LoginScreen } from "./LoginScreen";
 export { default as OAuthDivider } from "./OAuthDivider";
 export { default as PasswordInput } from "./PasswordInput";
-export { default as SocialLoginButtons } from "./SocialLoginButtons";

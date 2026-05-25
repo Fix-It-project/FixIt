@@ -1,6 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { Alert } from "react-native";
+import { confirm } from "@/src/components/ui/dialog";
 import { useLogoutMutation } from "@/src/features/auth/hooks/useLogoutMutation";
 import ProfileContentLayout from "@/src/features/profile/components/ProfileContentLayout";
 import ProfileMenuSection from "@/src/features/profile/components/ProfileMenuSection";
@@ -32,6 +33,7 @@ export default function TechnicianProfileRoute() {
 	const handleChangePhoto = async () => {
 		const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 		if (!permission.granted) {
+			// TODO Phase 12: convert to Toast (info-only alert)
 			Alert.alert(
 				"Permission required",
 				"Please allow access to your photo library.",
@@ -52,6 +54,7 @@ export default function TechnicianProfileRoute() {
 				{ imageUri: asset.uri, mimeType: asset.mimeType ?? "image/jpeg" },
 				{
 					onError: (error) =>
+						// TODO Phase 12: convert to Toast (info-only alert)
 						Alert.alert(
 							"Upload failed",
 							getErrorMessage(error) || "Something went wrong.",
@@ -61,22 +64,20 @@ export default function TechnicianProfileRoute() {
 		}
 	};
 
-	const handleLogout = () => {
-		Alert.alert("Log Out", "Are you sure you want to log out?", [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Log Out",
-				style: "destructive",
-				onPress: () =>
-					logout.mutate(undefined, {
-						onError: (error) =>
-							Alert.alert(
-								"Logout failed",
-								getErrorMessage(error) || "Something went wrong.",
-							),
-					}),
-			},
-		]);
+	const handleLogout = async () => {
+		const ok = await confirm({
+			title: "Log out",
+			description: "Are you sure you want to log out?",
+			primary: { label: "Log out", destructive: true },
+			secondary: { label: "Cancel" },
+		});
+		if (ok) {
+			logout.mutate(undefined, {
+				onError: (error) =>
+					// TODO Phase 12: convert to Toast (info-only alert)
+					Alert.alert("Logout failed", getErrorMessage(error) || "Something went wrong."),
+			});
+		}
 	};
 
 	return (

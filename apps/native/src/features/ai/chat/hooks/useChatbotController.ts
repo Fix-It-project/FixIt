@@ -71,6 +71,7 @@ export function useChatbotController() {
   const pickImage = useCallback(async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
+      // TODO Phase 12: convert to Toast (info-only alert — OVR-02)
       Alert.alert("Permission required", "Please allow access to your photo library.");
       return;
     }
@@ -97,6 +98,7 @@ export function useChatbotController() {
   const takePhoto = useCallback(async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
+      // TODO Phase 12: convert to Toast (info-only alert — OVR-02)
       Alert.alert("Permission required", "Please allow camera access.");
       return;
     }

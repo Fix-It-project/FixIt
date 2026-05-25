@@ -10,8 +10,8 @@ const inputVariants = cva("font-google-sans text-base text-content py-0", {
 		variant: {
 			/** Transparent bg with visible border — address/settings forms */
 			outline: "rounded-input border px-card",
-			/** White-filled bg, pill shape — login/signup forms */
-			filled: "rounded-pill bg-surface px-button-x",
+			/** Filled surface with the same app input radius */
+			filled: "rounded-input bg-surface px-card",
 		},
 	},
 	defaultVariants: {

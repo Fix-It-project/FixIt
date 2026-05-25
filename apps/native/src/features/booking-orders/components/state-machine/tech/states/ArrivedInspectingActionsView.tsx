@@ -2,13 +2,13 @@ import { Check, Search } from "lucide-react-native";
 import { useRef } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
 	OrderInfoCompact,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import { useTechFinishInspection } from "@/src/features/booking-orders/hooks";
 import type {
@@ -85,11 +85,16 @@ export function ArrivedInspectingCta({ order }: Props) {
 		);
 	};
 	return (
-		<StagePrimaryAction
-			label="Finish inspection"
-			icon={Check}
+		<Button
+			variant="primary"
+			size="lg"
+			fullWidth
+			iconLeft={Check}
+			loading={finishInspection.isPending}
 			onPress={handlePress}
-			pending={finishInspection.isPending}
-		/>
+			accessibilityLabel="Finish inspection"
+		>
+			{"Finish inspection"}
+		</Button>
 	);
 }

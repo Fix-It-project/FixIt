@@ -3,16 +3,14 @@ import { useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
-import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
+import { Button } from "@/src/components/ui/button";
 import {
-	IconActionButton,
 	OrderInfoCompact,
 	RescheduleRequestPanel,
 	RescheduleSheet,
 	type RescheduleSheetHandle,
-	StageActionRow,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import { useUserCancelOrder } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
@@ -89,39 +87,46 @@ export function AcceptedViewCta({ order }: Props) {
 	return (
 		<>
 			<View style={{ gap: space[1] }}>
-				<StageActionRow
-					primary={
-						<StagePrimaryAction
-							label="Waiting for technician"
-							icon={CheckCircle2}
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-1">
+						<Button
+							variant="primary"
+							size="lg"
+							fullWidth
+							iconLeft={CheckCircle2}
 							onPress={() => {}}
 							disabled
-						/>
-					}
-					trailing={
-						<View style={{ flexDirection: "row", gap: space[2] }}>
-							<IconActionButton
-								icon={CalendarClock}
-								accessibilityLabel="Reschedule order"
-								onPress={() =>
-									rescheduleRef.current?.open({
-										orderId: order.id,
-										technicianId: order.technician_id,
-										originalScheduledDate: order.scheduled_date,
-									})
-								}
-								disabled={cancel.isPending || hasPendingReschedule}
-							/>
-							<IconActionButton
-								icon={Ban}
-								tone="danger"
-								accessibilityLabel="Cancel order"
-								onPress={() => setCancelOpen(true)}
-								disabled={cancel.isPending}
-							/>
-						</View>
-					}
-				/>
+						>
+							Waiting for technician
+						</Button>
+					</View>
+					<View className="shrink-0 flex-row" style={{ gap: space[2] }}>
+						<Button
+							variant="secondary"
+							size="icon"
+							accessibilityLabel="Reschedule order"
+							onPress={() =>
+								rescheduleRef.current?.open({
+									orderId: order.id,
+									technicianId: order.technician_id,
+									originalScheduledDate: order.scheduled_date,
+								})
+							}
+							disabled={cancel.isPending || hasPendingReschedule}
+						>
+							<CalendarClock size={20} />
+						</Button>
+						<Button
+							variant="destructive"
+							size="icon"
+							accessibilityLabel="Cancel order"
+							onPress={() => setCancelOpen(true)}
+							disabled={cancel.isPending}
+						>
+							<Ban size={20} />
+						</Button>
+					</View>
+				</View>
 				{hasPendingReschedule ? (
 					<Text
 						variant="caption"
@@ -135,9 +140,12 @@ export function AcceptedViewCta({ order }: Props) {
 				) : null}
 			</View>
 			<RescheduleSheet ref={rescheduleRef} viewer="user" />
-			<OrderCancelModal
+			<CancelReasonModal
 				visible={cancelOpen}
-				technicianName={order.technician_name}
+				title="Cancel Order"
+				subjectRole="order"
+				subjectName={order.technician_name}
+				subjectFallback="this technician"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

@@ -1,10 +1,5 @@
-import BottomSheet, {
-	BottomSheetBackdrop,
-	type BottomSheetBackdropProps,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
-import { Navigation, X } from "lucide-react-native";
+import { MapPin, Navigation, X } from "lucide-react-native";
 import {
 	forwardRef,
 	useCallback,
@@ -13,12 +8,12 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import {
-	ActivityIndicator,
-	TouchableOpacity,
-	useWindowDimensions,
-	View,
-} from "react-native";
+	BottomSheet,
+	type BottomSheetRef,
+} from "@/src/components/ui/bottom-sheet";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES } from "@/src/lib/routes";
@@ -39,7 +34,7 @@ const AddNewAddressSheet = forwardRef<
 	AddNewAddressSheetProps
 >(function AddNewAddressSheet({ onBack }, ref) {
 	const themeColors = useThemeColors();
-	const bottomSheetRef = useRef<BottomSheet>(null);
+	const bottomSheetRef = useRef<BottomSheetRef>(null);
 	const { requestLocationPermission, isLoading: isLocating } =
 		useLocationStore();
 	const [sheetIndex, setSheetIndex] = useState(-1);
@@ -55,20 +50,6 @@ const AddNewAddressSheet = forwardRef<
 			bottomSheetRef.current?.close();
 		},
 	}));
-
-	const renderBackdrop = useCallback(
-		(props: BottomSheetBackdropProps) => (
-			<BottomSheetBackdrop
-				{...props}
-				disappearsOnIndex={-1}
-				appearsOnIndex={0}
-				opacity={1}
-				pressBehavior="close"
-				style={{ backgroundColor: themeColors.backdrop }}
-			/>
-		),
-		[themeColors.backdrop],
-	);
 
 	const handleBack = useCallback(() => {
 		bottomSheetRef.current?.close();
@@ -100,20 +81,13 @@ const AddNewAddressSheet = forwardRef<
 			ref={bottomSheetRef}
 			index={-1}
 			snapPoints={snapPoints}
-			enablePanDownToClose
-			backdropComponent={renderBackdrop}
-			backgroundStyle={{
-				backgroundColor: themeColors.surfaceBase,
-				borderTopLeftRadius: 24,
-				borderTopRightRadius: 24,
-			}}
 			handleIndicatorStyle={{
 				backgroundColor: themeColors.borderDefault,
 				width: spacing.sheet.handleWidth,
 			}}
 			onChange={setSheetIndex}
 		>
-			<BottomSheetView className="flex-1 px-button-x pb-screen-bottom-inset">
+			<BottomSheet.View className="flex-1 px-button-x pb-screen-bottom-inset">
 				<View className="mb-stack-sm flex-row items-center justify-between">
 					<Text variant="bodyLg" className="font-bold text-content">
 						Add New Location
@@ -143,26 +117,19 @@ const AddNewAddressSheet = forwardRef<
 						fill in your address details.
 					</Text>
 
-					<TouchableOpacity
+					<Button
+						variant="primary"
+						fullWidth
+						iconLeft={MapPin}
 						onPress={handleCaptureLocation}
 						disabled={isLocating}
-						activeOpacity={0.7}
-						className="w-full flex-row items-center justify-center rounded-card py-control-action-y"
-						style={{
-							backgroundColor: Colors.primary,
-							opacity: isLocating ? 0.6 : 1,
-						}}
+						loading={isLocating}
+						accessibilityLabel="Use current location"
 					>
-						{isLocating ? (
-							<ActivityIndicator size="small" color={themeColors.surfaceBase} />
-						) : (
-							<Text variant="buttonLg" className="text-surface-on-primary">
-								Get Current Location
-							</Text>
-						)}
-					</TouchableOpacity>
+						Use current location
+					</Button>
 				</View>
-			</BottomSheetView>
+			</BottomSheet.View>
 		</BottomSheet>
 	);
 });

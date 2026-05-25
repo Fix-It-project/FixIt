@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText, Text } from "@/src/components/ui/text";
@@ -51,18 +51,14 @@ export default function CheckInboxView({
 						<Text variant="body" className="text-content-secondary">
 							Didn't get an email?{" "}
 						</Text>
-						<Pressable
+						<Button
+							variant="link"
+							size="sm"
 							onPress={onResend}
 							disabled={isResending}
-							className="active:opacity-70"
 						>
-							<Text
-								variant="body"
-								className="font-bold text-app-primary underline"
-							>
-								{isResending ? "Sending..." : "Resend"}
-							</Text>
-						</Pressable>
+							{isResending ? "Sending..." : "Resend"}
+						</Button>
 					</View>
 				)}
 			</View>

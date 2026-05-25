@@ -3,19 +3,17 @@ import { useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
+import { Button } from "@/src/components/ui/button";
 import {
-	IconActionButton,
 	OrderInfoCompact,
-	StageActionRow,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
 	useOrderDistance,
 	useUserCancelOrder,
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import OrderCancelModal from "@/src/features/booking-orders/components/user/OrderCancelModal";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
@@ -119,28 +117,37 @@ export function TrackingViewCta({ order }: Props) {
 
 	return (
 		<>
-			<StageActionRow
-				primary={
-					<StagePrimaryAction
-						label="Live tracking"
-						icon={Navigation}
+			<View className="flex-row items-center gap-stack-md">
+				<View className="flex-1">
+					<Button
+						variant="primary"
+						size="lg"
+						fullWidth
+						iconLeft={Navigation}
 						onPress={() => {}}
 						disabled
-					/>
-				}
-				trailing={
-					<IconActionButton
-						icon={Ban}
-						tone="danger"
+					>
+						Live tracking
+					</Button>
+				</View>
+				<View className="shrink-0">
+					<Button
+						variant="destructive"
+						size="icon"
 						accessibilityLabel="Cancel order"
 						onPress={() => setCancelOpen(true)}
-						pending={cancel.isPending}
-					/>
-				}
-			/>
-			<OrderCancelModal
+						loading={cancel.isPending}
+					>
+						<Ban size={20} />
+					</Button>
+				</View>
+			</View>
+			<CancelReasonModal
 				visible={cancelOpen}
-				technicianName={order.technician_name}
+				title="Cancel Order"
+				subjectRole="order"
+				subjectName={order.technician_name}
+				subjectFallback="this technician"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

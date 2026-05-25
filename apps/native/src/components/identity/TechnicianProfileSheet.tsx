@@ -1,14 +1,11 @@
 import {
-	BottomSheetBackdrop,
-	type BottomSheetBackdropProps,
-	BottomSheetModal,
-	BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
+	BottomSheet,
+	type BottomSheetModalRef,
+} from "@/src/components/ui/bottom-sheet";
 import { router } from "expo-router";
 import { Briefcase, ClipboardList, Star } from "lucide-react-native";
 import {
 	forwardRef,
-	useCallback,
 	useImperativeHandle,
 	useRef,
 	useState,
@@ -23,8 +20,8 @@ import { ReviewRow } from "@/src/components/reviews";
 import { Text } from "@/src/components/ui/text";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
+import { Colors, useThemeColors } from "@/src/lib/theme";
 
 export interface TechnicianProfileSheetRef {
 	open: (technicianId: string, initials: string) => void;
@@ -39,7 +36,7 @@ interface SheetState {
 const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 	function TechnicianProfileSheet(_, ref) {
 		const themeColors = useThemeColors();
-		const sheetRef = useRef<BottomSheetModal>(null);
+		const sheetRef = useRef<BottomSheetModalRef>(null);
 		const { height } = useWindowDimensions();
 		const [sheetState, setSheetState] = useState<SheetState>({
 			technicianId: null,
@@ -66,47 +63,24 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 			},
 		}));
 
-		const handleDismiss = useCallback(() => {
+		const handleDismiss = () => {
 			setSheetState((prev) =>
 				prev.technicianId === null
 					? prev
 					: { technicianId: null, initials: "" },
 			);
-		}, []);
-
-		const renderBackdrop = useCallback(
-			(props: BottomSheetBackdropProps) => (
-				<BottomSheetBackdrop
-					{...props}
-					disappearsOnIndex={-1}
-					appearsOnIndex={0}
-					opacity={1}
-					pressBehavior="close"
-					style={{ backgroundColor: themeColors.backdrop }}
-				/>
-			),
-			[themeColors.backdrop],
-		);
+		};
 
 		return (
-			<BottomSheetModal
+			<BottomSheet.Modal
 				ref={sheetRef}
 				enableDynamicSizing
 				maxDynamicContentSize={height * 0.9}
 				enablePanDownToClose
 				onDismiss={handleDismiss}
-				backdropComponent={renderBackdrop}
-				backgroundStyle={{
-					backgroundColor: themeColors.surfaceBase,
-					borderTopLeftRadius: 24,
-					borderTopRightRadius: 24,
-				}}
-				handleIndicatorStyle={{
-					backgroundColor: themeColors.borderDefault,
-					width: spacing.sheet.handleWidth,
-				}}
+				backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
 			>
-				<BottomSheetScrollView
+				<BottomSheet.ScrollView
 					className="px-button-x pb-stack-xl"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
@@ -265,8 +239,8 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 							)}
 						</View>
 					)}
-				</BottomSheetScrollView>
-			</BottomSheetModal>
+				</BottomSheet.ScrollView>
+			</BottomSheet.Modal>
 		);
 	},
 );

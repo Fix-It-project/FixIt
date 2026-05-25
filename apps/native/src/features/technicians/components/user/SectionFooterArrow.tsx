@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react-native";
-import { TouchableOpacity, View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { useThemeColors } from "@/src/lib/theme";
 
 interface SectionEndArrowProps {
@@ -9,18 +9,19 @@ interface SectionEndArrowProps {
 export default function SectionFooterArrow({ onPress }: SectionEndArrowProps) {
 	const themeColors = useThemeColors();
 	return (
-		<TouchableOpacity
+		<Button
+			variant="primary"
+			size="icon"
 			onPress={onPress}
-			activeOpacity={0.7}
-			className="ml-stack-xs w-avatar-lg items-center justify-center"
-		>
-			<View className="h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-pill bg-app-primary">
+			accessibilityLabel="See all"
+			className="ml-stack-xs h-control-icon-box-touch w-control-icon-box-touch rounded-pill"
+			iconLeft={
 				<ChevronRight
 					size={26}
 					color={themeColors.surfaceBase}
 					strokeWidth={2.5}
 				/>
-			</View>
-		</TouchableOpacity>
+			}
+		/>
 	);
 }

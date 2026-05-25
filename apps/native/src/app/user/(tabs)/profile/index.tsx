@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Alert } from "react-native";
+import { confirm } from "@/src/components/ui/dialog";
 import { useLogoutMutation } from "@/src/features/auth/hooks/useLogoutMutation";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
 import ProfileContentLayout from "@/src/features/profile/components/ProfileContentLayout";
@@ -30,22 +31,20 @@ export default function UserProfileRoute() {
 		router.push(ROUTES.user.profileAddressNew),
 	);
 
-	const handleLogout = () => {
-		Alert.alert("Log Out", "Are you sure you want to log out?", [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Log Out",
-				style: "destructive",
-				onPress: () =>
-					logout.mutate(undefined, {
-						onError: (error) =>
-							Alert.alert(
-								"Logout failed",
-								error.message || "Something went wrong.",
-							),
-					}),
-			},
-		]);
+	const handleLogout = async () => {
+		const ok = await confirm({
+			title: "Log out",
+			description: "Are you sure you want to log out?",
+			primary: { label: "Log out", destructive: true },
+			secondary: { label: "Cancel" },
+		});
+		if (ok) {
+			logout.mutate(undefined, {
+				onError: (error) =>
+					// TODO Phase 12: convert to Toast (info-only alert)
+					Alert.alert("Logout failed", error.message || "Something went wrong."),
+			});
+		}
 	};
 
 	return (

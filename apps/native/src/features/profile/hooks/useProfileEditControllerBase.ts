@@ -66,6 +66,7 @@ export function useProfileEditControllerBase<
 
 		const payload = getChangedFields(result.data, originalValues);
 		if (Object.keys(payload).length === 0) {
+			// TODO Phase 12: convert to Toast (info-only alert — OVR-02)
 			Alert.alert("No changes", "You haven't changed anything.");
 			return;
 		}
@@ -76,6 +77,7 @@ export function useProfileEditControllerBase<
 				goBack();
 			},
 			onError: (error) => {
+				// TODO Phase 12: convert to Toast (info-only alert — OVR-02)
 				Alert.alert(
 					"Update failed",
 					getErrorMessage(error) || "Something went wrong.",

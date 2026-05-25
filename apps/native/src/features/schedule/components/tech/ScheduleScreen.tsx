@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
 	ScrollView,
-	TouchableOpacity,
 	View,
 } from "react-native";
-import { Calendar } from "react-native-calendars";
+import { CalendarPicker } from "@/src/components/ui/calendar-picker";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Toast } from "@/src/components/ui/toast";
 import {
@@ -96,11 +96,6 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 				themeColors,
 			),
 		[techSchedule, exceptions, ordersByDate, selectedDate, themeColors],
-	);
-
-	const calendarTheme = useMemo(
-		() => getCalendarTheme(themeTokens),
-		[themeTokens.id],
 	);
 
 	const handleScheduleConfirm = async (
@@ -205,30 +200,25 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 						<Text variant="h3" className="text-content">
 							My Schedule
 						</Text>
-						<TouchableOpacity
+						<Button
+							variant="ghost"
+							size="sm"
 							onPress={() => setIsEditingSchedule(true)}
-							className="rounded-input bg-app-primary-light px-stack-md py-control-badge-y"
 						>
-							<Text
-								variant="caption"
-								className="font-semibold text-app-primary"
-							>
-								Edit Schedule
-							</Text>
-						</TouchableOpacity>
+							Edit Schedule
+						</Button>
 					</View>
 				)}
 
 				<View className="mt-stack-sm px-stack-sm">
-					<Calendar
+					<CalendarPicker
 						key={themeTokens.id}
-						onDayPress={onMonthDayPress}
+						onDateSelect={(dateString) => onMonthDayPress({ dateString })}
 						markingType="multi-dot"
 						markedDates={markedDates}
 						minDate={TODAY}
 						enableSwipeMonths
 						firstDay={0}
-						theme={calendarTheme}
 					/>
 				</View>
 
