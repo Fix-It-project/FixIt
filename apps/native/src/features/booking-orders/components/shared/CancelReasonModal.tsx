@@ -3,13 +3,13 @@ import {
 	ActivityIndicator,
 	Modal,
 	Pressable,
-	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
-import { radius, spacing, typography, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly confirmLabel: string;
@@ -91,22 +91,13 @@ export default function CancelReasonModal({
 							?
 						</Text>
 
-						<TextInput
+						<Input
 							value={reason}
 							onChangeText={onReasonChange}
 							placeholder="Reason for cancellation (optional)"
-							placeholderTextColor={themeColors.textMuted}
 							multiline
 							numberOfLines={3}
-							className="mb-stack-lg rounded-input border px-card py-stack-md text-sm"
-							style={{
-								...typography.bodySm,
-								borderColor: themeColors.borderDefault,
-								borderRadius: radius.button,
-								color: themeColors.textPrimary,
-								textAlignVertical: "top",
-								minHeight: 80,
-							}}
+							className="mb-stack-lg min-h-[80px]"
 						/>
 
 						<View className="flex-row gap-card-compact">

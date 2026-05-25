@@ -67,7 +67,7 @@ The migration converts `orders.status` to `public.order_status`, keeps
 | `final_price` | Accepted quote amount; must be positive when present. |
 | `payment_method` | `cash` or `card`; card is reserved for future PSP work. |
 | `destination_address_id` | Address used for ownership and distance/geofence checks. |
-| `scheduled_start_at` | Optional precise start time, used for schedule ordering. |
+| `scheduled_start_at` | Required for new writes; must match a fixed Cairo slot hour (`08:00`, `10:00`, `12:00`, `14:00`, `16:00`). |
 | `arrived_at` | Set once when location updates enter the 1km geofence. |
 | `user_completed_at` | User's completion confirmation timestamp. |
 | `technician_completed_at` | Technician's completion confirmation timestamp. |

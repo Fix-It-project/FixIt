@@ -28,6 +28,7 @@ import type {
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
 import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import { useAuthStore } from "@/src/stores/auth-store";
 import { space, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
@@ -72,6 +73,7 @@ export default function AcceptedBody({ order }: Props) {
 
 export function AcceptedCta({ order }: Props) {
 	const themeColors = useThemeColors();
+	const authUserId = useAuthStore((s) => s.user?.id ?? null);
 	const booking = order as unknown as TechnicianBooking;
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
@@ -153,7 +155,13 @@ export function AcceptedCta({ order }: Props) {
 							<IconActionButton
 								icon={CalendarClock}
 								accessibilityLabel="Reschedule job"
-								onPress={() => rescheduleRef.current?.open(order.id)}
+								onPress={() =>
+									rescheduleRef.current?.open({
+										orderId: order.id,
+										technicianId: order.technician_id ?? authUserId,
+										originalScheduledDate: order.scheduled_date,
+									})
+								}
 								disabled={startTracking.isPending || hasPendingReschedule}
 							/>
 							<IconActionButton
@@ -171,7 +179,6 @@ export function AcceptedCta({ order }: Props) {
 						variant="caption"
 						style={{
 							color: themeColors.textMuted,
-							fontSize: 11,
 							textAlign: "center",
 						}}
 					>
@@ -182,7 +189,6 @@ export function AcceptedCta({ order }: Props) {
 						variant="caption"
 						style={{
 							color: themeColors.textMuted,
-							fontSize: 11,
 							textAlign: "center",
 						}}
 					>

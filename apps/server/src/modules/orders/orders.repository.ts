@@ -235,22 +235,25 @@ export class OrdersRepository {
 	async checkTechnicianAvailability(
 		technicianId: string,
 		dayOfWeek: number,
+		slotHour?: number,
 	): Promise<boolean> {
-		const { data, error } = await supabase
+		let query = supabase
 			.from("availability_templates")
-			.select("*")
+			.select("active")
 			.eq("technician_id", technicianId)
-			.eq("day_of_week", dayOfWeek)
-			.single();
+			.eq("day_of_week", dayOfWeek);
 
-		if (error) {
-			if (error.code === "PGRST116") return false; // No template found = not available
-			throw error;
+		if (slotHour !== undefined) {
+			query = query.eq("slot_hour", slotHour);
 		}
 
-		if (data.active !== undefined && data.active === false) return false;
+		const { data, error } = await query;
+		if (error) throw error;
+		if (!data || data.length === 0) return false;
 
-		return true;
+		return data.some(
+			(row: { active?: boolean | null }) => row.active !== false,
+		);
 	}
 
 	// Plan 02-04: `updateOrder` removed. All order-mutating writes now flow through

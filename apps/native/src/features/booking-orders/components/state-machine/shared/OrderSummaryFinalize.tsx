@@ -164,19 +164,18 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 						}}
 					>
 						<Text
+							variant="h2"
 							className="font-google-sans-bold"
 							style={{
-								fontSize: 28,
-								lineHeight: 32,
 								color: themeColors.onPrimaryHeader,
 							}}
 						>
 							{formatAmount(finalAmount)}
 						</Text>
 						<Text
+							variant="bodySm"
 							className="font-google-sans-bold"
 							style={{
-								fontSize: 13,
 								color: themeColors.onPrimaryHeader,
 								opacity: 0.85,
 							}}
@@ -202,7 +201,6 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							style={{
 								color: themeColors.onPrimaryHeader,
 								opacity: 0.85,
-								fontSize: 11,
 							}}
 						>
 							Cash on delivery · in-app payments soon
@@ -275,7 +273,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							</Text>
 							<Text
 								variant="caption"
-								style={{ color: themeColors.textMuted, fontSize: 11 }}
+								style={{ color: themeColors.textMuted }}
 							>
 								{formatTimestamp(row.timestamp)}
 							</Text>

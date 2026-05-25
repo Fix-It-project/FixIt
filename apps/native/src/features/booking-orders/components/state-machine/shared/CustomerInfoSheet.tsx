@@ -126,16 +126,18 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 							}}
 						>
 							<Text
+								variant="bodyLg"
 								className="font-google-sans-bold"
-								style={{ color: themeColors.surfaceBase, fontSize: 18 }}
+								style={{ color: themeColors.surfaceBase }}
 							>
 								{initials}
 							</Text>
 						</View>
 						<View style={{ flex: 1, gap: space[1] }}>
 							<Text
+								variant="bodyLg"
 								className="font-google-sans-bold"
-								style={{ color: themeColors.textPrimary, fontSize: 18 }}
+								style={{ color: themeColors.textPrimary }}
 								numberOfLines={1}
 							>
 								{state?.name ?? "Customer"}
@@ -220,8 +222,9 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 									strokeWidth={2.4}
 								/>
 								<Text
+									variant="body"
 									className="font-google-sans-bold"
-									style={{ color: themeColors.onPrimaryHeader, fontSize: 15 }}
+									style={{ color: themeColors.onPrimaryHeader }}
 								>
 									Call
 								</Text>
@@ -251,8 +254,9 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 									strokeWidth={2.4}
 								/>
 								<Text
+									variant="body"
 									className="font-google-sans-bold"
-									style={{ color: themeColors.textPrimary, fontSize: 15 }}
+									style={{ color: themeColors.textPrimary }}
 								>
 									Maps
 								</Text>

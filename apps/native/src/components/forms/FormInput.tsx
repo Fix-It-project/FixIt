@@ -1,6 +1,6 @@
 import { CircleX, type LucideIcon } from "lucide-react-native";
-import { Pressable, type TextInputProps, View } from "react-native";
-import { Input } from "@/src/components/ui/input";
+import { Pressable, View } from "react-native";
+import { Input, type InputProps } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/lib/theme";
 
@@ -12,15 +12,17 @@ interface FormInputProps {
 	readonly icon?: LucideIcon;
 	readonly error?: string;
 	readonly disabled?: boolean;
-	readonly keyboardType?: TextInputProps["keyboardType"];
-	readonly autoCapitalize?: TextInputProps["autoCapitalize"];
+	readonly keyboardType?: InputProps["keyboardType"];
+	readonly autoCapitalize?: InputProps["autoCapitalize"];
 	readonly variant?: "filled" | "outline";
 	readonly clearable?: boolean;
 	readonly onClear?: () => void;
 	readonly required?: boolean;
+	readonly secureToggle?: boolean;
+	readonly multiline?: boolean;
 }
 
-export default function FormInput({
+function FormInput({
 	label,
 	value,
 	onChangeText,
@@ -34,6 +36,8 @@ export default function FormInput({
 	clearable = false,
 	onClear,
 	required = false,
+	secureToggle,
+	multiline,
 }: FormInputProps) {
 	return (
 		<View className={variant === "filled" ? "gap-stack-md" : ""}>
@@ -58,6 +62,8 @@ export default function FormInput({
 					keyboardType={keyboardType}
 					autoCapitalize={autoCapitalize}
 					editable={!disabled}
+					secureToggle={secureToggle}
+					multiline={multiline}
 					className="flex-1"
 				/>
 				{clearable && value.length > 0 && (
@@ -90,3 +96,6 @@ export default function FormInput({
 		</View>
 	);
 }
+
+export type { FormInputProps };
+export default FormInput;

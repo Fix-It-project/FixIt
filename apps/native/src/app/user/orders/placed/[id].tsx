@@ -144,8 +144,9 @@ export default function PlacedOrderScreen() {
 						style={{ alignItems: "center", gap: space[1] }}
 					>
 						<Text
+							variant="h2"
 							className="font-google-sans-bold text-content"
-							style={{ fontSize: 24, lineHeight: 28, textAlign: "center" }}
+							style={{ textAlign: "center" }}
 						>
 							Request sent.
 						</Text>

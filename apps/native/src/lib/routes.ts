@@ -52,6 +52,10 @@ export const ROUTES = {
 			pathname: "/user/booking/[technicianId]/date" as const,
 			params: { technicianId },
 		}),
+		bookingTime: (technicianId: string) => ({
+			pathname: "/user/booking/[technicianId]/time" as const,
+			params: { technicianId },
+		}),
 		bookingDetails: (technicianId: string) => ({
 			pathname: "/user/booking/[technicianId]/details" as const,
 			params: { technicianId },

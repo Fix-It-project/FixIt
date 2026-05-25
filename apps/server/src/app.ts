@@ -29,5 +29,5 @@ app.use("/api/categories/:categoryId/technicians", techniciansRoutes);
 app.use("/api/technicians", technicianSelfRoutes);
 app.use("/api/technicians", technicianProfileRoutes);
 app.use("/api/orders", ordersRoutes);
-app.use("/api", reviewsRoutes);
+app.use("/api/reviews", reviewsRoutes);
 export default app;

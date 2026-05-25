@@ -23,10 +23,10 @@ export default function ChatHeader() {
           <MessageCircle size={20} color={Colors.primary} strokeWidth={2} />
         </View>
         <View className="ml-3 flex-1">
-          <Text className="text-[18px]" style={{ fontFamily: "GoogleSans_700Bold", color: themeColors.textPrimary }}>
+          <Text variant="bodyLg" className="font-google-sans-bold" style={{ color: themeColors.textPrimary }}>
             AI Assistant
           </Text>
-          <Text className="mt-1 text-[13px]" style={{ color: themeColors.textSecondary }}>
+          <Text variant="bodySm" className="mt-1" style={{ color: themeColors.textSecondary }}>
             Describe the issue or send a photo to get a technician recommendation.
           </Text>
         </View>

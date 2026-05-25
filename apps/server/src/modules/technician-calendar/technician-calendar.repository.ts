@@ -31,17 +31,20 @@ export interface AvailabilityTemplate {
   id: string;
   technician_id: string;
   day_of_week: number; // 0 = Sunday
+  slot_hour?: number | null;
   active: boolean;
 }
 
 export interface CreateTemplateData {
   technician_id: string;
   day_of_week: number;
+  slot_hour?: number;
   active?: boolean; // default true
 }
 
 export interface UpdateTemplateData {
   day_of_week?: number;
+  slot_hour?: number;
   active?: boolean;
 }
 
@@ -129,7 +132,8 @@ export class TechnicianCalendarRepository {
       .from('availability_templates')
       .select('*')
       .eq('technician_id', technicianId)
-      .order('day_of_week', { ascending: true });
+      .order('day_of_week', { ascending: true })
+      .order('slot_hour', { ascending: true });
 
     if (activeOnly) {
       query = query.eq('active', true);
@@ -161,6 +165,7 @@ export class TechnicianCalendarRepository {
       .insert({
         technician_id: dto.technician_id,
         day_of_week: dto.day_of_week,
+        slot_hour: dto.slot_hour ?? 8,
         active: dto.active ?? true,
       })
       .select()
@@ -174,6 +179,7 @@ export class TechnicianCalendarRepository {
     const updates: Record<string, any> = {};
 
     if (dto.day_of_week !== undefined) updates.day_of_week = dto.day_of_week;
+    if (dto.slot_hour !== undefined) updates.slot_hour = dto.slot_hour;
     if (dto.active !== undefined) updates.active = dto.active;
 
     const { data, error } = await supabase
@@ -188,17 +194,17 @@ export class TechnicianCalendarRepository {
   }
 
   async upsertTemplate(dto: CreateTemplateData) {
-    // Uses Supabase upsert with the unique constraint on (technician_id, day_of_week).
-    // onConflict targets that constraint so it updates the existing row cleanly.
+    // Uses Supabase upsert keyed by technician/day/slot for granular control.
     const { data, error } = await supabase
       .from('availability_templates')
       .upsert(
         {
           technician_id: dto.technician_id,
           day_of_week: dto.day_of_week,
+          slot_hour: dto.slot_hour ?? 8,
           active: dto.active ?? true,
         },
-        { onConflict: 'technician_id,day_of_week' }
+        { onConflict: 'technician_id,day_of_week,slot_hour' }
       )
       .select()
       .single();
@@ -224,10 +230,11 @@ export class TechnicianCalendarRepository {
       .select('*')
       .eq('technician_id', technicianId)
       .eq('day_of_week', dayOfWeek)
-      .maybeSingle();
+      .order('slot_hour', { ascending: true });
 
     if (error) throw error;
-    return (data ?? null) as AvailabilityTemplate | null;
+    const row = (data ?? []).find((r: { active?: boolean | null }) => r.active !== false);
+    return (row ?? null) as AvailabilityTemplate | null;
   }
 }
 

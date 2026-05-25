@@ -24,7 +24,7 @@ export function useSaveTemplatesMutation() {
 		mutationFn: async ({
 			newSchedule,
 		}: {
-			newSchedule: { day_of_week: number; active: boolean }[];
+			newSchedule: { day_of_week: number; slot_hour: number; active: boolean }[];
 		}) => {
 			// Capture technicianId synchronously before any awaits. Referencing
 			// `user.id` inside .map() callbacks after an await risks a stale
@@ -38,7 +38,9 @@ export function useSaveTemplatesMutation() {
 
 			const promises = newSchedule.map((daySettings) => {
 				const existing = freshTemplates.find(
-					(e) => e.day_of_week === daySettings.day_of_week,
+					(e) =>
+						e.day_of_week === daySettings.day_of_week &&
+						(e.slot_hour ?? 8) === daySettings.slot_hour,
 				);
 
 				if (existing) {
@@ -52,6 +54,7 @@ export function useSaveTemplatesMutation() {
 
 				return createTemplate(technicianId, {
 					day_of_week: daySettings.day_of_week,
+					slot_hour: daySettings.slot_hour,
 					active: daySettings.active,
 				});
 			});

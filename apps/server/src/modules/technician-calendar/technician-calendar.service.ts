@@ -45,6 +45,15 @@ export class TechnicianCalendarService {
     }
   }
 
+  private validateSlotHour(slotHour: number) {
+    if (![8, 10, 12, 14, 16].includes(slotHour)) {
+      throw {
+        status: 400,
+        message: "`slot_hour` must be one of 8, 10, 12, 14, 16.",
+      };
+    }
+  }
+
   /** Holiday rules: no other exception exists for this day, and no active bookings. */
   private async ensureHolidayConstraints(technicianId: string, date: string, excludeId?: string) {
     const entries = await technicianCalendarRepository.getEntriesByTechnicianId(technicianId, {
@@ -139,6 +148,8 @@ export class TechnicianCalendarService {
     }
 
     this.validateDayOfWeek(data.day_of_week);
+    const slotHour = data.slot_hour ?? 8;
+    this.validateSlotHour(slotHour);
 
     // Upsert: delegate to the repository which uses Supabase's native upsert
     // on the (technician_id, day_of_week) unique constraint. POST is now
@@ -146,6 +157,7 @@ export class TechnicianCalendarService {
     return technicianCalendarRepository.upsertTemplate({
       technician_id: data.technician_id,
       day_of_week: data.day_of_week,
+      slot_hour: slotHour,
       active: data.active,
     });
   }
@@ -157,11 +169,35 @@ export class TechnicianCalendarService {
     if (data.day_of_week !== undefined && data.day_of_week !== existing.day_of_week) {
       this.validateDayOfWeek(data.day_of_week);
       const allTemplates = await technicianCalendarRepository.getTemplatesByTechnicianId(existing.technician_id, false);
-      const duplicate = allTemplates.find(t => t.day_of_week === data.day_of_week);
+      const targetSlot = data.slot_hour ?? existing.slot_hour ?? 8;
+      const duplicate = allTemplates.find(
+        t =>
+          t.day_of_week === data.day_of_week &&
+          (t.slot_hour ?? 8) === targetSlot &&
+          t.id !== existing.id
+      );
       if (duplicate) {
         throw {
           status: 409,
-          message: 'A template for this weekday already exists.',
+          message: 'A template for this weekday and slot already exists.',
+        };
+      }
+    }
+
+    if (data.slot_hour !== undefined) {
+      this.validateSlotHour(data.slot_hour);
+      const allTemplates = await technicianCalendarRepository.getTemplatesByTechnicianId(existing.technician_id, false);
+      const targetDay = data.day_of_week ?? existing.day_of_week;
+      const duplicate = allTemplates.find(
+        t =>
+          t.day_of_week === targetDay &&
+          (t.slot_hour ?? 8) === data.slot_hour &&
+          t.id !== existing.id
+      );
+      if (duplicate) {
+        throw {
+          status: 409,
+          message: 'A template for this weekday and slot already exists.',
         };
       }
     }

@@ -17,6 +17,7 @@ export default function PastOrdersScreen() {
 		categoryId: order.category_id,
 		serviceName: order.service_name,
 		scheduledDate: order.scheduled_date,
+		scheduledStartAt: order.scheduled_start_at,
 		status: order.status,
 		route: ROUTES.user.orderDetail(order.id),
 	}));

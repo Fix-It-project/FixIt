@@ -85,13 +85,15 @@ export default function CompletedView({ order }: Props) {
 							Final price
 						</Text>
 						<Text
+							variant="h2"
 							className="font-google-sans-bold"
-							style={{ fontSize: 24, color: themeColors.success }}
+							style={{ color: themeColors.success }}
 						>
 							{formatAmount(amount)}
 							<Text
+								variant="bodySm"
 								className="font-google-sans-bold"
-								style={{ fontSize: 13, color: themeColors.success }}
+								style={{ color: themeColors.success }}
 							>
 								{" "}
 								EGP

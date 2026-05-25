@@ -59,8 +59,9 @@ export default function OrderIdentityRow({
 					}}
 				>
 					<Text
+						variant="bodySm"
 						className="font-google-sans-bold"
-						style={{ color: themeColors.surfaceBase, fontSize: 14 }}
+						style={{ color: themeColors.surfaceBase }}
 					>
 						{initials}
 					</Text>
@@ -71,8 +72,9 @@ export default function OrderIdentityRow({
 					style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}
 				>
 					<Text
+						variant="body"
 						className="font-google-sans-bold"
-						style={{ color: themeColors.textPrimary, fontSize: 15 }}
+						style={{ color: themeColors.textPrimary }}
 						numberOfLines={1}
 					>
 						{name}

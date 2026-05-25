@@ -15,13 +15,14 @@ import {
 	useImperativeHandle,
 	useState,
 } from "react";
-import { TextInput, View } from "react-native";
+import { View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import StarRatingInput from "@/src/features/reviews/components/user/StarRatingInput";
 import { useCreateReviewMutation } from "@/src/features/reviews/hooks/useCreateReviewMutation";
 import { createReviewClientSchema } from "@/src/features/reviews/schemas/review.schema";
-import { radius, space, useThemeColors } from "@/src/lib/theme";
+import { space, useThemeColors } from "@/src/lib/theme";
 
 export interface InlineReviewFormHandle {
 	submit: () => Promise<{ submitted: boolean }>;
@@ -141,24 +142,14 @@ const InlineReviewForm = forwardRef<InlineReviewFormHandle, InlineReviewFormProp
 				</View>
 
 				{rating > 0 ? (
-					<TextInput
+					<Input
 						value={comment}
 						onChangeText={setComment}
 						multiline
 						maxLength={1000}
 						editable={!mutation.isPending}
 						placeholder="Add a comment (optional)"
-						placeholderTextColor={themeColors.textMuted}
-						style={{
-							minHeight: 96,
-							padding: space[4],
-							borderRadius: radius.input,
-							borderWidth: 1,
-							borderColor: themeColors.borderDefault,
-							backgroundColor: themeColors.surfaceElevated,
-							color: themeColors.textPrimary,
-							textAlignVertical: "top",
-						}}
+						className="min-h-[96px]"
 					/>
 				) : null}
 			</View>

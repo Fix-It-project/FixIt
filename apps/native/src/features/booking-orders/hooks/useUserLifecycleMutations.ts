@@ -43,6 +43,7 @@ export function useUserCancelOrder() {
 interface UserRequestRescheduleArgs {
 	orderId: string;
 	proposedDateIso: string;
+	proposedStartAtIso: string;
 	reason: string;
 }
 export function useUserRequestReschedule() {
@@ -50,8 +51,13 @@ export function useUserRequestReschedule() {
 		UserRequestRescheduleArgs,
 		Awaited<ReturnType<typeof userRequestReschedule>>
 	>(
-		({ orderId, proposedDateIso, reason }) =>
-			userRequestReschedule(orderId, proposedDateIso, reason),
+		({ orderId, proposedDateIso, proposedStartAtIso, reason }) =>
+			userRequestReschedule(
+				orderId,
+				proposedDateIso,
+				proposedStartAtIso,
+				reason,
+			),
 		{
 			optimisticTo: "reschedule_requested_by_user",
 			extractOrderId: (a) => a.orderId,

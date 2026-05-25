@@ -35,8 +35,12 @@ export default function PendingWaitingCard({ order }: Props) {
 	const hasPendingReschedule = rescheduleRequest?.resolution === "pending";
 
 	const openReschedule = useCallback(() => {
-		rescheduleRef.current?.open(order.id);
-	}, [order.id]);
+		rescheduleRef.current?.open({
+			orderId: order.id,
+			technicianId: order.technician_id,
+			originalScheduledDate: order.scheduled_date,
+		});
+	}, [order.id, order.scheduled_date, order.technician_id]);
 
 	const handleConfirmCancel = useCallback(() => {
 		const trimmed = cancelReason.trim();

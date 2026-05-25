@@ -37,9 +37,7 @@ export async function createOrder(
 		form.append("technician_id", payload.technician_id);
 		form.append("service_id", payload.service_id);
 		form.append("scheduled_date", payload.scheduled_date);
-		if (payload.scheduled_start_at) {
-			form.append("scheduled_start_at", payload.scheduled_start_at);
-		}
+		form.append("scheduled_start_at", payload.scheduled_start_at);
 		if (payload.destination_address_id) {
 			form.append("destination_address_id", payload.destination_address_id);
 		}
@@ -128,18 +126,27 @@ export async function userCancelOrder(
 
 /**
  * POST /user/orders/:id/reschedule (reschedule.routes.ts).
- * Body: { proposed_scheduled_date (YYYY-MM-DD), reason (required) }.
+ * Body: {
+ *   proposed_scheduled_date (YYYY-MM-DD),
+ *   proposed_scheduled_start_at (ISO datetime),
+ *   reason (required)
+ * }.
  *
  * Returns the created `reschedule_requests` row, not an order.
  */
 export async function userRequestReschedule(
 	orderId: string,
 	proposedScheduledDate: string,
+	proposedScheduledStartAt: string,
 	reason: string,
 ): Promise<RescheduleResponse> {
 	const response = await apiClient.post(
 		`/api/orders/user/orders/${orderId}/reschedule`,
-		{ proposed_scheduled_date: proposedScheduledDate, reason },
+		{
+			proposed_scheduled_date: proposedScheduledDate,
+			proposed_scheduled_start_at: proposedScheduledStartAt,
+			reason,
+		},
 	);
 	return safeParseResponse(
 		rescheduleResponseSchema,

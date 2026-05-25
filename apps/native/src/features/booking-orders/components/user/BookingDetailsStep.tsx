@@ -6,13 +6,13 @@ import {
 	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
-	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
-import { Colors, spacing, typography, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 export interface AttachmentInfo {
 	uri: string;
@@ -22,6 +22,7 @@ export interface AttachmentInfo {
 
 interface BookingDetailsStepProps {
 	readonly selectedDate: string;
+	readonly selectedTimeLabel: string;
 	readonly onBack: () => void;
 	readonly onConfirm: (
 		description: string,
@@ -32,6 +33,7 @@ interface BookingDetailsStepProps {
 
 export default function BookingDetailsStep({
 	selectedDate,
+	selectedTimeLabel,
 	onBack,
 	onConfirm,
 	isPending,
@@ -87,7 +89,7 @@ export default function BookingDetailsStep({
 				{/* Date badge */}
 				<View className="mb-stack-lg rounded-input bg-app-primary-light px-card py-control-trigger-y">
 					<Text variant="buttonMd" className="text-center text-app-primary">
-						Scheduled for: {selectedDate}
+						Scheduled for: {selectedDate} at {selectedTimeLabel}
 					</Text>
 				</View>
 
@@ -99,19 +101,13 @@ export default function BookingDetailsStep({
 					<Text variant="caption" className="mb-stack-md text-content-muted">
 						Optional — help the technician prepare for the job
 					</Text>
-					<TextInput
+					<Input
 						value={description}
 						onChangeText={setDescription}
 						placeholder="e.g. AC not cooling, making noise when turned on..."
-						placeholderTextColor={themeColors.textMuted}
 						multiline
 						numberOfLines={5}
-						textAlignVertical="top"
-						className="rounded-input border border-edge bg-surface px-card py-stack-md text-content"
-						style={{
-							...typography.bodySm,
-							minHeight: spacing.button.height.xl + spacing.avatar.lg,
-						}}
+						className="min-h-[120px]"
 					/>
 				</View>
 
@@ -198,7 +194,7 @@ export default function BookingDetailsStep({
 						activeOpacity={0.7}
 					>
 						<Text variant="label" className="text-content-muted">
-							Back to Date Selection
+							Back to Time Selection
 						</Text>
 					</TouchableOpacity>
 				</View>
