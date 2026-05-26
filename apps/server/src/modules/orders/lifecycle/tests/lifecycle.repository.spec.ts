@@ -55,6 +55,10 @@ const MAPPING: ReadonlyArray<MappingRow> = [
 	{ code: "bad_payment_method", expectedStatus: 400 },
 	{ code: "bad_status", expectedStatus: 400 },
 	{ code: "bad_order_action", expectedStatus: 400 },
+	{ code: "scheduled_start_at_required", expectedStatus: 400 },
+	{ code: "invalid_scheduled_start_at", expectedStatus: 400 },
+	{ code: "scheduled_date_start_mismatch", expectedStatus: 400 },
+	{ code: "invalid_scheduled_slot", expectedStatus: 400 },
 	// State-machine violations
 	{ code: "invalid_transition", expectedStatus: 409 },
 	{ code: "arrival_not_detected_yet", expectedStatus: 409 },

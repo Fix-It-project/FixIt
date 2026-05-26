@@ -8,6 +8,10 @@ import {
 } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
+import {
+	formatDate,
+	formatTime,
+} from "@/src/features/booking-orders/utils/booking-helpers";
 import { useTechRequestsStore } from "@/src/features/dashboard/stores/tech-requests-store";
 import { CATEGORIES } from "@/src/lib/helpers/categories";
 import {
@@ -56,6 +60,7 @@ function RequestCard({
 	const acceptMutation = useAcceptDashboardOrderMutation();
 	const rejectMutation = useRejectDashboardOrderMutation();
 	const isBusy = acceptMutation.isPending || rejectMutation.isPending;
+	const scheduledTime = formatTime(item.scheduled_start_at);
 
 	return (
 		<Animated.View
@@ -96,7 +101,8 @@ function RequestCard({
 
 					{/* Scheduled date */}
 					<Text variant="caption" className="mb-stack-sm text-content-muted">
-						📅 {item.scheduled_date}
+						📅 {formatDate(item.scheduled_date)}
+						{scheduledTime ? ` • ${scheduledTime}` : ""}
 					</Text>
 
 					{/* Problem description — 1 line only */}

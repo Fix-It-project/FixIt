@@ -18,11 +18,11 @@ export async function createReview(
 ): Promise<void> {
 	// Validate on client before network call
 	createReviewClientSchema.parse(input);
-	await apiClient.post("/api/reviews", input);
+	await apiClient.post("/api/reviews/", input);
 }
 
 /**
- * GET /api/technicians/:id/reviews
+ * GET /api/reviews/technicians/:id
  * Fetches paginated reviews for a specific technician. Requires user-auth.
  */
 export async function getTechnicianReviews(
@@ -30,7 +30,7 @@ export async function getTechnicianReviews(
 	params: TechnicianReviewsParams = {},
 ): Promise<TechnicianReviewsResponse> {
 	const { data } = await apiClient.get(
-		`/api/technicians/${technicianId}/reviews`,
+		`/api/reviews/technicians/${technicianId}`,
 		{ params },
 	);
 	return safeParseResponse(

@@ -58,11 +58,11 @@ export default function ChatMessageList({
           <View className="h-7 w-7 items-center justify-center rounded-full" style={{ backgroundColor: assistantBadge }}>
             <Sparkles size={14} color={themeColors.primary} strokeWidth={2.2} />
           </View>
-          <Text className="ml-2 text-[13px]" style={{ color: mutedText }}>
+          <Text variant="bodySm" className="ml-2" style={{ color: mutedText }}>
             FixIt Assistant
           </Text>
         </View>
-        <Text className="text-[15px] leading-6" style={{ color: surfaceText }}>
+        <Text variant="body" style={{ color: surfaceText }}>
           Tell me what is happening at home and I&apos;ll suggest the most suitable technician nearby.
         </Text>
       </View>
@@ -78,7 +78,7 @@ export default function ChatMessageList({
               style={{ backgroundColor: userBubble }}
             >
               {entry.text ? (
-                <Text className="text-[15px] leading-6" style={{ color: userBubbleText }}>
+                <Text variant="body" style={{ color: userBubbleText }}>
                   {entry.text}
                 </Text>
               ) : null}
@@ -89,7 +89,7 @@ export default function ChatMessageList({
                     className="h-40 w-[220px] rounded-2xl"
                     resizeMode="cover"
                   />
-                  <Text className="mt-2 text-[12px]" style={{ color: userBubbleText }} numberOfLines={1}>
+                  <Text variant="caption" className="mt-2" style={{ color: userBubbleText }} numberOfLines={1}>
                     {entry.image.name}
                   </Text>
                 </View>
@@ -116,11 +116,11 @@ export default function ChatMessageList({
                     <Sparkles size={14} color={themeColors.primary} strokeWidth={2.2} />
                   )}
                 </View>
-                <Text className="ml-2 text-[13px]" style={{ color: mutedText }}>
+                <Text variant="bodySm" className="ml-2" style={{ color: mutedText }}>
                   {entry.flow === "agent" ? "FixIt Agent" : "FixIt Assistant"}
                 </Text>
               </View>
-              <Text className="text-[15px] leading-6" style={{ color: surfaceText }}>
+              <Text variant="body" style={{ color: surfaceText }}>
                 {entry.text}
               </Text>
             </View>
@@ -138,35 +138,35 @@ export default function ChatMessageList({
               <View className="h-8 w-8 items-center justify-center rounded-full" style={{ backgroundColor: assistantBadge }}>
                 <Sparkles size={15} color={themeColors.primary} strokeWidth={2.2} />
               </View>
-              <Text className="ml-2 text-[15px]" style={{ fontFamily: "GoogleSans_600SemiBold", color: surfaceText }}>
+              <Text variant="body" className="ml-2 font-google-sans-semibold" style={{ color: surfaceText }}>
                 {entry.flow === "agent" ? "Agent order draft" : "Recommendation ready"}
               </Text>
             </View>
 
-            <Text className="text-[13px]" style={{ color: mutedText }}>
+            <Text variant="bodySm" style={{ color: mutedText }}>
               Diagnosed category
             </Text>
-            <Text className="mt-1 text-[17px]" style={{ fontFamily: "GoogleSans_700Bold", color: surfaceText }}>
+            <Text variant="body" className="mt-1 font-google-sans-bold" style={{ color: surfaceText }}>
               {entry.serviceOrder.diagnosed_category}
             </Text>
 
-            <Text className="mt-4 text-[13px]" style={{ color: mutedText }}>
+            <Text variant="bodySm" className="mt-4" style={{ color: mutedText }}>
               Summary
             </Text>
-            <Text className="mt-1 text-[15px] leading-6" style={{ color: surfaceText }}>
+            <Text variant="body" className="mt-1" style={{ color: surfaceText }}>
               {entry.serviceOrder.problem_summary}
             </Text>
 
             <View className="mt-4 rounded-2xl px-4 py-4" style={{ backgroundColor: cardBg }}>
-              <Text className="text-[13px]" style={{ color: mutedText }}>
+              <Text variant="bodySm" style={{ color: mutedText }}>
                 Estimated cost
               </Text>
-              <Text className="mt-1 text-[16px]" style={{ fontFamily: "GoogleSans_600SemiBold", color: surfaceText }}>
+              <Text variant="body" className="mt-1 font-google-sans-semibold" style={{ color: surfaceText }}>
                 {entry.serviceOrder.estimated_cost_range_egp ?? "N/A"}
               </Text>
             </View>
 
-            <Text className="mt-4 text-[13px]" style={{ color: mutedText }}>
+            <Text variant="bodySm" className="mt-4" style={{ color: mutedText }}>
               Recommended technicians
             </Text>
             <View className="mt-2 gap-3">
@@ -200,30 +200,31 @@ export default function ChatMessageList({
                           {isTopPick ? (
                             <View className="mr-2 flex-row items-center rounded-full px-2 py-1" style={{ backgroundColor: themeColors.overlayMd }}>
                               <Star size={12} color={themeColors.onPrimaryHeader} strokeWidth={2.4} fill={themeColors.onPrimaryHeader} />
-                              <Text className="ml-1 text-[11px]" style={{ color: themeColors.onPrimaryHeader }}>
+                              <Text variant="caption" className="ml-1" style={{ color: themeColors.onPrimaryHeader }}>
                                 Top pick
                               </Text>
                             </View>
                           ) : null}
                           <Text
-                            className="text-[16px]"
-                            style={{ fontFamily: "GoogleSans_700Bold", color: isTopPick ? themeColors.onPrimaryHeader : surfaceText }}
+                            variant="body"
+                            className="font-google-sans-bold"
+                            style={{ color: isTopPick ? themeColors.onPrimaryHeader : surfaceText }}
                           >
                             {technician.name}
                           </Text>
                         </View>
 
-                        <Text className="mt-2 text-[13px]" style={{ color: isTopPick ? themeColors.onPrimaryHeader : mutedText }}>
+                        <Text variant="bodySm" className="mt-2" style={{ color: isTopPick ? themeColors.onPrimaryHeader : mutedText }}>
                           {distanceLabel} · {scorePercent}
                         </Text>
 
                         {rateLabel ? (
-                          <Text className="mt-1 text-[13px]" style={{ color: isTopPick ? themeColors.onPrimaryHeader : mutedText }}>
+                          <Text variant="bodySm" className="mt-1" style={{ color: isTopPick ? themeColors.onPrimaryHeader : mutedText }}>
                             {rateLabel}
                           </Text>
                         ) : null}
 
-                        <Text className="mt-2 text-[13px]" style={{ color: isTopPick ? themeColors.onPrimaryHeader : themeColors.primary }}>
+                        <Text variant="bodySm" className="mt-2" style={{ color: isTopPick ? themeColors.onPrimaryHeader : themeColors.primary }}>
                           Continue to booking
                         </Text>
                       </View>
@@ -246,7 +247,7 @@ export default function ChatMessageList({
         <View className="mt-4 max-w-[82%] self-start rounded-[24px] rounded-tl-md px-4 py-4" style={{ backgroundColor: surface }}>
           <View className="flex-row items-center">
             <ActivityIndicator size="small" color={themeColors.primary} />
-            <Text className="ml-3 text-[14px]" style={{ color: mutedText }}>
+            <Text variant="bodySm" className="ml-3" style={{ color: mutedText }}>
               {activeFlow === "agent"
                 ? "Agent is preparing your order..."
                 : "Finding technician recommendations..."}
@@ -257,7 +258,7 @@ export default function ChatMessageList({
 
       {error ? (
         <View className="mt-4 max-w-[88%] self-start rounded-[24px] rounded-tl-md px-4 py-4" style={{ backgroundColor: themeColors.dangerLight }}>
-          <Text className="text-[14px] leading-6" style={{ color: themeColors.danger }}>
+          <Text variant="bodySm" style={{ color: themeColors.danger }}>
             {error}
           </Text>
         </View>

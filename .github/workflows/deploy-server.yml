@@ -5,8 +5,12 @@ on:
     branches: [main]
     paths:
       - "apps/server/**"
+      - "packages/**"
       - "pnpm-lock.yaml"
+      - "package.json"
+      - "pnpm-workspace.yaml"
       - ".github/workflows/deploy-server.yml"
+      - ".github/workflows/server-pr-check.yml"
   workflow_dispatch:
 
 concurrency:
@@ -14,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,12 +35,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Typecheck (server)
-        run: pnpm --filter ./apps/server run check-types
-
-      - name: Test (server)
-        run: pnpm --filter ./apps/server run test
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -56,32 +54,6 @@ jobs:
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
           STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
           ORDER_BUCKET: ${{ secrets.ORDER_BUCKET }}
-
-  deploy:
-    needs: validate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
 
       - name: Deploy with Serverless
         run: pnpm --dir apps/server exec serverless deploy

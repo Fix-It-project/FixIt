@@ -6,14 +6,14 @@ import {
 	Modal,
 	Platform,
 	Pressable,
-	TextInput,
 	View,
 } from "react-native";
+import { Input } from "@/src/components/ui/input";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { PressableScale } from "@/src/components/ui/PressableScale";
 import { formatCurrency } from "@/src/lib/helpers/format-currency";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, space, spacing, typography, useThemeColors } from "@/src/lib/theme";
 
 export interface QuoteOfferSheetHandle {
 	open: (defaults?: { amount?: number | null; note?: string | null }) => void;
@@ -177,20 +177,20 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 										paddingHorizontal: space[4],
 									}}
 								>
-									<TextInput
+									<Input
 										value={amount}
 										onChangeText={setAmount}
-										keyboardType="numeric"
+										keyboardType="decimal-pad"
 										placeholder="0"
-										placeholderTextColor={themeColors.textMuted}
 										autoFocus
-										style={{
-											flex: 1,
-											paddingVertical: space[4],
-											fontSize: 22,
-											fontWeight: "700",
-											color: themeColors.textPrimary,
-										}}
+										className="flex-1 border-0 bg-transparent px-0 font-google-sans-bold"
+										style={[
+											typography.h3,
+											{
+												paddingVertical: space[4],
+												color: themeColors.textPrimary,
+											},
+										]}
 									/>
 									<Text
 										variant="buttonMd"
@@ -218,11 +218,10 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 								>
 									Note (optional)
 								</Text>
-								<TextInput
+								<Input
 									value={note}
 									onChangeText={setNote}
 									placeholder="Add context, parts, or labor breakdown"
-									placeholderTextColor={themeColors.textMuted}
 									multiline
 									style={{
 										minHeight: 84,
@@ -232,7 +231,6 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 										borderColor: themeColors.borderDefault,
 										backgroundColor: themeColors.surfaceElevated,
 										color: themeColors.textPrimary,
-										textAlignVertical: "top",
 									}}
 								/>
 							</View>

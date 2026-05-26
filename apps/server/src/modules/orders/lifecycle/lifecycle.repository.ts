@@ -187,6 +187,14 @@ export function mapLifecycleRpcError(error: {
 	if (msg.includes("bad_order_action"))
 		throw AppError.badRequest("bad_order_action");
 	if (msg.includes("bad_status")) throw AppError.badRequest("bad_status");
+	if (msg.includes("scheduled_start_at_required"))
+		throw AppError.badRequest("scheduled_start_at_required");
+	if (msg.includes("invalid_scheduled_start_at"))
+		throw AppError.badRequest("invalid_scheduled_start_at");
+	if (msg.includes("scheduled_date_start_mismatch"))
+		throw AppError.badRequest("scheduled_date_start_mismatch");
+	if (msg.includes("invalid_scheduled_slot"))
+		throw AppError.badRequest("invalid_scheduled_slot");
 
 	// State-machine violations.
 	if (msg.includes("invalid_transition"))

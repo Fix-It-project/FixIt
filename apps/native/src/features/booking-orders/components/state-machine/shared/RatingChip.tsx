@@ -62,7 +62,7 @@ export default function RatingChip({ technicianId }: { technicianId: string }) {
 			</Text>
 			<Text
 				variant="caption"
-				style={{ color: themeColors.textMuted, fontSize: 11 }}
+				style={{ color: themeColors.textMuted }}
 			>
 				({profile.review_count})
 			</Text>

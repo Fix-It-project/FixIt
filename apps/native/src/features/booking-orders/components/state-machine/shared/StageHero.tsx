@@ -67,8 +67,8 @@ export default function StageHero({
 
 			<Animated.View entering={fadeIn(1)}>
 				<Text
+					variant="h3"
 					className="font-google-sans-bold text-content"
-					style={{ fontSize: 22, lineHeight: 28 }}
 				>
 					{title}
 				</Text>

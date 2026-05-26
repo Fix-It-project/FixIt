@@ -5,6 +5,7 @@ export const availabilityTemplateSchema = z.object({
 	id: z.string(),
 	technician_id: z.string(),
 	day_of_week: z.number().int().min(0).max(6),
+	slot_hour: z.number().int().nullable().optional(),
 	active: z.boolean(),
 });
 

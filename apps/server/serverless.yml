@@ -86,3 +86,10 @@ functions:
       - httpApi:
           path: /api/orders/{proxy+}
           method: ANY
+
+  reviews:
+    handler: serverless-deploy/reviews-lambda.handler
+    events:
+      - httpApi:
+          path: /api/reviews/{proxy+}
+          method: ANY

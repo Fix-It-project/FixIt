@@ -73,8 +73,9 @@ export default function TrackingBody({ order }: Props) {
 			>
 				<MapPin size={spacing.icon.caption} color={themeColors.primary} strokeWidth={2.4} />
 				<Text
+					variant="bodySm"
 					className="font-google-sans-bold"
-					style={{ color: themeColors.primary, fontSize: 13 }}
+					style={{ color: themeColors.primary }}
 				>
 					{parts.join(" · ")}
 				</Text>
@@ -94,8 +95,9 @@ export default function TrackingBody({ order }: Props) {
 						Location access needed for live ETA.
 					</Text>
 					<Text
+						variant="bodySm"
 						className="font-google-sans-bold"
-						style={{ color: themeColors.primary, fontSize: 13 }}
+						style={{ color: themeColors.primary }}
 						onPress={
 							canAskAgain
 								? requestPermission

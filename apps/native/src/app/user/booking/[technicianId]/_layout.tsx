@@ -5,6 +5,7 @@ export default function BookingLayout() {
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Screen name="index" />
 			<Stack.Screen name="date" />
+			<Stack.Screen name="time" />
 			<Stack.Screen name="details" />
 		</Stack>
 	);
