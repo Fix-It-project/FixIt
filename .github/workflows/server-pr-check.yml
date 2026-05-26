@@ -1,0 +1,41 @@
+name: Server PR Check
+
+on:
+  pull_request:
+    paths:
+      - "apps/server/**"
+      - "packages/**"
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/deploy-server.yml"
+      - ".github/workflows/server-pr-check.yml"
+
+concurrency:
+  group: server-pr-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck (server)
+        run: pnpm --filter ./apps/server run check-types
+
+      - name: Test (server)
+        run: pnpm --filter ./apps/server run test
