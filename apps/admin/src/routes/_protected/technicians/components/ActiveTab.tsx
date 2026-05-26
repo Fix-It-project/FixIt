@@ -1,6 +1,7 @@
 import { Inbox } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoryTag } from "@/components/CategoryTag";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
@@ -49,12 +50,19 @@ function filterByAvailability(techs: ActiveTech[], f: AvailabilityFilter): Activ
 export function ActiveTab({ techs, onView }: ActiveTabProps) {
 	const [search, setSearch] = useState("");
 	const [filter, setFilter] = useState<AvailabilityFilter>("all");
+	const [page, setPage] = useState(1);
 
 	const byAvailability = filterByAvailability(techs, filter);
 	const filtered = byAvailability.filter((t) =>
 		t.name.toLowerCase().includes(search.toLowerCase()) ||
 		t.specialty.toLowerCase().includes(search.toLowerCase()),
 	);
+
+	const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+	useEffect(() => { setPage(1); }, [filter, search]);
+	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	const pageStart = (page - 1) * PAGE_SIZE;
+	const paged = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -75,7 +83,7 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 			{/* Mobile card view */}
 			<div className="md:hidden">
 				<TechCardList
-					techs={filtered}
+					techs={paged}
 					onView={onView}
 				/>
 			</div>
@@ -106,7 +114,7 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 								</TableCell>
 							</TableRow>
 						)}
-						{filtered.map((tech) => (
+						{paged.map((tech) => (
 							<TableRow key={tech.id} className="group transition-colors hover:bg-muted/30">
 								<TableCell className="pl-5 py-3">
 									<div className="flex items-center gap-2.5">
@@ -136,6 +144,14 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 					</TableBody>
 				</Table>
 			</div>
+
+			<Pagination
+				page={page}
+				pageCount={pageCount}
+				pageSize={PAGE_SIZE}
+				totalItems={filtered.length}
+				onPageChange={setPage}
+			/>
 		</div>
 	);
 }

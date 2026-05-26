@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoryTag } from "@/components/CategoryTag";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { TechAvatar } from "@/components/TechAvatar";
 import {
 	AlertDialog,
@@ -23,13 +24,19 @@ interface BlockedTabProps {
 
 export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 	const [unblocking, setUnblocking] = useState<ActiveTech | null>(null);
+	const [page, setPage] = useState(1);
+
+	const pageCount = Math.max(1, Math.ceil(techs.length / PAGE_SIZE));
+	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	const pageStart = (page - 1) * PAGE_SIZE;
+	const paged = techs.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<>
 			{/* Mobile card view */}
 			<div className="md:hidden flex flex-col gap-3">
 				{techs.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">No blocked technicians.</p>}
-				{techs.map((tech) => (
+				{paged.map((tech) => (
 					<div key={tech.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
 						<TechAvatar initials={tech.initials} color={tech.color} size="md" />
 						<div className="flex-1 min-w-0">
@@ -63,7 +70,7 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 								<TableCell colSpan={5} className="text-center text-muted-foreground py-8">No blocked technicians.</TableCell>
 							</TableRow>
 						)}
-						{techs.map((tech) => (
+						{paged.map((tech) => (
 							<TableRow key={tech.id}>
 								<TableCell className="pl-4">
 									<div className="flex items-center gap-2.5">
@@ -89,6 +96,18 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 					</TableBody>
 				</Table>
 			</div>
+
+			{techs.length > 0 && (
+				<div className="mt-3">
+					<Pagination
+						page={page}
+						pageCount={pageCount}
+						pageSize={PAGE_SIZE}
+						totalItems={techs.length}
+						onPageChange={setPage}
+					/>
+				</div>
+			)}
 
 			<AlertDialog open={!!unblocking} onOpenChange={() => setUnblocking(null)}>
 				<AlertDialogContent>

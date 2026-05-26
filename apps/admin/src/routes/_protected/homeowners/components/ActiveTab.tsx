@@ -1,5 +1,6 @@
 import { Inbox } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
 import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
 import { TechAvatar } from "@/components/TechAvatar";
@@ -50,6 +51,7 @@ function exportToCSV(homeowners: Homeowner[]) {
 export function ActiveTab({ homeowners, onView }: ActiveTabProps) {
 	const [search, setSearch] = useState("");
 	const [filter, setFilter] = useState<ActivityFilter>("all");
+	const [page, setPage] = useState(1);
 
 	const byActivity = filterByActivity(homeowners, filter);
 	const filtered = byActivity.filter((h) =>
@@ -57,6 +59,12 @@ export function ActiveTab({ homeowners, onView }: ActiveTabProps) {
 		h.city.toLowerCase().includes(search.toLowerCase()) ||
 		h.email.toLowerCase().includes(search.toLowerCase()),
 	);
+
+	const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+	useEffect(() => { setPage(1); }, [filter, search]);
+	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	const pageStart = (page - 1) * PAGE_SIZE;
+	const paged = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -76,7 +84,7 @@ export function ActiveTab({ homeowners, onView }: ActiveTabProps) {
 
 			{/* Mobile card view */}
 			<div className="md:hidden">
-				<HomeownerCardList homeowners={filtered} onView={onView} />
+				<HomeownerCardList homeowners={paged} onView={onView} />
 			</div>
 
 			{/* Desktop table */}
@@ -105,7 +113,7 @@ export function ActiveTab({ homeowners, onView }: ActiveTabProps) {
 								</TableCell>
 							</TableRow>
 						)}
-						{filtered.map((h) => {
+						{paged.map((h) => {
 							const cancellationRate = h.totalOrders > 0 ? Math.round((h.cancelled / h.totalOrders) * 100) : 0;
 							return (
 								<TableRow key={h.id} className="group transition-colors hover:bg-muted/30">
@@ -150,6 +158,14 @@ export function ActiveTab({ homeowners, onView }: ActiveTabProps) {
 					</TableBody>
 				</Table>
 			</div>
+
+			<Pagination
+				page={page}
+				pageCount={pageCount}
+				pageSize={PAGE_SIZE}
+				totalItems={filtered.length}
+				onPageChange={setPage}
+			/>
 		</div>
 	);
 }

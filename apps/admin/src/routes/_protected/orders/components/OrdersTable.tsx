@@ -1,5 +1,6 @@
 import { Eye, Inbox, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
@@ -73,6 +74,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 	const [search, setSearch] = useState("");
 	const [expandedReason, setExpandedReason] = useState<string | null>(null);
 	const [reviewView, setReviewView] = useState<ReviewView | null>(null);
+	const [page, setPage] = useState(1);
 
 	const byStatus = filterByStatus(orders, filter);
 	const visible = byStatus.filter((o) => {
@@ -84,6 +86,12 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 			o.tech.toLowerCase().includes(q)
 		);
 	});
+
+	const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+	useEffect(() => { setPage(1); }, [filter, search]);
+	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	const pageStart = (page - 1) * PAGE_SIZE;
+	const paged = visible.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<>
@@ -129,7 +137,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 									</TableCell>
 								</TableRow>
 							)}
-							{visible.map((order) => {
+							{paged.map((order) => {
 								const meta = STATUS_META[order.status];
 								const cat = CATEGORY_MAP[order.category];
 								const reviewItem = toReviewView(order);
@@ -208,10 +216,13 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 					</Table>
 				</div>
 
-				<p className="text-xs text-muted-foreground">
-					Showing <span className="font-semibold text-foreground tabular-nums">{visible.length}</span> of{" "}
-					<span className="tabular-nums">{orders.length}</span> orders
-				</p>
+				<Pagination
+					page={page}
+					pageCount={pageCount}
+					pageSize={PAGE_SIZE}
+					totalItems={visible.length}
+					onPageChange={setPage}
+				/>
 			</div>
 
 			<Dialog open={!!expandedReason} onOpenChange={() => setExpandedReason(null)}>

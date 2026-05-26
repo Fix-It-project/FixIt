@@ -8,8 +8,8 @@ export function useRangeFilter() {
 	const [range, setRange] = useState<Range>("30d");
 
 	const sliced: OrderSeries = (() => {
-		const days = range === "7d" ? 7 : range === "90d" ? 30 : 30;
-		const start = ORDERS_SERIES.days.length - days;
+		const days = range === "7d" ? 7 : range === "90d" ? 90 : 30;
+		const start = Math.max(0, ORDERS_SERIES.days.length - days);
 		return {
 			days: ORDERS_SERIES.days.slice(start),
 			homeowner: ORDERS_SERIES.homeowner.slice(start),

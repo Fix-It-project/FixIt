@@ -35,9 +35,17 @@ export const KPIS: KpiMetric[] = [
 ];
 
 export const ORDERS_SERIES: OrderSeries = {
-	days: Array.from({ length: 30 }, (_, i) => i + 1),
-	homeowner: [320, 340, 360, 330, 400, 420, 380, 360, 410, 440, 460, 420, 400, 430, 470, 500, 480, 460, 490, 520, 540, 510, 500, 530, 560, 580, 540, 560, 590, 610],
-	technician: [280, 290, 310, 300, 340, 360, 330, 310, 360, 380, 400, 370, 360, 380, 410, 430, 420, 410, 440, 460, 470, 440, 440, 460, 480, 500, 470, 490, 510, 530],
+	days: Array.from({ length: 90 }, (_, i) => i + 1),
+	homeowner: [
+		180, 195, 210, 188, 205, 225, 240, 218, 232, 250, 268, 245, 240, 258, 280, 298, 275, 260, 285, 305, 320, 295, 290, 315, 335, 348, 320, 305, 330, 355,
+		300, 318, 332, 312, 348, 368, 340, 322, 362, 388, 405, 376, 360, 388, 410, 432, 410, 388, 415, 440, 458, 430, 420, 445, 470, 488, 460, 480, 505, 528,
+		320, 340, 360, 330, 400, 420, 380, 360, 410, 440, 460, 420, 400, 430, 470, 500, 480, 460, 490, 520, 540, 510, 500, 530, 560, 580, 540, 560, 590, 610,
+	],
+	technician: [
+		160, 172, 184, 168, 182, 200, 214, 196, 208, 224, 240, 220, 218, 232, 252, 268, 248, 234, 256, 274, 288, 264, 260, 282, 300, 312, 288, 274, 296, 318,
+		260, 276, 290, 272, 304, 324, 298, 282, 318, 340, 358, 330, 318, 344, 364, 384, 360, 342, 366, 388, 404, 380, 370, 392, 414, 432, 408, 426, 446, 466,
+		280, 290, 310, 300, 340, 360, 330, 310, 360, 380, 400, 370, 360, 380, 410, 430, 420, 410, 440, 460, 470, 440, 440, 460, 480, 500, 470, 490, 510, 530,
+	],
 };
 
 export const CATEGORY_SHARE: CategoryShare[] = [
@@ -202,6 +210,16 @@ export const ACTIVE_TECHS: ActiveTech[] = [
 	{ id: "t-010", name: "Heba Saad", initials: "HS", color: "#06b6d4", specialty: "Air Conditioning", city: "Heliopolis, Cairo", joined: "Apr 2024", completed: 28, rating: 3.94, reviews: 22, revenue: "12.1k", availability: "offline", blocked: false, phone: "+20 100 6612 008", email: "heba.saad@example.com", history: buildHistory(3, { salt: 10, no_show: 3 }) },
 	{ id: "t-011", name: "Sara Mansour", initials: "SM", color: "#06b6d4", specialty: "Air Conditioning", city: "Maadi, Cairo", joined: "Oct 2024", completed: 62, rating: 4.32, reviews: 54, revenue: "21.0k", availability: "offline", blocked: true, phone: "+20 100 2245 117", email: "sara.mansour@example.com", history: buildHistory(2, { salt: 11, no_show: 4 }), blockedReason: "Repeated late cancellations", blockedAt: "18 May 2026", blockedBy: "Ahmed Refaat" },
 	{ id: "t-012", name: "Adel Farouk", initials: "AF", color: "#f97316", specialty: "Electrician", city: "Maadi, Cairo", joined: "Dec 2023", completed: 53, rating: 3.82, reviews: 47, revenue: "19.4k", availability: "offline", blocked: true, phone: "+20 122 7740 113", email: "adel.farouk@example.com", history: buildHistory(3, { salt: 12, no_show: 4 }), blockedReason: "Disputed work quality on 3 jobs", blockedAt: "9 May 2026", blockedBy: "Ahmed Refaat" },
+	{ id: "t-013", name: "Omar Salama", initials: "OS", color: "#0ea5e9", specialty: "Plumbing", city: "Sheikh Zayed", joined: "Feb 2025", completed: 71, rating: 4.66, reviews: 64, revenue: "33.8k", availability: "online", blocked: false, phone: "+20 100 5512 776", email: "omar.salama@example.com", history: buildHistory(7, { salt: 13 }) },
+	{ id: "t-014", name: "Marwan Helmy", initials: "MH", color: "#10b981", specialty: "Home Cleaning", city: "Tagamoa, Cairo", joined: "Mar 2024", completed: 134, rating: 4.83, reviews: 121, revenue: "52.7k", availability: "online", blocked: false, phone: "+20 122 3401 882", email: "marwan.helmy@example.com", history: buildHistory(9, { salt: 14 }) },
+	{ id: "t-015", name: "Dina Fouad", initials: "DF", color: "#ec4899", specialty: "Painter", city: "Garden City, Cairo", joined: "Jul 2023", completed: 96, rating: 4.7, reviews: 88, revenue: "41.2k", availability: "offline", blocked: false, phone: "+20 100 9981 245", email: "dina.fouad@example.com", history: buildHistory(7, { salt: 15 }) },
+	{ id: "t-016", name: "Khaled Nabil", initials: "KN", color: "#92400e", specialty: "Carpentry", city: "Nasr City, Cairo", joined: "Sep 2024", completed: 58, rating: 4.45, reviews: 51, revenue: "26.9k", availability: "online", blocked: false, phone: "+20 122 7765 003", email: "khaled.nabil@example.com", history: buildHistory(6, { salt: 16, cancelled: 1 }) },
+	{ id: "t-017", name: "Mona El-Sayed", initials: "ME", color: "#06b6d4", specialty: "Air Conditioning", city: "Maadi, Cairo", joined: "Aug 2024", completed: 84, rating: 4.78, reviews: 76, revenue: "44.5k", availability: "online", blocked: false, phone: "+20 100 1124 658", email: "mona.elsayed@example.com", history: buildHistory(8, { salt: 17 }) },
+	{ id: "t-018", name: "Hossam Magdy", initials: "HM", color: "#f59e0b", specialty: "Electrician", city: "Dokki, Giza", joined: "Jan 2025", completed: 47, rating: 4.38, reviews: 41, revenue: "22.1k", availability: "offline", blocked: false, phone: "+20 122 5588 110", email: "hossam.magdy@example.com", history: buildHistory(5, { salt: 18, cancelled: 1 }) },
+	{ id: "t-019", name: "Rania Gamal", initials: "RG", color: "#a855f7", specialty: "Home Cleaning", city: "Zamalek, Cairo", joined: "Apr 2025", completed: 39, rating: 4.55, reviews: 33, revenue: "16.8k", availability: "online", blocked: false, phone: "+20 100 8843 197", email: "rania.gamal@example.com", history: buildHistory(4, { salt: 19 }) },
+	{ id: "t-020", name: "Bassem Khalil", initials: "BK", color: "#ef4444", specialty: "Fridge / Freezer", city: "Heliopolis, Cairo", joined: "Oct 2024", completed: 67, rating: 4.62, reviews: 60, revenue: "31.4k", availability: "online", blocked: false, phone: "+20 122 6677 209", email: "bassem.khalil@example.com", history: buildHistory(7, { salt: 20 }) },
+	{ id: "t-021", name: "Layla Mostafa", initials: "LM", color: "#f43f5e", specialty: "Oven & Cooker", city: "6th October", joined: "Nov 2024", completed: 52, rating: 4.41, reviews: 46, revenue: "20.7k", availability: "offline", blocked: false, phone: "+20 100 3367 884", email: "layla.mostafa@example.com", history: buildHistory(5, { salt: 21, no_show: 1 }) },
+	{ id: "t-022", name: "Sherif Adel", initials: "SA", color: "#dc2626", specialty: "Electrician", city: "Mohandessin, Giza", joined: "Mar 2025", completed: 31, rating: 3.78, reviews: 27, revenue: "13.6k", availability: "offline", blocked: true, phone: "+20 122 9912 304", email: "sherif.adel@example.com", history: buildHistory(2, { salt: 22, no_show: 3, cancelled: 2 }), blockedReason: "Failed to show for 3 confirmed visits", blockedAt: "2 May 2026", blockedBy: "Ahmed Refaat" },
 ];
 
 export const PENDING_TECHS: PendingTech[] = [
@@ -441,6 +459,125 @@ export const HOMEOWNERS: Homeowner[] = [
 			{ id: "ORD-21701", date: "28 Apr", category: "plumb", tech: "Mahmoud Khaled", status: "completed", amount: 460 },
 			{ id: "ORD-21655", date: "19 Apr", category: "ac", tech: "Nour Ibrahim", status: "cancelled", amount: 0 },
 			{ id: "ORD-21588", date: "4 Apr", category: "elec", tech: "Tarek Younis", status: "completed", amount: 380 },
+		]),
+	},
+	{
+		id: "h-013", name: "Farah Awad", initials: "FA", color: "#06b6d4",
+		phone: "+20 100 3344 781", email: "farah.awad@example.com",
+		city: "Sheikh Zayed", joined: "Feb 2024",
+		totalOrders: 16, completed: 15, cancelled: 1, spend: "8.9k",
+		avgRatingGiven: 4.7, lastOrder: "Today, 7:15 AM", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21836", date: "26 May", category: "plumb", tech: "Omar Salama", status: "completed", amount: 520 },
+			{ id: "ORD-21780", date: "15 May", category: "clean", tech: "Marwan Helmy", status: "completed", amount: 480 },
+			{ id: "ORD-21710", date: "2 May", category: "ac", tech: "Mona El-Sayed", status: "completed", amount: 1040 },
+		]),
+	},
+	{
+		id: "h-014", name: "Ziad Helmi", initials: "ZH", color: "#22c55e",
+		phone: "+20 122 5570 661", email: "ziad.helmi@example.com",
+		city: "Tagamoa, Cairo", joined: "Apr 2024",
+		totalOrders: 13, completed: 12, cancelled: 1, spend: "7.3k",
+		avgRatingGiven: 4.5, lastOrder: "Yesterday, 3:42 PM", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21835", date: "25 May", category: "elec", tech: "Hossam Magdy", status: "completed", amount: 420 },
+			{ id: "ORD-21766", date: "12 May", category: "paint", tech: "Dina Fouad", status: "completed", amount: 680 },
+			{ id: "ORD-21695", date: "28 Apr", category: "fridge", tech: "Bassem Khalil", status: "completed", amount: 760 },
+		]),
+	},
+	{
+		id: "h-015", name: "Aya Maged", initials: "AM", color: "#f97316",
+		phone: "+20 100 2218 994", email: "aya.maged@example.com",
+		city: "Maadi, Cairo", joined: "Aug 2023",
+		totalOrders: 22, completed: 20, cancelled: 2, spend: "12.6k",
+		avgRatingGiven: 4.6, lastOrder: "Yesterday, 11:28 AM", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21834", date: "25 May", category: "ac", tech: "Mona El-Sayed", status: "completed", amount: 1120 },
+			{ id: "ORD-21772", date: "13 May", category: "carp", tech: "Khaled Nabil", status: "completed", amount: 880 },
+			{ id: "ORD-21700", date: "30 Apr", category: "clean", tech: "Rania Gamal", status: "completed", amount: 520 },
+			{ id: "ORD-21630", date: "14 Apr", category: "plumb", tech: "Omar Salama", status: "completed", amount: 460 },
+		]),
+	},
+	{
+		id: "h-016", name: "Fady Boutros", initials: "FB", color: "#3b82f6",
+		phone: "+20 122 8809 145", email: "fady.boutros@example.com",
+		city: "Heliopolis, Cairo", joined: "May 2024",
+		totalOrders: 9, completed: 8, cancelled: 1, spend: "5.1k",
+		avgRatingGiven: 4.4, lastOrder: "2 days ago", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21833", date: "24 May", category: "fridge", tech: "Bassem Khalil", status: "completed", amount: 780 },
+			{ id: "ORD-21758", date: "11 May", category: "oven", tech: "Layla Mostafa", status: "completed", amount: 540 },
+		]),
+	},
+	{
+		id: "h-017", name: "Reem Adel", initials: "RA", color: "#a855f7",
+		phone: "+20 100 6651 207", email: "reem.adel@example.com",
+		city: "Zamalek, Cairo", joined: "Jun 2024",
+		totalOrders: 11, completed: 10, cancelled: 1, spend: "6.4k",
+		avgRatingGiven: 4.8, lastOrder: "3 days ago", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21832", date: "23 May", category: "clean", tech: "Rania Gamal", status: "completed", amount: 540 },
+			{ id: "ORD-21755", date: "10 May", category: "paint", tech: "Dina Fouad", status: "completed", amount: 720 },
+		]),
+	},
+	{
+		id: "h-018", name: "Mostafa Ehab", initials: "ME", color: "#f43f5e",
+		phone: "+20 122 4470 312", email: "mostafa.ehab@example.com",
+		city: "Mohandessin, Giza", joined: "Sep 2023",
+		totalOrders: 26, completed: 24, cancelled: 2, spend: "14.8k",
+		avgRatingGiven: 4.5, lastOrder: "4 days ago", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21831", date: "22 May", category: "elec", tech: "Sherif Adel", status: "completed", amount: 460 },
+			{ id: "ORD-21752", date: "9 May", category: "ac", tech: "Mona El-Sayed", status: "completed", amount: 1180 },
+			{ id: "ORD-21678", date: "23 Apr", category: "carp", tech: "Khaled Nabil", status: "completed", amount: 920 },
+			{ id: "ORD-21610", date: "11 Apr", category: "plumb", tech: "Mahmoud Khaled", status: "completed", amount: 480 },
+		]),
+	},
+	{
+		id: "h-019", name: "Sara Younis", initials: "SY", color: "#0ea5e9",
+		phone: "+20 100 7726 583", email: "sara.younis@example.com",
+		city: "New Cairo", joined: "Jul 2024",
+		totalOrders: 7, completed: 6, cancelled: 1, spend: "4.2k",
+		avgRatingGiven: 4.3, lastOrder: "1 week ago", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21830", date: "20 May", category: "fridge", tech: "Rana Said", status: "completed", amount: 740 },
+			{ id: "ORD-21748", date: "8 May", category: "clean", tech: "Hala Adel", status: "completed", amount: 500 },
+		]),
+	},
+	{
+		id: "h-020", name: "Tarek El-Said", initials: "TS", color: "#10b981",
+		phone: "+20 122 9985 446", email: "tarek.elsaid@example.com",
+		city: "Garden City, Cairo", joined: "Oct 2024",
+		totalOrders: 5, completed: 4, cancelled: 1, spend: "2.8k",
+		avgRatingGiven: 4.2, lastOrder: "1 week ago", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21829", date: "19 May", category: "paint", tech: "Dina Fouad", status: "completed", amount: 660 },
+			{ id: "ORD-21745", date: "7 May", category: "elec", tech: "Hossam Magdy", status: "completed", amount: 420 },
+		]),
+	},
+	{
+		id: "h-021", name: "Nadine Galal", initials: "NG", color: "#ec4899",
+		phone: "+20 100 1147 882", email: "nadine.galal@example.com",
+		city: "Maadi, Cairo", joined: "Nov 2024",
+		totalOrders: 4, completed: 3, cancelled: 1, spend: "1.9k",
+		avgRatingGiven: 4.1, lastOrder: "2 weeks ago", blocked: false,
+		history: buildHomeownerHistory([
+			{ id: "ORD-21828", date: "13 May", category: "clean", tech: "Marwan Helmy", status: "completed", amount: 520 },
+			{ id: "ORD-21741", date: "5 May", category: "carp", tech: "Khaled Nabil", status: "completed", amount: 840 },
+		]),
+	},
+	{
+		id: "h-022", name: "Wael Hany", initials: "WH", color: "#dc2626",
+		phone: "+20 122 6638 071", email: "wael.hany@example.com",
+		city: "6th October", joined: "Aug 2024",
+		totalOrders: 6, completed: 2, cancelled: 4, spend: "1.1k",
+		avgRatingGiven: 3.1, lastOrder: "30 Apr", blocked: true,
+		blockedReason: "Multiple no-shows after tech dispatch despite repeated reminders",
+		blockedAt: "8 May 2026", blockedBy: "Ahmed Refaat",
+		history: buildHomeownerHistory([
+			{ id: "ORD-21827", date: "30 Apr", category: "ac", tech: "Mona El-Sayed", status: "no_show", amount: 0 },
+			{ id: "ORD-21738", date: "20 Apr", category: "plumb", tech: "Omar Salama", status: "no_show", amount: 0 },
+			{ id: "ORD-21670", date: "12 Apr", category: "elec", tech: "Hossam Magdy", status: "cancelled", amount: 0 },
 		]),
 	},
 ];

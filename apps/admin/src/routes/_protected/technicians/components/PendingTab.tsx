@@ -1,6 +1,7 @@
 import { AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoryTag } from "@/components/CategoryTag";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,13 +17,19 @@ interface PendingTabProps {
 
 export function PendingTab({ techs, onApprove, onReject }: PendingTabProps) {
 	const [selected, setSelected] = useState<PendingTech | null>(null);
+	const [page, setPage] = useState(1);
+
+	const pageCount = Math.max(1, Math.ceil(techs.length / PAGE_SIZE));
+	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	const pageStart = (page - 1) * PAGE_SIZE;
+	const paged = techs.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<>
 			{/* Mobile card view */}
 			<div className="md:hidden flex flex-col gap-3">
 				{techs.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">No pending applicants.</p>}
-				{techs.map((tech) => {
+				{paged.map((tech) => {
 					const uploaded = tech.documents.filter((d) => d.status === "uploaded").length;
 					return (
 						<div key={tech.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
@@ -67,7 +74,7 @@ export function PendingTab({ techs, onApprove, onReject }: PendingTabProps) {
 								<TableCell colSpan={6} className="text-center text-muted-foreground py-8">No pending applicants.</TableCell>
 							</TableRow>
 						)}
-						{techs.map((tech) => {
+						{paged.map((tech) => {
 							const uploaded = tech.documents.filter((d) => d.status === "uploaded").length;
 							return (
 								<TableRow key={tech.id}>
@@ -110,6 +117,18 @@ export function PendingTab({ techs, onApprove, onReject }: PendingTabProps) {
 					</TableBody>
 				</Table>
 			</div>
+
+			{techs.length > 0 && (
+				<div className="mt-3">
+					<Pagination
+						page={page}
+						pageCount={pageCount}
+						pageSize={PAGE_SIZE}
+						totalItems={techs.length}
+						onPageChange={setPage}
+					/>
+				</div>
+			)}
 
 			<ApplicantReviewModal
 				tech={selected}
