@@ -1,7 +1,9 @@
+import * as React from "react";
+import { TextInput } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Dialog } from "@/src/components/ui/dialog";
-import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
+import { typography, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
 	readonly confirmLabel?: string;
@@ -30,6 +32,20 @@ export default function CancelReasonModal({
 	visible,
 	confirmLabel = "Cancel",
 }: Props) {
+	const themeColors = useThemeColors();
+	const reasonRef = React.useRef(reason);
+
+	React.useEffect(() => {
+		if (visible) {
+			reasonRef.current = reason;
+		}
+	}, [reason, visible]);
+
+	const handleConfirm = () => {
+		onReasonChange(reasonRef.current);
+		onConfirm();
+	};
+
 	return (
 		<Dialog visible={visible} onClose={onClose} dismissible={false}>
 			<Dialog.Header>{title}</Dialog.Header>
@@ -43,13 +59,17 @@ export default function CancelReasonModal({
 				</Text>
 			</Dialog.Body>
 			<Dialog.Form>
-				<Input
-					value={reason}
-					onChangeText={onReasonChange}
+				<TextInput
+					defaultValue={reason}
+					onChangeText={(text) => {
+						reasonRef.current = text;
+					}}
 					placeholder="Reason (optional)"
+					placeholderTextColor={themeColors.textMuted}
 					multiline
 					numberOfLines={3}
-					className="min-h-[72px]"
+					className="min-h-[72px] rounded-input border border-edge px-card py-3 text-content"
+					style={[typography.input, { textAlignVertical: "top" }]}
 				/>
 			</Dialog.Form>
 			<Dialog.Footer>
@@ -60,7 +80,7 @@ export default function CancelReasonModal({
 					variant="destructive"
 					loading={isLoading}
 					disabled={isLoading}
-					onPress={onConfirm}
+					onPress={handleConfirm}
 				>
 					{confirmLabel}
 				</Button>

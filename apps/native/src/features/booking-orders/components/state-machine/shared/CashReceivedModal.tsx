@@ -6,11 +6,11 @@
 // Calls useTechMarkCashReceived which sets technician_completed_at; the
 // fn_dual_confirm_completion trigger then flips status to "completed".
 //
-// Migrated to declarative <Dialog> in Phase 11 Plan 07.
+// Binary confirmation: use AlertDialog, not Dialog.
 
 import Toast from "react-native-toast-message";
+import { AlertDialog } from "@/src/components/ui/alert-dialog";
 import { Button } from "@/src/components/ui/button";
-import { Dialog } from "@/src/components/ui/dialog";
 import { useTechMarkCashReceived } from "@/src/features/booking-orders/hooks";
 
 interface Props {
@@ -47,11 +47,15 @@ export default function CashReceivedModal({
 	};
 
 	return (
-		<Dialog visible={visible} onClose={onClose} dismissible={false}>
-			<Dialog.Header>Cash received?</Dialog.Header>
-			<Dialog.Body>{`User confirmed payment of ${amount} EGP. Confirm you received cash?`}</Dialog.Body>
-			<Dialog.Footer>
-				<Button variant="secondary" onPress={onClose} disabled={mutation.isPending}>
+		<AlertDialog visible={visible} onClose={onClose}>
+			<AlertDialog.Header>Cash received?</AlertDialog.Header>
+			<AlertDialog.Body>{`User confirmed payment of ${amount} EGP. Confirm you received cash?`}</AlertDialog.Body>
+			<AlertDialog.Footer>
+				<Button
+					variant="secondary"
+					onPress={onClose}
+					disabled={mutation.isPending}
+				>
 					Cancel
 				</Button>
 				<Button
@@ -61,7 +65,7 @@ export default function CashReceivedModal({
 				>
 					Confirm
 				</Button>
-			</Dialog.Footer>
-		</Dialog>
+			</AlertDialog.Footer>
+		</AlertDialog>
 	);
 }

@@ -4,11 +4,11 @@
 //   variant="user"       → calls useUserConfirmCompletion
 //   variant="technician" → calls useTechConfirmCompletion
 //
-// Migrated to declarative <Dialog> in Phase 11 Plan 07.
+// Binary confirmation: use AlertDialog, not Dialog.
 
 import Toast from "react-native-toast-message";
+import { AlertDialog } from "@/src/components/ui/alert-dialog";
 import { Button } from "@/src/components/ui/button";
-import { Dialog } from "@/src/components/ui/dialog";
 import {
 	useTechConfirmCompletion,
 	useUserConfirmCompletion,
@@ -59,11 +59,15 @@ export default function WorkCompleteConfirmModal({
 	};
 
 	return (
-		<Dialog visible={visible} onClose={onClose} dismissible={false}>
-			<Dialog.Header>{title}</Dialog.Header>
-			<Dialog.Body>{body}</Dialog.Body>
-			<Dialog.Footer>
-				<Button variant="secondary" onPress={onClose} disabled={mutation.isPending}>
+		<AlertDialog visible={visible} onClose={onClose}>
+			<AlertDialog.Header>{title}</AlertDialog.Header>
+			<AlertDialog.Body>{body}</AlertDialog.Body>
+			<AlertDialog.Footer>
+				<Button
+					variant="secondary"
+					onPress={onClose}
+					disabled={mutation.isPending}
+				>
 					Cancel
 				</Button>
 				<Button
@@ -73,7 +77,7 @@ export default function WorkCompleteConfirmModal({
 				>
 					Confirm
 				</Button>
-			</Dialog.Footer>
-		</Dialog>
+			</AlertDialog.Footer>
+		</AlertDialog>
 	);
 }

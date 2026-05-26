@@ -4,11 +4,11 @@
 // Calls useUserConfirmCompletion per 4a reality — there is no /confirm-paid
 // endpoint; both sides route through confirm-completion.
 //
-// Migrated to declarative <Dialog> in Phase 11 Plan 07.
+// Binary confirmation: use AlertDialog, not Dialog.
 
 import Toast from "react-native-toast-message";
+import { AlertDialog } from "@/src/components/ui/alert-dialog";
 import { Button } from "@/src/components/ui/button";
-import { Dialog } from "@/src/components/ui/dialog";
 import { useUserConfirmCompletion } from "@/src/features/booking-orders/hooks";
 
 interface Props {
@@ -45,11 +45,15 @@ export default function CashConfirmModal({
 	};
 
 	return (
-		<Dialog visible={visible} onClose={onClose} dismissible={false}>
-			<Dialog.Header>Confirm cash payment</Dialog.Header>
-			<Dialog.Body>{`Confirm you paid ${amount} EGP in cash`}</Dialog.Body>
-			<Dialog.Footer>
-				<Button variant="secondary" onPress={onClose} disabled={mutation.isPending}>
+		<AlertDialog visible={visible} onClose={onClose}>
+			<AlertDialog.Header>Confirm cash payment</AlertDialog.Header>
+			<AlertDialog.Body>{`Confirm you paid ${amount} EGP in cash`}</AlertDialog.Body>
+			<AlertDialog.Footer>
+				<Button
+					variant="secondary"
+					onPress={onClose}
+					disabled={mutation.isPending}
+				>
 					Cancel
 				</Button>
 				<Button
@@ -59,7 +63,7 @@ export default function CashConfirmModal({
 				>
 					Confirm
 				</Button>
-			</Dialog.Footer>
-		</Dialog>
+			</AlertDialog.Footer>
+		</AlertDialog>
 	);
 }
