@@ -61,3 +61,5 @@ documentation/agent_docs/*
 .codex
 .scannerwork
 .planning/
+node-compile-cache/
+supabase/
