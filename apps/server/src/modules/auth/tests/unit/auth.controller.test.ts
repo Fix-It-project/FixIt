@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockReq, createMockRes } from '../../../../../tests/mocks/express.mock.js';
 
 const { mockService } = vi.hoisted(() => ({
@@ -17,236 +17,235 @@ vi.mock('../../auth.service.js', () => ({
   authService: mockService,
 }));
 
-const { AuthController } = await import('../../auth.controller.js');
+const { authController } = await import('../../auth.controller.js');
+const { AppError } = await import('../../../../shared/errors/app-error.js');
+
+// asyncHandler dispatches the inner promise but returns undefined synchronously
+// (see shared/errors/async-handler.ts). Tests must flush the microtask queue
+// after invoking the handler so `next` / `res` assertions are deterministic.
+async function runHandler(
+  handler: (req: any, res: any, next: any) => void,
+  req: any,
+  res: any,
+): Promise<{ next: ReturnType<typeof vi.fn> }> {
+  const next = vi.fn();
+  handler(req, res, next);
+  await new Promise((resolve) => setImmediate(resolve));
+  return { next };
+}
+
+function mockReq(overrides: Record<string, unknown> = {}) {
+  const req = createMockReq(overrides as never) as any;
+  req.log = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
+  return req;
+}
 
 describe('AuthController', () => {
-  let controller: InstanceType<typeof AuthController>;
-
   beforeEach(() => {
-    controller = new AuthController();
+    for (const m of Object.values(mockService)) {
+      m.mockReset();
+    }
   });
 
+  // ── signUp ────────────────────────────────────────────────────────────────
   describe('signUp', () => {
-    it('should return 201 on successful signup', async () => {
-      const resultData = { user: { id: 'uuid-1', email: 'a@b.com' }, message: 'Registered' };
-      mockService.signUp.mockResolvedValue(resultData);
+    const validBody = {
+      email: 'a@b.com',
+      password: 'pass123',
+      fullName: 'John',
+      phone: '555',
+      city: 'Amman',
+      street: 'Main',
+    };
 
-      const req = createMockReq({
-        body: { email: 'a@b.com', password: 'pass123', fullName: 'John', city: 'Amman', street: 'Main' },
-      });
+    it('returns 201 with the service payload on success', async () => {
+      const payload = { user: { id: 'u1', email: 'a@b.com' }, message: 'Registered' };
+      mockService.signUp.mockResolvedValue(payload);
+
+      const req = mockReq({ body: validBody });
       const res = createMockRes();
-
-      await controller.signUp(req, res);
+      const { next } = await runHandler(authController.signUp, req, res);
 
       expect(res.statusCode).toBe(201);
-      expect(res.body).toEqual(resultData);
+      expect(res.body).toEqual(payload);
+      expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 400 when service throws', async () => {
-      mockService.signUp.mockRejectedValue(new Error('User with this email already exists'));
+    it('forwards service errors via next() without writing a response', async () => {
+      const err = new Error('User exists');
+      mockService.signUp.mockRejectedValue(err);
 
-      const req = createMockReq({ body: { email: 'a@b.com', password: 'pass123' } });
+      const req = mockReq({ body: validBody });
       const res = createMockRes();
+      const { next } = await runHandler(authController.signUp, req, res);
 
-      await controller.signUp(req, res);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'User with this email already exists' });
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next.mock.calls[0]?.[0]).toBe(err);
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
     });
   });
 
+  // ── signIn ────────────────────────────────────────────────────────────────
   describe('signIn', () => {
-    it('should return 200 on successful sign-in', async () => {
-      const resultData = { user: { id: 'uuid-1' }, session: { accessToken: 'at' } };
-      mockService.signIn.mockResolvedValue(resultData);
+    it('returns 200 with the service payload on success', async () => {
+      const payload = { user: { id: 'u1' }, session: { accessToken: 'at' } };
+      mockService.signIn.mockResolvedValue(payload);
 
-      const req = createMockReq({ body: { email: 'a@b.com', password: 'pass123' } });
+      const req = mockReq({ body: { email: 'a@b.com', password: 'pass123' } });
       const res = createMockRes();
-
-      await controller.signIn(req, res);
+      const { next } = await runHandler(authController.signIn, req, res);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(resultData);
+      expect(res.body).toEqual(payload);
+      expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 401 when service throws', async () => {
+    it('forwards service errors via next()', async () => {
       mockService.signIn.mockRejectedValue(new Error('Invalid credentials'));
 
-      const req = createMockReq({ body: { email: 'a@b.com', password: 'wrong' } });
+      const req = mockReq({ body: { email: 'a@b.com', password: 'wrong' } });
       const res = createMockRes();
+      const { next } = await runHandler(authController.signIn, req, res);
 
-      await controller.signIn(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({ error: 'Invalid credentials' });
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next.mock.calls[0]?.[0]).toBeInstanceOf(Error);
     });
   });
 
+  // ── signOut ───────────────────────────────────────────────────────────────
   describe('signOut', () => {
-    it('should return 200 and strip Bearer prefix from token', async () => {
-      mockService.signOut.mockResolvedValue({ success: true, message: 'Logged out successfully' });
+    it('strips Bearer prefix and forwards the bare token to the service', async () => {
+      mockService.signOut.mockResolvedValue({ success: true });
 
-      const req = createMockReq({ headers: { authorization: 'Bearer abc123' } });
+      const req = mockReq({ headers: { authorization: 'Bearer abc123' } });
       const res = createMockRes();
-
-      await controller.signOut(req, res);
+      const { next } = await runHandler(authController.signOut, req, res);
 
       expect(mockService.signOut).toHaveBeenCalledWith('abc123');
       expect(res.statusCode).toBe(200);
+      expect(next).not.toHaveBeenCalled();
     });
 
-    it('should pass through token without Bearer prefix', async () => {
+    it('passes through a token that lacks the Bearer prefix unchanged', async () => {
       mockService.signOut.mockResolvedValue({ success: true });
 
-      const req = createMockReq({ headers: { authorization: 'raw-token' } });
+      const req = mockReq({ headers: { authorization: 'raw-token' } });
       const res = createMockRes();
-
-      await controller.signOut(req, res);
+      await runHandler(authController.signOut, req, res);
 
       expect(mockService.signOut).toHaveBeenCalledWith('raw-token');
     });
 
-    it('should return 401 when no authorization header', async () => {
-      const req = createMockReq({ headers: {} });
+    it('calls next(AppError.unauthorized) when no Authorization header is present', async () => {
+      const req = mockReq({ headers: {} });
       const res = createMockRes();
+      const { next } = await runHandler(authController.signOut, req, res);
 
-      await controller.signOut(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({ error: 'No token provided' });
+      expect(next).toHaveBeenCalledTimes(1);
+      const err = next.mock.calls[0]?.[0];
+      expect(err).toBeInstanceOf(AppError);
+      expect(err.code).toBe('UNAUTHENTICATED');
+      expect(err.status).toBe(401);
+      expect(err.opts.token).toBe('no_token');
       expect(mockService.signOut).not.toHaveBeenCalled();
-    });
-
-    it('should return 400 when service throws', async () => {
-      mockService.signOut.mockRejectedValue(new Error('Session not found'));
-
-      const req = createMockReq({ headers: { authorization: 'Bearer tok' } });
-      const res = createMockRes();
-
-      await controller.signOut(req, res);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'Session not found' });
+      expect(res.status).not.toHaveBeenCalled();
     });
   });
 
+  // ── getCurrentUser ────────────────────────────────────────────────────────
   describe('getCurrentUser', () => {
-    it('should return 200 with user data', async () => {
-      const mockUser = { id: 'uuid-1', email: 'a@b.com' };
-      mockService.getCurrentUser.mockResolvedValue(mockUser);
-
-      const req = createMockReq({ headers: { authorization: 'Bearer tok' } });
+    it('returns the user attached by requireUserAuth middleware', async () => {
+      const user = { id: 'u1', email: 'a@b.com' };
+      const req = mockReq({});
+      (req as any).user = user;
       const res = createMockRes();
-
-      await controller.getCurrentUser(req, res);
+      const { next } = await runHandler(authController.getCurrentUser, req, res);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual({ user: mockUser });
-    });
-
-    it('should return 401 when no token provided', async () => {
-      const req = createMockReq({ headers: {} });
-      const res = createMockRes();
-
-      await controller.getCurrentUser(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({ error: 'No token provided' });
-      expect(mockService.getCurrentUser).not.toHaveBeenCalled();
-    });
-
-    it('should return 401 when service throws', async () => {
-      mockService.getCurrentUser.mockRejectedValue(new Error('Token expired'));
-
-      const req = createMockReq({ headers: { authorization: 'Bearer expired-tok' } });
-      const res = createMockRes();
-
-      await controller.getCurrentUser(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({ error: 'Token expired' });
+      expect(res.body).toEqual({ user });
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
+  // ── refreshToken ──────────────────────────────────────────────────────────
   describe('refreshToken', () => {
-    it('should return 200 on successful refresh', async () => {
-      const resultData = { session: { accessToken: 'new-at' } };
-      mockService.refreshSession.mockResolvedValue(resultData);
+    it('returns 200 with the new session on success', async () => {
+      const payload = { user: { id: 'u1' }, session: { accessToken: 'new-at' } };
+      mockService.refreshSession.mockResolvedValue(payload);
 
-      const req = createMockReq({ body: { refreshToken: 'old-rt' } });
+      const req = mockReq({ body: { refreshToken: 'old-rt' } });
       const res = createMockRes();
+      await runHandler(authController.refreshToken, req, res);
 
-      await controller.refreshToken(req, res);
-
+      expect(mockService.refreshSession).toHaveBeenCalledWith('old-rt');
       expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual(resultData);
+      expect(res.body).toEqual(payload);
     });
 
-    it('should return 401 when service throws', async () => {
+    it('forwards service errors via next()', async () => {
       mockService.refreshSession.mockRejectedValue(new Error('Invalid refresh token'));
 
-      const req = createMockReq({ body: { refreshToken: 'bad-rt' } });
+      const req = mockReq({ body: { refreshToken: 'bad' } });
       const res = createMockRes();
+      const { next } = await runHandler(authController.refreshToken, req, res);
 
-      await controller.refreshToken(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({ error: 'Invalid refresh token' });
+      expect(next).toHaveBeenCalledTimes(1);
     });
   });
 
+  // ── requestPasswordReset ──────────────────────────────────────────────────
   describe('requestPasswordReset', () => {
-    it('should return 200 with its own success message', async () => {
+    it('returns 200 with the canned success message', async () => {
       mockService.requestPasswordReset.mockResolvedValue({});
 
-      const req = createMockReq({ body: { email: 'a@b.com' } });
+      const req = mockReq({ body: { email: 'a@b.com' } });
       const res = createMockRes();
+      await runHandler(authController.requestPasswordReset, req, res);
 
-      await controller.requestPasswordReset(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual({ message: 'Password reset email sent. Please check your inbox.' });
-    });
-
-    it('should return 400 when service throws', async () => {
-      mockService.requestPasswordReset.mockRejectedValue(new Error('Rate limit exceeded'));
-
-      const req = createMockReq({ body: { email: 'a@b.com' } });
-      const res = createMockRes();
-
-      await controller.requestPasswordReset(req, res);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'Rate limit exceeded' });
-    });
-  });
-
-  describe('resetPassword', () => {
-    it('should return 200 with success message and user', async () => {
-      mockService.updatePassword.mockResolvedValue({ user: { id: 'uuid-1' } });
-
-      const req = createMockReq({ body: { newPassword: 'newPass123' } });
-      const res = createMockRes();
-
-      await controller.resetPassword(req, res);
-
+      expect(mockService.requestPasswordReset).toHaveBeenCalledWith('a@b.com');
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({
-        message: 'Password updated successfully',
-        user: { id: 'uuid-1' },
+        message: 'Password reset email sent. Please check your inbox.',
       });
     });
 
-    it('should return 400 when service throws', async () => {
+    it('forwards service errors via next()', async () => {
+      mockService.requestPasswordReset.mockRejectedValue(new Error('Rate limit'));
+
+      const req = mockReq({ body: { email: 'a@b.com' } });
+      const res = createMockRes();
+      const { next } = await runHandler(authController.requestPasswordReset, req, res);
+
+      expect(next).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ── resetPassword ─────────────────────────────────────────────────────────
+  describe('resetPassword', () => {
+    it('returns 200 with success message + user', async () => {
+      mockService.updatePassword.mockResolvedValue({ user: { id: 'u1' } });
+
+      const req = mockReq({ body: { newPassword: 'newPass123' } });
+      const res = createMockRes();
+      await runHandler(authController.resetPassword, req, res);
+
+      expect(mockService.updatePassword).toHaveBeenCalledWith('newPass123');
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual({
+        message: 'Password updated successfully',
+        user: { id: 'u1' },
+      });
+    });
+
+    it('forwards service errors via next()', async () => {
       mockService.updatePassword.mockRejectedValue(new Error('Password too weak'));
 
-      const req = createMockReq({ body: { newPassword: '123' } });
+      const req = mockReq({ body: { newPassword: '123' } });
       const res = createMockRes();
+      const { next } = await runHandler(authController.resetPassword, req, res);
 
-      await controller.resetPassword(req, res);
-
-      expect(res.statusCode).toBe(400);
-      expect(res.body).toEqual({ error: 'Password too weak' });
+      expect(next).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -1,8 +1,13 @@
 import { env } from "@FixIt/env/server";
-import express, { type Request, type Response, type Express } from 'express';
 import cors from 'cors';
+import express, { type Express, type Request, type Response } from 'express';
+import pinoHttp from 'pino-http';
+import * as Sentry from '@sentry/node';
+import { logger } from './shared/logger.js';
 
 const app: Express = express();
+
+app.use(pinoHttp({ logger }));
 
 app.use(
   cors({
@@ -19,5 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'FixIt API Server is running' });
 });
+
+// Mount Sentry error handler
+Sentry.setupExpressErrorHandler(app);
+
+// Routes and error handlers will be added by app.ts
 
 export default app;

@@ -1,101 +1,75 @@
-import { type Request, type Response } from 'express';
+import { type Request, type RequestHandler, type Response } from 'express';
 import { technicianAuthService } from './technician-auth.service.js';
 import type { DocumentFiles } from '../../shared/storage/storage.repository.js';
-import { normalizeError } from '../../shared/errors/index.js';
+import { asyncHandler } from '../../shared/errors/async-handler.js';
+import { AppError } from '../../shared/errors/app-error.js';
 
 export class TechnicianAuthController {
-  async checkEmail(req: Request, res: Response) {
-    try {
-      const { email } = req.body;
-      const exists = await technicianAuthService.checkEmailExists(email);
-      return res.status(200).json({ exists });
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status).json({ error: message });
+  checkEmail: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    const exists = await technicianAuthService.checkEmailExists(email);
+    res.status(200).json({ exists });
+  });
+
+  signUp: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude } = req.body;
+
+    const uploadedFiles = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
+
+    const files: DocumentFiles = {
+      criminal_record: uploadedFiles?.criminal_record?.[0],
+      birth_certificate: uploadedFiles?.birth_certificate?.[0],
+      national_id: uploadedFiles?.national_id?.[0],
+    };
+
+    const result = await technicianAuthService.signUp(
+      { email, password, first_name, last_name, phone, category_id },
+      files,
+      { city, street, building_no, apartment_no, latitude, longitude },
+    );
+
+    req.log.info({ action: 'technician_signup', technicianId: result.technician?.id });
+    res.status(201).json(result);
+  });
+
+  signIn: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const result = await technicianAuthService.signIn(email, password);
+    req.log.info({ action: 'technician_signin', technicianId: result.technician?.id });
+    res.status(200).json(result);
+  });
+
+  signOut: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    if (!token) {
+      throw AppError.unauthorized('No token provided', { token: 'no_token' });
     }
-  }
 
-  async signUp(req: Request, res: Response) {
-    try {
-      const { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude } = req.body;
+    const result = await technicianAuthService.signOut(token);
+    req.log.info({ action: 'technician_signout' });
+    res.status(200).json(result);
+  });
 
-      const uploadedFiles = req.files as {
-        [fieldname: string]: Express.Multer.File[];
-      };
+  getCurrentTechnician: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
-      const files: DocumentFiles = {
-        criminal_record: uploadedFiles?.criminal_record?.[0],
-        birth_certificate: uploadedFiles?.birth_certificate?.[0],
-        national_id: uploadedFiles?.national_id?.[0],
-      };
-
-      const result = await technicianAuthService.signUp(
-        { email, password, first_name, last_name, phone, category_id },
-        files,
-        { city, street, building_no, apartment_no, latitude, longitude },
-      );
-
-      return res.status(201).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      const resolvedStatus = message?.includes('already exists') ? 409 : (status === 500 ? 400 : status);
-      return res.status(resolvedStatus).json({ error: message });
+    if (!token) {
+      throw AppError.unauthorized('No token provided', { token: 'no_token' });
     }
-  }
 
-  async signIn(req: Request, res: Response) {
-    try {
-      const { email, password } = req.body;
-      const result = await technicianAuthService.signIn(email, password);
-      return res.status(200).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 401 : status).json({ error: message });
-    }
-  }
+    const technician = await technicianAuthService.getCurrentTechnician(token);
+    res.status(200).json({ technician });
+  });
 
-  async signOut(req: Request, res: Response) {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
-
-      const result = await technicianAuthService.signOut(token);
-      return res.status(200).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 400 : status).json({ error: message });
-    }
-  }
-
-  async getCurrentTechnician(req: Request, res: Response) {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
-
-      const technician = await technicianAuthService.getCurrentTechnician(token);
-      return res.status(200).json({ technician });
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 401 : status).json({ error: message });
-    }
-  }
-
-  async refreshToken(req: Request, res: Response) {
-    try {
-      const { refreshToken } = req.body;
-      const result = await technicianAuthService.refreshSession(refreshToken);
-      return res.status(200).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 401 : status).json({ error: message });
-    }
-  }
+  refreshToken: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+    const result = await technicianAuthService.refreshSession(refreshToken);
+    req.log.info({ action: 'technician_token_refresh', technicianId: result.technician?.id });
+    res.status(200).json(result);
+  });
 }
 
 export const technicianAuthController = new TechnicianAuthController();

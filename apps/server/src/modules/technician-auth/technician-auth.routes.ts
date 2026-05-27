@@ -19,11 +19,11 @@ const documentFields = upload.fields([
   { name: 'national_id', maxCount: 1 },
 ]);
 
-router.post('/check-email', validate({ body: CheckEmailBodySchema }), (req, res) => technicianAuthController.checkEmail(req, res));
-router.post('/signup', documentFields, validate({ body: TechnicianSignUpBodySchema }), (req, res) => technicianAuthController.signUp(req, res));
-router.post('/signin', validate({ body: TechnicianSignInBodySchema }), (req, res) => technicianAuthController.signIn(req, res));
-router.post('/signout', (req, res) => technicianAuthController.signOut(req, res));
-router.get('/profile', (req, res) => technicianAuthController.getCurrentTechnician(req, res));
-router.post('/refresh', validate({ body: TechnicianRefreshTokenBodySchema }), (req, res) => technicianAuthController.refreshToken(req, res));
+router.post('/check-email', validate({ body: CheckEmailBodySchema }), technicianAuthController.checkEmail);
+router.post('/signup', documentFields, validate({ body: TechnicianSignUpBodySchema }), technicianAuthController.signUp);
+router.post('/signin', validate({ body: TechnicianSignInBodySchema }), technicianAuthController.signIn);
+router.post('/signout', technicianAuthController.signOut);
+router.get('/profile', technicianAuthController.getCurrentTechnician);
+router.post('/refresh', validate({ body: TechnicianRefreshTokenBodySchema }), technicianAuthController.refreshToken);
 
 export default router;

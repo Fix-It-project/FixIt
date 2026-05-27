@@ -1,4 +1,3 @@
-import type { Request } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	createMockReq,
@@ -16,78 +15,83 @@ vi.mock("../../reviews.service.js", () => ({
 	reviewsService: mockService,
 }));
 
-const { ReviewsController } = await import("../../reviews.controller.js");
+const { reviewsController } = await import("../../reviews.controller.js");
 
-function userWithId(id: string): NonNullable<Request["user"]> {
-	return { id } as NonNullable<Request["user"]>;
+async function runHandler(
+	handler: (req: any, res: any, next: any) => void,
+	req: any,
+	res: any,
+): Promise<{ next: ReturnType<typeof vi.fn> }> {
+	const next = vi.fn();
+	handler(req, res, next);
+	await new Promise((resolve) => setImmediate(resolve));
+	return { next };
 }
 
-function validatedReviewQuery(limit: number, offset: number): Request["query"] {
-	return { limit, offset } as unknown as Request["query"];
+function mockReq(overrides: Record<string, unknown> = {}) {
+	const req = createMockReq(overrides as never) as any;
+	req.log = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
+	return req;
 }
 
 describe("ReviewsController", () => {
-	let controller: InstanceType<typeof ReviewsController>;
-
 	beforeEach(() => {
-		controller = new ReviewsController();
 		mockService.createReviewForUser.mockReset();
 		mockService.getReviewsForTechnician.mockReset();
 	});
 
+	// ── createReview ─────────────────────────────────────────────────────────
 	describe("createReview", () => {
 		it("returns 201 with the created review on success", async () => {
 			const review = { id: "rev-1", rating: 5, comment: null };
 			mockService.createReviewForUser.mockResolvedValue(review);
 
-			const req = createMockReq({
-				body: { order_id: "ord-1", rating: 5 },
-				user: userWithId("user-1"),
+			const req = mockReq({
+				body: { order_id: "ord-1", rating: 5, technician_id: "tech-1" },
+				user: { id: "user-1" },
 			});
 			const res = createMockRes();
-
-			await controller.createReview(req, res);
+			const { next } = await runHandler(
+				reviewsController.createReview,
+				req,
+				res,
+			);
 
 			expect(mockService.createReviewForUser).toHaveBeenCalledWith("user-1", {
 				order_id: "ord-1",
 				rating: 5,
+				technician_id: "tech-1",
 			});
 			expect(res.statusCode).toBe(201);
 			expect(res.body).toEqual({ data: review });
+			expect(next).not.toHaveBeenCalled();
 		});
 
-		it("maps thrown { status, message } via normalizeError", async () => {
-			mockService.createReviewForUser.mockRejectedValue({
+		it("forwards service errors via next() without writing a response", async () => {
+			const err = Object.assign(new Error("Review already submitted"), {
 				status: 409,
-				message: "Review already submitted for this order",
 			});
+			mockService.createReviewForUser.mockRejectedValue(err);
 
-			const req = createMockReq({ body: { order_id: "ord-1", rating: 5 } });
-			req.user = userWithId("user-1");
-			const res = createMockRes();
-
-			await controller.createReview(req, res);
-
-			expect(res.statusCode).toBe(409);
-			expect(res.body).toEqual({
-				error: "Review already submitted for this order",
+			const req = mockReq({
+				body: { order_id: "ord-1", rating: 5 },
+				user: { id: "user-1" },
 			});
-		});
-
-		it("maps generic Error to 500", async () => {
-			mockService.createReviewForUser.mockRejectedValue(new Error("boom"));
-
-			const req = createMockReq({ body: { order_id: "ord-1", rating: 5 } });
-			req.user = userWithId("user-1");
 			const res = createMockRes();
+			const { next } = await runHandler(
+				reviewsController.createReview,
+				req,
+				res,
+			);
 
-			await controller.createReview(req, res);
-
-			expect(res.statusCode).toBe(500);
-			expect(res.body).toEqual({ error: "boom" });
+			expect(next).toHaveBeenCalledTimes(1);
+			expect(next.mock.calls[0]?.[0]).toBe(err);
+			expect(res.status).not.toHaveBeenCalled();
+			expect(res.json).not.toHaveBeenCalled();
 		});
 	});
 
+	// ── getTechnicianReviews ─────────────────────────────────────────────────
 	describe("getTechnicianReviews", () => {
 		it("returns 200 with the list and forwards id, limit, offset", async () => {
 			const list = [
@@ -101,13 +105,16 @@ describe("ReviewsController", () => {
 			];
 			mockService.getReviewsForTechnician.mockResolvedValue(list);
 
-			const req = createMockReq({
+			const req = mockReq({
 				params: { id: "tech-1" },
-				query: validatedReviewQuery(10, 0),
+				query: { limit: 10, offset: 0 } as unknown as never,
 			});
 			const res = createMockRes();
-
-			await controller.getTechnicianReviews(req, res);
+			const { next } = await runHandler(
+				reviewsController.getTechnicianReviews,
+				req,
+				res,
+			);
 
 			expect(mockService.getReviewsForTechnician).toHaveBeenCalledWith(
 				"tech-1",
@@ -116,23 +123,25 @@ describe("ReviewsController", () => {
 			);
 			expect(res.statusCode).toBe(200);
 			expect(res.body).toEqual({ data: list });
+			expect(next).not.toHaveBeenCalled();
 		});
 
-		it("maps thrown errors via normalizeError", async () => {
-			mockService.getReviewsForTechnician.mockRejectedValue(
-				new Error("db down"),
-			);
+		it("forwards service errors via next()", async () => {
+			mockService.getReviewsForTechnician.mockRejectedValue(new Error("db down"));
 
-			const req = createMockReq({
+			const req = mockReq({
 				params: { id: "tech-1" },
-				query: validatedReviewQuery(10, 0),
+				query: { limit: 10, offset: 0 } as unknown as never,
 			});
 			const res = createMockRes();
+			const { next } = await runHandler(
+				reviewsController.getTechnicianReviews,
+				req,
+				res,
+			);
 
-			await controller.getTechnicianReviews(req, res);
-
-			expect(res.statusCode).toBe(500);
-			expect(res.body).toEqual({ error: "db down" });
+			expect(next).toHaveBeenCalledTimes(1);
+			expect(next.mock.calls[0]?.[0]).toBeInstanceOf(Error);
 		});
 	});
 });

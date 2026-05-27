@@ -53,7 +53,32 @@ import { normalizeError } from "../../../shared/errors/index.js";
 import { requireTechnicianAuth } from "../../../shared/middlewares/technician-auth.middleware.js";
 import { requireUserAuth } from "../../../shared/middlewares/user-auth.middleware.js";
 import { validate } from "../../../shared/middlewares/validate.middleware.js";
-import { lifecycleController } from "./lifecycle.controller.js";
+import {
+	userCancelOrder,
+	userSubmitQuote,
+	userAcceptQuote,
+	userConfirmCompletion,
+	userDeclineCompletion,
+	userCheckout,
+	techAccept,
+	techDecline,
+	techCancel,
+	techStartTracking,
+	techUpsertLocation,
+	techStartInspection,
+	techFinishInspection,
+	techSubmitQuote,
+	techAcceptQuote,
+	techConfirmCompletion,
+	techDeclineCompletion,
+	techMarkCashReceived,
+	getUserOrderEvents,
+	getUserOrderQuotes,
+	getTechnicianOrderEvents,
+	getTechnicianOrderQuotes,
+	getUserOrderDistance,
+	getTechnicianOrderDistance,
+} from "./lifecycle.controller.js";
 
 const router: RouterType = Router();
 
@@ -63,35 +88,35 @@ router.post(
 	"/user/orders/:id/cancel",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema, body: CancelOrderBodySchema }),
-	lifecycleController.userCancelOrder,
+	userCancelOrder,
 );
 
 router.post(
 	"/user/orders/:id/quotes",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema, body: SubmitQuoteBodySchema }),
-	lifecycleController.userSubmitQuote,
+	userSubmitQuote,
 );
 
 router.post(
 	"/user/orders/:id/quotes/:quoteId/accept",
 	requireUserAuth,
 	validate({ params: AcceptQuoteParamsSchema }),
-	lifecycleController.userAcceptQuote,
+	userAcceptQuote,
 );
 
 router.post(
 	"/user/orders/:id/confirm-completion",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema, body: ConfirmCompletionBodySchema }),
-	lifecycleController.userConfirmCompletion,
+	userConfirmCompletion,
 );
 
 router.post(
 	"/user/orders/:id/decline-completion",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.userDeclineCompletion,
+	userDeclineCompletion,
 );
 
 router.post(
@@ -101,7 +126,7 @@ router.post(
 		params: OrderIdParamsSchema,
 		body: ChoosePaymentMethodBodySchema,
 	}),
-	lifecycleController.userCheckout,
+	userCheckout,
 );
 
 // ─── Technician surface ──────────────────────────────────────────────────────
@@ -110,84 +135,84 @@ router.post(
 	"/technician/orders/:id/accept",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.techAccept,
+	techAccept,
 );
 
 router.post(
 	"/technician/orders/:id/decline",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema, body: OrderActionBodySchema }),
-	lifecycleController.techDecline,
+	techDecline,
 );
 
 router.post(
 	"/technician/orders/:id/cancel",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema, body: OrderActionBodySchema }),
-	lifecycleController.techCancel,
+	techCancel,
 );
 
 router.post(
 	"/technician/orders/:id/start-tracking",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.techStartTracking,
+	techStartTracking,
 );
 
 router.post(
 	"/technician/orders/:id/location",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema, body: UpsertLocationBodySchema }),
-	lifecycleController.techUpsertLocation,
+	techUpsertLocation,
 );
 
 router.post(
 	"/technician/orders/:id/start-inspection",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.techStartInspection,
+	techStartInspection,
 );
 
 router.post(
 	"/technician/orders/:id/finish-inspection",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.techFinishInspection,
+	techFinishInspection,
 );
 
 router.post(
 	"/technician/orders/:id/quotes",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema, body: SubmitQuoteBodySchema }),
-	lifecycleController.techSubmitQuote,
+	techSubmitQuote,
 );
 
 router.post(
 	"/technician/orders/:id/quotes/:quoteId/accept",
 	requireTechnicianAuth,
 	validate({ params: AcceptQuoteParamsSchema }),
-	lifecycleController.techAcceptQuote,
+	techAcceptQuote,
 );
 
 router.post(
 	"/technician/orders/:id/confirm-completion",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema, body: ConfirmCompletionBodySchema }),
-	lifecycleController.techConfirmCompletion,
+	techConfirmCompletion,
 );
 
 router.post(
 	"/technician/orders/:id/decline-completion",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.techDeclineCompletion,
+	techDeclineCompletion,
 );
 
 router.post(
 	"/technician/orders/:id/mark-cash-received",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.techMarkCashReceived,
+	techMarkCashReceived,
 );
 
 // ─── GET sub-resources (events + quotes per role) ────────────────────────────
@@ -196,28 +221,28 @@ router.get(
 	"/user/orders/:id/events",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema, query: EventsQuerySchema }),
-	lifecycleController.getUserOrderEvents,
+	getUserOrderEvents,
 );
 
 router.get(
 	"/user/orders/:id/quotes",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.getUserOrderQuotes,
+	getUserOrderQuotes,
 );
 
 router.get(
 	"/technician/orders/:id/events",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema, query: EventsQuerySchema }),
-	lifecycleController.getTechnicianOrderEvents,
+	getTechnicianOrderEvents,
 );
 
 router.get(
 	"/technician/orders/:id/quotes",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.getTechnicianOrderQuotes,
+	getTechnicianOrderQuotes,
 );
 
 // ─── Distance / ETA / geofence (Phase 4a Plan 04) ───────────────────────────
@@ -226,14 +251,14 @@ router.get(
 	"/user/orders/:id/distance",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.getUserOrderDistance,
+	getUserOrderDistance,
 );
 
 router.get(
 	"/technician/orders/:id/distance",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	lifecycleController.getTechnicianOrderDistance,
+	getTechnicianOrderDistance,
 );
 
 // ─── Local error middleware (JSON envelope for `next(error)` calls) ─────────

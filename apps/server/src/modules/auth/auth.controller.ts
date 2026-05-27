@@ -1,105 +1,70 @@
-import { type Request, type Response } from 'express';
+import { type Request, type RequestHandler, type Response } from 'express';
 import { authService } from './auth.service.js';
-import { normalizeError } from '../../shared/errors/index.js';
+import { asyncHandler } from '../../shared/errors/async-handler.js';
+import { AppError } from '../../shared/errors/app-error.js';
 
 export class AuthController {
-  async signUp(req: Request, res: Response) {
-    try {
-      const { email, password, fullName, phone, address, city, street, building_no, apartment_no, latitude, longitude } = req.body;
+  signUp: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password, fullName, phone, address, city, street, building_no, apartment_no, latitude, longitude } = req.body;
+    const result = await authService.signUp(
+      { email, password, fullName, phone, address },
+      { city, street, building_no, apartment_no, latitude, longitude },
+    );
+    req.log.info({ action: 'user_signup', userId: result.user?.id });
+    res.status(201).json(result);
+  });
 
-      const result = await authService.signUp(
-        { email, password, fullName, phone, address },
-        { city, street, building_no, apartment_no, latitude, longitude },
-      );
-      return res.status(201).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 400 : status).json({ error: message });
+  signIn: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const result = await authService.signIn({ email, password });
+    req.log.info({ action: 'user_signin', userId: result.user?.id });
+    res.status(200).json(result);
+  });
+
+  signOut: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+
+    if (!token) {
+      throw AppError.unauthorized('No token provided', { token: 'no_token' });
     }
-  }
 
-  async signIn(req: Request, res: Response) {
-    try {
-      const { email, password } = req.body;
-      const result = await authService.signIn({ email, password });
-      return res.status(200).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 401 : status).json({ error: message });
-    }
-  }
+    const result = await authService.signOut(token);
+    req.log.info({ action: 'user_signout' });
+    res.status(200).json(result);
+  });
 
-  async signOut(req: Request, res: Response) {
-    try {
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.replace('Bearer ', '');
+  getCurrentUser: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    // User is already attached by requireUserAuth middleware
+    const user = (req as any).user;
+    res.status(200).json({ user });
+  });
 
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
+  refreshToken: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+    const result = await authService.refreshSession(refreshToken);
+    req.log.info({ action: 'token_refresh', userId: result.user?.id });
+    res.status(200).json(result);
+  });
 
-      const result = await authService.signOut(token);
-      return res.status(200).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 400 : status).json({ error: message });
-    }
-  }
+  requestPasswordReset: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    await authService.requestPasswordReset(email);
+    req.log.info({ action: 'password_reset_requested', email });
+    res.status(200).json({
+      message: 'Password reset email sent. Please check your inbox.',
+    });
+  });
 
-  async getCurrentUser(req: Request, res: Response) {
-    try {
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.replace('Bearer ', '');
-
-      if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-      }
-
-      const user = await authService.getCurrentUser(token);
-      return res.status(200).json({ user });
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 401 : status).json({ error: message });
-    }
-  }
-
-  async refreshToken(req: Request, res: Response) {
-    try {
-      const { refreshToken } = req.body;
-      const result = await authService.refreshSession(refreshToken);
-      return res.status(200).json(result);
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 401 : status).json({ error: message });
-    }
-  }
-
-  async requestPasswordReset(req: Request, res: Response) {
-    try {
-      const { email } = req.body;
-      await authService.requestPasswordReset(email);
-      return res.status(200).json({
-        message: 'Password reset email sent. Please check your inbox.',
-      });
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 400 : status).json({ error: message });
-    }
-  }
-
-  async resetPassword(req: Request, res: Response) {
-    try {
-      const { newPassword } = req.body;
-      const result = await authService.updatePassword(newPassword);
-      return res.status(200).json({
-        message: 'Password updated successfully',
-        user: result.user,
-      });
-    } catch (err: unknown) {
-      const { status, message } = normalizeError(err);
-      return res.status(status === 500 ? 400 : status).json({ error: message });
-    }
-  }
+  resetPassword: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { newPassword } = req.body;
+    const result = await authService.updatePassword(newPassword);
+    req.log.info({ action: 'password_reset', userId: result.user?.id });
+    res.status(200).json({
+      message: 'Password updated successfully',
+      user: result.user,
+    });
+  });
 }
 
 export const authController = new AuthController();

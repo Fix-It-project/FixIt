@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import { logger } from "../../shared/logger.js";
 import { AppError } from '../../shared/errors/index.js';
 
 const supabase = supabaseAdmin;
@@ -84,11 +85,7 @@ function mapRpcError(error: { code?: string; message?: string }): never {
   if (msg.includes('request_expired'))             throw AppError.conflict('request_expired');
   if (msg.includes('reason_required'))             throw AppError.badRequest('reason_required');
   if (msg.includes('reason_too_long'))             throw AppError.badRequest('reason_too_long');
-
-  console.error('[reschedule_rpc_failed]', {
-    code: error.code,
-    message: error.message,
-  });
+  logger.error({ code: error.code, message: error.message }, "reschedule_rpc_failed");
   throw AppError.internal(`reschedule_rpc_failed: ${msg || 'unknown_rpc_error'}`);
 }
 

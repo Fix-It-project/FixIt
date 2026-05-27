@@ -82,7 +82,7 @@ const MAPPING: ReadonlyArray<MappingRow> = [
 
 describe("mapLifecycleRpcError", () => {
 	describe.each(MAPPING)('P0001 code "$code"', ({ code, expectedStatus }) => {
-		it(`throws AppError with status ${expectedStatus} and message containing "${code}"`, () => {
+		it(`throws AppError with status ${expectedStatus} and token "${code}"`, () => {
 			let caught: unknown;
 			try {
 				mapLifecycleRpcError({ code: "P0001", message: code });
@@ -92,7 +92,9 @@ describe("mapLifecycleRpcError", () => {
 			expect(caught).toBeInstanceOf(AppError);
 			const appErr = caught as AppError;
 			expect(appErr.status).toBe(expectedStatus);
-			expect(appErr.message).toContain(code);
+			expect(appErr.opts.token).toBe(code);
+			expect(appErr.userMessage).toBeTruthy();
+			expect(appErr.userMessage).not.toBe(code);
 		});
 	});
 
@@ -110,8 +112,9 @@ describe("mapLifecycleRpcError", () => {
 		expect(caught).toBeInstanceOf(AppError);
 		const appErr = caught as AppError;
 		expect(appErr.status).toBe(409);
-		expect(appErr.message).toContain("too_far_from_destination");
-		expect(appErr.message).toContain("current distance 2.34 km");
+		expect(appErr.opts.token).toBe("too_far_from_destination");
+		expect(appErr.userMessage).toContain("current distance 2.34 km");
+		expect(appErr.opts.devMessage).toBe("current distance 2.34 km");
 	});
 
 	it("rethrows unknown errors unchanged (NOT wrapped in AppError)", () => {
@@ -138,7 +141,7 @@ describe("mapLifecycleRpcError", () => {
 			caught = err;
 		}
 		expect(caught).toBeInstanceOf(AppError);
-		expect((caught as AppError).message).toBe("order_not_found_or_not_owner");
+		expect((caught as AppError).opts.token).toBe("order_not_found_or_not_owner");
 		expect((caught as AppError).status).toBe(404);
 	});
 });
@@ -191,6 +194,6 @@ describe("LifecycleRepository.getOrderDistance", () => {
 		}
 		expect(caught).toBeInstanceOf(AppError);
 		expect((caught as AppError).status).toBe(404);
-		expect((caught as AppError).message).toContain("order_not_found");
+		expect((caught as AppError).opts.token).toBe("order_not_found");
 	});
 });

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
+import { logger } from "../../shared/logger.js";
 import type { OrderQuote } from "./lifecycle/lifecycle.repository.js";
 import { type Order, ordersRepository } from "./orders.repository.js";
 import { rescheduleRepository } from "./reschedule.repository.js";
@@ -67,11 +68,7 @@ export class OrdersService {
 			if (error) throw error;
 			quote = (data as OrderQuote | null) ?? null;
 		} catch (err) {
-			console.error("[orders.service] failed to load active_quote", {
-				orderId: order.id,
-				err,
-			});
-			quote = null;
+			logger.error({ orderId: order.id, err }, "[orders.service] failed to load active_quote");
 		}
 		(order as unknown as Record<string, unknown>).active_quote = quote;
 		return order;

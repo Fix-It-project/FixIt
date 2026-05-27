@@ -9,5 +9,3 @@ export {
   type TechnicianListDTO,
 } from './technicians.repository.js';
 export { TechniciansService, type ITechniciansService } from './technicians.service.js';
-export { TechniciansController } from './technicians.controller.js';
-export { techniciansRoutes, technicianProfileRoutes, technicianSelfRoutes } from './technicians.routes.js';

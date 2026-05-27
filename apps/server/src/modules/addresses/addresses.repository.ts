@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import { logger } from '../../shared/logger.js';
 
 const supabase = supabaseAdmin;
 
@@ -50,7 +51,7 @@ export interface IAddressesRepository {
 export class AddressesRepository implements IAddressesRepository {
   async createAddress(data: CreateAddressData) {
     try {
-      console.log('Creating address with data:', data);
+      logger.info({ data }, "Creating address with data");
 
       const { data: address, error } = await supabase
         .from('addresses')
@@ -69,10 +70,10 @@ export class AddressesRepository implements IAddressesRepository {
         .single();
 
       if (error) throw error;
-      console.log('Inserted address:', address);
+      logger.info({ address }, "Inserted address");
       return address;
     } catch (error) {
-      console.error('Error inserting address:', error);
+      logger.error({ error }, "Error inserting address");
       throw error;
     }
   }

@@ -15,7 +15,7 @@ router.post(
 	"/",
 	requireUserAuth,
 	validate({ body: CreateReviewBodySchema }),
-	(req, res) => reviewsController.createReview(req, res),
+	reviewsController.createReview,
 );
 
 router.get(
@@ -25,7 +25,7 @@ router.get(
 		params: TechnicianIdParamsSchema,
 		query: TechnicianReviewsQuerySchema,
 	}),
-	(req, res) => reviewsController.getTechnicianReviews(req, res),
+	reviewsController.getTechnicianReviews,
 );
 
 export default router;
