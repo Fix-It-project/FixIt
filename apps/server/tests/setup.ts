@@ -3,3 +3,7 @@
 process.env.SUPABASE_URL = 'http://localhost:54321';
 process.env.SUPABASE_ANON_KEY = 'test-anon-key';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+process.env.SUPABASE_CONNECTION_STRING = 'postgresql://postgres:postgres@localhost:54322/postgres';
+process.env.CORS_ORIGIN = 'http://localhost:3000';
+process.env.STORAGE_BUCKET = 'test-storage-bucket';
+process.env.ORDER_BUCKET = 'test-order-bucket';
