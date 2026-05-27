@@ -1,0 +1,22 @@
+{
+	"name": "@FixIt/errors",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@FixIt/config": "workspace:*",
+		"@types/node": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "^4.1.2"
+	},
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest"
+	}
+}

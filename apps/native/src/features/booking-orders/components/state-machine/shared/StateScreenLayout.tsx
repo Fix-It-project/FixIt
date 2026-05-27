@@ -23,10 +23,9 @@ interface StateScreenLayoutProps {
 }
 
 function toVisibleStepIndex(lifecycleStepIndex: number): number {
-	if (lifecycleStepIndex >= 3 && lifecycleStepIndex <= 6) {
-		return lifecycleStepIndex - 2;
-	}
-	return 1;
+	if (lifecycleStepIndex < 3) return 0;
+	if (lifecycleStepIndex > 6) return 4;
+	return lifecycleStepIndex - 2;
 }
 
 export default function StateScreenLayout({

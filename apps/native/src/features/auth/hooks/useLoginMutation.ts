@@ -8,6 +8,7 @@ export function useLoginMutation() {
 	const { setSession } = useAuthStore();
 
 	return useMutation({
+		mutationKey: ["auth", "login"],
 		mutationFn: (data: { email: string; password: string }) => signIn(data),
 		onSuccess: async (response) => {
 			await setSession(

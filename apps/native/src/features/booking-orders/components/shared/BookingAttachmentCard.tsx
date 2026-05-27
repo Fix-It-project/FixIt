@@ -1,10 +1,6 @@
 import { Image } from "expo-image";
-import {
-	Linking,
-	TouchableOpacity,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { Linking, TouchableOpacity, View } from "react-native";
+import { AspectRatio } from "@/src/components/ui/aspect-ratio";
 import { Text } from "@/src/components/ui/text";
 
 interface Props {
@@ -12,8 +8,6 @@ interface Props {
 }
 
 export default function BookingAttachmentCard({ uri }: Props) {
-	const { width } = useWindowDimensions();
-	const imageHeight = Math.max(180, Math.min(width * 0.58, 280));
 	return (
 		<View className="mb-stack-lg overflow-hidden rounded-card border border-edge bg-surface">
 			<View className="px-card pt-card pb-stack-md">
@@ -25,11 +19,9 @@ export default function BookingAttachmentCard({ uri }: Props) {
 				activeOpacity={0.85}
 				onPress={() => Linking.openURL(uri)}
 			>
-				<Image
-					source={{ uri }}
-					contentFit="cover"
-					style={{ width: "100%", height: imageHeight }}
-				/>
+				<AspectRatio ratio={16 / 9}>
+					<Image source={{ uri }} contentFit="cover" style={{ flex: 1 }} />
+				</AspectRatio>
 			</TouchableOpacity>
 		</View>
 	);

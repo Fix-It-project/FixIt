@@ -15,7 +15,8 @@ import {
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import type { UploadDocumentInput } from "@/src/features/auth/utils/signup-helpers";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
+import { logger } from "@/src/lib/logger";
 import { useThemeColors } from "@/src/lib/theme";
 
 const DOCUMENT_PICKER_TYPES = [
@@ -51,6 +52,7 @@ export default function TechnicianSignUpStep5() {
 	const [address, setAddress] = useState(store.address);
 	const [buildingNumber, setBuildingNumber] = useState(store.buildingNumber);
 	const [apartmentNumber, setApartmentNumber] = useState(store.apartmentNumber);
+	const [documentError, setDocumentError] = useState<string | null>(null);
 
 	const signUpMutation = useTechnicianSignUpMutation();
 	const { fieldErrors, error, clearFieldError, validate } =
@@ -60,20 +62,27 @@ export default function TechnicianSignUpStep5() {
 		setter: (document: UploadDocumentInput) => void,
 		field: keyof TechStep5Data,
 	) => {
-		const result = await DocumentPicker.getDocumentAsync({
-			type: DOCUMENT_PICKER_TYPES,
-			multiple: false,
-			copyToCacheDirectory: true,
-		});
-
-		if (!result.canceled && result.assets[0]) {
-			const asset = result.assets[0];
-			setter({
-				uri: asset.uri,
-				name: asset.name,
-				type: asset.mimeType ?? "application/octet-stream",
+		try {
+			const result = await DocumentPicker.getDocumentAsync({
+				type: DOCUMENT_PICKER_TYPES,
+				multiple: false,
+				copyToCacheDirectory: true,
 			});
-			clearFieldError(field);
+
+			if (!result.canceled && result.assets[0]) {
+				const asset = result.assets[0];
+				setter({
+					uri: asset.uri,
+					name: asset.name,
+					type: asset.mimeType ?? "application/octet-stream",
+				});
+				setDocumentError(null);
+				clearFieldError(field);
+				logger.info("auth.signup", "technician_document_selected", { field });
+			}
+		} catch (error) {
+			logger.error("auth.signup", "technician_document_picker_failed", error);
+			setDocumentError(getErrorMessage(error));
 		}
 	};
 
@@ -116,7 +125,7 @@ export default function TechnicianSignUpStep5() {
 
 	const errorMessage = signUpMutation.error
 		? getErrorMessage(signUpMutation.error)
-		: error;
+		: (error ?? documentError);
 
 	const isFormValid =
 		!!nationalId &&

@@ -1,9 +1,9 @@
 // Auto-growing multiline reason input used by RescheduleSheet.
 // Owns its own grow-to-content height clamp.
 
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useState } from "react";
-import { radius, space, useThemeColors } from "@/src/lib/theme";
+import { Textarea } from "@/src/components/ui/textarea";
+import { space } from "@/src/lib/theme";
 
 const MIN_HEIGHT = 56;
 const MAX_HEIGHT = 160;
@@ -21,17 +21,16 @@ export default function ReasonTextarea({
 	editable,
 	placeholder = "Why are you rescheduling?",
 }: ReasonTextareaProps) {
-	const themeColors = useThemeColors();
 	const [height, setHeight] = useState(MIN_HEIGHT);
 
 	return (
-		<BottomSheetTextInput
+		<Textarea
 			value={value}
 			onChangeText={onChangeText}
 			placeholder={placeholder}
-			placeholderTextColor={themeColors.textMuted}
-			multiline
 			editable={editable}
+			autoCorrect={false}
+			spellCheck={false}
 			onContentSizeChange={(e) => {
 				const next = e.nativeEvent.contentSize.height;
 				setHeight(Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, next)));
@@ -40,16 +39,8 @@ export default function ReasonTextarea({
 				height,
 				maxHeight: MAX_HEIGHT,
 				marginTop: space[4],
-				paddingHorizontal: space[4],
-				paddingVertical: 0,
-				borderRadius: radius.button,
-				borderWidth: 1,
-				borderColor: themeColors.borderDefault,
-				backgroundColor: themeColors.surfaceElevated,
-				color: themeColors.textPrimary,
-				textAlignVertical: "center",
-				opacity: editable ? 1 : 0.6,
 			}}
+			className="bg-surface-elevated"
 		/>
 	);
 }

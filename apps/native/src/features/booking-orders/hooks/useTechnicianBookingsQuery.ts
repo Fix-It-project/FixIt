@@ -39,8 +39,6 @@ export function useTechnicianBookingsQuery() {
 			return getTechnicianBookings(user.id);
 		},
 		enabled: !!user?.id,
-		refetchInterval: 10_000,
-		refetchIntervalInBackground: false,
 	});
 }
 

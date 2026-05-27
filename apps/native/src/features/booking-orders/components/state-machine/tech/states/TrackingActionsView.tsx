@@ -2,17 +2,15 @@ import { Ban, MapPin, Navigation } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { Linking, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
-	IconActionButton,
 	OrderInfoCompact,
-	StageActionRow,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
-import { BookingCancelModal } from "@/src/features/booking-orders/components/tech";
 import {
 	useOrderDistance,
 	useTechCancel,
@@ -23,6 +21,8 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import { logger } from "@/src/lib/logger";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
 
 interface Props {
@@ -71,7 +71,11 @@ export default function TrackingBody({ order }: Props) {
 					alignSelf: "flex-start",
 				}}
 			>
-				<MapPin size={spacing.icon.caption} color={themeColors.primary} strokeWidth={2.4} />
+				<MapPin
+					size={spacing.icon.caption}
+					color={themeColors.primary}
+					strokeWidth={2.4}
+				/>
 				<Text
 					variant="bodySm"
 					className="font-google-sans-bold"
@@ -91,7 +95,10 @@ export default function TrackingBody({ order }: Props) {
 						gap: space[2],
 					}}
 				>
-					<Text variant="bodySm" style={{ color: themeColors.warning, flex: 1 }}>
+					<Text
+						variant="bodySm"
+						style={{ color: themeColors.warning, flex: 1 }}
+					>
 						Location access needed for live ETA.
 					</Text>
 					<Text
@@ -99,9 +106,7 @@ export default function TrackingBody({ order }: Props) {
 						className="font-google-sans-bold"
 						style={{ color: themeColors.primary }}
 						onPress={
-							canAskAgain
-								? requestPermission
-								: () => Linking.openSettings()
+							canAskAgain ? requestPermission : () => Linking.openSettings()
 						}
 					>
 						{canAskAgain ? "Grant" : "Open Settings"}
@@ -143,12 +148,16 @@ export function TrackingCta({ order }: Props) {
 		markArrived.mutate(
 			{ orderId: order.id },
 			{
-				onError: (err: Error) =>
+				onError: (err) => {
+					logger.warn("booking.lifecycle", "mark_arrived_failed", {
+						orderId: order.id,
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Couldn't mark arrived",
-						text2: err.message ?? "Get within 1 km first",
-					}),
+						text2: translateOrderError(err),
+					});
+				},
 			},
 		);
 	};
@@ -163,40 +172,53 @@ export function TrackingCta({ order }: Props) {
 					setCancelReason("");
 					Toast.show({ type: "success", text1: "Job cancelled" });
 				},
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.lifecycle", "tracking_cancel_failed", {
+						orderId: order.id,
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Could not cancel",
-						text2: err.message,
-					}),
+						text2: translateOrderError(err),
+					});
+				},
 			},
 		);
 	};
 
 	return (
 		<>
-			<StageActionRow
-				primary={
-					<StagePrimaryAction
-						label={withinGeofence ? "I've arrived" : "Out of range"}
-						icon={MapPin}
+			<View className="flex-row items-center gap-stack-md">
+				<View className="flex-1">
+					<Button
+						variant="primary"
+						size="lg"
+						fullWidth
+						iconLeft={MapPin}
 						onPress={handleArrive}
 						disabled={!withinGeofence}
-						pending={markArrived.isPending}
-					/>
-				}
-				trailing={
-					<IconActionButton
-						icon={Ban}
-						tone="danger"
+						loading={markArrived.isPending}
+					>
+						{withinGeofence ? "I've arrived" : "Out of range"}
+					</Button>
+				</View>
+				<View className="shrink-0">
+					<Button
+						variant="destructive"
+						size="icon"
 						accessibilityLabel="Cancel job"
 						onPress={() => setCancelOpen(true)}
-					/>
-				}
-			/>
-			<BookingCancelModal
+					>
+						<Ban size={20} />
+					</Button>
+				</View>
+			</View>
+			<CancelReasonModal
 				visible={cancelOpen}
-				clientName={booking.user_name}
+				title="Cancel Booking"
+				subjectRole="booking"
+				subjectName={booking.user_name}
+				subjectFallback="this client"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {
