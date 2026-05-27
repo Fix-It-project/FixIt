@@ -2,6 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Eye, EyeOff } from "lucide-react-native";
 import * as React from "react";
 import { Pressable, TextInput, type TextInputProps, View } from "react-native";
+import { logger } from "@/src/lib/logger";
 import { typography, useThemeColors } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
 
@@ -54,8 +55,9 @@ const Input = React.forwardRef<TextInput, InputProps>(
 		const hasSecureToggle = secureToggle ?? false;
 
 		if (__DEV__ && hasSecureToggle && isMultiline) {
-			console.warn(
-				"[Input] secureToggle is ignored when multiline=true — password fields are never multiline.",
+			logger.warn(
+				"Input",
+				"secureToggle is ignored when multiline=true — password fields are never multiline.",
 			);
 		}
 

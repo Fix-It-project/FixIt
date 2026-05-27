@@ -60,9 +60,36 @@
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
         "noUselessElse": "error"
+      },
+      "suspicious": {
+        "noConsole": {
+          "level": "error",
+          "options": { "allow": ["assert"] }
+        }
       }
     }
   },
+  "plugins": [
+    "./biome/plugins/no-raw-error-toast.grit",
+    "./biome/plugins/no-rendered-error-message.grit"
+  ],
+  "overrides": [
+    {
+      "includes": [
+        "apps/native/src/lib/logger.ts",
+        "apps/server/src/shared/logger.ts",
+        "packages/errors/**",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/__tests__/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": { "noConsole": "off" }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double"

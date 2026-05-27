@@ -4,7 +4,7 @@ import {
 	getChangedFields,
 	hasChangedFields,
 } from "@/src/features/profile/utils/profile-form";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 
 type StringFields = Record<string, string>;
 

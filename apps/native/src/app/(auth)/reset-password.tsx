@@ -17,7 +17,7 @@ import {
 	type RecoverySession,
 } from "@/src/features/auth/utils/recovery-session";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
 

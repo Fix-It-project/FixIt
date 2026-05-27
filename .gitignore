@@ -63,3 +63,4 @@ documentation/agent_docs/*
 .planning/
 supabase/
 AGENTS.md
+node-compile-cache/

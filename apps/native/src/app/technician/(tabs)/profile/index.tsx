@@ -9,7 +9,7 @@ import ProfileInfoCard from "@/src/features/tech-self/components/tech/ProfileInf
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 import { useUploadTechProfileImageMutation } from "@/src/features/tech-self/hooks/useUploadTechProfileImageMutation";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 import { ROUTES } from "@/src/lib/routes";
 
 export default function TechnicianProfileRoute() {

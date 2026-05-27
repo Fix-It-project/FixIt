@@ -40,7 +40,7 @@ export default function WorkInProgressView({ order }: Props) {
 			{
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: `Could not ${label}`,
 						text2: err.message,
 					}),
@@ -115,7 +115,7 @@ export function WorkInProgressViewCta({ order }: Props) {
 				},
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Failed to cancel order",
 						text2: err.message,
 					}),
@@ -138,7 +138,7 @@ export function WorkInProgressViewCta({ order }: Props) {
 								{
 									onError: (err) =>
 										Toast.show({
-											type: "error",
+											type: "info",
 											text1: "Could not confirm",
 											text2: err.message,
 										}),

@@ -114,7 +114,7 @@ export default function RescheduleRequestPanel({
 					Toast.show({ type: "success", text1: "Reschedule approved" }),
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Approve failed",
 						text2: translateOrderError(err),
 					}),
@@ -137,7 +137,7 @@ export default function RescheduleRequestPanel({
 					Toast.show({ type: "success", text1: "Reschedule rejected" }),
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Reject failed",
 						text2: translateOrderError(err),
 					}),
@@ -153,7 +153,7 @@ export default function RescheduleRequestPanel({
 					Toast.show({ type: "success", text1: "Request withdrawn" }),
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Withdraw failed",
 						text2: translateOrderError(err),
 					}),

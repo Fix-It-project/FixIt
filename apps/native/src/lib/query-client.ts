@@ -1,30 +1,92 @@
-import { focusManager, QueryClient } from "@tanstack/react-query";
+import { isRetryable } from "@FixIt/errors";
+import {
+	focusManager,
+	MutationCache,
+	onlineManager,
+	QueryCache,
+	QueryClient,
+} from "@tanstack/react-query";
+import * as Network from "expo-network";
 import { AppState, type AppStateStatus, Platform } from "react-native";
+import { showError } from "@/src/lib/errors/show-error";
+import { toAppError } from "@/src/lib/errors/to-app-error";
+import { logger } from "@/src/lib/logger";
+
+// Noise-control dedupe — bounded by (distinct AppErrorCode) × (distinct queryKey heads).
+// Realistic ceiling ~100 entries over a long session. If growth becomes a concern,
+// add a periodic prune (entries older than 60s).
+const dedupeMap = new Map<string, number>();
+const DEDUPE_WINDOW_MS = 2000;
+
+type CacheSource = "query" | "mutation";
+type CacheMeta = { showToast?: boolean; background?: boolean } | undefined;
+
+function handleCacheError(
+	err: unknown,
+	source: CacheSource,
+	key: readonly unknown[],
+	meta: CacheMeta,
+): void {
+	const app = toAppError(err);
+	const keyHead = String(key[0] ?? "unknown");
+
+	logger.error(source, keyHead, err);
+
+	if (meta?.showToast === false) return;
+	if (meta?.background === true) return;
+	if (app.code === "UNAUTHENTICATED") return;
+	if (
+		app.code === "VALIDATION" ||
+		app.code === "FORBIDDEN" ||
+		app.code === "NOT_FOUND"
+	)
+		return;
+	if (app.code === "NETWORK" || app.code === "OFFLINE" || app.code === "TIMEOUT")
+		return;
+
+	const dedupeKey = `${app.code}:${keyHead}`;
+	const now = Date.now();
+	const last = dedupeMap.get(dedupeKey);
+	if (last !== undefined && now - last < DEDUPE_WINDOW_MS) return;
+	dedupeMap.set(dedupeKey, now);
+
+	showError(app);
+}
+
+const queryCache = new QueryCache({
+	onError: (err, query) =>
+		handleCacheError(err, "query", query.queryKey, query.meta as CacheMeta),
+});
+
+const mutationCache = new MutationCache({
+	onError: (err, _vars, _ctx, mutation) =>
+		handleCacheError(
+			err,
+			"mutation",
+			mutation.options.mutationKey ?? [],
+			mutation.options.meta as CacheMeta,
+		),
+});
 
 const queryClient = new QueryClient({
+	queryCache,
+	mutationCache,
 	defaultOptions: {
 		mutations: {
 			retry: false,
 		},
 		queries: {
-			retry: 2,
-			// Keep cached data for 30s before considering it stale; this lets
-			// foreground/focus invalidation kick in promptly when the app returns
-			// from background without making every interaction refetch.
+			retry: (failureCount, error) =>
+				isRetryable(toAppError(error)) && failureCount < 2,
+			// networkMode intentionally NOT set — defaults to 'online'. FixIt has
+			// no offline cache layer. (CONTEXT.md D-NET-02)
 			staleTime: 30 * 1000,
-			// Refetch on mount when stale + on screen focus → ensures the UI
-			// reflects current server state whenever the user revisits a screen.
 			refetchOnMount: true,
 			refetchOnReconnect: true,
 		},
 	},
 });
 
-// React Query's `focusManager` is wired to web's window focus event by default.
-// On React Native we forward AppState changes so a background→active transition
-// triggers `refetchOnWindowFocus` for active queries — the canonical pattern
-// from the React Query RN docs. Server is the source of truth; the quote /
-// lifecycle UI is driven by these queries.
 function onAppStateChange(status: AppStateStatus) {
 	if (Platform.OS !== "web") {
 		focusManager.setFocused(status === "active");
@@ -36,8 +98,16 @@ const appStateSubscription = AppState.addEventListener(
 	onAppStateChange,
 );
 
-// Expose for tests / cleanup; in normal app lifetime this lives for the whole
-// process and never needs to be removed.
 export const __appStateSubscription = appStateSubscription;
+
+onlineManager.setEventListener((setOnline) => {
+	Network.getNetworkStateAsync().then((s) =>
+		setOnline(!!s.isInternetReachable),
+	);
+	const sub = Network.addNetworkStateListener((s) => {
+		setOnline(!!s.isInternetReachable);
+	});
+	return () => sub.remove();
+});
 
 export default queryClient;

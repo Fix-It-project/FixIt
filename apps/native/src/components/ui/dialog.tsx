@@ -40,6 +40,7 @@ type DialogProps = {
 	dismissible?: boolean;
 	children?: React.ReactNode;
 	accessibilityRoleOverride?: "alert" | "none";
+	keyboardVerticalOffset?: number;
 };
 
 type DialogComponent = ((props: DialogProps) => React.ReactNode) & {
@@ -73,9 +74,11 @@ function NativeOnlyAnimatedView(
 function DialogOverlay({
 	children,
 	dismissible,
+	keyboardVerticalOffset = 0,
 }: {
 	children: React.ReactNode;
 	dismissible: boolean;
+	keyboardVerticalOffset?: number;
 }) {
 	const themeColors = useThemeColors();
 
@@ -99,6 +102,7 @@ function DialogOverlay({
 					>
 						<KeyboardAvoidingView
 							behavior="position"
+							keyboardVerticalOffset={keyboardVerticalOffset}
 							style={styles.keyboardAvoidingView}
 						>
 							{children}
@@ -198,6 +202,7 @@ function ReusablesDialog({
 	dismissible = true,
 	children,
 	accessibilityRoleOverride = "none",
+	keyboardVerticalOffset,
 }: DialogProps) {
 	const handleOpenChange = React.useCallback(
 		(open: boolean) => {
@@ -214,7 +219,10 @@ function ReusablesDialog({
 	return (
 		<DialogRoot open={visible} onOpenChange={handleOpenChange}>
 			<DialogPortal hostName="dialog-root">
-				<DialogOverlay dismissible={dismissible}>
+				<DialogOverlay
+					dismissible={dismissible}
+					keyboardVerticalOffset={keyboardVerticalOffset}
+				>
 					<DialogContent accessibilityRoleOverride={accessibilityRoleOverride}>
 						{children}
 					</DialogContent>

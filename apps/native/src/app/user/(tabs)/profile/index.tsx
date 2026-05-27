@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { Alert } from "react-native";
 import { confirm } from "@/src/components/ui/dialog";
 import { useLogoutMutation } from "@/src/features/auth/hooks/useLogoutMutation";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
@@ -8,6 +7,7 @@ import ProfileMenuSection from "@/src/features/profile/components/ProfileMenuSec
 import ProfileInfoCard from "@/src/features/users/components/user/ProfileInfoCard";
 import { useProfileQuery } from "@/src/features/users/hooks/useProfileQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
+import { showError } from "@/src/lib/errors/show-error";
 import { ROUTES } from "@/src/lib/routes";
 
 export default function UserProfileRoute() {
@@ -40,9 +40,7 @@ export default function UserProfileRoute() {
 		});
 		if (ok) {
 			logout.mutate(undefined, {
-				onError: (error) =>
-					// TODO Phase 12: convert to Toast (info-only alert)
-					Alert.alert("Logout failed", error.message || "Something went wrong."),
+				onError: (error) => showError(error),
 			});
 		}
 	};

@@ -49,7 +49,7 @@ export default function WorkCompleteConfirmModal({
 				},
 				onError: (err) => {
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Action failed",
 						text2: err instanceof Error ? err.message : "Please try again.",
 					});

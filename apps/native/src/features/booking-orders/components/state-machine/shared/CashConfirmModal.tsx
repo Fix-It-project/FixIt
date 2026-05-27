@@ -35,7 +35,7 @@ export default function CashConfirmModal({
 				},
 				onError: (err) => {
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Payment confirmation failed",
 						text2: err instanceof Error ? err.message : "Please try again.",
 					});

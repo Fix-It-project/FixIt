@@ -65,7 +65,7 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 			const parsed = Number.parseInt(amount, 10);
 			if (!Number.isInteger(parsed) || parsed <= 0) {
 				Toast.show({
-					type: "error",
+					type: "info",
 					text1: "Invalid amount",
 					text2: "Enter a positive whole number.",
 				});
@@ -73,7 +73,7 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 			}
 			if (typeof previousAmount === "number" && parsed === previousAmount) {
 				Toast.show({
-					type: "error",
+					type: "info",
 					text1: "Same amount",
 					text2: "Your offer must differ from the last one.",
 				});

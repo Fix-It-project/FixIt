@@ -11,7 +11,7 @@ import AddressFormSection from "@/src/features/address-entry/components/AddressF
 import { useAddAddressMutation } from "@/src/features/addresses/hooks/useAddAddressMutation";
 import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
 export default function AddAddressScreen() {

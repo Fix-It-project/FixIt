@@ -26,8 +26,9 @@ import type {
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
 import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { logger } from "@/src/lib/logger";
 import { space, useThemeColors } from "@/src/lib/theme";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface Props {
 	readonly order: Order;
@@ -98,13 +99,12 @@ export function AcceptedCta({ order }: Props) {
 			{
 				onError: (err) => {
 					const axiosErr = err as AxiosError<{ error?: string }>;
-					console.warn(
-						"[lifecycle-error]",
-						axiosErr?.response?.status,
-						axiosErr?.response?.data,
-					);
+					logger.warn("lifecycle-error", "start tracking failed", {
+						status: axiosErr?.response?.status,
+						data: axiosErr?.response?.data,
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Couldn't start tracking",
 						text2: translateOrderError(err),
 					});
@@ -125,7 +125,7 @@ export function AcceptedCta({ order }: Props) {
 				},
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Could not cancel",
 						text2: translateOrderError(err),
 					}),

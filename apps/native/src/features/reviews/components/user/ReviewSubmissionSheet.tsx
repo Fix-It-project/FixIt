@@ -114,7 +114,8 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
 					<KeyboardAwareScrollView
-						ScrollViewComponent={KeyboardAwareBottomSheetScrollView}
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						ScrollViewComponent={KeyboardAwareBottomSheetScrollView as any}
 						className="flex-1"
 						showsVerticalScrollIndicator={false}
 						keyboardDismissMode="interactive"

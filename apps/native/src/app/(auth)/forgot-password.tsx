@@ -7,7 +7,7 @@ import { useCooldownTimer } from "@/src/features/auth/hooks/useCooldownTimer";
 import { useForgotPasswordMutation } from "@/src/features/auth/hooks/useForgotPasswordMutation";
 import { forgotPasswordSchema } from "@/src/features/auth/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 
 const COOLDOWN_SECONDS = 30;
 

@@ -11,6 +11,7 @@ import {
 import { File } from "expo-file-system";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
+import { logger } from "@/src/lib/logger";
 
 export type AudioRecorderState = "idle" | "recording" | "recorded";
 
@@ -105,7 +106,7 @@ export function useAudioRecorder() {
       recorder.record();
       setRecorderState("recording");
     } catch (err) {
-      console.error("Failed to start recording:", err);
+      logger.error("useAudioRecorder", "Failed to start recording", err);
       // TODO Phase 12: convert to Toast (info-only alert — OVR-02)
       Alert.alert("Recording failed", "Could not start the microphone. Please try again.");
       setRecorderState("idle");
@@ -133,7 +134,7 @@ export function useAudioRecorder() {
       setRecorderState("recorded");
       return result;
     } catch (err) {
-      console.error("Failed to stop recording:", err);
+      logger.error("useAudioRecorder", "Failed to stop recording", err);
       setRecorderState("idle");
       return null;
     }

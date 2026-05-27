@@ -13,7 +13,7 @@ import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { useSignUpMutation } from "@/src/features/auth/hooks/useSignUpMutation";
 import { signUpSchema } from "@/src/features/auth/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 import { useThemeColors } from "@/src/lib/theme";
 import { useLocationStore } from "@/src/stores/location-store";
 

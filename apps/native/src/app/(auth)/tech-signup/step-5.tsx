@@ -15,7 +15,7 @@ import {
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import type { UploadDocumentInput } from "@/src/features/auth/utils/signup-helpers";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 import { useThemeColors } from "@/src/lib/theme";
 
 const DOCUMENT_PICKER_TYPES = [

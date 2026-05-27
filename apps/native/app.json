@@ -7,7 +7,6 @@
     "icon": "./src/assets/images/fixit.png",
     "scheme": "fixitapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.fixitapp",
@@ -22,7 +21,6 @@
         "backgroundImage": "./src/assets/images/android-icon-background.png",
         "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.fixitapp",
       "permissions": [
@@ -66,11 +64,11 @@
           "locationWhenInUsePermission": "FixIt needs your location to connect you with nearby technicians."
         }
       ],
-      "@sentry/react-native",
       "expo-font",
       "expo-audio",
       "expo-web-browser",
-      "expo-asset"
+      "expo-asset",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

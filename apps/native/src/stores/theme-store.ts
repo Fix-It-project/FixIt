@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { logger } from "@/src/lib/logger";
 import { themeIds } from "@/src/lib/theme/definitions";
 import type { ThemeId, ThemePreference } from "@/src/lib/theme/types";
 
@@ -21,7 +22,7 @@ export const useThemeStore = create<ThemeState>((set) => ({
 		try {
 			await AsyncStorage.setItem(STORAGE_KEY, preference);
 		} catch (error) {
-			console.error("[ThemeStore] Failed to persist preference:", error);
+			logger.error("ThemeStore", "Failed to persist preference", error);
 		}
 	},
 
@@ -34,7 +35,7 @@ export const useThemeStore = create<ThemeState>((set) => ({
 				set({ isLoaded: true });
 			}
 		} catch (error) {
-			console.error("[ThemeStore] Failed to load preference:", error);
+			logger.error("ThemeStore", "Failed to load preference", error);
 			set({ isLoaded: true });
 		}
 	},

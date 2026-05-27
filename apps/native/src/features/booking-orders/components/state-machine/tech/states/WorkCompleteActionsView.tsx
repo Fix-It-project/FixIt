@@ -42,7 +42,7 @@ export default function WorkCompleteBody({ order }: Props) {
 			{
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: `Could not ${label}`,
 						text2: err.message,
 					}),
@@ -120,7 +120,7 @@ export function WorkCompleteCta({ order }: Props) {
 				},
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Failed to cancel",
 						text2: err.message,
 					}),
@@ -143,7 +143,7 @@ export function WorkCompleteCta({ order }: Props) {
 								{
 									onError: (err) =>
 										Toast.show({
-											type: "error",
+											type: "info",
 											text1: "Could not confirm",
 											text2: err.message,
 										}),

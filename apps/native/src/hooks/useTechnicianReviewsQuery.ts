@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getTechnicianReviews } from "@/src/features/reviews/api/reviews";
 import { reviewQueryKeys } from "@/src/features/reviews/query-keys";
 import type { TechnicianReviewsResponse } from "@/src/features/reviews/schemas/review.schema";
+import { logger } from "@/src/lib/logger";
 
 /**
  * Fetches paginated reviews for a specific technician (user-auth).
@@ -21,7 +22,7 @@ export function useTechnicianReviewsQuery(
 			try {
 				return await getTechnicianReviews(technicianId, { limit, offset });
 			} catch (error) {
-				console.warn("[useTechnicianReviewsQuery] API error:", error);
+				logger.warn("useTechnicianReviewsQuery", "API error", { error: String(error) });
 				throw error;
 			}
 		},

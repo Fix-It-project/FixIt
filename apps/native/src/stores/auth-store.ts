@@ -1,6 +1,8 @@
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import type { AuthUser } from "@/src/features/auth/schemas/response.schema";
+import { logger } from "@/src/lib/logger";
+import * as monitoring from "@/src/lib/monitoring";
 import { supabase } from "@/src/lib/supabase";
 
 // ─── Secure Storage Keys ─────────────────────────────────────────────────────
@@ -46,11 +48,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	isAuthenticated: false,
 	isLoading: true,
 	setSession: async (user, accessToken, refreshToken, userType = "user") => {
-		console.log("[AuthStore] setSession called:", {
-			user,
+		logger.debug("AuthStore", "setSession", {
+			userId: user.id,
+			role: userType,
 			hasAccessToken: !!accessToken,
 			hasRefreshToken: !!refreshToken,
-			userType,
 		});
 
 		try {
@@ -76,13 +78,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				isLoading: false,
 			});
 
-			console.log("[AuthStore] State after setSession:", {
-				isAuthenticated: true,
-				user,
-				userType,
+			logger.debug("AuthStore", "session set", {
+				userId: user.id,
+				role: userType,
 			});
+
+			monitoring.setUser({ id: user.id, role: userType });
 		} catch (error) {
-			console.error("[AuthStore] Failed to persist session:", error);
+			logger.error("AuthStore", "Failed to persist session", error);
 			throw error;
 		}
 	},
@@ -90,13 +93,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	// ── Clear Session (logout / auth failure) ────────────────────────────────
 
 	clearSession: async () => {
-		console.log("[AuthStore] clearSession called");
+		logger.debug("AuthStore", "clearSession");
 
 		try {
 			await supabase.auth.signOut();
 		} catch (signOutErr) {
-			console.error(
-				"[AuthStore] supabase.auth.signOut failed (continuing logout):",
+			logger.error(
+				"AuthStore",
+				"supabase.auth.signOut failed (continuing logout)",
 				signOutErr,
 			);
 		}
@@ -109,7 +113,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				SecureStore.deleteItemAsync(STORAGE_KEYS.USER_TYPE),
 			]);
 		} catch (error) {
-			console.error("[AuthStore] Failed to clear storage:", error);
+			logger.error("AuthStore", "Failed to clear storage", error);
 		}
 
 		set({
@@ -120,12 +124,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			isAuthenticated: false,
 			isLoading: false,
 		});
+
+		monitoring.clearUser();
 	},
 
 	// ── Load Stored Session (app startup) ────────────────────────────────────
 	loadStoredSession: async () => {
 		try {
-			console.log("[AuthStore] loadStoredSession: reading SecureStore...");
+			logger.debug("AuthStore", "loadStoredSession reading SecureStore");
 			set({ isLoading: true });
 
 			const [accessToken, refreshToken, userJson, storedUserType] =
@@ -136,40 +142,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 					SecureStore.getItemAsync(STORAGE_KEYS.USER_TYPE),
 				]);
 
-			console.log("[AuthStore] SecureStore values:", {
+			logger.debug("AuthStore", "SecureStore values", {
 				hasAccessToken: !!accessToken,
 				hasRefreshToken: !!refreshToken,
 				hasUser: !!userJson,
 			});
 
 			if (!accessToken || !refreshToken || !userJson) {
-				console.log("[AuthStore] No stored session found");
+				logger.debug("AuthStore", "No stored session found");
 				set({ isLoading: false });
 				return;
 			}
 
 			const parsed = JSON.parse(userJson);
 			if (!parsed || typeof parsed.id !== "string") {
-				console.log("[AuthStore] Invalid stored user data");
+				logger.warn("AuthStore", "Invalid stored user data");
 				await get().clearSession();
 				return;
 			}
 			const user = parsed as AuthUser;
 			const userType: UserType =
 				storedUserType === "technician" ? "technician" : "user";
-			console.log(
-				"[AuthStore] Restored session for user:",
-				user,
-				"type:",
-				userType,
-			);
+			logger.debug("AuthStore", "loadStoredSession restored", {
+				userId: user.id,
+				role: userType,
+			});
 
 			await supabase.auth.setSession({
 				access_token: accessToken,
 				refresh_token: refreshToken,
 			});
 			supabase.realtime.setAuth(accessToken);
-			console.log("[AuthStore] supabase.auth.setSession rehydrated");
+			logger.debug("AuthStore", "supabase.auth.setSession rehydrated");
 
 			set({
 				user,
@@ -180,7 +184,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				isLoading: false,
 			});
 		} catch (err) {
-			console.log("[AuthStore] loadStoredSession error:", err);
+			logger.error("AuthStore", "loadStoredSession error", err);
 			await get().clearSession();
 		}
 	},

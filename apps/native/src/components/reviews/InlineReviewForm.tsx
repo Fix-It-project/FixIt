@@ -16,7 +16,6 @@ import {
 	useState,
 } from "react";
 import { View } from "react-native";
-import Toast from "react-native-toast-message";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import StarRatingInput from "@/src/features/reviews/components/user/StarRatingInput";
@@ -72,11 +71,6 @@ const InlineReviewForm = forwardRef<InlineReviewFormHandle, InlineReviewFormProp
 					if (!parsed.success) {
 						const message =
 							parsed.error.issues[0]?.message ?? "Invalid input.";
-						Toast.show({
-							type: "error",
-							text1: "Invalid review",
-							text2: message,
-						});
 						onError?.(new Error(message));
 						resolve({ submitted: false });
 						return;
@@ -90,11 +84,6 @@ const InlineReviewForm = forwardRef<InlineReviewFormHandle, InlineReviewFormProp
 							},
 							onError: (err) => {
 								onError?.(err);
-								Toast.show({
-									type: "error",
-									text1: "Could not submit review",
-									text2: err.message,
-								});
 								resolve({ submitted: false });
 							},
 						},

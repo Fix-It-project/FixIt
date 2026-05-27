@@ -37,7 +37,7 @@ export default function CashReceivedModal({
 				},
 				onError: (err) => {
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Failed to confirm cash",
 						text2: err instanceof Error ? err.message : "Please try again.",
 					});

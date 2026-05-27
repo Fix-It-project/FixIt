@@ -107,7 +107,7 @@ export function TrackingViewCta({ order }: Props) {
 				},
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Failed to cancel",
 						text2: err.message,
 					}),

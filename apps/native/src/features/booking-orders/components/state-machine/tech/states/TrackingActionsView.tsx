@@ -143,7 +143,7 @@ export function TrackingCta({ order }: Props) {
 			{
 				onError: (err: Error) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Couldn't mark arrived",
 						text2: err.message ?? "Get within 1 km first",
 					}),
@@ -163,7 +163,7 @@ export function TrackingCta({ order }: Props) {
 				},
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Could not cancel",
 						text2: err.message,
 					}),

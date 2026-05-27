@@ -53,7 +53,7 @@ export default function PendingWaitingCard({ order }: Props) {
 				},
 				onError: (err) =>
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Failed to cancel",
 						text2: err instanceof Error ? err.message : undefined,
 					}),

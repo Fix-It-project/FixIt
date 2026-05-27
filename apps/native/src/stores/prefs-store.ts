@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { logger } from "@/src/lib/logger";
 
 const STORAGE_KEY = "fixit_prefs";
 
@@ -23,7 +24,7 @@ export const usePrefsStore = create<PrefsState>((set, get) => ({
 				JSON.stringify({ hapticsEnabled: next }),
 			);
 		} catch (error) {
-			console.error("[PrefsStore] Failed to persist:", error);
+			logger.error("PrefsStore", "Failed to persist", error);
 		}
 	},
 
@@ -52,7 +53,7 @@ export const usePrefsStore = create<PrefsState>((set, get) => ({
 			}
 			set({ isLoaded: true });
 		} catch (error) {
-			console.error("[PrefsStore] Failed to load:", error);
+			logger.error("PrefsStore", "Failed to load", error);
 			set({ isLoaded: true });
 		}
 	},

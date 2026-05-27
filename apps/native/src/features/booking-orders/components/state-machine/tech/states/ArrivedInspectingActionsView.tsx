@@ -1,7 +1,6 @@
 import { Check, Search } from "lucide-react-native";
 import { useRef } from "react";
 import { ActivityIndicator, View } from "react-native";
-import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -72,17 +71,7 @@ export default function ArrivedInspectingBody({ order }: Props) {
 export function ArrivedInspectingCta({ order }: Props) {
 	const finishInspection = useTechFinishInspection();
 	const handlePress = () => {
-		finishInspection.mutate(
-			{ orderId: order.id },
-			{
-				onError: (err) =>
-					Toast.show({
-						type: "error",
-						text1: "Could not finish inspection",
-						text2: err.message,
-					}),
-			},
-		);
+		finishInspection.mutate({ orderId: order.id });
 	};
 	return (
 		<Button

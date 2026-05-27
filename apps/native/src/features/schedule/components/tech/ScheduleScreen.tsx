@@ -115,10 +115,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 				350,
 			);
 		} catch {
-			Toast.show({
-				type: "error",
-				text1: "Failed to update schedule. Try again.",
-			});
+			// Failure toast handled globally via MutationCache.onError (lib/query-client.ts).
 		}
 	};
 
@@ -127,7 +124,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 			await addException.mutateAsync(selectedDate);
 			Toast.show({ type: "success", text1: "Day marked as unavailable ✓" });
 		} catch {
-			Toast.show({ type: "error", text1: "Failed to mark day. Try again." });
+			// Failure toast handled globally via MutationCache.onError.
 		}
 	};
 
@@ -138,10 +135,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 			await deleteException.mutateAsync(entry.id);
 			Toast.show({ type: "success", text1: "Override removed ✓" });
 		} catch {
-			Toast.show({
-				type: "error",
-				text1: "Failed to remove override. Try again.",
-			});
+			// Failure toast handled globally via MutationCache.onError.
 		}
 	};
 

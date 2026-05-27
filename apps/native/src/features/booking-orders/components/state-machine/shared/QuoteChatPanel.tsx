@@ -164,7 +164,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onSuccess: () => sheetRef.current?.close(),
 			onError: (err) =>
 				Toast.show({
-					type: "error",
+					type: "info",
 					text1: "Submit failed",
 					text2: err.message,
 				}),
@@ -185,7 +185,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		mutation.mutate(args, {
 			onError: (err) =>
 				Toast.show({
-					type: "error",
+					type: "info",
 					text1: "Accept failed",
 					text2: err.message,
 				}),
@@ -206,7 +206,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			},
 			onError: (err) =>
 				Toast.show({
-					type: "error",
+					type: "info",
 					text1: "Cancel failed",
 					text2: err.message,
 				}),

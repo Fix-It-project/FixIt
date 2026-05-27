@@ -38,10 +38,14 @@ import {
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
 import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import { logger } from "@/src/lib/logger";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
 import ReasonTextarea from "./ReasonTextarea";
 import RescheduleSheetHeader from "./RescheduleSheetHeader";
 
+// react-native-keyboard-controller's ScrollViewComponent expects a Reanimated
+// forwardRef component. BottomSheet.ScrollView is animated internally; cast
+// through any to satisfy the structural forwardRef-marker check.
 const KeyboardAwareBottomSheetScrollView =
 	BottomSheet.ScrollView as unknown as ComponentType<ScrollViewProps>;
 
@@ -282,13 +286,12 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 						const responseError = error as {
 							response?: { status?: number; data?: unknown };
 						};
-						console.warn(
-							"[reschedule-error]",
-							responseError.response?.status,
-							responseError.response?.data,
-						);
+						logger.warn("reschedule-error", "reschedule failed", {
+							status: responseError.response?.status,
+							data: responseError.response?.data,
+						});
 						Toast.show({
-							type: "error",
+							type: "info",
 							text1: "Reschedule rejected",
 							text2: translateOrderError(error),
 						});
@@ -318,7 +321,8 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 				onDismiss={resetState}
 			>
 				<KeyboardAwareScrollView
-					ScrollViewComponent={KeyboardAwareBottomSheetScrollView}
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					ScrollViewComponent={KeyboardAwareBottomSheetScrollView as any}
 					className="px-screen-x"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 					contentContainerStyle={{

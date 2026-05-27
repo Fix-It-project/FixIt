@@ -1,4 +1,4 @@
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { createMaterialTopTabNavigator } from "expo-router/js-top-tabs";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 import BookingsTabContent from "@/src/features/booking-orders/components/tech/BookingsTabContent";

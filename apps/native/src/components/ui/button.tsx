@@ -494,7 +494,7 @@ const Button = React.forwardRef<
 					<Animated.View
 						pointerEvents="none"
 						style={[
-							StyleSheet.absoluteFillObject,
+							StyleSheet.absoluteFill,
 							{ backgroundColor: pressOverlay.color },
 							animatedPressOverlayStyle,
 						]}
