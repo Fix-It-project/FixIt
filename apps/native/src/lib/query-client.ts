@@ -21,6 +21,18 @@ const DEDUPE_WINDOW_MS = 2000;
 type CacheSource = "query" | "mutation";
 type CacheMeta = { showToast?: boolean; background?: boolean } | undefined;
 
+const KNOWN_APP_ERROR_CODES: ReadonlySet<string> = new Set([
+	"VALIDATION",
+	"CONFLICT",
+	"FORBIDDEN",
+	"NOT_FOUND",
+	"UNAUTHENTICATED",
+	"NETWORK",
+	"OFFLINE",
+	"TIMEOUT",
+	"RATE_LIMITED",
+]);
+
 function handleCacheError(
 	err: unknown,
 	source: CacheSource,
@@ -30,7 +42,17 @@ function handleCacheError(
 	const app = toAppError(err);
 	const keyHead = String(key[0] ?? "unknown");
 
-	logger.error(source, keyHead, err);
+	// Known business errors → warn (no Expo red overlay). Unknown / unexpected
+	// errors still go through logger.error so real bugs stay visible in dev.
+	if (KNOWN_APP_ERROR_CODES.has(app.code)) {
+		logger.warn(source, keyHead, {
+			code: app.code,
+			userMessage: app.userMessage,
+			token: app.opts.token,
+		});
+	} else {
+		logger.error(source, keyHead, err);
+	}
 
 	if (meta?.showToast === false) return;
 	if (meta?.background === true) return;

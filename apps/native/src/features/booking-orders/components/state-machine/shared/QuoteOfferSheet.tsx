@@ -9,6 +9,7 @@ import { Button } from "@/src/components/ui/button";
 import { Dialog } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
+import { Textarea } from "@/src/components/ui/textarea";
 import { formatCurrency } from "@/src/lib/helpers/format-currency";
 import { space, useThemeColors } from "@/src/lib/theme";
 
@@ -29,14 +30,7 @@ interface QuoteOfferSheetProps {
 
 const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 	function QuoteOfferSheet(
-		{
-			title,
-			subtitle,
-			currency = "EGP",
-			isPending,
-			previousAmount,
-			onSubmit,
-		},
+		{ title, subtitle, currency = "EGP", isPending, previousAmount, onSubmit },
 		ref,
 	) {
 		const themeColors = useThemeColors();
@@ -111,11 +105,10 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 								</Text>
 							) : undefined}
 						</View>
-						<Input
+						<Textarea
 							value={note}
 							onChangeText={setNote}
 							placeholder="Add a note (optional)"
-							multiline
 							numberOfLines={3}
 						/>
 					</View>

@@ -1,10 +1,12 @@
 import { useEffect } from "react";
-import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 import {
 	getChangedFields,
 	hasChangedFields,
 } from "@/src/features/profile/utils/profile-form";
+import { showError } from "@/src/lib/errors/show-error";
 import { getErrorMessage } from "@/src/lib/errors/to-app-error";
+import { logger } from "@/src/lib/logger";
 
 type StringFields = Record<string, string>;
 
@@ -66,22 +68,25 @@ export function useProfileEditControllerBase<
 
 		const payload = getChangedFields(result.data, originalValues);
 		if (Object.keys(payload).length === 0) {
-			// TODO Phase 12: convert to Toast (info-only alert — OVR-02)
-			Alert.alert("No changes", "You haven't changed anything.");
+			Toast.show({
+				type: "info",
+				text1: "No changes",
+				text2: "You haven't changed anything.",
+			});
 			return;
 		}
 
 		updateMutation.mutate(payload, {
 			onSuccess: () => {
+				logger.info("profile", "profile_update_succeeded", {
+					changedFields: Object.keys(payload),
+				});
 				reset();
 				goBack();
 			},
 			onError: (error) => {
-				// TODO Phase 12: convert to Toast (info-only alert — OVR-02)
-				Alert.alert(
-					"Update failed",
-					getErrorMessage(error) || "Something went wrong.",
-				);
+				logger.error("profile", "profile_update_failed", error);
+				showError(error);
 			},
 		});
 	};

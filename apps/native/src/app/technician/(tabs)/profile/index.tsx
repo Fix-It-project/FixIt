@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 import { confirm } from "@/src/components/ui/dialog";
 import { useLogoutMutation } from "@/src/features/auth/hooks/useLogoutMutation";
 import ProfileContentLayout from "@/src/features/profile/components/ProfileContentLayout";
@@ -9,7 +9,8 @@ import ProfileInfoCard from "@/src/features/tech-self/components/tech/ProfileInf
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 import { useUploadTechProfileImageMutation } from "@/src/features/tech-self/hooks/useUploadTechProfileImageMutation";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
+import { showError } from "@/src/lib/errors/show-error";
+import { logger } from "@/src/lib/logger";
 import { ROUTES } from "@/src/lib/routes";
 
 export default function TechnicianProfileRoute() {
@@ -33,11 +34,12 @@ export default function TechnicianProfileRoute() {
 	const handleChangePhoto = async () => {
 		const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 		if (!permission.granted) {
-			// TODO Phase 12: convert to Toast (info-only alert)
-			Alert.alert(
-				"Permission required",
-				"Please allow access to your photo library.",
-			);
+			logger.info("profile", "technician_photo_permission_denied");
+			Toast.show({
+				type: "info",
+				text1: "Permission required",
+				text2: "Please allow access to your photo library.",
+			});
 			return;
 		}
 
@@ -53,12 +55,10 @@ export default function TechnicianProfileRoute() {
 			uploadImage.mutate(
 				{ imageUri: asset.uri, mimeType: asset.mimeType ?? "image/jpeg" },
 				{
-					onError: (error) =>
-						// TODO Phase 12: convert to Toast (info-only alert)
-						Alert.alert(
-							"Upload failed",
-							getErrorMessage(error) || "Something went wrong.",
-						),
+					onError: (error) => {
+						logger.error("profile", "technician_photo_upload_failed", error);
+						showError(error);
+					},
 				},
 			);
 		}
@@ -73,9 +73,10 @@ export default function TechnicianProfileRoute() {
 		});
 		if (ok) {
 			logout.mutate(undefined, {
-				onError: (error) =>
-					// TODO Phase 12: convert to Toast (info-only alert)
-					Alert.alert("Logout failed", getErrorMessage(error) || "Something went wrong."),
+				onError: (error) => {
+					logger.error("auth", "technician_logout_failed", error);
+					showError(error);
+				},
 			});
 		}
 	};

@@ -1,4 +1,5 @@
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
+import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
 import { Text } from "@/src/components/ui/text";
 import { getAvatarColor } from "@/src/features/technicians/utils/technician-utils";
 
@@ -26,17 +27,20 @@ export default function TechnicianAvatar({
 	onPress,
 }: TechnicianAvatarProps) {
 	const content = (
-		<View
+		<Avatar
+			alt={initials}
 			className={`${sizeClasses[size]} items-center justify-center rounded-pill`}
 			style={{ backgroundColor: getAvatarColor(id) }}
 		>
-			<Text
-				variant={variantBySize[size]}
-				className="font-bold text-surface-on-primary"
-			>
-				{initials}
-			</Text>
-		</View>
+			<AvatarFallback className="bg-transparent">
+				<Text
+					variant={variantBySize[size]}
+					className="font-bold text-surface-on-primary"
+				>
+					{initials}
+				</Text>
+			</AvatarFallback>
+		</Avatar>
 	);
 
 	if (onPress) {

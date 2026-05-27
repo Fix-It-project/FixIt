@@ -21,7 +21,6 @@ export function useDashboardOrdersQuery() {
 			return getDashboardOrders(user.id);
 		},
 		enabled: !!user?.id,
-		refetchInterval: 60_000,
 	});
 }
 

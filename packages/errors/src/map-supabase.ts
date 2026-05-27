@@ -1,6 +1,10 @@
-import type { PostgrestError } from "@supabase/supabase-js";
 import type { AppErrorCode } from "./codes";
-import { AppError } from "./index";
+import { AppError } from "./app-error";
+
+type PostgrestErrorLike = {
+	code?: string | null;
+	message?: string;
+};
 
 const CODE_TABLE: Record<string, AppErrorCode> = {
 	PGRST116: "NOT_FOUND",
@@ -26,7 +30,7 @@ const USER_MESSAGES: Record<AppErrorCode, string> = {
 };
 
 export function mapPostgrestError(
-	err: PostgrestError | { code?: string | null; message?: string } | null | undefined,
+	err: PostgrestErrorLike | null | undefined,
 ): AppError {
 	const rawCode = err?.code ?? undefined;
 	const mapped: AppErrorCode =

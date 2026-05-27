@@ -1,4 +1,4 @@
-import { AppError } from "./index";
+import { AppError } from "./app-error";
 
 export type HttpErrorLike = {
 	response?: { status?: number; data?: unknown };
@@ -64,8 +64,8 @@ export function mapHttpStatus(
 
 	const baseOpts = (overrides?: {
 		fields?: Record<string, string>;
-	}): import("./index").AppErrorOpts => {
-		const opts: import("./index").AppErrorOpts = { status };
+	}): import("./app-error").AppErrorOpts => {
+		const opts: import("./app-error").AppErrorOpts = { status };
 		if (overrides?.fields) opts.fields = overrides.fields;
 		return opts;
 	};

@@ -23,10 +23,12 @@ import {
 	WorkInProgressView,
 	WorkInProgressViewCta,
 } from "@/src/features/booking-orders/components/state-machine/user/states";
+import { useOrderRealtimeInvalidate } from "@/src/features/booking-orders/hooks/useOrderRealtimeInvalidate";
 import { useUserOrderById } from "@/src/features/booking-orders/hooks/useUserOrders";
 import {
 	IN_PROGRESS_STATUSES,
 	type OrderStatus as LifecycleOrderStatus,
+	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
@@ -39,6 +41,11 @@ export default function OrderDetailScreen() {
 	const { orderId } = useLocalSearchParams<{ orderId: string }>();
 	const order = useUserOrderById(orderId);
 	const goBack = useSafeBack(ROUTES.user.orders);
+
+	useOrderRealtimeInvalidate(
+		orderId,
+		order ? !TERMINAL_STATUSES.has(order.status as LifecycleOrderStatus) : false,
+	);
 
 	useFocusBackHandler(() => {
 		goBack();

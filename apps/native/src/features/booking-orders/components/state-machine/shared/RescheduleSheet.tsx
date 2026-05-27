@@ -37,7 +37,10 @@ import {
 	type BookingSlotHour,
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import {
+	extractOrderErrorToken,
+	translateOrderError,
+} from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
 import ReasonTextarea from "./ReasonTextarea";
@@ -287,8 +290,9 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 							response?: { status?: number; data?: unknown };
 						};
 						logger.warn("reschedule-error", "reschedule failed", {
+							orderId: currentOrderId,
 							status: responseError.response?.status,
-							data: responseError.response?.data,
+							token: extractOrderErrorToken(error),
 						});
 						Toast.show({
 							type: "info",

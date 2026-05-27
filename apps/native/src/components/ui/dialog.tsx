@@ -101,6 +101,7 @@ function DialogOverlay({
 						style={styles.overlayAnimatedFill}
 					>
 						<KeyboardAvoidingView
+							automaticOffset
 							behavior="position"
 							keyboardVerticalOffset={keyboardVerticalOffset}
 							style={styles.keyboardAvoidingView}

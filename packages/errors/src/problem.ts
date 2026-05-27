@@ -1,5 +1,5 @@
 import { type AppErrorCode, statusFromCode } from "./codes";
-import { AppError } from "./index";
+import { AppError } from "./app-error";
 
 export interface ProblemDetails {
 	type: string;
@@ -88,7 +88,7 @@ export function fromProblemDetails(json: unknown): AppError {
 			typeof json.userMessage === "string"
 				? json.userMessage
 				: GENERIC_USER_MESSAGE;
-		const opts: import("./index").AppErrorOpts = {};
+		const opts: import("./app-error").AppErrorOpts = {};
 		if (typeof json.status === "number") opts.status = json.status;
 		if (typeof json.detail === "string") opts.devMessage = json.detail;
 		if (typeof json.token === "string") opts.token = json.token;
@@ -114,7 +114,7 @@ export function fromProblemDetails(json: unknown): AppError {
 				typeof errorField.message === "string"
 					? errorField.message
 					: GENERIC_USER_MESSAGE;
-			const opts: import("./index").AppErrorOpts = {};
+			const opts: import("./app-error").AppErrorOpts = {};
 			if (typeof errorField.hint === "string") opts.devMessage = errorField.hint;
 			return new AppError(code, userMessage, opts);
 		}

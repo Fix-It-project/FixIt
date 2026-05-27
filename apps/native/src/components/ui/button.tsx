@@ -1,5 +1,4 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import * as Haptics from "expo-haptics";
 import type { LucideIcon } from "lucide-react-native";
 import * as React from "react";
 import {
@@ -25,7 +24,6 @@ import Animated, {
 import { Text, TextClassContext } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
-import { usePrefsStore } from "@/src/stores/prefs-store";
 
 // ─── Animated wrapper ─────────────────────────────────────────────────────
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -395,13 +393,6 @@ const Button = React.forwardRef<
 	}));
 
 	const handlePressIn = (e: GestureResponderEvent) => {
-		if (!disabled && !loading) {
-			const hapticsEnabled = usePrefsStore.getState().hapticsEnabled;
-			if (hapticsEnabled) {
-				Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-			}
-		}
-
 		if (reducedMotion) {
 			opacityFallback.value = withTiming(0.75, { duration: 80 });
 		} else if (!disabled && !loading) {

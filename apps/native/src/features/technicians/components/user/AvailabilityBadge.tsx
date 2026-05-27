@@ -1,5 +1,5 @@
 import { CircleCheck, Clock } from "lucide-react-native";
-import { View } from "react-native";
+import { Badge } from "@/src/components/ui/badge";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
 
@@ -13,7 +13,7 @@ export default function AvailabilityBadge({
 	const themeColors = useThemeColors();
 	if (isAvailable) {
 		return (
-			<View
+			<Badge
 				className="flex-row items-center gap-control-badge self-start rounded-chip px-control-badge-x py-control-badge-y"
 				style={{ backgroundColor: Colors.statusAvailable }}
 			>
@@ -25,12 +25,12 @@ export default function AvailabilityBadge({
 				<Text variant="caption" className="font-semibold text-success">
 					Available Now
 				</Text>
-			</View>
+			</Badge>
 		);
 	}
 
 	return (
-		<View
+		<Badge
 			className="flex-row items-center gap-control-badge self-start rounded-chip px-control-badge-x py-control-badge-y"
 			style={{ backgroundColor: themeColors.surfaceElevated }}
 		>
@@ -42,6 +42,6 @@ export default function AvailabilityBadge({
 			<Text variant="caption" className="font-semibold text-surface-muted">
 				Unavailable
 			</Text>
-		</View>
+		</Badge>
 	);
 }

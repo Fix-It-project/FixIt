@@ -1,6 +1,10 @@
-import { Image } from "expo-image";
 import { Camera, User } from "lucide-react-native";
 import { View } from "react-native";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
@@ -17,24 +21,8 @@ interface ProfileAvatarProps {
 	readonly onChangePhoto?: () => void;
 }
 
-function AvatarContent({
-	imageUrl,
-	initials,
-}: {
-	readonly imageUrl: string | null | undefined;
-	readonly initials: string | null;
-}) {
+function AvatarContent({ initials }: { readonly initials: string | null }) {
 	const themeColors = useThemeColors();
-
-	if (imageUrl) {
-		return (
-			<Image
-				source={{ uri: imageUrl }}
-				className="h-avatar-2xl w-avatar-2xl rounded-pill"
-				contentFit="cover"
-			/>
-		);
-	}
 
 	if (initials) {
 		return (
@@ -57,12 +45,21 @@ export default function ProfileAvatar({
 
 	return (
 		<View className="relative h-avatar-2xl w-avatar-2xl">
-			<View
+			<Avatar
+				alt={name ?? "Profile photo"}
 				className="h-avatar-2xl w-avatar-2xl items-center justify-center rounded-pill"
 				style={{ backgroundColor: themeColors.overlayMd }}
 			>
-				<AvatarContent imageUrl={imageUrl} initials={initials} />
-			</View>
+				{imageUrl ? (
+					<AvatarImage
+						source={{ uri: imageUrl }}
+						className="h-avatar-2xl w-avatar-2xl rounded-pill"
+					/>
+				) : null}
+				<AvatarFallback className="bg-transparent">
+					<AvatarContent initials={initials} />
+				</AvatarFallback>
+			</Avatar>
 
 			{onChangePhoto && (
 				<Button

@@ -2,6 +2,7 @@ import { CalendarClock, Check, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
 import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -14,9 +15,12 @@ import {
 	useUserWithdrawReschedule,
 } from "@/src/features/booking-orders/hooks";
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import {
+	extractOrderErrorToken,
+	translateOrderError,
+} from "@/src/features/booking-orders/utils/translate-order-error";
+import { logger } from "@/src/lib/logger";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
-import { Button } from "@/src/components/ui/button";
 
 export type ReschedulePanelViewer = "user" | "technician";
 
@@ -112,20 +116,27 @@ export default function RescheduleRequestPanel({
 			{
 				onSuccess: () =>
 					Toast.show({ type: "success", text1: "Reschedule approved" }),
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.reschedule", "approve_failed", {
+						orderId,
+						viewer,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
 						type: "info",
 						text1: "Approve failed",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
-	}, [approveMutation, orderId]);
+	}, [approveMutation, orderId, viewer]);
 
 	const handleReject = useCallback(async () => {
 		const ok = await confirm({
 			title: "Decline reschedule request?",
-			description: "The other party will be notified. The original schedule remains active.",
+			description:
+				"The other party will be notified. The original schedule remains active.",
 			primary: { label: "Decline", destructive: true },
 			secondary: { label: "Keep request" },
 		});
@@ -135,15 +146,21 @@ export default function RescheduleRequestPanel({
 			{
 				onSuccess: () =>
 					Toast.show({ type: "success", text1: "Reschedule rejected" }),
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.reschedule", "reject_failed", {
+						orderId,
+						viewer,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
 						type: "info",
 						text1: "Reject failed",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
-	}, [rejectMutation, orderId]);
+	}, [rejectMutation, orderId, viewer]);
 
 	const handleWithdraw = useCallback(() => {
 		withdrawMutation.mutate(
@@ -151,15 +168,21 @@ export default function RescheduleRequestPanel({
 			{
 				onSuccess: () =>
 					Toast.show({ type: "success", text1: "Request withdrawn" }),
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.reschedule", "withdraw_failed", {
+						orderId,
+						viewer,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
 						type: "info",
 						text1: "Withdraw failed",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
-	}, [withdrawMutation, orderId]);
+	}, [withdrawMutation, orderId, viewer]);
 
 	if (isLoading && !data) {
 		return (
@@ -301,10 +324,7 @@ export default function RescheduleRequestPanel({
 							backgroundColor: `${themeColors.primary}1A`,
 						}}
 					>
-						<Text
-							variant="caption"
-							style={{ color: themeColors.primary }}
-						>
+						<Text variant="caption" style={{ color: themeColors.primary }}>
 							{countdown}
 						</Text>
 					</View>

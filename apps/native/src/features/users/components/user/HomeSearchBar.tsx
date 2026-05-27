@@ -18,11 +18,12 @@ export default function HomeSearchBar() {
 					strokeWidth={2}
 				/>
 				<Input
-					variant="filled"
+					variant="outline"
 					placeholder="Search services & technicians"
 					placeholderTextColor={themeColors.overlaySub}
-					editable={false}
-					className="h-full flex-1 rounded-none bg-transparent p-0"
+					caretHidden
+					showSoftInputOnFocus={false}
+					className="h-full flex-1 rounded-none border-0 bg-transparent p-0 shadow-none"
 					style={{ color: themeColors.onPrimaryHeader }}
 				/>
 			</View>

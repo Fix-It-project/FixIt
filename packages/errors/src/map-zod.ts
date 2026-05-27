@@ -1,5 +1,5 @@
 import type { ZodError } from "zod";
-import { AppError } from "./index";
+import { AppError } from "./app-error";
 
 const USER_MESSAGE = "Please check the highlighted fields.";
 

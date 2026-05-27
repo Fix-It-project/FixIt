@@ -172,13 +172,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				access_token: accessToken,
 				refresh_token: refreshToken,
 			});
-			supabase.realtime.setAuth(accessToken);
+
+			// If the stored access token is expired, refresh it before any
+			// realtime channel attempts to subscribe — otherwise the WebSocket
+			// auth fails with "InvalidJWTToken: Token has expired" and the
+			// channel stays in CHANNEL_ERROR until the next API call triggers
+			// a refresh. (Realtime subscribes on mount, before any API call.)
+			let effectiveAccessToken = accessToken;
+			let effectiveRefreshToken = refreshToken;
+			try {
+				const { data: refreshed, error: refreshErr } =
+					await supabase.auth.refreshSession();
+				if (refreshErr) {
+					logger.warn("AuthStore", "refreshSession on rehydrate failed", {
+						error: refreshErr.message,
+					});
+				} else if (refreshed.session) {
+					effectiveAccessToken = refreshed.session.access_token;
+					effectiveRefreshToken = refreshed.session.refresh_token;
+					await Promise.all([
+						SecureStore.setItemAsync(
+							STORAGE_KEYS.ACCESS_TOKEN,
+							effectiveAccessToken,
+						),
+						SecureStore.setItemAsync(
+							STORAGE_KEYS.REFRESH_TOKEN,
+							effectiveRefreshToken,
+						),
+					]);
+					logger.debug("AuthStore", "rehydrated session refreshed");
+				}
+			} catch (refreshThrown) {
+				logger.warn("AuthStore", "refreshSession on rehydrate threw", {
+					error:
+						refreshThrown instanceof Error
+							? refreshThrown.message
+							: String(refreshThrown),
+				});
+			}
+
+			supabase.realtime.setAuth(effectiveAccessToken);
 			logger.debug("AuthStore", "supabase.auth.setSession rehydrated");
 
 			set({
 				user,
-				accessToken,
-				refreshToken,
+				accessToken: effectiveAccessToken,
+				refreshToken: effectiveRefreshToken,
 				userType,
 				isAuthenticated: true,
 				isLoading: false,

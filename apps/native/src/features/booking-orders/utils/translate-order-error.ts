@@ -6,6 +6,7 @@
  */
 
 import type { AxiosError } from "axios";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 
 type ErrorPayload = {
 	error?:
@@ -71,7 +72,7 @@ export function translateOrderError(error: unknown): string {
 	const token =
 		typeof rawError === "string"
 			? rawError
-			: rawError?.code ?? axiosErr?.response?.data?.message;
+			: (rawError?.code ?? axiosErr?.response?.data?.message);
 	if (token && TOKEN_MESSAGES[token]) {
 		return TOKEN_MESSAGES[token];
 	}
@@ -79,8 +80,7 @@ export function translateOrderError(error: unknown): string {
 		return rawError.message;
 	}
 	if (token) return token;
-	if (error instanceof Error) return error.message;
-	return "Something went wrong.";
+	return getErrorMessage(error);
 }
 
 /** Convenience: read just the raw token (for logging / branch checks). */

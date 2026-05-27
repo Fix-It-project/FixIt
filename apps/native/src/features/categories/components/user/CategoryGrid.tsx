@@ -1,11 +1,19 @@
 import { router } from "expo-router";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
+import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/routes";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/lib/theme";
 import CategoryTile from "./CategoryTile";
+
+const CATEGORY_SKELETON_KEYS = [
+	"category-skeleton-1",
+	"category-skeleton-2",
+	"category-skeleton-3",
+	"category-skeleton-4",
+] as const;
 
 interface CategoryGridProps {
 	readonly categories?: Category[];
@@ -46,8 +54,14 @@ export default function CategoryGrid({
 
 	if (isLoading) {
 		content = (
-			<View className="h-avatar-xl items-center justify-center">
-				<ActivityIndicator size="small" color={Colors.primary} />
+			<View className="flex-row flex-wrap justify-between">
+				{CATEGORY_SKELETON_KEYS.map((key) => (
+					<Skeleton
+						key={key}
+						className="mb-stack-md h-avatar-xl rounded-input"
+						style={{ width: "48.5%" }}
+					/>
+				))}
 			</View>
 		);
 	}

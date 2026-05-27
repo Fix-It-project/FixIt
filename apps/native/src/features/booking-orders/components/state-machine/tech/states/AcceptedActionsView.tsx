@@ -3,8 +3,9 @@ import { Ban, CalendarClock, Truck } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
-import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
+import { Text } from "@/src/components/ui/text";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
@@ -14,7 +15,6 @@ import {
 	type RescheduleSheetHandle,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
-import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	useTechCancel,
 	useTechnicianBookingsQuery,
@@ -25,7 +25,10 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import {
+	extractOrderErrorToken,
+	translateOrderError,
+} from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
 import { space, useThemeColors } from "@/src/lib/theme";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -100,8 +103,9 @@ export function AcceptedCta({ order }: Props) {
 				onError: (err) => {
 					const axiosErr = err as AxiosError<{ error?: string }>;
 					logger.warn("lifecycle-error", "start tracking failed", {
+						orderId: order.id,
 						status: axiosErr?.response?.status,
-						data: axiosErr?.response?.data,
+						token: extractOrderErrorToken(err),
 					});
 					Toast.show({
 						type: "info",
@@ -123,12 +127,17 @@ export function AcceptedCta({ order }: Props) {
 					setCancelReason("");
 					Toast.show({ type: "success", text1: "Booking cancelled" });
 				},
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.lifecycle", "accepted_cancel_failed", {
+						orderId: order.id,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
 						type: "info",
 						text1: "Could not cancel",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
 	};

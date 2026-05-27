@@ -23,10 +23,12 @@ import {
 	WorkCompleteActionsView,
 	WorkCompleteCta,
 } from "@/src/features/booking-orders/components/state-machine/tech/states";
+import { useOrderRealtimeInvalidate } from "@/src/features/booking-orders/hooks/useOrderRealtimeInvalidate";
 import { useTechnicianBookingById } from "@/src/features/booking-orders/hooks/useTechnicianBookingsQuery";
 import {
 	IN_PROGRESS_STATUSES,
 	type OrderStatus as LifecycleOrderStatus,
+	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { Button } from "@/src/components/ui/button";
@@ -49,6 +51,13 @@ export default function BookingDetailScreen() {
 	const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
 	const booking = useTechnicianBookingById(bookingId);
 	const goBack = useSafeBack(ROUTES.technician.bookings);
+
+	useOrderRealtimeInvalidate(
+		bookingId,
+		booking
+			? !TERMINAL_STATUSES.has(booking.status as LifecycleOrderStatus)
+			: false,
+	);
 
 	useFocusBackHandler(() => {
 		goBack();

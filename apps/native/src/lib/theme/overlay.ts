@@ -7,7 +7,7 @@ export const overlayTokens = {
     // color sourced from theme via useThemeColors() at runtime — not hardcoded here
   },
   dialog: {
-    maxWidth: 380,
+    maxWidth: 480,
     minWidth: 280,
     radius: 16,
     padding: 24,
