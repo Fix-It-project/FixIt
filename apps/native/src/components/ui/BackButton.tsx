@@ -1,13 +1,14 @@
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import { TouchableOpacity, type TouchableOpacityProps } from "react-native";
+import type { StyleProp, ViewStyle } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { useThemeColors } from "@/src/lib/theme";
 import { cn } from "@/src/lib/utils";
 
 type BackButtonVariant = "header" | "header-inverse" | "light" | "surface";
 type BackButtonSize = "sm" | "md";
 
-interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
+interface BackButtonProps {
 	/** "header" → transparent icon button on surface headers.
 	 *  "header-inverse" → transparent icon button on brand headers.
 	 *  "light" → translucent white circle on brand/dark headers.
@@ -19,6 +20,10 @@ interface BackButtonProps extends Omit<TouchableOpacityProps, "children"> {
 	readonly iconSize?: number;
 	/** Shared back-button shell size. */
 	readonly size?: BackButtonSize;
+	readonly className?: string;
+	readonly accessibilityLabel?: string;
+	/** Pass-through style for layout positioning (e.g. marginTop). */
+	readonly style?: StyleProp<ViewStyle>;
 }
 
 export default function BackButton({
@@ -27,9 +32,11 @@ export default function BackButton({
 	iconSize = 22,
 	size = "sm",
 	className,
-	...props
+	accessibilityLabel = "Go back",
+	style,
 }: Readonly<BackButtonProps>) {
 	const themeColors = useThemeColors();
+
 	const variantStyles: Record<
 		BackButtonVariant,
 		{ bgClassName?: string; iconColor: string }
@@ -45,26 +52,23 @@ export default function BackButton({
 			iconColor: themeColors.textPrimary,
 		},
 	};
+
 	const { bgClassName, iconColor } = variantStyles[variant];
+
+	// canonical size="icon" gives h-control-back-md; override for sm
 	const sizeClassName =
-		size === "md"
-			? "h-control-back-md w-control-back-md"
-			: "h-control-back-sm w-control-back-sm";
+		size === "sm" ? "h-control-back-sm w-control-back-sm" : undefined;
 
 	return (
-		<TouchableOpacity
+		<Button
+			variant="ghost"
+			size="icon"
 			onPress={onPress ?? (() => router.back())}
-			activeOpacity={0.7}
-			hitSlop={8}
-			className={cn(
-				"items-center justify-center rounded-pill",
-				sizeClassName,
-				bgClassName,
-				className,
-			)}
-			{...props}
+			accessibilityLabel={accessibilityLabel}
+			className={cn(sizeClassName, bgClassName, className)}
+			style={style}
 		>
 			<ChevronLeft size={iconSize} color={iconColor} strokeWidth={2.5} />
-		</TouchableOpacity>
+		</Button>
 	);
 }

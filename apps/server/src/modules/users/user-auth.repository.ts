@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import { logger } from '../../shared/logger.js';
 
 const supabase = supabaseAdmin;
 
@@ -7,7 +8,7 @@ export interface CreateUserData {
   email: string;
   fullName?: string;
   phone?: string;
-  
+
 }
 
 export interface UpdateUserData {
@@ -36,7 +37,7 @@ export interface IUsersRepository {
 export class UsersRepository implements IUsersRepository {
   async createUser(data: CreateUserData) {
     try {
-      console.log('Creating user with data:', data);
+      logger.info({ data }, 'Creating user with data');
       const { data: user, error } = await supabase
         .from('users')
         .insert({
@@ -44,16 +45,16 @@ export class UsersRepository implements IUsersRepository {
           email: data.email,
           full_name: data.fullName,
           phone: data.phone
-          
+
         })
         .select()
         .single();
 
       if (error) throw error;
-      console.log('Inserted user:', user);
+      logger.info({ user }, 'Inserted user');
       return user;
     } catch (error) {
-      console.error('Error inserting user:', error);
+      logger.error({ error }, 'Error inserting user');
       throw error;
     }
   }

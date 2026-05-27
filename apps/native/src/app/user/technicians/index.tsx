@@ -193,19 +193,8 @@ export default function TechniciansListScreen() {
 		}
 	}, [activeSort, location, refetch]);
 
-	useEffect(() => {
-		if (isRecommendedError) {
-			Toast.show({ type: "error", text1: "Could not load recommendations" });
-		}
-	}, [isRecommendedError]);
-
-	// A transient refetch failure shouldn't blank the screen when results are
-	// already showing — keep the list and just surface a toast.
-	useEffect(() => {
-		if (isError && technicians.length > 0) {
-			Toast.show({ type: "error", text1: "Couldn't refresh technicians" });
-		}
-	}, [isError, technicians.length]);
+	// Query errors flow through lib/query-client.ts (QueryCache.onError →
+	// toAppError → showError). No inline error toasts here.
 
 	const handleSortPress = useCallback(
 		async (option: SortKey) => {
@@ -214,7 +203,7 @@ export default function TechniciansListScreen() {
 				const updatedStatus = useLocationStore.getState().permissionStatus;
 				if (updatedStatus !== "granted") {
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Location permission required for nearest sort",
 					});
 					return;

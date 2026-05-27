@@ -2,16 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { AppError, normalizeError } from '../../index.js';
 
 describe('AppError', () => {
-  it('creates error with status and message', () => {
-    const err = new AppError('Not found', 404);
+  it('creates error with code and message', () => {
+    const err = new AppError('NOT_FOUND', 'Not found');
     expect(err).toBeInstanceOf(Error);
     expect(err).toBeInstanceOf(AppError);
     expect(err.message).toBe('Not found');
-    expect(err.status).toBe(404);
+    expect(err.status).toBe(500);
   });
 
   it('defaults status to 500', () => {
-    const err = new AppError('Oops');
+    const err = new AppError('SERVER', 'Oops');
     expect(err.status).toBe(500);
   });
 

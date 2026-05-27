@@ -3,20 +3,18 @@ import { Ban, CalendarClock, Truck } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
-	IconActionButton,
 	OrderInfoCompact,
 	RescheduleRequestPanel,
 	RescheduleSheet,
 	type RescheduleSheetHandle,
-	StageActionRow,
 	StageHero,
-	StagePrimaryAction,
 } from "@/src/features/booking-orders/components/state-machine/shared";
-import { BookingCancelModal } from "@/src/features/booking-orders/components/tech";
 import {
 	useTechCancel,
 	useTechnicianBookingsQuery,
@@ -27,9 +25,13 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
-import { useAuthStore } from "@/src/stores/auth-store";
+import {
+	extractOrderErrorToken,
+	translateOrderError,
+} from "@/src/features/booking-orders/utils/translate-order-error";
+import { logger } from "@/src/lib/logger";
 import { space, useThemeColors } from "@/src/lib/theme";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface Props {
 	readonly order: Order;
@@ -100,13 +102,13 @@ export function AcceptedCta({ order }: Props) {
 			{
 				onError: (err) => {
 					const axiosErr = err as AxiosError<{ error?: string }>;
-					console.warn(
-						"[lifecycle-error]",
-						axiosErr?.response?.status,
-						axiosErr?.response?.data,
-					);
+					logger.warn("lifecycle-error", "start tracking failed", {
+						orderId: order.id,
+						status: axiosErr?.response?.status,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Couldn't start tracking",
 						text2: translateOrderError(err),
 					});
@@ -125,12 +127,17 @@ export function AcceptedCta({ order }: Props) {
 					setCancelReason("");
 					Toast.show({ type: "success", text1: "Booking cancelled" });
 				},
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.lifecycle", "accepted_cancel_failed", {
+						orderId: order.id,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Could not cancel",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
 	};
@@ -138,42 +145,47 @@ export function AcceptedCta({ order }: Props) {
 	return (
 		<>
 			<View style={{ gap: space[1] }}>
-				<StageActionRow
-					primary={
-						<View style={{ opacity: blocked ? 0.45 : 1 }}>
-							<StagePrimaryAction
-								label="Start tracking"
-								icon={Truck}
-								onPress={handleStart}
-								pending={startTracking.isPending}
-								disabled={blocked}
-							/>
-						</View>
-					}
-					trailing={
-						<View style={{ flexDirection: "row", gap: space[2] }}>
-							<IconActionButton
-								icon={CalendarClock}
-								accessibilityLabel="Reschedule job"
-								onPress={() =>
-									rescheduleRef.current?.open({
-										orderId: order.id,
-										technicianId: order.technician_id ?? authUserId,
-										originalScheduledDate: order.scheduled_date,
-									})
-								}
-								disabled={startTracking.isPending || hasPendingReschedule}
-							/>
-							<IconActionButton
-								icon={Ban}
-								tone="danger"
-								accessibilityLabel="Cancel job"
-								onPress={() => setCancelOpen(true)}
-								disabled={startTracking.isPending}
-							/>
-						</View>
-					}
-				/>
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-1" style={{ opacity: blocked ? 0.45 : 1 }}>
+						<Button
+							variant="primary"
+							size="lg"
+							fullWidth
+							iconLeft={Truck}
+							onPress={handleStart}
+							loading={startTracking.isPending}
+							disabled={blocked}
+						>
+							Start tracking
+						</Button>
+					</View>
+					<View className="shrink-0 flex-row" style={{ gap: space[2] }}>
+						<Button
+							variant="secondary"
+							size="icon"
+							accessibilityLabel="Reschedule job"
+							onPress={() =>
+								rescheduleRef.current?.open({
+									orderId: order.id,
+									technicianId: order.technician_id ?? authUserId,
+									originalScheduledDate: order.scheduled_date,
+								})
+							}
+							disabled={startTracking.isPending || hasPendingReschedule}
+						>
+							<CalendarClock size={20} />
+						</Button>
+						<Button
+							variant="destructive"
+							size="icon"
+							accessibilityLabel="Cancel job"
+							onPress={() => setCancelOpen(true)}
+							disabled={startTracking.isPending}
+						>
+							<Ban size={20} />
+						</Button>
+					</View>
+				</View>
 				{hasPendingReschedule ? (
 					<Text
 						variant="caption"
@@ -200,9 +212,12 @@ export function AcceptedCta({ order }: Props) {
 				) : null}
 			</View>
 			<RescheduleSheet ref={rescheduleRef} viewer="technician" />
-			<BookingCancelModal
+			<CancelReasonModal
 				visible={cancelOpen}
-				clientName={booking.user_name}
+				title="Cancel Booking"
+				subjectRole="booking"
+				subjectName={booking.user_name}
+				subjectFallback="this client"
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {
@@ -211,6 +226,7 @@ export function AcceptedCta({ order }: Props) {
 				}}
 				onConfirm={handleConfirmCancel}
 				isLoading={cancelMutation.isPending}
+				confirmLabel="Cancel Booking"
 			/>
 		</>
 	);

@@ -1,5 +1,5 @@
-import type { MaterialTopTabNavigationProp } from "@react-navigation/material-top-tabs";
-import { useNavigation } from "@react-navigation/native";
+import type { MaterialTopTabNavigationProp } from "expo-router/js-top-tabs";
+import { useNavigation } from "expo-router/react-navigation";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import NotificationBell from "@/src/components/ui/NotificationBell";

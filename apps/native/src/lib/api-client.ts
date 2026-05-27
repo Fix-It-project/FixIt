@@ -1,6 +1,8 @@
 import { env } from "@FixIt/env/native";
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { jwtDecode } from "jwt-decode";
+import { toAppError } from "@/src/lib/errors/to-app-error";
+import { logger } from "@/src/lib/logger";
 import { supabase } from "@/src/lib/supabase";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -37,7 +39,7 @@ const refreshAccessToken = async (): Promise<string> => {
 				throw new Error("No refresh token available");
 			}
 
-			console.log("[apiClient] Refreshing access token...");
+			logger.info("apiClient", "Refreshing access token");
 
 			const refreshUrl =
 				userType === "technician"
@@ -60,10 +62,12 @@ const refreshAccessToken = async (): Promise<string> => {
 				useAuthStore.getState().userType ?? "user",
 			);
 
-			console.log("[apiClient] Token refreshed successfully");
+			logger.info("apiClient", "Token refreshed successfully", {
+				userId: user?.id,
+			});
 			return newAccessToken;
 		} catch (error) {
-			console.error("[apiClient] Token refresh failed:", error);
+			logger.error("apiClient", "Token refresh failed", error);
 			await useAuthStore.getState().clearSession();
 			throw error;
 		} finally {
@@ -107,11 +111,11 @@ apiClient.interceptors.request.use(
 			sessionData.session?.access_token ?? useAuthStore.getState().accessToken;
 
 		if (accessToken && isTokenExpired(accessToken, 60)) {
-			console.log("[apiClient] Access token expired/expiring, refreshing...");
+			logger.debug("apiClient", "Access token expired/expiring, refreshing");
 			try {
 				accessToken = await refreshAccessToken();
 			} catch (error) {
-				console.error("[apiClient] Proactive refresh failed:", error);
+				logger.error("apiClient", "Proactive refresh failed", error);
 				return config;
 			}
 		}
@@ -142,20 +146,20 @@ apiClient.interceptors.response.use(
 			originalRequest.url?.includes("/api/technician-auth/signin") ||
 			originalRequest.url?.includes("/api/technician-auth/refresh")
 		) {
-			throw error;
+			throw toAppError(error);
 		}
 
 		originalRequest._retry = true;
 
 		try {
-			console.log("[apiClient] 401 received, attempting refresh...");
+			logger.debug("apiClient", "401 received, attempting refresh");
 			const newAccessToken = await refreshAccessToken();
 
 			originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 			return apiClient(originalRequest);
 		} catch (refreshError) {
-			console.error("[apiClient] Refresh failed, clearing session");
-			throw refreshError;
+			logger.error("apiClient", "Refresh failed, clearing session", refreshError);
+			throw toAppError(refreshError);
 		}
 	},
 );

@@ -6,8 +6,19 @@
  */
 
 import type { AxiosError } from "axios";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 
-type ErrorPayload = { error?: string; details?: unknown };
+type ErrorPayload = {
+	error?:
+		| string
+		| {
+				code?: string;
+				hint?: string;
+				message?: string;
+		  };
+	details?: unknown;
+	message?: string;
+};
 
 const TOKEN_MESSAGES: Record<string, string> = {
 	// Reschedule — validation chain (reschedule.service.ts)
@@ -35,6 +46,8 @@ const TOKEN_MESSAGES: Record<string, string> = {
 	request_expired: "That request has expired.",
 
 	// Lifecycle / tracking (lifecycle.repository.ts)
+	cannot_submit_order_unpaid_fee:
+		"Your account has an unpaid inspection cancellation fee. Clear or waive it before placing a new order.",
 	technician_already_tracking_another_order:
 		"You already have an order being tracked. Finish it first before starting another.",
 
@@ -55,17 +68,24 @@ const TOKEN_MESSAGES: Record<string, string> = {
  */
 export function translateOrderError(error: unknown): string {
 	const axiosErr = error as AxiosError<ErrorPayload> | undefined;
-	const token = axiosErr?.response?.data?.error;
+	const rawError = axiosErr?.response?.data?.error;
+	const token =
+		typeof rawError === "string"
+			? rawError
+			: (rawError?.code ?? axiosErr?.response?.data?.message);
 	if (token && TOKEN_MESSAGES[token]) {
 		return TOKEN_MESSAGES[token];
 	}
+	if (rawError && typeof rawError === "object" && rawError.message) {
+		return rawError.message;
+	}
 	if (token) return token;
-	if (error instanceof Error) return error.message;
-	return "Something went wrong.";
+	return getErrorMessage(error);
 }
 
 /** Convenience: read just the raw token (for logging / branch checks). */
 export function extractOrderErrorToken(error: unknown): string | undefined {
 	const axiosErr = error as AxiosError<ErrorPayload> | undefined;
-	return axiosErr?.response?.data?.error;
+	const rawError = axiosErr?.response?.data?.error;
+	return typeof rawError === "string" ? rawError : rawError?.code;
 }

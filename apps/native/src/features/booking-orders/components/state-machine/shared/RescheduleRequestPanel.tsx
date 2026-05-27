@@ -2,6 +2,8 @@ import { CalendarClock, Check, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
+import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import {
 	useOrderRescheduleQuery,
@@ -13,9 +15,12 @@ import {
 	useUserWithdrawReschedule,
 } from "@/src/features/booking-orders/hooks";
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import {
+	extractOrderErrorToken,
+	translateOrderError,
+} from "@/src/features/booking-orders/utils/translate-order-error";
+import { logger } from "@/src/lib/logger";
 import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
-import { StageSecondaryAction } from "./StageAction";
 
 export type ReschedulePanelViewer = "user" | "technician";
 
@@ -111,31 +116,51 @@ export default function RescheduleRequestPanel({
 			{
 				onSuccess: () =>
 					Toast.show({ type: "success", text1: "Reschedule approved" }),
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.reschedule", "approve_failed", {
+						orderId,
+						viewer,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Approve failed",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
-	}, [approveMutation, orderId]);
+	}, [approveMutation, orderId, viewer]);
 
-	const handleReject = useCallback(() => {
+	const handleReject = useCallback(async () => {
+		const ok = await confirm({
+			title: "Decline reschedule request?",
+			description:
+				"The other party will be notified. The original schedule remains active.",
+			primary: { label: "Decline", destructive: true },
+			secondary: { label: "Keep request" },
+		});
+		if (!ok) return;
 		rejectMutation.mutate(
 			{ orderId, reason: "Declined by counterparty" },
 			{
 				onSuccess: () =>
 					Toast.show({ type: "success", text1: "Reschedule rejected" }),
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.reschedule", "reject_failed", {
+						orderId,
+						viewer,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Reject failed",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
-	}, [rejectMutation, orderId]);
+	}, [rejectMutation, orderId, viewer]);
 
 	const handleWithdraw = useCallback(() => {
 		withdrawMutation.mutate(
@@ -143,15 +168,21 @@ export default function RescheduleRequestPanel({
 			{
 				onSuccess: () =>
 					Toast.show({ type: "success", text1: "Request withdrawn" }),
-				onError: (err) =>
+				onError: (err) => {
+					logger.warn("booking.reschedule", "withdraw_failed", {
+						orderId,
+						viewer,
+						token: extractOrderErrorToken(err),
+					});
 					Toast.show({
-						type: "error",
+						type: "info",
 						text1: "Withdraw failed",
 						text2: translateOrderError(err),
-					}),
+					});
+				},
 			},
 		);
-	}, [withdrawMutation, orderId]);
+	}, [withdrawMutation, orderId, viewer]);
 
 	if (isLoading && !data) {
 		return (
@@ -293,10 +324,7 @@ export default function RescheduleRequestPanel({
 							backgroundColor: `${themeColors.primary}1A`,
 						}}
 					>
-						<Text
-							variant="caption"
-							style={{ color: themeColors.primary }}
-						>
+						<Text variant="caption" style={{ color: themeColors.primary }}>
 							{countdown}
 						</Text>
 					</View>
@@ -346,37 +374,44 @@ export default function RescheduleRequestPanel({
 			{isCounterparty ? (
 				<View style={{ flexDirection: "row", gap: space[2] }}>
 					<View style={{ flex: 1 }}>
-						<StageSecondaryAction
-							label="Accept"
-							pendingLabel="Accepting..."
-							icon={Check}
-							tone="success"
+						<Button
+							variant="success"
+							size="lg"
+							fullWidth
+							iconLeft={Check}
 							onPress={handleApprove}
-							pending={approveMutation.isPending}
+							loading={approveMutation.isPending}
 							disabled={rejectMutation.isPending || withdrawMutation.isPending}
-						/>
+						>
+							{approveMutation.isPending ? "Accepting..." : "Accept"}
+						</Button>
 					</View>
 					<View style={{ flex: 1 }}>
-						<StageSecondaryAction
-							label="Decline"
-							pendingLabel="Declining..."
-							icon={X}
-							tone="danger"
+						<Button
+							variant="destructive"
+							size="lg"
+							fullWidth
+							iconLeft={X}
 							onPress={handleReject}
-							pending={rejectMutation.isPending}
+							loading={rejectMutation.isPending}
 							disabled={approveMutation.isPending || withdrawMutation.isPending}
-						/>
+						>
+							{rejectMutation.isPending ? "Declining..." : "Decline"}
+						</Button>
 					</View>
 				</View>
 			) : (
-				<StageSecondaryAction
-					label="Cancel request"
-					pendingLabel="Cancelling..."
-					icon={X}
+				<Button
+					variant="secondary"
+					size="lg"
+					fullWidth
+					iconLeft={X}
 					onPress={handleWithdraw}
+					loading={withdrawMutation.isPending}
 					disabled={approveMutation.isPending || rejectMutation.isPending}
-					pending={withdrawMutation.isPending}
-				/>
+				>
+					{withdrawMutation.isPending ? "Cancelling..." : "Cancel request"}
+				</Button>
 			)}
 		</View>
 	);

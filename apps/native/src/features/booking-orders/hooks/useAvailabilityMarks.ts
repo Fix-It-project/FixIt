@@ -21,12 +21,12 @@ interface Exception {
 export function useAvailabilityMarks(
 	templates: Template[],
 	exceptions: Exception[],
-	selectedDate: string | null,
+	selectedDate: string | null | undefined,
 ): MarkedDates {
 	const themeColors = useThemeColors();
 	return useMemo(() => {
 		const marks: MarkedDates = {};
-		if (!templates.length) return marks;
+		if (templates.length === 0) return marks;
 
 		const activeDays = new Set(
 			templates.filter((t) => t.active).map((t) => t.day_of_week),

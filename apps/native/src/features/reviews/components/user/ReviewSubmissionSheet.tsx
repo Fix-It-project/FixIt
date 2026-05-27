@@ -1,9 +1,7 @@
-import BottomSheet, {
-	BottomSheetBackdrop,
-	type BottomSheetBackdropProps,
-	BottomSheetScrollView,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import {
+	BottomSheet,
+	type BottomSheetRef,
+} from "@/src/components/ui/bottom-sheet";
 import {
 	type ComponentType,
 	forwardRef,
@@ -29,7 +27,7 @@ import { useReviewPromptStore } from "@/src/features/reviews/stores/review-promp
 import { spacing, useThemeColors } from "@/src/lib/theme";
 
 const KeyboardAwareBottomSheetScrollView =
-	BottomSheetScrollView as unknown as ComponentType<ScrollViewProps>;
+	BottomSheet.ScrollView as unknown as ComponentType<ScrollViewProps>;
 
 export interface ReviewSubmissionSheetRef {
 	open: (orderId: string, technicianId: string, technicianName: string) => void;
@@ -46,7 +44,7 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 	function ReviewSubmissionSheet(_, ref) {
 		const themeColors = useThemeColors();
 		const { height } = useWindowDimensions();
-		const bottomSheetRef = useRef<BottomSheet>(null);
+		const bottomSheetRef = useRef<BottomSheetRef>(null);
 		const formRef = useRef<InlineReviewFormHandle>(null);
 		const submittedRef = useRef(false);
 		const [isPending, setIsPending] = useState(false);
@@ -81,20 +79,6 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 			submittedRef.current = false;
 		}, [sheetState.orderId, markSkipped]);
 
-		const renderBackdrop = useCallback(
-			(props: BottomSheetBackdropProps) => (
-				<BottomSheetBackdrop
-					{...props}
-					disappearsOnIndex={-1}
-					appearsOnIndex={0}
-					opacity={1}
-					pressBehavior="close"
-					style={{ backgroundColor: themeColors.backdrop }}
-				/>
-			),
-			[themeColors.backdrop],
-		);
-
 		const handleSubmit = useCallback(async () => {
 			if (!formRef.current) return;
 			setIsPending(true);
@@ -118,28 +102,20 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 				ref={bottomSheetRef}
 				index={-1}
 				snapPoints={snapPoints}
-				enablePanDownToClose
 				onClose={handleClose}
-				keyboardBehavior="interactive"
-				keyboardBlurBehavior="restore"
 				android_keyboardInputMode="adjustResize"
-				backdropComponent={renderBackdrop}
-				backgroundStyle={{
-					backgroundColor: themeColors.surfaceBase,
-					borderTopLeftRadius: 24,
-					borderTopRightRadius: 24,
-				}}
 				handleIndicatorStyle={{
 					backgroundColor: themeColors.borderDefault,
 					width: spacing.sheet.handleWidth,
 				}}
 			>
-				<BottomSheetView
+				<BottomSheet.View
 					className="flex-1 px-button-x pb-stack-xl"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
 					<KeyboardAwareScrollView
-						ScrollViewComponent={KeyboardAwareBottomSheetScrollView}
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						ScrollViewComponent={KeyboardAwareBottomSheetScrollView as any}
 						className="flex-1"
 						showsVerticalScrollIndicator={false}
 						keyboardDismissMode="interactive"
@@ -196,7 +172,7 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 							</TouchableOpacity>
 						</View>
 					</KeyboardAwareScrollView>
-				</BottomSheetView>
+				</BottomSheet.View>
 			</BottomSheet>
 		);
 	},

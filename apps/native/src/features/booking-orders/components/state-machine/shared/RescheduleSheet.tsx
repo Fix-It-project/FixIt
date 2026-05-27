@@ -1,11 +1,5 @@
 import {
-	BottomSheetBackdrop,
-	type BottomSheetBackdropProps,
-	BottomSheetModal,
-	BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
-import type { AxiosError } from "axios";
-import {
+	type ComponentType,
 	forwardRef,
 	useCallback,
 	useEffect,
@@ -16,39 +10,47 @@ import {
 } from "react";
 import {
 	ActivityIndicator,
+	type ScrollViewProps,
 	TouchableOpacity,
 	useWindowDimensions,
 	View,
 } from "react-native";
-import { Calendar, type DateData } from "react-native-calendars";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import {
+	BottomSheet,
+	type BottomSheetModalRef,
+} from "@/src/components/ui/bottom-sheet";
 import { Button } from "@/src/components/ui/button";
+import { CalendarPicker } from "@/src/components/ui/calendar-picker";
 import { Text } from "@/src/components/ui/text";
 import {
-	useTechRequestReschedule,
-	useTechnicianPublicSchedule,
 	useAvailabilityMarks,
+	useTechnicianPublicSchedule,
+	useTechRequestReschedule,
 	useUserRequestReschedule,
 } from "@/src/features/booking-orders/hooks";
 import { todayIso } from "@/src/features/booking-orders/utils/date-helpers";
 import {
-	type BookingSlotHour,
 	BOOKING_SLOT_OPTIONS,
+	type BookingSlotHour,
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
-import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import {
-	getCalendarTheme,
-	radius,
-	space,
-	spacing,
-	useThemeColors,
-	useThemeTokens,
-} from "@/src/lib/theme";
+	extractOrderErrorToken,
+	translateOrderError,
+} from "@/src/features/booking-orders/utils/translate-order-error";
+import { logger } from "@/src/lib/logger";
+import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
 import ReasonTextarea from "./ReasonTextarea";
 import RescheduleSheetHeader from "./RescheduleSheetHeader";
+
+// react-native-keyboard-controller's ScrollViewComponent expects a Reanimated
+// forwardRef component. BottomSheet.ScrollView is animated internally; cast
+// through any to satisfy the structural forwardRef-marker check.
+const KeyboardAwareBottomSheetScrollView =
+	BottomSheet.ScrollView as unknown as ComponentType<ScrollViewProps>;
 
 export interface RescheduleSheetHandle {
 	open: (input: {
@@ -68,61 +70,48 @@ interface RescheduleSheetProps {
 const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 	function RescheduleSheet({ viewer = "user" }, ref) {
 		const themeColors = useThemeColors();
-		const themeTokens = useThemeTokens();
-		const sheetRef = useRef<BottomSheetModal>(null);
+		const sheetRef = useRef<BottomSheetModalRef>(undefined as never);
 		const { height: screenHeight } = useWindowDimensions();
 		const insets = useSafeAreaInsets();
 
-		const [selectedDateIso, setSelectedDateIso] = useState<string | null>(null);
-		const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+		const [selectedDateIso, setSelectedDateIso] = useState<string>();
+		const [selectedSlot, setSelectedSlot] = useState<string>();
 		const [reason, setReason] = useState("");
-		const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-		const [currentTechnicianId, setCurrentTechnicianId] = useState<
-			string | null
-		>(null);
-		const [originalScheduledDateIso, setOriginalScheduledDateIso] = useState<
-			string | null
-		>(null);
-		const [visibleMonthIso, setVisibleMonthIso] = useState<string | null>(null);
-		const [sheetIndex, setSheetIndex] = useState(-1);
+		const [currentOrderId, setCurrentOrderId] = useState<string>();
+		const [currentTechnicianId, setCurrentTechnicianId] = useState<string>();
+		const [originalScheduledDateIso, setOriginalScheduledDateIso] =
+			useState<string>();
+		const [visibleMonthIso, setVisibleMonthIso] = useState<string>();
 
 		const userMutation = useUserRequestReschedule();
 		const techMutation = useTechRequestReschedule();
 		const mutation = viewer === "technician" ? techMutation : userMutation;
 		const isSubmitting = mutation.isPending;
-		const { templates, exceptions, isLoading: isLoadingAvailability } =
-			useTechnicianPublicSchedule(currentTechnicianId);
+		const {
+			templates,
+			exceptions,
+			isLoading: isLoadingAvailability,
+		} = useTechnicianPublicSchedule(currentTechnicianId);
 		const availabilityMarks = useAvailabilityMarks(
 			templates,
 			exceptions,
 			selectedDateIso,
 		);
 
-		const calendarTheme = useMemo(
-			() => getCalendarTheme(themeTokens),
-			[themeTokens],
-		);
-
 		const resetState = useCallback(() => {
-			setSelectedDateIso(null);
-			setSelectedSlot(null);
+			setSelectedDateIso(undefined);
+			setSelectedSlot(undefined);
 			setReason("");
-			setCurrentOrderId(null);
-			setCurrentTechnicianId(null);
-			setOriginalScheduledDateIso(null);
-			setVisibleMonthIso(null);
-			setSheetIndex(-1);
+			setCurrentOrderId(undefined);
+			setCurrentTechnicianId(undefined);
+			setOriginalScheduledDateIso(undefined);
+			setVisibleMonthIso(undefined);
 		}, []);
 
 		const closeSheet = useCallback(() => {
 			if (isSubmitting) return;
 			sheetRef.current?.dismiss();
 		}, [isSubmitting]);
-
-		useHardwareBackHandler(sheetIndex >= 0, () => {
-			closeSheet();
-			return true;
-		});
 
 		useImperativeHandle(
 			ref,
@@ -132,14 +121,13 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 					technicianId?: string | null;
 					originalScheduledDate?: string | null;
 				}) => {
-						setCurrentOrderId(input.orderId);
-						setCurrentTechnicianId(input.technicianId ?? null);
-						setOriginalScheduledDateIso(input.originalScheduledDate ?? null);
-						setVisibleMonthIso(input.originalScheduledDate ?? todayIso);
-						setSelectedDateIso(null);
-						setSelectedSlot(null);
-						setReason("");
-					setSheetIndex(0);
+					setCurrentOrderId(input.orderId);
+					setCurrentTechnicianId(input.technicianId ?? undefined);
+					setOriginalScheduledDateIso(input.originalScheduledDate ?? undefined);
+					setVisibleMonthIso(input.originalScheduledDate ?? todayIso);
+					setSelectedDateIso(undefined);
+					setSelectedSlot(undefined);
+					setReason("");
 					sheetRef.current?.present();
 				},
 				close: () => {
@@ -160,7 +148,9 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 				if (exceptionDateSet.has(dateIso)) return false;
 
 				const dayOfWeek = new Date(`${dateIso}T00:00:00`).getDay();
-				const dayTemplates = templates.filter((t) => t.day_of_week === dayOfWeek);
+				const dayTemplates = templates.filter(
+					(t) => t.day_of_week === dayOfWeek,
+				);
 				if (dayTemplates.length === 0) return false;
 
 				return dayTemplates.some((template) => template.active);
@@ -174,15 +164,19 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 				if (!isDateAvailable(dateIso)) return false;
 
 				const dayOfWeek = new Date(`${dateIso}T00:00:00`).getDay();
-				const dayTemplates = templates.filter((t) => t.day_of_week === dayOfWeek);
-				const slotTemplates = dayTemplates.filter((t) => t.slot_hour === slotHour);
+				const dayTemplates = templates.filter(
+					(t) => t.day_of_week === dayOfWeek,
+				);
+				const slotTemplates = dayTemplates.filter(
+					(t) => t.slot_hour === slotHour,
+				);
 
 				if (slotTemplates.length > 0) {
 					return slotTemplates.some((template) => template.active);
 				}
 
 				const dayLevelTemplates = dayTemplates.filter(
-					(template) => template.slot_hour == null,
+					(template) => typeof template.slot_hour !== "number",
 				);
 				if (dayLevelTemplates.length > 0) {
 					return dayLevelTemplates.some((template) => template.active);
@@ -196,54 +190,40 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 		useEffect(() => {
 			if (!selectedDateIso) return;
 			if (!isDateAvailable(selectedDateIso)) {
-				setSelectedDateIso(null);
-				setSelectedSlot(null);
+				setSelectedDateIso(undefined);
+				setSelectedSlot(undefined);
 				return;
 			}
 
 			if (!selectedSlot) return;
-			const picked = BOOKING_SLOT_OPTIONS.find((slot) => slot.value === selectedSlot);
+			const picked = BOOKING_SLOT_OPTIONS.find(
+				(slot) => slot.value === selectedSlot,
+			);
 			if (!picked || !isSlotAvailable(selectedDateIso, picked.hour)) {
-				setSelectedSlot(null);
+				setSelectedSlot(undefined);
 			}
 		}, [isDateAvailable, isSlotAvailable, selectedDateIso, selectedSlot]);
 
-		const renderBackdrop = useCallback(
-			(props: BottomSheetBackdropProps) => (
-				<BottomSheetBackdrop
-					{...props}
-					appearsOnIndex={0}
-					disappearsOnIndex={-1}
-					pressBehavior={isSubmitting ? "none" : "close"}
-					opacity={1}
-					style={{ backgroundColor: themeColors.backdrop }}
-				/>
-			),
-			[isSubmitting, themeColors.backdrop],
-		);
-
 		const handleDayPress = useCallback(
-			(day: DateData) => {
+			(dateString: string) => {
 				if (isSubmitting) return;
-				if (day.dateString < todayIso) return;
-				if (!isDateAvailable(day.dateString)) return;
-				setSelectedDateIso(day.dateString);
-				setSelectedSlot(null);
+				if (dateString < todayIso) return;
+				if (!isDateAvailable(dateString)) return;
+				setSelectedDateIso(dateString);
+				setSelectedSlot(undefined);
 			},
 			[isDateAvailable, isSubmitting],
 		);
 
 		const markedDates = useMemo(() => {
-			const baseMarks = currentTechnicianId
-				? { ...availabilityMarks }
-				: selectedDateIso
-					? {
-							[selectedDateIso]: {
-								selected: true,
-								selectedColor: themeColors.primary,
-							},
-						}
-					: {};
+			const baseMarks = currentTechnicianId ? { ...availabilityMarks } : {};
+
+			if (!currentTechnicianId && selectedDateIso) {
+				baseMarks[selectedDateIso] = {
+					selected: true,
+					selectedColor: themeColors.primary,
+				};
+			}
 
 			if (originalScheduledDateIso) {
 				const existing = baseMarks[originalScheduledDateIso] ?? {};
@@ -285,7 +265,10 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 			const slot = BOOKING_SLOT_OPTIONS.find((s) => s.value === selectedSlot);
 			if (!slot) return;
 
-			const proposedStartAtIso = buildCairoSlotIsoUtc(selectedDateIso, slot.hour);
+			const proposedStartAtIso = buildCairoSlotIsoUtc(
+				selectedDateIso,
+				slot.hour,
+			);
 			mutation.mutate(
 				{
 					orderId: currentOrderId,
@@ -303,14 +286,16 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 						resetState();
 					},
 					onError: (error) => {
-						const axiosErr = error as AxiosError<{ error?: string }>;
-						console.warn(
-							"[reschedule-error]",
-							axiosErr?.response?.status,
-							axiosErr?.response?.data,
-						);
+						const responseError = error as {
+							response?: { status?: number; data?: unknown };
+						};
+						logger.warn("reschedule-error", "reschedule failed", {
+							orderId: currentOrderId,
+							status: responseError.response?.status,
+							token: extractOrderErrorToken(error),
+						});
 						Toast.show({
-							type: "error",
+							type: "info",
 							text1: "Reschedule rejected",
 							text2: translateOrderError(error),
 						});
@@ -327,24 +312,21 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 		]);
 
 		return (
-			<BottomSheetModal
+			<BottomSheet.Modal
 				ref={sheetRef}
 				enableDynamicSizing
 				maxDynamicContentSize={screenHeight * 0.9}
 				enablePanDownToClose={!isSubmitting}
-				keyboardBehavior="interactive"
-				keyboardBlurBehavior="restore"
 				android_keyboardInputMode="adjustResize"
-				backdropComponent={renderBackdrop}
-				backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
 				handleIndicatorStyle={{
 					backgroundColor: themeColors.borderDefault,
 					width: spacing.sheet.handleWidth,
 				}}
-				onChange={setSheetIndex}
 				onDismiss={resetState}
 			>
-				<BottomSheetScrollView
+				<KeyboardAwareScrollView
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					ScrollViewComponent={KeyboardAwareBottomSheetScrollView as any}
 					className="px-screen-x"
 					style={{ backgroundColor: themeColors.surfaceBase }}
 					contentContainerStyle={{
@@ -352,19 +334,22 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 					}}
 					keyboardShouldPersistTaps="handled"
 					keyboardDismissMode="interactive"
+					bottomOffset={space[3]}
+					extraKeyboardSpace={0}
 				>
 					<RescheduleSheetHeader onClose={closeSheet} disabled={isSubmitting} />
 
-					<Calendar
+					<CalendarPicker
 						minDate={todayIso}
 						initialDate={visibleMonthIso ?? todayIso}
-						onDayPress={handleDayPress}
-						onMonthChange={(month) => setVisibleMonthIso(month.dateString)}
+						onDateSelect={handleDayPress}
+						onMonthChange={(month: { dateString: string }) =>
+							setVisibleMonthIso(month.dateString)
+						}
 						markedDates={markedDates}
 						markingType="custom"
-						theme={calendarTheme}
 					/>
-					{!currentTechnicianId ? (
+					{currentTechnicianId ? undefined : (
 						<View
 							style={{
 								marginTop: space[2],
@@ -378,7 +363,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 								Could not load technician availability for this reschedule.
 							</Text>
 						</View>
-					) : null}
+					)}
 					{isLoadingAvailability && currentTechnicianId ? (
 						<View
 							style={{
@@ -393,7 +378,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 								Loading technician availability...
 							</Text>
 						</View>
-					) : null}
+					) : undefined}
 
 					<View className="mt-stack-md">
 						<Text variant="buttonMd" className="mb-stack-sm text-content">
@@ -464,12 +449,11 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 								Sending request...
 							</Text>
 						</View>
-					) : null}
+					) : undefined}
 
 					<View className="mt-stack-md">
 						<Button
 							onPress={handleSubmit}
-							size="action"
 							className="w-full"
 							disabled={submitDisabled}
 						>
@@ -478,7 +462,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 									size="small"
 									color={themeColors.surfaceOnPrimary}
 								/>
-							) : null}
+							) : undefined}
 							<Text
 								variant="buttonLg"
 								style={{ color: themeColors.surfaceOnPrimary }}
@@ -487,8 +471,8 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 							</Text>
 						</Button>
 					</View>
-				</BottomSheetScrollView>
-			</BottomSheetModal>
+				</KeyboardAwareScrollView>
+			</BottomSheet.Modal>
 		);
 	},
 );

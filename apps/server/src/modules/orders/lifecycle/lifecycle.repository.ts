@@ -158,6 +158,55 @@ export interface ResolveFeeObligationParams {
  * function attaches `HINT current distance N.NN km`) so the client can
  * surface a precise message.
  */
+// Human-readable userMessage per machine code. The `token` field on AppError
+// carries the snake_case identifier for clients that need to switch on it.
+const HUMAN: Record<string, string> = {
+	cannot_submit_order_unpaid_fee:
+		"Please clear your unpaid fees before submitting another order.",
+	destination_address_not_owned_by_user:
+		"That address isn't on your account.",
+	order_not_found_or_not_owner: "Order not found.",
+	order_not_found: "Order not found.",
+	not_owner: "You don't have access to this order.",
+	bad_actor_role: "Invalid request — unsupported role.",
+	bad_payment_method: "Unsupported payment method.",
+	bad_order_action: "Unsupported order action.",
+	bad_status: "The order is in a state that doesn't allow this action.",
+	scheduled_start_at_required: "A scheduled start time is required.",
+	invalid_scheduled_start_at: "The scheduled start time is invalid.",
+	scheduled_date_start_mismatch:
+		"The scheduled date and start time don't match.",
+	invalid_scheduled_slot: "That time slot isn't available.",
+	invalid_transition: "This action isn't allowed for the current order state.",
+	arrival_not_detected_yet:
+		"We haven't detected your arrival at the destination yet.",
+	location_updates_only_allowed_while_tracking:
+		"Location updates are only allowed while tracking.",
+	technician_already_has_active_order:
+		"You already have an active order. Finish it before accepting another.",
+	technician_already_tracking_another_order:
+		"You're already tracking another order. Finish it before starting this one.",
+	earlier_order_not_completed:
+		"You can't start this order yet — finish your earlier order first.",
+	quote_not_found: "That quote no longer exists.",
+	quote_not_pending: "That quote isn't pending anymore.",
+	cannot_accept_own_quote: "You can't accept your own quote.",
+	cannot_cancel_from_status:
+		"This order can't be cancelled from its current state.",
+	wrong_actor_for_round: "It's the other party's turn to act on this quote.",
+	max_quote_rounds_reached:
+		"You've reached the maximum number of quote rounds.",
+	missing_final_price: "A final price is required to complete this order.",
+	no_cash_payment_pending: "There's no pending cash payment for this order.",
+	no_completion_pending:
+		"There's no pending completion request to act on.",
+	fee_not_unpaid: "That fee is no longer unpaid.",
+};
+
+function humanMessageFor(code: string): string {
+	return HUMAN[code] ?? "Something went wrong. Please try again.";
+}
+
 export function mapLifecycleRpcError(error: {
 	code?: string;
 	message?: string;
@@ -165,77 +214,88 @@ export function mapLifecycleRpcError(error: {
 }): never {
 	const msg = error.message ?? "";
 
+	const conflict = (code: string): never => {
+		throw AppError.conflict(humanMessageFor(code), { token: code });
+	};
+	const badRequest = (code: string): never => {
+		throw AppError.badRequest(humanMessageFor(code), { token: code });
+	};
+	const notFound = (code: string): never => {
+		throw AppError.notFound(humanMessageFor(code), { token: code });
+	};
+	const forbidden = (code: string): never => {
+		throw AppError.forbidden(humanMessageFor(code), { token: code });
+	};
+
 	// Submit-time guards (most specific first — order_not_found_or_not_owner
 	// must come before order_not_found / not_owner substrings).
 	if (msg.includes("cannot_submit_order_unpaid_fee"))
-		throw AppError.conflict("cannot_submit_order_unpaid_fee");
+		conflict("cannot_submit_order_unpaid_fee");
 	if (msg.includes("destination_address_not_owned_by_user"))
-		throw AppError.forbidden("destination_address_not_owned_by_user");
+		forbidden("destination_address_not_owned_by_user");
 	if (msg.includes("order_not_found_or_not_owner"))
-		throw AppError.notFound("order_not_found_or_not_owner");
+		notFound("order_not_found_or_not_owner");
 
 	// Generic ownership / lookup.
-	if (msg.includes("order_not_found"))
-		throw AppError.notFound("order_not_found");
-	if (msg.includes("not_owner")) throw AppError.forbidden("not_owner");
+	if (msg.includes("order_not_found")) notFound("order_not_found");
+	if (msg.includes("not_owner")) forbidden("not_owner");
 
 	// Bad input shapes.
-	if (msg.includes("bad_actor_role"))
-		throw AppError.badRequest("bad_actor_role");
-	if (msg.includes("bad_payment_method"))
-		throw AppError.badRequest("bad_payment_method");
-	if (msg.includes("bad_order_action"))
-		throw AppError.badRequest("bad_order_action");
-	if (msg.includes("bad_status")) throw AppError.badRequest("bad_status");
+	if (msg.includes("bad_actor_role")) badRequest("bad_actor_role");
+	if (msg.includes("bad_payment_method")) badRequest("bad_payment_method");
+	if (msg.includes("bad_order_action")) badRequest("bad_order_action");
+	if (msg.includes("bad_status")) badRequest("bad_status");
 	if (msg.includes("scheduled_start_at_required"))
-		throw AppError.badRequest("scheduled_start_at_required");
+		badRequest("scheduled_start_at_required");
 	if (msg.includes("invalid_scheduled_start_at"))
-		throw AppError.badRequest("invalid_scheduled_start_at");
+		badRequest("invalid_scheduled_start_at");
 	if (msg.includes("scheduled_date_start_mismatch"))
-		throw AppError.badRequest("scheduled_date_start_mismatch");
+		badRequest("scheduled_date_start_mismatch");
 	if (msg.includes("invalid_scheduled_slot"))
-		throw AppError.badRequest("invalid_scheduled_slot");
+		badRequest("invalid_scheduled_slot");
 
 	// State-machine violations.
-	if (msg.includes("invalid_transition"))
-		throw AppError.conflict("invalid_transition");
+	if (msg.includes("invalid_transition")) conflict("invalid_transition");
 	if (msg.includes("arrival_not_detected_yet"))
-		throw AppError.conflict("arrival_not_detected_yet");
+		conflict("arrival_not_detected_yet");
 	if (msg.includes("too_far_from_destination")) {
-		const hint = error.hint ? `:${error.hint}` : "";
-		throw AppError.conflict(`too_far_from_destination${hint}`);
+		// Surface the Postgres hint (e.g. "current distance 2.34 km") to the
+		// technician in the userMessage so they understand how far off they are.
+		// Keep the raw hint in opts.devMessage for logs.
+		const sentence = error.hint
+			? `You're too far from the destination (${error.hint}).`
+			: "You're too far from the destination to start.";
+		throw AppError.conflict(sentence, {
+			token: "too_far_from_destination",
+			devMessage: error.hint ?? undefined,
+		});
 	}
 	if (msg.includes("location_updates_only_allowed_while_tracking"))
-		throw AppError.conflict("location_updates_only_allowed_while_tracking");
+		conflict("location_updates_only_allowed_while_tracking");
 	if (msg.includes("technician_already_has_active_order"))
-		throw AppError.conflict("technician_already_has_active_order");
+		conflict("technician_already_has_active_order");
 	if (msg.includes("technician_already_tracking_another_order"))
-		throw AppError.conflict("technician_already_tracking_another_order");
+		conflict("technician_already_tracking_another_order");
 	if (msg.includes("earlier_order_not_completed"))
-		throw AppError.conflict("earlier_order_not_completed");
+		conflict("earlier_order_not_completed");
 
 	// Quote-flow guards.
-	if (msg.includes("quote_not_found"))
-		throw AppError.notFound("quote_not_found");
-	if (msg.includes("quote_not_pending"))
-		throw AppError.conflict("quote_not_pending");
+	if (msg.includes("quote_not_found")) notFound("quote_not_found");
+	if (msg.includes("quote_not_pending")) conflict("quote_not_pending");
 	if (msg.includes("cannot_accept_own_quote"))
-		throw AppError.badRequest("cannot_accept_own_quote");
+		badRequest("cannot_accept_own_quote");
 	if (msg.includes("cannot_cancel_from_status"))
-		throw AppError.badRequest("cannot_cancel_from_status");
-	if (msg.includes("wrong_actor_for_round"))
-		throw AppError.badRequest("wrong_actor_for_round");
+		badRequest("cannot_cancel_from_status");
+	if (msg.includes("wrong_actor_for_round")) badRequest("wrong_actor_for_round");
 	if (msg.includes("max_quote_rounds_reached"))
-		throw AppError.conflict("max_quote_rounds_reached");
+		conflict("max_quote_rounds_reached");
 
 	// Completion / payment / fees.
-	if (msg.includes("missing_final_price"))
-		throw AppError.conflict("missing_final_price");
+	if (msg.includes("missing_final_price")) conflict("missing_final_price");
 	if (msg.includes("no_cash_payment_pending"))
-		throw AppError.conflict("no_cash_payment_pending");
-	if (msg.includes("no_completion_pending"))
-		throw AppError.conflict("no_completion_pending");
-	if (msg.includes("fee_not_unpaid")) throw AppError.conflict("fee_not_unpaid");
+		conflict("no_cash_payment_pending");
+	if (msg.includes("no_completion_pending")) conflict("no_completion_pending");
+	if (msg.includes("fee_not_unpaid")) conflict("fee_not_unpaid");
 
 	// Unknown error — rethrow as-is (mirrors reschedule mapper's final `throw error`).
 	throw error;

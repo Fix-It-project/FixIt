@@ -2,6 +2,7 @@ import { CircleX, type LucideIcon } from "lucide-react-native";
 import { Pressable, View } from "react-native";
 import { Input, type InputProps } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
+import { Textarea } from "@/src/components/ui/textarea";
 import { Colors } from "@/src/lib/theme";
 
 interface FormInputProps {
@@ -32,7 +33,7 @@ function FormInput({
 	disabled,
 	keyboardType,
 	autoCapitalize,
-	variant = "filled",
+	variant = "outline",
 	clearable = false,
 	onClear,
 	required = false,
@@ -40,7 +41,7 @@ function FormInput({
 	multiline,
 }: FormInputProps) {
 	return (
-		<View className={variant === "filled" ? "gap-stack-md" : ""}>
+		<View className="gap-stack-sm">
 			{label && (
 				<Text variant="buttonMd" className="text-content">
 					{label}
@@ -53,19 +54,32 @@ function FormInput({
 				</Text>
 			)}
 			<View className="flex-row items-center">
-				<Input
-					variant={variant}
-					hasError={!!error}
-					value={value}
-					onChangeText={onChangeText}
-					placeholder={placeholder}
-					keyboardType={keyboardType}
-					autoCapitalize={autoCapitalize}
-					editable={!disabled}
-					secureToggle={secureToggle}
-					multiline={multiline}
-					className="flex-1"
-				/>
+				{multiline ? (
+					<Textarea
+						variant={variant}
+						hasError={!!error}
+						value={value}
+						onChangeText={onChangeText}
+						placeholder={placeholder}
+						keyboardType={keyboardType}
+						autoCapitalize={autoCapitalize}
+						editable={!disabled}
+						className="flex-1"
+					/>
+				) : (
+					<Input
+						variant={variant}
+						hasError={!!error}
+						value={value}
+						onChangeText={onChangeText}
+						placeholder={placeholder}
+						keyboardType={keyboardType}
+						autoCapitalize={autoCapitalize}
+						editable={!disabled}
+						secureToggle={secureToggle}
+						className="flex-1"
+					/>
+				)}
 				{clearable && value.length > 0 && (
 					<Pressable
 						onPress={onClear}

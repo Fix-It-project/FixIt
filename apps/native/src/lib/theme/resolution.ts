@@ -1,4 +1,5 @@
-import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, type Theme } from "expo-router/react-navigation";
+import type { ColorSchemeName } from "react-native";
 import type { Theme as CalendarTheme } from "react-native-calendars/src/types";
 import { fontFamily, fontSize, radius, spacing } from "@/src/lib/design-tokens";
 import { themeRegistry } from "./definitions";
@@ -6,7 +7,7 @@ import type { ThemeId, ThemePreference, ThemeTokens } from "./types";
 
 export function resolveThemeId(
 	preference: ThemePreference,
-	systemColorScheme?: "light" | "dark" | null,
+	systemColorScheme?: ColorSchemeName | null,
 ): ThemeId {
 	if (preference === "system") {
 		return systemColorScheme === "dark" ? "dark" : "light";

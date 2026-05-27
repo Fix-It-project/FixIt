@@ -22,14 +22,14 @@ import {
 	SPRING_SOFT,
 	STAGGER_GAP,
 } from "@/src/lib/animation/constants";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { Button } from "@/src/components/ui/button";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import { ROUTES } from "@/src/lib/routes";
-import { Colors, space, useThemeColors } from "@/src/lib/theme";
+import { space, useThemeColors } from "@/src/lib/theme";
 
 const CHECK_SIZE = 64;
 const CHECK_HALO_SIZE = 112;
@@ -188,46 +188,25 @@ export default function PlacedOrderScreen() {
 					}
 					style={{ marginTop: "auto", gap: space[2] }}
 				>
-					<PressableScale
+					<Button
+						variant="primary"
+						size="xl"
+						fullWidth
+						iconRight={ArrowRight}
 						onPress={goToOrderDetail}
-						accessibilityRole="button"
-						accessibilityLabel="View order details"
 					>
-						<View className="w-full flex-row items-center justify-between gap-stack-sm rounded-button bg-app-primary px-button-x py-control-cta-y">
-							<View style={{ width: space[5] }} />
-							<Text
-								variant="buttonLg"
-								className="font-google-sans-bold text-surface-on-primary"
-							>
-								View order details
-							</Text>
-							<ArrowRight
-								size={20}
-								color={Colors.surfaceBase}
-								strokeWidth={2.4}
-							/>
-						</View>
-					</PressableScale>
+						View order details
+					</Button>
 
-					<PressableScale
+					<Button
+						variant="secondary"
+						size="xl"
+						fullWidth
+						iconLeft={Home}
 						onPress={goHome}
-						accessibilityRole="button"
-						accessibilityLabel="Back to home"
 					>
-						<View className="w-full flex-row items-center justify-center gap-stack-sm rounded-button bg-surface-elevated px-button-x py-control-cta-y">
-							<Home
-								size={18}
-								color={themeColors.textPrimary}
-								strokeWidth={2.4}
-							/>
-							<Text
-								variant="buttonLg"
-								className="font-google-sans-bold text-content"
-							>
-								Back to home
-							</Text>
-						</View>
-					</PressableScale>
+						Back to home
+					</Button>
 				</Animated.View>
 			</View>
 			<TechnicianProfileSheet ref={profileSheetRef} />

@@ -1,5 +1,6 @@
 import * as Location from "expo-location";
 import { create } from "zustand";
+import { logger } from "@/src/lib/logger";
 
 interface LocationState {
 	location: { latitude: number; longitude: number } | null;
@@ -36,7 +37,7 @@ export const useLocationStore = create<LocationState>((set) => ({
 				},
 			});
 		} catch (error) {
-			console.error("Error getting location:", error);
+			logger.error("LocationStore", "Error getting location", error);
 		} finally {
 			set({ isLoading: false });
 		}

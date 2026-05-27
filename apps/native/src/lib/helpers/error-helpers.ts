@@ -1,21 +1,29 @@
 import axios from "axios";
+import { getErrorMessage as getAppErrorMessage } from "@/src/lib/errors/to-app-error";
 
-/**
- * @param error - The error object to extract a message from
- * @returns A string containing the error message
- */
+type LegacyErrorPayload = {
+	error?: string | { code?: unknown; message?: unknown };
+	message?: unknown;
+};
+
+function getLegacyPayloadMessage(payload: LegacyErrorPayload): string | null {
+	if (typeof payload.error === "string") return payload.error;
+	if (payload.error && typeof payload.error === "object") {
+		if (typeof payload.error.message === "string") return payload.error.message;
+		if (typeof payload.error.code === "string") return payload.error.code;
+	}
+	if (typeof payload.message === "string") return payload.message;
+	return null;
+}
+
 export function getErrorMessage(error: unknown): string {
-	if (axios.isAxiosError<{ error?: string }>(error)) {
-		return (
-			error.response?.data?.error ??
-			error.message ??
-			"Something went wrong. Please try again."
-		);
+	if (axios.isAxiosError(error)) {
+		const payload = error.response?.data;
+		if (payload && typeof payload === "object") {
+			const message = getLegacyPayloadMessage(payload as LegacyErrorPayload);
+			if (message) return message;
+		}
 	}
 
-	if (error instanceof Error) {
-		return error.message;
-	}
-
-	return "Something went wrong. Please try again.";
+	return getAppErrorMessage(error);
 }

@@ -7,7 +7,7 @@ import BookingDetailsStep, {
 } from "@/src/features/booking-orders/components/user/BookingDetailsStep";
 import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { showError } from "@/src/lib/errors/show-error";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
 
@@ -71,11 +71,11 @@ export default function BookingDetailsScreen() {
 			return;
 		}
 		if (isAddressError) {
-			Toast.show({ type: "error", text1: "Unable to load your location." });
+			Toast.show({ type: "info", text1: "Unable to load your location." });
 			return;
 		}
 		if (!selectedAddress) {
-			Toast.show({ type: "error", text1: "Add a location before booking." });
+			Toast.show({ type: "info", text1: "Add a location before booking." });
 			return;
 		}
 		try {
@@ -105,7 +105,7 @@ export default function BookingDetailsScreen() {
 				router.push(ROUTES.user.placedOrder(createdOrderId));
 			}
 		} catch (error: unknown) {
-			Toast.show({ type: "error", text1: getErrorMessage(error) });
+			showError(error);
 		}
 	};
 

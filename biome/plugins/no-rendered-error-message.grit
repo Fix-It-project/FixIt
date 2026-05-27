@@ -1,0 +1,20 @@
+language js
+
+// LGUARD-03 — Rendering err.message / error.message / err.toString() in JSX
+// inside apps/native/src/app/** or apps/native/src/features/** leaks raw server
+// error strings to end users. Route through showError(err) or display
+// app.userMessage from toAppError(err) instead.
+//
+// lib/errors/, lib/logger.ts, lib/monitoring.ts handle Error objects internally
+// and may legitimately reference .message — they are exempt.
+
+or {
+  `{$expr.message}`,
+  `{$expr.toString()}`
+} where {
+  $expr <: or { `err`, `error` },
+  $filename <: or {
+    includes "apps/native/src/app/",
+    includes "apps/native/src/features/"
+  }
+}

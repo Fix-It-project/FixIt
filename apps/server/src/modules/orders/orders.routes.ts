@@ -17,37 +17,33 @@ import rescheduleRoutes from "./reschedule.routes.js";
 const router: RouterType = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.get("/user/orders", requireUserAuth, (req, res) =>
-	ordersController.getUserOrders(req, res),
-);
+router.get("/user/orders", requireUserAuth, ordersController.getUserOrders);
 router.post(
 	"/user/orders",
 	requireUserAuth,
 	upload.single("attachment"),
 	validate({ body: CreateOrderBodySchema }),
-	(req, res, next) => ordersController.createOrder(req, res, next),
+	ordersController.createOrder,
 );
 router.get(
 	"/user/orders/:id",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema }),
-	(req, res) => ordersController.getUserOrderById(req, res),
+	ordersController.getUserOrderById,
 );
 router.patch(
 	"/user/orders/:id",
 	requireUserAuth,
 	validate({ params: OrderIdParamsSchema, body: UserUpdateOrderBodySchema }),
-	(req, res, next) => ordersController.userUpdateOrder(req, res, next),
+	ordersController.userUpdateOrder,
 );
 
-router.get("/technician/orders", requireTechnicianAuth, (req, res) =>
-	ordersController.getTechnicianOrders(req, res),
-);
+router.get("/technician/orders", requireTechnicianAuth, ordersController.getTechnicianOrders);
 router.get(
 	"/technician/orders/:id",
 	requireTechnicianAuth,
 	validate({ params: OrderIdParamsSchema }),
-	(req, res) => ordersController.getTechnicianOrderById(req, res),
+	ordersController.getTechnicianOrderById,
 );
 router.patch(
 	"/technician/orders/:id",
@@ -56,7 +52,7 @@ router.patch(
 		params: OrderIdParamsSchema,
 		body: TechnicianUpdateOrderBodySchema,
 	}),
-	(req, res, next) => ordersController.technicianUpdateOrder(req, res, next),
+	ordersController.technicianUpdateOrder,
 );
 
 router.use(rescheduleRoutes);

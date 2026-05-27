@@ -144,12 +144,12 @@ export const spacing = {
 		height: {
 			sm: 36,
 			md: 48,
-			lg: 56,
-			xl: 64,
+			lg: 48,
+			xl: 48,
 		},
 		paddingX: 24,
 		paddingXSm: 12,
-		paddingXLg: 32,
+		paddingXLg: 24,
 	},
 	input: {
 		height: 56,

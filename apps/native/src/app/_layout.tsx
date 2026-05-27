@@ -1,12 +1,12 @@
 import "../../global.css";
+import "@/src/lib/monitoring";
 
 import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { ThemeProvider } from "@react-navigation/native";
+import { ThemeProvider } from "expo-router/react-navigation";
 import { PortalHost } from "@rn-primitives/portal";
-import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useNavigationContainerRef } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo } from "react";
@@ -16,8 +16,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CustomToast } from "@/src/components/ui/toast";
+import { DialogProvider } from "@/src/components/ui/dialog";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
+import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
+import { Sentry, registerNavigationContainer } from "@/src/lib/monitoring";
 import queryClient from "@/src/lib/query-client";
 import {
 	createNavigationTheme,
@@ -29,14 +32,6 @@ import { AppSafeAreaFrame } from "@/src/lib/utils/AppSafeAreaFrame";
 
 SplashScreen.preventAutoHideAsync();
 
-Sentry.init({
-	dsn: "https://bd466622828fff10dd93d712742852e5@o4510789900500992.ingest.us.sentry.io/4510789900763136",
-	enableLogs: true,
-	replaysSessionSampleRate: 0.1,
-	replaysOnErrorSampleRate: 1,
-	integrations: [Sentry.mobileReplayIntegration()],
-});
-
 const styles = StyleSheet.create({
 	container: { flex: 1 },
 });
@@ -45,6 +40,13 @@ function RootLayout() {
 	const [fontsLoaded] = useFonts(fontAssets);
 	const { isReady } = useAppBootstrap(fontsLoaded);
 	const tokens = useThemeTokens();
+	const navigationRef = useNavigationContainerRef();
+
+	useEffect(() => {
+		if (navigationRef?.current) {
+			registerNavigationContainer(navigationRef);
+		}
+	}, [navigationRef]);
 	const navigationTheme = useMemo(
 		() => createNavigationTheme(tokens),
 		[tokens],
@@ -77,14 +79,18 @@ function RootLayout() {
 							<AppSafeAreaFrame>
 								<KeyboardProvider>
 									<BottomSheetModalProvider>
-										<Stack screenOptions={{ headerShown: false }}>
-											<Stack.Screen name="index" />
-											<Stack.Screen name="(auth)" />
-											<Stack.Screen name="user" />
-											<Stack.Screen name="technician" />
-										</Stack>
+										<RouteErrorBoundary>
+											<Stack screenOptions={{ headerShown: false }}>
+												<Stack.Screen name="index" />
+												<Stack.Screen name="(auth)" />
+												<Stack.Screen name="user" />
+												<Stack.Screen name="technician" />
+											</Stack>
+										</RouteErrorBoundary>
 
 										<PortalHost />
+										<DialogProvider />
+										<PortalHost name="dialog-root" />
 										<CustomToast />
 									</BottomSheetModalProvider>
 								</KeyboardProvider>

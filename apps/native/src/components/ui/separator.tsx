@@ -1,6 +1,6 @@
+import * as SeparatorPrimitive from "@rn-primitives/separator";
 import { cva, type VariantProps } from "class-variance-authority";
-import * as React from "react";
-import { View, type ViewProps } from "react-native";
+import type * as React from "react";
 import { cn } from "@/src/lib/utils";
 
 const separatorVariants = cva("shrink-0", {
@@ -21,35 +21,25 @@ const separatorVariants = cva("shrink-0", {
 	},
 });
 
-type SeparatorProps = ViewProps &
-	VariantProps<typeof separatorVariants> & {
-		/** Accessibility: when true the separator is purely visual */
-		decorative?: boolean;
-	};
+type SeparatorProps = React.ComponentProps<typeof SeparatorPrimitive.Root> &
+	VariantProps<typeof separatorVariants>;
 
-const Separator = React.forwardRef<View, SeparatorProps>(
-	(
-		{
-			className,
-			variant,
-			orientation = "horizontal",
-			decorative = true,
-			...props
-		},
-		ref,
-	) => {
-		return (
-			<View
-				ref={ref}
-				accessible={!decorative}
-				accessibilityLabel={decorative ? undefined : "separator"}
-				className={cn(separatorVariants({ variant, orientation }), className)}
-				{...props}
-			/>
-		);
-	},
-);
-Separator.displayName = "Separator";
+function Separator({
+	className,
+	variant = "default",
+	orientation = "horizontal",
+	decorative = true,
+	...props
+}: SeparatorProps) {
+	return (
+		<SeparatorPrimitive.Root
+			decorative={decorative}
+			orientation={orientation}
+			className={cn(separatorVariants({ variant, orientation }), className)}
+			{...props}
+		/>
+	);
+}
 
 export type { SeparatorProps };
 export { Separator, separatorVariants };

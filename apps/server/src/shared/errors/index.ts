@@ -4,7 +4,7 @@ export { AppError };
 
 export function normalizeError(err: unknown): { status: number; message: string } {
   if (err instanceof AppError) {
-    return { status: err.status, message: err.message };
+    return { status: (err as AppError).status, message: (err as AppError).message };
   }
   if (err instanceof Error) {
     return { status: 500, message: err.message };

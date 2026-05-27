@@ -4,6 +4,7 @@ import Toast from "react-native-toast-message";
 import { technicianSignUp } from "@/src/features/auth/api/technician-auth";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import { buildFormData } from "@/src/features/auth/utils/signup-helpers";
+import { logger } from "@/src/lib/logger";
 import { ROUTES } from "@/src/lib/routes";
 import { useLocationStore } from "@/src/stores/location-store";
 
@@ -15,10 +16,16 @@ export function useTechnicianSignUpMutation() {
 			data: import("@/src/features/auth/utils/signup-helpers").TechnicianSignUpInput,
 		) => {
 			const location = useLocationStore.getState().location;
+			logger.info("auth.signup", "technician_signup_submitting", {
+				hasLocation: !!location,
+			});
 			const formData = buildFormData(data, location);
 			return technicianSignUp(formData);
 		},
 		onSuccess: (response) => {
+			logger.info("auth.signup", "technician_signup_succeeded", {
+				technicianId: response.technician.id,
+			});
 			Toast.show({
 				type: "success",
 				text1: "Application Submitted!",

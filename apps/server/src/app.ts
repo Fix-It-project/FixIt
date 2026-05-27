@@ -13,8 +13,10 @@ import {
 	technicianProfileRoutes,
 	technicianSelfRoutes,
 	techniciansRoutes,
-} from "./modules/technicians/index.js";
+} from "./modules/technicians/technicians.routes.js";
 import usersRoutes from "./modules/users/users.routes.js";
+import { AppError } from "./shared/errors/app-error.js";
+import { finalErrorMiddleware } from "./shared/errors/final-error-middleware.js";
 import app from "./shared-app.js";
 
 app.use("/api/auth", authRoutes);
@@ -30,4 +32,13 @@ app.use("/api/technicians", technicianSelfRoutes);
 app.use("/api/technicians", technicianProfileRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/reviews", reviewsRoutes);
+
+// Catch-all 404 handler for unmatched routes (after all other routes)
+app.use((_req, _res, next) => {
+	next(AppError.notFound('Resource not found'));
+});
+
+// Mount final error middleware LAST
+app.use(finalErrorMiddleware);
+
 export default app;

@@ -51,3 +51,5 @@ export type {
 	ThemePrimitiveTokens,
 	ThemeTokens,
 } from "./types";
+export { overlayTokens } from "./overlay";
+export type { OverlayTokens } from "./overlay";

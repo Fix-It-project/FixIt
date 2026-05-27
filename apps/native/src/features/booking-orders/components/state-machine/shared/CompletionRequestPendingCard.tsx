@@ -7,11 +7,13 @@
 
 import { CheckCircle2, Clock, X } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
 	FadeInDown,
 	useReducedMotion,
 } from "react-native-reanimated";
+import { Button } from "@/src/components/ui/button";
+import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import { radius, spacing, useThemeColors } from "@/src/lib/theme";
 
@@ -159,102 +161,46 @@ export default function CompletionRequestPendingCard({
 			</View>
 
 			{isWaitingForOther ? (
-				<TouchableOpacity
+				<Button
+					variant="secondary"
+					size="lg"
+					fullWidth
+					iconLeft={X}
 					onPress={onDecline}
-					disabled={declinePending}
-					activeOpacity={0.8}
-					style={{
-						alignItems: "center",
-						justifyContent: "center",
-						minHeight: 44,
-						paddingVertical: spacing.stack.md,
-						borderRadius: radius.button,
-						borderWidth: 1,
-						borderColor: themeColors.borderDefault,
-						backgroundColor: themeColors.surfaceBase,
-						flexDirection: "row",
-						gap: spacing.stack.sm,
-					}}
+					loading={declinePending}
 				>
-					{declinePending ? (
-						<ActivityIndicator size="small" color={themeColors.textSecondary} />
-					) : (
-						<>
-							<X
-								size={spacing.icon.xs}
-								color={themeColors.textSecondary}
-							/>
-							<Text
-								variant="buttonMd"
-								style={{ color: themeColors.textSecondary }}
-							>
-								Cancel my request
-							</Text>
-						</>
-					)}
-				</TouchableOpacity>
+					Cancel my request
+				</Button>
 			) : (
 				<View style={{ gap: spacing.stack.sm }}>
-					<TouchableOpacity
+					<Button
+						variant="success"
+						size="lg"
+						fullWidth
+						iconLeft={CheckCircle2}
 						onPress={onConfirm}
-						disabled={confirmPending}
-						activeOpacity={0.85}
-						style={{
-							alignItems: "center",
-							justifyContent: "center",
-							minHeight: 48,
-							paddingVertical: spacing.stack.md,
-							borderRadius: radius.button,
-							backgroundColor: confirmPending
-								? themeColors.borderDefault
-								: themeColors.success,
-							flexDirection: "row",
-							gap: spacing.stack.sm,
-						}}
+						loading={confirmPending}
 					>
-						{confirmPending ? (
-							<ActivityIndicator
-								size="small"
-								color={themeColors.onPrimaryHeader}
-							/>
-						) : (
-							<>
-								<CheckCircle2
-									size={spacing.icon.sm}
-									color={themeColors.onPrimaryHeader}
-								/>
-								<Text
-									variant="buttonLg"
-									style={{ color: themeColors.onPrimaryHeader }}
-								>
-									Confirm complete
-								</Text>
-							</>
-						)}
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={onDecline}
-						disabled={declinePending}
-						activeOpacity={0.85}
-						style={{
-							alignItems: "center",
-							justifyContent: "center",
-							minHeight: 48,
-							paddingVertical: spacing.stack.md,
-							borderRadius: radius.button,
-							borderWidth: 1,
-							borderColor: themeColors.danger,
-							backgroundColor: themeColors.surfaceBase,
+						Confirm complete
+					</Button>
+					<Button
+						variant="destructive"
+						size="lg"
+						fullWidth
+						onPress={async () => {
+							const ok = await confirm({
+								title: "Decline completion?",
+								description: "The other party's completion request will be cancelled. They can request again.",
+								primary: { label: "Decline", destructive: true },
+								secondary: { label: "Keep request" },
+							});
+							if (!ok) return;
+							onDecline();
 						}}
+						loading={declinePending}
 					>
-						{declinePending ? (
-							<ActivityIndicator size="small" color={themeColors.danger} />
-						) : (
-							<Text variant="buttonMd" style={{ color: themeColors.danger }}>
-								Decline
-							</Text>
-						)}
-					</TouchableOpacity>
+						Decline
+					</Button>
 				</View>
 			)}
 		</View>

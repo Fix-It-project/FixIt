@@ -1,9 +1,4 @@
 import {
-	BottomSheetBackdrop,
-	BottomSheetModal,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import {
 	forwardRef,
 	useCallback,
 	useImperativeHandle,
@@ -12,19 +7,19 @@ import {
 	useState,
 } from "react";
 import { useWindowDimensions } from "react-native";
-import { Calendar, type DateData } from "react-native-calendars";
+import type { DateData } from "react-native-calendars";
+import {
+	BottomSheet,
+	type BottomSheetModalRef,
+} from "@/src/components/ui/bottom-sheet";
+import { CalendarPicker } from "@/src/components/ui/calendar-picker";
 import { Text } from "@/src/components/ui/text";
 import { useBookingsDateStore } from "@/src/features/booking-orders/stores/bookings-date-store";
 import {
 	todayIso,
 	toIso,
 } from "@/src/features/booking-orders/utils/date-helpers";
-import {
-	getCalendarTheme,
-	spacing,
-	useThemeColors,
-	useThemeTokens,
-} from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/lib/theme";
 import { useTechnicianBookingDates } from "../../hooks/useTechnicianBookingsQuery";
 import { buildBookingsCalendarMarks } from "../../utils/buildBookingsCalendarMarks";
 import BookingsCalendarTrigger from "./BookingsCalendarTrigger";
@@ -41,8 +36,7 @@ function getLaterMonthIso(firstIso: string, secondIso: string) {
 const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 	function BookingsCalendarSheet(_, ref) {
 		const themeColors = useThemeColors();
-		const themeTokens = useThemeTokens();
-		const sheetRef = useRef<BottomSheetModal>(null);
+		const sheetRef = useRef<BottomSheetModalRef>(null);
 		const isSheetOpenRef = useRef(false);
 		const { selectedDate, setSelectedDate } = useBookingsDateStore();
 		const { data: bookingDates } = useTechnicianBookingDates();
@@ -62,11 +56,6 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 			[bookingDates, selectedIso, themeColors],
 		);
 
-		const calendarTheme = useMemo(
-			() => getCalendarTheme(themeTokens),
-			[themeTokens.id],
-		);
-
 		const handleOpen = useCallback(() => {
 			setVisibleMonthIso(getLaterMonthIso(currentMonthIso, selectedMonthIso));
 			setCalendarRenderKey((current) => current + 1);
@@ -77,20 +66,6 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 		const handleSheetChange = useCallback((index: number) => {
 			isSheetOpenRef.current = index >= 0;
 		}, []);
-
-		const renderBackdrop = useCallback(
-			(props: any) => (
-				<BottomSheetBackdrop
-					{...props}
-					appearsOnIndex={0}
-					disappearsOnIndex={-1}
-					pressBehavior="close"
-					opacity={1}
-					style={{ backgroundColor: themeColors.backdrop }}
-				/>
-			),
-			[themeColors.backdrop],
-		);
 
 		useImperativeHandle(
 			ref,
@@ -104,10 +79,12 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 			[],
 		);
 
-		const handleDayPress = useCallback(
-			(day: DateData) => {
-				if (day.dateString < todayIso) return;
-				const d = new Date(day.year, day.month - 1, day.day);
+		const handleDateSelect = useCallback(
+			(dateString: string) => {
+				if (dateString < todayIso) return;
+				const [year, month, day] = dateString.split("-").map(Number);
+				if (!year || !month || !day) return;
+				const d = new Date(year, month - 1, day);
 				setSelectedDate(d);
 				sheetRef.current?.dismiss();
 			},
@@ -126,19 +103,16 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 					themeColors={themeColors}
 				/>
 
-				<BottomSheetModal
+				<BottomSheet.Modal
 					ref={sheetRef}
 					snapPoints={[Math.min(screenHeight * 0.6, 520)]}
-					enablePanDownToClose
 					onChange={handleSheetChange}
-					backdropComponent={renderBackdrop}
-					backgroundStyle={{ backgroundColor: themeColors.surfaceBase }}
 					handleIndicatorStyle={{
 						backgroundColor: themeColors.borderDefault,
 						width: spacing.sheet.handleWidth,
 					}}
 				>
-					<BottomSheetView
+					<BottomSheet.View
 						className="flex-1 px-screen-x pb-card"
 						style={{ backgroundColor: themeColors.surfaceBase }}
 					>
@@ -149,19 +123,18 @@ const BookingsCalendarSheet = forwardRef<BookingsCalendarSheetRef, object>(
 						>
 							Jump to Date
 						</Text>
-						<Calendar
+						<CalendarPicker
 							key={`bookings-calendar-${calendarRenderKey}`}
 							current={visibleMonthIso}
 							minDate={todayIso}
-							onDayPress={handleDayPress}
+							onDateSelect={handleDateSelect}
 							onMonthChange={handleMonthChange}
 							markedDates={markedDates}
 							enableSwipeMonths
 							disableArrowLeft={visibleMonthIso <= currentMonthIso}
-							theme={calendarTheme}
 						/>
-					</BottomSheetView>
-				</BottomSheetModal>
+					</BottomSheet.View>
+				</BottomSheet.Modal>
 			</>
 		);
 	},

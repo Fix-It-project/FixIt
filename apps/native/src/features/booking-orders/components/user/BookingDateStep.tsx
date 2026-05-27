@@ -1,16 +1,13 @@
-import { useMemo } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { Calendar, type DateData } from "react-native-calendars";
 import { Button } from "@/src/components/ui/button";
+import { CalendarPicker } from "@/src/components/ui/calendar-picker";
 import { Text } from "@/src/components/ui/text";
 import { useAvailabilityMarks } from "@/src/features/booking-orders/hooks/useAvailabilityMarks";
 import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
 import {
 	elevation,
-	getCalendarTheme,
 	shadowStyle,
 	useThemeColors,
-	useThemeTokens,
 } from "@/src/lib/theme";
 
 interface BookingDateStepProps {
@@ -29,21 +26,14 @@ export default function BookingDateStep({
 	onNext,
 }: BookingDateStepProps) {
 	const themeColors = useThemeColors();
-	const themeTokens = useThemeTokens();
 	const { templates, exceptions, isLoading } =
 		useTechnicianPublicSchedule(technicianId);
 	const markedDates = useAvailabilityMarks(templates, exceptions, selectedDate);
-	const calendarTheme = useMemo(
-		() => getCalendarTheme(themeTokens),
-		[themeTokens.id],
-	);
 	// Cap the calendar at the same 3-month window useAvailabilityMarks evaluates,
 	// so days the availability logic never marked can't be tapped.
-	const maxDate = useMemo(() => {
-		const d = new Date();
-		d.setMonth(d.getMonth() + 3);
-		return d.toISOString().split("T")[0];
-	}, []);
+	const maxDate = new Date();
+	maxDate.setMonth(maxDate.getMonth() + 3);
+	const maxDateIso = maxDate.toISOString().split("T")[0];
 
 	if (isLoading) {
 		return (
@@ -89,13 +79,12 @@ export default function BookingDateStep({
 					shadowColor: themeColors.shadow,
 				})}
 			>
-				<Calendar
+				<CalendarPicker
 					minDate={new Date().toISOString().split("T")[0]}
-					maxDate={maxDate}
-					onDayPress={(day: DateData) => onDateSelect(day.dateString)}
+					maxDate={maxDateIso}
+					onDateSelect={onDateSelect}
 					markedDates={markedDates}
 					markingType="custom"
-					theme={calendarTheme}
 				/>
 			</View>
 

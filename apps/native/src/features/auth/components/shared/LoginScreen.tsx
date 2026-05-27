@@ -1,11 +1,11 @@
 import { type Href, router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import ErrorBanner from "@/src/components/feedback/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
-import { Text as BtnText, Text } from "@/src/components/ui/text";
+import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import OAuthDivider from "@/src/features/auth/components/shared/OAuthDivider";
@@ -13,7 +13,7 @@ import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { signInSchema } from "@/src/features/auth/schemas/form.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/helpers/error-helpers";
+import { getErrorMessage } from "@/src/lib/errors/to-app-error";
 import { ROUTES } from "@/src/lib/routes";
 import { useThemeColors } from "@/src/lib/theme";
 
@@ -106,11 +106,9 @@ export default function LoginScreen({
 
 			{/* Forgot Password */}
 			<View className="-mt-stack-md items-end">
-				<Pressable onPress={goToForgotPassword}>
-					<Text variant="label" className="text-app-primary">
-						Forgot Password?
-					</Text>
-				</Pressable>
+				<Button variant="link" size="sm" onPress={goToForgotPassword}>
+					Forgot Password?
+				</Button>
 			</View>
 
 			<Button

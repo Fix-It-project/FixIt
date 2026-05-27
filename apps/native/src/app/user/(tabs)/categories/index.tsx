@@ -2,9 +2,9 @@ import { router } from "expo-router";
 import {
 	ActivityIndicator,
 	ScrollView,
-	TouchableOpacity,
 	View,
 } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import CategoryTile from "@/src/features/categories/components/user/CategoryTile";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
@@ -48,11 +48,9 @@ export default function CategoriesScreen() {
 					<Text variant="bodySm" className="text-content-muted">
 						Failed to load categories.
 					</Text>
-					<TouchableOpacity onPress={() => refetch()} activeOpacity={0.7}>
-						<Text variant="buttonMd" className="text-app-primary">
-							Retry
-						</Text>
-					</TouchableOpacity>
+					<Button variant="link" size="sm" onPress={() => refetch()}>
+						Retry
+					</Button>
 				</View>
 			)}
 

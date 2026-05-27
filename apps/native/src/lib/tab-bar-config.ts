@@ -1,4 +1,4 @@
-import type { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
+import type { BottomTabNavigationOptions } from "expo-router/js-tabs";
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fontFamily, spacing, type ThemePalette } from "@/src/lib/theme";

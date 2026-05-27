@@ -1,8 +1,3 @@
-import BottomSheet, {
-	BottomSheetBackdrop,
-	type BottomSheetBackdropProps,
-	BottomSheetView,
-} from "@gorhom/bottom-sheet";
 import { Plus, X } from "lucide-react-native";
 import {
 	forwardRef,
@@ -19,6 +14,11 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import {
+	BottomSheet,
+	type BottomSheetRef,
+} from "@/src/components/ui/bottom-sheet";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useSetActiveAddressMutation } from "@/src/features/addresses/hooks/useSetActiveAddressMutation";
@@ -44,14 +44,12 @@ const AddressBottomSheet = forwardRef<
 	AddressBottomSheetProps
 >(function AddressBottomSheet({ onAddNewAddress }, ref) {
 	const themeColors = useThemeColors();
-	const bottomSheetRef = useRef<BottomSheet>(null);
+	const bottomSheetRef = useRef<BottomSheetRef>(null);
 
 	const { data: addresses, isLoading, isError } = useAddressesQuery();
 	const setActiveMutation = useSetActiveAddressMutation();
 
-	const [optimisticActiveId, setOptimisticActiveId] = useState<string | null>(
-		null,
-	);
+	const [optimisticActiveId, setOptimisticActiveId] = useState<string>();
 	const [sheetIndex, setSheetIndex] = useState(-1);
 
 	const { height } = useWindowDimensions();
@@ -64,7 +62,7 @@ const AddressBottomSheet = forwardRef<
 
 	useImperativeHandle(ref, () => ({
 		open() {
-			setOptimisticActiveId(null);
+			setOptimisticActiveId(undefined);
 			bottomSheetRef.current?.snapToIndex(0);
 		},
 		close() {
@@ -72,25 +70,11 @@ const AddressBottomSheet = forwardRef<
 		},
 	}));
 
-	const renderBackdrop = useCallback(
-		(props: BottomSheetBackdropProps) => (
-			<BottomSheetBackdrop
-				{...props}
-				disappearsOnIndex={-1}
-				appearsOnIndex={0}
-				opacity={1}
-				pressBehavior="close"
-				style={{ backgroundColor: themeColors.backdrop }}
-			/>
-		),
-		[themeColors.backdrop],
-	);
-
 	const handleActivate = useCallback(
 		(addressId: string) => {
 			setOptimisticActiveId(addressId);
 			setActiveMutation.mutate(addressId, {
-				onSettled: () => setOptimisticActiveId(null),
+				onSettled: () => setOptimisticActiveId(undefined),
 			});
 		},
 		[setActiveMutation],
@@ -111,20 +95,13 @@ const AddressBottomSheet = forwardRef<
 			ref={bottomSheetRef}
 			index={-1}
 			snapPoints={snapPoints}
-			enablePanDownToClose
-			backdropComponent={renderBackdrop}
-			backgroundStyle={{
-				backgroundColor: themeColors.surfaceBase,
-				borderTopLeftRadius: 24,
-				borderTopRightRadius: 24,
-			}}
 			handleIndicatorStyle={{
 				backgroundColor: themeColors.borderDefault,
 				width: spacing.sheet.handleWidth,
 			}}
 			onChange={setSheetIndex}
 		>
-			<BottomSheetView className="flex-1 px-button-x pb-stack-xl">
+			<BottomSheet.View className="flex-1 px-button-x pb-stack-xl">
 				<View className="mb-stack-sm flex-row items-center justify-between">
 					<Text variant="bodyLg" className="font-bold text-content">
 						Choose delivery location
@@ -182,20 +159,19 @@ const AddressBottomSheet = forwardRef<
 							)}
 						/>
 
-						<TouchableOpacity
+						<Button
+							variant="secondary"
 							onPress={onAddNewAddress}
-							activeOpacity={0.7}
-							className="mt-stack-md flex-row items-center justify-center rounded-button py-control-cta-y"
-							style={{ backgroundColor: themeColors.primaryLight }}
+							fullWidth
+							iconLeft={Plus}
+							className="mt-stack-md"
+							accessibilityLabel="Add New Location"
 						>
-							<Plus size={18} color={Colors.primary} strokeWidth={2.5} />
-							<Text variant="buttonMd" className="ml-stack-sm text-app-primary">
-								Add New Location
-							</Text>
-						</TouchableOpacity>
+							Add New Location
+						</Button>
 					</View>
 				)}
-			</BottomSheetView>
+			</BottomSheet.View>
 		</BottomSheet>
 	);
 });

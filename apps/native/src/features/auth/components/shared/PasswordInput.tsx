@@ -14,7 +14,7 @@ export default function PasswordInput({
 	placeholder = "Enter your password",
 	error,
 	disabled,
-	variant = "filled",
+	variant = "outline",
 	required = false,
 }: PasswordInputProps) {
 	return (

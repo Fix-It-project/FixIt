@@ -17,35 +17,35 @@ router.get(
   '/user/orders/:id/reschedule',
   requireUserAuth,
   validate({ params: OrderIdParamsSchema }),
-  (req, res) => rescheduleController.getReschedule(req, res, 'user'),
+  rescheduleController.get('user'),
 );
 
 router.post(
   '/user/orders/:id/reschedule',
   requireUserAuth,
   validate({ params: OrderIdParamsSchema, body: RescheduleRequestBodySchema }),
-  (req, res) => rescheduleController.requestReschedule(req, res, 'user'),
+  rescheduleController.createRequest('user'),
 );
 
 router.post(
   '/user/orders/:id/reschedule/approve',
   requireUserAuth,
   validate({ params: OrderIdParamsSchema }),
-  (req, res) => rescheduleController.approveReschedule(req, res, 'user'),
+  rescheduleController.approve('user'),
 );
 
 router.post(
   '/user/orders/:id/reschedule/reject',
   requireUserAuth,
   validate({ params: OrderIdParamsSchema, body: RescheduleRejectBodySchema }),
-  (req, res) => rescheduleController.rejectReschedule(req, res, 'user'),
+  rescheduleController.reject('user'),
 );
 
 router.post(
   '/user/orders/:id/reschedule/withdraw',
   requireUserAuth,
   validate({ params: OrderIdParamsSchema }),
-  (req, res) => rescheduleController.withdrawReschedule(req, res, 'user'),
+  rescheduleController.withdraw('user'),
 );
 
 // Technician surface
@@ -53,35 +53,35 @@ router.get(
   '/technician/orders/:id/reschedule',
   requireTechnicianAuth,
   validate({ params: OrderIdParamsSchema }),
-  (req, res) => rescheduleController.getReschedule(req, res, 'technician'),
+  rescheduleController.get('technician'),
 );
 
 router.post(
   '/technician/orders/:id/reschedule',
   requireTechnicianAuth,
   validate({ params: OrderIdParamsSchema, body: RescheduleRequestBodySchema }),
-  (req, res) => rescheduleController.requestReschedule(req, res, 'technician'),
+  rescheduleController.createRequest('technician'),
 );
 
 router.post(
   '/technician/orders/:id/reschedule/approve',
   requireTechnicianAuth,
   validate({ params: OrderIdParamsSchema }),
-  (req, res) => rescheduleController.approveReschedule(req, res, 'technician'),
+  rescheduleController.approve('technician'),
 );
 
 router.post(
   '/technician/orders/:id/reschedule/reject',
   requireTechnicianAuth,
   validate({ params: OrderIdParamsSchema, body: RescheduleRejectBodySchema }),
-  (req, res) => rescheduleController.rejectReschedule(req, res, 'technician'),
+  rescheduleController.reject('technician'),
 );
 
 router.post(
   '/technician/orders/:id/reschedule/withdraw',
   requireTechnicianAuth,
   validate({ params: OrderIdParamsSchema }),
-  (req, res) => rescheduleController.withdrawReschedule(req, res, 'technician'),
+  rescheduleController.withdraw('technician'),
 );
 
 export default router;

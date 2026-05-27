@@ -5,12 +5,11 @@ import Animated, {
 	FadeInDown,
 	useReducedMotion,
 } from "react-native-reanimated";
-import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { formatAmount } from "@/src/lib/helpers/format-currency";
+import { Button } from "@/src/components/ui/button";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
-import { StagePrimaryAction } from "./StageAction";
 import {
 	useTechMarkCashReceived,
 	useUserCheckout,
@@ -72,16 +71,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 	const meConfirmed = isUser ? userConfirmed : techConfirmed;
 
 	const handleFinalize = () => {
-		const onError = (err: Error) =>
-			Toast.show({
-				type: "error",
-				text1: "Could not finalize",
-				text2: err.message,
-			});
 		if (isUser) {
-			userCheckout.mutate({ orderId: order.id, method: "cash" }, { onError });
+			userCheckout.mutate({ orderId: order.id, method: "cash" });
 		} else {
-			techMarkCash.mutate({ orderId: order.id }, { onError });
+			techMarkCash.mutate({ orderId: order.id });
 		}
 	};
 
@@ -310,15 +303,17 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				</Animated.View>
 			) : null}
 
-			<StagePrimaryAction
-				label={
-					meConfirmed ? "Waiting on the other side…" : "Mark order completed"
-				}
-				icon={CheckCircle2}
+			<Button
+				variant="primary"
+				size="lg"
+				fullWidth
+				iconLeft={CheckCircle2}
 				onPress={handleFinalize}
-				pending={finalizePending}
+				loading={finalizePending}
 				disabled={meConfirmed}
-			/>
+			>
+				{meConfirmed ? "Waiting on the other side…" : "Mark order completed"}
+			</Button>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />
 			<CustomerInfoSheet ref={customerSheetRef} />

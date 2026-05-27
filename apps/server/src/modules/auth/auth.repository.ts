@@ -1,4 +1,6 @@
 import supabase from '../../shared/db/supabase.js';
+import { AppError } from '../../shared/errors/app-error.js';
+import { logger } from '../../shared/logger.js';
 
 export interface SignUpData {
   email: string;
@@ -21,6 +23,26 @@ export interface IAuthRepository {
   signOut(accessToken: string): Promise<{ success: boolean; message: string }>;
   getUser(accessToken: string): Promise<any>;
   refreshToken(refreshToken: string): Promise<any>;
+}
+
+function mapSignInError(error: Error): AppError | Error {
+  const message = error.message.toLowerCase();
+
+  if (message.includes('invalid login credentials')) {
+    return AppError.unauthorized('Invalid email or password', {
+      token: 'invalid_credentials',
+      cause: error,
+    });
+  }
+
+  if (message.includes('email not confirmed')) {
+    return AppError.forbidden('Email is not confirmed', {
+      token: 'email_not_confirmed',
+      cause: error,
+    });
+  }
+
+  return error;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -56,7 +78,7 @@ export class AuthRepository implements IAuthRepository {
       password,
     });
 
-    if (error) throw error;
+    if (error) throw mapSignInError(error);
     return data;
   }
 
@@ -66,17 +88,13 @@ export class AuthRepository implements IAuthRepository {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: 'fixitapp://reset-password',
       });
-      
+
     if (error){
-      console.error('Supabase error details:', {
-        message: error.message,
-        status: error.status,
-        name: error.name
-      });
+      logger.error({ error }, 'Supabase password reset error');
       throw error;
     }
 
-      
+
       return data;
   }
 

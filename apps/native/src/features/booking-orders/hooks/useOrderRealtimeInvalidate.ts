@@ -10,6 +10,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { logger } from "@/src/lib/logger";
 import { supabase } from "@/src/lib/supabase";
 import { orderQueryKeys } from "../schemas/query-keys";
 
@@ -35,6 +36,19 @@ export function useOrderRealtimeInvalidate(
 	useEffect(() => {
 		if (!enabled || !orderId) return;
 
+		const invalidateAll = () => {
+			void queryClient.invalidateQueries({
+				queryKey: orderQueryKeys.userOrders,
+			});
+			void queryClient.invalidateQueries({
+				queryKey: orderQueryKeys.technicianBookings,
+			});
+			void queryClient.invalidateQueries({
+				predicate: (q) =>
+					q.queryKey[0] === "order-quotes" && q.queryKey[2] === orderId,
+			});
+		};
+
 		const channel = supabase
 			.channel(`order:${orderId}`)
 			.on(
@@ -45,28 +59,56 @@ export function useOrderRealtimeInvalidate(
 					table: "orders",
 					filter: `id=eq.${orderId}`,
 				},
-				() => {
-					void queryClient.invalidateQueries({
-						queryKey: orderQueryKeys.userOrders,
+				(payload) => {
+					logger.debug("OrderRealtime", "orders UPDATE received", {
+						orderId,
+						eventType: payload.eventType,
 					});
-					void queryClient.invalidateQueries({
-						queryKey: orderQueryKeys.technicianBookings,
-					});
-					void queryClient.invalidateQueries({
-						predicate: (q) =>
-							q.queryKey[0] === "order-quotes" &&
-							q.queryKey[2] === orderId,
-					});
+					invalidateAll();
 				},
 			)
-			.subscribe();
+			// rpc_submit_quote only UPDATEs `orders` on the first transition into
+			// `negotiating`; later counter-quote rounds only touch `order_quotes`.
+			// Without this listener, multi-round negotiations would not sync.
+			.on(
+				"postgres_changes",
+				{
+					event: "*",
+					schema: "public",
+					table: "order_quotes",
+					filter: `order_id=eq.${orderId}`,
+				},
+				(payload) => {
+					logger.debug("OrderRealtime", "order_quotes change received", {
+						orderId,
+						eventType: payload.eventType,
+					});
+					invalidateAll();
+				},
+			)
+			.subscribe((status, err) => {
+				if (status === "SUBSCRIBED") {
+					logger.info("OrderRealtime", "channel SUBSCRIBED", { orderId });
+				} else if (status === "CHANNEL_ERROR") {
+					logger.error("OrderRealtime", "channel CHANNEL_ERROR", {
+						orderId,
+						error: err?.message ?? String(err),
+					});
+				} else if (status === "TIMED_OUT") {
+					logger.warn("OrderRealtime", "channel TIMED_OUT", { orderId });
+				} else if (status === "CLOSED") {
+					logger.debug("OrderRealtime", "channel CLOSED", { orderId });
+				}
+			});
 
 		return () => {
 			void supabase.removeChannel(channel);
 		};
 	}, [orderId, enabled, queryClient]);
 
-	// ── 3s polling fallback (Risk 1 mitigation) ──────────────────────────────
+	// ── 30s polling safety net (Risk 1 mitigation) ───────────────────────────
+	// Realtime subscriptions can silently fail (RLS misconfig, dropped socket).
+	// This long-interval poll catches that gap without flooding the server.
 	useEffect(() => {
 		if (!enabled || !orderId) return;
 
@@ -77,7 +119,7 @@ export function useOrderRealtimeInvalidate(
 			void queryClient.invalidateQueries({
 				queryKey: orderQueryKeys.userOrders,
 			});
-		}, 3_000);
+		}, 30_000);
 
 		return () => clearInterval(id);
 	}, [orderId, enabled, queryClient]);

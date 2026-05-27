@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
+import { logger } from "../../shared/logger.js";
 import { distanceKm } from "../../shared/utils/technicians/index.js";
 
 export interface ReviewAggregate {
@@ -420,7 +421,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 
 	async createTechnician(data: CreateTechnicianData) {
 		try {
-			console.log("Creating technician with data:", {
+			logger.info({
 				...data,
 				criminal_record: "[file]",
 				birth_certificate: "[file]",
@@ -445,10 +446,10 @@ export class TechniciansRepository implements ITechniciansRepository {
 				.single();
 
 			if (error) throw error;
-			console.log("Inserted technician:", technician);
+			logger.info({ technician }, "Inserted technician");
 			return technician;
 		} catch (error) {
-			console.error("Error inserting technician:", error);
+			logger.error({ error }, "Error inserting technician");
 			throw error;
 		}
 	}

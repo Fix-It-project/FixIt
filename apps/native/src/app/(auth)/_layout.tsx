@@ -1,4 +1,5 @@
 import { Redirect, Stack } from "expo-router";
+import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
 import { ROUTES } from "@/src/lib/routes";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -15,19 +16,21 @@ export default function AuthLayout() {
 	}
 
 	return (
-		<Stack
-			screenOptions={{
-				headerShown: false,
-			}}
-		>
-			<Stack.Screen name="welcome" />
-			<Stack.Screen name="role-selection" />
-			<Stack.Screen name="login" />
-			<Stack.Screen name="signup" />
-			<Stack.Screen name="tech-login" />
-			<Stack.Screen name="tech-signup" />
-			<Stack.Screen name="forgot-password" />
-			<Stack.Screen name="reset-password" />
-		</Stack>
+		<RouteErrorBoundary>
+			<Stack
+				screenOptions={{
+					headerShown: false,
+				}}
+			>
+				<Stack.Screen name="welcome" />
+				<Stack.Screen name="role-selection" />
+				<Stack.Screen name="login" />
+				<Stack.Screen name="signup" />
+				<Stack.Screen name="tech-login" />
+				<Stack.Screen name="tech-signup" />
+				<Stack.Screen name="forgot-password" />
+				<Stack.Screen name="reset-password" />
+			</Stack>
+		</RouteErrorBoundary>
 	);
 }

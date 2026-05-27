@@ -7,8 +7,6 @@ export { default as CompletionRequestPendingCard } from "./CompletionRequestPend
 export type { CustomerInfoSheetHandle } from "./CustomerInfoSheet";
 export { default as CustomerInfoSheet } from "./CustomerInfoSheet";
 export { default as EtaHeadline } from "./EtaHeadline";
-export type { IconActionTone } from "./IconActionButton";
-export { default as IconActionButton } from "./IconActionButton";
 export { default as LocationPermissionBanner } from "./LocationPermissionBanner";
 export { default as OrderInfoCompact } from "./OrderInfoCompact";
 export type { SummaryViewer } from "./OrderSummaryFinalize";
@@ -22,11 +20,6 @@ export { default as QuoteOfferSheet } from "./QuoteOfferSheet";
 export { default as RescheduleRequestPanel } from "./RescheduleRequestPanel";
 export type { RescheduleSheetHandle } from "./RescheduleSheet";
 export { default as RescheduleSheet } from "./RescheduleSheet";
-export {
-	StageActionRow,
-	StagePrimaryAction,
-	StageSecondaryAction,
-} from "./StageAction";
 export { default as StageHero } from "./StageHero";
 export { default as StageProgressBar } from "./StageProgressBar";
 export { default as StateScreenLayout } from "./StateScreenLayout";

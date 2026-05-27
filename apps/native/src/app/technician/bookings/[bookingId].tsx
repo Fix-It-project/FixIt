@@ -23,13 +23,15 @@ import {
 	WorkCompleteActionsView,
 	WorkCompleteCta,
 } from "@/src/features/booking-orders/components/state-machine/tech/states";
+import { useOrderRealtimeInvalidate } from "@/src/features/booking-orders/hooks/useOrderRealtimeInvalidate";
 import { useTechnicianBookingById } from "@/src/features/booking-orders/hooks/useTechnicianBookingsQuery";
 import {
 	IN_PROGRESS_STATUSES,
 	type OrderStatus as LifecycleOrderStatus,
+	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { Button } from "@/src/components/ui/button";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { useSafeBack } from "@/src/lib/navigation";
 import { ROUTES } from "@/src/lib/routes";
@@ -49,6 +51,13 @@ export default function BookingDetailScreen() {
 	const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
 	const booking = useTechnicianBookingById(bookingId);
 	const goBack = useSafeBack(ROUTES.technician.bookings);
+
+	useOrderRealtimeInvalidate(
+		bookingId,
+		booking
+			? !TERMINAL_STATUSES.has(booking.status as LifecycleOrderStatus)
+			: false,
+	);
 
 	useFocusBackHandler(() => {
 		goBack();
@@ -178,25 +187,15 @@ export default function BookingDetailScreen() {
 							</Text>
 						</View>
 					) : null}
-					<PressableScale
+					<Button
+						variant="primary"
+						size="xl"
+						fullWidth
 						onPress={handleDone}
-						accessibilityRole="button"
-						accessibilityLabel="Done"
 						style={{ marginTop: "auto" }}
 					>
-						<View
-							className="w-full items-center rounded-button px-button-x py-control-cta-y"
-							style={{ backgroundColor: themeColors.primary }}
-						>
-							<Text
-								variant="buttonLg"
-								className="font-google-sans-bold"
-								style={{ color: themeColors.onPrimaryHeader }}
-							>
-								Done
-							</Text>
-						</View>
-					</PressableScale>
+						Done
+					</Button>
 				</ScrollView>
 			</ScreenSafeAreaView>
 		</View>

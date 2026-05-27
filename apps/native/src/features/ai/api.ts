@@ -1,5 +1,6 @@
 import axios from "axios";
 import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import { logger } from "@/src/lib/logger";
 import { useAuthStore } from "@/src/stores/auth-store";
 import {
 	type DiagnoseResponse,
@@ -139,7 +140,7 @@ export async function diagnoseIssue(
 		},
 		meta: raw?.meta,
 	};
-	console.log("Diagnose API response:", normalized);
+	logger.debug("ai/api", "Diagnose API response", { normalized });
 	return safeParseResponse(diagnoseResponseSchema, normalized, "diagnoseIssue");
 }
 
@@ -182,7 +183,7 @@ export async function placeOrderWithAgent(
 		},
 		meta: raw?.meta,
 	};
-	console.log("Agent API response:", normalized);
+	logger.debug("ai/api", "Agent API response", { normalized });
 	return safeParseResponse(
 		diagnoseResponseSchema,
 		normalized,

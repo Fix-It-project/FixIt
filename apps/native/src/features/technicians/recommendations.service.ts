@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import apiClient from "@/src/lib/api-client";
 import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import { logger } from "@/src/lib/logger";
 import { supabase } from "@/src/lib/supabase";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { recommendationsResponseSchema } from "./schemas/response.schema";
@@ -161,7 +162,7 @@ export async function getUserAddressCoords(): Promise<{
 			longitude: Number(latest.longitude),
 		};
 	} catch (error) {
-		console.log("[recommend][addr] backend address fetch failed:", error);
+		logger.warn("recommend", "backend address fetch failed", { error: String(error) });
 		return null;
 	}
 }

@@ -1,108 +1,93 @@
-import type { Request, Response } from "express";
-import type { TechnicianSort } from "../../shared/dtos/index.js";
-import { normalizeError } from "../../shared/errors/index.js";
-import { requireTechnicianId } from "../../shared/utils/request-auth.js";
-import { parseCoords } from "../../shared/utils/technicians/index.js";
-import type { ITechniciansService } from "./technicians.service.js";
+import type { Request, RequestHandler, Response } from 'express';
+import type { TechnicianSort } from '../../shared/dtos/index.js';
+import { AppError } from '../../shared/errors/app-error.js';
+import { asyncHandler } from '../../shared/errors/async-handler.js';
+import { categoriesRepository } from '../categories/categories.repository.js';
+import { storageRepository } from '../../shared/storage/storage.repository.js';
+import { parseCoords } from '../../shared/utils/technicians/index.js';
+import { TechniciansService } from './technicians.service.js';
+import { techniciansRepository } from './technicians.repository.js';
+
+const service = new TechniciansService(techniciansRepository, categoriesRepository, storageRepository);
 
 export class TechniciansController {
-	constructor(private readonly service: ITechniciansService) {}
+	getByCategoryId: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const categoryId = req.params.categoryId as string;
+		const { lat, lng } = parseCoords(req);
+		const sort = req.query.sort as TechnicianSort | undefined;
+		const technicians = await service.getTechniciansByCategory(
+			categoryId,
+			{ lat, lng, sort },
+		);
+		req.log.info({ action: 'technicians_list_by_category', categoryId });
+		res.json({ technicians });
+	});
 
-	async getByCategoryId(req: Request, res: Response): Promise<void> {
-		try {
-			const categoryId = req.params.categoryId as string;
-			const { lat, lng } = parseCoords(req);
-			const sort = req.query.sort as TechnicianSort | undefined;
-			const technicians = await this.service.getTechniciansByCategory(
-				categoryId,
-				{ lat, lng, sort },
-			);
-			res.json({ technicians });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			res.status(status).json({ error: message });
+	searchInCategory: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const categoryId = req.params.categoryId as string;
+		const query = (req.query.q as string | undefined)?.trim() ?? "";
+		if (!query) {
+			throw AppError.badRequest('Query parameter "q" is required');
 		}
-	}
+		const { lat, lng } = parseCoords(req);
+		const sort = req.query.sort as TechnicianSort | undefined;
+		const technicians = await service.searchTechniciansByCategory(
+			categoryId,
+			query,
+			{ lat, lng, sort },
+		);
+		req.log.info({ action: 'technicians_search_in_category', categoryId, query });
+		res.json({ technicians });
+	});
 
-	async searchInCategory(req: Request, res: Response): Promise<void> {
-		try {
-			const categoryId = req.params.categoryId as string;
-			const query = (req.query.q as string | undefined)?.trim() ?? "";
-			if (!query) {
-				res.status(400).json({ error: 'Query parameter "q" is required' });
-				return;
-			}
-			const { lat, lng } = parseCoords(req);
-			const sort = req.query.sort as TechnicianSort | undefined;
-			const technicians = await this.service.searchTechniciansByCategory(
-				categoryId,
-				query,
-				{ lat, lng, sort },
-			);
-			res.json({ technicians });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			res.status(status).json({ error: message });
-		}
-	}
+	getProfile: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const id = req.params.id as string;
+		const profile = await service.getTechnicianProfile(id);
+		req.log.info({ action: 'technician_profile_retrieved', technicianId: id });
+		res.json({ profile });
+	});
 
-	async getProfile(req: Request, res: Response): Promise<void> {
-		try {
-			const id = req.params.id as string;
-			const profile = await this.service.getTechnicianProfile(id);
-			res.json({ profile });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			res.status(status).json({ error: message });
+	getSelf: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const technicianId = (req as any).technician?.id;
+		if (!technicianId) {
+			throw AppError.unauthorized('Technician not authenticated', { token: 'no_technician' });
 		}
-	}
+		const profile = await service.getSelf(technicianId);
+		req.log.info({ action: 'technician_self_profile_retrieved', technicianId });
+		res.json({ profile });
+	});
 
-	async getSelf(req: Request, res: Response): Promise<void> {
-		try {
-			const technicianId = requireTechnicianId(req);
-			const profile = await this.service.getSelf(technicianId);
-			res.json({ profile });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			res.status(status).json({ error: message });
+	updateSelf: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const technicianId = (req as any).technician?.id;
+		if (!technicianId) {
+			throw AppError.unauthorized('Technician not authenticated', { token: 'no_technician' });
 		}
-	}
+		const { first_name, last_name, phone, description } = req.body;
+		const profile = await service.updateSelf(technicianId, {
+			first_name,
+			last_name,
+			phone,
+			description,
+		});
+		req.log.info({ action: 'technician_self_profile_updated', technicianId });
+		res.json({ profile });
+	});
 
-	async updateSelf(req: Request, res: Response): Promise<void> {
-		try {
-			const technicianId = requireTechnicianId(req);
-			const { first_name, last_name, phone, description } = req.body;
-			const profile = await this.service.updateSelf(technicianId, {
-				first_name,
-				last_name,
-				phone,
-				description,
-			});
-			res.json({ profile });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			res.status(status).json({ error: message });
+	uploadProfileImage: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const technicianId = (req as any).technician?.id;
+		if (!technicianId) {
+			throw AppError.unauthorized('Technician not authenticated', { token: 'no_technician' });
 		}
-	}
-
-	async uploadProfileImage(req: Request, res: Response): Promise<void> {
-		try {
-			const technicianId = requireTechnicianId(req);
-			if (!req.file) {
-				res.status(400).json({
-					error:
-						'No file provided. Send a multipart/form-data request with field "profile_image".',
-				});
-				return;
-			}
-			const result = await this.service.uploadProfileImage(
-				technicianId,
-				req.file,
-			);
-			res.json(result);
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			res.status(status).json({ error: message });
+		if (!req.file) {
+			throw AppError.badRequest('No file provided. Send a multipart/form-data request with field "profile_image".');
 		}
-	}
+		const result = await service.uploadProfileImage(
+			technicianId,
+			req.file,
+		);
+		req.log.info({ action: 'technician_profile_image_uploaded', technicianId });
+		res.json(result);
+	});
 }
+
+export const techniciansController = new TechniciansController();

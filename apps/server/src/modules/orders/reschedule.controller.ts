@@ -1,11 +1,11 @@
-import type { Request, Response } from "express";
-import { normalizeError } from "../../shared/errors/index.js";
+import type { Request, RequestHandler } from "express";
+import { asyncHandler } from "../../shared/errors/async-handler.js";
 import { requireActorId } from "../../shared/utils/request-auth.js";
 import { type Actor, rescheduleService } from "./reschedule.service.js";
 
 export class RescheduleController {
-	async requestReschedule(req: Request, res: Response, actor: Actor) {
-		try {
+	createRequest = (actor: Actor): RequestHandler =>
+		asyncHandler(async (req: Request, res) => {
 			const result = await rescheduleService.createRequest({
 				orderId: req.params.id as string,
 				actor,
@@ -14,69 +14,53 @@ export class RescheduleController {
 				proposedStartAt: req.body.proposed_scheduled_start_at,
 				reason: req.body.reason,
 			});
-			return res.status(201).json({ data: result });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			return res.status(status).json({ error: message });
-		}
-	}
+			req.log.info({ action: 'reschedule_requested', orderId: req.params.id, actor });
+			res.status(201).json({ data: result });
+		});
 
-	async approveReschedule(req: Request, res: Response, actor: Actor) {
-		try {
+	approve = (actor: Actor): RequestHandler =>
+		asyncHandler(async (req: Request, res) => {
 			const result = await rescheduleService.approve({
 				orderId: req.params.id as string,
 				actor,
 				actorId: requireActorId(req, actor),
 			});
-			return res.status(200).json({ data: result });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			return res.status(status).json({ error: message });
-		}
-	}
+			req.log.info({ action: 'reschedule_approved', orderId: req.params.id, actor });
+			res.status(200).json({ data: result });
+		});
 
-	async rejectReschedule(req: Request, res: Response, actor: Actor) {
-		try {
+	reject = (actor: Actor): RequestHandler =>
+		asyncHandler(async (req: Request, res) => {
 			const result = await rescheduleService.reject({
 				orderId: req.params.id as string,
 				actor,
 				actorId: requireActorId(req, actor),
 				reason: req.body.reason,
 			});
-			return res.status(200).json({ data: result });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			return res.status(status).json({ error: message });
-		}
-	}
+			req.log.info({ action: 'reschedule_rejected', orderId: req.params.id, actor });
+			res.status(200).json({ data: result });
+		});
 
-	async getReschedule(req: Request, res: Response, actor: Actor) {
-		try {
+	get = (actor: Actor): RequestHandler =>
+		asyncHandler(async (req: Request, res) => {
 			const result = await rescheduleService.getForActor(
 				req.params.id as string,
 				actor,
 				requireActorId(req, actor),
 			);
-			return res.status(200).json({ data: result });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			return res.status(status).json({ error: message });
-		}
-	}
+			res.status(200).json({ data: result });
+		});
 
-	async withdrawReschedule(req: Request, res: Response, actor: Actor) {
-		try {
+	withdraw = (actor: Actor): RequestHandler =>
+		asyncHandler(async (req: Request, res) => {
 			const result = await rescheduleService.withdraw({
 				orderId: req.params.id as string,
 				actor,
 				actorId: requireActorId(req, actor),
 			});
-			return res.status(200).json({ data: result });
-		} catch (err: unknown) {
-			const { status, message } = normalizeError(err);
-			return res.status(status).json({ error: message });
-		}
-	}
+			req.log.info({ action: 'reschedule_withdrawn', orderId: req.params.id, actor });
+			res.status(200).json({ data: result });
+		});
 }
 
 export const rescheduleController = new RescheduleController();

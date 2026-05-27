@@ -1,9 +1,8 @@
+// Migrated to declarative <Dialog> with <Dialog.Form> in Phase 11 Plan 07.
+
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-	BackHandler,
-	Modal,
-	Pressable,
 	ScrollView,
 	Switch,
 	TouchableOpacity,
@@ -11,12 +10,11 @@ import {
 	View,
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
+import { Dialog } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import type { DaySchedule } from "@/src/features/schedule/types/calendar";
 import {
 	Colors,
-	elevation,
-	shadowStyle,
 	spacing,
 	useThemeColors,
 } from "@/src/lib/theme";
@@ -104,21 +102,6 @@ export default function ScheduleSetupModal({
 		router.back();
 	}, [isEditing, onDismiss, router, step]);
 
-	useEffect(() => {
-		if (!visible) return;
-
-		const onBackPress = () => {
-			handleDismiss();
-			return true;
-		};
-
-		const subscription = BackHandler.addEventListener(
-			"hardwareBackPress",
-			onBackPress,
-		);
-		return () => subscription.remove();
-	}, [handleDismiss, visible]);
-
 	const toggleDay = (index: number) => {
 		setSchedule((prev) =>
 			prev.map((d, i) => {
@@ -171,228 +154,195 @@ export default function ScheduleSetupModal({
 	);
 
 	return (
-		<Modal
-			visible={visible}
-			animationType="fade"
-			transparent
-			onRequestClose={handleDismiss}
-		>
-			<View
-				className="flex-1 items-center justify-center px-screen-x py-stack-xl"
-				style={{ backgroundColor: themeColors.backdrop }}
-			>
-				<Pressable className="absolute inset-0" onPress={handleDismiss} />
-
-				<View
-					className="w-full overflow-hidden rounded-sheet"
+		<Dialog visible={visible} onClose={handleDismiss} dismissible={!isLoading}>
+			<Dialog.Header>
+				{isEditing ? "Edit Schedule" : "Set Your Schedule"}
+			</Dialog.Header>
+			<Dialog.Form>
+				<ScrollView
+					keyboardShouldPersistTaps="handled"
 					style={{
-						backgroundColor: themeColors.surfaceBase,
-						maxWidth: 560,
-						maxHeight: Math.min(screenHeight * 0.9, 760),
-						width: Math.min(screenWidth - spacing.screen.paddingX * 2, 560),
-						...shadowStyle(elevation.modal, {
-							shadowColor: Colors.shadow,
-							opacity: 0.2,
-						}),
+						maxHeight: Math.min(screenHeight * 0.6, 500),
+						width: Math.min(screenWidth - spacing.screen.paddingX * 2 - 48, 512),
 					}}
+					showsVerticalScrollIndicator={false}
 				>
-					<ScrollView
-						keyboardShouldPersistTaps="handled"
-						contentContainerStyle={{
-							padding: spacing.sheet.padding,
-							paddingBottom: spacing.screen.paddingBottom,
-						}}
-						showsVerticalScrollIndicator={false}
-					>
-						<Text variant="h2" className="mb-stack-xs text-content">
-							{isEditing ? "Edit Schedule" : "Set Your Schedule"}
-						</Text>
-						<Text variant="bodySm" className="mb-stack-xl text-content-muted">
-							Define your weekly availability by day and hour.
-						</Text>
+					<Text variant="bodySm" className="mb-stack-xl text-content-muted">
+						Define your weekly availability by day and hour.
+					</Text>
 
-						{step === "choose" ? (
-							<View className="gap-stack-lg">
-								<TouchableOpacity
-									onPress={() => onConfirm(flattenedSchedule)}
-									className="rounded-card border-selected p-card-roomy"
-									style={{
-										borderColor: Colors.primary,
-										backgroundColor: themeColors.primaryLight,
-									}}
-								>
-									<Text
-										variant="buttonLg"
-										className="mb-stack-xs"
-										style={{ color: Colors.primary }}
-									>
-										Default Schedule
-									</Text>
-									<Text variant="bodySm" className="text-content-secondary">
-										Sunday – Thursday, all 5 time slots active.
-									</Text>
-								</TouchableOpacity>
-
-								<TouchableOpacity
-									onPress={() => setStep("custom")}
-									className="rounded-card border-selected p-card-roomy"
-									style={{
-										borderColor: themeColors.borderDefault,
-										backgroundColor: themeColors.surfaceElevated,
-									}}
-								>
-									<Text variant="buttonLg" className="mb-stack-xs text-content">
-										Custom Schedule
-									</Text>
-									<Text variant="bodySm" className="text-content-secondary">
-										Choose exactly which hours are ON/OFF for each day.
-									</Text>
-								</TouchableOpacity>
-							</View>
-						) : (
-							<View>
+					{step === "choose" ? (
+						<View className="gap-stack-lg">
+							<TouchableOpacity
+								onPress={() => onConfirm(flattenedSchedule)}
+								className="rounded-card border-selected p-card-roomy"
+								style={{
+									borderColor: Colors.primary,
+									backgroundColor: themeColors.primaryLight,
+								}}
+							>
 								<Text
 									variant="buttonLg"
-									className="mt-stack-sm mb-stack-md text-content-secondary"
+									className="mb-stack-xs"
+									style={{ color: Colors.primary }}
 								>
-									Weekly time slots
+									Default Schedule
 								</Text>
+								<Text variant="bodySm" className="text-content-secondary">
+									Sunday – Thursday, all 5 time slots active.
+								</Text>
+							</TouchableOpacity>
 
-								{schedule.map((item, index) => {
-									const expanded = !!expandedDays[item.day_of_week];
-									return (
-										<View
-											key={item.day_of_week}
-											className="mb-stack-md overflow-hidden rounded-card border"
-											style={{
-												borderColor: item.enabled
-													? Colors.primary
-													: themeColors.borderDefault,
-											}}
-										>
-											<View
-												className="flex-row items-center justify-between px-card py-stack-md"
-												style={{
-													backgroundColor: item.enabled
-														? themeColors.primaryLight
-														: themeColors.surfaceElevated,
-												}}
-											>
-												<View className="flex-1">
-													<Text
-														variant="buttonLg"
-														style={{
-															color: item.enabled
-																? themeColors.textPrimary
-																: themeColors.textMuted,
-														}}
-													>
-														{item.dayName}
-													</Text>
-													<Text variant="caption" className="text-content-muted">
-														{item.slots.filter((s) => s.active).length} /{" "}
-														{item.slots.length} slots active
-													</Text>
-												</View>
+							<TouchableOpacity
+								onPress={() => setStep("custom")}
+								className="rounded-card border-selected p-card-roomy"
+								style={{
+									borderColor: themeColors.borderDefault,
+									backgroundColor: themeColors.surfaceElevated,
+								}}
+							>
+								<Text variant="buttonLg" className="mb-stack-xs text-content">
+									Custom Schedule
+								</Text>
+								<Text variant="bodySm" className="text-content-secondary">
+									Choose exactly which hours are ON/OFF for each day.
+								</Text>
+							</TouchableOpacity>
+						</View>
+					) : (
+						<View>
+							<Text
+								variant="buttonLg"
+								className="mt-stack-sm mb-stack-md text-content-secondary"
+							>
+								Weekly time slots
+							</Text>
 
-												<TouchableOpacity
-													onPress={() => toggleExpanded(item.day_of_week)}
-													className="mr-stack-sm rounded-input border border-edge px-stack-md py-control-badge-y"
-												>
-													<Text variant="caption" className="text-content">
-														{expanded ? "Hide" : "Hours"}
-													</Text>
-												</TouchableOpacity>
-
-												<Switch
-													value={item.enabled}
-													onValueChange={() => toggleDay(index)}
-													trackColor={{
-														true: Colors.primary,
-														false: themeColors.borderDefault,
-													}}
-													thumbColor={themeColors.surfaceBase}
-												/>
-											</View>
-
-											{expanded ? (
-												<View className="px-card pb-stack-md">
-													<View className="mt-stack-sm flex-row flex-wrap gap-stack-sm">
-														{item.slots.map((slot) => (
-															<TouchableOpacity
-																key={`${item.day_of_week}-${slot.slot_hour}`}
-																onPress={() =>
-																	toggleSlot(index, slot.slot_hour)
-																}
-																className={`rounded-input border px-stack-md py-stack-sm ${
-																	slot.active
-																		? "bg-app-primary-light"
-																		: "bg-surface"
-																}`}
-																style={{
-																	borderColor: slot.active
-																		? Colors.primary
-																		: themeColors.borderDefault,
-																}}
-															>
-																<Text
-																	variant="caption"
-																	className={
-																		slot.active
-																			? "font-semibold text-app-primary"
-																			: "text-content-muted"
-																	}
-																>
-																	{slotLabel(slot.slot_hour)}
-																</Text>
-															</TouchableOpacity>
-														))}
-													</View>
-												</View>
-											) : null}
-										</View>
-									);
-								})}
-
-								<Button
-									onPress={() => onConfirm(flattenedSchedule)}
-									disabled={isLoading}
-									size="action"
-									className="mt-stack-xl w-full"
-									style={{
-										backgroundColor: isLoading
-											? themeColors.borderDefault
-											: Colors.primary,
-									}}
-								>
-									<Text
-										variant="buttonLg"
+							{schedule.map((item, index) => {
+								const expanded = !!expandedDays[item.day_of_week];
+								return (
+									<View
+										key={item.day_of_week}
+										className="mb-stack-md overflow-hidden rounded-card border"
 										style={{
-											color: isLoading
-												? themeColors.textMuted
-												: themeColors.surfaceBase,
+											borderColor: item.enabled
+												? Colors.primary
+												: themeColors.borderDefault,
 										}}
 									>
-										{isLoading ? "Saving..." : "Save My Schedule"}
-									</Text>
-								</Button>
+										<View
+											className="flex-row items-center justify-between px-card py-stack-md"
+											style={{
+												backgroundColor: item.enabled
+													? themeColors.primaryLight
+													: themeColors.surfaceElevated,
+											}}
+										>
+											<View className="flex-1">
+												<Text
+													variant="buttonLg"
+													style={{
+														color: item.enabled
+															? themeColors.textPrimary
+															: themeColors.textMuted,
+													}}
+												>
+													{item.dayName}
+												</Text>
+												<Text variant="caption" className="text-content-muted">
+													{item.slots.filter((s) => s.active).length} /{" "}
+													{item.slots.length} slots active
+												</Text>
+											</View>
 
-								{!isEditing && (
-									<TouchableOpacity
-										onPress={() => setStep("choose")}
-										className="mt-stack-lg mb-stack-sm items-center"
-									>
-										<Text variant="bodySm" className="text-content-muted">
-											Back
-										</Text>
-									</TouchableOpacity>
-								)}
-							</View>
-						)}
-					</ScrollView>
-				</View>
-			</View>
-		</Modal>
+											<TouchableOpacity
+												onPress={() => toggleExpanded(item.day_of_week)}
+												className="mr-stack-sm rounded-input border border-edge px-stack-md py-control-badge-y"
+											>
+												<Text variant="caption" className="text-content">
+													{expanded ? "Hide" : "Hours"}
+												</Text>
+											</TouchableOpacity>
+
+											<Switch
+												value={item.enabled}
+												onValueChange={() => toggleDay(index)}
+												trackColor={{
+													true: Colors.primary,
+													false: themeColors.borderDefault,
+												}}
+												thumbColor={themeColors.surfaceBase}
+											/>
+										</View>
+
+										{expanded ? (
+											<View className="px-card pb-stack-md">
+												<View className="mt-stack-sm flex-row flex-wrap gap-stack-sm">
+													{item.slots.map((slot) => (
+														<TouchableOpacity
+															key={`${item.day_of_week}-${slot.slot_hour}`}
+															onPress={() =>
+																toggleSlot(index, slot.slot_hour)
+															}
+															className={`rounded-input border px-stack-md py-stack-sm ${
+																slot.active
+																	? "bg-app-primary-light"
+																	: "bg-surface"
+															}`}
+															style={{
+																borderColor: slot.active
+																	? Colors.primary
+																	: themeColors.borderDefault,
+															}}
+														>
+															<Text
+																variant="caption"
+																className={
+																	slot.active
+																		? "font-semibold text-app-primary"
+																		: "text-content-muted"
+																}
+															>
+																{slotLabel(slot.slot_hour)}
+															</Text>
+														</TouchableOpacity>
+													))}
+												</View>
+											</View>
+										) : null}
+									</View>
+								);
+							})}
+
+							{!isEditing && (
+								<TouchableOpacity
+									onPress={() => setStep("choose")}
+									className="mt-stack-lg mb-stack-sm items-center"
+								>
+									<Text variant="bodySm" className="text-content-muted">
+										Back
+									</Text>
+								</TouchableOpacity>
+							)}
+						</View>
+					)}
+				</ScrollView>
+			</Dialog.Form>
+			<Dialog.Footer>
+				<Button variant="secondary" onPress={handleDismiss} disabled={isLoading}>
+					Cancel
+				</Button>
+				{step === "custom" || isEditing ? (
+					<Button
+						variant="primary"
+						onPress={() => onConfirm(flattenedSchedule)}
+						disabled={isLoading}
+						loading={isLoading}
+					>
+						{isLoading ? "Saving..." : "Save My Schedule"}
+					</Button>
+				) : null}
+			</Dialog.Footer>
+		</Dialog>
 	);
 }
-

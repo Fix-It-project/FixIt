@@ -1,13 +1,13 @@
 import { RotateCcw } from "lucide-react-native";
 import {
 	FlatList,
-	TouchableOpacity,
 	useWindowDimensions,
 	View,
 } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/lib/mock-data/user";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing } from "@/src/lib/theme";
 
 const CARD_WIDTH_RATIO = 0.75;
 const CARD_SPACING = spacing.stack.sm;
@@ -19,7 +19,6 @@ function OrderCard({
 	item: PreviousOrder;
 	cardWidth: number;
 }>) {
-	const themeColors = useThemeColors();
 	return (
 		<View
 			className="rounded-card bg-surface p-card"
@@ -54,24 +53,10 @@ function OrderCard({
 					</Text>
 				</View>
 
-				{/* Pill-shaped transparent outline button */}
-				<TouchableOpacity
-					activeOpacity={0.7}
-					className="flex-row items-center justify-center gap-control-btn-compact rounded-pill border bg-transparent px-screen-x py-stack-sm"
-					style={{
-						borderColor: themeColors.borderDefault,
-					}}
-				>
-					<RotateCcw
-						size={spacing.icon.caption}
-						color={themeColors.textContrast}
-						strokeWidth={2.5}
-						style={{ marginTop: spacing.offset.hairlineNudge }}
-					/>
-					<Text variant="buttonMd" className="font-bold text-content">
-						Reorder
-					</Text>
-				</TouchableOpacity>
+				{/* Reorder button */}
+				<Button variant="outline" size="sm" iconLeft={RotateCcw}>
+					Reorder
+				</Button>
 			</View>
 
 			{/* Bottom row: date + price */}

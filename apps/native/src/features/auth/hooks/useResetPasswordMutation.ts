@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { clearRecoverySession } from "@/src/features/auth/utils/recovery-session";
+import { logger } from "@/src/lib/logger";
 import { ROUTES } from "@/src/lib/routes";
 import { supabase } from "@/src/lib/supabase";
 
@@ -25,6 +26,7 @@ export function useResetPasswordMutation(userType: string) {
 			await supabase.auth.signOut();
 		},
 		onSuccess: () => {
+			logger.info("auth.password", "reset_password_succeeded", { userType });
 			clearRecoverySession();
 			Toast.show({
 				type: "success",

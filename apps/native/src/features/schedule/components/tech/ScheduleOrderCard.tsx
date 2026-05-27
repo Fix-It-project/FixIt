@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Clock3 } from "lucide-react-native";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
 import { getOrderStatusBadge } from "@/src/lib/order-status";
@@ -85,18 +86,9 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 						</Text>
 					</View>
 
-					<TouchableOpacity
-						onPress={goToBooking}
-						activeOpacity={0.8}
-						className="rounded-pill border border-app-primary px-stack-md py-stack-xs"
-					>
-						<Text
-							variant="caption"
-							className="font-semibold text-app-primary"
-						>
-							View details
-						</Text>
-					</TouchableOpacity>
+					<Button variant="outline" size="sm" onPress={goToBooking}>
+						View details
+					</Button>
 				</View>
 			)}
 		</View>

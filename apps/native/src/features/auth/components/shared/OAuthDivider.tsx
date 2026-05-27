@@ -1,7 +1,8 @@
 import { View } from "react-native";
+import { GoogleIcon } from "@/src/components/icons/GoogleIcon";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useGoogleOAuth } from "@/src/features/auth/hooks/useGoogleOAuth";
-import SocialLoginButtons from "./SocialLoginButtons";
 
 export default function OAuthDivider() {
 	const { signInWithGoogle } = useGoogleOAuth();
@@ -15,7 +16,15 @@ export default function OAuthDivider() {
 				</Text>
 				<View className="h-[1px] flex-1 bg-edge" />
 			</View>
-			<SocialLoginButtons onPress={signInWithGoogle} />
+			<Button
+				variant="outline"
+				size="lg"
+				fullWidth
+				iconLeft={<GoogleIcon />}
+				onPress={signInWithGoogle}
+			>
+				Continue with Google
+			</Button>
 		</>
 	);
 }
