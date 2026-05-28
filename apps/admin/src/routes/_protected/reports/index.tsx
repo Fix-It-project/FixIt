@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Report } from "@/types/domain";
+import type { Report } from "@/types";
 import { ClosedTab } from "./components/ClosedTab";
 import { OpenTab } from "./components/OpenTab";
 import { ReportDetailModal } from "./components/ReportDetailModal";

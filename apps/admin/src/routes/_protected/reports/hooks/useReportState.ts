@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { REPORTS } from "@/data/mockData";
-import type { Report, ReportResolution } from "@/types/domain";
+import type { Report, ReportResolution } from "@/types";
 
 export function useReportState() {
 	const [reports, setReports] = useState<Report[]>(REPORTS);

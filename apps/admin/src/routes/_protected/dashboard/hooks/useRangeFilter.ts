@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { ORDERS_SERIES } from "@/data/mockData";
-import type { OrderSeries } from "@/types/domain";
-
-type Range = "7d" | "30d" | "90d";
+import type { OrderSeries, Range } from "@/types";
 
 export function useRangeFilter() {
 	const [range, setRange] = useState<Range>("30d");

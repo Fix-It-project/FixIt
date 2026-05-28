@@ -6,7 +6,7 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { PendingTech } from "@/types/domain";
+import type { PendingTech } from "@/types";
 import { ApplicantReviewModal } from "./ApplicantReviewModal";
 
 interface PendingTabProps {

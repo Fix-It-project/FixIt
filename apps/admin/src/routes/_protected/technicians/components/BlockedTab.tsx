@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech } from "@/types/domain";
+import type { ActiveTech } from "@/types";
 
 interface BlockedTabProps {
 	techs: ActiveTech[];

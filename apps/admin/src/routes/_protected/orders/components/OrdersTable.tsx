@@ -7,11 +7,9 @@ import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CATEGORY_MAP, STATUS_META } from "@/data/mockData";
-import type { Order, OrderReview } from "@/types/domain";
+import type { Order, OrderFilter, OrderReview, ReviewView } from "@/types";
 
-type Filter = "all" | "pending" | "active" | "completed" | "cancelled";
-
-const FILTER_KEYS: { key: Filter; label: string }[] = [
+const FILTER_KEYS: { key: OrderFilter; label: string }[] = [
 	{ key: "all", label: "All" },
 	{ key: "pending", label: "Pending" },
 	{ key: "active", label: "Active" },
@@ -19,7 +17,7 @@ const FILTER_KEYS: { key: Filter; label: string }[] = [
 	{ key: "cancelled", label: "Cancelled" },
 ];
 
-function filterByStatus(orders: Order[], f: Filter): Order[] {
+function filterByStatus(orders: Order[], f: OrderFilter): Order[] {
 	if (f === "all") return orders;
 	if (f === "active") return orders.filter((o) => o.status === "in_progress" || o.status === "accepted");
 	return orders.filter((o) => o.status === f);
@@ -55,14 +53,6 @@ interface OrdersTableProps {
 	orders: Order[];
 }
 
-interface ReviewView {
-	rating: number;
-	comment: string;
-	customer: string;
-	date: string;
-	orderId: string;
-}
-
 function toReviewView(order: Order): ReviewView | null {
 	const r: OrderReview | null | undefined = order.review;
 	if (!r || !r.comment) return null;
@@ -70,7 +60,7 @@ function toReviewView(order: Order): ReviewView | null {
 }
 
 export function OrdersTable({ orders }: OrdersTableProps) {
-	const [filter, setFilter] = useState<Filter>("all");
+	const [filter, setFilter] = useState<OrderFilter>("all");
 	const [search, setSearch] = useState("");
 	const [expandedReason, setExpandedReason] = useState<string | null>(null);
 	const [reviewView, setReviewView] = useState<ReviewView | null>(null);
@@ -96,11 +86,11 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<TableToolbar<Filter>
+				<TableToolbar<OrderFilter>
 					searchValue={search}
 					onSearchChange={setSearch}
 					searchPlaceholder="Search ID, customer, technician…"
-					filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<Filter> => ({
+					filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<OrderFilter> => ({
 						key,
 						label,
 						count: key === "all" ? orders.length : filterByStatus(orders, key).length,

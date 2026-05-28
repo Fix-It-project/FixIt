@@ -4,7 +4,7 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ACTIVE_TECHS, CATEGORIES, TOP_TECHS } from "@/data/mockData";
 import { cn } from "@/lib/utils";
-import type { ActiveTech, Category } from "@/types/domain";
+import type { ActiveTech, Category, TechRankTab } from "@/types";
 
 const SPECIALTY_TO_CATEGORY_ID: Record<string, string> = {
 	"Plumbing": "plumb",
@@ -38,10 +38,9 @@ function getTopByCategory(techs: ActiveTech[], categories: Category[]) {
 		.filter((x): x is { category: Category; tech: ActiveTech } => x !== null);
 }
 
-type Tab = "overall" | "category";
 
 export function TopTechniciansList() {
-	const [tab, setTab] = useState<Tab>("overall");
+	const [tab, setTab] = useState<TechRankTab>("overall");
 	const byCategory = getTopByCategory(ACTIVE_TECHS, CATEGORIES);
 
 	return (
@@ -49,7 +48,7 @@ export function TopTechniciansList() {
 			<CardHeader className="pb-3">
 				<CardTitle className="text-base">Top Technicians</CardTitle>
 				<div className="flex gap-1 mt-1">
-					{(["overall", "category"] as Tab[]).map((t) => (
+					{(["overall", "category"] as TechRankTab[]).map((t) => (
 						<button
 							key={t}
 							type="button"

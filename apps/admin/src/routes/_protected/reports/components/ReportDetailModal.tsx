@@ -4,7 +4,7 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getCategoryMetaById } from "@/lib/category-icons";
-import type { Report, ReportResolution } from "@/types/domain";
+import type { Report, ReportResolution } from "@/types";
 import { RoleChip } from "./RoleChip";
 
 interface ReportDetailModalProps {
