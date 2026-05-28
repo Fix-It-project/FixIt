@@ -10,7 +10,7 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import { radius, space, useThemeColors } from "@/src/lib/theme";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 interface StageProgressBarProps {
 	readonly stepIndex: number;

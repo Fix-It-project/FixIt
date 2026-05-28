@@ -1,8 +1,8 @@
 import { Star } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { formatRelativeTime } from "@/src/lib/utils/relative-time";
-import { useThemeColors } from "@/src/lib/theme";
+import { formatRelativeTime } from "@/src/lib/date/relative-time";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import type { Review } from "./types";
 
 export type ReviewRowVariant = "card" | "row" | "preview";

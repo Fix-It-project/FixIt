@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import { ChevronRight } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { space, spacing, useThemeColors } from "@/src/lib/theme";
+import { space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import RatingChip from "./RatingChip";
 
 const AVATAR_SIZE = 44;

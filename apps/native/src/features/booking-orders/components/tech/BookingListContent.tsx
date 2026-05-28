@@ -6,7 +6,7 @@ import {
 	formatHeading,
 	toIso,
 } from "@/src/features/booking-orders/utils/date-helpers";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useVisibleTechnicianBookings } from "../../hooks/useTechnicianBookingsQuery";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";

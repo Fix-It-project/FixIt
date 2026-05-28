@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Service } from "@/src/features/services/schemas/response.schema";
-import { elevation, shadowStyle, spacing, useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 function formatPrice(min: number, max: number): string {
 	if (min === max) return `${min} EGP`;

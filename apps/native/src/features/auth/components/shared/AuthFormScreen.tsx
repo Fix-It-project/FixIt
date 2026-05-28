@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
-import BackButton from "@/src/components/ui/BackButton";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import BackButton from "@/src/components/ui/back-button";
 
 interface Props {
 	readonly children: ReactNode;

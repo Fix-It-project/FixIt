@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import NotificationBell from "@/src/components/ui/NotificationBell";
+import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import {
@@ -10,7 +10,7 @@ import {
 	shadowStyle,
 	spacing,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 import BookingListContent from "./BookingListContent";
 import BookingsCalendarSheet, {
 	type BookingsCalendarSheetRef,

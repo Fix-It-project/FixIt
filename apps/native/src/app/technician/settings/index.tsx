@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import SettingsContent from "@/src/features/settings/components/SettingsContent";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSettingsScreen() {
 	const goToPrivacy = useDebounce(() =>

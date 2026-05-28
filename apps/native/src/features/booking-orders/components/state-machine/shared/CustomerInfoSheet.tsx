@@ -12,10 +12,10 @@ import {
 } from "react";
 import { Linking, useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface CustomerInfoSheetHandle {
 	open: (args: {

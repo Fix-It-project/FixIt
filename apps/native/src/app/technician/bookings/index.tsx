@@ -1,5 +1,5 @@
 import { Redirect } from "expo-router";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianBookingsScreen() {
 	return (

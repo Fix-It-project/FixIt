@@ -10,7 +10,7 @@ import {
 	tailwindPadding,
 	tailwindSpacing,
 	tailwindWidth,
-} from "./src/lib/design-tokens/tailwind";
+} from "./src/constants/design-tokens/primitives/tailwind";
 
 const config: Config = {
 	content: [

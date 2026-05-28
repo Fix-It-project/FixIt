@@ -2,7 +2,7 @@ import {
 	todayIso,
 	toIso,
 } from "@/src/features/booking-orders/utils/date-helpers";
-import type { ThemePalette } from "@/src/lib/theme";
+import type { ThemePalette } from "@/src/constants/design-tokens";
 
 interface BookingCalendarMark {
 	disabled?: boolean;

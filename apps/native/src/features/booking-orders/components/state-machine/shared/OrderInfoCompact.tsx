@@ -1,16 +1,16 @@
 import { CalendarClock, type LucideIcon, Phone } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { Linking, View } from "react-native";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Text } from "@/src/components/ui/text";
 import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { Colors, radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import OrderIdentityRow from "./OrderIdentityRow";
 
 interface OrderInfoCompactProps {

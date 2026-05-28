@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { MarkingProps } from "react-native-calendars/src/calendar/day/marking";
-import { fontFamily, radius, useThemeColors } from "@/src/lib/theme";
+import { fontFamily, radius, useThemeColors } from "@/src/constants/design-tokens";
 
 type MarkedDates = Record<string, MarkingProps>;
 

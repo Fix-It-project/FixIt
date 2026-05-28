@@ -27,8 +27,8 @@ import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 import { AlertDialog } from "@/src/components/ui/alert-dialog";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
-import { overlayTokens } from "@/src/lib/theme/overlay";
+import { useThemeColors } from "@/src/constants/design-tokens";
+import { overlayTokens } from "@/src/constants/design-tokens/themes/overlay";
 import { useDialogStore } from "@/src/stores/dialog-store";
 
 export { confirm } from "@/src/stores/dialog-store";

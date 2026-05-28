@@ -12,7 +12,7 @@ import { Truck } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useOrderDistance } from "@/src/features/booking-orders/hooks";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly orderId: string;

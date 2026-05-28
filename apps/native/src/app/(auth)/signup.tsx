@@ -1,7 +1,7 @@
 import { Mail, Phone, User } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -13,8 +13,8 @@ import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { useSignUpMutation } from "@/src/features/auth/hooks/useSignUpMutation";
 import { signUpSchema } from "@/src/features/auth/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
-import { useThemeColors } from "@/src/lib/theme";
+import { getErrorMessage } from "@/src/lib/errors";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import { useLocationStore } from "@/src/stores/location-store";
 
 export default function SignUp() {

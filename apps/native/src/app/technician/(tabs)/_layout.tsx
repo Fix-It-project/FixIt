@@ -14,10 +14,10 @@ import {
 	radius,
 	shadowStyle,
 	spacing,
-} from "@/src/lib/design-tokens";
-import { ROUTES } from "@/src/lib/routes";
-import { useBottomTabMetrics } from "@/src/lib/tab-bar-config";
-import { useThemeColors } from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
+import { ROUTES } from "@/src/lib/navigation";
+import { useBottomTabMetrics } from "@/src/components/layout/tab-bar";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 const CENTER_ACTION_SIZE = spacing.button.height.lg;
 type TabBarIconProps = LucideProps & { focused: boolean };

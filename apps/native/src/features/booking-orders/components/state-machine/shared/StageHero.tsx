@@ -8,8 +8,8 @@ import { Text } from "@/src/components/ui/text";
 import {
 	DUR_STAGGER,
 	STAGGER_GAP,
-} from "@/src/lib/animation/constants";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+} from "@/src/constants/animation";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface StageHeroProps {
 	readonly icon: LucideIcon;

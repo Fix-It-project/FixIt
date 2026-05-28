@@ -5,7 +5,7 @@ import { Star } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 const PLACEHOLDER_WIDTH = 78;
 const PLACEHOLDER_HEIGHT = 22;

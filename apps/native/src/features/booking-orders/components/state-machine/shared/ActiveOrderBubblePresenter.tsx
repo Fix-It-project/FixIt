@@ -19,15 +19,15 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
 	EASE_OUT_EXPO,
 	SPRING_SOFT,
-} from "@/src/lib/animation/constants";
-import { elevation, shadowStyle } from "@/src/lib/design-tokens";
-import { useBottomTabMetrics } from "@/src/lib/tab-bar-config";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+} from "@/src/constants/animation";
+import { elevation, shadowStyle } from "@/src/constants/design-tokens";
+import { useBottomTabMetrics } from "@/src/components/layout/tab-bar";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface ActiveOrderBubblePresenterProps {
 	readonly active: Order | null;

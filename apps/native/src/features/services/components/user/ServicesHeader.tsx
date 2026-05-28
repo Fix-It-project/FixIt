@@ -1,8 +1,8 @@
 import type { LucideIcon } from "lucide-react-native";
 import { View } from "react-native";
-import BackButton from "@/src/components/ui/BackButton";
+import BackButton from "@/src/components/ui/back-button";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface ServicesHeaderProps {
 	readonly categoryName: string;

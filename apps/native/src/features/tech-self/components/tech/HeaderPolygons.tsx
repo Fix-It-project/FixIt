@@ -1,6 +1,6 @@
 import { Dimensions } from "react-native";
 import Svg, { Defs, LinearGradient, Polygon, Stop } from "react-native-svg";
-import { spacing, type ThemeId, type ThemePalette } from "@/src/lib/theme";
+import { spacing, type ThemeId, type ThemePalette } from "@/src/constants/design-tokens";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const HEIGHT = spacing.header.homePolygonHeight;

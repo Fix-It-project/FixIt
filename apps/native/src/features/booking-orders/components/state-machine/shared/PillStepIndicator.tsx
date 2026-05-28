@@ -7,7 +7,7 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
-import { space, useThemeColors } from "@/src/lib/theme";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 interface PillStepIndicatorProps {
 	readonly stepIndex: number;

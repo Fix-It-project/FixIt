@@ -4,7 +4,7 @@ import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { BOOKING_SLOT_OPTIONS } from "@/src/features/booking-orders/utils/fixed-slots";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface BookingTimeStepProps {
 	readonly technicianId: string;

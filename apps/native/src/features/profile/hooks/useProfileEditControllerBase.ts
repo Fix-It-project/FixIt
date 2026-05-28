@@ -4,8 +4,7 @@ import {
 	getChangedFields,
 	hasChangedFields,
 } from "@/src/features/profile/utils/profile-form";
-import { showError } from "@/src/lib/errors/show-error";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
+import { showError } from "@/src/lib/errors";
 import { logger } from "@/src/lib/logger";
 
 type StringFields = Record<string, string>;
@@ -15,7 +14,6 @@ type ValidationResult<TForm extends StringFields> =
 	| { success: false };
 
 interface UpdateMutation<TForm extends StringFields> {
-	readonly error: unknown;
 	readonly isPending: boolean;
 	readonly mutate: (
 		payload: Partial<TForm>,
@@ -92,9 +90,6 @@ export function useProfileEditControllerBase<
 	};
 
 	return {
-		errorMessage: updateMutation.error
-			? getErrorMessage(updateMutation.error)
-			: null,
 		handleSave,
 		hasChanges,
 		isPending: updateMutation.isPending,

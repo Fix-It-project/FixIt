@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { User as UserIcon } from "lucide-react-native";
 import { useState } from "react";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -10,7 +10,7 @@ import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { techStep3Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSignUpStep3() {
 	const store = useTechnicianSignupStore();

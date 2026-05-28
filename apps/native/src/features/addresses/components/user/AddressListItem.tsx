@@ -9,7 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import type { Address } from "@/src/features/addresses/schemas/response.schema";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface AddressListItemProps {
 	readonly address: Address;

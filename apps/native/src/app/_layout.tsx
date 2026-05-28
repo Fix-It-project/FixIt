@@ -1,5 +1,5 @@
 import "../../global.css";
-import "@/src/lib/monitoring";
+import "@/src/config/monitoring";
 
 import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -20,15 +20,15 @@ import { DialogProvider } from "@/src/components/ui/dialog";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
-import { Sentry, registerNavigationContainer } from "@/src/lib/monitoring";
-import queryClient from "@/src/lib/query-client";
+import { Sentry, registerNavigationContainer } from "@/src/config/monitoring";
+import queryClient from "@/src/config/query-client";
 import {
 	createNavigationTheme,
 	fontAssets,
 	getThemeVariableRecord,
 	useThemeTokens,
-} from "@/src/lib/theme";
-import { AppSafeAreaFrame } from "@/src/lib/utils/AppSafeAreaFrame";
+} from "@/src/constants/design-tokens";
+import { AppSafeAreaFrame } from "@/src/components/layout/AppSafeAreaFrame";
 
 SplashScreen.preventAutoHideAsync();
 

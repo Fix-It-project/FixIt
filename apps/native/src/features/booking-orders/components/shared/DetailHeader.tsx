@@ -1,8 +1,8 @@
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { View } from "react-native";
-import PageHeader from "@/src/components/PageHeader";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { Colors, spacing } from "@/src/lib/theme";
+import PageHeader from "@/src/components/layout/PageHeader";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { Colors, spacing } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly categoryId: string | null | undefined;

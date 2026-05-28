@@ -4,15 +4,15 @@ import { useCallback, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import PageHeader from "@/src/components/PageHeader";
+import PageHeader from "@/src/components/layout/PageHeader";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import AddressFormSection from "@/src/features/address-entry/components/AddressFormSection";
 import { useAddAddressMutation } from "@/src/features/addresses/hooks/useAddAddressMutation";
 import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { getErrorMessage } from "@/src/lib/errors";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function AddAddressScreen() {
 	const themeColors = useThemeColors();

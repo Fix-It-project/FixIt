@@ -13,7 +13,7 @@ import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import BackButton from "@/src/components/ui/BackButton";
+import BackButton from "@/src/components/ui/back-button";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
@@ -27,8 +27,8 @@ import type { SortKey } from "@/src/features/technicians/types/sort";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useLocationStore } from "@/src/stores/location-store";
 
 // ─── Extracted list body (avoids nested ternary in JSX) ──────────────────────
@@ -193,7 +193,7 @@ export default function TechniciansListScreen() {
 		}
 	}, [activeSort, location, refetch]);
 
-	// Query errors flow through lib/query-client.ts (QueryCache.onError →
+	// Query errors flow through config/query-client.ts (QueryCache.onError →
 	// toAppError → showError). No inline error toasts here.
 
 	const handleSortPress = useCallback(

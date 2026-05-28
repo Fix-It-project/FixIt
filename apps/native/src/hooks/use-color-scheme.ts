@@ -1,4 +1,4 @@
-import { useThemeMeta } from "@/src/lib/theme";
+import { useThemeMeta } from "@/src/constants/design-tokens";
 import { useThemeStore } from "@/src/stores/theme-store";
 
 export function useColorScheme() {
@@ -15,4 +15,4 @@ export function useColorScheme() {
 	};
 }
 
-export type { ThemePreference } from "@/src/lib/theme";
+export type { ThemePreference } from "@/src/constants/design-tokens";

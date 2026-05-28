@@ -17,8 +17,8 @@ import {
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { FullWindowOverlay as RNFullWindowOverlay } from "react-native-screens";
 import { Text } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
-import { overlayTokens } from "@/src/lib/theme/overlay";
+import { useThemeColors } from "@/src/constants/design-tokens";
+import { overlayTokens } from "@/src/constants/design-tokens/themes/overlay";
 
 type AlertDialogProps = {
 	visible: boolean;

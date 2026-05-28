@@ -8,7 +8,7 @@ import {
 	elevation,
 	shadowStyle,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 
 interface BookingDateStepProps {
 	readonly technicianId: string;

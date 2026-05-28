@@ -7,7 +7,7 @@ import {
 	shadowStyle,
 	spacing,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 
 interface StatsCardProps {
 	readonly icon: LucideIcon;
@@ -30,8 +30,15 @@ function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
 			>
 				<Icon size={24} color={themeColors.surfaceBase} strokeWidth={2} />
 			</View>
-			<Text variant="h2" className="font-bold text-2xl text-content">{count}</Text>
-			<Text variant="caption" className="mt-stack-xs text-content-muted text-xs">{label}</Text>
+			<Text variant="h2" className="font-bold text-2xl text-content">
+				{count}
+			</Text>
+			<Text
+				variant="caption"
+				className="mt-stack-xs text-content-muted text-xs"
+			>
+				{label}
+			</Text>
 		</View>
 	);
 }

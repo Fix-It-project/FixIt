@@ -9,7 +9,7 @@ import { Camera, ImagePlus, Mic, MicOff, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import type { ChatFlow, SelectedImage } from "../types";
 import type { AudioRecorderState, RecordedAudio } from "../hooks/useAudioRecorder";

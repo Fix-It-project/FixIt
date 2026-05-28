@@ -2,9 +2,9 @@ import { Image } from "expo-image";
 import { MapPin } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { spacing } from "@/src/lib/design-tokens";
-import type { Technician } from "@/src/lib/mock-data/user";
-import { useThemeColors } from "@/src/lib/theme";
+import { spacing } from "@/src/constants/design-tokens";
+import type { Technician } from "@/src/constants/mock-data/user";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import RatingRow from "./RatingRow";
 
 export const CARD_WIDTH_RATIO = 0.75;

@@ -24,7 +24,7 @@ import InlineReviewForm, {
 } from "@/src/components/reviews/InlineReviewForm";
 import { Text } from "@/src/components/ui/text";
 import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 const KeyboardAwareBottomSheetScrollView =
 	BottomSheet.ScrollView as unknown as ComponentType<ScrollViewProps>;

@@ -3,7 +3,7 @@ import { useState } from "react";
 import BookingFlowHeader from "@/src/features/booking-orders/components/shared/BookingFlowHeader";
 import BookingDateStep from "@/src/features/booking-orders/components/user/BookingDateStep";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function BookingDateScreen() {
 	const {

@@ -5,7 +5,7 @@ import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText, Text } from "@/src/components/ui/text";
 import type { useForgotPasswordMutation } from "@/src/features/auth/hooks/useForgotPasswordMutation";
-import { Colors } from "@/src/lib/theme";
+import { Colors } from "@/src/constants/design-tokens";
 
 interface EmailEntryViewProps {
 	readonly email: string;

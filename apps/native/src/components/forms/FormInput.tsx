@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native";
 import { Input, type InputProps } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import { Textarea } from "@/src/components/ui/textarea";
-import { Colors } from "@/src/lib/theme";
+import { Colors } from "@/src/constants/design-tokens";
 
 interface FormInputProps {
 	readonly label?: string;

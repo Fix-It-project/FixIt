@@ -4,14 +4,14 @@ import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 import {
 	elevation,
 	shadowStyle,
 	space,
 	type ThemePalette,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 import {
 	useDashboardOrdersQuery,
 	useTodayAcceptedDashboardOrders,

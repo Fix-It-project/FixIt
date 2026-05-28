@@ -1,4 +1,4 @@
-import type { ThemePalette } from "@/src/lib/theme";
+import type { ThemePalette } from "@/src/constants/design-tokens";
 import type { ScheduledEvent } from "../schemas/response.schema";
 import type { DaySchedule } from "../types/calendar";
 

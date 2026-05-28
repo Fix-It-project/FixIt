@@ -1,7 +1,7 @@
 import { Leaf, type LucideIcon } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Toast from "react-native-toast-message";
-import type { ThemePreference } from "@/src/lib/theme";
+import type { ThemePreference } from "@/src/constants/design-tokens";
 
 const JUNGLE_TRIGGER_THEME = "forest";
 const LIGHT_MODE_VALUE: ThemePreference = "light";

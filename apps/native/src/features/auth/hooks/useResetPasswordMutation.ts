@@ -3,8 +3,8 @@ import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { clearRecoverySession } from "@/src/features/auth/utils/recovery-session";
 import { logger } from "@/src/lib/logger";
-import { ROUTES } from "@/src/lib/routes";
-import { supabase } from "@/src/lib/supabase";
+import { ROUTES } from "@/src/lib/navigation";
+import { supabase } from "@/src/config/supabase";
 
 export function useResetPasswordMutation(userType: string) {
 	return useMutation({

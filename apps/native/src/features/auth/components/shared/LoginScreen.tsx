@@ -2,7 +2,7 @@ import { type Href, router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -13,9 +13,9 @@ import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { signInSchema } from "@/src/features/auth/schemas/form.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
-import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { getErrorMessage } from "@/src/lib/errors";
+import { ROUTES } from "@/src/lib/navigation";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface LoginMutationResult {
 	mutate: (data: { email: string; password: string }) => void;

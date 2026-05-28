@@ -8,11 +8,11 @@ import {
 } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { ReviewRow, ReviewStatsHeader } from "@/src/components/reviews";
-import BackButton from "@/src/components/ui/BackButton";
+import BackButton from "@/src/components/ui/back-button";
 import { Text } from "@/src/components/ui/text";
 import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function TechnicianReviewsScreen() {
 	const themeColors = useThemeColors();

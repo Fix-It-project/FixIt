@@ -22,7 +22,10 @@ export default function ProfileHeader({
 				imageUrl={imageUrl}
 				onChangePhoto={onChangePhoto}
 			/>
-			<Text variant="h3" className="mt-stack-md font-bold text-surface-on-primary text-xl">
+			<Text
+				variant="h3"
+				className="mt-stack-md font-bold text-surface-on-primary text-xl"
+			>
 				{isLoading ? <ActivityIndicator color="white" /> : (name ?? "User")}
 			</Text>
 		</View>

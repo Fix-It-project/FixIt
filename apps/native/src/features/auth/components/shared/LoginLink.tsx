@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 interface LoginLinkProps {
 	readonly route?: Href;

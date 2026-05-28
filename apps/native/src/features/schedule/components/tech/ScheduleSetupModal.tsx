@@ -17,7 +17,7 @@ import {
 	Colors,
 	spacing,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 
 const DAYS = [
 	"Sunday",

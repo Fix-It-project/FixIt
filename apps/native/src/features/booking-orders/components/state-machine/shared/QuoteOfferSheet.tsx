@@ -10,8 +10,8 @@ import { Dialog } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import { Textarea } from "@/src/components/ui/textarea";
-import { formatCurrency } from "@/src/lib/helpers/format-currency";
-import { space, useThemeColors } from "@/src/lib/theme";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface QuoteOfferSheetHandle {
 	open: (defaults?: { amount?: number | null; note?: string | null }) => void;

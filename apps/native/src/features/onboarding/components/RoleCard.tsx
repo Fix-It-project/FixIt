@@ -10,9 +10,9 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import { Colors, elevation, shadowStyle, space } from "@/src/lib/theme";
+import { Colors, elevation, shadowStyle, space } from "@/src/constants/design-tokens";
 import { cn } from "@/src/lib/utils";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 
 export type RoleVariant = "user" | "tech";
 

@@ -5,7 +5,7 @@ import TodayScheduleSection from "@/src/features/dashboard/components/tech/Today
 import { useDashboardOrdersQuery } from "@/src/features/dashboard/hooks/useDashboardOrdersQuery";
 import DashboardHeader from "@/src/features/tech-self/components/tech/DashboardHeader";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 const SECTION_GAP = 8;
 

@@ -11,7 +11,7 @@ import {
 import { File } from "expo-file-system";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Toast from "react-native-toast-message";
-import { showError } from "@/src/lib/errors/show-error";
+import { showError } from "@/src/lib/errors";
 import { logger } from "@/src/lib/logger";
 
 export type AudioRecorderState = "idle" | "recording" | "recorded";

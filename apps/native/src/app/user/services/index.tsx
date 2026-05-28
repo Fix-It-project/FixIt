@@ -6,10 +6,10 @@ import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import ServiceListContent from "@/src/features/services/components/user/ServiceListContent";
 import ServicesHeader from "@/src/features/services/components/user/ServicesHeader";
 import { useServicesQuery } from "@/src/features/services/hooks/useServicesQuery";
-import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
+import { getCategoryMeta } from "@/src/features/categories/constants/categories";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
-import { Colors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { Colors } from "@/src/constants/design-tokens";
 
 export default function ServicesListScreen() {
 	const { categoryId, categoryName } = useLocalSearchParams<{

@@ -7,9 +7,9 @@ import BookingDetailsStep, {
 } from "@/src/features/booking-orders/components/user/BookingDetailsStep";
 import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
-import { showError } from "@/src/lib/errors/show-error";
+import { showError } from "@/src/lib/errors";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function BookingDetailsScreen() {
 	const {

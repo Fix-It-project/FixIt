@@ -16,8 +16,8 @@ import {
 	formatTime,
 } from "@/src/features/booking-orders/utils/booking-helpers";
 import { useTechRequestsStore } from "@/src/features/dashboard/stores/tech-requests-store";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	useAcceptDashboardOrderMutation,
 	useRejectDashboardOrderMutation,

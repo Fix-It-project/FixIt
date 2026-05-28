@@ -6,13 +6,13 @@ import {
 	deriveTechnicianExtras,
 	formatLocation,
 } from "@/src/features/technicians/utils/technician-utils";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 import {
 	elevation,
 	shadowStyle,
 	spacing,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 import AvailabilityBadge from "./AvailabilityBadge";
 import RatingRow from "./RatingRow";
 import TechnicianAvatar from "./TechnicianAvatar";

@@ -2,8 +2,8 @@ import { Wrench } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
-import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
-import { useThemeColors } from "@/src/lib/theme";
+import { getCategoryMeta } from "@/src/features/categories/constants/categories";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface CategoryTileProps {
 	readonly category: Category;

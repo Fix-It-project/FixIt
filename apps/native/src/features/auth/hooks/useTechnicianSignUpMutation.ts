@@ -5,7 +5,7 @@ import { technicianSignUp } from "@/src/features/auth/api/technician-auth";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import { buildFormData } from "@/src/features/auth/utils/signup-helpers";
 import { logger } from "@/src/lib/logger";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
 
 export type { TechnicianSignUpInput } from "@/src/features/auth/utils/signup-helpers";

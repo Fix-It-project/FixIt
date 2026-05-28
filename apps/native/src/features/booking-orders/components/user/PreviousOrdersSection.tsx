@@ -6,8 +6,8 @@ import {
 } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/lib/mock-data/user";
-import { spacing } from "@/src/lib/theme";
+import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/constants/mock-data/user";
+import { spacing } from "@/src/constants/design-tokens";
 
 const CARD_WIDTH_RATIO = 0.75;
 const CARD_SPACING = spacing.stack.sm;

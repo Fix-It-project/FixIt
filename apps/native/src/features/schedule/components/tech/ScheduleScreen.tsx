@@ -17,12 +17,12 @@ import {
 } from "@/src/features/schedule/hooks/useCalendar";
 import type { DaySchedule } from "@/src/features/schedule/types/calendar";
 import { buildMarkedDates } from "@/src/features/schedule/utils/buildMarkedDates";
-import { spacing } from "@/src/lib/design-tokens";
+import { spacing } from "@/src/constants/design-tokens";
 import {
 	getCalendarTheme,
 	useThemeColors,
 	useThemeTokens,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 import { useScheduledEventsByDate } from "../../hooks/useScheduledEvents";
 import ScheduleDayPanel from "./ScheduleDayPanel";
 import ScheduleLegend from "./ScheduleLegend";
@@ -115,7 +115,7 @@ export default function ScheduleScreen({ onDismissSetup }: Props) {
 				350,
 			);
 		} catch {
-			// Failure toast handled globally via MutationCache.onError (lib/query-client.ts).
+			// Failure toast handled globally via MutationCache.onError (config/query-client.ts).
 		}
 	};
 

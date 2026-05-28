@@ -5,7 +5,7 @@ import Toast, {
 	type ToastProps,
 } from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
+import { Colors } from "@/src/constants/design-tokens";
 
 export const toastConfig: ToastConfig = {
 	success: ({ text1, text2 }) => (

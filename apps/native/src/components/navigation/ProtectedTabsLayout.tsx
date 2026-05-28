@@ -6,8 +6,8 @@ import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
-} from "@/src/lib/tab-bar-config";
-import { useThemeColors } from "@/src/lib/theme";
+} from "@/src/components/layout/tab-bar";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import { type UserType, useAuthStore } from "@/src/stores/auth-store";
 
 export interface ProtectedTabsLayoutProps extends PropsWithChildren {

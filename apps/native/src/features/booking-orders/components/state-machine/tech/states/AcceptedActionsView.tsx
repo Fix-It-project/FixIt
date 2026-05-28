@@ -30,7 +30,7 @@ import {
 	translateOrderError,
 } from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
-import { space, useThemeColors } from "@/src/lib/theme";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 interface Props {

@@ -9,8 +9,8 @@ import { Text } from "@/src/components/ui/text";
 import CategoryTile from "@/src/features/categories/components/user/CategoryTile";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
-import { Colors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { Colors } from "@/src/constants/design-tokens";
 
 export default function CategoriesScreen() {
 	const {

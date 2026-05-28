@@ -2,7 +2,7 @@ import type * as React from "react";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Sentry } from "@/src/lib/monitoring";
+import { Sentry } from "@/src/config/monitoring";
 
 type FatalScreenProps = {
 	error: unknown;

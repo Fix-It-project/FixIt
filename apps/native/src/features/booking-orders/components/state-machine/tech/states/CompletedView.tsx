@@ -17,9 +17,9 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { PressableScale } from "@/src/components/ui/PressableScale";
-import { ROUTES } from "@/src/lib/routes";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { ROUTES } from "@/src/lib/navigation";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;

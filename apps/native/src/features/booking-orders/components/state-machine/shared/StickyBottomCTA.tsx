@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { type LayoutChangeEvent, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBottomTabMetrics } from "@/src/lib/tab-bar-config";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { useBottomTabMetrics } from "@/src/components/layout/tab-bar";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface StickyBottomCTAProps {
 	readonly children: ReactNode;

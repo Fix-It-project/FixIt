@@ -1,8 +1,8 @@
 import * as SecureStore from "expo-secure-store";
-import apiClient from "@/src/lib/api-client";
-import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import apiClient from "@/src/config/api-client";
+import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import { logger } from "@/src/lib/logger";
-import { supabase } from "@/src/lib/supabase";
+import { supabase } from "@/src/config/supabase";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { recommendationsResponseSchema } from "./schemas/response.schema";
 

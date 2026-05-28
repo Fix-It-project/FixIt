@@ -3,7 +3,7 @@ import { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import type { ScheduledEvent } from "@/src/features/schedule/schemas/response.schema";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import ScheduleOrderCard from "./ScheduleOrderCard";
 
 interface ScheduleOrdersPanelProps {

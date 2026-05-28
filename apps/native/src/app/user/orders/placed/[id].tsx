@@ -21,15 +21,15 @@ import {
 	EASE_OUT_EXPO,
 	SPRING_SOFT,
 	STAGGER_GAP,
-} from "@/src/lib/animation/constants";
+} from "@/src/constants/animation";
 import { Button } from "@/src/components/ui/button";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { ROUTES } from "@/src/lib/routes";
-import { space, useThemeColors } from "@/src/lib/theme";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES } from "@/src/lib/navigation";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 const CHECK_SIZE = 64;
 const CHECK_HALO_SIZE = 112;

@@ -2,10 +2,10 @@ import { type Href, router } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import BackButton from "@/src/components/ui/BackButton";
+import BackButton from "@/src/components/ui/back-button";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText, Text } from "@/src/components/ui/text";
-import { Colors } from "@/src/lib/theme";
+import { Colors } from "@/src/constants/design-tokens";
 
 interface InvalidResetLinkViewProps {
 	readonly loginRoute: Href;

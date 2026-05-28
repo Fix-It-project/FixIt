@@ -2,8 +2,8 @@ import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import type { AuthUser } from "@/src/features/auth/schemas/response.schema";
 import { logger } from "@/src/lib/logger";
-import * as monitoring from "@/src/lib/monitoring";
-import { supabase } from "@/src/lib/supabase";
+import * as monitoring from "@/src/config/monitoring";
+import { supabase } from "@/src/config/supabase";
 
 // ─── Secure Storage Keys ─────────────────────────────────────────────────────
 

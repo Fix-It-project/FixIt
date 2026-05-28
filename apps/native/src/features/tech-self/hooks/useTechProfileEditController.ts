@@ -16,7 +16,6 @@ export function useTechProfileEditController<
 		data: unknown,
 	) => { success: true; data: TForm } | { success: false };
 	readonly updateMutation: {
-		readonly error: unknown;
 		readonly isPending: boolean;
 		readonly mutate: (
 			payload: Partial<TForm>,

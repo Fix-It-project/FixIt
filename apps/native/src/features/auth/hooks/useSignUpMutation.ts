@@ -4,7 +4,7 @@ import Toast from "react-native-toast-message";
 import { signUp } from "@/src/features/auth/api/auth";
 import type { SignUpRequest } from "@/src/features/auth/types/auth";
 import { logger } from "@/src/lib/logger";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export function useSignUpMutation() {
 	return useMutation({

@@ -2,7 +2,7 @@
 
 import { router } from "expo-router";
 import { useOrderDistance, useTechActiveOrder } from "@/src/features/booking-orders/hooks";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 import ActiveOrderBubblePresenter from "./ActiveOrderBubblePresenter";
 
 export default function TechActiveOrderBubble() {

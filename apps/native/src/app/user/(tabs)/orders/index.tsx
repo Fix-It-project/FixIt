@@ -13,8 +13,8 @@ import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserO
 import { reviewSheetRef } from "@/src/features/reviews/components/user/ReviewPromptHost";
 import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function MyOrdersScreen() {
 	const themeColors = useThemeColors();

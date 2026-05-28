@@ -2,9 +2,9 @@ import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface Props {

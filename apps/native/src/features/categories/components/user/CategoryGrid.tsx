@@ -4,8 +4,8 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import CategoryTile from "./CategoryTile";
 
 const CATEGORY_SKELETON_KEYS = [

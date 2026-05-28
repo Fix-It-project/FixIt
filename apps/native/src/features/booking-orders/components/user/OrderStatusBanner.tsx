@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { getOrderStatusBadge } from "@/src/lib/order-status";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
 
 interface Props {

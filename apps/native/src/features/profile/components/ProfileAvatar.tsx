@@ -7,13 +7,13 @@ import {
 } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
 import {
 	Colors,
 	elevation,
 	shadowStyle,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 
 interface ProfileAvatarProps {
 	readonly name: string | null;

@@ -1,6 +1,6 @@
 import { Star } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
   readonly value: number;

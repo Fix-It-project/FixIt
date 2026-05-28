@@ -1,5 +1,5 @@
-import apiClient from "@/src/lib/api-client";
-import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import apiClient from "@/src/config/api-client";
+import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import type { Address } from "../schemas/response.schema";
 import {
 	addressesResponseSchema,

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Textarea } from "@/src/components/ui/textarea";
-import { space } from "@/src/lib/theme";
+import { space } from "@/src/constants/design-tokens";
 
 const MIN_HEIGHT = 56;
 const MAX_HEIGHT = 160;

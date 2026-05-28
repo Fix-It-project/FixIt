@@ -20,7 +20,7 @@ import {
 	translateOrderError,
 } from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export type ReschedulePanelViewer = "user" | "technician";
 

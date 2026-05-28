@@ -33,8 +33,8 @@ import {
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
-import { space, useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function OrderDetailScreen() {
 	const themeColors = useThemeColors();

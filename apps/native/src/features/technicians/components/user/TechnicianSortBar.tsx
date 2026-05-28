@@ -5,7 +5,7 @@ import {
 	SORT_OPTIONS,
 	type SortKey,
 } from "@/src/features/technicians/types/sort";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export {
 	SORT_OPTIONS,

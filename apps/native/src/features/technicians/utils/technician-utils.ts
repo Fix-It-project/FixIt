@@ -1,4 +1,4 @@
-import { getActiveThemeTokens } from "@/src/lib/theme";
+import { getActiveThemeTokens } from "@/src/constants/design-tokens";
 
 export function getAvatarColors() {
 	const tokens = getActiveThemeTokens();
