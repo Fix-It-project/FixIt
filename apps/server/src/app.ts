@@ -1,7 +1,5 @@
-import {
-	technicianAddressRoutes,
-	userAddressRoutes,
-} from "./modules/addresses/addresses.routes.js";
+import { technicianAddressRoutes, userAddressRoutes, } from "./modules/addresses/addresses.routes.js";
+import adminAuthRoutes from "./modules/admin-auth/admin-auth.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import categoriesRoutes from "./modules/categories/categories.routes.js";
 import ordersRoutes from "./modules/orders/orders.routes.js";
@@ -9,16 +7,13 @@ import reviewsRoutes from "./modules/reviews/reviews.routes.js";
 import servicesRoutes from "./modules/services/services.routes.js";
 import technicianAuthRoutes from "./modules/technician-auth/technician-auth.routes.js";
 import technicianCalendarRoutes from "./modules/technician-calendar/technician-calendar.routes.js";
-import {
-	technicianProfileRoutes,
-	technicianSelfRoutes,
-	techniciansRoutes,
-} from "./modules/technicians/technicians.routes.js";
+import { technicianProfileRoutes, technicianSelfRoutes, techniciansRoutes, } from "./modules/technicians/technicians.routes.js";
 import usersRoutes from "./modules/users/users.routes.js";
+import app from "./shared-app.js";
 import { AppError } from "./shared/errors/app-error.js";
 import { finalErrorMiddleware } from "./shared/errors/final-error-middleware.js";
-import app from "./shared-app.js";
 
+app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/technician-auth", technicianAuthRoutes);
 app.use("/api/addresses", userAddressRoutes);

@@ -1,12 +1,14 @@
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import axios from "axios";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "@/stores/auth-store";
+import { apiClient } from "@/lib/api-client";
+import { type AdminUser, useAuthStore } from "@/stores/auth-store";
 import { LoginCard } from "./components/LoginCard";
 
 const loginSearchSchema = z.object({
@@ -15,13 +17,14 @@ const loginSearchSchema = z.object({
 
 export const Route = createFileRoute("/login/")({
 	validateSearch: loginSearchSchema,
+	beforeLoad: () => {
+		const { isAuthenticated } = useAuthStore.getState();
+		if (isAuthenticated) {
+			throw redirect({ to: "/dashboard" });
+		}
+	},
 	component: LoginRoute,
 });
-
-const MOCK_ADMIN = {
-	email: "admin@fixit.com",
-	password: "admin123",
-};
 
 const loginSchema = z.object({
 	email: z.string().email("Enter a valid email address"),
@@ -43,17 +46,19 @@ function LoginRoute() {
 			const result = loginSchema.safeParse(value);
 			if (!result.success) return;
 
-			await new Promise((r) => setTimeout(r, 400));
-
-			if (value.email === MOCK_ADMIN.email && value.password === MOCK_ADMIN.password) {
-				setSession(
-					{ id: "1", email: value.email, role: "admin" },
-					"mock-access-token",
-					"mock-refresh-token",
+			try {
+				const { data } = await apiClient.post<{ user: AdminUser }>(
+					"/api/admin/auth/login",
+					value,
 				);
+				setSession(data.user);
 				navigate({ to: redirect ?? "/dashboard" });
-			} else {
-				setAuthError("Invalid email or password.");
+			} catch (error) {
+				if (axios.isAxiosError(error) && error.response?.status === 401) {
+					setAuthError("Invalid email or password.");
+				} else {
+					setAuthError("Something went wrong. Please try again.");
+				}
 			}
 		},
 	});

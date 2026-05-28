@@ -4,8 +4,6 @@ import { createJSONStorage, persist } from "zustand/middleware";
 export interface AdminUser {
 	id: string;
 	email: string;
-	// NOTE: server-side admin role middleware is a prerequisite.
-	// Shape will firm up once /api/admin/* endpoints land — see plan doc.
 	role?: "admin" | "superadmin";
 	[k: string]: unknown;
 }
@@ -14,15 +12,9 @@ const STORAGE_KEY = "fixit_admin_auth";
 
 interface AuthState {
 	user: AdminUser | null;
-	accessToken: string | null;
-	refreshToken: string | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
-	setSession: (
-		user: AdminUser,
-		accessToken: string,
-		refreshToken: string,
-	) => void;
+	setSession: (user: AdminUser) => void;
 	clearSession: () => void;
 	setLoading: (loading: boolean) => void;
 }
@@ -31,23 +23,17 @@ export const useAuthStore = create<AuthState>()(
 	persist(
 		(set) => ({
 			user: null,
-			accessToken: null,
-			refreshToken: null,
 			isAuthenticated: false,
 			isLoading: false,
-			setSession: (user, accessToken, refreshToken) =>
+			setSession: (user) =>
 				set({
 					user,
-					accessToken,
-					refreshToken,
 					isAuthenticated: true,
 					isLoading: false,
 				}),
 			clearSession: () =>
 				set({
 					user: null,
-					accessToken: null,
-					refreshToken: null,
 					isAuthenticated: false,
 					isLoading: false,
 				}),
@@ -58,8 +44,6 @@ export const useAuthStore = create<AuthState>()(
 			storage: createJSONStorage(() => localStorage),
 			partialize: (state) => ({
 				user: state.user,
-				accessToken: state.accessToken,
-				refreshToken: state.refreshToken,
 				isAuthenticated: state.isAuthenticated,
 			}),
 		},
