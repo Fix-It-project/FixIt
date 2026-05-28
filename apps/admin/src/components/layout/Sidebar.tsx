@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
 	BarChart2,
 	Home,
@@ -10,6 +10,7 @@ import {
 	Wrench,
 } from "lucide-react";
 import { FixItLogo } from "@/components/FixItLogo";
+import { apiClient } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -81,8 +82,19 @@ function NavItemRow({ item, collapsed, active, onClick }: { item: NavItem; colla
 
 export function Sidebar({ collapsed, onClose }: SidebarProps) {
 	const routerState = useRouterState();
+	const navigate = useNavigate();
 	const pathname = routerState.location.pathname;
 	const { user, clearSession } = useAuthStore();
+
+	const handleLogout = async () => {
+		try {
+			await apiClient.post("/api/admin/auth/logout");
+		} catch {
+			// Ignore network errors; clear local session regardless.
+		}
+		clearSession();
+		navigate({ to: "/login" });
+	};
 
 	const isActive = (href: string) => pathname === href || (href !== "/" && pathname.startsWith(href));
 
@@ -145,7 +157,7 @@ export function Sidebar({ collapsed, onClose }: SidebarProps) {
 
 				<button
 					type="button"
-					onClick={clearSession}
+					onClick={handleLogout}
 					title={collapsed ? "Sign out" : undefined}
 					className={cn(
 						"flex items-center gap-2 w-full rounded-[10px] border border-border px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 transition-colors",

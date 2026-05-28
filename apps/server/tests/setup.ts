@@ -7,3 +7,6 @@ process.env.SUPABASE_CONNECTION_STRING = 'postgresql://postgres:postgres@localho
 process.env.CORS_ORIGIN = 'http://localhost:3000';
 process.env.STORAGE_BUCKET = 'test-storage-bucket';
 process.env.ORDER_BUCKET = 'test-order-bucket';
+process.env.ADMIN_EMAIL = 'admin@test.local';
+process.env.ADMIN_PASSWORD_HASH = '$2b$10$abcdefghijklmnopqrstuv';
+process.env.ADMIN_JWT_SECRET = 'test-admin-jwt-secret-1234567890';
