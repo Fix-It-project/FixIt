@@ -1,4 +1,5 @@
 import { env } from "@FixIt/env/server";
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express, type Request, type Response } from 'express';
 import pinoHttp from 'pino-http';
@@ -20,6 +21,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'FixIt API Server is running' });
