@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Calendar, type CalendarProps } from "react-native-calendars";
-import { getCalendarTheme, useThemeTokens } from "@/src/lib/theme";
+import { getCalendarTheme, useThemeTokens } from "@/src/constants/design-tokens";
 
 interface CalendarPickerProps
 	extends Omit<

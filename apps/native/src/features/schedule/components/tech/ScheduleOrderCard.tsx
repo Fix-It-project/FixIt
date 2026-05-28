@@ -4,11 +4,11 @@ import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
-import { getOrderStatusBadge } from "@/src/lib/order-status";
+import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
 import type { ScheduledEvent } from "@/src/features/schedule/schemas/response.schema";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface ScheduleOrderCardProps {
 	readonly order: ScheduledEvent;

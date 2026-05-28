@@ -6,14 +6,14 @@ import Svg, { Defs, LinearGradient, Polygon, Stop } from "react-native-svg";
 import { Text } from "@/src/components/ui/text";
 import { getHeaderPolygonPalette } from "@/src/features/tech-self/components/tech/HeaderPolygons";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 import {
 	elevation,
 	shadowStyle,
 	spacing,
 	useThemeColors,
 	useThemeMeta,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 
 const HEADER_HEIGHT = spacing.header.dashboardHeight;
 

@@ -6,7 +6,7 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
-import { EASE_OUT_EXPO } from "@/src/lib/animation/constants";
+import { EASE_OUT_EXPO } from "@/src/constants/animation";
 
 interface StepBodySlideProps {
 	readonly slideKey: string;

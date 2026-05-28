@@ -21,8 +21,8 @@ import {
 } from "react";
 import { BackHandler } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useThemeColors } from "@/src/lib/theme";
-import { overlayTokens } from "@/src/lib/theme/overlay";
+import { useThemeColors } from "@/src/constants/design-tokens";
+import { overlayTokens } from "@/src/constants/design-tokens/themes/overlay";
 
 // Re-export gorhom's ref types so consumers never import directly from @gorhom/bottom-sheet
 export type BottomSheetRef = GorhomBottomSheet;

@@ -2,7 +2,7 @@ import { CalendarOff } from "lucide-react-native";
 import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 /** Shown when the selected day has no bookings. */
 export default function BookingsEmptyState() {

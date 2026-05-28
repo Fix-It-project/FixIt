@@ -9,7 +9,7 @@ import Animated, {
 import InlineReviewForm, {
 	type InlineReviewFormHandle,
 } from "@/src/components/reviews/InlineReviewForm";
-import { PressableScale } from "@/src/components/ui/PressableScale";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Text } from "@/src/components/ui/text";
 import {
 	OrderInfoCompact,
@@ -22,11 +22,11 @@ import TechnicianProfileSheet, {
 import {
 	DUR_STAGGER,
 	STAGGER_GAP,
-} from "@/src/lib/animation/constants";
-import { formatAmount } from "@/src/lib/helpers/format-currency";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { ROUTES } from "@/src/lib/routes";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+} from "@/src/constants/animation";
+import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES } from "@/src/lib/navigation";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;

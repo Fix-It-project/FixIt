@@ -2,7 +2,7 @@ import type { MaterialTopTabNavigationProp } from "expo-router/js-top-tabs";
 import { useNavigation } from "expo-router/react-navigation";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import NotificationBell from "@/src/components/ui/NotificationBell";
+import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import {
 	Colors,
@@ -10,7 +10,7 @@ import {
 	shadowStyle,
 	spacing,
 	useThemeColors,
-} from "@/src/lib/theme";
+} from "@/src/constants/design-tokens";
 import ScheduleScreen from "./ScheduleScreen";
 
 type ScheduleTopTabParamList = {

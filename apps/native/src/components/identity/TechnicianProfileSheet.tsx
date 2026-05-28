@@ -21,7 +21,7 @@ import { Text } from "@/src/components/ui/text";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
 import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface TechnicianProfileSheetRef {
 	open: (technicianId: string, initials: string) => void;

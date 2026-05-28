@@ -1,6 +1,6 @@
 import { ChevronRight } from "lucide-react-native";
 import { Button } from "@/src/components/ui/button";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface SectionEndArrowProps {
 	readonly onPress?: () => void;

@@ -1,9 +1,9 @@
 import { ChevronDown, MapPin } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
-import NotificationBell from "@/src/components/ui/NotificationBell";
+import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 
 interface LocationHeaderProps {
 	readonly onLocationPress?: () => void;

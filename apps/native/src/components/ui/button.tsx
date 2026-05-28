@@ -22,7 +22,7 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { Text, TextClassContext } from "@/src/components/ui/text";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import { cn } from "@/src/lib/utils";
 
 // ─── Animated wrapper ─────────────────────────────────────────────────────

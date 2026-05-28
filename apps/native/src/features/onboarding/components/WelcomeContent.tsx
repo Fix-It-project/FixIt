@@ -7,8 +7,8 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { DUR_STAGGER, STAGGER_GAP } from "@/src/lib/animation/constants";
-import { space } from "@/src/lib/theme";
+import { DUR_STAGGER, STAGGER_GAP } from "@/src/constants/animation";
+import { space } from "@/src/constants/design-tokens";
 
 interface WelcomeContentProps {
 	contentVisible: boolean;

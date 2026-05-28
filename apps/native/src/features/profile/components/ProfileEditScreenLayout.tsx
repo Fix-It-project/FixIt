@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
 import { ActivityIndicator, useWindowDimensions, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import PageHeader from "@/src/components/PageHeader";
+import PageHeader from "@/src/components/layout/PageHeader";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface ProfileEditScreenLayoutProps {
 	readonly children: ReactNode;
-	readonly errorMessage: string | null;
 	readonly isPending: boolean;
 	readonly isSaveDisabled: boolean;
 	readonly onBackPress: () => void;
@@ -19,7 +17,6 @@ interface ProfileEditScreenLayoutProps {
 
 export default function ProfileEditScreenLayout({
 	children,
-	errorMessage,
 	isPending,
 	isSaveDisabled,
 	onBackPress,
@@ -51,7 +48,6 @@ export default function ProfileEditScreenLayout({
 				bottomOffset={spacing.card.roomy.padding}
 			>
 				<View className="w-full max-w-[560px] gap-stack-lg">
-					<ErrorBanner message={errorMessage} />
 					{children}
 
 					<View className="mt-stack-sm">

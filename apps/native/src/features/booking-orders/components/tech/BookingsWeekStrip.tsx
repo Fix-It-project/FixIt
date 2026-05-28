@@ -17,7 +17,7 @@ import {
 	useBookingsDateStore,
 } from "@/src/features/booking-orders/stores/bookings-date-store";
 import { toIso } from "@/src/features/booking-orders/utils/date-helpers";
-import { elevation, shadowStyle, useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle, useThemeColors } from "@/src/constants/design-tokens";
 import { useTechnicianBookingDates } from "../../hooks/useTechnicianBookingsQuery";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

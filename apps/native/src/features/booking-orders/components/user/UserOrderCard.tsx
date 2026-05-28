@@ -9,10 +9,10 @@ import {
 	formatTime,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
-import { getOrderStatusBadge } from "@/src/lib/order-status";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;

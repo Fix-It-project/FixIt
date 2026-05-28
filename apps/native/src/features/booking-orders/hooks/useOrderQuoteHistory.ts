@@ -5,7 +5,7 @@
 //
 // Polling cadence: 4s while the user is on the quote screen so the OTHER
 // party's submission becomes visible promptly without WebSocket infra. The
-// foreground-only AppState listener in lib/query-client.ts means we won't
+// foreground-only AppState listener in config/query-client.ts means we won't
 // drain battery while the app is backgrounded — refetchIntervalInBackground
 // defaults to false.
 

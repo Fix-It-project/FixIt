@@ -1,6 +1,6 @@
-import { CATEGORIES } from "@/src/lib/helpers/categories";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
 
-export { getErrorMessage } from "@/src/lib/errors/to-app-error";
+export { getErrorMessage } from "@/src/lib/errors";
 
 import type { ServiceOrder } from "../schemas/response.schema";
 import type { RecommendationCard } from "./types";

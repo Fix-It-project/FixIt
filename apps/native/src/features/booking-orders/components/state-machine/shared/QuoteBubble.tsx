@@ -5,9 +5,9 @@ import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import type { OrderQuote } from "@/src/features/booking-orders/schemas/quote.schema";
-import { DUR_STAGGER, STAGGER_GAP } from "@/src/lib/animation/constants";
-import { formatAmount } from "@/src/lib/helpers/format-currency";
-import { radius, space, useThemeColors } from "@/src/lib/theme";
+import { DUR_STAGGER, STAGGER_GAP } from "@/src/constants/animation";
+import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 interface QuoteBubbleProps {
 	readonly item: OrderQuote;

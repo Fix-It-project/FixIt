@@ -9,9 +9,9 @@ import ProfileInfoCard from "@/src/features/tech-self/components/tech/ProfileInf
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 import { useUploadTechProfileImageMutation } from "@/src/features/tech-self/hooks/useUploadTechProfileImageMutation";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { showError } from "@/src/lib/errors/show-error";
+import { showError } from "@/src/lib/errors";
 import { logger } from "@/src/lib/logger";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianProfileRoute() {
 	const { data: profile, isLoading } = useTechSelfProfileQuery();

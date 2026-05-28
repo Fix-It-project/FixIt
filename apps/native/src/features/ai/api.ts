@@ -1,5 +1,5 @@
 import axios from "axios";
-import { safeParseResponse } from "@/src/lib/helpers/safe-parse";
+import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import { logger } from "@/src/lib/logger";
 import { useAuthStore } from "@/src/stores/auth-store";
 import {

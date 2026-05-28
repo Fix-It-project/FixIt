@@ -5,7 +5,7 @@ language js
 // error strings to end users. Route through showError(err) or display
 // app.userMessage from toAppError(err) instead.
 //
-// lib/errors/, lib/logger.ts, lib/monitoring.ts handle Error objects internally
+// lib/errors/, lib/logger.ts, config/monitoring.ts handle Error objects internally
 // and may legitimately reference .message — they are exempt.
 
 or {

@@ -1,6 +1,6 @@
 import { CalendarDays } from "lucide-react-native";
 import { Button } from "@/src/components/ui/button";
-import type { ThemePalette } from "@/src/lib/theme";
+import type { ThemePalette } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly onPress: () => void;

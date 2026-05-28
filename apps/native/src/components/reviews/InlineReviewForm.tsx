@@ -16,7 +16,7 @@ import { Textarea } from "@/src/components/ui/textarea";
 import StarRatingInput from "@/src/features/reviews/components/user/StarRatingInput";
 import { useCreateReviewMutation } from "@/src/features/reviews/hooks/useCreateReviewMutation";
 import { createReviewClientSchema } from "@/src/features/reviews/schemas/review.schema";
-import { space, useThemeColors } from "@/src/lib/theme";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface InlineReviewFormHandle {
 	submit: () => Promise<{ submitted: boolean }>;

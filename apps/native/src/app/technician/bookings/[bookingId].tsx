@@ -34,8 +34,8 @@ import type { Order } from "@/src/features/booking-orders/schemas/response.schem
 import { Button } from "@/src/components/ui/button";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
-import { radius, space, useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 function isWizardStatus(status: LifecycleOrderStatus): boolean {
 	return (

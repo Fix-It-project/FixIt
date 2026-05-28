@@ -10,7 +10,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { logger } from "@/src/lib/logger";
-import { supabase } from "@/src/lib/supabase";
+import { supabase } from "@/src/config/supabase";
 
 type Actor = "user" | "technician";
 

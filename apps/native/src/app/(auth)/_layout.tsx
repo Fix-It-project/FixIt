@@ -1,6 +1,6 @@
 import { Redirect, Stack } from "expo-router";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function AuthLayout() {

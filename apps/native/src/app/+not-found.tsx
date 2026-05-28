@@ -1,10 +1,9 @@
 import { Link, Stack } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
-import { Container } from "@/src/components/container";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Text } from "@/src/components/ui/text";
-import { spacing } from "@/src/lib/design-tokens";
-import { useThemeTokens } from "@/src/lib/theme";
+import { spacing, useThemeTokens } from "@/src/constants/design-tokens";
 
 export default function NotFoundScreen() {
 	const theme = useThemeTokens();
@@ -12,7 +11,12 @@ export default function NotFoundScreen() {
 	return (
 		<>
 			<Stack.Screen options={{ title: "Oops!" }} />
-			<Container>
+			<ScreenSafeAreaView
+				style={[
+					styles.screen,
+					{ backgroundColor: theme.navigation.background },
+				]}
+			>
 				<View style={styles.container}>
 					<View style={styles.content}>
 						<Text variant="display" style={styles.emoji}>
@@ -49,12 +53,15 @@ export default function NotFoundScreen() {
 						</Link>
 					</View>
 				</View>
-			</Container>
+			</ScreenSafeAreaView>
 		</>
 	);
 }
 
 const styles = StyleSheet.create({
+	screen: {
+		flex: 1,
+	},
 	container: {
 		flex: 1,
 		justifyContent: "center",

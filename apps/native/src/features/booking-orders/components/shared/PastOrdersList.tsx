@@ -3,7 +3,7 @@ import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import PageHeader from "@/src/components/PageHeader";
+import PageHeader from "@/src/components/layout/PageHeader";
 import { Text } from "@/src/components/ui/text";
 import {
 	formatDate,
@@ -13,12 +13,12 @@ import {
 import {
 	getOrderStatusBadge,
 	type OrderStatusPerspective,
-} from "@/src/lib/order-status";
+} from "@/src/features/booking-orders/utils/order-status-ui";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { spacing } from "@/src/lib/design-tokens";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { spacing } from "@/src/constants/design-tokens";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
 
 export interface PastOrdersListItem {

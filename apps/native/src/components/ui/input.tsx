@@ -9,7 +9,7 @@ import {
 	View,
 } from "react-native";
 import { logger } from "@/src/lib/logger";
-import { typography, useThemeColors } from "@/src/lib/theme";
+import { typography, useThemeColors } from "@/src/constants/design-tokens";
 import { cn } from "@/src/lib/utils";
 
 const inputVariants = cva(

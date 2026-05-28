@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface InfoSectionRow {
 	readonly icon: LucideIcon;

@@ -11,7 +11,7 @@ import {
 	fontFamily,
 	type TypographyVariant,
 	typography,
-} from "@/src/lib/design-tokens";
+} from "@/src/constants/design-tokens";
 import { cn } from "@/src/lib/utils";
 
 const textVariants = cva(

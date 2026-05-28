@@ -3,7 +3,7 @@ import PastOrdersList, {
 } from "@/src/features/booking-orders/components/shared/PastOrdersList";
 import { usePastTechnicianBookings } from "@/src/features/booking-orders/hooks/useTechnicianBookingsQuery";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function PastOrdersScreen() {
 	const { data: orders } = usePastTechnicianBookings();

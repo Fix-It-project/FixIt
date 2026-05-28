@@ -7,7 +7,7 @@ import Toast from "react-native-toast-message";
 import { diagnoseIssue, placeOrderWithAgent } from "@/src/features/ai/api";
 import type { ServiceOrder } from "@/src/features/ai/schemas/response.schema";
 import { logger } from "@/src/lib/logger";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLocationStore } from "@/src/stores/location-store";
 import type { ChatEntry, ChatFlow, SelectedImage } from "../types";

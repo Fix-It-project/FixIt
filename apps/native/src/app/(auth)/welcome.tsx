@@ -15,11 +15,11 @@ import {
 	DUR_REVEAL,
 	EASE_OUT_EXPO,
 	SPLASH_HOLD_MS,
-} from "@/src/lib/animation/constants";
+} from "@/src/constants/animation";
 import { SplashIntroPanel } from "@/src/features/onboarding/components/SplashIntroPanel";
 import { WelcomeContent } from "@/src/features/onboarding/components/WelcomeContent";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 
 const COLLAPSED_RATIO = 0.58;
 const MOTTO = "Home care, fixed faster.";

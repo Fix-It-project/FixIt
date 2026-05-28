@@ -6,7 +6,7 @@ import Animated, {
 	useReducedMotion,
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import { formatAmount } from "@/src/lib/helpers/format-currency";
+import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
 import { Button } from "@/src/components/ui/button";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
@@ -27,9 +27,9 @@ import CustomerInfoSheet, {
 import {
 	DUR_STAGGER,
 	STAGGER_GAP,
-} from "@/src/lib/animation/constants";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+} from "@/src/constants/animation";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export type SummaryViewer = "user" | "technician";
 

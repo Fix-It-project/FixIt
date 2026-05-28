@@ -19,14 +19,14 @@ import {
 	elevation,
 	shadowStyle,
 	spacing,
-} from "@/src/lib/design-tokens";
-import { ROUTES } from "@/src/lib/routes";
+} from "@/src/constants/design-tokens";
+import { ROUTES } from "@/src/lib/navigation";
 import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
-} from "@/src/lib/tab-bar-config";
-import { useThemeColors } from "@/src/lib/theme";
+} from "@/src/components/layout/tab-bar";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 
 interface ChatFabProps {

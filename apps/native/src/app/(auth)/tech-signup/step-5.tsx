@@ -1,7 +1,7 @@
 import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import AddressFormSection from "@/src/features/address-entry/components/AddressFormSection";
@@ -15,9 +15,9 @@ import {
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import type { UploadDocumentInput } from "@/src/features/auth/utils/signup-helpers";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
+import { getErrorMessage } from "@/src/lib/errors";
 import { logger } from "@/src/lib/logger";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 const DOCUMENT_PICKER_TYPES = [
 	"application/pdf",

@@ -17,9 +17,9 @@ import {
 	type RecoverySession,
 } from "@/src/features/auth/utils/recovery-session";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
-import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { getErrorMessage } from "@/src/lib/errors";
+import { ROUTES } from "@/src/lib/navigation";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 export default function ResetPassword() {
 	const themeColors = useThemeColors();

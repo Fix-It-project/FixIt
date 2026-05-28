@@ -8,7 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import WelcomeAsset from "@/src/assets/onboarding/welcomeasset.svg";
 import { Text } from "@/src/components/ui/text";
-import { space } from "@/src/lib/theme";
+import { space } from "@/src/constants/design-tokens";
 import { BrandMark } from "./BrandMark";
 
 interface SplashIntroPanelProps {

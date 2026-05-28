@@ -15,7 +15,7 @@ import Animated, {
 import { Button } from "@/src/components/ui/button";
 import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
-import { radius, spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export type CompletionPendingDirection = "awaiting_me" | "awaiting_them";
 

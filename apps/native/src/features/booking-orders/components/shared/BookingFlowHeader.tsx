@@ -2,10 +2,10 @@ import { type LucideIcon, Wrench } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import BackButton from "@/src/components/ui/BackButton";
+import BackButton from "@/src/components/ui/back-button";
 import { Text } from "@/src/components/ui/text";
-import { getCategoryMeta } from "@/src/lib/helpers/category-helpers";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { getCategoryMeta } from "@/src/features/categories/constants/categories";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface BookingFlowHeaderProps {
 	readonly categoryId: string | null | undefined;

@@ -1,12 +1,12 @@
 language js
 
 // LGUARD-02 — Toast.show({ type: "error", ... }) is only allowed inside
-// apps/native/src/lib/errors/show-error.ts. All other error toasts must route
+// apps/native/src/lib/errors/index.ts. All other error toasts must route
 // through showError(err).
 
 or {
   `Toast.show({ type: "error", $...args })`,
   `Toast.show({ type: 'error', $...args })`
 } where {
-  $filename <: not includes "apps/native/src/lib/errors/show-error.ts"
+  $filename <: not includes "apps/native/src/lib/errors/index.ts"
 }

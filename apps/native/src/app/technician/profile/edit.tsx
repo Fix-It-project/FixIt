@@ -1,5 +1,6 @@
 import { FileText, Phone, User } from "lucide-react-native";
 import FormInput from "@/src/components/forms/FormInput";
+import { ROUTES } from "@/src/lib/navigation";
 import ProfileEditScreenLayout from "@/src/features/profile/components/ProfileEditScreenLayout";
 import { useTechProfileEditController } from "@/src/features/tech-self/hooks/useTechProfileEditController";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
@@ -8,7 +9,6 @@ import { editTechProfileSchema } from "@/src/features/tech-self/schemas/form.sch
 import { useEditTechProfileStore } from "@/src/features/tech-self/stores/edit-tech-profile-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
 
 export default function EditTechProfileScreen() {
 	const { data: profile } = useTechSelfProfileQuery();
@@ -45,28 +45,26 @@ export default function EditTechProfileScreen() {
 		description: profile?.description ?? "",
 	};
 
-	const { errorMessage, handleSave, hasChanges, isPending } =
-		useTechProfileEditController({
-			formValues,
-			originalValues,
-			hydrate,
-			hydrateValues: profile
-				? {
-						firstName: profile.first_name ?? "",
-						lastName: profile.last_name ?? "",
-						phone: profile.phone ?? "",
-						description: profile.description ?? "",
-					}
-				: null,
-			reset,
-			goBack,
-			validate,
-			updateMutation: updateProfile,
-		});
+	const { handleSave, hasChanges, isPending } = useTechProfileEditController({
+		formValues,
+		originalValues,
+		hydrate,
+		hydrateValues: profile
+			? {
+					firstName: profile.first_name ?? "",
+					lastName: profile.last_name ?? "",
+					phone: profile.phone ?? "",
+					description: profile.description ?? "",
+				}
+			: null,
+		reset,
+		goBack,
+		validate,
+		updateMutation: updateProfile,
+	});
 
 	return (
 		<ProfileEditScreenLayout
-			errorMessage={errorMessage}
 			isPending={isPending}
 			isSaveDisabled={!hasChanges || isPending}
 			onBackPress={goBack}

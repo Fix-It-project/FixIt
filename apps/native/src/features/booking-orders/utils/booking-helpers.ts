@@ -1,5 +1,5 @@
 /** Shared formatting utilities for booking-related UI. */
-import { getActiveThemeTokens } from "@/src/lib/theme";
+import { getActiveThemeTokens } from "@/src/constants/design-tokens";
 
 const MONTHS = [
 	"Jan",

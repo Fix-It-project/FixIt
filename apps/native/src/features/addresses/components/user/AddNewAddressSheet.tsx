@@ -16,8 +16,8 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { ROUTES } from "@/src/lib/routes";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useLocationStore } from "@/src/stores/location-store";
 
 export interface AddNewAddressSheetRef {

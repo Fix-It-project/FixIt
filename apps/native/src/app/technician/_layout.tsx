@@ -1,7 +1,7 @@
-import { RoleProtectedLayout } from "@/src/components/auth/RoleProtectedLayout";
+import { RoleProtectedLayout } from "@/src/components/navigation/RoleProtectedLayout";
 import { useActorOrdersRealtime } from "@/src/features/booking-orders/hooks/useActorOrdersRealtime";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
-import { ROUTES } from "@/src/lib/routes";
+import { ROUTES } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function TechnicianLayout() {

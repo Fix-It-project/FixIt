@@ -10,7 +10,7 @@ import {
 	useThemeEasterEgg,
 } from "@/src/features/settings/hooks/useThemeEasterEgg";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
-import { elevation, shadowStyle, useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle, useThemeColors } from "@/src/constants/design-tokens";
 
 const OPTIONS: ThemeOption[] = [
 	{ value: "light", label: "Light", Icon: Sun },

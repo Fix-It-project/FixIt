@@ -1,7 +1,7 @@
 import { ActivityIndicator, Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { ArrowRight, Bot, Sparkles, Star } from "lucide-react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import type { ServiceOrder } from "../../schemas/response.schema";
 import type { ChatEntry, ChatFlow } from "../types";
 import { getRecommendationCards } from "../utils";

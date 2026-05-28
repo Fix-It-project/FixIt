@@ -7,8 +7,8 @@ import ProfileMenuSection from "@/src/features/profile/components/ProfileMenuSec
 import ProfileInfoCard from "@/src/features/users/components/user/ProfileInfoCard";
 import { useProfileQuery } from "@/src/features/users/hooks/useProfileQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { showError } from "@/src/lib/errors/show-error";
-import { ROUTES } from "@/src/lib/routes";
+import { showError } from "@/src/lib/errors";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function UserProfileRoute() {
 	const { data: profile, isLoading } = useProfileQuery();

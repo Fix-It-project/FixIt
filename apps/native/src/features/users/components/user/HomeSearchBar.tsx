@@ -1,7 +1,7 @@
 import { Search } from "lucide-react-native";
 import { View } from "react-native";
 import { Input } from "@/src/components/ui/input";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function HomeSearchBar() {
 	const themeColors = useThemeColors();

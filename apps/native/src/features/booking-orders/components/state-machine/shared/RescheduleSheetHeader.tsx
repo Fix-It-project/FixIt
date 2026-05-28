@@ -4,7 +4,7 @@ import { CalendarClock, X } from "lucide-react-native";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface RescheduleSheetHeaderProps {
 	readonly onClose: () => void;

@@ -11,8 +11,8 @@ import type { Order } from "@/src/features/booking-orders/schemas/response.schem
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { space } from "@/src/lib/theme";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { space } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;

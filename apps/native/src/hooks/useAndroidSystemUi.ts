@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { setAndroidNavigationBar } from "@/src/lib/android-navigation-bar";
+import { setAndroidNavigationBar } from "@/src/components/layout/android-navigation-bar";
 
 export function useAndroidSystemUi(
 	navigationBarStyle: "light" | "dark",

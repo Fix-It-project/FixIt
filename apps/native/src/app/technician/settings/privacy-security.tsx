@@ -2,7 +2,7 @@ import { Shield } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 
 import { Text } from "@/src/components/ui/text";
-import { Colors, elevation, shadowStyle } from "@/src/lib/theme";
+import { Colors, elevation, shadowStyle } from "@/src/constants/design-tokens";
 
 export default function TechnicianPrivacySecurityScreen() {
 	return (

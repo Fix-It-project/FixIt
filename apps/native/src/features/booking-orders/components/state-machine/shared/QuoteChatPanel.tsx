@@ -12,7 +12,7 @@ import { View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
-import { formatCurrency } from "@/src/lib/helpers/format-currency";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
 import {
 	useOrderQuoteHistory,
 	useTechAcceptUserQuote,
@@ -24,7 +24,7 @@ import {
 } from "@/src/features/booking-orders/hooks";
 import type { OrderQuote } from "@/src/features/booking-orders/schemas/quote.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { Button } from "@/src/components/ui/button";
 import CancelReasonModal from "../../shared/CancelReasonModal";
 import QuoteBubble from "./QuoteBubble";

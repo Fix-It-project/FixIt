@@ -6,8 +6,8 @@ import type { Order } from "@/src/features/booking-orders/schemas/response.schem
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/routes";
-import { space } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { space } from "@/src/constants/design-tokens";
 import StageProgressBar from "./StageProgressBar";
 import StepBodySlide from "./StepBodySlide";
 import StickyBottomCTA from "./StickyBottomCTA";

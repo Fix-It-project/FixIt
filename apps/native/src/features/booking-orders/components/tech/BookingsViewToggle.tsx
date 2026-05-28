@@ -5,8 +5,8 @@ import {
 	SegmentedControlItem,
 } from "@/src/components/ui/segmented-control";
 import { Text } from "@/src/components/ui/text";
-import { elevation, shadowStyle } from "@/src/lib/design-tokens";
-import { useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle } from "@/src/constants/design-tokens";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 /** Schedule / Bookings pill toggle — Bookings tab is always active for now. */
 export default function BookingsViewToggle() {

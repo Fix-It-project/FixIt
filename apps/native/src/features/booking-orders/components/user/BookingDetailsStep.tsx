@@ -12,7 +12,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
-import { Colors, spacing, useThemeColors } from "@/src/lib/theme";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface AttachmentInfo {
 	uri: string;

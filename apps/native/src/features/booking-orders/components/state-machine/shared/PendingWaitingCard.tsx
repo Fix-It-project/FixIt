@@ -12,8 +12,8 @@ import {
 	useUserCancelOrder,
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { space } from "@/src/lib/theme";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { space } from "@/src/constants/design-tokens";
 import OrderInfoCompact from "./OrderInfoCompact";
 import RescheduleRequestPanel from "./RescheduleRequestPanel";
 import RescheduleSheet, { type RescheduleSheetHandle } from "./RescheduleSheet";

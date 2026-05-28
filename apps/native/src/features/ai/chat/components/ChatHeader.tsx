@@ -1,7 +1,7 @@
 import { MessageCircle } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/lib/theme";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function ChatHeader() {
   const themeColors = useThemeColors();

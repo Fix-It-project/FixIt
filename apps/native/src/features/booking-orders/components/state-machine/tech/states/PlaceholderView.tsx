@@ -15,7 +15,7 @@ import { View } from "react-native";
 
 import { Text } from "@/src/components/ui/text";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 const ICON_SIZE = 48;
 const ICON_STROKE_WIDTH = 1.5;

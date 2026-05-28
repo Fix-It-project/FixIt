@@ -8,13 +8,13 @@ import {
 	formatTime,
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
-import { getOrderStatusBadge } from "@/src/lib/order-status";
+import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { elevation, shadowStyle } from "@/src/lib/design-tokens";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { ROUTES } from "@/src/lib/routes";
-import { spacing, useThemeColors } from "@/src/lib/theme";
+import { elevation, shadowStyle } from "@/src/constants/design-tokens";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES } from "@/src/lib/navigation";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { TechnicianBooking } from "../../schemas/response.schema";
 
 interface BookingCardProps {

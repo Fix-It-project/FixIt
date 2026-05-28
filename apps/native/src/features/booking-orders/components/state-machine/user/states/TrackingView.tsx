@@ -17,8 +17,8 @@ import CancelReasonModal from "@/src/features/booking-orders/components/shared/C
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
-import { getPfpInitialsFallback } from "@/src/lib/helpers/pfp-initials-fallback";
-import { radius, space, spacing, useThemeColors } from "@/src/lib/theme";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;

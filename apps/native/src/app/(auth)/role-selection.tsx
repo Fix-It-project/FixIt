@@ -10,8 +10,8 @@ import UserRoleIllustration from "@/src/assets/onboarding/userrole.svg";
 import { Text } from "@/src/components/ui/text";
 import { RoleCard } from "@/src/features/onboarding/components/RoleCard";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
-import { space } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { space } from "@/src/constants/design-tokens";
 
 export default function RoleSelectionScreen() {
 	const insets = useSafeAreaInsets();

@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { logger } from "@/src/lib/logger";
-import { themeIds } from "@/src/lib/theme/definitions";
-import type { ThemeId, ThemePreference } from "@/src/lib/theme/types";
+import { themeIds } from "@/src/constants/design-tokens/themes/definitions";
+import type { ThemeId, ThemePreference } from "@/src/constants/design-tokens/themes/types";
 
 const STORAGE_KEY = "fixit_theme_preference";
 

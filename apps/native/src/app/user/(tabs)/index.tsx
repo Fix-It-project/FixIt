@@ -19,8 +19,8 @@ import NearYouSection from "@/src/features/technicians/components/user/NearYouSe
 import RecommendedTechnicians from "@/src/features/technicians/components/user/RecommendedTechnicians";
 import HomeSearchBar from "@/src/features/users/components/user/HomeSearchBar";
 import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/routes";
-import { spacing, useThemeColors, useThemeMeta } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { spacing, useThemeColors, useThemeMeta } from "@/src/constants/design-tokens";
 
 export default function Home() {
 	const themeColors = useThemeColors();

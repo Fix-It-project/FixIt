@@ -6,7 +6,7 @@
  */
 
 import type { AxiosError } from "axios";
-import { getErrorMessage } from "@/src/lib/errors/to-app-error";
+import { getErrorMessage } from "@/src/lib/errors";
 
 type ErrorPayload = {
 	error?:

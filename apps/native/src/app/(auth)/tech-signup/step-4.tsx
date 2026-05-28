@@ -6,8 +6,8 @@ import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
 import CategoryChip from "@/src/features/auth/components/shared/CategoryChip";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
-import { CATEGORIES } from "@/src/lib/helpers/categories";
-import { ROUTES } from "@/src/lib/routes";
+import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSignUpStep4() {
 	const store = useTechnicianSignupStore();

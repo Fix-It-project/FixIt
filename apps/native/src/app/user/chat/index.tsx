@@ -5,7 +5,7 @@ import ChatComposer from "@/src/features/ai/chat/components/ChatComposer";
 import ChatHeader from "@/src/features/ai/chat/components/ChatHeader";
 import ChatMessageList from "@/src/features/ai/chat/components/ChatMessageList";
 import { useChatbotController } from "@/src/features/ai/chat/hooks/useChatbotController";
-import { useThemeColors } from "@/src/lib/theme";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 export default function ChatbotScreen() {
 	const themeColors = useThemeColors();

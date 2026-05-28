@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { useState } from "react";
 import { ActivityIndicator } from "react-native";
-import ErrorBanner from "@/src/components/feedback/ErrorBanner";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -12,8 +12,8 @@ import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { techStep1Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { ROUTES } from "@/src/lib/routes";
-import { useThemeColors } from "@/src/lib/theme";
+import { ROUTES } from "@/src/lib/navigation";
+import { useThemeColors } from "@/src/constants/design-tokens";
 
 export default function TechnicianSignUpStep1() {
 	const themeColors = useThemeColors();

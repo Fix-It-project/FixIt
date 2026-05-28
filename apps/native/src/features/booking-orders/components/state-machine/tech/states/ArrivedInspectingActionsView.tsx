@@ -14,7 +14,7 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { radius, space, useThemeColors } from "@/src/lib/theme";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;

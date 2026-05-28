@@ -13,7 +13,7 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { space } from "@/src/lib/theme";
+import { space } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
