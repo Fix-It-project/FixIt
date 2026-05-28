@@ -5,6 +5,7 @@ import { OrdersAreaChart } from "./components/OrdersAreaChart";
 import { RecentOrdersTable } from "./components/RecentOrdersTable";
 import { StatusBarRow } from "./components/StatusBarRow";
 import { TopTechniciansList } from "./components/TopTechniciansList";
+import { useOrdersSeries } from "./hooks/useOrdersSeries";
 import { useRangeFilter } from "./hooks/useRangeFilter";
 
 export const Route = createFileRoute("/_protected/dashboard/")({
@@ -12,7 +13,8 @@ export const Route = createFileRoute("/_protected/dashboard/")({
 });
 
 function DashboardPage() {
-	const { range, setRange, series } = useRangeFilter();
+	const { range, setRange } = useRangeFilter();
+	const seriesQuery = useOrdersSeries(range);
 
 	return (
 		<div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 pb-12">
@@ -29,7 +31,12 @@ function DashboardPage() {
 
 			{/* Charts row */}
 			<div className="grid grid-cols-1 lg:grid-cols-[2.4fr_1fr] gap-4">
-				<OrdersAreaChart range={range} setRange={setRange} series={series} />
+				<OrdersAreaChart
+					range={range}
+					setRange={setRange}
+					series={seriesQuery.data}
+					isLoading={seriesQuery.isLoading}
+				/>
 				<div className="flex flex-col gap-4">
 					<CategoryDonutChart />
 					<StatusBarRow />

@@ -1,8 +1,8 @@
 import { Activity, List, Star, Wallet } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
-import { KPIS } from "@/data/mockData";
 import { cn } from "@/lib/utils";
+import { useDashboardSummary } from "../hooks/useDashboardSummary";
 
 const ICONS: Record<string, React.ReactNode> = {
 	list: <List className="h-4 w-4" />,
@@ -12,9 +12,22 @@ const ICONS: Record<string, React.ReactNode> = {
 };
 
 export function KpiStrip() {
+	const { data, isLoading } = useDashboardSummary();
+	const kpis = data?.kpis ?? [];
+
+	if (isLoading) {
+		return (
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				{[0, 1, 2, 3].map((i) => (
+					<div key={i} className="h-[148px] animate-pulse rounded-xl bg-muted/50" />
+				))}
+			</div>
+		);
+	}
+
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-			{KPIS.map((kpi) => {
+			{kpis.map((kpi) => {
 				const up = kpi.delta >= 0;
 				const sparkData = kpi.trend.map((v) => ({ v }));
 				return (
@@ -48,7 +61,10 @@ export function KpiStrip() {
 								</ResponsiveContainer>
 							</div>
 
-							<p className="mt-1 text-[11px] text-muted-foreground">{kpi.deltaLabel}</p>
+							<p className="mt-1 text-[11px] text-muted-foreground">
+								{kpi.deltaLabel}
+								{kpi.previous != null && <span className="ml-1">· last mo: {kpi.previous}</span>}
+							</p>
 						</CardContent>
 					</Card>
 				);
