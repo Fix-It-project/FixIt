@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech, HistoryOrder } from "@/types/domain";
+import type { ActiveTech, HistoryOrder } from "@/types";
 
 interface TechProfileModalProps {
 	tech: ActiveTech | null;

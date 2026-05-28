@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HOMEOWNERS } from "@/data/mockData";
-import type { Homeowner } from "@/types/domain";
+import type { Homeowner } from "@/types";
 
 export function useHomeownerState() {
 	const [activeHomeowners, setActiveHomeowners] = useState<Homeowner[]>(

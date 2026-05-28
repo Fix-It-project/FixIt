@@ -9,11 +9,9 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech } from "@/types/domain";
+import type { ActiveTech, AvailabilityFilter } from "@/types";
 import { CompletionPill } from "./CompletionPill";
 import { TechCardList } from "./TechCardList";
-
-type AvailabilityFilter = "all" | "online" | "offline";
 
 const FILTER_KEYS: { key: AvailabilityFilter; label: string }[] = [
 	{ key: "all", label: "All" },

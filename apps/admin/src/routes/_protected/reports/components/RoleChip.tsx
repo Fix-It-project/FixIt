@@ -1,5 +1,5 @@
 import { UserRound, Wrench } from "lucide-react";
-import type { ReportSource } from "@/types/domain";
+import type { ReportSource } from "@/types";
 
 interface RoleChipProps {
 	role: ReportSource;

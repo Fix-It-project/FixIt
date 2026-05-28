@@ -7,13 +7,11 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaById } from "@/lib/category-icons";
-import type { Report, ReportResolution } from "@/types/domain";
+import type { Report, ReportResolutionFilter } from "@/types";
 import { ReportCardList } from "./ReportCardList";
 import { RoleChip } from "./RoleChip";
 
-type ResolutionFilter = "all" | ReportResolution;
-
-const FILTER_KEYS: { key: ResolutionFilter; label: string }[] = [
+const FILTER_KEYS: { key: ReportResolutionFilter; label: string }[] = [
 	{ key: "all", label: "All" },
 	{ key: "resolved", label: "Resolved" },
 	{ key: "dismissed", label: "Dismissed" },
@@ -24,14 +22,14 @@ interface ClosedTabProps {
 	onView: (report: Report) => void;
 }
 
-function filterByResolution(reports: Report[], f: ResolutionFilter): Report[] {
+function filterByResolution(reports: Report[], f: ReportResolutionFilter): Report[] {
 	if (f === "all") return reports;
 	return reports.filter((r) => r.resolution === f);
 }
 
 export function ClosedTab({ reports, onView }: ClosedTabProps) {
 	const [search, setSearch] = useState("");
-	const [filter, setFilter] = useState<ResolutionFilter>("all");
+	const [filter, setFilter] = useState<ReportResolutionFilter>("all");
 
 	const byResolution = filterByResolution(reports, filter);
 	const filtered = byResolution.filter((r) => {
@@ -46,11 +44,11 @@ export function ClosedTab({ reports, onView }: ClosedTabProps) {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<TableToolbar<ResolutionFilter>
+			<TableToolbar<ReportResolutionFilter>
 				searchValue={search}
 				onSearchChange={setSearch}
 				searchPlaceholder="Search reporter, order, summary…"
-				filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<ResolutionFilter> => ({
+				filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<ReportResolutionFilter> => ({
 					key,
 					label,
 					count: key === "all" ? reports.length : filterByResolution(reports, key).length,

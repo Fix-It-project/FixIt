@@ -14,7 +14,7 @@ import type {
 	StatusMeta,
 	StatusShare,
 	TopTech,
-} from "@/types/domain";
+} from "@/types";
 
 export const CATEGORIES: Category[] = [
 	{ id: "ac", name: "Air Conditioning", color: "#06b6d4", icon: "fan" },

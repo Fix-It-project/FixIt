@@ -1,6 +1,6 @@
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
-import type { Homeowner } from "@/types/domain";
+import type { Homeowner } from "@/types";
 
 interface HomeownerCardListProps {
 	homeowners: Homeowner[];

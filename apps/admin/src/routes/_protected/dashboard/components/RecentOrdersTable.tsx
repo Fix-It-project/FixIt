@@ -9,25 +9,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { RECENT_ORDERS, STATUS_META } from "@/data/mockData";
 import { getCategoryMetaById } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
-import type { Order } from "@/types/domain";
+import type { Order, OrderFilter } from "@/types";
 
-type Filter = "all" | "active" | "completed" | "cancelled";
-
-const FILTERS: { key: Filter; label: string }[] = [
+const FILTERS: { key: OrderFilter; label: string }[] = [
 	{ key: "all", label: "All" },
 	{ key: "active", label: "Active" },
 	{ key: "completed", label: "Completed" },
 	{ key: "cancelled", label: "Cancelled" },
 ];
 
-function filterOrders(orders: Order[], f: Filter) {
+function filterOrders(orders: Order[], f: OrderFilter) {
 	if (f === "all") return orders;
 	if (f === "active") return orders.filter((o) => o.status === "in_progress" || o.status === "accepted");
 	return orders.filter((o) => o.status === f);
 }
 
 export function RecentOrdersTable() {
-	const [filter, setFilter] = useState<Filter>("all");
+	const [filter, setFilter] = useState<OrderFilter>("all");
 	const [expandedReason, setExpandedReason] = useState<string | null>(null);
 
 	const visible = filterOrders(RECENT_ORDERS, filter);

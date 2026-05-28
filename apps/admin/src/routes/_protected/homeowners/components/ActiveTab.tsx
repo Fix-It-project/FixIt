@@ -6,10 +6,8 @@ import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Homeowner } from "@/types/domain";
+import type { ActivityFilter, Homeowner } from "@/types";
 import { HomeownerCardList } from "./HomeownerCardList";
-
-type ActivityFilter = "all" | "recent" | "dormant";
 
 const FILTER_KEYS: { key: ActivityFilter; label: string }[] = [
 	{ key: "all", label: "All" },

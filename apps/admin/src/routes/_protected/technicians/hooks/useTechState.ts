@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ACTIVE_TECHS, PENDING_TECHS } from "@/data/mockData";
-import type { ActiveTech, PendingTech } from "@/types/domain";
+import type { ActiveTech, PendingTech } from "@/types";
 
 export function useTechState() {
 	const [activeTechs, setActiveTechs] = useState<ActiveTech[]>(
