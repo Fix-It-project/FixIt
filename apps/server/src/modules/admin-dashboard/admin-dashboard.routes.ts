@@ -14,4 +14,8 @@ router.get(
 	adminDashboardController.getOrdersSeries,
 );
 
+// Mounted separately at /api/admin/orders (orders list lives in this module).
+export const ordersRouter: Router = express.Router();
+ordersRouter.get("/", requireAdminAuth, adminDashboardController.getOrders);
+
 export default router;

@@ -78,3 +78,28 @@ export interface OrdersSeries {
 }
 
 export type SeriesRange = "7d" | "30d" | "90d";
+
+// ---- Orders list (admin orders page) ----
+
+export interface AdminOrderReview {
+	rating: number;
+	comment: string | null;
+	customer: string;
+	date: string;
+}
+
+export interface AdminOrder {
+	id: string;
+	customer: string;
+	tech: string;
+	techInitials: string;
+	techColor: string;
+	category: string;
+	status: string;
+	amount: number;
+	time: string;
+	when: string;
+	createdAt: string;
+	cancelReason?: string;
+	review?: AdminOrderReview | null;
+}

@@ -63,6 +63,23 @@ export interface RecentOrder {
 
 export type RecentOrderFilter = "all" | "pending" | "accepted" | "active" | "cancelled";
 
+/** Orders page row — RecentOrder plus an ISO timestamp for client-side date filtering. */
+export interface AdminOrder extends RecentOrder {
+	createdAt: string;
+}
+
+export type OrdersPageFilter =
+	| "all"
+	| "pending"
+	| "accepted"
+	| "active"
+	| "completed"
+	| "cancelled";
+
+export type DateRangePreset = "all" | "today" | "7d" | "30d" | "90d";
+
+export type AmountBucket = "all" | "lt100" | "100_500" | "500_1000" | "gt1000";
+
 export interface ReviewView {
 	rating: number;
 	comment: string;

@@ -224,7 +224,7 @@ export const PENDING_TECHS: PendingTech[] = [
 ];
 
 export const STATUS_META: Record<string, StatusMeta> = {
-	pending: { label: "Waiting for tech", cls: "warn" },
+	pending: { label: "Pending", cls: "warn" },
 	accepted: { label: "Accepted", cls: "success" },
 	in_progress: { label: "In progress", cls: "muted" },
 	completed: { label: "Completed", cls: "success" },

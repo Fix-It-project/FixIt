@@ -1,4 +1,10 @@
-import type { OrderStatusRaw, RecentOrderFilter } from "@/types";
+import type {
+	AmountBucket,
+	DateRangePreset,
+	OrdersPageFilter,
+	OrderStatusRaw,
+	RecentOrderFilter,
+} from "@/types";
 
 type StatusBadgeVariant = "success" | "warn" | "danger" | "muted";
 
@@ -40,11 +46,47 @@ export function statusVariant(status: OrderStatusRaw): StatusBadgeVariant {
 	return "muted"; // accepted
 }
 
-/** Does a raw status match the selected filter chip? */
+/** Does a raw status match the selected recent-orders filter chip? */
 export function matchesRecentFilter(
 	status: OrderStatusRaw,
 	filter: RecentOrderFilter,
 ): boolean {
 	if (filter === "all") return true;
 	return recentOrderStatusBucket(status) === filter;
+}
+
+/** Does a raw status match the selected orders-page filter chip (includes completed)? */
+export function matchesOrderFilter(
+	status: OrderStatusRaw,
+	filter: OrdersPageFilter,
+): boolean {
+	if (filter === "all") return true;
+	return recentOrderStatusBucket(status) === filter;
+}
+
+/** Is an ISO timestamp within the selected preset window (ending now)? */
+export function matchesDatePreset(
+	createdAtISO: string,
+	preset: DateRangePreset,
+): boolean {
+	if (preset === "all") return true;
+	const days = preset === "today" ? 1 : preset === "7d" ? 7 : preset === "30d" ? 30 : 90;
+	const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+	return new Date(createdAtISO).getTime() >= cutoff;
+}
+
+/** Does an amount fall in the selected EGP bucket? */
+export function matchesAmountBucket(amount: number, bucket: AmountBucket): boolean {
+	switch (bucket) {
+		case "all":
+			return true;
+		case "lt100":
+			return amount < 100;
+		case "100_500":
+			return amount >= 100 && amount <= 500;
+		case "500_1000":
+			return amount > 500 && amount <= 1000;
+		case "gt1000":
+			return amount > 1000;
+	}
 }

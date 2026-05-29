@@ -18,6 +18,13 @@ export class AdminDashboardController {
 			res.status(200).json({ data });
 		},
 	);
+
+	getOrders: RequestHandler = asyncHandler(
+		async (_req: Request, res: Response) => {
+			const data = await adminDashboardService.getAllOrders();
+			res.status(200).json({ data });
+		},
+	);
 }
 
 export const adminDashboardController = new AdminDashboardController();

@@ -2,8 +2,11 @@ import {
 	adminDashboardRepository,
 	type AdminDashboardRepository,
 	type DashboardOrderRow,
+	type DetailedOrderRow,
 } from "./admin-dashboard.repository.js";
 import type {
+	AdminOrder,
+	AdminOrderReview,
 	CategoryShare,
 	DashboardOrder,
 	DashboardOrderReview,
@@ -190,7 +193,8 @@ function relativeWhen(iso: string): { when: string; time: string } {
 	let when: string;
 	if (days === 0) when = `Today, ${hhmm}`;
 	else if (days === 1) when = `Yesterday, ${hhmm}`;
-	else when = `${days} days ago`;
+	else if (days < 7) when = `${days} days ago`;
+	else when = `${then.getDate()}/${then.getMonth() + 1}/${then.getFullYear()}`;
 
 	let time: string;
 	if (mins < 60) time = `${Math.max(mins, 1)}m`;
@@ -497,6 +501,47 @@ export class AdminDashboardService {
 			.sort((a, b) => b.jobs - a.jobs);
 
 		return { overall, byCategory };
+	}
+
+	// --- Orders list (admin orders page) ---
+	async getAllOrders(): Promise<AdminOrder[]> {
+		const rows = await this.repo.getDetailedOrders();
+		return rows.map((r) => this.toAdminOrder(r));
+	}
+
+	private toAdminOrder(r: DetailedOrderRow): AdminOrder {
+		const tech =
+			`${r.techFirstName ?? ""} ${r.techLastName ?? ""}`.trim() || "Unassigned";
+		const customer = r.customerName ?? "Unknown";
+		const { when, time } = relativeWhen(r.created_at);
+
+		const review: AdminOrderReview | null = r.review
+			? {
+					rating: r.review.rating,
+					comment: r.review.comment,
+					customer,
+					date: new Date(r.review.created_at).toLocaleDateString("en-US", {
+						day: "numeric",
+						month: "short",
+					}),
+				}
+			: null;
+
+		return {
+			id: r.id,
+			customer,
+			tech,
+			techInitials: initialsOf(tech),
+			techColor: colorForName(tech),
+			category: r.categoryName ?? "Unknown",
+			status: r.status,
+			amount: r.final_price ?? 0,
+			time,
+			when,
+			createdAt: r.created_at,
+			cancelReason: r.cancellation_reason ?? undefined,
+			review,
+		};
 	}
 }
 

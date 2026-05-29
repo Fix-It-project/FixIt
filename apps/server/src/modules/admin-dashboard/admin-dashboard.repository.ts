@@ -42,8 +42,41 @@ export interface ReviewRow {
 	user_id: string | null;
 }
 
+/** Fully-joined order row for the admin orders list. */
+export interface DetailedOrderRow {
+	id: string;
+	status: string;
+	created_at: string;
+	final_price: number | null;
+	cancellation_reason: string | null;
+	customerName: string | null;
+	techFirstName: string | null;
+	techLastName: string | null;
+	categoryName: string | null;
+	review: {
+		rating: number;
+		comment: string | null;
+		created_at: string;
+		user_id: string | null;
+	} | null;
+}
+
 const ORDER_FIELDS =
 	"id, status, active, created_at, final_price, service_id, technician_id, user_id, user_completed_at, technician_completed_at, cancellation_reason" as const;
+
+const DETAILED_SELECT =
+	"id, status, created_at, final_price, cancellation_reason, " +
+	"users(full_name), " +
+	"technicians(first_name, last_name), " +
+	"services(name, categories(name)), " +
+	"reviews(rating, comment, created_at, user_id)";
+
+// Supabase returns embedded to-one relations as an object (or null) and
+// to-many as an array; normalize both to a single value.
+function one<T>(rel: T | T[] | null | undefined): T | null {
+	if (Array.isArray(rel)) return rel[0] ?? null;
+	return rel ?? null;
+}
 
 export class AdminDashboardRepository {
 	/** One read powers KPIs, statusShare, categoryShare, series, recent, top-tech. */
@@ -146,6 +179,46 @@ export class AdminDashboardRepository {
 			map.set(row.order_id, row);
 		}
 		return map;
+	}
+
+	/** Fully-joined orders for the admin orders list (newest first). */
+	async getDetailedOrders(): Promise<DetailedOrderRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("orders")
+			.select(DETAILED_SELECT)
+			.order("created_at", { ascending: false });
+		if (error) throw new Error(error.message);
+
+		return (data ?? []).map((row: any): DetailedOrderRow => {
+			const user = one<{ full_name: string | null }>(row.users);
+			const tech = one<{ first_name: string | null; last_name: string | null }>(
+				row.technicians,
+			);
+			const service = one<{
+				name: string | null;
+				categories: { name: string | null } | { name: string | null }[] | null;
+			}>(row.services);
+			const category = service ? one<{ name: string | null }>(service.categories) : null;
+			const review = one<{
+				rating: number;
+				comment: string | null;
+				created_at: string;
+				user_id: string | null;
+			}>(row.reviews);
+
+			return {
+				id: row.id,
+				status: row.status,
+				created_at: row.created_at,
+				final_price: row.final_price,
+				cancellation_reason: row.cancellation_reason,
+				customerName: user?.full_name ?? null,
+				techFirstName: tech?.first_name ?? null,
+				techLastName: tech?.last_name ?? null,
+				categoryName: category?.name ?? null,
+				review,
+			};
+		});
 	}
 }
 
