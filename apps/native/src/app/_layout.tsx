@@ -19,6 +19,8 @@ import { CustomToast } from "@/src/components/ui/toast";
 import { DialogProvider } from "@/src/components/ui/dialog";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
+import { useNotificationRouting } from "@/src/features/notifications/hooks/useNotificationRouting";
+import { usePushRegistration } from "@/src/features/notifications/hooks/usePushRegistration";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
 import { Sentry, registerNavigationContainer } from "@/src/config/monitoring";
 import queryClient from "@/src/config/query-client";
@@ -39,6 +41,8 @@ const styles = StyleSheet.create({
 function RootLayout() {
 	const [fontsLoaded] = useFonts(fontAssets);
 	const { isReady } = useAppBootstrap(fontsLoaded);
+	usePushRegistration(isReady);
+	useNotificationRouting(isReady);
 	const tokens = useThemeTokens();
 	const navigationRef = useNavigationContainerRef();
 

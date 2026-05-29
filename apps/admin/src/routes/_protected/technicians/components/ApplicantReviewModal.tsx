@@ -3,7 +3,7 @@ import { CategoryTag } from "@/components/CategoryTag";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { Document, PendingTech } from "@/types/domain";
+import type { Document, PendingTech } from "@/types";
 
 interface ApplicantReviewModalProps {
 	tech: PendingTech | null;

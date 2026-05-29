@@ -64,3 +64,5 @@ documentation/agent_docs/*
 supabase/
 AGENTS.md
 node-compile-cache/
+# Playwright MCP smoke-test artifacts
+.playwright-mcp/

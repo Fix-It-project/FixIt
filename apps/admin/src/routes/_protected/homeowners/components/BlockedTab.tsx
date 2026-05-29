@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { Homeowner } from "@/types/domain";
+import type { Homeowner } from "@/types";
 
 interface BlockedTabProps {
 	homeowners: Homeowner[];

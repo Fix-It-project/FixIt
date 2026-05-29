@@ -1,18 +1,24 @@
 import pino from 'pino';
 
-// Always use pretty-printing for readable logs
-// Logs appear on server regardless of client origin (local IP, AWS, etc.)
-const transport = pino.transport({
-  target: 'pino-pretty',
-  options: {
-    colorize: true,
-    translateTime: 'HH:MM:ss Z',
-    ignore: 'pid,hostname',
-    singleLine: false,
-    messageFormat: '{levelLabel} - {msg}',
-    customColors: 'err:red,warn:yellow,info:blue,debug:gray',
-  },
-});
+const isLambdaRuntime =
+  Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
+  Boolean(process.env.LAMBDA_TASK_ROOT);
+const usePrettyTransport =
+  process.env.NODE_ENV !== 'production' && !isLambdaRuntime;
+
+const transport = usePrettyTransport
+  ? pino.transport({
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss Z',
+        ignore: 'pid,hostname',
+        singleLine: false,
+        messageFormat: '{levelLabel} - {msg}',
+        customColors: 'err:red,warn:yellow,info:blue,debug:gray',
+      },
+    })
+  : undefined;
 
 export const logger = pino(
   {

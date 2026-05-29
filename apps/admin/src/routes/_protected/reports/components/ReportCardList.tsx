@@ -3,7 +3,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { getCategoryMetaById } from "@/lib/category-icons";
-import type { Report } from "@/types/domain";
+import type { Report } from "@/types";
 import { RoleChip } from "./RoleChip";
 
 interface ReportCardListProps {
@@ -19,11 +19,9 @@ export function ReportCardList({ reports, onView, emptyLabel }: ReportCardListPr
 	return (
 		<div className="flex flex-col gap-3">
 			{reports.map((r) => (
-				<button
+				<div
 					key={r.id}
-					type="button"
-					onClick={() => onView(r)}
-					className="text-left rounded-lg border border-border bg-card p-3 hover:bg-muted/30 transition-colors"
+					className="text-left rounded-lg border border-border bg-card p-3"
 				>
 					<div className="flex items-start gap-3">
 						<TechAvatar initials={r.reporterInitials} color={r.reporterColor} size="md" />
@@ -45,9 +43,9 @@ export function ReportCardList({ reports, onView, emptyLabel }: ReportCardListPr
 								)}
 							</div>
 						</div>
-						<Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); onView(r); }}>View</Button>
+						<Button size="sm" variant="outline" onClick={() => onView(r)}>View</Button>
 					</div>
-				</button>
+				</div>
 			))}
 		</div>
 	);

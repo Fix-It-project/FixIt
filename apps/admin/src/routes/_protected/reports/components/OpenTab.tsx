@@ -6,13 +6,11 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaById } from "@/lib/category-icons";
-import type { Report, ReportSource } from "@/types/domain";
+import type { Report, ReportSourceFilter } from "@/types";
 import { ReportCardList } from "./ReportCardList";
 import { RoleChip } from "./RoleChip";
 
-type SourceFilter = "all" | ReportSource;
-
-const FILTER_KEYS: { key: SourceFilter; label: string }[] = [
+const FILTER_KEYS: { key: ReportSourceFilter; label: string }[] = [
 	{ key: "all", label: "All" },
 	{ key: "customer", label: "From customers" },
 	{ key: "technician", label: "From technicians" },
@@ -23,14 +21,14 @@ interface OpenTabProps {
 	onView: (report: Report) => void;
 }
 
-function filterBySource(reports: Report[], f: SourceFilter): Report[] {
+function filterBySource(reports: Report[], f: ReportSourceFilter): Report[] {
 	if (f === "all") return reports;
 	return reports.filter((r) => r.reporterRole === f);
 }
 
 export function OpenTab({ reports, onView }: OpenTabProps) {
 	const [search, setSearch] = useState("");
-	const [filter, setFilter] = useState<SourceFilter>("all");
+	const [filter, setFilter] = useState<ReportSourceFilter>("all");
 
 	const bySource = filterBySource(reports, filter);
 	const filtered = bySource.filter((r) => {
@@ -45,11 +43,11 @@ export function OpenTab({ reports, onView }: OpenTabProps) {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<TableToolbar<SourceFilter>
+			<TableToolbar<ReportSourceFilter>
 				searchValue={search}
 				onSearchChange={setSearch}
 				searchPlaceholder="Search reporter, order, summary…"
-				filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<SourceFilter> => ({
+				filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<ReportSourceFilter> => ({
 					key,
 					label,
 					count: key === "all" ? reports.length : filterBySource(reports, key).length,

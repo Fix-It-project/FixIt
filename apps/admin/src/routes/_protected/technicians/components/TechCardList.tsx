@@ -3,7 +3,7 @@ import { CategoryTag } from "@/components/CategoryTag";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech } from "@/types/domain";
+import type { ActiveTech } from "@/types";
 import { CompletionPill } from "./CompletionPill";
 
 interface TechCardListProps {

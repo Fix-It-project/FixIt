@@ -38,6 +38,12 @@ vi.mock("../lifecycle.repository.js", () => ({
 	},
 }));
 
+vi.mock("../../../notifications/notifications.service.js", () => ({
+	notificationsService: {
+		sendPushToRecipient: vi.fn(),
+	},
+}));
+
 // Programmable per-table behavior. Tests reassign these handlers in beforeEach.
 type HandlerResult = { data: unknown; error: unknown };
 type TableHandler = () => HandlerResult;
@@ -75,6 +81,9 @@ vi.mock("../../../../shared/db/supabase.js", () => ({
 
 const repoModule = await import("../lifecycle.repository.js");
 const { LifecycleService } = await import("../lifecycle.service.js");
+const notificationsModule = await import(
+	"../../../notifications/notifications.service.js"
+);
 
 const repo = repoModule.lifecycleRepository as unknown as {
 	submitOrder: ReturnType<typeof vi.fn>;
@@ -86,6 +95,10 @@ const repo = repoModule.lifecycleRepository as unknown as {
 	tagPaymentAsSmokeAuto: ReturnType<typeof vi.fn>;
 	cancelOrder: ReturnType<typeof vi.fn>;
 	getOrderDistance: ReturnType<typeof vi.fn>;
+};
+
+const notifications = notificationsModule.notificationsService as unknown as {
+	sendPushToRecipient: ReturnType<typeof vi.fn>;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -114,6 +127,7 @@ beforeEach(() => {
 	for (const m of Object.values(repo)) {
 		m.mockReset();
 	}
+	notifications.sendPushToRecipient.mockReset();
 	// Restore env baseline (smoke ON by default — anything except 'false')
 	delete process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
 	// Reset table handlers
@@ -142,7 +156,7 @@ describe("LifecycleService.submitOrder", () => {
 			addressesCalled = true;
 			return { data: { id: "should-not-be-used" }, error: null };
 		});
-		repo.submitOrder.mockResolvedValue({ id: "order-1" });
+		repo.submitOrder.mockResolvedValue({ id: "order-1", technician_id: "tech-1" });
 
 		await service.submitOrder("user-1", {
 			technician_id: "tech-1",
@@ -161,6 +175,15 @@ describe("LifecycleService.submitOrder", () => {
 			serviceId: "svc-1",
 			destinationAddressId: explicitAddressId,
 			scheduledDate: "2026-06-01",
+		});
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "technician",
+			recipientId: "tech-1",
+			type: "order_submitted",
+			title: "New service request",
+			body: "A new booking is waiting for your review.",
+			orderId: "order-1",
+			viewerRole: "technician",
 		});
 	});
 
@@ -332,7 +355,11 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 		setOrdersHandlerSequence(
 			{ data: { arrived_at: null }, error: null }, // pre-read
 			{
-				data: { id: "order-loc", arrived_at: "2026-05-15T12:00:00Z" },
+				data: {
+					id: "order-loc",
+					user_id: "user-loc",
+					arrived_at: "2026-05-15T12:00:00Z",
+				},
 				error: null,
 			}, // post-read
 		);
@@ -350,6 +377,15 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 		expect(
 			(result.order as unknown as { arrived_at: string | null }).arrived_at,
 		).toBe("2026-05-15T12:00:00Z");
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-loc",
+			type: "technician_arrived",
+			title: "Technician arrived",
+			body: "Your technician has arrived at the destination.",
+			orderId: "order-loc",
+			viewerRole: "user",
+		});
 	});
 
 	it("keeps arrived=false when both reads already carry a non-null arrived_at", async () => {
@@ -369,6 +405,29 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 		);
 
 		expect(result.arrived).toBe(false);
+		expect(notifications.sendPushToRecipient).not.toHaveBeenCalled();
+	});
+});
+
+describe("LifecycleService order action notifications", () => {
+	it("notifies the user after technician accepts an order", async () => {
+		const service = new LifecycleService();
+		repo.orderAction.mockResolvedValue({
+			id: "order-accept",
+			user_id: "user-1",
+		});
+
+		await service.techAccept("order-accept", "tech-1");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "order_accepted",
+			title: "Booking accepted",
+			body: "Your technician accepted the booking request.",
+			orderId: "order-accept",
+			viewerRole: "user",
+		});
 	});
 });
 

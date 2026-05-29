@@ -3,8 +3,10 @@
 import { AVG_SPEED_KMH } from "../../../config/lifecycle.js";
 import { supabaseAdmin } from "../../../shared/db/supabase.js";
 import { AppError } from "../../../shared/errors/index.js";
+import { logger } from "../../../shared/logger.js";
 import { assertFixedSlotStartAtInCairo } from "../../../shared/time/fixed-slots.js";
 import type { Order } from "../orders.repository.js";
+import { notificationsService } from "../../notifications/notifications.service.js";
 import {
 	type ActorRole,
 	lifecycleRepository,
@@ -59,7 +61,7 @@ export class LifecycleService {
 				throw AppError.badRequest("no_active_address");
 			}
 		}
-		return this.repo.submitOrder({
+		const order = await this.repo.submitOrder({
 			userId,
 			technicianId: body.technician_id,
 			serviceId: body.service_id,
@@ -69,17 +71,37 @@ export class LifecycleService {
 			scheduledDate: body.scheduled_date,
 			scheduledStartAt: body.scheduled_start_at ?? null,
 		});
+		await this.notifyBestEffort({
+			recipientRole: "technician",
+			recipientId: order.technician_id,
+			type: "order_submitted",
+			title: "New service request",
+			body: "A new booking is waiting for your review.",
+			orderId: order.id,
+			viewerRole: "technician",
+		});
+		return order;
 	}
 
 	// Technician actions
 
 	async techAccept(orderId: string, techId: string): Promise<Order> {
-		return this.repo.orderAction({
+		const order = await this.repo.orderAction({
 			orderId,
 			actorId: techId,
 			actorRole: "technician",
 			action: "tech_accept",
 		});
+		await this.notifyBestEffort({
+			recipientRole: "user",
+			recipientId: order.user_id,
+			type: "order_accepted",
+			title: "Booking accepted",
+			body: "Your technician accepted the booking request.",
+			orderId: order.id,
+			viewerRole: "user",
+		});
+		return order;
 	}
 
 	async techDecline(
@@ -87,22 +109,42 @@ export class LifecycleService {
 		techId: string,
 		reason?: string | null,
 	): Promise<Order> {
-		return this.repo.orderAction({
+		const order = await this.repo.orderAction({
 			orderId,
 			actorId: techId,
 			actorRole: "technician",
 			action: "tech_decline",
 			reason: reason ?? null,
 		});
+		await this.notifyBestEffort({
+			recipientRole: "user",
+			recipientId: order.user_id,
+			type: "order_declined",
+			title: "Booking declined",
+			body: "Your technician declined the booking request.",
+			orderId: order.id,
+			viewerRole: "user",
+		});
+		return order;
 	}
 
 	async techStartTracking(orderId: string, techId: string): Promise<Order> {
-		return this.repo.orderAction({
+		const order = await this.repo.orderAction({
 			orderId,
 			actorId: techId,
 			actorRole: "technician",
 			action: "tech_start_tracking",
 		});
+		await this.notifyBestEffort({
+			recipientRole: "user",
+			recipientId: order.user_id,
+			type: "technician_tracking",
+			title: "Technician is on the way",
+			body: "Your technician has started heading to your booking.",
+			orderId: order.id,
+			viewerRole: "user",
+		});
+		return order;
 	}
 
 	async techStartInspection(orderId: string, techId: string): Promise<Order> {
@@ -168,6 +210,17 @@ export class LifecycleService {
 		const refreshedArrivedAt =
 			(refreshed as { arrived_at?: string | null }).arrived_at ?? null;
 		const arrived = previousArrivedAt === null && refreshedArrivedAt !== null;
+		if (arrived) {
+			await this.notifyBestEffort({
+				recipientRole: "user",
+				recipientId: refreshed.user_id,
+				type: "technician_arrived",
+				title: "Technician arrived",
+				body: "Your technician has arrived at the destination.",
+				orderId: refreshed.id,
+				viewerRole: "user",
+			});
+		}
 
 		return { location, order: refreshed, arrived };
 	}
@@ -264,7 +317,20 @@ export class LifecycleService {
 	}
 
 	async markCashReceived(orderId: string, techId: string): Promise<Order> {
-		return this.repo.markCashReceived({ orderId, technicianId: techId });
+		const order = await this.repo.markCashReceived({
+			orderId,
+			technicianId: techId,
+		});
+		await this.notifyBestEffort({
+			recipientRole: "user",
+			recipientId: order.user_id,
+			type: "order_completed",
+			title: "Order completed",
+			body: "Your booking has been marked as completed.",
+			orderId: order.id,
+			viewerRole: "user",
+		});
+		return order;
 	}
 
 	// Cancellation and fee resolution
@@ -325,6 +391,22 @@ export class LifecycleService {
 			.single();
 		if (error) throw error;
 		return data as Order;
+	}
+
+	private async notifyBestEffort(input: {
+		recipientRole: "user" | "technician";
+		recipientId: string;
+		type: string;
+		title: string;
+		body: string;
+		orderId: string;
+		viewerRole: "user" | "technician";
+	}): Promise<void> {
+		try {
+			await notificationsService.sendPushToRecipient(input);
+		} catch (error) {
+			logger.warn({ err: error, ...input }, "[lifecycle] notification failed");
+		}
 	}
 }
 

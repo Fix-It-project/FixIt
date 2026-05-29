@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Homeowner } from "@/types/domain";
+import type { Homeowner } from "@/types";
 import { ActiveTab } from "./components/ActiveTab";
 import { BlockedTab } from "./components/BlockedTab";
 import { BlockReasonModal } from "./components/BlockReasonModal";

@@ -1,20 +1,15 @@
 import type {
 	ActiveTech,
 	Category,
-	CategoryShare,
 	HistoryOrder,
 	Homeowner,
 	HomeownerOrderHistory,
-	KpiMetric,
 	Order,
 	OrderReview,
-	OrderSeries,
 	PendingTech,
 	Report,
 	StatusMeta,
-	StatusShare,
-	TopTech,
-} from "@/types/domain";
+} from "@/types";
 
 export const CATEGORIES: Category[] = [
 	{ id: "ac", name: "Air Conditioning", color: "#06b6d4", icon: "fan" },
@@ -25,45 +20,6 @@ export const CATEGORIES: Category[] = [
 	{ id: "carp", name: "Carpentry", color: "#92400e", icon: "hammer" },
 	{ id: "oven", name: "Oven & Cooker", color: "#f43f5e", icon: "flame" },
 	{ id: "fridge", name: "Fridge / Freezer", color: "#ef4444", icon: "thermometer" },
-];
-
-export const KPIS: KpiMetric[] = [
-	{ label: "Total Orders", value: "12,438", delta: 12.4, deltaLabel: "vs. last month", icon: "list", trend: [22, 28, 24, 30, 34, 30, 38, 42, 40, 46, 52, 58, 54, 62] },
-	{ label: "Active Now", value: "184", delta: 6.1, deltaLabel: "since yesterday", icon: "activity", trend: [12, 18, 15, 20, 18, 24, 22, 26, 28, 24, 30, 32, 28, 34] },
-	{ label: "Revenue (EGP)", value: "1.84M", delta: -2.3, deltaLabel: "vs. last month", icon: "wallet", trend: [40, 46, 42, 48, 52, 50, 46, 44, 42, 46, 44, 48, 46, 50] },
-	{ label: "Avg. Rating", value: "4.78", delta: 0.12, deltaLabel: "vs. last month", icon: "star", trend: [4.6, 4.65, 4.7, 4.68, 4.72, 4.74, 4.7, 4.75, 4.78, 4.76, 4.78, 4.8, 4.78, 4.78] },
-];
-
-export const ORDERS_SERIES: OrderSeries = {
-	days: Array.from({ length: 90 }, (_, i) => i + 1),
-	homeowner: [
-		180, 195, 210, 188, 205, 225, 240, 218, 232, 250, 268, 245, 240, 258, 280, 298, 275, 260, 285, 305, 320, 295, 290, 315, 335, 348, 320, 305, 330, 355,
-		300, 318, 332, 312, 348, 368, 340, 322, 362, 388, 405, 376, 360, 388, 410, 432, 410, 388, 415, 440, 458, 430, 420, 445, 470, 488, 460, 480, 505, 528,
-		320, 340, 360, 330, 400, 420, 380, 360, 410, 440, 460, 420, 400, 430, 470, 500, 480, 460, 490, 520, 540, 510, 500, 530, 560, 580, 540, 560, 590, 610,
-	],
-	technician: [
-		160, 172, 184, 168, 182, 200, 214, 196, 208, 224, 240, 220, 218, 232, 252, 268, 248, 234, 256, 274, 288, 264, 260, 282, 300, 312, 288, 274, 296, 318,
-		260, 276, 290, 272, 304, 324, 298, 282, 318, 340, 358, 330, 318, 344, 364, 384, 360, 342, 366, 388, 404, 380, 370, 392, 414, 432, 408, 426, 446, 466,
-		280, 290, 310, 300, 340, 360, 330, 310, 360, 380, 400, 370, 360, 380, 410, 430, 420, 410, 440, 460, 470, 440, 440, 460, 480, 500, 470, 490, 510, 530,
-	],
-};
-
-export const CATEGORY_SHARE: CategoryShare[] = [
-	{ id: "ac", pct: 22 },
-	{ id: "plumb", pct: 18 },
-	{ id: "elec", pct: 16 },
-	{ id: "clean", pct: 14 },
-	{ id: "paint", pct: 10 },
-	{ id: "oven", pct: 8 },
-	{ id: "carp", pct: 7 },
-	{ id: "fridge", pct: 5 },
-];
-
-export const STATUS_SHARE: StatusShare[] = [
-	{ key: "completed", label: "Completed", count: 8420, color: "#10b981" },
-	{ key: "in_progress", label: "In progress", count: 1240, color: "#3b82f6" },
-	{ key: "pending", label: "Waiting tech", count: 870, color: "#f59e0b" },
-	{ key: "cancelled", label: "Cancelled", count: 610, color: "#ef4444" },
 ];
 
 export const ORDERS: Order[] = [
@@ -92,16 +48,6 @@ export const ORDERS: Order[] = [
 	{ id: "ORD-21825", customer: "Marwa Said", tech: "Tamer Hosny", techInitials: "TH", techColor: "#92400e", category: "carp", status: "cancelled", amount: 0, time: "3d", when: "3 days ago", cancelReason: "Customer rescheduled and never confirmed the new slot" },
 	{ id: "ORD-21824", customer: "Bassem Adel", tech: "Lina Khoury", techInitials: "LK", techColor: "#a855f7", category: "paint", status: "completed", amount: 1640, time: "3d", when: "3 days ago", review: { rating: 5, comment: "Excellent finish on the bedroom walls. Highly recommend.", customer: "Bassem A.", date: "22 May" } },
 	{ id: "ORD-21823", customer: "Yara Hossam", tech: "Rana Said", techInitials: "RS", techColor: "#ef4444", category: "fridge", status: "completed", amount: 660, time: "4d", when: "4 days ago", review: { rating: 4, comment: "Compressor diagnosed and replaced. Working well.", customer: "Yara H.", date: "21 May" } },
-];
-
-export const RECENT_ORDERS = ORDERS.slice(0, 8);
-
-export const TOP_TECHS: TopTech[] = [
-	{ name: "Mahmoud Khaled", initials: "MK", color: "#3b82f6", specialty: "Plumbing", jobs: 184, rating: 4.92, revenue: "82.4k" },
-	{ name: "Nour Ibrahim", initials: "NI", color: "#06b6d4", specialty: "Air Conditioning", jobs: 156, rating: 4.88, revenue: "76.1k" },
-	{ name: "Hala Adel", initials: "HA", color: "#22c55e", specialty: "Home Cleaning", jobs: 142, rating: 4.85, revenue: "54.2k" },
-	{ name: "Tarek Younis", initials: "TY", color: "#f97316", specialty: "Electrician", jobs: 128, rating: 4.81, revenue: "61.8k" },
-	{ name: "Lina Khoury", initials: "LK", color: "#a855f7", specialty: "Painter", jobs: 112, rating: 4.79, revenue: "48.6k" },
 ];
 
 const CANCEL_REASONS = [

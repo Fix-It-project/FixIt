@@ -6,31 +6,30 @@ import { TechAvatar } from "@/components/TechAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { RECENT_ORDERS, STATUS_META } from "@/data/mockData";
-import { getCategoryMetaById } from "@/lib/category-icons";
+import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
+import { humanizeStatus, matchesRecentFilter, statusVariant } from "@/lib/order-status";
 import { cn } from "@/lib/utils";
-import type { Order } from "@/types/domain";
+import type { RecentOrder, RecentOrderFilter } from "@/types";
+import { useDashboardSummary } from "../hooks/useDashboardSummary";
 
-type Filter = "all" | "active" | "completed" | "cancelled";
-
-const FILTERS: { key: Filter; label: string }[] = [
+const FILTERS: { key: RecentOrderFilter; label: string }[] = [
 	{ key: "all", label: "All" },
+	{ key: "pending", label: "Pending" },
+	{ key: "accepted", label: "Accepted" },
 	{ key: "active", label: "Active" },
-	{ key: "completed", label: "Completed" },
 	{ key: "cancelled", label: "Cancelled" },
 ];
 
-function filterOrders(orders: Order[], f: Filter) {
-	if (f === "all") return orders;
-	if (f === "active") return orders.filter((o) => o.status === "in_progress" || o.status === "accepted");
-	return orders.filter((o) => o.status === f);
+function filterOrders(orders: RecentOrder[], f: RecentOrderFilter) {
+	return orders.filter((o) => matchesRecentFilter(o.status, f));
 }
 
 export function RecentOrdersTable() {
-	const [filter, setFilter] = useState<Filter>("all");
+	const { data, isLoading } = useDashboardSummary();
+	const [filter, setFilter] = useState<RecentOrderFilter>("all");
 	const [expandedReason, setExpandedReason] = useState<string | null>(null);
 
-	const visible = filterOrders(RECENT_ORDERS, filter);
+	const visible = filterOrders(data?.recentOrders ?? [], filter);
 
 	return (
 		<>
@@ -70,7 +69,14 @@ export function RecentOrdersTable() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{visible.length === 0 && (
+							{isLoading && (
+								<TableRow>
+									<TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+										Loading…
+									</TableCell>
+								</TableRow>
+							)}
+							{!isLoading && visible.length === 0 && (
 								<TableRow>
 									<TableCell colSpan={6} className="text-center text-muted-foreground py-8">
 										No orders for this filter.
@@ -78,8 +84,7 @@ export function RecentOrdersTable() {
 								</TableRow>
 							)}
 							{visible.map((order) => {
-								const meta = STATUS_META[order.status];
-								const cat = getCategoryMetaById(order.category);
+								const cat = getCategoryMetaBySpecialty(order.category);
 								return (
 									<TableRow key={order.id}>
 										<TableCell className="pl-4 sm:pl-6">
@@ -100,7 +105,7 @@ export function RecentOrdersTable() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center gap-1.5 whitespace-nowrap">
-												{meta && <StatusBadge variant={meta.cls} label={meta.label} />}
+												<StatusBadge variant={statusVariant(order.status)} label={humanizeStatus(order.status)} />
 												{order.cancelReason && (
 													<button
 														type="button"

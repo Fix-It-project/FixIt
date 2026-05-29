@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaById } from "@/lib/category-icons";
-import type { Homeowner } from "@/types/domain";
+import type { Homeowner } from "@/types";
 
 interface HomeownerProfileModalProps {
 	homeowner: Homeowner | null;

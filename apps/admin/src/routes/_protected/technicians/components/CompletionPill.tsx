@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { HistoryOrder } from "@/types/domain";
+import type { HistoryOrder } from "@/types";
 
 interface CompletionPillProps {
 	history: HistoryOrder[];
