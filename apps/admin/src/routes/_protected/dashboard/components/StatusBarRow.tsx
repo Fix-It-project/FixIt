@@ -1,19 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { STATUS_SHARE } from "@/data/mockData";
-
-const total = STATUS_SHARE.reduce((s, x) => s + x.count, 0);
+import { useDashboardSummary } from "../hooks/useDashboardSummary";
 
 export function StatusBarRow() {
+	const { data, isLoading } = useDashboardSummary();
+	const statusShare = data?.statusShare ?? [];
+	const total = statusShare.reduce((s, x) => s + x.count, 0);
+
 	return (
 		<Card>
 			<CardHeader className="pb-2">
 				<CardTitle className="text-base">Order status mix</CardTitle>
-				<p className="text-xs text-muted-foreground">All orders this month · {total.toLocaleString()} total</p>
+				<p className="text-xs text-muted-foreground">All orders · {total.toLocaleString()} total</p>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-3">
+				{isLoading ? (
+					<div className="h-24 w-full animate-pulse rounded-lg bg-muted/50" />
+				) : total === 0 ? (
+					<p className="text-center text-muted-foreground py-8 text-sm">No order data.</p>
+				) : (
+				<>
 				{/* Stacked bar */}
 				<div className="flex h-3 w-full rounded-full overflow-hidden">
-					{STATUS_SHARE.map((s) => (
+					{statusShare.map((s) => (
 						<div
 							key={s.key}
 							style={{ width: `${(s.count / total) * 100}%`, backgroundColor: s.color }}
@@ -23,7 +31,7 @@ export function StatusBarRow() {
 				</div>
 				{/* Legend */}
 				<div className="flex flex-col gap-1.5">
-					{STATUS_SHARE.map((s) => {
+					{statusShare.map((s) => {
 						const pct = (s.count / total) * 100;
 						return (
 							<div key={s.key} className="flex items-center gap-2 text-xs">
@@ -36,6 +44,8 @@ export function StatusBarRow() {
 						);
 					})}
 				</div>
+				</>
+				)}
 			</CardContent>
 		</Card>
 	);
