@@ -1,4 +1,5 @@
 import { AppError } from "../../shared/errors/index.js";
+import { logger } from "../../shared/logger.js";
 import {
 	cairoMidnightUtc,
 	hoursBetween,
@@ -9,6 +10,7 @@ import {
 	getCairoSlotHourFromIso,
 } from "../../shared/time/fixed-slots.js";
 import { technicianCalendarService } from "../technician-calendar/technician-calendar.service.js";
+import { notificationsService } from "../notifications/notifications.service.js";
 import { type Order, ordersRepository } from "./orders.repository.js";
 import {
 	type RescheduleRequest,
@@ -71,7 +73,7 @@ export class RescheduleService {
 			proposedStartAt: input.proposedStartAt,
 			reason: input.reason,
 		});
-		return rescheduleRepository.createRequest({
+		const request = await rescheduleRepository.createRequest({
 			orderId: input.orderId,
 			actor: input.actor,
 			actorId: input.actorId,
@@ -79,19 +81,45 @@ export class RescheduleService {
 			proposedStartAt: input.proposedStartAt,
 			reason: input.reason,
 		});
+		const counterpartyRole = input.actor === "user" ? "technician" : "user";
+		const counterpartyId =
+			counterpartyRole === "user" ? order.user_id : order.technician_id;
+		await this.notifyBestEffort({
+			recipientRole: counterpartyRole,
+			recipientId: counterpartyId,
+			type: "reschedule_requested",
+			title: "Reschedule requested",
+			body: "A new reschedule request needs your response.",
+			orderId: order.id,
+			viewerRole: counterpartyRole,
+		});
+		return request;
 	}
 
 	async approve(input: ApproveInput): Promise<RescheduleRequest> {
-		const { request } = await this.loadAndReconcile(input.orderId);
+		const { request, order } = await this.loadAndReconcile(input.orderId);
 		if (!request) {
 			throw AppError.notFound("reschedule_not_found");
 		}
 		this.assertCounterparty(input.actor, request);
-		return rescheduleRepository.approve({
+		const approved = await rescheduleRepository.approve({
 			orderId: input.orderId,
 			actor: input.actor,
 			actorId: input.actorId,
 		});
+		const initiatorRole = request.requested_by;
+		const initiatorId =
+			initiatorRole === "user" ? order.user_id : order.technician_id;
+		await this.notifyBestEffort({
+			recipientRole: initiatorRole,
+			recipientId: initiatorId,
+			type: "reschedule_approved",
+			title: "Reschedule approved",
+			body: "Your reschedule request was approved.",
+			orderId: order.id,
+			viewerRole: initiatorRole,
+		});
+		return approved;
 	}
 
 	async reject(input: RejectInput): Promise<RescheduleRequest> {
@@ -101,17 +129,30 @@ export class RescheduleService {
 		if (input.reason.length > 500) {
 			throw AppError.badRequest("reason_too_long");
 		}
-		const { request } = await this.loadAndReconcile(input.orderId);
+		const { request, order } = await this.loadAndReconcile(input.orderId);
 		if (!request) {
 			throw AppError.notFound("reschedule_not_found");
 		}
 		this.assertCounterparty(input.actor, request);
-		return rescheduleRepository.reject({
+		const rejected = await rescheduleRepository.reject({
 			orderId: input.orderId,
 			actor: input.actor,
 			actorId: input.actorId,
 			reason: input.reason,
 		});
+		const initiatorRole = request.requested_by;
+		const initiatorId =
+			initiatorRole === "user" ? order.user_id : order.technician_id;
+		await this.notifyBestEffort({
+			recipientRole: initiatorRole,
+			recipientId: initiatorId,
+			type: "reschedule_rejected",
+			title: "Reschedule rejected",
+			body: "Your reschedule request was rejected.",
+			orderId: order.id,
+			viewerRole: initiatorRole,
+		});
+		return rejected;
 	}
 
 	/**
@@ -311,6 +352,22 @@ export class RescheduleService {
 			dateYmd,
 		);
 		return !isHoliday;
+	}
+
+	private async notifyBestEffort(input: {
+		recipientRole: "user" | "technician";
+		recipientId: string;
+		type: string;
+		title: string;
+		body: string;
+		orderId: string;
+		viewerRole: "user" | "technician";
+	}): Promise<void> {
+		try {
+			await notificationsService.sendPushToRecipient(input);
+		} catch (error) {
+			logger.warn({ err: error, ...input }, "[reschedule] notification failed");
+		}
 	}
 }
 

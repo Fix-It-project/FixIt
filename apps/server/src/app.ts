@@ -3,6 +3,7 @@ import adminAuthRoutes from "./modules/admin-auth/admin-auth.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import categoriesRoutes from "./modules/categories/categories.routes.js";
 import ordersRoutes from "./modules/orders/orders.routes.js";
+import notificationsRoutes from "./modules/notifications/notifications.routes.js";
 import reviewsRoutes from "./modules/reviews/reviews.routes.js";
 import servicesRoutes from "./modules/services/services.routes.js";
 import technicianAuthRoutes from "./modules/technician-auth/technician-auth.routes.js";
@@ -26,6 +27,7 @@ app.use("/api/categories/:categoryId/technicians", techniciansRoutes);
 app.use("/api/technicians", technicianSelfRoutes);
 app.use("/api/technicians", technicianProfileRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/notifications", notificationsRoutes);
 app.use("/api/reviews", reviewsRoutes);
 
 // Catch-all 404 handler for unmatched routes (after all other routes)

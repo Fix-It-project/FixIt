@@ -2,7 +2,7 @@ import { AppError } from "../../shared/errors/app-error.js";
 import {
 	addressesRepository,
 	type SignUpAddressData,
-} from "../addresses/index.js";
+} from "../addresses/addresses.repository.js";
 import { usersRepository } from "../users/index.js";
 import {
 	authRepository,

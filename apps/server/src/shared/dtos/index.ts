@@ -3,6 +3,7 @@ export * from "./admin-auth.dto.js";
 export * from "./auth.dto.js";
 export * from "./calendar.dto.js";
 export * from "./lifecycle.dto.js";
+export * from "./notifications.dto.js";
 export * from "./order.dto.js";
 export * from "./reschedule.dto.js";
 export * from "./review.dto.js";
