@@ -1,5 +1,6 @@
 export * from "./address.dto.js";
 export * from "./admin-auth.dto.js";
+export * from "./admin-dashboard.dto.js";
 export * from "./auth.dto.js";
 export * from "./calendar.dto.js";
 export * from "./lifecycle.dto.js";
