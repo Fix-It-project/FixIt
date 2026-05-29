@@ -5,10 +5,10 @@ import {
 } from "expo-router/react-navigation";
 import type { ColorSchemeName } from "react-native";
 import type { Theme as CalendarTheme } from "react-native-calendars/src/types";
-import { fontFamily } from "../primitives/fonts";
-import { radius } from "../primitives/radius";
-import { spacing } from "../primitives/spacing";
-import { fontSize } from "../primitives/typography";
+import { fontFamily } from "../core/fonts";
+import { radius } from "../core/radius";
+import { spacing } from "../core/spacing";
+import { fontSize } from "../core/typography";
 import { themeRegistry } from "./definitions";
 import type { ThemeId, ThemePreference, ThemeTokens } from "./types";
 
