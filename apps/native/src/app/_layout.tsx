@@ -1,5 +1,6 @@
 import "../../global.css";
 import "@/src/config/monitoring";
+import "@/src/config/i18n";
 
 import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";

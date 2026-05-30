@@ -64,6 +64,7 @@ export const ROUTES = {
 			pathname: "/user/technician/[id]/reviews" as const,
 			params: { id },
 		}),
+		recommend: "/user/recommend" as const,
 		chat: "/user/chat" as const,
 		settings: "/user/settings" as const,
 		settingsPrivacy: "/user/settings/privacy-security" as const,

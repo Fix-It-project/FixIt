@@ -1,0 +1,34 @@
+{
+	"serviceTo": "SERVICE TO",
+	"selectAddress": "Select address",
+	"searchPlaceholder": "What do you want to do?",
+	"browseServices": "Browse services",
+	"seeAll": "See all",
+	"viewAll": "View all",
+	"topRated": "Top rated",
+	"previousOrders": "Previous orders",
+	"noCategories": "No categories available",
+	"couldNotLoadServices": "Could not load services. Pull to refresh.",
+	"couldNotLoadTopRated": "Could not load top rated technicians. Pull to refresh.",
+	"couldNotLoadOrders": "Could not load orders. Pull to refresh.",
+	"noPreviousOrders": "No previous orders yet",
+	"bookFirstService": "Book your first service to see it here.",
+	"technicianFallback": "Technician",
+	"serviceFallback": "Service",
+	"book": "Book",
+	"reorder": "Reorder",
+	"viewOrder": "View order",
+	"scheduled": "Scheduled",
+	"onTheWay": "On the way",
+	"offer": {
+		"title": "Same-day help nearby",
+		"subtitle": "Book verified technicians for your saved address.",
+		"cta": "Browse"
+	},
+	"steps": {
+		"booked": "Booked",
+		"assigned": "Assigned",
+		"enRoute": "En route",
+		"arrived": "Arrived"
+	}
+}

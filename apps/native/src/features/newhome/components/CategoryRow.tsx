@@ -15,6 +15,7 @@ import {
 	Wrench,
 	Zap,
 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
@@ -88,6 +89,7 @@ const SKELETON_KEYS = [
 
 export function CategoryRow() {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
 	const { data: categories, isLoading, isError } = useCategoriesQuery();
 
 	return (
@@ -103,11 +105,11 @@ export function CategoryRow() {
 				}}
 			>
 				<Text variant="h3" className="text-foreground">
-					Browse services
+					{tr("browseServices")}
 				</Text>
 				<PressableScale onPress={() => router.push(ROUTES.user.categories)}>
 					<Text variant="buttonMd" className="text-app-primary">
-						See all
+						{tr("seeAll")}
 					</Text>
 				</PressableScale>
 			</View>
@@ -128,7 +130,7 @@ export function CategoryRow() {
 			{/* Error state */}
 			{isError && !isLoading && (
 				<Text variant="bodySm" className="px-5 text-center text-danger">
-					Could not load services. Pull to refresh.
+					{tr("couldNotLoadServices")}
 				</Text>
 			)}
 
@@ -138,7 +140,7 @@ export function CategoryRow() {
 					variant="caption"
 					className="px-5 text-center text-muted-foreground"
 				>
-					No categories available
+					{tr("noCategories")}
 				</Text>
 			)}
 

@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Star } from "lucide-react-native";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
@@ -18,6 +19,7 @@ const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 
 export function TopRatedSection() {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 
 	const { technicians, isLoading, isError } = useTopRatedTechnicians();
@@ -43,11 +45,11 @@ export function TopRatedSection() {
 				}}
 			>
 				<Text variant="h3" className="text-foreground">
-					Top rated
+					{tr("topRated")}
 				</Text>
 				<PressableScale onPress={() => router.push(ROUTES.user.technicians)}>
 					<Text variant="buttonMd" className="text-app-primary">
-						View all
+						{tr("viewAll")}
 					</Text>
 				</PressableScale>
 			</View>
@@ -62,7 +64,7 @@ export function TopRatedSection() {
 
 			{isError && !isLoading && (
 				<Text variant="bodySm" className="px-5 text-center text-danger">
-					Could not load top rated technicians. Pull to refresh.
+					{tr("couldNotLoadTopRated")}
 				</Text>
 			)}
 
@@ -171,7 +173,7 @@ export function TopRatedSection() {
 											className="text-muted-foreground"
 											numberOfLines={1}
 										>
-											{categoryName || "Technician"}
+											{categoryName || tr("technicianFallback")}
 											{locationText ? ` · ${locationText}` : ""}
 										</Text>
 									</View>
@@ -192,7 +194,7 @@ export function TopRatedSection() {
 										}}
 									>
 										<Text variant="buttonMd" style={{ color: t.tint.onSoft }}>
-											Book
+											{tr("book")}
 										</Text>
 									</View>
 								</PressableScale>

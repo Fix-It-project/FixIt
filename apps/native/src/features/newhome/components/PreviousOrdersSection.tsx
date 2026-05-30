@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
@@ -29,6 +30,7 @@ const SKELETON_KEYS = ["po-sk-1", "po-sk-2", "po-sk-3"];
 
 export function PreviousOrdersSection() {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
 	const { data: orders, isLoading, isError } = useUserOrdersQuery();
 
 	const completedOrders = (orders ?? [])
@@ -61,7 +63,7 @@ export function PreviousOrdersSection() {
 				}}
 			>
 				<Text variant="h3" className="text-foreground">
-					Previous orders
+					{tr("previousOrders")}
 				</Text>
 			</View>
 
@@ -77,7 +79,7 @@ export function PreviousOrdersSection() {
 			{/* Error state */}
 			{isError && !isLoading && (
 				<Text variant="bodySm" className="px-5 text-center text-danger">
-					Could not load orders. Pull to refresh.
+					{tr("couldNotLoadOrders")}
 				</Text>
 			)}
 
@@ -89,10 +91,10 @@ export function PreviousOrdersSection() {
 						style={{ padding: 14, gap: 4 }}
 					>
 						<Text variant="label" className="text-foreground">
-							No previous orders yet
+							{tr("noPreviousOrders")}
 						</Text>
 						<Text variant="bodySm" className="text-muted-foreground">
-							Book your first service to see it here.
+							{tr("bookFirstService")}
 						</Text>
 					</View>
 				</View>
@@ -161,7 +163,7 @@ export function PreviousOrdersSection() {
 												className="text-foreground"
 												numberOfLines={1}
 											>
-												{order.service_name ?? "Service"}
+												{order.service_name ?? tr("serviceFallback")}
 											</Text>
 											<Text
 												variant="caption"
@@ -191,7 +193,7 @@ export function PreviousOrdersSection() {
 											}}
 										>
 											<Text variant="buttonMd" style={{ color: t.tint.onSoft }}>
-												Reorder
+												{tr("reorder")}
 											</Text>
 										</View>
 									</PressableScale>

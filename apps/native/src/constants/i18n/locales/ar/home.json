@@ -1,0 +1,34 @@
+{
+	"serviceTo": "الخدمة إلى",
+	"selectAddress": "اختر العنوان",
+	"searchPlaceholder": "ماذا تريد أن تفعل؟",
+	"browseServices": "تصفّح الخدمات",
+	"seeAll": "عرض الكل",
+	"viewAll": "عرض الكل",
+	"topRated": "الأعلى تقييماً",
+	"previousOrders": "الطلبات السابقة",
+	"noCategories": "لا توجد فئات متاحة",
+	"couldNotLoadServices": "تعذّر تحميل الخدمات. اسحب للتحديث.",
+	"couldNotLoadTopRated": "تعذّر تحميل الفنيين الأعلى تقييماً. اسحب للتحديث.",
+	"couldNotLoadOrders": "تعذّر تحميل الطلبات. اسحب للتحديث.",
+	"noPreviousOrders": "لا توجد طلبات سابقة بعد",
+	"bookFirstService": "احجز أول خدمة لتظهر هنا.",
+	"technicianFallback": "فنّي",
+	"serviceFallback": "خدمة",
+	"book": "احجز",
+	"reorder": "إعادة الطلب",
+	"viewOrder": "عرض الطلب",
+	"scheduled": "مجدول",
+	"onTheWay": "في الطريق",
+	"offer": {
+		"title": "مساعدة في نفس اليوم بالقرب منك",
+		"subtitle": "احجز فنيين موثوقين لعنوانك المحفوظ.",
+		"cta": "تصفّح"
+	},
+	"steps": {
+		"booked": "تم الحجز",
+		"assigned": "تم التعيين",
+		"enRoute": "في الطريق",
+		"arrived": "وصل"
+	}
+}

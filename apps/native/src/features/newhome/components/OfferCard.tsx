@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { BadgeCheck, ChevronRight } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
@@ -10,6 +11,7 @@ import { ROUTES } from "@/src/lib/navigation/routes";
 
 export function OfferCard() {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
 
 	return (
 		<Animated.View
@@ -44,14 +46,14 @@ export function OfferCard() {
 
 				<View style={{ flex: 1, minWidth: 0 }}>
 					<Text variant="label" style={{ color: t.tint.onHero }}>
-						Same-day help nearby
+						{tr("offer.title")}
 					</Text>
 					<Text
 						variant="bodySm"
 						style={{ color: t.tint.onHero, opacity: 0.86, marginTop: 3 }}
 						numberOfLines={2}
 					>
-						Book verified technicians for your saved address.
+						{tr("offer.subtitle")}
 					</Text>
 				</View>
 
@@ -71,7 +73,7 @@ export function OfferCard() {
 						}}
 					>
 						<Text variant="buttonMd" style={{ color: t.primary }}>
-							Browse
+							{tr("offer.cta")}
 						</Text>
 						<ChevronRight size={14} color={t.primary} strokeWidth={2.4} />
 					</View>

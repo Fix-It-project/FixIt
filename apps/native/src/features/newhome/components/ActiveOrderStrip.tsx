@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -109,10 +110,16 @@ function PulseDot({ color }: { color: string }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
-const STEP_LABELS = ["Booked", "Assigned", "En route", "Arrived"] as const;
+const STEP_KEYS = [
+	"steps.booked",
+	"steps.assigned",
+	"steps.enRoute",
+	"steps.arrived",
+] as const;
 
 export function ActiveOrderStrip() {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
 	const router = useRouter();
 	const { activeOrder, isLoading } = useUserActiveOrder();
 
@@ -201,14 +208,16 @@ export function ActiveOrderStrip() {
 					{/* Tech name + status descriptor */}
 					<View style={{ flex: 1 }}>
 						<Text variant="label" className="text-foreground" numberOfLines={1}>
-							{activeOrder.technician_name ?? "Technician"}
+							{activeOrder.technician_name ?? tr("technicianFallback")}
 						</Text>
 						<Text
 							variant="caption"
 							className="text-muted-foreground"
 							numberOfLines={1}
 						>
-							{activeOrder.status === "tracking" ? "On the way" : "Scheduled"}
+							{activeOrder.status === "tracking"
+								? tr("onTheWay")
+								: tr("scheduled")}
 						</Text>
 					</View>
 
@@ -219,7 +228,7 @@ export function ActiveOrderStrip() {
 							style={{ fontWeight: "600" }}
 							className="text-muted-foreground"
 						>
-							Scheduled
+							{tr("scheduled")}
 						</Text>
 						<Text variant="h3" className="text-foreground">
 							{formattedTime}
@@ -255,9 +264,9 @@ export function ActiveOrderStrip() {
 							marginTop: 6,
 						}}
 					>
-						{STEP_LABELS.map((label, index) => (
+						{STEP_KEYS.map((stepKey, index) => (
 							<Text
-								key={label}
+								key={stepKey}
 								variant="caption"
 								style={{
 									color: index < filledSteps ? t.primary : undefined,
@@ -266,7 +275,7 @@ export function ActiveOrderStrip() {
 									index < filledSteps ? undefined : "text-muted-foreground"
 								}
 							>
-								{label}
+								{tr(stepKey)}
 							</Text>
 						))}
 					</View>
@@ -282,7 +291,7 @@ export function ActiveOrderStrip() {
 					>
 						<View className="items-center rounded-[10px] bg-primary py-3">
 							<Text variant="buttonMd" className="text-primary-foreground">
-								View order
+								{tr("viewOrder")}
 							</Text>
 						</View>
 					</PressableScale>

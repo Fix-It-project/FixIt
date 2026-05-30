@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { ChevronDown, MapPin, Search } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
@@ -20,6 +21,7 @@ interface HomeHeaderProps {
 
 export function HomeHeader({ onAddressPress, address }: HomeHeaderProps) {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
 	const [query, setQuery] = useState("");
@@ -100,7 +102,7 @@ export function HomeHeader({ onAddressPress, address }: HomeHeaderProps) {
 							fontWeight: "600",
 						}}
 					>
-						SERVICE TO
+						{tr("serviceTo")}
 					</Text>
 					<View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
 						<Text
@@ -108,7 +110,7 @@ export function HomeHeader({ onAddressPress, address }: HomeHeaderProps) {
 							style={{ color: t.tint.onHero, fontWeight: "600" }}
 							numberOfLines={1}
 						>
-							{address ?? "Select address"}
+							{address ?? tr("selectAddress")}
 						</Text>
 						<ChevronDown size={14} color={t.tint.onHero} />
 					</View>
@@ -137,7 +139,7 @@ export function HomeHeader({ onAddressPress, address }: HomeHeaderProps) {
 				<Search size={18} color={t.primary} style={{ marginRight: 8 }} />
 				<Input
 					variant="filled"
-					placeholder="What do you want to do?"
+					placeholder={tr("searchPlaceholder")}
 					returnKeyType="search"
 					value={query}
 					onChangeText={setQuery}

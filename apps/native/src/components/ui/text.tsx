@@ -2,12 +2,14 @@ import { Slot } from "@rn-primitives/slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import {
+	I18nManager,
 	Platform,
 	Text as RNText,
 	type Role,
 	type TextStyle,
 } from "react-native";
 import {
+	arabicFamilyByLatin,
 	fontFamily,
 	type TypographyVariant,
 	typography,
@@ -162,9 +164,23 @@ function Text({
 			? (variant as TypographyVariant)
 			: (getTypographyVariantFromClassName(resolvedClassName) ?? "body");
 	const classFontFamily = getFontFamilyFromClassName(resolvedClassName);
-	const variantStyle = typography[semanticVariant];
+	// In RTL (Arabic) layouts, swap each Google Sans family for its Cairo
+	// weight-equivalent. Direction only changes after an app reload, so reading
+	// I18nManager.isRTL at render is stable.
+	const localizeFamily = <T extends string | undefined>(family: T): T =>
+		I18nManager.isRTL && family
+			? ((arabicFamilyByLatin[family] ?? family) as T)
+			: family;
+	const baseVariantStyle = typography[semanticVariant];
+	const localizedVariantFamily = localizeFamily(baseVariantStyle.fontFamily);
+	const variantStyle: TextStyle = localizedVariantFamily
+		? { ...baseVariantStyle, fontFamily: localizedVariantFamily }
+		: baseVariantStyle;
 	const classFontStyle = classFontFamily
-		? ({ fontFamily: classFontFamily, fontWeight: "400" } satisfies TextStyle)
+		? ({
+				fontFamily: localizeFamily(classFontFamily),
+				fontWeight: "400",
+			} satisfies TextStyle)
 		: undefined;
 	const nativeWindClassName = removeFontClassNames(resolvedClassName);
 	const Component = asChild ? Slot : RNText;
