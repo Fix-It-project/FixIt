@@ -55,7 +55,7 @@ export default function ProfileInfoCard({
 	return (
 		<View className="mt-stack-md px-screen-x">
 			<View
-				className="rounded-card bg-surface px-card-roomy py-stack-sm"
+				className="rounded-card bg-card px-card-roomy py-stack-sm"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<InfoRow icon={Mail} label="Email" value={profile?.email ?? "—"} />

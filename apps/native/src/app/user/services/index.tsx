@@ -55,7 +55,7 @@ export default function ServicesListScreen() {
 			edges={["top"]}
 			style={{ backgroundColor: categoryColor }}
 		>
-			<View className="flex-1 bg-surface-elevated">
+			<View className="flex-1 bg-surface">
 				<ServicesHeader
 					categoryName={categoryName ?? "Services"}
 					categoryColor={categoryColor}

@@ -67,7 +67,7 @@ function PastOrderCard({
 		<TouchableOpacity
 			activeOpacity={0.85}
 			onPress={goToOrder}
-			className="mb-stack-md rounded-card border border-edge bg-surface p-card"
+			className="mb-stack-md rounded-card border border-edge bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{item.avatarImage ? (
@@ -85,7 +85,7 @@ function PastOrderCard({
 						<Text
 							variant="label"
 							className="font-bold"
-							style={{ color: themeColors.surfaceBase }}
+							style={{ color: themeColors.surfaceOnPrimary }}
 						>
 							{getPfpInitialsFallback(item.avatarName)}
 						</Text>
@@ -145,7 +145,7 @@ export default function PastOrdersList({
 	const themeColors = useThemeColors();
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
 				<PageHeader title={title} onBackPress={onBack} />
 

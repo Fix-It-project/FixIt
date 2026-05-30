@@ -51,6 +51,26 @@ export interface ThemeNavigationTokens {
 	text: string;
 }
 
+/**
+ * Blue-density / "tonal blue" surfaces — one brand-blue hue at many depths used
+ * as covers/backgrounds (deep hero → mid card → pale strip → faint chip), each
+ * paired with an `on*` text/icon color that meets WCAG AA. Consumed via the
+ * theme accessor (`t.tint.*` / `Colors.tint.*`), never as a NativeWind class.
+ */
+export interface ThemeTint {
+	heroStart: string;
+	heroMid: string;
+	heroEnd: string;
+	onHero: string;
+	surfaceStrong: string;
+	onStrong: string;
+	surfaceSoft: string;
+	onSoft: string;
+	surfaceFaint: string;
+	chip: string;
+	onChip: string;
+}
+
 export interface ThemePalette {
 	primary: string;
 	primaryLight: string;
@@ -106,6 +126,7 @@ export interface ThemePalette {
 	disabledText: string;
 	socialIcon: string;
 	category: ThemeCategoryTokens;
+	tint: ThemeTint;
 }
 
 export interface ThemeTokens extends ThemePalette {

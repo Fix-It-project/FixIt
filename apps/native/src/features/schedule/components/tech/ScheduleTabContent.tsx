@@ -24,7 +24,7 @@ export default function ScheduleTabContent() {
 	const themeColors = useThemeColors();
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View
 				style={{
 					backgroundColor: Colors.primaryDark,

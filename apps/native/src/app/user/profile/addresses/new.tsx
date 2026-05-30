@@ -136,7 +136,7 @@ export default function AddAddressScreen() {
 					className="w-full rounded-button"
 				>
 					{addMutation.isPending ? (
-						<ActivityIndicator size="small" color={themeColors.surfaceBase} />
+						<ActivityIndicator size="small" color={themeColors.surfaceOnPrimary} />
 					) : (
 						<Text variant="buttonLg">Save Address</Text>
 					)}

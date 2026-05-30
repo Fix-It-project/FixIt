@@ -28,7 +28,7 @@ export default function UnifiedSchedulePage() {
 		params.view === "bookings" ? "bookings" : "schedule";
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<TopTabs.Navigator
 				key={requestedView}
 				initialRouteName={requestedView}

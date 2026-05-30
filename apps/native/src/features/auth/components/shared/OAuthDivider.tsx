@@ -11,7 +11,7 @@ export default function OAuthDivider() {
 		<>
 			<View className="my-stack-sm flex-row items-center">
 				<View className="h-[1px] flex-1 bg-edge" />
-				<Text variant="caption" className="px-card text-surface-muted">
+				<Text variant="caption" className="px-card text-content-muted">
 					Or continue with
 				</Text>
 				<View className="h-[1px] flex-1 bg-edge" />

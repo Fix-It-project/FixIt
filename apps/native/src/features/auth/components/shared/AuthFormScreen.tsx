@@ -16,7 +16,7 @@ export default function AuthFormScreen({ children, errorMessage }: Props) {
 	return (
 		<KeyboardAvoidingView
 			behavior="padding"
-			className="flex-1 bg-app-primary-light"
+			className="flex-1 bg-surface"
 		>
 			<View style={{ flex: 1 }}>
 				<View

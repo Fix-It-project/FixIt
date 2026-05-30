@@ -39,7 +39,7 @@ export default function TechnicianListCard({
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mx-card mb-stack-md overflow-hidden rounded-card bg-surface"
+			className="mx-card mb-stack-md overflow-hidden rounded-card bg-card"
 			style={{
 				...shadowStyle(elevation.flat, {
 					shadowColor: themeColors.textPrimary,
@@ -81,7 +81,7 @@ export default function TechnicianListCard({
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
 						<MapPin
 							size={spacing.icon.xs}
-							color={themeColors.surfaceMuted}
+							color={themeColors.textMuted}
 							strokeWidth={2}
 						/>
 						<Text
@@ -96,7 +96,7 @@ export default function TechnicianListCard({
 						</Text>
 						<Clock
 							size={spacing.icon.xs}
-							color={themeColors.surfaceMuted}
+							color={themeColors.textMuted}
 							strokeWidth={2}
 						/>
 						<Text

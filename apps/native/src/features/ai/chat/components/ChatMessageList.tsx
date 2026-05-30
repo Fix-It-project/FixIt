@@ -38,7 +38,7 @@ export default function ChatMessageList({
   const userBubble = themeColors.roleTech;
   const userBubbleText = themeColors.onPrimaryHeader;
   const assistantBadge = themeColors.primaryLight;
-  const agentBadge = themeColors.surfaceMuted;
+  const agentBadge = themeColors.textMuted;
   const orderCard = themeColors.orderBg;
   const orderText = themeColors.orderText;
 

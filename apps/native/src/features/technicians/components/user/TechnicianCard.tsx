@@ -82,7 +82,7 @@ export default function TechnicianCard({
 						<View className="flex-row items-center gap-stack-xs">
 							<MapPin
 								size={11}
-								color={themeColors.surfaceMuted}
+								color={themeColors.textMuted}
 								strokeWidth={2}
 							/>
 							<Text variant="caption" className="text-content-muted">

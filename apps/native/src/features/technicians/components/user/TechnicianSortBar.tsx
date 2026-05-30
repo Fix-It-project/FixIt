@@ -44,7 +44,7 @@ export default function TechnicianSortBar({
 				>
 					<SlidersHorizontal
 						size={spacing.icon.xs}
-						color={themeColors.surfaceMuted}
+						color={themeColors.textMuted}
 						strokeWidth={2}
 					/>
 				</View>

@@ -21,7 +21,7 @@ function OrderCard({
 }>) {
 	return (
 		<View
-			className="rounded-card bg-surface p-card"
+			className="rounded-card bg-card p-card"
 			style={{
 				width: cardWidth,
 				marginHorizontal: CARD_SPACING / 2,

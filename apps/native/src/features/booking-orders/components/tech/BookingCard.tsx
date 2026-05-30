@@ -48,7 +48,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 			className="mb-stack-md"
 		>
 			<View
-				className="overflow-hidden rounded-card border bg-surface"
+				className="overflow-hidden rounded-card border bg-card"
 				style={{
 					borderColor: isCancelled
 						? `${themeColors.danger}30`
@@ -67,7 +67,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 							<Text
 								variant="buttonLg"
 								className="font-bold"
-								style={{ color: themeColors.surfaceBase }}
+								style={{ color: themeColors.surfaceOnPrimary }}
 							>
 								{initials}
 							</Text>

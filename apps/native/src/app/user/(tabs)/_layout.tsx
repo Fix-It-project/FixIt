@@ -101,7 +101,7 @@ export default function UserTabsLayout() {
 			edges={["top"]}
 			style={{ backgroundColor: topSafeAreaBackground }}
 		>
-			<View className="flex-1 bg-surface-elevated">
+			<View className="flex-1 bg-surface">
 				<Tabs screenOptions={screenOptions}>
 					<Tabs.Screen
 						name="index"

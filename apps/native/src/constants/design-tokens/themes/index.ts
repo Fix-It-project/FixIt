@@ -1,6 +1,8 @@
 export type { AppColors } from "./colors-proxy";
 export { Colors } from "./colors-proxy";
 export { defaultThemeId, themeIds, themeRegistry } from "./definitions";
+export type { OverlayTokens } from "./overlay";
+export { overlayTokens } from "./overlay";
 export {
 	createNavigationTheme,
 	getCalendarTheme,
@@ -27,7 +29,6 @@ export type {
 	ThemePalette,
 	ThemePreference,
 	ThemePrimitiveTokens,
+	ThemeTint,
 	ThemeTokens,
 } from "./types";
-export { overlayTokens } from "./overlay";
-export type { OverlayTokens } from "./overlay";

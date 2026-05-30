@@ -204,7 +204,7 @@ export default function SignUp() {
 				className="mt-stack-sm"
 			>
 				{signUpMutation.isPending ? (
-					<ActivityIndicator color={themeColors.surfaceBase} />
+					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
 					<BtnText variant="buttonLg">Sign Up</BtnText>
 				)}

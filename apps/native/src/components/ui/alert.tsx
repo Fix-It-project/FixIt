@@ -28,7 +28,7 @@ function Alert({
 			<View
 				role="alert"
 				className={cn(
-					"relative w-full rounded-card border border-edge bg-surface px-card pt-3.5 pb-2",
+					"relative w-full rounded-card border border-edge bg-card px-card pt-3.5 pb-2",
 					className,
 				)}
 				{...props}

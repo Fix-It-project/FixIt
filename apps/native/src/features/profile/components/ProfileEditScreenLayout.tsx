@@ -27,7 +27,7 @@ export default function ProfileEditScreenLayout({
 	const horizontalPadding = Math.min(Math.max(width * 0.05, 16), 28);
 
 	return (
-		<ScreenSafeAreaView className="flex-1 bg-surface-elevated" edges={["top"]}>
+		<ScreenSafeAreaView className="flex-1 bg-surface" edges={["top"]}>
 			<PageHeader
 				title="Edit Profile"
 				variant="surface"
@@ -53,7 +53,7 @@ export default function ProfileEditScreenLayout({
 					<View className="mt-stack-sm">
 						<Button onPress={onSavePress} disabled={isSaveDisabled}>
 							{isPending ? (
-								<ActivityIndicator color={themeColors.surfaceBase} />
+								<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 							) : (
 								<Text variant="body">Save Changes</Text>
 							)}

@@ -40,7 +40,7 @@ export default function DocumentUploadField({
 			</Text>
 			<Pressable
 				onPress={onPick}
-				className={`flex-row items-center rounded-card bg-surface px-button-x py-card ${
+				className={`flex-row items-center rounded-card bg-card px-button-x py-card ${
 					error ? "border border-danger" : ""
 				}`}
 			>
@@ -53,7 +53,7 @@ export default function DocumentUploadField({
 							<Text variant="bodySm" className="text-content" numberOfLines={1}>
 								{fileName ?? "Document uploaded"}
 							</Text>
-							<Text variant="caption" className="text-surface-muted">
+							<Text variant="caption" className="text-content-muted">
 								Tap to change
 							</Text>
 						</View>
@@ -62,7 +62,7 @@ export default function DocumentUploadField({
 				) : (
 					<View className="flex-1 flex-row items-center gap-stack-md">
 						<View className="items-center justify-center rounded-compact bg-surface-elevated p-card-compact">
-							<CloudUpload size={22} color={Colors.surfaceMuted} />
+							<CloudUpload size={22} color={Colors.textMuted} />
 						</View>
 						<View className="flex-1">
 							<Text variant="bodySm" className="text-content">

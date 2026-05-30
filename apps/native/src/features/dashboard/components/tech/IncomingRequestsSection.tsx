@@ -70,7 +70,7 @@ function RequestCard({
 		>
 			<TouchableOpacity activeOpacity={0.95} onPress={() => openModal(item)}>
 				<View
-					className="rounded-card border border-edge bg-surface p-card"
+					className="rounded-card border border-edge bg-card p-card"
 					style={{
 						...shadowStyle(elevation.raised, {
 							shadowColor: themeColors.shadow,
@@ -138,7 +138,7 @@ function RequestCard({
 							{acceptMutation.isPending ? (
 								<ActivityIndicator
 									size="small"
-									color={themeColors.surfaceBase}
+									color={themeColors.surfaceOnPrimary}
 								/>
 							) : (
 								<Text variant="caption" className="font-bold text-surface-on-primary">
@@ -219,7 +219,7 @@ export default function IncomingRequestsSection({
 		);
 	} else if (pendingOrders.length === 0) {
 		content = (
-			<View className="mx-screen-x items-center rounded-card border border-edge bg-surface px-card py-stack-xl">
+			<View className="mx-screen-x items-center rounded-card border border-edge bg-card px-card py-stack-xl">
 				<Text variant="bodySm" className="text-content-muted">
 					No pending requests
 				</Text>
@@ -245,7 +245,7 @@ export default function IncomingRequestsSection({
 						<Text
 							variant="caption"
 							className="font-bold"
-							style={{ color: themeColors.surfaceBase }}
+							style={{ color: themeColors.surfaceOnPrimary }}
 						>
 							{pendingOrders.length}
 						</Text>

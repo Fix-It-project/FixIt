@@ -61,7 +61,7 @@ function ScheduleCard({
 
 			{/* Card */}
 			<View
-				className="mb-stack-lg flex-1 rounded-card border bg-surface p-card"
+				className="mb-stack-lg flex-1 rounded-card border bg-card p-card"
 				style={{
 					borderColor: isInProgress
 						? `${themeColors.primary}30`
@@ -136,7 +136,7 @@ export default function TodayScheduleSection() {
 		);
 	} else if (todaysOrders.length === 0) {
 		content = (
-			<View className="items-center rounded-card border border-edge bg-surface px-card py-stack-xl">
+			<View className="items-center rounded-card border border-edge bg-card px-card py-stack-xl">
 				<Text variant="bodySm" className="text-content-muted">
 					No bookings for today
 				</Text>

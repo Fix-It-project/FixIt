@@ -18,7 +18,7 @@ export default function SectionFooterArrow({ onPress }: SectionEndArrowProps) {
 			iconLeft={
 				<ChevronRight
 					size={26}
-					color={themeColors.surfaceBase}
+					color={themeColors.surfaceOnPrimary}
 					strokeWidth={2.5}
 				/>
 			}

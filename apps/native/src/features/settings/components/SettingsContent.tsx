@@ -17,11 +17,11 @@ export default function SettingsContent({
 }: SettingsContentProps) {
 	return (
 		<ScrollView
-			className="flex-1 bg-surface-elevated"
+			className="flex-1 bg-surface"
 			contentContainerClassName="gap-card-roomy px-screen-x py-stack-xl"
 		>
 			<View
-				className="rounded-card bg-surface px-card-roomy py-card"
+				className="rounded-card bg-card px-card-roomy py-card"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<Text variant="bodySm" className="mb-stack-md font-semibold text-content-secondary text-sm">
@@ -31,7 +31,7 @@ export default function SettingsContent({
 			</View>
 
 			<View
-				className="rounded-card bg-surface px-card-roomy"
+				className="rounded-card bg-card px-card-roomy"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<SettingsItem
