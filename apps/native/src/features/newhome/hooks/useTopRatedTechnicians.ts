@@ -43,8 +43,8 @@ export function useTopRatedTechnicians(): {
 
 	const technicians = merged
 		.sort((a, b) => {
-			const ratingA = a.avg_rating ?? -Infinity;
-			const ratingB = b.avg_rating ?? -Infinity;
+			const ratingA = a.avg_rating ?? Number.NEGATIVE_INFINITY;
+			const ratingB = b.avg_rating ?? Number.NEGATIVE_INFINITY;
 			if (ratingB !== ratingA) return ratingB - ratingA;
 			return b.review_count - a.review_count;
 		})

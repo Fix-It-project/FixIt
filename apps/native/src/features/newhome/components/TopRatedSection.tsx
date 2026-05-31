@@ -2,15 +2,16 @@ import { router } from "expo-router";
 import { MapPin, Star } from "lucide-react-native";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
+import { Badge } from "@/src/components/ui/badge";
+import { Button } from "@/src/components/ui/button";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
-import { getCategoryMeta } from "@/src/features/categories/constants/categories";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
@@ -18,21 +19,12 @@ import { ROUTES } from "@/src/lib/navigation/routes";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 
-function colorWithAlpha(color: string, alpha: number): string {
-	const normalized = color.replace("#", "");
-	if (normalized.length !== 6) return color;
-
-	const red = Number.parseInt(normalized.slice(0, 2), 16);
-	const green = Number.parseInt(normalized.slice(2, 4), 16);
-	const blue = Number.parseInt(normalized.slice(4, 6), 16);
-
-	return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-}
-
 export function TopRatedSection() {
 	const t = useThemeColors();
 	const { t: tr } = useTranslation("home");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
+	const { width } = useWindowDimensions();
+	const cardWidth = Math.min(width - 64, 304);
 
 	const { technicians, isLoading, isError } = useTopRatedTechnicians();
 	const { data: categories } = useCategoriesQuery();
@@ -67,11 +59,19 @@ export function TopRatedSection() {
 			</View>
 
 			{isLoading && (
-				<View style={{ paddingHorizontal: 20, gap: 8 }}>
+				<ScrollView
+					horizontal
+					showsHorizontalScrollIndicator={false}
+					contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+				>
 					{SKELETON_KEYS.map((key) => (
-						<Skeleton key={key} className="rounded-xl" style={{ height: 74 }} />
+						<Skeleton
+							key={key}
+							className="rounded-card"
+							style={{ width: cardWidth, height: 154 }}
+						/>
 					))}
-				</View>
+				</ScrollView>
 			)}
 
 			{isError && !isLoading && (
@@ -81,16 +81,20 @@ export function TopRatedSection() {
 			)}
 
 			{!isLoading && !isError && technicians.length > 0 && (
-				<View style={{ paddingHorizontal: 20, gap: 8 }}>
-					{technicians.slice(0, 3).map((tech) => {
+				<ScrollView
+					horizontal
+					showsHorizontalScrollIndicator={false}
+					decelerationRate="fast"
+					snapToInterval={cardWidth + 12}
+					contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+				>
+					{technicians.slice(0, 8).map((tech) => {
 						const initials = (
 							(tech.first_name[0] ?? "") + (tech.last_name[0] ?? "")
 						).toUpperCase();
 						const name = `${tech.first_name} ${tech.last_name}`;
 						const categoryName =
 							catMap.get(tech.category_id) ?? tr("technicianFallback");
-						const categoryColor =
-							getCategoryMeta(tech.category_id)?.color ?? t.tint.onChip;
 						const locationText = [
 							tech.city,
 							tech.distance_km != null
@@ -105,13 +109,14 @@ export function TopRatedSection() {
 								key={tech.id}
 								className="bg-card"
 								style={{
-									borderRadius: 16,
+									width: cardWidth,
+									minHeight: 154,
+									borderRadius: 14,
 									borderWidth: 1,
-									borderColor: colorWithAlpha(t.borderDefault, 0.8),
-									padding: 11,
-									flexDirection: "row",
-									alignItems: "center",
-									gap: 10,
+									borderColor: t.borderDefault,
+									padding: 14,
+									justifyContent: "space-between",
+									gap: 12,
 								}}
 							>
 								<PressableScale
@@ -120,166 +125,87 @@ export function TopRatedSection() {
 										profileSheetRef.current?.open(tech.id, initials);
 									}}
 									style={{
-										flex: 1,
-										minWidth: 0,
-										flexDirection: "row",
-										alignItems: "center",
-										gap: 11,
+										gap: 12,
 									}}
 								>
-									<View style={{ position: "relative" }}>
+									<View
+										style={{
+											flexDirection: "row",
+											alignItems: "flex-start",
+											gap: 11,
+										}}
+									>
 										<InitialsAvatar
 											name={name}
 											imageUrl={null}
-											className="size-10"
+											className="size-11"
 										/>
-										{tech.is_available && (
-											<View
-												style={{
-													position: "absolute",
-													bottom: 0,
-													right: 0,
-													width: 9,
-													height: 9,
-													borderRadius: 4.5,
-													backgroundColor: t.statusOnline,
-													borderWidth: 2,
-													borderColor: t.surfaceElevated,
-												}}
-											/>
-										)}
-									</View>
-
-									<View style={{ flex: 1, minWidth: 0, gap: 5 }}>
-										<View
-											style={{
-												flexDirection: "row",
-												alignItems: "center",
-												gap: 8,
-											}}
-										>
+										<View style={{ flex: 1, minWidth: 0, gap: 5 }}>
 											<Text
 												variant="label"
 												className="text-foreground"
 												numberOfLines={1}
-												style={{ flexShrink: 1 }}
 											>
 												{name}
 											</Text>
-										</View>
-
-										<View
-											style={{
-												flexDirection: "row",
-												alignItems: "center",
-												gap: 7,
-												minWidth: 0,
-											}}
-										>
-											<View
-												style={{
-													backgroundColor: colorWithAlpha(categoryColor, 0.12),
-													borderRadius: 999,
-													paddingHorizontal: 7,
-													paddingVertical: 3,
-													maxWidth: 118,
-												}}
+											<Badge
+												variant="secondary"
+												className="max-w-36 self-start rounded-md"
 											>
-												<Text
-													variant="caption"
-													numberOfLines={1}
-													style={{ color: categoryColor }}
-												>
+												<Text variant="caption" numberOfLines={1}>
 													{categoryName}
 												</Text>
-											</View>
-
-											{locationText ? (
-												<View
-													style={{
-														flexDirection: "row",
-														alignItems: "center",
-														gap: 3,
-														flex: 1,
-														minWidth: 0,
-													}}
-												>
-													<MapPin
-														size={11}
-														color={t.textMuted}
-														strokeWidth={2}
-													/>
-													<Text
-														variant="caption"
-														className="text-muted-foreground"
-														numberOfLines={1}
-														style={{ flex: 1 }}
-													>
-														{locationText}
-													</Text>
-												</View>
-											) : null}
+											</Badge>
 										</View>
+										{tech.avg_rating !== null ? (
+											<Badge variant="outline" className="rounded-md">
+												<Star
+													size={11}
+													color={t.ratingDefault}
+													fill={t.ratingDefault}
+												/>
+												<Text variant="caption">
+													{tech.avg_rating.toFixed(1)}
+												</Text>
+											</Badge>
+										) : null}
 									</View>
-								</PressableScale>
 
-								<View
-									style={{
-										alignItems: "flex-end",
-										justifyContent: "center",
-										gap: 8,
-									}}
-								>
-									{tech.avg_rating !== null ? (
+									{locationText ? (
 										<View
 											style={{
 												flexDirection: "row",
 												alignItems: "center",
 												gap: 4,
-												backgroundColor: t.warningLight,
-												borderRadius: 999,
-												paddingHorizontal: 7,
-												paddingVertical: 3,
+												minWidth: 0,
 											}}
 										>
-											<Star
-												size={12}
-												color={t.ratingDefault}
-												fill={t.ratingDefault}
-											/>
-											<Text variant="caption" className="text-foreground">
-												{tech.avg_rating.toFixed(1)}
+											<MapPin size={12} color={t.textMuted} strokeWidth={2} />
+											<Text
+												variant="caption"
+												className="text-muted-foreground"
+												numberOfLines={1}
+												style={{ flex: 1 }}
+											>
+												{locationText}
 											</Text>
 										</View>
 									) : null}
+								</PressableScale>
 
-									<PressableScale
-										pressedScale={0.94}
-										onPress={() =>
-											router.push(ROUTES.user.bookingRoot(tech.id))
-										}
-									>
-										<View
-											style={{
-												backgroundColor: t.primary,
-												borderRadius: 999,
-												paddingHorizontal: 13,
-												paddingVertical: 7,
-											}}
-										>
-											<Text
-												variant="buttonMd"
-												style={{ color: t.surfaceOnPrimary }}
-											>
-												{tr("book")}
-											</Text>
-										</View>
-									</PressableScale>
-								</View>
+								<Button
+									size="sm"
+									variant="primary"
+									fullWidth
+									onPress={() => router.push(ROUTES.user.bookingRoot(tech.id))}
+									accessibilityLabel={tr("book")}
+								>
+									{tr("book")}
+								</Button>
 							</View>
 						);
 					})}
-				</View>
+				</ScrollView>
 			)}
 
 			<TechnicianProfileSheet ref={profileSheetRef} />
