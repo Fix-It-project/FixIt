@@ -12,7 +12,7 @@ import {
 	SatelliteDish,
 	Sparkles,
 	Thermometer,
-	Wrench,
+	WashingMachine,
 	Zap,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -43,6 +43,9 @@ const ICON_MAP: Record<string, LucideIcon> = {
 	cleaning: Sparkles,
 	painter: PaintRoller,
 	painting: PaintRoller,
+	appliance: WashingMachine,
+	"appliance repair": WashingMachine,
+	"washing machine": WashingMachine,
 	carpenter: Hammer,
 	carpentry: Hammer,
 	electrician: Zap,
@@ -55,10 +58,20 @@ const ICON_MAP: Record<string, LucideIcon> = {
 	hammer: Hammer,
 	bug: Bug,
 	leaf: Leaf,
-	wrench: Wrench,
 	"pest control": Bug,
 	gardening: Leaf,
 };
+
+function colorWithAlpha(color: string, alpha: number): string {
+	const normalized = color.replace("#", "");
+	if (normalized.length !== 6) return color;
+
+	const red = Number.parseInt(normalized.slice(0, 2), 16);
+	const green = Number.parseInt(normalized.slice(2, 4), 16);
+	const blue = Number.parseInt(normalized.slice(4, 6), 16);
+
+	return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
 
 function normalizeCategoryKey(value: string): string {
 	return value
@@ -73,6 +86,27 @@ function resolveIcon(categoryId: string, categoryName: string): LucideIcon {
 	if (meta?.icon) return meta.icon;
 	const key = normalizeCategoryKey(categoryName);
 	return ICON_MAP[key] ?? ClipboardList;
+}
+
+function resolveCategoryColor(
+	categoryId: string,
+	categoryName: string,
+	colors: ReturnType<typeof useThemeColors>,
+): string {
+	const meta = getCategoryMeta(categoryId);
+	if (meta?.color) return meta.color;
+
+	const key = normalizeCategoryKey(categoryName);
+	if (key.includes("electric")) return colors.category.orange;
+	if (key.includes("clean")) return colors.category.green;
+	if (key.includes("paint")) return colors.category.purple;
+	if (key.includes("plumb")) return colors.category.blue;
+	if (key.includes("air") || key.includes("ac") || key.includes("fan"))
+		return colors.category.cyan;
+	if (key.includes("dish") || key.includes("appliance"))
+		return colors.category.indigo;
+
+	return colors.category.fallbacks[0] ?? colors.tint.onChip;
 }
 
 const SKELETON_KEYS = [
@@ -153,6 +187,7 @@ export function CategoryRow() {
 				>
 					{categories?.map((cat, index) => {
 						const IconComponent = resolveIcon(cat.id, cat.name);
+						const categoryColor = resolveCategoryColor(cat.id, cat.name, t);
 						return (
 							<Animated.View
 								key={cat.id}
@@ -172,23 +207,21 @@ export function CategoryRow() {
 										})
 									}
 								>
-									<View style={{ alignItems: "center", gap: 8 }}>
+									<View style={{ alignItems: "center", gap: 8, width: 70 }}>
 										<View
 											style={{
-												width: 56,
-												height: 56,
-												borderRadius: 12,
-												backgroundColor: t.surfaceElevated,
-												borderWidth: 1,
-												borderColor: t.borderDefault,
+												width: 58,
+												height: 58,
+												borderRadius: 15,
+												backgroundColor: colorWithAlpha(categoryColor, 0.14),
 												alignItems: "center",
 												justifyContent: "center",
 											}}
 										>
 											<IconComponent
 												size={23}
-												color={t.tint.onChip}
-												strokeWidth={2}
+												color={categoryColor}
+												strokeWidth={2.2}
 											/>
 										</View>
 										<Text

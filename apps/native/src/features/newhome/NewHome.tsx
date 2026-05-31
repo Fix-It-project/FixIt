@@ -1,5 +1,6 @@
-import { useCallback, useRef } from "react";
-import { ScrollView, View } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Alert, ScrollView, View } from "react-native";
 import { spacing } from "@/src/constants/design-tokens";
 import AddNewAddressSheet, {
 	type AddNewAddressSheetRef,
@@ -16,8 +17,16 @@ import { PreviousOrdersSection } from "@/src/features/newhome/components/Previou
 import { TopRatedSection } from "@/src/features/newhome/components/TopRatedSection";
 
 export function NewHome() {
+	const { t: tr } = useTranslation("home");
 	const addressSheetRef = useRef<AddressBottomSheetRef>(null);
 	const addNewAddressSheetRef = useRef<AddNewAddressSheetRef>(null);
+	const [isAddressAccordionOpen, setIsAddressAccordionOpen] = useState(false);
+	const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
+	const [isAddAddressSheetOpen, setIsAddAddressSheetOpen] = useState(false);
+	const [isAddressSheetTransitioning, setIsAddressSheetTransitioning] =
+		useState(false);
+	const isAnyAddressSheetOpen =
+		isAddressSheetOpen || isAddAddressSheetOpen || isAddressSheetTransitioning;
 	const { data: addresses } = useAddressesQuery();
 	const activeAddress =
 		addresses?.find((address) => address.is_active) ?? addresses?.[0];
@@ -25,22 +34,38 @@ export function NewHome() {
 		? `${activeAddress.street}, ${activeAddress.city}`
 		: undefined;
 
-	const handleLocationPress = useCallback(() => {
+	const handleChangeAddressPress = useCallback(() => {
+		setIsAddressSheetTransitioning(true);
 		addressSheetRef.current?.open();
 	}, []);
 
-	const handleAddNewAddress = useCallback(() => {
+	const handleOpenAddAddress = useCallback(() => {
+		setIsAddressSheetTransitioning(true);
 		addressSheetRef.current?.close();
 		setTimeout(() => {
 			addNewAddressSheetRef.current?.open();
-		}, 300);
+		}, 220);
 	}, []);
 
-	const handleNewAddressBack = useCallback(() => {
-		setTimeout(() => {
-			addressSheetRef.current?.open();
-		}, 300);
-	}, []);
+	const handleAddressExpandedChange = useCallback(
+		(expanded: boolean) => {
+			if (expanded && isAnyAddressSheetOpen) {
+				return;
+			}
+			setIsAddressAccordionOpen(expanded);
+		},
+		[isAnyAddressSheetOpen],
+	);
+
+	const handleDeleteAddress = useCallback(
+		(_addressId: string) => {
+			Alert.alert(
+				tr("address.deleteUnavailableTitle"),
+				tr("address.deleteUnavailableMessage"),
+			);
+		},
+		[tr],
+	);
 
 	return (
 		<View className="flex-1 bg-background">
@@ -52,8 +77,11 @@ export function NewHome() {
 				}}
 			>
 				<HomeHeader
-					onAddressPress={handleLocationPress}
 					address={addressLabel}
+					addressExpanded={isAddressAccordionOpen}
+					onAddressExpandedChange={handleAddressExpandedChange}
+					onChangeAddressPress={handleChangeAddressPress}
+					onAddAddressPress={handleOpenAddAddress}
 				/>
 				<View
 					style={{
@@ -72,11 +100,23 @@ export function NewHome() {
 
 			<AddressBottomSheet
 				ref={addressSheetRef}
-				onAddNewAddress={handleAddNewAddress}
+				onAddNewAddress={handleOpenAddAddress}
+				showAddAction={false}
+				showDeleteActions
+				onDeleteAddress={handleDeleteAddress}
+				onOpenChange={(isOpen) => {
+					setIsAddressSheetOpen(isOpen);
+					if (isOpen) {
+						setIsAddressSheetTransitioning(false);
+					}
+				}}
 			/>
 			<AddNewAddressSheet
 				ref={addNewAddressSheetRef}
-				onBack={handleNewAddressBack}
+				onOpenChange={(isOpen) => {
+					setIsAddAddressSheetOpen(isOpen);
+					setIsAddressSheetTransitioning(false);
+				}}
 			/>
 		</View>
 	);

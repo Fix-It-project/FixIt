@@ -8,14 +8,16 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import type { Address } from "@/src/features/addresses/schemas/response.schema";
 import { useThemeColors } from "@/src/constants/design-tokens";
+import type { Address } from "@/src/features/addresses/schemas/response.schema";
 
 interface AddressListItemProps {
 	readonly address: Address;
 	readonly isActive: boolean;
 	readonly onPress: () => void;
 	readonly disabled?: boolean;
+	readonly onDelete?: () => void;
+	readonly deleteLabel?: string;
 }
 
 export default function AddressListItem({
@@ -23,6 +25,8 @@ export default function AddressListItem({
 	isActive,
 	onPress,
 	disabled = false,
+	onDelete,
+	deleteLabel = "Delete",
 }: AddressListItemProps) {
 	const themeColors = useThemeColors();
 	const activeColor = themeColors.primary;
@@ -55,46 +59,61 @@ export default function AddressListItem({
 	);
 
 	return (
-		<TouchableOpacity
-			onPress={onPress}
-			disabled={disabled || isActive}
-			activeOpacity={0.7}
+		<View
 			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
 			style={{ opacity: disabled ? 0.5 : 1 }}
 		>
-			<View
-				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"
-				style={{ backgroundColor: themeColors.surfaceElevated }}
+			<TouchableOpacity
+				onPress={onPress}
+				disabled={disabled || isActive}
+				activeOpacity={0.7}
+				className="flex-1 flex-row items-center gap-list-row"
 			>
-				<MapPin size={18} color={themeColors.textSecondary} strokeWidth={2} />
-			</View>
-
-			<View className="flex-1">
-				<Text variant="buttonLg" className="text-content" numberOfLines={1}>
-					{address.city}
-				</Text>
-				<Text
-					variant="bodySm"
-					className="mt-stack-xs text-content-secondary"
-					numberOfLines={2}
+				<View
+					className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"
+					style={{ backgroundColor: themeColors.surfaceElevated }}
 				>
-					{address.street}
-					{detailParts.length > 0 ? `, ${detailParts.join(", ")}` : ""}
-				</Text>
-			</View>
+					<MapPin size={18} color={themeColors.textSecondary} strokeWidth={2} />
+				</View>
 
-			<Animated.View
-				className="h-icon-sm w-icon-sm items-center justify-center rounded-pill border-selected"
-				style={[
-					{ borderColor: themeColors.borderDefault },
-					ringStyle,
-				]}
-			>
+				<View className="flex-1">
+					<Text variant="buttonLg" className="text-content" numberOfLines={1}>
+						{address.city}
+					</Text>
+					<Text
+						variant="bodySm"
+						className="mt-stack-xs text-content-secondary"
+						numberOfLines={2}
+					>
+						{address.street}
+						{detailParts.length > 0 ? `, ${detailParts.join(", ")}` : ""}
+					</Text>
+				</View>
+
 				<Animated.View
-					className="h-status-dot-sm w-status-dot-sm rounded-pill"
-					style={[{ backgroundColor: themeColors.surfaceBase }, dotStyle]}
-				/>
-			</Animated.View>
-		</TouchableOpacity>
+					className="h-icon-sm w-icon-sm items-center justify-center rounded-pill border-selected"
+					style={[{ borderColor: themeColors.borderDefault }, ringStyle]}
+				>
+					<Animated.View
+						className="h-status-dot-sm w-status-dot-sm rounded-pill"
+						style={[{ backgroundColor: themeColors.surfaceBase }, dotStyle]}
+					/>
+				</Animated.View>
+			</TouchableOpacity>
+
+			{onDelete ? (
+				<TouchableOpacity
+					onPress={onDelete}
+					disabled={disabled}
+					activeOpacity={0.7}
+					className="rounded-button px-stack-sm py-stack-xs"
+					style={{ backgroundColor: themeColors.dangerLight }}
+				>
+					<Text variant="caption" style={{ color: themeColors.danger }}>
+						{deleteLabel}
+					</Text>
+				</TouchableOpacity>
+			) : null}
+		</View>
 	);
 }

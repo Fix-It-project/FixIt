@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Star } from "lucide-react-native";
+import { MapPin, Star } from "lucide-react-native";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -10,12 +10,24 @@ import TechnicianProfileSheet, {
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
+import { getCategoryMeta } from "@/src/features/categories/constants/categories";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
 import { ROUTES } from "@/src/lib/navigation/routes";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
+
+function colorWithAlpha(color: string, alpha: number): string {
+	const normalized = color.replace("#", "");
+	if (normalized.length !== 6) return color;
+
+	const red = Number.parseInt(normalized.slice(0, 2), 16);
+	const green = Number.parseInt(normalized.slice(2, 4), 16);
+	const blue = Number.parseInt(normalized.slice(4, 6), 16);
+
+	return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
 
 export function TopRatedSection() {
 	const t = useThemeColors();
@@ -75,7 +87,10 @@ export function TopRatedSection() {
 							(tech.first_name[0] ?? "") + (tech.last_name[0] ?? "")
 						).toUpperCase();
 						const name = `${tech.first_name} ${tech.last_name}`;
-						const categoryName = catMap.get(tech.category_id) ?? "";
+						const categoryName =
+							catMap.get(tech.category_id) ?? tr("technicianFallback");
+						const categoryColor =
+							getCategoryMeta(tech.category_id)?.color ?? t.tint.onChip;
 						const locationText = [
 							tech.city,
 							tech.distance_km != null
@@ -88,12 +103,15 @@ export function TopRatedSection() {
 						return (
 							<View
 								key={tech.id}
-								className="rounded-[14px] border border-border bg-card"
+								className="bg-card"
 								style={{
-									padding: 12,
+									borderRadius: 16,
+									borderWidth: 1,
+									borderColor: colorWithAlpha(t.borderDefault, 0.8),
+									padding: 11,
 									flexDirection: "row",
 									alignItems: "center",
-									gap: 12,
+									gap: 10,
 								}}
 							>
 								<PressableScale
@@ -106,14 +124,14 @@ export function TopRatedSection() {
 										minWidth: 0,
 										flexDirection: "row",
 										alignItems: "center",
-										gap: 10,
+										gap: 11,
 									}}
 								>
 									<View style={{ position: "relative" }}>
 										<InitialsAvatar
 											name={name}
 											imageUrl={null}
-											className="size-11"
+											className="size-10"
 										/>
 										{tech.is_available && (
 											<View
@@ -132,12 +150,12 @@ export function TopRatedSection() {
 										)}
 									</View>
 
-									<View style={{ flex: 1, minWidth: 0 }}>
+									<View style={{ flex: 1, minWidth: 0, gap: 5 }}>
 										<View
 											style={{
 												flexDirection: "row",
 												alignItems: "center",
-												gap: 6,
+												gap: 8,
 											}}
 										>
 											<Text
@@ -148,56 +166,116 @@ export function TopRatedSection() {
 											>
 												{name}
 											</Text>
-											{tech.avg_rating !== null ? (
+										</View>
+
+										<View
+											style={{
+												flexDirection: "row",
+												alignItems: "center",
+												gap: 7,
+												minWidth: 0,
+											}}
+										>
+											<View
+												style={{
+													backgroundColor: colorWithAlpha(categoryColor, 0.12),
+													borderRadius: 999,
+													paddingHorizontal: 7,
+													paddingVertical: 3,
+													maxWidth: 118,
+												}}
+											>
+												<Text
+													variant="caption"
+													numberOfLines={1}
+													style={{ color: categoryColor }}
+												>
+													{categoryName}
+												</Text>
+											</View>
+
+											{locationText ? (
 												<View
 													style={{
 														flexDirection: "row",
 														alignItems: "center",
 														gap: 3,
+														flex: 1,
+														minWidth: 0,
 													}}
 												>
-													<Star
-														size={12}
-														color={t.ratingDefault}
-														fill={t.ratingDefault}
+													<MapPin
+														size={11}
+														color={t.textMuted}
+														strokeWidth={2}
 													/>
-													<Text variant="caption" className="text-foreground">
-														{tech.avg_rating.toFixed(1)}
+													<Text
+														variant="caption"
+														className="text-muted-foreground"
+														numberOfLines={1}
+														style={{ flex: 1 }}
+													>
+														{locationText}
 													</Text>
 												</View>
 											) : null}
 										</View>
-
-										<Text
-											variant="caption"
-											className="text-muted-foreground"
-											numberOfLines={1}
-										>
-											{categoryName || tr("technicianFallback")}
-											{locationText ? ` · ${locationText}` : ""}
-										</Text>
 									</View>
 								</PressableScale>
 
-								<PressableScale
-									pressedScale={0.94}
-									onPress={() => router.push(ROUTES.user.bookingRoot(tech.id))}
+								<View
+									style={{
+										alignItems: "flex-end",
+										justifyContent: "center",
+										gap: 8,
+									}}
 								>
-									<View
-										style={{
-											backgroundColor: t.tint.surfaceSoft,
-											borderRadius: 9,
-											paddingHorizontal: 12,
-											paddingVertical: 8,
-											flexDirection: "row",
-											alignItems: "center",
-										}}
+									{tech.avg_rating !== null ? (
+										<View
+											style={{
+												flexDirection: "row",
+												alignItems: "center",
+												gap: 4,
+												backgroundColor: t.warningLight,
+												borderRadius: 999,
+												paddingHorizontal: 7,
+												paddingVertical: 3,
+											}}
+										>
+											<Star
+												size={12}
+												color={t.ratingDefault}
+												fill={t.ratingDefault}
+											/>
+											<Text variant="caption" className="text-foreground">
+												{tech.avg_rating.toFixed(1)}
+											</Text>
+										</View>
+									) : null}
+
+									<PressableScale
+										pressedScale={0.94}
+										onPress={() =>
+											router.push(ROUTES.user.bookingRoot(tech.id))
+										}
 									>
-										<Text variant="buttonMd" style={{ color: t.tint.onSoft }}>
-											{tr("book")}
-										</Text>
-									</View>
-								</PressableScale>
+										<View
+											style={{
+												backgroundColor: t.primary,
+												borderRadius: 999,
+												paddingHorizontal: 13,
+												paddingVertical: 7,
+											}}
+										>
+											<Text
+												variant="buttonMd"
+												style={{ color: t.surfaceOnPrimary }}
+											>
+												{tr("book")}
+											</Text>
+										</View>
+									</PressableScale>
+								</View>
 							</View>
 						);
 					})}

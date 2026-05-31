@@ -15,9 +15,9 @@ import {
 } from "@/src/components/ui/bottom-sheet";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useHardwareBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES } from "@/src/lib/navigation";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useLocationStore } from "@/src/stores/location-store";
 
 export interface AddNewAddressSheetRef {
@@ -27,12 +27,13 @@ export interface AddNewAddressSheetRef {
 
 interface AddNewAddressSheetProps {
 	onBack?: () => void;
+	onOpenChange?: (isOpen: boolean) => void;
 }
 
 const AddNewAddressSheet = forwardRef<
 	AddNewAddressSheetRef,
 	AddNewAddressSheetProps
->(function AddNewAddressSheet({ onBack }, ref) {
+>(function AddNewAddressSheet({ onBack, onOpenChange }, ref) {
 	const themeColors = useThemeColors();
 	const bottomSheetRef = useRef<BottomSheetRef>(null);
 	const { requestLocationPermission, isLoading: isLocating } =
@@ -55,6 +56,14 @@ const AddNewAddressSheet = forwardRef<
 		bottomSheetRef.current?.close();
 		onBack?.();
 	}, [onBack]);
+
+	const handleSheetChange = useCallback(
+		(index: number) => {
+			setSheetIndex(index);
+			onOpenChange?.(index >= 0);
+		},
+		[onOpenChange],
+	);
 
 	useHardwareBackHandler(sheetIndex >= 0, () => {
 		handleBack();
@@ -85,7 +94,7 @@ const AddNewAddressSheet = forwardRef<
 				backgroundColor: themeColors.borderDefault,
 				width: spacing.sheet.handleWidth,
 			}}
-			onChange={setSheetIndex}
+			onChange={handleSheetChange}
 		>
 			<BottomSheet.View className="flex-1 px-button-x pb-screen-bottom-inset">
 				<View className="mb-stack-sm flex-row items-center justify-between">
