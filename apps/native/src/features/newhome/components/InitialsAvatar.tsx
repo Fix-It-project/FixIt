@@ -29,13 +29,11 @@ export function InitialsAvatar({
 
 	return (
 		<Avatar alt={name} className={className ?? "size-10"}>
-			{imageUrl ? (
-				<AvatarImage source={{ uri: imageUrl }} />
-			) : null}
-			<AvatarFallback>
+			{imageUrl ? <AvatarImage source={{ uri: imageUrl }} /> : null}
+			<AvatarFallback className="bg-app-primary">
 				<Text
 					variant="caption"
-					className="text-foreground font-semibold"
+					className="font-semibold text-primary-foreground"
 				>
 					{initials}
 				</Text>

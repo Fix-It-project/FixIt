@@ -9,6 +9,7 @@ import TechnicianProfileSheet, {
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
+import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
@@ -158,16 +159,23 @@ export function TopRatedSection() {
 											</Badge>
 										</View>
 										{tech.avg_rating !== null ? (
-											<Badge variant="outline" className="rounded-md">
-												<Star
-													size={11}
+											<View
+												style={{
+													flexDirection: "row",
+													alignItems: "center",
+													gap: 3,
+												}}
+											>
+												<Icon
+													as={Star}
+													size={12}
 													color={t.ratingDefault}
 													fill={t.ratingDefault}
 												/>
-												<Text variant="caption">
+												<Text variant="caption" className="text-foreground">
 													{tech.avg_rating.toFixed(1)}
 												</Text>
-											</Badge>
+											</View>
 										) : null}
 									</View>
 
@@ -180,7 +188,12 @@ export function TopRatedSection() {
 												minWidth: 0,
 											}}
 										>
-											<MapPin size={12} color={t.textMuted} strokeWidth={2} />
+											<Icon
+												as={MapPin}
+												size={12}
+												color={t.textMuted}
+												strokeWidth={2}
+											/>
 											<Text
 												variant="caption"
 												className="text-muted-foreground"

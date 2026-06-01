@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { DUR_SLIDE_UP, ENTRANCE_STAGGER } from "@/src/constants/animation";
@@ -187,7 +188,8 @@ export function CategoryRow() {
 												justifyContent: "center",
 											}}
 										>
-											<IconComponent
+											<Icon
+												as={IconComponent}
 												size={23}
 												color={t.primary}
 												strokeWidth={2.2}

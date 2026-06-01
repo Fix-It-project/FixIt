@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { Button } from "@/src/components/ui/button";
+import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { DUR_SLIDE_UP, ENTRANCE_STAGGER } from "@/src/constants/animation";
@@ -13,28 +15,9 @@ import { formatCurrency } from "@/src/features/booking-orders/utils/format-curre
 import { getCategoryMeta } from "@/src/features/categories/constants/categories";
 import { ROUTES } from "@/src/lib/navigation/routes";
 
-function colorWithAlpha(color: string, alpha: number): string {
-	const normalized = color.replace("#", "");
-	if (normalized.length !== 6) return color;
-
-	const red = Number.parseInt(normalized.slice(0, 2), 16);
-	const green = Number.parseInt(normalized.slice(2, 4), 16);
-	const blue = Number.parseInt(normalized.slice(4, 6), 16);
-
-	return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
-}
-
 function resolveCategoryIcon(categoryId?: string | null): LucideIcon {
 	if (!categoryId) return ClipboardList;
 	return getCategoryMeta(categoryId)?.icon ?? ClipboardList;
-}
-
-function resolveCategoryColor(
-	categoryId: string | null | undefined,
-	fallback: string,
-): string {
-	if (!categoryId) return fallback;
-	return getCategoryMeta(categoryId)?.color ?? fallback;
 }
 
 function formatCompletionDate(dateStr?: string | null): string {
@@ -130,10 +113,6 @@ export function PreviousOrdersSection() {
 							order.scheduled_date ??
 							null;
 						const IconComponent = resolveCategoryIcon(order.category_id);
-						const categoryColor = resolveCategoryColor(
-							order.category_id,
-							t.tint.onChip,
-						);
 						const orderMeta = [
 							order.technician_name,
 							completionDate ? formatCompletionDate(completionDate) : null,
@@ -154,7 +133,7 @@ export function PreviousOrdersSection() {
 									style={{
 										borderRadius: 16,
 										borderWidth: 1,
-										borderColor: colorWithAlpha(t.borderDefault, 0.8),
+										borderColor: t.borderDefault,
 										padding: 11,
 										flexDirection: "row",
 										alignItems: "center",
@@ -179,14 +158,15 @@ export function PreviousOrdersSection() {
 												width: 40,
 												height: 40,
 												borderRadius: 13,
-												backgroundColor: colorWithAlpha(categoryColor, 0.13),
+												backgroundColor: t.tint.chip,
 												alignItems: "center",
 												justifyContent: "center",
 											}}
 										>
-											<IconComponent
+											<Icon
+												as={IconComponent}
 												size={20}
-												color={categoryColor}
+												color={t.tint.onChip}
 												strokeWidth={2.2}
 											/>
 										</View>
@@ -216,38 +196,18 @@ export function PreviousOrdersSection() {
 											</Text>
 										) : null}
 
-										<PressableScale
-											pressedScale={0.92}
+										<Button
+											size="sm"
+											variant="secondary"
+											iconLeft={RotateCcw}
 											onPress={() =>
 												router.push(
 													ROUTES.user.bookingRoot(order.technician_id),
 												)
 											}
 										>
-											<View
-												style={{
-													backgroundColor: t.tint.surfaceSoft,
-													borderRadius: 999,
-													paddingHorizontal: 10,
-													paddingVertical: 7,
-													flexDirection: "row",
-													alignItems: "center",
-													gap: 5,
-												}}
-											>
-												<RotateCcw
-													size={13}
-													color={t.tint.onSoft}
-													strokeWidth={2.2}
-												/>
-												<Text
-													variant="buttonMd"
-													style={{ color: t.tint.onSoft }}
-												>
-													{tr("reorder")}
-												</Text>
-											</View>
-										</PressableScale>
+											{tr("reorder")}
+										</Button>
 									</View>
 								</View>
 							</Animated.View>

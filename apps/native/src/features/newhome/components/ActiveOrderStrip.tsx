@@ -11,7 +11,8 @@ import Animated, {
 	withSequence,
 	withTiming,
 } from "react-native-reanimated";
-import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { Badge } from "@/src/components/ui/badge";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_PULSE_IN,
@@ -160,10 +161,12 @@ export function ActiveOrderStrip() {
 						paddingVertical: 10,
 					}}
 				>
-					<View
+					<Badge
+						variant="secondary"
 						style={{
 							backgroundColor: pillColors.bg,
 							borderRadius: 8,
+							borderColor: "transparent",
 							paddingHorizontal: 10,
 							paddingVertical: 4,
 						}}
@@ -171,7 +174,7 @@ export function ActiveOrderStrip() {
 						<Text variant="caption" style={{ color: pillColors.text }}>
 							{statusLabel}
 						</Text>
-					</View>
+					</Badge>
 					<Text variant="caption" className="text-muted-foreground">
 						{orderRef}
 					</Text>
@@ -285,16 +288,14 @@ export function ActiveOrderStrip() {
 				<View
 					style={{ paddingHorizontal: 14, paddingBottom: 14, paddingTop: 4 }}
 				>
-					<PressableScale
-						pressedScale={0.96}
+					<Button
+						size="md"
+						variant="primary"
+						fullWidth
 						onPress={() => router.push(ROUTES.user.orderDetail(activeOrder.id))}
 					>
-						<View className="items-center rounded-[10px] bg-primary py-3">
-							<Text variant="buttonMd" className="text-primary-foreground">
-								{tr("viewOrder")}
-							</Text>
-						</View>
-					</PressableScale>
+						{tr("viewOrder")}
+					</Button>
 				</View>
 			</View>
 		</Animated.View>

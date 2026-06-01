@@ -462,7 +462,9 @@ export const themeRegistry: Record<ThemeId, ThemeTokens> = {
 		warning: hex(amber[400]),
 		warningLight: hex(amber[950]),
 		surfaceBase: hex(neutral[950]),
-		surfaceElevated: hex(neutral[850]), // elevation tier 1 (lighter == higher)
+		// elevation tier 1 — must stay LIGHTER than `card` (neutral[850]) so elevated
+		// controls (search field, secondary badges, avatar fallbacks) lift off cards.
+		surfaceElevated: hex(neutral[800]),
 		surfaceMuted: hex(neutral[800]),
 		surfaceOnPrimary: white,
 		ratingDefault: hex(amber[300]),

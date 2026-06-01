@@ -9,12 +9,7 @@ import {
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	I18nManager,
-	TextInput,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { I18nManager, useWindowDimensions, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useReducedMotion,
@@ -28,6 +23,9 @@ import {
 	AccordionContent,
 	AccordionTrigger,
 } from "@/src/components/ui/accordion";
+import { Button } from "@/src/components/ui/button";
+import { Icon } from "@/src/components/ui/icon";
+import { Input } from "@/src/components/ui/input";
 import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import { EASE_OUT_QUART } from "@/src/constants/animation";
@@ -159,7 +157,12 @@ export function HomeHeader({
 							language: nextLanguage.toUpperCase(),
 						})}
 					>
-						<Languages size={16} color={t.tint.onHero} strokeWidth={2} />
+						<Icon
+							as={Languages}
+							size={16}
+							color={t.tint.onHero}
+							strokeWidth={2}
+						/>
 						<Text variant="caption" style={{ color: t.tint.onHero }}>
 							{nextLanguage.toUpperCase()}
 						</Text>
@@ -172,37 +175,34 @@ export function HomeHeader({
 				style={{
 					marginHorizontal: 20,
 					marginTop: 8,
-					backgroundColor: t.surfaceElevated,
+					backgroundColor: t.overlayMd,
 					borderRadius: 14,
 					borderWidth: 1,
-					borderColor: t.borderDefault,
+					borderColor: t.overlayWhite,
 					height: 44,
 					flexDirection: rowDirection,
 					alignItems: "center",
 					paddingHorizontal: 12,
 					gap: 9,
-					elevation: 3,
-					shadowOffset: { width: 0, height: 5 },
-					shadowColor: t.shadow,
-					shadowOpacity: 0.1,
-					shadowRadius: 7,
 				}}
 			>
-				<Search size={18} color={t.primary} />
-				<TextInput
+				<Icon as={Search} size={18} color={t.tint.onHero} />
+				<Input
+					variant="outline"
+					className="flex-1 border-0 bg-transparent px-0"
 					placeholder={tr("searchPlaceholder")}
 					returnKeyType="search"
 					value={query}
 					onChangeText={setQuery}
 					onSubmitEditing={handleSubmit}
-					placeholderTextColor={t.textMuted}
-					selectionColor={t.primary}
+					placeholderTextColor={t.overlayBright}
+					selectionColor={t.tint.onHero}
 					underlineColorAndroid="transparent"
 					style={{
 						...typography.input,
 						flex: 1,
 						height: 44,
-						color: t.textPrimary,
+						color: t.tint.onHero,
 						fontFamily: isRTL
 							? arabicFontFamily.regular
 							: typography.input.fontFamily,
@@ -236,7 +236,7 @@ export function HomeHeader({
 							flexShrink: 0,
 						}}
 					>
-						<MapPin size={16} color={t.tint.onHero} strokeWidth={2} />
+						<Icon as={MapPin} size={16} color={t.tint.onHero} strokeWidth={2} />
 						<Text variant="caption" style={{ color: t.tint.onHero }}>
 							{tr("serviceTo")}
 						</Text>
@@ -268,7 +268,12 @@ export function HomeHeader({
 							{currentAddress}
 						</Text>
 						<Animated.View style={chevronAnimatedStyle}>
-							<ChevronDown size={16} color={t.tint.onHero} strokeWidth={2} />
+							<Icon
+								as={ChevronDown}
+								size={16}
+								color={t.tint.onHero}
+								strokeWidth={2}
+							/>
 						</Animated.View>
 					</View>
 				</AccordionTrigger>
@@ -307,41 +312,41 @@ export function HomeHeader({
 						</View>
 
 						<View style={{ flexDirection: rowDirection, gap: 8 }}>
-							<PressableScale
-								pressedScale={0.96}
+							<Button
+								variant="secondary"
+								size="md"
 								onPress={handleChangeAddress}
 								style={{
 									flex: 1,
-									borderRadius: 10,
 									backgroundColor: t.tint.onHero,
-									paddingVertical: 10,
-									alignItems: "center",
+									borderColor: "transparent",
 								}}
 							>
 								<Text variant="buttonMd" style={{ color: t.primary }}>
 									{tr("address.change")}
 								</Text>
-							</PressableScale>
+							</Button>
 
-							<PressableScale
-								pressedScale={0.96}
+							<Button
+								variant="ghost"
+								size="md"
 								onPress={handleAddAddress}
 								style={{
 									flex: 1,
-									borderRadius: 10,
 									backgroundColor: t.overlayMd,
-									paddingVertical: 10,
-									alignItems: "center",
-									justifyContent: "center",
 									flexDirection: rowDirection,
-									gap: 6,
 								}}
 							>
-								<Plus size={15} color={t.tint.onHero} strokeWidth={2.2} />
+								<Icon
+									as={Plus}
+									size={15}
+									color={t.tint.onHero}
+									strokeWidth={2.2}
+								/>
 								<Text variant="buttonMd" style={{ color: t.tint.onHero }}>
 									{tr("address.add")}
 								</Text>
-							</PressableScale>
+							</Button>
 						</View>
 					</View>
 				</AccordionContent>
