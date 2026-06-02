@@ -40,7 +40,7 @@ export default function TechnicianReviewsScreen() {
 			edges={["top"]}
 			style={{ backgroundColor: Colors.primary }}
 		>
-			<View className="flex-1 bg-surface-elevated">
+			<View className="flex-1 bg-surface">
 				{/* Header */}
 				<View
 					style={{ backgroundColor: Colors.primary }}

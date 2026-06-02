@@ -71,7 +71,9 @@
       "expo-audio",
       "expo-web-browser",
       "expo-asset",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-localization",
+      "@sentry/react-native"
     ],
     "experiments": {
       "typedRoutes": true,

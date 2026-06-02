@@ -1,18 +1,28 @@
 import {
+	Cairo_400Regular,
+	Cairo_500Medium,
+	Cairo_600SemiBold,
+	Cairo_700Bold,
+} from "@expo-google-fonts/cairo";
+import {
 	GoogleSans_400Regular,
 	GoogleSans_500Medium,
 	GoogleSans_600SemiBold,
 	GoogleSans_700Bold,
 } from "@expo-google-fonts/google-sans";
 import type { TextStyle } from "react-native";
-import { fontFamily } from "./fonts";
+import { arabicFontFamily, fontFamily } from "./fonts";
 
 export const fontAssets = {
 	[fontFamily.regular]: GoogleSans_400Regular,
 	[fontFamily.medium]: GoogleSans_500Medium,
 	[fontFamily.semibold]: GoogleSans_600SemiBold,
 	[fontFamily.bold]: GoogleSans_700Bold,
-} as const;
+	[arabicFontFamily.regular]: Cairo_400Regular,
+	[arabicFontFamily.medium]: Cairo_500Medium,
+	[arabicFontFamily.semibold]: Cairo_600SemiBold,
+	[arabicFontFamily.bold]: Cairo_700Bold,
+};
 
 export const fontSize = {
 	xs: 12,

@@ -74,7 +74,7 @@ export default function BookingDateStep({
 			</View>
 
 			<View
-				className="overflow-hidden rounded-card bg-surface"
+				className="overflow-hidden rounded-card bg-card"
 				style={shadowStyle(elevation.raised, {
 					shadowColor: themeColors.shadow,
 				})}

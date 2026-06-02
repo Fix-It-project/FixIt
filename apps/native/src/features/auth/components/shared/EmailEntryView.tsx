@@ -72,7 +72,7 @@ export default function EmailEntryView({
 			>
 				<Button onPress={onSubmit} disabled={!isButtonActive}>
 					{mutation.isPending ? (
-						<ActivityIndicator color={Colors.surfaceBase} />
+						<ActivityIndicator color={Colors.surfaceOnPrimary} />
 					) : (
 						<BtnText variant="buttonLg">Reset Password</BtnText>
 					)}

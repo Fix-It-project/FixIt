@@ -256,7 +256,7 @@ export default function TechniciansListScreen() {
 			edges={["top"]}
 			style={{ backgroundColor: Colors.primary }}
 		>
-			<View className="flex-1 bg-surface-elevated">
+			<View className="flex-1 bg-surface">
 				<View style={{ backgroundColor: Colors.primary }} className="pb-card">
 					<View className="flex-row items-center px-card pt-stack-sm pb-stack-sm">
 						<BackButton
@@ -282,10 +282,10 @@ export default function TechniciansListScreen() {
 					</View>
 
 					<View className="mx-card mt-stack-xs">
-						<View className="h-control-search flex-row items-center gap-control-search rounded-input bg-surface px-control-search">
+						<View className="h-control-search flex-row items-center gap-control-search rounded-input bg-card px-control-search">
 							<Search
 								size={spacing.icon.sm}
-								color={themeColors.surfaceMuted}
+								color={themeColors.textMuted}
 								strokeWidth={2}
 							/>
 							<Input

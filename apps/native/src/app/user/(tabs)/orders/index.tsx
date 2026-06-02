@@ -31,7 +31,7 @@ export default function MyOrdersScreen() {
 	const isRefreshing = isRefetching && !isLoading;
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View
 				className="min-h-header px-screen-x pt-card pb-card"
 				style={{ backgroundColor: themeColors.surfaceBase }}

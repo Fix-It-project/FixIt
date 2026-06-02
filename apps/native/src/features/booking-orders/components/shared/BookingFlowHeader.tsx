@@ -37,7 +37,7 @@ export default function BookingFlowHeader({
 			edges={["top"]}
 			style={{ backgroundColor: categoryColor }}
 		>
-			<View className="flex-1 bg-surface-elevated">
+			<View className="flex-1 bg-surface">
 				<View
 					style={{ backgroundColor: categoryColor }}
 					className="pb-card-roomy"

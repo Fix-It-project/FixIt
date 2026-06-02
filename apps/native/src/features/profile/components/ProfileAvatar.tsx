@@ -32,7 +32,7 @@ function AvatarContent({ initials }: { readonly initials: string | null }) {
 		);
 	}
 
-	return <User size={44} color={themeColors.surfaceBase} strokeWidth={1.5} />;
+	return <User size={44} color={themeColors.surfaceOnPrimary} strokeWidth={1.5} />;
 }
 
 export default function ProfileAvatar({
@@ -67,7 +67,7 @@ export default function ProfileAvatar({
 					size="icon"
 					onPress={onChangePhoto}
 					accessibilityLabel="Change profile photo"
-					className="absolute right-0 bottom-0 h-control-icon-box-sm w-control-icon-box-sm rounded-pill bg-surface"
+					className="absolute right-0 bottom-0 h-control-icon-box-sm w-control-icon-box-sm rounded-pill bg-card"
 					style={shadowStyle(elevation.raised, {
 						shadowColor: Colors.shadow,
 					})}

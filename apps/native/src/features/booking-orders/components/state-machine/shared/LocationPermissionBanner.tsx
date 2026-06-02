@@ -36,7 +36,7 @@ export default function LocationPermissionBanner({
 				className="rounded-card px-card py-stack-sm"
 				style={{ backgroundColor: themeColors.primary }}
 			>
-				<Text variant="buttonMd" style={{ color: themeColors.surfaceBase }}>
+				<Text variant="buttonMd" style={{ color: themeColors.surfaceOnPrimary }}>
 					{ctaLabel}
 				</Text>
 			</Pressable>

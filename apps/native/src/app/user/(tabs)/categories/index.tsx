@@ -30,7 +30,7 @@ export default function CategoriesScreen() {
 	);
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View className="px-screen-x pt-card pb-stack-md">
 				<Text variant="h2" className="text-content">
 					Categories

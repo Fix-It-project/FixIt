@@ -1,5 +1,6 @@
 import { ActivityIndicator, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import ProfileAvatar from "./ProfileAvatar";
 
 interface ProfileHeaderProps {
@@ -15,6 +16,7 @@ export default function ProfileHeader({
 	imageUrl,
 	onChangePhoto,
 }: ProfileHeaderProps) {
+	const themeColors = useThemeColors();
 	return (
 		<View className="items-center bg-app-primary pt-stack-xl pb-stack-3xl">
 			<ProfileAvatar
@@ -26,7 +28,11 @@ export default function ProfileHeader({
 				variant="h3"
 				className="mt-stack-md font-bold text-surface-on-primary text-xl"
 			>
-				{isLoading ? <ActivityIndicator color="white" /> : (name ?? "User")}
+				{isLoading ? (
+					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
+				) : (
+					(name ?? "User")
+				)}
 			</Text>
 		</View>
 	);

@@ -26,7 +26,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 	const nameFontSize = width < 360 ? 16 : 18;
 
 	return (
-		<View className="mb-stack-lg rounded-card border border-edge bg-surface p-card-roomy">
+		<View className="mb-stack-lg rounded-card border border-edge bg-card p-card-roomy">
 			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
 				{order.technician_image ? (
 					<Image
@@ -53,7 +53,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 							className="font-bold"
 							style={{
 								fontSize: avatarSize * 0.32,
-								color: themeColors.surfaceBase,
+								color: themeColors.surfaceOnPrimary,
 							}}
 						>
 							{initials}

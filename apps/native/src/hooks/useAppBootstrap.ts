@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLanguageStore } from "@/src/stores/language-store";
 import { useThemeStore } from "@/src/stores/theme-store";
 
 interface AppBootstrapState {
@@ -16,6 +17,10 @@ export function useAppBootstrap(fontsLoaded: boolean): AppBootstrapState {
 	const loadThemePreference = useThemeStore(
 		(state) => state.loadThemePreference,
 	);
+	const isLanguageLoaded = useLanguageStore((state) => state.isLoaded);
+	const loadLanguagePreference = useLanguageStore(
+		(state) => state.loadLanguagePreference,
+	);
 
 	useEffect(() => {
 		if (hasStartedRef.current) {
@@ -27,9 +32,15 @@ export function useAppBootstrap(fontsLoaded: boolean): AppBootstrapState {
 
 		void loadStoredSession();
 		void loadThemePreference();
-	}, [loadStoredSession, loadThemePreference]);
+		void loadLanguagePreference();
+	}, [loadStoredSession, loadThemePreference, loadLanguagePreference]);
 
-	const isReady = hasMounted && fontsLoaded && !isAuthLoading && isThemeLoaded;
+	const isReady =
+		hasMounted &&
+		fontsLoaded &&
+		!isAuthLoading &&
+		isThemeLoaded &&
+		isLanguageLoaded;
 
 	return { isReady };
 }

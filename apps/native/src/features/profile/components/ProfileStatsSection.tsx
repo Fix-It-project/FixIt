@@ -21,14 +21,14 @@ function StatsCard({ icon: Icon, iconBg, count, label }: StatsCardProps) {
 
 	return (
 		<View
-			className="flex-1 items-center rounded-card bg-surface py-card-roomy"
+			className="flex-1 items-center rounded-card bg-card py-card-roomy"
 			style={shadowStyle(elevation.raised, { shadowColor: themeColors.shadow })}
 		>
 			<View
 				className="mb-stack-md h-avatar-md w-avatar-md items-center justify-center rounded-card"
 				style={{ backgroundColor: iconBg }}
 			>
-				<Icon size={24} color={themeColors.surfaceBase} strokeWidth={2} />
+				<Icon size={24} color={themeColors.surfaceOnPrimary} strokeWidth={2} />
 			</View>
 			<Text variant="h2" className="font-bold text-2xl text-content">
 				{count}

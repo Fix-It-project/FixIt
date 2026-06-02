@@ -84,7 +84,7 @@ export default function ChatComposer({
   const overlayMd = themeColors.overlayMd;
   const overlaySm = themeColors.overlaySm;
   const micIdleBg = themeColors.surfaceElevated;
-  const micRecordedBg = themeColors.surfaceMuted;
+  const micRecordedBg = themeColors.textMuted;
   const micIcon = themeColors.primary;
   const primary = themeColors.primary;
 

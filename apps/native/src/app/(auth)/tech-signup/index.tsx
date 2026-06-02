@@ -78,7 +78,7 @@ export default function TechnicianSignUpStep1() {
 				className="mt-stack-sm"
 			>
 				{isChecking ? (
-					<ActivityIndicator color={themeColors.surfaceBase} />
+					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
 					<BtnText variant="buttonLg">Next</BtnText>
 				)}

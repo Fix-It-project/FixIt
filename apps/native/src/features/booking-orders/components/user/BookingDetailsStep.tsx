@@ -134,7 +134,7 @@ export default function BookingDetailsStep({
 							>
 								<X
 									size={spacing.icon.xs}
-									color={themeColors.surfaceBase}
+									color={themeColors.surfaceOnPrimary}
 									strokeWidth={2.5}
 								/>
 							</TouchableOpacity>
@@ -152,7 +152,7 @@ export default function BookingDetailsStep({
 						<View className="flex-row gap-stack-md">
 							<TouchableOpacity
 								onPress={pickImage}
-								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-surface py-card"
+								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-card py-card"
 								activeOpacity={0.7}
 							>
 								<Paperclip size={spacing.icon.sm} color={Colors.primary} strokeWidth={2} />
@@ -163,7 +163,7 @@ export default function BookingDetailsStep({
 
 							<TouchableOpacity
 								onPress={takePhoto}
-								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-surface py-card"
+								className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-card py-card"
 								activeOpacity={0.7}
 							>
 								<Camera size={spacing.icon.sm} color={Colors.primary} strokeWidth={2} />

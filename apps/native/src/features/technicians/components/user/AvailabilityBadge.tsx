@@ -1,7 +1,7 @@
 import { CircleCheck, Clock } from "lucide-react-native";
 import { Badge } from "@/src/components/ui/badge";
 import { Text } from "@/src/components/ui/text";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface AvailabilityBadgeProps {
 	readonly isAvailable: boolean;
@@ -15,14 +15,18 @@ export default function AvailabilityBadge({
 		return (
 			<Badge
 				className="flex-row items-center gap-control-badge self-start rounded-chip px-control-badge-x py-control-badge-y"
-				style={{ backgroundColor: Colors.statusAvailable }}
+				style={{ backgroundColor: themeColors.statusAvailable }}
 			>
 				<CircleCheck
 					size={spacing.icon.xs}
-					color={Colors.success}
+					color={themeColors.success}
 					strokeWidth={2.25}
 				/>
-				<Text variant="caption" className="font-semibold text-success">
+				<Text
+					variant="caption"
+					className="font-semibold"
+					style={{ color: themeColors.success }}
+				>
 					Available Now
 				</Text>
 			</Badge>
@@ -32,14 +36,18 @@ export default function AvailabilityBadge({
 	return (
 		<Badge
 			className="flex-row items-center gap-control-badge self-start rounded-chip px-control-badge-x py-control-badge-y"
-			style={{ backgroundColor: themeColors.surfaceElevated }}
+			style={{ backgroundColor: themeColors.statusUnavailableBg }}
 		>
 			<Clock
 				size={spacing.icon.xs}
-				color={themeColors.surfaceMuted}
+				color={themeColors.statusUnavailable}
 				strokeWidth={2.25}
 			/>
-			<Text variant="caption" className="font-semibold text-surface-muted">
+			<Text
+				variant="caption"
+				className="font-semibold"
+				style={{ color: themeColors.statusUnavailable }}
+			>
 				Unavailable
 			</Text>
 		</Badge>

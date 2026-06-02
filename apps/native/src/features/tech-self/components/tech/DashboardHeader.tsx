@@ -1,12 +1,10 @@
 import { Image } from "expo-image";
+import { LinearGradient as HeroGradient } from "expo-linear-gradient";
 import { Bell, ClipboardList, Star } from "lucide-react-native";
 import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Svg, { Defs, LinearGradient, Polygon, Stop } from "react-native-svg";
 import { Text } from "@/src/components/ui/text";
-import { getHeaderPolygonPalette } from "@/src/features/tech-self/components/tech/HeaderPolygons";
-import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
-import { getPfpInitialsFallback } from "@/src/lib/initials";
 import {
 	elevation,
 	shadowStyle,
@@ -14,6 +12,9 @@ import {
 	useThemeColors,
 	useThemeMeta,
 } from "@/src/constants/design-tokens";
+import { getHeaderPolygonPalette } from "@/src/features/tech-self/components/tech/HeaderPolygons";
+import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 
 const HEADER_HEIGHT = spacing.header.dashboardHeight;
 
@@ -108,9 +109,15 @@ export default function DashboardHeader() {
 	const reviewCount = profile?.review_count ?? 0;
 
 	return (
-		<View
+		<HeroGradient
+			colors={[
+				themeColors.tint.heroStart,
+				themeColors.tint.heroMid,
+				themeColors.tint.heroEnd,
+			]}
+			start={{ x: 0, y: 0 }}
+			end={{ x: 0, y: 1 }}
 			style={{
-				backgroundColor: themeColors.primaryDark,
 				paddingHorizontal: spacing.header.shellPaddingX,
 				paddingBottom: spacing.header.shellPaddingBottom,
 				paddingTop: spacing.header.shellPaddingTop,
@@ -138,13 +145,13 @@ export default function DashboardHeader() {
 				entering={FadeInDown.duration(400)}
 				className="mb-stack-lg flex-row items-center justify-between"
 			>
-				<Text variant="h2" style={{ color: themeColors.onPrimaryHeader }}>
+				<Text variant="h2" style={{ color: themeColors.tint.onHero }}>
 					Fix
 					<Text variant="h2" style={{ color: themeColors.accentSky }}>
 						IT
 					</Text>
 					{"  "}
-					<Text variant="h2" style={{ color: themeColors.onPrimaryHeader }}>
+					<Text variant="h2" style={{ color: themeColors.tint.onHero }}>
 						Technicians
 					</Text>
 				</Text>
@@ -177,11 +184,7 @@ export default function DashboardHeader() {
 						style={{ backgroundColor: themeColors.overlayMd }}
 						activeOpacity={0.7}
 					>
-						<Bell
-							size={20}
-							color={themeColors.onPrimaryHeader}
-							strokeWidth={1.8}
-						/>
+						<Bell size={20} color={themeColors.tint.onHero} strokeWidth={1.8} />
 					</TouchableOpacity>
 				</View>
 			</Animated.View>
@@ -209,7 +212,7 @@ export default function DashboardHeader() {
 								<Text
 									variant="buttonLg"
 									className="font-bold"
-									style={{ color: themeColors.onPrimaryHeader }}
+									style={{ color: themeColors.tint.onHero }}
 								>
 									{initials}
 								</Text>
@@ -231,7 +234,7 @@ export default function DashboardHeader() {
 							variant="buttonLg"
 							className="font-bold"
 							style={{
-								color: themeColors.onPrimaryHeader,
+								color: themeColors.tint.onHero,
 							}}
 							numberOfLines={1}
 						>
@@ -254,7 +257,7 @@ export default function DashboardHeader() {
 						<Text
 							variant="bodySm"
 							className="font-bold"
-							style={{ color: themeColors.surfaceBase }}
+							style={{ color: themeColors.tint.onHero }}
 						>
 							{profile?.total_orders ?? 0}
 						</Text>
@@ -271,13 +274,13 @@ export default function DashboardHeader() {
 						<Text
 							variant="bodySm"
 							className="font-bold"
-							style={{ color: themeColors.surfaceBase }}
+							style={{ color: themeColors.tint.onHero }}
 						>
 							{reviewCount > 0 ? `${ratingText} (${reviewCount})` : ratingText}
 						</Text>
 					</View>
 				</View>
 			</Animated.View>
-		</View>
+		</HeroGradient>
 	);
 }

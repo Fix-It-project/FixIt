@@ -6,7 +6,7 @@ import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 export default function ChatbotScreen() {
 	const themeColors = useThemeColors();
 	return (
-		<View className="flex-1 items-center justify-center bg-surface-elevated">
+		<View className="flex-1 items-center justify-center bg-surface">
 			<View
 				className="mb-stack-lg h-avatar-xl w-avatar-xl items-center justify-center rounded-pill"
 				style={{ backgroundColor: themeColors.primaryLight }}

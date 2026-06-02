@@ -50,11 +50,11 @@ export default function HelpSupportContent({
 }: HelpSupportContentProps) {
 	return (
 		<ScrollView
-			className="flex-1 bg-surface-elevated"
+			className="flex-1 bg-surface"
 			contentContainerClassName="gap-stack-lg px-screen-x py-stack-xl"
 		>
 			<View
-				className="rounded-card bg-surface px-card-roomy py-stack-xl"
+				className="rounded-card bg-card px-card-roomy py-stack-xl"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<View className="mb-stack-lg h-avatar-lg w-avatar-lg items-center justify-center rounded-pill bg-app-primary-light">
@@ -67,7 +67,7 @@ export default function HelpSupportContent({
 			</View>
 
 			<View
-				className="rounded-card bg-surface px-card-roomy py-stack-sm"
+				className="rounded-card bg-card px-card-roomy py-stack-sm"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<ContactItem

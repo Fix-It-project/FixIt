@@ -24,7 +24,7 @@ export default function BookingsTabContent() {
 	useFocusBackHandler(() => calendarRef.current?.closeIfOpen() ?? false);
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View
 				style={{
 					backgroundColor: Colors.primaryDark,

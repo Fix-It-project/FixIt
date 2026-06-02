@@ -9,7 +9,7 @@ import { Colors } from "@/src/constants/design-tokens";
 
 export const toastConfig: ToastConfig = {
 	success: ({ text1, text2 }) => (
-		<View className="mt-stack-sm w-toast flex-row items-center rounded-card border border-edge/50 bg-surface p-card shadow-sm">
+		<View className="mt-stack-sm w-toast flex-row items-center rounded-card border border-edge/50 bg-card p-card shadow-sm">
 			<View className="mr-stack-md self-center">
 				<CheckCircle2 color={Colors.success} size={20} />
 			</View>

@@ -197,11 +197,11 @@ export default function RequestReviewModal({
 						onPress={handleAccept}
 					>
 						{acceptMutation.isPending ? (
-							<ActivityIndicator size="small" color={themeColors.surfaceBase} />
+							<ActivityIndicator size="small" color={themeColors.surfaceOnPrimary} />
 						) : (
 							<Text
 								variant="buttonMd"
-								style={{ color: themeColors.surfaceBase }}
+								style={{ color: themeColors.surfaceOnPrimary }}
 							>
 								Accept
 							</Text>

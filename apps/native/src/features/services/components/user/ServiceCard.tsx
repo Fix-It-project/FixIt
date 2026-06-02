@@ -23,7 +23,7 @@ export default function ServiceCard({
 	const themeColors = useThemeColors();
 	return (
 		<TouchableOpacity
-			className="mb-stack-md overflow-hidden rounded-card bg-surface"
+			className="mb-stack-md overflow-hidden rounded-card bg-card"
 			style={shadowStyle(elevation.raised, { shadowColor: themeColors.shadow })}
 			onPress={() => onPress(service.id, service.name)}
 			activeOpacity={0.7}
@@ -65,7 +65,7 @@ export default function ServiceCard({
 				{/* Arrow */}
 				<ChevronRight
 					size={spacing.icon.sm}
-					color={themeColors.surfaceMuted}
+					color={themeColors.textMuted}
 					strokeWidth={1.75}
 				/>
 			</View>

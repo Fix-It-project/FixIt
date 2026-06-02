@@ -61,7 +61,7 @@ export default function OrderIdentityRow({
 					<Text
 						variant="bodySm"
 						className="font-google-sans-bold"
-						style={{ color: themeColors.surfaceBase }}
+						style={{ color: themeColors.surfaceOnPrimary }}
 					>
 						{initials}
 					</Text>

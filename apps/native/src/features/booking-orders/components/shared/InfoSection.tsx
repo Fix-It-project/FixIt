@@ -64,7 +64,7 @@ export default function InfoSection({ rows }: Props) {
 	const themeColors = useThemeColors();
 
 	return (
-		<View className="mb-stack-lg gap-stack-lg rounded-card border border-edge bg-surface p-card">
+		<View className="mb-stack-lg gap-stack-lg rounded-card border border-edge bg-card p-card">
 			{rows.map((row) => (
 				<InfoRow
 					key={`${row.label}:${row.value}`}

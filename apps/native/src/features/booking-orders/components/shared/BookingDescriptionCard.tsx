@@ -6,7 +6,7 @@ interface Props {
 
 export default function BookingDescriptionCard({ description }: Props) {
 	return (
-		<View className="mb-stack-lg rounded-card border border-edge bg-surface p-card">
+		<View className="mb-stack-lg rounded-card border border-edge bg-card p-card">
 			<Text
 				variant="buttonMd"
 				className="mb-stack-sm text-content"

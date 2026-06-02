@@ -77,7 +77,7 @@ export default function CategoryGrid({
 					<Text
 						variant="bodySm"
 						className="font-medium"
-						style={{ color: themeColors.surfaceMuted }}
+						style={{ color: themeColors.textMuted }}
 					>
 						Show all
 					</Text>
