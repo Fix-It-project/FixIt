@@ -1,4 +1,4 @@
-import { CircleHelp, Shield } from "lucide-react-native";
+import { Bell, CircleHelp, Shield } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
@@ -7,11 +7,13 @@ import { SettingsItem } from "./SettingsItem";
 import { ThemeSegmentedControl } from "./ThemeSegmentedControl";
 
 interface SettingsContentProps {
+	readonly onNotificationsPress: () => void;
 	readonly onPrivacyPress: () => void;
 	readonly onHelpPress: () => void;
 }
 
 export default function SettingsContent({
+	onNotificationsPress,
 	onPrivacyPress,
 	onHelpPress,
 }: SettingsContentProps) {
@@ -34,6 +36,12 @@ export default function SettingsContent({
 				className="rounded-card bg-surface px-card-roomy"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
+				<SettingsItem
+					icon={Bell}
+					label="Notifications"
+					onPress={onNotificationsPress}
+				/>
+				<Separator />
 				<SettingsItem
 					icon={Shield}
 					label="Privacy & Security"

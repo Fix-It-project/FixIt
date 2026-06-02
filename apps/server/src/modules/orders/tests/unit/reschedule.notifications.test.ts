@@ -62,6 +62,8 @@ describe("RescheduleService notifications", () => {
       id: "order-1",
       user_id: "user-1",
       technician_id: "tech-1",
+      user_name: "Sarah Ali",
+      technician_name: "Omar Hassan",
       scheduled_date: "2099-06-01",
       status: "accepted",
     });
@@ -81,7 +83,8 @@ describe("RescheduleService notifications", () => {
       recipientId: "tech-1",
       type: "reschedule_requested",
       title: "Reschedule requested",
-      body: "A new reschedule request needs your response.",
+      body: "Sarah Ali requested a reschedule.",
+      senderName: "Sarah Ali",
       orderId: "order-1",
       viewerRole: "technician",
     });
@@ -92,6 +95,8 @@ describe("RescheduleService notifications", () => {
       id: "order-2",
       user_id: "user-2",
       technician_id: "tech-2",
+      user_name: "Sarah Ali",
+      technician_name: "Omar Hassan",
       scheduled_date: "2099-06-01",
       status: "reschedule_requested_by_user",
     };
@@ -117,7 +122,9 @@ describe("RescheduleService notifications", () => {
       recipientId: "user-2",
       type: "reschedule_approved",
       title: "Reschedule approved",
-      body: "Your reschedule request was approved.",
+      body: "Omar Hassan approved your reschedule request.",
+      senderName: "Omar Hassan",
+      senderImageUrl: undefined,
       orderId: "order-2",
       viewerRole: "user",
     });

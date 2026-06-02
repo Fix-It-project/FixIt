@@ -44,6 +44,12 @@ vi.mock("../../../notifications/notifications.service.js", () => ({
 	},
 }));
 
+vi.mock("../../orders.repository.js", () => ({
+	ordersRepository: {
+		getOrderById: vi.fn(),
+	},
+}));
+
 // Programmable per-table behavior. Tests reassign these handlers in beforeEach.
 type HandlerResult = { data: unknown; error: unknown };
 type TableHandler = () => HandlerResult;
@@ -84,6 +90,7 @@ const { LifecycleService } = await import("../lifecycle.service.js");
 const notificationsModule = await import(
 	"../../../notifications/notifications.service.js"
 );
+const ordersModule = await import("../../orders.repository.js");
 
 const repo = repoModule.lifecycleRepository as unknown as {
 	submitOrder: ReturnType<typeof vi.fn>;
@@ -99,6 +106,10 @@ const repo = repoModule.lifecycleRepository as unknown as {
 
 const notifications = notificationsModule.notificationsService as unknown as {
 	sendPushToRecipient: ReturnType<typeof vi.fn>;
+};
+
+const ordersRepository = ordersModule.ordersRepository as unknown as {
+	getOrderById: ReturnType<typeof vi.fn>;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -128,6 +139,7 @@ beforeEach(() => {
 		m.mockReset();
 	}
 	notifications.sendPushToRecipient.mockReset();
+	ordersRepository.getOrderById.mockReset();
 	// Restore env baseline (smoke ON by default — anything except 'false')
 	delete process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
 	// Reset table handlers
@@ -157,6 +169,11 @@ describe("LifecycleService.submitOrder", () => {
 			return { data: { id: "should-not-be-used" }, error: null };
 		});
 		repo.submitOrder.mockResolvedValue({ id: "order-1", technician_id: "tech-1" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-1",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		await service.submitOrder("user-1", {
 			technician_id: "tech-1",
@@ -181,7 +198,8 @@ describe("LifecycleService.submitOrder", () => {
 			recipientId: "tech-1",
 			type: "order_submitted",
 			title: "New service request",
-			body: "A new booking is waiting for your review.",
+			body: "Sarah Ali sent a new booking request.",
+			senderName: "Sarah Ali",
 			orderId: "order-1",
 			viewerRole: "technician",
 		});
@@ -192,6 +210,11 @@ describe("LifecycleService.submitOrder", () => {
 		const resolvedId = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb";
 		setAddressesHandler(() => ({ data: { id: resolvedId }, error: null }));
 		repo.submitOrder.mockResolvedValue({ id: "order-2" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-2",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		await service.submitOrder("user-2", {
 			technician_id: "tech-2",
@@ -353,17 +376,15 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 	it("flips arrived=true when pre-read arrived_at is null and post-read is non-null", async () => {
 		const service = new LifecycleService();
 		setOrdersHandlerSequence(
-			{ data: { arrived_at: null }, error: null }, // pre-read
-			{
-				data: {
-					id: "order-loc",
-					user_id: "user-loc",
-					arrived_at: "2026-05-15T12:00:00Z",
-				},
-				error: null,
-			}, // post-read
+			{ data: { arrived_at: null }, error: null },
 		);
 		repo.upsertLocation.mockResolvedValue({ id: "loc-1" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-loc",
+			user_id: "user-loc",
+			arrived_at: "2026-05-15T12:00:00Z",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.upsertLocation(
 			"order-loc",
@@ -382,7 +403,9 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 			recipientId: "user-loc",
 			type: "technician_arrived",
 			title: "Technician arrived",
-			body: "Your technician has arrived at the destination.",
+			body: "Omar Hassan has arrived at the destination.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
 			orderId: "order-loc",
 			viewerRole: "user",
 		});
@@ -391,11 +414,14 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 	it("keeps arrived=false when both reads already carry a non-null arrived_at", async () => {
 		const service = new LifecycleService();
 		const existing = "2026-05-15T11:00:00Z";
-		setOrdersHandlerSequence(
-			{ data: { arrived_at: existing }, error: null },
-			{ data: { id: "order-loc-2", arrived_at: existing }, error: null },
-		);
+		setOrdersHandlerSequence({ data: { arrived_at: existing }, error: null });
 		repo.upsertLocation.mockResolvedValue({ id: "loc-2" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-loc-2",
+			arrived_at: existing,
+			user_id: "user-loc-2",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.upsertLocation(
 			"order-loc-2",
@@ -416,6 +442,11 @@ describe("LifecycleService order action notifications", () => {
 			id: "order-accept",
 			user_id: "user-1",
 		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-accept",
+			user_id: "user-1",
+			technician_name: "Omar Hassan",
+		});
 
 		await service.techAccept("order-accept", "tech-1");
 
@@ -424,7 +455,9 @@ describe("LifecycleService order action notifications", () => {
 			recipientId: "user-1",
 			type: "order_accepted",
 			title: "Booking accepted",
-			body: "Your technician accepted the booking request.",
+			body: "Omar Hassan accepted your booking request.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
 			orderId: "order-accept",
 			viewerRole: "user",
 		});

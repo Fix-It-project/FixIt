@@ -71,6 +71,32 @@ export interface Order {
 	has_pending_reschedule?: boolean;
 }
 
+function mapOrderWithJoins(row: any): Order {
+	const tech = Array.isArray(row.technicians) ? row.technicians[0] : row.technicians;
+	const usr = Array.isArray(row.users) ? row.users[0] : row.users;
+	const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+	const addr = Array.isArray(usr?.addresses)
+		? usr.addresses[0]
+		: (usr?.addresses ?? null);
+	const parts = [addr?.building_no, addr?.street, addr?.city].filter(Boolean);
+
+	return {
+		...row,
+		technicians: undefined,
+		users: undefined,
+		services: undefined,
+		user_address: parts.length > 0 ? parts.join(", ") : row.user_address ?? null,
+		service_name: svc?.name ?? row.service_name ?? null,
+		category_id: svc?.category_id ?? row.category_id ?? null,
+		user_name: usr?.full_name ?? row.user_name ?? null,
+		user_phone: row.user_phone ?? (usr?.phone ?? null),
+		technician_name:
+			tech ? `${tech.first_name} ${tech.last_name}` : (row.technician_name ?? null),
+		technician_image: tech?.profile_image ?? row.technician_image ?? null,
+		technician_phone: row.technician_phone ?? (tech?.phone ?? null),
+	} as Order;
+}
+
 export interface CreateOrderData {
 	technician_id: string;
 	user_id: string;
@@ -128,21 +154,12 @@ export class OrdersRepository {
 		if (error) throw error;
 
 		const mapped = (data ?? []).map((row: any) => {
-			const tech = Array.isArray(row.technicians)
-				? row.technicians[0]
-				: row.technicians;
-			const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+			const mappedRow = mapOrderWithJoins(row);
 			return {
-				...row,
-				technicians: undefined,
-				services: undefined,
-				technician_name: tech ? `${tech.first_name} ${tech.last_name}` : null,
-				technician_image: tech?.profile_image ?? null,
+				...mappedRow,
 				technician_phone: isPhoneVisible(row.status as OrderStatus)
-					? (tech?.phone ?? null)
+					? mappedRow.technician_phone
 					: null,
-				service_name: svc?.name ?? null,
-				category_id: svc?.category_id ?? null,
 			};
 		}) as Order[];
 
@@ -180,24 +197,11 @@ export class OrdersRepository {
 		if (error) throw error;
 
 		return (data ?? []).map((row: any) => {
-			const usr = Array.isArray(row.users) ? row.users[0] : row.users;
-			const addr = Array.isArray(usr?.addresses)
-				? usr.addresses[0]
-				: (usr?.addresses ?? null);
-			const parts = [addr?.building_no, addr?.street, addr?.city].filter(
-				Boolean,
-			);
-			const svc = Array.isArray(row.services) ? row.services[0] : row.services;
+			const mappedRow = mapOrderWithJoins(row);
 			return {
-				...row,
-				users: undefined,
-				services: undefined,
-				user_address: parts.length > 0 ? parts.join(", ") : null,
-				service_name: svc?.name ?? null,
-				category_id: svc?.category_id ?? null,
-				user_name: usr?.full_name ?? null,
+				...mappedRow,
 				user_phone: isPhoneVisible(row.status as OrderStatus)
-					? (usr?.phone ?? null)
+					? mappedRow.user_phone
 					: null,
 			};
 		}) as Order[];
@@ -206,7 +210,9 @@ export class OrdersRepository {
 	async getOrderById(id: string): Promise<Order | null> {
 		const { data, error } = await supabase
 			.from("orders")
-			.select("*")
+			.select(
+				"*, users(full_name, phone, addresses(city, street, building_no)), technicians(first_name, last_name, profile_image, phone), services(name, category_id)",
+			)
 			.eq("id", id)
 			.single();
 
@@ -214,7 +220,14 @@ export class OrdersRepository {
 			if (error.code === "PGRST116") return null;
 			throw error;
 		}
-		return data as Order;
+		const row = mapOrderWithJoins(data);
+		return {
+			...row,
+			user_phone: isPhoneVisible(row.status) ? row.user_phone : null,
+			technician_phone: isPhoneVisible(row.status)
+				? row.technician_phone
+				: null,
+		};
 	}
 
 	async getActiveOrdersCountForDate(
@@ -231,6 +244,8 @@ export class OrdersRepository {
 		if (error) throw error;
 		return count ?? 0;
 	}
+
+
 
 	async checkTechnicianAvailability(
 		technicianId: string,

@@ -15,10 +15,70 @@ export interface PushDevice {
   updated_at: string;
 }
 
+export interface NotificationPreferences {
+  id?: string;
+  recipient_role: RecipientRole;
+  recipient_id: string;
+  notifications_enabled: boolean;
+  sound_enabled: boolean;
+  vibration_enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface NotificationLog {
+  id: string;
+  recipient_role: RecipientRole;
+  recipient_id: string;
+  type: string;
+  title: string;
+  body: string;
+  sender_name: string | null;
+  sender_image_url: string | null;
+  order_id: string | null;
+  viewer_role: RecipientRole | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+}
+
 export interface UpsertPushDeviceInput {
   recipientRole: RecipientRole;
   recipientId: string;
   expoPushToken: string;
+}
+
+export interface UpsertNotificationPreferencesInput {
+  recipientRole: RecipientRole;
+  recipientId: string;
+  notificationsEnabled?: boolean;
+  soundEnabled?: boolean;
+  vibrationEnabled?: boolean;
+}
+
+export interface CreateNotificationLogInput {
+  recipientRole: RecipientRole;
+  recipientId: string;
+  type: string;
+  title: string;
+  body: string;
+  senderName?: string;
+  senderImageUrl?: string;
+  orderId?: string;
+  viewerRole?: RecipientRole;
+}
+
+function defaultPreferences(
+  recipientRole: RecipientRole,
+  recipientId: string,
+): NotificationPreferences {
+  return {
+    recipient_role: recipientRole,
+    recipient_id: recipientId,
+    notifications_enabled: true,
+    sound_enabled: true,
+    vibration_enabled: true,
+  };
 }
 
 export class NotificationsRepository {
@@ -101,6 +161,112 @@ export class NotificationsRepository {
       .eq("is_active", true);
     if (error) throw error;
     return (data ?? []) as PushDevice[];
+  }
+
+  async getPreferences(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<NotificationPreferences> {
+    const { data, error } = await supabase
+      .from("notification_preferences")
+      .select("*")
+      .eq("recipient_role", recipientRole)
+      .eq("recipient_id", recipientId)
+      .maybeSingle();
+    if (error) throw error;
+    return (data ?? defaultPreferences(recipientRole, recipientId)) as NotificationPreferences;
+  }
+
+  async upsertPreferences(
+    input: UpsertNotificationPreferencesInput,
+  ): Promise<NotificationPreferences> {
+    const existing = await this.getPreferences(input.recipientRole, input.recipientId);
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("notification_preferences")
+      .upsert(
+        {
+          recipient_role: input.recipientRole,
+          recipient_id: input.recipientId,
+          notifications_enabled:
+            input.notificationsEnabled ?? existing.notifications_enabled,
+          sound_enabled: input.soundEnabled ?? existing.sound_enabled,
+          vibration_enabled:
+            input.vibrationEnabled ?? existing.vibration_enabled,
+          updated_at: now,
+        },
+        { onConflict: "recipient_role,recipient_id" },
+      )
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data as NotificationPreferences;
+  }
+
+  async createNotificationLog(
+    input: CreateNotificationLogInput,
+  ): Promise<NotificationLog> {
+    const { data, error } = await supabase
+      .from("notification_logs")
+      .insert({
+        recipient_role: input.recipientRole,
+        recipient_id: input.recipientId,
+        type: input.type,
+        title: input.title,
+        body: input.body,
+        sender_name: input.senderName ?? null,
+        sender_image_url: input.senderImageUrl ?? null,
+        order_id: input.orderId ?? null,
+        viewer_role: input.viewerRole ?? null,
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data as NotificationLog;
+  }
+
+  async listLogsForRecipient(
+    recipientRole: RecipientRole,
+    recipientId: string,
+    limit: number,
+    offset: number,
+  ): Promise<NotificationLog[]> {
+    const { data, error } = await supabase
+      .from("notification_logs")
+      .select("*")
+      .eq("recipient_role", recipientRole)
+      .eq("recipient_id", recipientId)
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+    if (error) throw error;
+    return (data ?? []) as NotificationLog[];
+  }
+
+  async countUnreadForRecipient(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<number> {
+    const { count, error } = await supabase
+      .from("notification_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_role", recipientRole)
+      .eq("recipient_id", recipientId)
+      .eq("is_read", false);
+    if (error) throw error;
+    return count ?? 0;
+  }
+
+  async markAllReadForRecipient(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<void> {
+    const { error } = await supabase
+      .from("notification_logs")
+      .update({ is_read: true, read_at: new Date().toISOString() })
+      .eq("recipient_role", recipientRole)
+      .eq("recipient_id", recipientId)
+      .eq("is_read", false);
+    if (error) throw error;
   }
 }
 

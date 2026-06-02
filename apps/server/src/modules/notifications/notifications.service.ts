@@ -7,6 +7,8 @@ import {
 } from "../../shared/expo/expo-push.js";
 import {
   notificationsRepository,
+  type NotificationLog,
+  type NotificationPreferences,
   type RecipientRole,
 } from "./notifications.repository.js";
 
@@ -21,6 +23,23 @@ export interface UnregisterDeviceInput extends RegisterDeviceInput {}
 export interface SendPushInput extends ExpoPushPayload {
   recipientRole: RecipientRole;
   recipientId: string;
+  senderName?: string;
+  senderImageUrl?: string;
+}
+
+export interface UpdateNotificationPreferencesInput {
+  recipientRole: RecipientRole;
+  recipientId: string;
+  notificationsEnabled?: boolean;
+  soundEnabled?: boolean;
+  vibrationEnabled?: boolean;
+}
+
+export interface ListNotificationLogsInput {
+  recipientRole: RecipientRole;
+  recipientId: string;
+  limit: number;
+  offset: number;
 }
 
 function isDeviceNotRegisteredError(error: unknown): boolean {
@@ -57,7 +76,107 @@ export class NotificationsService {
     );
   }
 
+  async getPreferences(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<NotificationPreferences> {
+    const exists = await notificationsRepository.recipientExists(
+      recipientRole,
+      recipientId,
+    );
+    if (!exists) {
+      throw AppError.notFound("notification_recipient_not_found");
+    }
+    return notificationsRepository.getPreferences(recipientRole, recipientId);
+  }
+
+  async updatePreferences(
+    input: UpdateNotificationPreferencesInput,
+  ): Promise<NotificationPreferences> {
+    const exists = await notificationsRepository.recipientExists(
+      input.recipientRole,
+      input.recipientId,
+    );
+    if (!exists) {
+      throw AppError.notFound("notification_recipient_not_found");
+    }
+
+    return notificationsRepository.upsertPreferences(input);
+  }
+
+  async listNotificationLogs(
+    input: ListNotificationLogsInput,
+  ): Promise<NotificationLog[]> {
+    const exists = await notificationsRepository.recipientExists(
+      input.recipientRole,
+      input.recipientId,
+    );
+    if (!exists) {
+      throw AppError.notFound("notification_recipient_not_found");
+    }
+    return notificationsRepository.listLogsForRecipient(
+      input.recipientRole,
+      input.recipientId,
+      input.limit,
+      input.offset,
+    );
+  }
+
+  async getUnreadCount(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<number> {
+    const exists = await notificationsRepository.recipientExists(
+      recipientRole,
+      recipientId,
+    );
+    if (!exists) {
+      throw AppError.notFound("notification_recipient_not_found");
+    }
+    return notificationsRepository.countUnreadForRecipient(
+      recipientRole,
+      recipientId,
+    );
+  }
+
+  async markAllRead(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<void> {
+    const exists = await notificationsRepository.recipientExists(
+      recipientRole,
+      recipientId,
+    );
+    if (!exists) {
+      throw AppError.notFound("notification_recipient_not_found");
+    }
+    await notificationsRepository.markAllReadForRecipient(
+      recipientRole,
+      recipientId,
+    );
+  }
+
   async sendPushToRecipient(input: SendPushInput): Promise<void> {
+    const preferences = await notificationsRepository.getPreferences(
+      input.recipientRole,
+      input.recipientId,
+    );
+    if (!preferences.notifications_enabled) {
+      return;
+    }
+
+    await notificationsRepository.createNotificationLog({
+      recipientRole: input.recipientRole,
+      recipientId: input.recipientId,
+      type: input.type,
+      title: input.title,
+      body: input.body,
+      senderName: input.senderName,
+      senderImageUrl: input.senderImageUrl,
+      orderId: input.orderId,
+      viewerRole: input.viewerRole,
+    });
+
     const devices = await notificationsRepository.listActiveDevicesForRecipient(
       input.recipientRole,
       input.recipientId,
@@ -70,6 +189,7 @@ export class NotificationsService {
       body: input.body,
       orderId: input.orderId,
       viewerRole: input.viewerRole,
+      playSound: preferences.sound_enabled,
     };
 
     await Promise.allSettled(

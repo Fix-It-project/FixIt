@@ -58,6 +58,29 @@ const TERMINAL_STATUSES = new Set([
 	"completed",
 ]);
 
+function technicianName(order: Pick<Order, "technician_name">): string {
+	return order.technician_name?.trim() || "The technician";
+}
+
+function customerName(order: Pick<Order, "user_name">): string {
+	return order.user_name?.trim() || "The customer";
+}
+
+function customerSender(order: Pick<Order, "user_name">) {
+	return {
+		senderName: customerName(order),
+	};
+}
+
+function technicianSender(
+	order: Pick<Order, "technician_name" | "technician_image">,
+) {
+	return {
+		senderName: technicianName(order),
+		senderImageUrl: order.technician_image ?? undefined,
+	};
+}
+
 export class RescheduleService {
 	// ─── Public API ───────────────────────────────────────────────────────────
 
@@ -89,7 +112,13 @@ export class RescheduleService {
 			recipientId: counterpartyId,
 			type: "reschedule_requested",
 			title: "Reschedule requested",
-			body: "A new reschedule request needs your response.",
+			body:
+				input.actor === "user"
+					? `${customerName(order)} requested a reschedule.`
+					: `${technicianName(order)} requested a reschedule.`,
+			...(input.actor === "user"
+				? customerSender(order)
+				: technicianSender(order)),
 			orderId: order.id,
 			viewerRole: counterpartyRole,
 		});
@@ -115,7 +144,13 @@ export class RescheduleService {
 			recipientId: initiatorId,
 			type: "reschedule_approved",
 			title: "Reschedule approved",
-			body: "Your reschedule request was approved.",
+			body:
+				input.actor === "user"
+					? `${customerName(order)} approved your reschedule request.`
+					: `${technicianName(order)} approved your reschedule request.`,
+			...(input.actor === "user"
+				? customerSender(order)
+				: technicianSender(order)),
 			orderId: order.id,
 			viewerRole: initiatorRole,
 		});
@@ -148,7 +183,13 @@ export class RescheduleService {
 			recipientId: initiatorId,
 			type: "reschedule_rejected",
 			title: "Reschedule rejected",
-			body: "Your reschedule request was rejected.",
+			body:
+				input.actor === "user"
+					? `${customerName(order)} rejected your reschedule request.`
+					: `${technicianName(order)} rejected your reschedule request.`,
+			...(input.actor === "user"
+				? customerSender(order)
+				: technicianSender(order)),
 			orderId: order.id,
 			viewerRole: initiatorRole,
 		});

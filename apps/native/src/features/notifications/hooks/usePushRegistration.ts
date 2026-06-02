@@ -1,23 +1,13 @@
-import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
-import { Platform } from "react-native";
 import {
+  getNotificationPreferences,
   registerTechnicianPushDevice,
   registerUserPushDevice,
 } from "@/src/features/notifications/api/notifications";
 import { getExpoPushToken } from "@/src/features/notifications/utils/getExpoPushToken";
+import { configureAndroidNotificationChannel } from "@/src/features/notifications/utils/configureAndroidNotificationChannel";
 import { logger } from "@/src/lib/logger";
 import { useAuthStore } from "@/src/stores/auth-store";
-
-async function ensureAndroidChannel(): Promise<void> {
-  if (Platform.OS !== "android") return;
-  await Notifications.setNotificationChannelAsync("default", {
-    name: "Default",
-    importance: Notifications.AndroidImportance.MAX,
-    vibrationPattern: [0, 250, 250, 250],
-    lightColor: "#1565D8",
-  });
-}
 
 export function usePushRegistration(enabled: boolean): void {
   const user = useAuthStore((state) => state.user);
@@ -27,7 +17,7 @@ export function usePushRegistration(enabled: boolean): void {
   const lastRegisteredKeyRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    void ensureAndroidChannel();
+    void configureAndroidNotificationChannel();
   }, []);
 
   useEffect(() => {
@@ -38,6 +28,18 @@ export function usePushRegistration(enabled: boolean): void {
     let cancelled = false;
 
     void (async () => {
+      try {
+        const preferences = await getNotificationPreferences(userType);
+        if (!cancelled) {
+          await configureAndroidNotificationChannel(preferences);
+        }
+      } catch (error) {
+        logger.warn("PushNotifications", "Failed to load notification preferences", {
+          role: userType,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+
       const expoPushToken = await getExpoPushToken();
       if (!expoPushToken || cancelled) return;
 

@@ -4,12 +4,19 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function SettingsScreen() {
+	const goToNotifications = useDebounce(() =>
+		router.push(ROUTES.user.settingsNotifications as never),
+	);
 	const goToPrivacy = useDebounce(() =>
 		router.push(ROUTES.user.settingsPrivacy),
 	);
 	const goToHelp = useDebounce(() => router.push(ROUTES.user.settingsHelp));
 
 	return (
-		<SettingsContent onPrivacyPress={goToPrivacy} onHelpPress={goToHelp} />
+		<SettingsContent
+			onNotificationsPress={goToNotifications}
+			onPrivacyPress={goToPrivacy}
+			onHelpPress={goToHelp}
+		/>
 	);
 }

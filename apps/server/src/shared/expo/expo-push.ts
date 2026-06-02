@@ -4,6 +4,7 @@ export interface ExpoPushPayload {
   body: string;
   orderId?: string;
   viewerRole?: "user" | "technician";
+  playSound?: boolean;
 }
 
 interface ExpoTicket {
@@ -37,7 +38,9 @@ export async function sendExpoPush(
       to: expoPushToken,
       title: payload.title,
       body: payload.body,
-      sound: "default",
+      sound: payload.playSound === false ? false : "default",
+      channelId: "fixit-alerts-v2",
+      priority: "high",
       data: {
         type: payload.type,
         orderId: payload.orderId,
