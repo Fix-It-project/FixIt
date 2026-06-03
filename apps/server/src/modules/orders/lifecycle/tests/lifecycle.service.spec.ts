@@ -237,7 +237,7 @@ describe("LifecycleService.submitOrder", () => {
 			technician_id: "tech-2",
 			service_id: "svc-2",
 			scheduled_date: "2026-06-02",
-			scheduled_start_at: "2026-06-02T10:00:00+03:00",
+			scheduled_start_at: "2026-06-02T11:00:00+03:00",
 		});
 
 		expect(repo.submitOrder).toHaveBeenCalledTimes(1);
@@ -258,7 +258,7 @@ describe("LifecycleService.submitOrder", () => {
 				technician_id: "tech-3",
 				service_id: "svc-3",
 				scheduled_date: "2026-06-03",
-				scheduled_start_at: "2026-06-03T12:00:00+03:00",
+				scheduled_start_at: "2026-06-03T14:00:00+03:00",
 			});
 		} catch (err) {
 			caught = err;

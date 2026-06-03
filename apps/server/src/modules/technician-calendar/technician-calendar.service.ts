@@ -46,10 +46,10 @@ export class TechnicianCalendarService {
   }
 
   private validateSlotHour(slotHour: number) {
-    if (![8, 10, 12, 14, 16].includes(slotHour)) {
+    if (![8, 11, 14, 17, 20].includes(slotHour)) {
       throw {
         status: 400,
-        message: "`slot_hour` must be one of 8, 10, 12, 14, 16.",
+        message: "`slot_hour` must be one of 8, 11, 14, 17, 20.",
       };
     }
   }

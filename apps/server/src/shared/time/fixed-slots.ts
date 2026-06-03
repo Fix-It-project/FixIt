@@ -13,8 +13,10 @@ const CAIRO_TIME_FMT = new Intl.DateTimeFormat("en-US", {
 	minute: "2-digit",
 	hour12: false,
 });
+const ISO_WITH_OFFSET =
+	/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
 
-export const FIXED_SLOT_HOURS_CAIRO = [8, 10, 12, 14, 16] as const;
+export const FIXED_SLOT_HOURS_CAIRO = [8, 11, 14, 17, 20] as const;
 
 const FIXED_SLOT_SET = new Set<number>(FIXED_SLOT_HOURS_CAIRO);
 
@@ -40,6 +42,24 @@ function cairoHourMinute(instant: Date): { hour: number; minute: number } {
 	return { hour, minute };
 }
 
+function parseIsoWallClock(startAt: string): {
+	datePart: string;
+	hour: number;
+	minute: number;
+	second: number;
+	offset: string;
+} | null {
+	const match = ISO_WITH_OFFSET.exec(startAt);
+	if (!match) return null;
+	return {
+		datePart: match[1] ?? "",
+		hour: Number(match[2]),
+		minute: Number(match[3]),
+		second: Number(match[4] ?? "0"),
+		offset: match[5] ?? "Z",
+	};
+}
+
 export function assertFixedSlotStartAtInCairo(
 	args: FixedSlotValidationArgs,
 ): void {
@@ -50,6 +70,21 @@ export function assertFixedSlotStartAtInCairo(
 	const parsed = new Date(args.startAt);
 	if (Number.isNaN(parsed.getTime())) {
 		throw AppError.badRequest(args.invalidDatetimeCode);
+	}
+
+	const lexical = parseIsoWallClock(args.startAt);
+	if (lexical && lexical.offset !== "Z") {
+		if (lexical.datePart !== args.dateYmd) {
+			throw AppError.badRequest(args.dateMismatchCode);
+		}
+		if (
+			lexical.minute !== 0 ||
+			lexical.second !== 0 ||
+			!FIXED_SLOT_SET.has(lexical.hour)
+		) {
+			throw AppError.badRequest(args.invalidSlotCode);
+		}
+		return;
 	}
 
 	if (cairoDate(parsed) !== args.dateYmd) {
