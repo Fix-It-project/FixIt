@@ -20,7 +20,7 @@ const CANCELLED: ReadonlySet<string> = new Set([
 
 /** Collapse a raw DB status into the recent-orders filter bucket. */
 export function recentOrderStatusBucket(
-	status: OrderStatusRaw,
+	status: string,
 ): "pending" | "accepted" | "active" | "cancelled" | "completed" {
 	if (status === "completed") return "completed";
 	if (status === "pending") return "pending";
@@ -38,7 +38,7 @@ export function humanizeStatus(status: string): string {
 }
 
 /** StatusBadge color variant for a raw status. */
-export function statusVariant(status: OrderStatusRaw): StatusBadgeVariant {
+export function statusVariant(status: string): StatusBadgeVariant {
 	const bucket = recentOrderStatusBucket(status);
 	if (bucket === "completed") return "success";
 	if (bucket === "cancelled") return "danger";

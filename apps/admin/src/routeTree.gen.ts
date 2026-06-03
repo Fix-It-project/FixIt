@@ -21,6 +21,8 @@ import { Route as ProtectedOrdersIndexRouteImport } from "./routes/_protected/or
 import { Route as ProtectedHomeownersIndexRouteImport } from "./routes/_protected/homeowners/index";
 import { Route as ProtectedDashboardIndexRouteImport } from "./routes/_protected/dashboard/index";
 import { Route as ProtectedCategoriesIndexRouteImport } from "./routes/_protected/categories/index";
+import { Route as ProtectedTechniciansTechnicianIdRouteImport } from "./routes/_protected/technicians/$technicianId";
+import { Route as ProtectedHomeownersHomeownerIdRouteImport } from "./routes/_protected/homeowners/$homeownerId";
 
 const ProtectedRoute = ProtectedRouteImport.update({
   id: "/_protected",
@@ -84,10 +86,24 @@ const ProtectedCategoriesIndexRoute =
     path: "/categories/",
     getParentRoute: () => ProtectedRoute,
   } as any);
+const ProtectedTechniciansTechnicianIdRoute =
+  ProtectedTechniciansTechnicianIdRouteImport.update({
+    id: "/technicians/$technicianId",
+    path: "/technicians/$technicianId",
+    getParentRoute: () => ProtectedRoute,
+  } as any);
+const ProtectedHomeownersHomeownerIdRoute =
+  ProtectedHomeownersHomeownerIdRouteImport.update({
+    id: "/homeowners/$homeownerId",
+    path: "/homeowners/$homeownerId",
+    getParentRoute: () => ProtectedRoute,
+  } as any);
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
   "/login/": typeof LoginIndexRoute;
+  "/homeowners/$homeownerId": typeof ProtectedHomeownersHomeownerIdRoute;
+  "/technicians/$technicianId": typeof ProtectedTechniciansTechnicianIdRoute;
   "/categories/": typeof ProtectedCategoriesIndexRoute;
   "/dashboard/": typeof ProtectedDashboardIndexRoute;
   "/homeowners/": typeof ProtectedHomeownersIndexRoute;
@@ -101,6 +117,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/login": typeof LoginIndexRoute;
+  "/homeowners/$homeownerId": typeof ProtectedHomeownersHomeownerIdRoute;
+  "/technicians/$technicianId": typeof ProtectedTechniciansTechnicianIdRoute;
   "/categories": typeof ProtectedCategoriesIndexRoute;
   "/dashboard": typeof ProtectedDashboardIndexRoute;
   "/homeowners": typeof ProtectedHomeownersIndexRoute;
@@ -116,6 +134,8 @@ export interface FileRoutesById {
   "/": typeof IndexRoute;
   "/_protected": typeof ProtectedRouteWithChildren;
   "/login/": typeof LoginIndexRoute;
+  "/_protected/homeowners/$homeownerId": typeof ProtectedHomeownersHomeownerIdRoute;
+  "/_protected/technicians/$technicianId": typeof ProtectedTechniciansTechnicianIdRoute;
   "/_protected/categories/": typeof ProtectedCategoriesIndexRoute;
   "/_protected/dashboard/": typeof ProtectedDashboardIndexRoute;
   "/_protected/homeowners/": typeof ProtectedHomeownersIndexRoute;
@@ -131,6 +151,8 @@ export interface FileRouteTypes {
   fullPaths:
     | "/"
     | "/login/"
+    | "/homeowners/$homeownerId"
+    | "/technicians/$technicianId"
     | "/categories/"
     | "/dashboard/"
     | "/homeowners/"
@@ -144,6 +166,8 @@ export interface FileRouteTypes {
   to:
     | "/"
     | "/login"
+    | "/homeowners/$homeownerId"
+    | "/technicians/$technicianId"
     | "/categories"
     | "/dashboard"
     | "/homeowners"
@@ -158,6 +182,8 @@ export interface FileRouteTypes {
     | "/"
     | "/_protected"
     | "/login/"
+    | "/_protected/homeowners/$homeownerId"
+    | "/_protected/technicians/$technicianId"
     | "/_protected/categories/"
     | "/_protected/dashboard/"
     | "/_protected/homeowners/"
@@ -261,10 +287,26 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ProtectedCategoriesIndexRouteImport;
       parentRoute: typeof ProtectedRoute;
     };
+    "/_protected/technicians/$technicianId": {
+      id: "/_protected/technicians/$technicianId";
+      path: "/technicians/$technicianId";
+      fullPath: "/technicians/$technicianId";
+      preLoaderRoute: typeof ProtectedTechniciansTechnicianIdRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/homeowners/$homeownerId": {
+      id: "/_protected/homeowners/$homeownerId";
+      path: "/homeowners/$homeownerId";
+      fullPath: "/homeowners/$homeownerId";
+      preLoaderRoute: typeof ProtectedHomeownersHomeownerIdRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
   }
 }
 
 interface ProtectedRouteChildren {
+  ProtectedHomeownersHomeownerIdRoute: typeof ProtectedHomeownersHomeownerIdRoute;
+  ProtectedTechniciansTechnicianIdRoute: typeof ProtectedTechniciansTechnicianIdRoute;
   ProtectedCategoriesIndexRoute: typeof ProtectedCategoriesIndexRoute;
   ProtectedDashboardIndexRoute: typeof ProtectedDashboardIndexRoute;
   ProtectedHomeownersIndexRoute: typeof ProtectedHomeownersIndexRoute;
@@ -277,6 +319,8 @@ interface ProtectedRouteChildren {
 }
 
 const ProtectedRouteChildren: ProtectedRouteChildren = {
+  ProtectedHomeownersHomeownerIdRoute: ProtectedHomeownersHomeownerIdRoute,
+  ProtectedTechniciansTechnicianIdRoute: ProtectedTechniciansTechnicianIdRoute,
   ProtectedCategoriesIndexRoute: ProtectedCategoriesIndexRoute,
   ProtectedDashboardIndexRoute: ProtectedDashboardIndexRoute,
   ProtectedHomeownersIndexRoute: ProtectedHomeownersIndexRoute,

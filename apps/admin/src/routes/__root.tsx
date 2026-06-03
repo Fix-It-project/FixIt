@@ -1,10 +1,8 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { apiClient } from "@/lib/api-client";
 import { applyThemeToDocument, watchSystemColorScheme } from "@/lib/theme";
 import { resolveThemeId } from "@/lib/theme/resolution";
-import { type AdminUser, useAuthStore } from "@/stores/auth-store";
 import { useThemeStore } from "@/stores/theme-store";
 
 interface RouterContext {
@@ -18,17 +16,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
 	const preference = useThemeStore((s) => s.preference);
 
-	// Reconcile the optimistic auth flag against the http-only session cookie on
-	// load: a stale flag (cookie expired) gets cleared, a valid one refreshes the
-	// cached admin. A 401 here is handled by the api-client interceptor.
-	useEffect(() => {
-		if (!useAuthStore.getState().isAuthenticated) return;
-		apiClient
-			.get<{ user: AdminUser }>("/api/admin/auth/me")
-			.then(({ data }) => useAuthStore.getState().setSession(data.user))
-			.catch(() => undefined);
-	}, []);
-
+	// Session verification now lives in each protected route's `beforeLoad`
+	// (see `meQuery`); no global reconcile needed here.
 	useEffect(() => {
 		const apply = () => {
 			const system = window.matchMedia("(prefers-color-scheme: dark)").matches

@@ -63,6 +63,55 @@ export interface RecentOrder {
 
 export type RecentOrderFilter = "all" | "pending" | "accepted" | "active" | "cancelled";
 
+// ---- Order detail (order-detail modal) ----
+
+export interface AdminOrderQuote {
+	proposedBy: string;
+	amount: number;
+	round: number;
+	status: string;
+	notes: string | null;
+	createdAt: string;
+}
+
+export interface AdminOrderEvent {
+	type: string;
+	fromStatus: string | null;
+	toStatus: string | null;
+	actorRole: string;
+	createdAt: string;
+}
+
+export interface AdminOrderPayment {
+	amount: number;
+	method: string;
+	status: string;
+	paidAt: string | null;
+}
+
+export interface AdminOrderDetail {
+	id: string;
+	problemDescription: string | null;
+	status: string;
+	createdAt: string;
+	scheduledDate: string | null;
+	scheduledStartAt: string | null;
+	arrivedAt: string | null;
+	userCompletedAt: string | null;
+	technicianCompletedAt: string | null;
+	finalPrice: number | null;
+	paymentMethod: string | null;
+	cancellationReason: string | null;
+	attachment: string | null;
+	customer: string;
+	tech: string;
+	category: string;
+	review: { rating: number; comment: string | null; date: string } | null;
+	quotes: AdminOrderQuote[];
+	events: AdminOrderEvent[];
+	payments: AdminOrderPayment[];
+}
+
 /** Orders page row — RecentOrder plus an ISO timestamp for client-side date filtering. */
 export interface AdminOrder extends RecentOrder {
 	createdAt: string;

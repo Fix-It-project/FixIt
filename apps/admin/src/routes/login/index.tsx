@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api-client";
+import { meQuery } from "@/lib/auth-query";
 import { type AdminUser, useAuthStore } from "@/stores/auth-store";
 import { LoginCard } from "./components/LoginCard";
 
@@ -17,9 +18,11 @@ const loginSearchSchema = z.object({
 
 export const Route = createFileRoute("/login/")({
 	validateSearch: loginSearchSchema,
-	beforeLoad: () => {
-		const { isAuthenticated } = useAuthStore.getState();
-		if (isAuthenticated) {
+	beforeLoad: async ({ context }) => {
+		// Already signed in (verified cookie) → skip the login form.
+		const user = await context.queryClient.ensureQueryData(meQuery).catch(() => null);
+		if (user) {
+			useAuthStore.getState().setSession(user);
 			throw redirect({ to: "/dashboard" });
 		}
 	},

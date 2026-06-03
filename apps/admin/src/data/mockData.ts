@@ -241,6 +241,7 @@ function buildHomeownerHistory(rows: Array<Partial<HomeownerOrderHistory> & { id
 		tech: r.tech ?? "Mahmoud Khaled",
 		status: r.status ?? "completed",
 		amount: r.amount ?? 480,
+		rating: r.rating ?? null,
 	}));
 }
 
