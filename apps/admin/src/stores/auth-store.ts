@@ -42,9 +42,11 @@ export const useAuthStore = create<AuthState>()(
 		{
 			name: STORAGE_KEY,
 			storage: createJSONStorage(() => localStorage),
+			// Persist only the cached user for instant topbar render. `isAuthenticated`
+			// is NOT persisted: route access is gated on a verified `/me` in beforeLoad,
+			// so a stale flag can never pre-admit a session.
 			partialize: (state) => ({
 				user: state.user,
-				isAuthenticated: state.isAuthenticated,
 			}),
 		},
 	),

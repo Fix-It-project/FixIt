@@ -1,10 +1,10 @@
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
-import type { Homeowner } from "@/types";
+import type { AdminHomeowner } from "@/types";
 
 interface HomeownerCardListProps {
-	homeowners: Homeowner[];
-	onView: (homeowner: Homeowner) => void;
+	homeowners: AdminHomeowner[];
+	onView: (homeowner: AdminHomeowner) => void;
 }
 
 export function HomeownerCardList({ homeowners, onView }: HomeownerCardListProps) {

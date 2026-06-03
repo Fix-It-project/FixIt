@@ -224,7 +224,7 @@ export const PENDING_TECHS: PendingTech[] = [
 ];
 
 export const STATUS_META: Record<string, StatusMeta> = {
-	pending: { label: "Waiting for tech", cls: "warn" },
+	pending: { label: "Pending", cls: "warn" },
 	accepted: { label: "Accepted", cls: "success" },
 	in_progress: { label: "In progress", cls: "muted" },
 	completed: { label: "Completed", cls: "success" },
@@ -241,6 +241,7 @@ function buildHomeownerHistory(rows: Array<Partial<HomeownerOrderHistory> & { id
 		tech: r.tech ?? "Mahmoud Khaled",
 		status: r.status ?? "completed",
 		amount: r.amount ?? 480,
+		rating: r.rating ?? null,
 	}));
 }
 

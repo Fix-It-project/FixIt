@@ -1,15 +1,14 @@
 import { useRouterState } from "@tanstack/react-router";
-import { Bell, Menu, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { cn } from "@/lib/utils";
 
 const PAGE_TITLES: Record<string, string> = {
 	"/dashboard": "Dashboard",
 	"/orders": "Orders",
 	"/categories": "Categories",
 	"/technicians": "Technicians",
-	"/users": "Homeowners",
+	"/homeowners": "Homeowners",
 	"/reviews": "Reviews",
 	"/reports": "Reports",
 	"/payouts": "Payouts",
@@ -43,18 +42,6 @@ export function Topbar({ sidebarCollapsed, onSidebarToggle, onMobileMenuToggle }
 			<h1 className="text-base font-semibold text-foreground">{pageTitle}</h1>
 
 			<div className="ml-auto flex items-center gap-1">
-				{/* Search — hidden on mobile, shown on sm+ */}
-				<div className={cn("hidden sm:flex items-center gap-2 h-9 w-64 rounded-full bg-muted px-3 text-sm text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors")}>
-					<Search className="h-4 w-4 flex-shrink-0" />
-					<span>Search…</span>
-				</div>
-
-				{/* Notifications */}
-				<Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
-					<Bell className="h-5 w-5" />
-					<span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive border-2 border-card" />
-				</Button>
-
 				<ThemeToggle />
 			</div>
 		</header>

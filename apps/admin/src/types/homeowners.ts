@@ -3,8 +3,9 @@ export interface HomeownerOrderHistory {
 	date: string;
 	category: string;
 	tech: string;
-	status: "completed" | "cancelled" | "no_show";
+	status: string;
 	amount: number;
+	rating: number | null;
 }
 
 export interface Homeowner {
@@ -30,3 +31,12 @@ export interface Homeowner {
 }
 
 export type ActivityFilter = "all" | "recent" | "dormant";
+
+/** Homeowner row from the admin API — adds sortable raw fields. */
+export interface AdminHomeowner extends Homeowner {
+	joinedAt: string;
+	lastOrderAt: string | null;
+	spendValue: number;
+}
+
+export type HomeownerSort = "newest" | "most_orders" | "most_spent" | "recent_order";
