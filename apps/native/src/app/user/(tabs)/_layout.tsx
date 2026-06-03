@@ -1,5 +1,6 @@
 import { router, Tabs, usePathname } from "expo-router";
 import {
+	Bell,
 	ClipboardList,
 	Grid2X2,
 	House,
@@ -20,6 +21,8 @@ import {
 	shadowStyle,
 	spacing,
 } from "@/src/constants/design-tokens";
+import { Colors } from "@/src/constants/design-tokens";
+import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
 import { ROUTES } from "@/src/lib/navigation";
 import {
 	getBaseTabScreenOptions,
@@ -50,6 +53,24 @@ function OrdersTabIcon({ color, size }: Readonly<LucideProps>) {
 
 function ProfileTabIcon({ color, size }: Readonly<LucideProps>) {
 	return <User size={size} color={color} strokeWidth={1.8} />;
+}
+
+function NotificationTabIcon({
+	color,
+	size,
+	hasUnread,
+}: Readonly<LucideProps & { hasUnread: boolean }>) {
+	return (
+		<View>
+			<Bell size={size} color={color} strokeWidth={1.8} />
+			{hasUnread ? (
+				<View
+					className="absolute -top-1 -right-1 h-status-dot-sm w-status-dot-sm rounded-pill"
+					style={{ backgroundColor: Colors.danger }}
+				/>
+			) : null}
+		</View>
+	);
 }
 
 function ChatFab({
@@ -87,6 +108,8 @@ export default function UserTabsLayout() {
 	const { width } = useWindowDimensions();
 	const pathname = usePathname();
 	const goToChatbot = useDebounce(() => router.push(ROUTES.user.chat));
+	const { data: unreadCount } = useNotificationUnreadCountQuery("user");
+	const hasUnread = (unreadCount ?? 0) > 0;
 	const screenOptions = getBaseTabScreenOptions(themeColors, metrics, {
 		showLabels: width >= NARROW_TAB_BAR_WIDTH,
 	});
@@ -115,6 +138,19 @@ export default function UserTabsLayout() {
 						options={{
 							title: "Categories",
 							tabBarIcon: CategoriesTabIcon,
+						}}
+					/>
+					<Tabs.Screen
+						name="notifications/index"
+						options={{
+							title: "Notifications",
+							tabBarIcon: ({ color, size }) => (
+								<NotificationTabIcon
+									color={color}
+									size={size}
+									hasUnread={hasUnread}
+								/>
+							),
 						}}
 					/>
 					<Tabs.Screen

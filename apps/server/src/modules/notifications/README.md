@@ -62,6 +62,38 @@ Current notification events are triggered from:
 - Title: `Order completed`
 - Message: `<technician name> marked your booking as completed.`
 
+7. `inspection_started`
+- Recipient: user
+- Title: `Inspection started`
+- Message: `<technician name> started the on-site inspection.`
+
+8. `inspection_finished`
+- Recipient: user
+- Title: `Inspection finished`
+- Message: `<technician name> finished the inspection. Final pricing can now be reviewed.`
+
+9. `quote_submitted`
+- Recipient: counterparty
+- Title: `New quote received`
+- Message: `<customer or technician name> sent a quote for <amount> EGP.`
+
+10. `quote_accepted`
+- Recipient: quote proposer
+- Title: `Quote accepted`
+- Message: `<customer or technician name> accepted your quote for <amount> EGP.`
+
+11. `completion_confirmed`
+- Recipient: counterparty
+- Title: `Completion confirmed`
+- Message: `<customer or technician name> confirmed the booking is complete.`
+- Alternate message when both confirmations are done: `<customer or technician name> confirmed completion. The booking is ready for payment.`
+
+12. `order_cancelled`
+- Recipient: counterparty
+- Title: `Order cancelled`
+- Message: `<customer or technician name> cancelled the booking.`
+- Optional suffix when present: `Reason: <reason>.`
+
 ### Reschedule
 
 1. `reschedule_requested`
@@ -83,8 +115,5 @@ Current notification events are triggered from:
 
 These order-domain events do not currently publish push notifications:
 - reschedule withdrawn
-- quote submitted / accepted / countered
-- inspection started / finished
 - payment method chosen
-- user completion confirmed
-- technician completion confirmed
+- completion declined

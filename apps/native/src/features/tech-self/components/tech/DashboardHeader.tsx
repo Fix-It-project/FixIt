@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { LinearGradient as HeroGradient } from "expo-linear-gradient";
-import { Bell, ClipboardList, Star } from "lucide-react-native";
-import { TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { ClipboardList, Star } from "lucide-react-native";
+import { useWindowDimensions, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Svg, { Defs, LinearGradient, Polygon, Stop } from "react-native-svg";
 import { Text } from "@/src/components/ui/text";
@@ -178,14 +178,6 @@ export default function DashboardHeader() {
 							}}
 						/>
 					</View>
-
-					<TouchableOpacity
-						className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"
-						style={{ backgroundColor: themeColors.overlayMd }}
-						activeOpacity={0.7}
-					>
-						<Bell size={20} color={themeColors.tint.onHero} strokeWidth={1.8} />
-					</TouchableOpacity>
 				</View>
 			</Animated.View>
 

@@ -29,6 +29,7 @@ vi.mock("../lifecycle.repository.js", () => ({
 		submitQuote: vi.fn(),
 		acceptQuote: vi.fn(),
 		confirmCompletion: vi.fn(),
+		declineCompletion: vi.fn(),
 		choosePaymentMethod: vi.fn(),
 		markCashReceived: vi.fn(),
 		cancelOrder: vi.fn(),
@@ -96,7 +97,10 @@ const repo = repoModule.lifecycleRepository as unknown as {
 	submitOrder: ReturnType<typeof vi.fn>;
 	orderAction: ReturnType<typeof vi.fn>;
 	upsertLocation: ReturnType<typeof vi.fn>;
+	submitQuote: ReturnType<typeof vi.fn>;
+	acceptQuote: ReturnType<typeof vi.fn>;
 	confirmCompletion: ReturnType<typeof vi.fn>;
+	declineCompletion: ReturnType<typeof vi.fn>;
 	choosePaymentMethod: ReturnType<typeof vi.fn>;
 	markCashReceived: ReturnType<typeof vi.fn>;
 	tagPaymentAsSmokeAuto: ReturnType<typeof vi.fn>;
@@ -131,6 +135,18 @@ function setOrdersHandlerSequence(...payloads: Array<HandlerResult>) {
 	};
 }
 
+function setOrderQuotesHandlerSequence(...payloads: Array<HandlerResult>) {
+	let i = 0;
+	tableHandlers.order_quotes = () => {
+		const payload = payloads[Math.min(i, payloads.length - 1)] ?? {
+			data: null,
+			error: null,
+		};
+		i += 1;
+		return payload;
+	};
+}
+
 const ORIGINAL_SMOKE_ENV = process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
 
 beforeEach(() => {
@@ -145,6 +161,7 @@ beforeEach(() => {
 	// Reset table handlers
 	setAddressesHandler(() => ({ data: null, error: null }));
 	tableHandlers.orders = () => ({ data: null, error: null });
+	tableHandlers.order_quotes = () => ({ data: null, error: null });
 });
 
 afterEach(() => {
@@ -317,6 +334,13 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 		repo.choosePaymentMethod.mockResolvedValue(orderAwaitingPayment);
 		repo.tagPaymentAsSmokeAuto.mockResolvedValue(undefined);
 		repo.markCashReceived.mockResolvedValue(orderCompleted);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-x",
+			user_id: "user-x",
+			technician_id: "tech-x",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
@@ -348,6 +372,13 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 		process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE = "false";
 		const service = new LifecycleService();
 		repo.confirmCompletion.mockResolvedValue(orderAwaitingPayment);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-x",
+			user_id: "user-x",
+			technician_id: "tech-x",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
@@ -360,6 +391,13 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 	it("smoke ON but RPC returns in_progress (only one party confirmed) → no smoke", async () => {
 		const service = new LifecycleService();
 		repo.confirmCompletion.mockResolvedValue(orderInProgress);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-x",
+			user_id: "user-x",
+			technician_id: "tech-x",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
@@ -460,6 +498,189 @@ describe("LifecycleService order action notifications", () => {
 			senderImageUrl: undefined,
 			orderId: "order-accept",
 			viewerRole: "user",
+		});
+	});
+
+	it("notifies the user when the technician starts inspection", async () => {
+		const service = new LifecycleService();
+		repo.orderAction.mockResolvedValue({
+			id: "order-inspect-start",
+			user_id: "user-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-inspect-start",
+			user_id: "user-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.techStartInspection("order-inspect-start", "tech-1");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "inspection_started",
+			title: "Inspection started",
+			body: "Omar Hassan started the on-site inspection.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-inspect-start",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the user when the technician finishes inspection", async () => {
+		const service = new LifecycleService();
+		repo.orderAction.mockResolvedValue({
+			id: "order-inspect-finish",
+			user_id: "user-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-inspect-finish",
+			user_id: "user-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.techFinishInspection("order-inspect-finish", "tech-1");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "inspection_finished",
+			title: "Inspection finished",
+			body: "Omar Hassan finished the inspection. Final pricing can now be reviewed.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-inspect-finish",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the counterparty when a quote is submitted", async () => {
+		const service = new LifecycleService();
+		repo.submitQuote.mockResolvedValue({
+			id: "quote-1",
+			order_id: "order-quote",
+			amount: 350,
+			proposed_by: "technician",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-quote",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.submitQuote("order-quote", "tech-1", "technician", 350);
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "quote_submitted",
+			title: "New quote received",
+			body: "Omar Hassan sent a quote for 350 EGP.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-quote",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the proposer when a quote is accepted", async () => {
+		const service = new LifecycleService();
+		setOrderQuotesHandlerSequence({
+			data: {
+				id: "quote-2",
+				order_id: "order-quote-accept",
+				amount: 500,
+				proposed_by: "technician",
+			},
+			error: null,
+		});
+		repo.acceptQuote.mockResolvedValue({
+			id: "order-quote-accept",
+			user_id: "user-1",
+			technician_id: "tech-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-quote-accept",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.acceptQuote("quote-2", "user-1", "user");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "technician",
+			recipientId: "tech-1",
+			type: "quote_accepted",
+			title: "Quote accepted",
+			body: "Sarah Ali accepted your quote for 500 EGP.",
+			senderName: "Sarah Ali",
+			orderId: "order-quote-accept",
+			viewerRole: "technician",
+		});
+	});
+
+	it("notifies the counterparty when an order is cancelled", async () => {
+		const service = new LifecycleService();
+		repo.cancelOrder.mockResolvedValue({
+			id: "order-cancel",
+			user_id: "user-1",
+			technician_id: "tech-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-cancel",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			technician_name: "Omar Hassan",
+			user_name: "Sarah Ali",
+		});
+
+		await service.cancelOrder("order-cancel", "tech-1", "technician", "Emergency");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "order_cancelled",
+			title: "Order cancelled",
+			body: "Omar Hassan cancelled the booking. Reason: Emergency.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-cancel",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the counterparty when completion is confirmed", async () => {
+		const service = new LifecycleService();
+		process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE = "false";
+		repo.confirmCompletion.mockResolvedValue({
+			id: "order-confirm",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			status: "in_progress",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-confirm",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			technician_name: "Omar Hassan",
+			user_name: "Sarah Ali",
+		});
+
+		await service.confirmCompletion("order-confirm", "user-1", "user");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "technician",
+			recipientId: "tech-1",
+			type: "completion_confirmed",
+			title: "Completion confirmed",
+			body: "Sarah Ali confirmed the booking is complete.",
+			senderName: "Sarah Ali",
+			orderId: "order-confirm",
+			viewerRole: "technician",
 		});
 	});
 });

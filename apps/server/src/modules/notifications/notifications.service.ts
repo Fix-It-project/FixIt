@@ -61,6 +61,11 @@ export class NotificationsService {
       throw AppError.badRequest("invalid_expo_push_token");
     }
 
+    await notificationsRepository.ensurePreferences(
+      input.recipientRole,
+      input.recipientId,
+    );
+
     return notificationsRepository.upsertDevice({
       recipientRole: input.recipientRole,
       recipientId: input.recipientId,

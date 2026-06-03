@@ -1,6 +1,5 @@
 import { ChevronDown, MapPin } from "lucide-react-native";
 import { TouchableOpacity, View } from "react-native";
-import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { Colors, useThemeColors } from "@/src/constants/design-tokens";
@@ -21,7 +20,7 @@ export default function LocationHeader({
 		: "Select Location";
 
 	return (
-		<View className="flex-row items-center justify-between px-screen-x pt-stack-sm pb-stack-md">
+		<View className="px-screen-x pt-stack-sm pb-stack-md">
 			<TouchableOpacity
 				onPress={onLocationPress}
 				className="flex-row items-center gap-stack-sm rounded-pill px-stack-md py-stack-sm"
@@ -59,8 +58,6 @@ export default function LocationHeader({
 					</View>
 				</View>
 			</TouchableOpacity>
-
-			<NotificationBell />
 		</View>
 	);
 }

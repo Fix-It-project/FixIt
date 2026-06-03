@@ -163,24 +163,34 @@ export class NotificationsRepository {
     return (data ?? []) as PushDevice[];
   }
 
+  async ensurePreferences(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<NotificationPreferences> {
+    const defaults = defaultPreferences(recipientRole, recipientId);
+    const { data, error } = await supabase
+      .from("notification_preferences")
+      .upsert(defaults, { onConflict: "recipient_role,recipient_id" })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return data as NotificationPreferences;
+  }
+
   async getPreferences(
     recipientRole: RecipientRole,
     recipientId: string,
   ): Promise<NotificationPreferences> {
-    const { data, error } = await supabase
-      .from("notification_preferences")
-      .select("*")
-      .eq("recipient_role", recipientRole)
-      .eq("recipient_id", recipientId)
-      .maybeSingle();
-    if (error) throw error;
-    return (data ?? defaultPreferences(recipientRole, recipientId)) as NotificationPreferences;
+    return this.ensurePreferences(recipientRole, recipientId);
   }
 
   async upsertPreferences(
     input: UpsertNotificationPreferencesInput,
   ): Promise<NotificationPreferences> {
-    const existing = await this.getPreferences(input.recipientRole, input.recipientId);
+    const existing = await this.ensurePreferences(
+      input.recipientRole,
+      input.recipientId,
+    );
     const now = new Date().toISOString();
     const { data, error } = await supabase
       .from("notification_preferences")

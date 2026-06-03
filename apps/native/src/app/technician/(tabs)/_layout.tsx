@@ -1,34 +1,20 @@
 import { Tabs, usePathname } from "expo-router";
 import {
+	Bell,
 	CalendarDays,
 	House,
 	type LucideProps,
-	MessageCircle,
 	User,
 	Wallet,
 } from "lucide-react-native";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 import { ProtectedTabsLayout } from "@/src/components/navigation/ProtectedTabsLayout";
-import {
-	elevation,
-	radius,
-	shadowStyle,
-	spacing,
-} from "@/src/constants/design-tokens";
+import { Colors } from "@/src/constants/design-tokens";
+import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
 import { ROUTES } from "@/src/lib/navigation";
-import { useBottomTabMetrics } from "@/src/components/layout/tab-bar";
 import { useThemeColors } from "@/src/constants/design-tokens";
 
-const CENTER_ACTION_SIZE = spacing.button.height.lg;
-type TabBarIconProps = LucideProps & { focused: boolean };
-
-interface CenterChatTabIconProps {
-	readonly focused: boolean;
-	readonly centerActionLift: number;
-	readonly primaryColor: string;
-	readonly primaryDarkColor: string;
-	readonly surfaceColor: string;
-}
+type NotificationTabIconProps = LucideProps & { hasUnread: boolean };
 
 function TechHomeTabIcon({ color, size }: Readonly<LucideProps>) {
 	return <House size={size} color={color} strokeWidth={1.8} />;
@@ -46,48 +32,31 @@ function TechProfileTabIcon({ color, size }: Readonly<LucideProps>) {
 	return <User size={size} color={color} strokeWidth={1.8} />;
 }
 
-function CenterChatTabIcon({
-	focused,
-	centerActionLift,
-	primaryColor,
-	primaryDarkColor,
-	surfaceColor,
-}: CenterChatTabIconProps) {
+function TechNotificationTabIcon({
+	color,
+	size,
+	hasUnread,
+}: Readonly<NotificationTabIconProps>) {
 	return (
 		<View
-			style={{
-				marginTop: -centerActionLift,
-				width: CENTER_ACTION_SIZE,
-				height: CENTER_ACTION_SIZE,
-				borderRadius: radius.pill,
-				alignItems: "center",
-				justifyContent: "center",
-				backgroundColor: focused ? primaryColor : primaryDarkColor,
-				...shadowStyle(elevation.header, {
-					shadowColor: primaryColor,
-					opacity: Platform.OS === "ios" ? 0.35 : 0,
-					android: Platform.OS === "android" ? 6 : 0,
-					radius: Platform.OS === "ios" ? 10 : 0,
-				}),
-			}}
+			className="items-center justify-center"
 		>
-			<MessageCircle size={26} color={surfaceColor} strokeWidth={1.8} />
+			<Bell size={size} color={color} strokeWidth={1.8} />
+			{hasUnread ? (
+				<View
+					className="absolute -top-1 -right-1 h-status-dot-sm w-status-dot-sm rounded-pill"
+					style={{ backgroundColor: Colors.danger }}
+				/>
+			) : null}
 		</View>
 	);
 }
 
-function renderCenterChatTabIcon(
-	props: Omit<CenterChatTabIconProps, "focused">,
-	{ focused }: TabBarIconProps,
-) {
-	return <CenterChatTabIcon {...props} focused={focused} />;
-}
-
 export default function TechAppTabsLayout() {
 	const themeColors = useThemeColors();
-	const { tabBarHeight } = useBottomTabMetrics();
 	const pathname = usePathname();
-	const centerActionLift = Math.round(tabBarHeight * 0.24);
+	const { data: unreadCount } = useNotificationUnreadCountQuery("technician");
+	const hasUnread = (unreadCount ?? 0) > 0;
 	const topSafeAreaBackground =
 		pathname === ROUTES.technician.home ||
 		pathname === ROUTES.technician.schedule
@@ -116,15 +85,16 @@ export default function TechAppTabsLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="chat/index"
+				name="notifications/index"
 				options={{
-					title: "",
-					tabBarIcon: renderCenterChatTabIcon.bind(null, {
-						centerActionLift,
-						primaryColor: themeColors.primary,
-						primaryDarkColor: themeColors.primaryDark,
-						surfaceColor: themeColors.surfaceOnPrimary,
-					}),
+					title: "Notifications",
+					tabBarIcon: ({ color, size }) => (
+						<TechNotificationTabIcon
+							color={color}
+							size={size}
+							hasUnread={hasUnread}
+						/>
+					),
 				}}
 			/>
 			<Tabs.Screen
@@ -139,6 +109,12 @@ export default function TechAppTabsLayout() {
 				options={{
 					title: "My Profile",
 					tabBarIcon: TechProfileTabIcon,
+				}}
+			/>
+			<Tabs.Screen
+				name="chat/index"
+				options={{
+					href: null,
 				}}
 			/>
 		</ProtectedTabsLayout>
