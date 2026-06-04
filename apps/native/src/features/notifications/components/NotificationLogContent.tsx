@@ -5,15 +5,15 @@ import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
-  TouchableOpacity,
   View,
 } from "react-native";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import BackButton from "@/src/components/ui/back-button";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
-import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getAvatarColor } from "@/src/lib/avatar";
 import { useNotificationLogsQuery } from "@/src/features/notifications/hooks/useNotificationLogsQuery";
 import { useMarkAllNotificationsReadMutation } from "@/src/features/notifications/hooks/useMarkAllNotificationsReadMutation";
 import type {
@@ -63,9 +63,11 @@ function senderLabel(item: NotificationLogItem): string {
 export default function NotificationLogContent({
   role,
   title,
+  showBackButton = true,
 }: Readonly<{
   role: NotificationPreferencesRole;
   title: string;
+  showBackButton?: boolean;
 }>) {
   const themeColors = useThemeColors();
   const { data, isLoading, isRefetching, refetch } = useNotificationLogsQuery(role);
@@ -89,7 +91,9 @@ export default function NotificationLogContent({
           style={{ backgroundColor: Colors.primary }}
           className="flex-row items-center gap-stack-md px-card pt-stack-sm pb-card"
         >
-          <BackButton variant="header-inverse" onPress={() => router.back()} />
+          {showBackButton ? (
+            <BackButton variant="header-inverse" onPress={() => router.back()} />
+          ) : null}
           <Text variant="h3" style={{ color: themeColors.onPrimaryHeader }}>
             {title}
           </Text>
@@ -114,8 +118,8 @@ export default function NotificationLogContent({
               const target = notificationTarget(item, role);
               const avatarLabel = senderLabel(item);
               return (
-                <TouchableOpacity
-                  activeOpacity={target ? 0.8 : 1}
+                <PressableScale
+                  pressedScale={target ? 0.985 : 1}
                   disabled={!target}
                   onPress={() => {
                     if (target) {
@@ -184,7 +188,7 @@ export default function NotificationLogContent({
                       </Text>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </PressableScale>
               );
             }}
             ListEmptyComponent={

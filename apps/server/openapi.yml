@@ -103,15 +103,10 @@ components:
         technician_id:
           type: string
           format: uuid
-        time_range:
+        date:
           type: string
-          example: "[2026-03-09T09:00:00Z,2026-03-09T11:00:00Z)"
-        type:
-          type: string
-          enum: [booking, blocked]
-        source:
-          type: string
-          nullable: true
+          format: date
+          example: "2026-06-03"
         created_at:
           type: string
           format: date-time
@@ -129,17 +124,12 @@ components:
           type: integer
           minimum: 0
           maximum: 6
-        time_range:
-          type: string
-          example: "[09:00:00,17:00:00)"
+        slot_hour:
+          type: integer
+          enum: [8, 11, 14, 17, 20]
+          example: 14
         active:
           type: boolean
-        is_one_time:
-          type: boolean
-        specific_date:
-          type: string
-          format: date
-          nullable: true
 
     Session:
       type: object
@@ -1181,21 +1171,13 @@ paths:
                   type: integer
                   minimum: 0
                   maximum: 6
-                start:
-                  type: string
-                  example: "09:00:00"
-                end:
-                  type: string
-                  example: "17:00:00"
+                slot_hour:
+                  type: integer
+                  enum: [8, 11, 14, 17, 20]
+                  example: 14
                 active:
                   type: boolean
                   default: true
-                is_one_time:
-                  type: boolean
-                  default: false
-                specific_date:
-                  type: string
-                  format: date
       responses:
         "201":
           description: Template created
@@ -1257,17 +1239,12 @@ paths:
                   type: integer
                   minimum: 0
                   maximum: 6
-                start:
-                  type: string
-                  example: "09:00:00"
-                end:
-                  type: string
-                  example: "17:00:00"
+                slot_hour:
+                  type: integer
+                  enum: [8, 11, 14, 17, 20]
+                  example: 14
                 active:
                   type: boolean
-                specific_date:
-                  type: string
-                  format: date
       responses:
         "200":
           description: Template updated

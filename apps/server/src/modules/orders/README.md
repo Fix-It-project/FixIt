@@ -107,7 +107,7 @@ compatibility. The current controller forwards body fields to
 | `technician_id` | UUID | yes | Assigned technician. |
 | `service_id` | UUID | yes | Requested service. |
 | `scheduled_date` | `YYYY-MM-DD` | yes | Booking date. |
-| `scheduled_start_at` | ISO datetime | yes | Required start time; must be one of the fixed Cairo slots (`08:00`, `10:00`, `12:00`, `14:00`, `16:00`). |
+| `scheduled_start_at` | ISO datetime | yes | Required start time; must be one of the fixed Cairo slots (`08:00`, `11:00`, `14:00`, `17:00`, `20:00`). |
 | `destination_address_id` | UUID | no | If omitted, lifecycle service uses the user's active address. |
 | `problem_description` | string | no | Max 1000 chars on lifecycle DTO. |
 | `attachment` | file/string URL | no | The route accepts the field, but the current lifecycle create shim does not upload or forward files. |

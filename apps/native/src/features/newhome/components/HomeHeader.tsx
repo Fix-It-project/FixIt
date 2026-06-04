@@ -26,7 +26,6 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Icon } from "@/src/components/ui/icon";
 import { Input } from "@/src/components/ui/input";
-import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import { EASE_OUT_QUART } from "@/src/constants/animation";
 import {
@@ -167,7 +166,6 @@ export function HomeHeader({
 							{nextLanguage.toUpperCase()}
 						</Text>
 					</PressableScale>
-					<NotificationBell />
 				</View>
 			</View>
 

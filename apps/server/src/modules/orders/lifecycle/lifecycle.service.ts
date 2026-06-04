@@ -47,6 +47,10 @@ function customerName(order: Pick<Order, "user_name">): string {
 	return order.user_name?.trim() || "The customer";
 }
 
+function formatEgp(amount: number): string {
+	return `${amount.toLocaleString("en-US")} EGP`;
+}
+
 function customerSender(order: Pick<Order, "user_name">) {
 	return {
 		senderName: customerName(order),
@@ -60,6 +64,13 @@ function technicianSender(
 		senderName: technicianName(order),
 		senderImageUrl: order.technician_image ?? undefined,
 	};
+}
+
+function senderForRole(
+	order: Pick<Order, "user_name" | "technician_name" | "technician_image">,
+	role: ActorRole,
+) {
+	return role === "user" ? customerSender(order) : technicianSender(order);
 }
 
 export class LifecycleService {
@@ -179,21 +190,45 @@ export class LifecycleService {
 	}
 
 	async techStartInspection(orderId: string, techId: string): Promise<Order> {
-		return this.repo.orderAction({
+		const order = await this.repo.orderAction({
 			orderId,
 			actorId: techId,
 			actorRole: "technician",
 			action: "tech_start_inspection",
 		});
+		const notificationOrder = await this.readOrder(order.id);
+		await this.notifyBestEffort({
+			recipientRole: "user",
+			recipientId: order.user_id,
+			type: "inspection_started",
+			title: "Inspection started",
+			body: `${technicianName(notificationOrder)} started the on-site inspection.`,
+			...technicianSender(notificationOrder),
+			orderId: order.id,
+			viewerRole: "user",
+		});
+		return order;
 	}
 
 	async techFinishInspection(orderId: string, techId: string): Promise<Order> {
-		return this.repo.orderAction({
+		const order = await this.repo.orderAction({
 			orderId,
 			actorId: techId,
 			actorRole: "technician",
 			action: "tech_finish_inspection",
 		});
+		const notificationOrder = await this.readOrder(order.id);
+		await this.notifyBestEffort({
+			recipientRole: "user",
+			recipientId: order.user_id,
+			type: "inspection_finished",
+			title: "Inspection finished",
+			body: `${technicianName(notificationOrder)} finished the inspection. Final pricing can now be reviewed.`,
+			...technicianSender(notificationOrder),
+			orderId: order.id,
+			viewerRole: "user",
+		});
+		return order;
 	}
 
 	// Generic action passthrough used by the legacy PATCH shim.
@@ -279,13 +314,28 @@ export class LifecycleService {
 		amount: number,
 		notes?: string | null,
 	): Promise<OrderQuote> {
-		return this.repo.submitQuote({
+		const quote = await this.repo.submitQuote({
 			orderId,
 			actorId,
 			actorRole,
 			amount,
 			notes: notes ?? null,
 		});
+		const order = await this.readOrder(orderId);
+		const recipientRole = actorRole === "user" ? "technician" : "user";
+		const recipientId =
+			recipientRole === "user" ? order.user_id : order.technician_id;
+		await this.notifyBestEffort({
+			recipientRole,
+			recipientId,
+			type: "quote_submitted",
+			title: "New quote received",
+			body: `${actorRole === "user" ? customerName(order) : technicianName(order)} sent a quote for ${formatEgp(amount)}.`,
+			...senderForRole(order, actorRole),
+			orderId,
+			viewerRole: recipientRole,
+		});
+		return quote;
 	}
 
 	async acceptQuote(
@@ -293,7 +343,23 @@ export class LifecycleService {
 		actorId: string,
 		actorRole: ActorRole,
 	): Promise<Order> {
-		return this.repo.acceptQuote({ quoteId, actorId, actorRole });
+		const quote = await this.readQuote(quoteId);
+		const order = await this.repo.acceptQuote({ quoteId, actorId, actorRole });
+		const notificationOrder = await this.readOrder(order.id);
+		const recipientRole = quote.proposed_by;
+		const recipientId =
+			recipientRole === "user" ? order.user_id : order.technician_id;
+		await this.notifyBestEffort({
+			recipientRole,
+			recipientId,
+			type: "quote_accepted",
+			title: "Quote accepted",
+			body: `${actorRole === "user" ? customerName(notificationOrder) : technicianName(notificationOrder)} accepted your quote for ${formatEgp(quote.amount)}.`,
+			...senderForRole(notificationOrder, actorRole),
+			orderId: order.id,
+			viewerRole: recipientRole,
+		});
+		return order;
 	}
 
 	// Completion
@@ -315,6 +381,25 @@ export class LifecycleService {
 			orderId,
 			actorId,
 			actorRole,
+		});
+		const notificationOrder = await this.readOrder(order.id);
+		const recipientRole = actorRole === "user" ? "technician" : "user";
+		const recipientId =
+			recipientRole === "user"
+				? notificationOrder.user_id
+				: notificationOrder.technician_id;
+		await this.notifyBestEffort({
+			recipientRole,
+			recipientId,
+			type: "completion_confirmed",
+			title: "Completion confirmed",
+			body:
+				order.status === "awaiting_payment"
+					? `${actorRole === "user" ? customerName(notificationOrder) : technicianName(notificationOrder)} confirmed completion. The booking is ready for payment.`
+					: `${actorRole === "user" ? customerName(notificationOrder) : technicianName(notificationOrder)} confirmed the booking is complete.`,
+			...senderForRole(notificationOrder, actorRole),
+			orderId: order.id,
+			viewerRole: recipientRole,
 		});
 
 		// Read the flag here so tests can override process.env.
@@ -375,12 +460,34 @@ export class LifecycleService {
 		actorRole: ActorRole,
 		reason?: string | null,
 	): Promise<Order> {
-		return this.repo.cancelOrder({
+		const order = await this.repo.cancelOrder({
 			orderId,
 			actorId,
 			actorRole,
 			reason: reason ?? null,
 		});
+		const notificationOrder = await this.readOrder(order.id);
+		const recipientRole = actorRole === "user" ? "technician" : "user";
+		const recipientId =
+			recipientRole === "user"
+				? notificationOrder.user_id
+				: notificationOrder.technician_id;
+		const actorDisplayName =
+			actorRole === "user"
+				? customerName(notificationOrder)
+				: technicianName(notificationOrder);
+		const reasonSuffix = reason?.trim() ? ` Reason: ${reason.trim()}.` : "";
+		await this.notifyBestEffort({
+			recipientRole,
+			recipientId,
+			type: "order_cancelled",
+			title: "Order cancelled",
+			body: `${actorDisplayName} cancelled the booking.${reasonSuffix}`,
+			...senderForRole(notificationOrder, actorRole),
+			orderId: order.id,
+			viewerRole: recipientRole,
+		});
+		return order;
 	}
 
 	async resolveFeeObligation(
@@ -427,12 +534,24 @@ export class LifecycleService {
 		return order;
 	}
 
+	private async readQuote(quoteId: string): Promise<OrderQuote> {
+		const { data, error } = await supabaseAdmin
+			.from("order_quotes")
+			.select("*")
+			.eq("id", quoteId)
+			.single();
+		if (error) throw error;
+		return data as OrderQuote;
+	}
+
 	private async notifyBestEffort(input: {
 		recipientRole: "user" | "technician";
 		recipientId: string;
 		type: string;
 		title: string;
 		body: string;
+		senderName?: string;
+		senderImageUrl?: string;
 		orderId: string;
 		viewerRole: "user" | "technician";
 	}): Promise<void> {

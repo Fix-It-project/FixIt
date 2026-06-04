@@ -8,6 +8,7 @@ const { mockRepo, mockExpo } = vi.hoisted(() => ({
     deactivateByExpoPushToken: vi.fn(),
     deactivateByExpoPushTokenValue: vi.fn(),
     listActiveDevicesForRecipient: vi.fn(),
+    ensurePreferences: vi.fn(),
     getPreferences: vi.fn(),
     upsertPreferences: vi.fn(),
     createNotificationLog: vi.fn(),
@@ -44,6 +45,13 @@ describe("NotificationsService", () => {
       sound_enabled: true,
       vibration_enabled: true,
     });
+    mockRepo.ensurePreferences.mockResolvedValue({
+      recipient_role: "user",
+      recipient_id: "user-1",
+      notifications_enabled: true,
+      sound_enabled: true,
+      vibration_enabled: true,
+    });
     mockRepo.createNotificationLog.mockResolvedValue({ id: "log-1" });
   });
 
@@ -57,6 +65,7 @@ describe("NotificationsService", () => {
       expoPushToken: "ExponentPushToken[token-1]",
     });
 
+    expect(mockRepo.ensurePreferences).toHaveBeenCalledWith("user", "user-1");
     expect(mockRepo.upsertDevice).toHaveBeenCalledWith({
       recipientRole: "user",
       recipientId: "user-1",

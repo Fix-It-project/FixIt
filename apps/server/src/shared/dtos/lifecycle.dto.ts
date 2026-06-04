@@ -17,7 +17,7 @@ import { z } from "zod";
  * optional `destination_address_id` (D6 — backend auto-picks active address
  * if omitted; explicit override still validated for ownership in service).
  * `scheduled_start_at` is required and must map to one of the fixed Cairo
- * slots (08:00, 10:00, 12:00, 14:00, 16:00); service layer enforces this.
+ * slots (08:00, 11:00, 14:00, 17:00, 20:00); service layer enforces this.
  */
 export const SubmitOrderBodySchema = z.object({
 	technician_id: z.string().uuid("technician_id must be a valid UUID"),
