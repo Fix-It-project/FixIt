@@ -5,6 +5,8 @@ import type {
 	CalendarException,
 } from "../schemas/response.schema";
 import {
+	type BookedSlot,
+	bookedSlotsResponseSchema,
 	exceptionResponseSchema,
 	getExceptionsResponseSchema,
 	getTemplatesResponseSchema,
@@ -111,4 +113,22 @@ export async function getPublicSchedule(technicianId: string) {
 		response.data,
 		"getPublicSchedule",
 	).data;
+}
+
+export async function getBookedSlots(
+	technicianId: string,
+	range?: { from?: string; to?: string },
+): Promise<BookedSlot[]> {
+	const params: Record<string, string> = {};
+	if (range?.from) params.from = range.from;
+	if (range?.to) params.to = range.to;
+	const response = await apiClient.get(
+		`/api/technician-calendar/booked/${technicianId}`,
+		{ params },
+	);
+	return safeParseResponse(
+		bookedSlotsResponseSchema,
+		response.data,
+		"getBookedSlots",
+	).data.slots;
 }

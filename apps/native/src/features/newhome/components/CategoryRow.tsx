@@ -167,7 +167,7 @@ export function CategoryRow() {
 									pressedScale={0.93}
 									onPress={() =>
 										router.push({
-											pathname: ROUTES.user.services,
+											pathname: ROUTES.user.technicians,
 											params: {
 												categoryId: cat.id,
 												categoryName: cat.name,

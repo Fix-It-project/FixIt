@@ -4,8 +4,14 @@
 import { Star } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import {
+	radius,
+	space,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
+import { formatRating } from "@/src/constants/format";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 const PLACEHOLDER_WIDTH = 78;
 const PLACEHOLDER_HEIGHT = 22;
@@ -58,12 +64,9 @@ export default function RatingChip({ technicianId }: { technicianId: string }) {
 				className="font-google-sans-bold"
 				style={{ color: themeColors.textPrimary }}
 			>
-				{profile.avg_rating.toFixed(1)}
+				{formatRating(profile.avg_rating)}
 			</Text>
-			<Text
-				variant="caption"
-				style={{ color: themeColors.textMuted }}
-			>
+			<Text variant="caption" style={{ color: themeColors.textMuted }}>
 				({profile.review_count})
 			</Text>
 		</View>

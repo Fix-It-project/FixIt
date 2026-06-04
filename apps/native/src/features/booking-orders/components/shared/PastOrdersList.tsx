@@ -55,7 +55,7 @@ function PastOrderCard({
 		? CATEGORIES.find((c) => c.id === item.categoryId)
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 	const status = getOrderStatusBadge(
 		item.status,
 		themeColors,

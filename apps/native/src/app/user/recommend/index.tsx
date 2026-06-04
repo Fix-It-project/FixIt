@@ -167,9 +167,13 @@ export default function RecommendScreen() {
 						<PressableScale
 							key={result.technician_id}
 							pressedScale={0.97}
-							onPress={() =>
-								router.push(ROUTES.user.bookingRoot(result.technician_id))
-							}
+							onPress={() => {
+								const route = ROUTES.user.technicianDetail(result.technician_id);
+								router.push({
+									...route,
+									params: { ...route.params, technicianName: result.name },
+								});
+							}}
 						>
 							<View
 								className="border-border bg-card rounded-xl border"

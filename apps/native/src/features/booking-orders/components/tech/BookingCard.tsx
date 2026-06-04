@@ -29,7 +29,7 @@ export default function BookingCard({ booking, index }: BookingCardProps) {
 	);
 	const category = CATEGORIES.find((c) => c.id === booking.category_id);
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? themeColors.primary;
+	const categoryColor = themeColors.primary;
 	const initials = getPfpInitialsFallback(booking.user_name);
 	const avatarColor = getAvatarColor(booking.user_name);
 	const isCancelled =

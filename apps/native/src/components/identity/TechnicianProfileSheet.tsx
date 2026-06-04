@@ -21,6 +21,7 @@ import { Text } from "@/src/components/ui/text";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
 import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
+import { ROUTES } from "@/src/lib/navigation";
 import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface TechnicianProfileSheetRef {
@@ -215,9 +216,12 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 									<TouchableOpacity
 										onPress={() => {
 											sheetRef.current?.dismiss();
+											const route = ROUTES.user.technicianDetail(
+												sheetState.technicianId ?? "",
+											);
 											router.push({
-												pathname: "/user/technician/[id]/reviews",
-												params: { id: sheetState.technicianId ?? "" },
+												...route,
+												params: { ...route.params, tab: "Reviews" },
 											});
 										}}
 										activeOpacity={0.7}

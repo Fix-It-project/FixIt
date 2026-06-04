@@ -190,7 +190,7 @@ export default function IncomingRequestsSection({
 		(c) => c.label.toLowerCase() === (categoryName ?? "").toLowerCase(),
 	);
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? themeColors.primary;
+	const categoryColor = themeColors.primary;
 	let content = (
 		<ScrollView
 			horizontal

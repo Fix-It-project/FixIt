@@ -1,4 +1,8 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+	keepPreviousData,
+	useInfiniteQuery,
+	useQuery,
+} from "@tanstack/react-query";
 import {
 	getTechniciansByCategory,
 	searchTechniciansInCategory,
@@ -50,5 +54,49 @@ export function useTechniciansQuery(
 		staleTime: 0,
 		retry: 1,
 		placeholderData: keepPreviousData,
+	});
+}
+
+export function useTechniciansInfiniteQuery(
+	categoryId: string,
+	searchQuery = "",
+	coords?: { latitude: number; longitude: number } | null,
+	sort?: TechniciansSortParam,
+	refreshToken = 0,
+	pageSize = 20,
+) {
+	const trimmedCategoryId = categoryId.trim();
+	const trimmedQuery = searchQuery.trim();
+
+	return useInfiniteQuery({
+		queryKey: technicianQueryKeys.infiniteList(
+			trimmedCategoryId,
+			trimmedQuery,
+			coords?.latitude ?? null,
+			coords?.longitude ?? null,
+			sort ?? null,
+			pageSize,
+			refreshToken,
+		),
+		queryFn: async ({ pageParam = 0 }) => {
+			const c = coords ?? undefined;
+			const page = { limit: pageSize, offset: pageParam as number };
+			if (trimmedQuery.length >= 2) {
+				return await searchTechniciansInCategory(
+					trimmedCategoryId,
+					trimmedQuery,
+					c,
+					sort,
+					page,
+				);
+			}
+			return await getTechniciansByCategory(trimmedCategoryId, c, sort, page);
+		},
+		initialPageParam: 0,
+		getNextPageParam: (lastPage, allPages) =>
+			lastPage.length < pageSize ? undefined : allPages.length * pageSize,
+		enabled: trimmedCategoryId.length > 0,
+		staleTime: 0,
+		retry: 1,
 	});
 }

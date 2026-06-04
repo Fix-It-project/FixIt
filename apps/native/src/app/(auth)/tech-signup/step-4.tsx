@@ -40,7 +40,6 @@ export default function TechnicianSignUpStep4() {
 						<CategoryChip
 							label={item.label}
 							icon={item.icon}
-							color={item.color}
 							selected={selectedId === item.id}
 							onPress={() => toggleCategory(item.id)}
 						/>

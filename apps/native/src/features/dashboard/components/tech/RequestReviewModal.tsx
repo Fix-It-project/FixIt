@@ -51,7 +51,7 @@ export default function RequestReviewModal({
 		(c) => c.label.toLowerCase() === (categoryName ?? "").toLowerCase(),
 	);
 	const CategoryIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 	const scheduledTime = formatTime(selectedOrder?.scheduled_start_at);
 
 	const isBusy = acceptMutation.isPending || rejectMutation.isPending;

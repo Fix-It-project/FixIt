@@ -3,6 +3,8 @@ import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import {
 	type CreateReviewClientInput,
 	createReviewClientSchema,
+	type ReviewSummary,
+	reviewSummaryResponseSchema,
 	type TechnicianReviewsResponse,
 	technicianReviewsResponseSchema,
 } from "../schemas/review.schema";
@@ -38,4 +40,21 @@ export async function getTechnicianReviews(
 		data,
 		"getTechnicianReviews",
 	);
+}
+
+/**
+ * GET /api/reviews/technicians/:id/summary
+ * Aggregate rating summary (avg, count, per-star distribution). Requires user-auth.
+ */
+export async function getReviewSummary(
+	technicianId: string,
+): Promise<ReviewSummary> {
+	const { data } = await apiClient.get(
+		`/api/reviews/technicians/${technicianId}/summary`,
+	);
+	return safeParseResponse(
+		reviewSummaryResponseSchema,
+		data,
+		"getReviewSummary",
+	).data;
 }

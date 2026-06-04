@@ -200,11 +200,20 @@ export function PreviousOrdersSection() {
 											size="sm"
 											variant="secondary"
 											iconLeft={RotateCcw}
-											onPress={() =>
-												router.push(
-													ROUTES.user.bookingRoot(order.technician_id),
-												)
-											}
+											onPress={() => {
+												const route = ROUTES.user.technicianDetail(
+													order.technician_id,
+												);
+												router.push({
+													...route,
+													params: {
+														...route.params,
+														technicianName: order.technician_name ?? undefined,
+														categoryId: order.category_id ?? undefined,
+														preselectServiceId: order.service_id,
+													},
+												});
+											}}
 										>
 											{tr("reorder")}
 										</Button>

@@ -34,11 +34,28 @@ export const technicianProfileResponseSchema = z.object({
 	profile: technicianProfileSchema,
 });
 
+// A service a technician offers, with its price range (via technician_services).
+export const technicianServiceSchema = z.object({
+	id: z.string(),
+	name: z.string(),
+	description: z.string(),
+	min_price: z.number().nullable(),
+	max_price: z.number().nullable(),
+});
+
+export const technicianServicesResponseSchema = z.object({
+	services: z.array(technicianServiceSchema),
+});
+
 export type TechnicianListItem = z.infer<typeof technicianListItemSchema>;
 export type TechniciansResponse = z.infer<typeof techniciansResponseSchema>;
 export type TechnicianProfile = z.infer<typeof technicianProfileSchema>;
 export type TechnicianProfileResponse = z.infer<
 	typeof technicianProfileResponseSchema
+>;
+export type TechnicianService = z.infer<typeof technicianServiceSchema>;
+export type TechnicianServicesResponse = z.infer<
+	typeof technicianServicesResponseSchema
 >;
 
 export const recommendedTechnicianSchema = z.object({

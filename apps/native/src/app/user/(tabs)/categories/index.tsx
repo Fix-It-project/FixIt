@@ -23,7 +23,7 @@ export default function CategoriesScreen() {
 	const handleCategoryPress = useDebounce(
 		(categoryId: string, categoryName: string) => {
 			router.push({
-				pathname: ROUTES.user.services,
+				pathname: ROUTES.user.technicians,
 				params: { categoryId, categoryName },
 			});
 		},

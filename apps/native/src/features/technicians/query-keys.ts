@@ -6,5 +6,28 @@
 export const technicianQueryKeys = {
 	all: ["technicians"] as const,
 	list: () => ["technicians"] as const,
-	profile: (technicianId: string) => ["technician-profile", technicianId] as const,
+	infiniteList: (
+		categoryId: string,
+		searchQuery: string,
+		lat: number | null,
+		lng: number | null,
+		sort: string | null,
+		pageSize: number,
+		refreshToken: number,
+	) =>
+		[
+			...technicianQueryKeys.list(),
+			"infinite",
+			categoryId,
+			searchQuery,
+			lat,
+			lng,
+			sort,
+			pageSize,
+			refreshToken,
+		] as const,
+	profile: (technicianId: string) =>
+		["technician-profile", technicianId] as const,
+	services: (technicianId: string) =>
+		["technicians", "services", technicianId] as const,
 };

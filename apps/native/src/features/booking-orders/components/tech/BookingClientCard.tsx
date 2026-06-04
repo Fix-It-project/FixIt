@@ -16,7 +16,7 @@ export default function BookingClientCard({ booking }: Props) {
 	const { width } = useWindowDimensions();
 	const category = CATEGORIES.find((c) => c.id === booking.category_id);
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? themeColors.primary;
+	const categoryColor = themeColors.primary;
 	const initials = getPfpInitialsFallback(booking.user_name);
 	const avatarColor = getAvatarColor(booking.user_name);
 	const avatarSize = width < 360 ? 52 : 64;

@@ -45,6 +45,11 @@ const TOKEN_MESSAGES: Record<string, string> = {
 	order_status_inconsistent: "The order status is out of sync. Please refresh.",
 	request_expired: "That request has expired.",
 
+	// Booking submit (rpc_submit_order guards)
+	service_not_offered_by_technician:
+		"This technician doesn't offer that service. Please pick another.",
+	slot_taken: "That time slot was just booked. Please choose another.",
+
 	// Lifecycle / tracking (lifecycle.repository.ts)
 	cannot_submit_order_unpaid_fee:
 		"Your account has an unpaid inspection cancellation fee. Clear or waive it before placing a new order.",

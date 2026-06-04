@@ -3,16 +3,24 @@ import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import {
 	type TechnicianListItem,
 	type TechnicianProfile,
+	type TechnicianService,
 	technicianProfileResponseSchema,
+	technicianServicesResponseSchema,
 	techniciansResponseSchema,
 } from "../schemas/response.schema";
 
-export type TechniciansSortParam = "top_rated" | "most_reviews";
+export type TechniciansSortParam = "top_rated" | "most_reviews" | "nearest";
+
+export interface TechnicianListPageParams {
+	readonly limit?: number;
+	readonly offset?: number;
+}
 
 export async function getTechniciansByCategory(
 	categoryId: string,
 	coords?: { latitude: number; longitude: number },
 	sort?: TechniciansSortParam,
+	page?: TechnicianListPageParams,
 ): Promise<TechnicianListItem[]> {
 	const params: Record<string, string> = {};
 	if (coords) {
@@ -20,6 +28,8 @@ export async function getTechniciansByCategory(
 		params.lng = String(coords.longitude);
 	}
 	if (sort) params.sort = sort;
+	if (page?.limit != null) params.limit = String(page.limit);
+	if (page?.offset != null) params.offset = String(page.offset);
 	const { data } = await apiClient.get(
 		`/api/categories/${categoryId}/technicians`,
 		{ params },
@@ -36,6 +46,7 @@ export async function searchTechniciansInCategory(
 	query: string,
 	coords?: { latitude: number; longitude: number },
 	sort?: TechniciansSortParam,
+	page?: TechnicianListPageParams,
 ): Promise<TechnicianListItem[]> {
 	const params: Record<string, string> = { q: query };
 	if (coords) {
@@ -43,6 +54,8 @@ export async function searchTechniciansInCategory(
 		params.lng = String(coords.longitude);
 	}
 	if (sort) params.sort = sort;
+	if (page?.limit != null) params.limit = String(page.limit);
+	if (page?.offset != null) params.offset = String(page.offset);
 	const { data } = await apiClient.get(
 		`/api/categories/${categoryId}/technicians/search`,
 		{ params },
@@ -65,4 +78,17 @@ export async function getTechnicianProfile(
 		data,
 		"getTechnicianProfile",
 	).profile;
+}
+
+export async function getTechnicianServices(
+	technicianId: string,
+): Promise<TechnicianService[]> {
+	const { data } = await apiClient.get(
+		`/api/technicians/${technicianId}/services`,
+	);
+	return safeParseResponse(
+		technicianServicesResponseSchema,
+		data,
+		"getTechnicianServices",
+	).services;
 }

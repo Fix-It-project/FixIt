@@ -17,7 +17,8 @@ import {
 interface CategoryChipProps {
 	readonly label: string;
 	readonly icon: LucideIcon;
-	readonly color: string;
+	/** Accent color. Defaults to the brand primary — categories share one color. */
+	readonly color?: string;
 	readonly selected: boolean;
 	readonly onPress: () => void;
 }
@@ -33,11 +34,12 @@ function hexToRgba(hex: string, alpha: number) {
 export default function CategoryChip({
 	label,
 	icon: Icon,
-	color,
+	color: colorProp,
 	selected,
 	onPress,
 }: CategoryChipProps) {
 	const themeColors = useThemeColors();
+	const color = colorProp ?? themeColors.primary;
 	const scale = useSharedValue(1);
 	const shadowOpacity = useSharedValue(0.08);
 

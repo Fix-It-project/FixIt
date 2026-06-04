@@ -42,27 +42,14 @@ export const ROUTES = {
 		profileEdit: "/user/profile/edit" as const,
 		profileAddressNew: "/user/profile/addresses/new" as const,
 		profileOrderHistory: "/user/profile/orders/history" as const,
-		services: "/user/services" as const,
 		technicians: "/user/technicians" as const,
+		technicianDetail: (id: string) => ({
+			pathname: "/user/technician/[id]" as const,
+			params: { id },
+		}),
 		bookingRoot: (technicianId: string) => ({
 			pathname: "/user/booking/[technicianId]" as const,
 			params: { technicianId },
-		}),
-		bookingDate: (technicianId: string) => ({
-			pathname: "/user/booking/[technicianId]/date" as const,
-			params: { technicianId },
-		}),
-		bookingTime: (technicianId: string) => ({
-			pathname: "/user/booking/[technicianId]/time" as const,
-			params: { technicianId },
-		}),
-		bookingDetails: (technicianId: string) => ({
-			pathname: "/user/booking/[technicianId]/details" as const,
-			params: { technicianId },
-		}),
-		technicianReviews: (id: string) => ({
-			pathname: "/user/technician/[id]/reviews" as const,
-			params: { id },
 		}),
 		recommend: "/user/recommend" as const,
 		chat: "/user/chat" as const,

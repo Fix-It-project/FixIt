@@ -13,6 +13,7 @@ import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
+import { formatRating } from "@/src/constants/format";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
@@ -173,7 +174,7 @@ export function TopRatedSection() {
 													fill={t.ratingDefault}
 												/>
 												<Text variant="caption" className="text-foreground">
-													{tech.avg_rating.toFixed(1)}
+													{formatRating(tech.avg_rating)}
 												</Text>
 											</View>
 										) : null}
@@ -210,7 +211,19 @@ export function TopRatedSection() {
 									size="sm"
 									variant="primary"
 									fullWidth
-									onPress={() => router.push(ROUTES.user.bookingRoot(tech.id))}
+									onPress={() => {
+										const route = ROUTES.user.technicianDetail(tech.id);
+										router.push({
+											...route,
+											params: {
+												...route.params,
+												technicianName: name,
+												initials,
+												categoryId: tech.category_id,
+												categoryName,
+											},
+										});
+									}}
 									accessibilityLabel={tr("book")}
 								>
 									{tr("book")}
