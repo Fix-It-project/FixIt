@@ -2,36 +2,38 @@ import { Inbox } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
-import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
+import { TableToolbar } from "@/components/TableToolbar";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { ActivityFilter, Homeowner } from "@/types";
+import type { AdminHomeowner, HomeownerSort } from "@/types";
 import { HomeownerCardList } from "./HomeownerCardList";
-
-const FILTER_KEYS: { key: ActivityFilter; label: string }[] = [
-	{ key: "all", label: "All" },
-	{ key: "recent", label: "Recent" },
-	{ key: "dormant", label: "Dormant" },
-];
+import { HomeownerSortDropdown } from "./HomeownerSortDropdown";
 
 interface ActiveTabProps {
-	homeowners: Homeowner[];
-	onView: (homeowner: Homeowner) => void;
+	homeowners: AdminHomeowner[];
+	onView: (homeowner: AdminHomeowner) => void;
 }
 
-function isRecent(lastOrder: string): boolean {
-	const lower = lastOrder.toLowerCase();
-	return lower.startsWith("today") || lower.startsWith("yesterday") || lower.includes("days ago");
+function sortHomeowners(homeowners: AdminHomeowner[], sort: HomeownerSort): AdminHomeowner[] {
+	const arr = [...homeowners];
+	switch (sort) {
+		case "newest":
+			return arr.sort((a, b) => +new Date(b.joinedAt) - +new Date(a.joinedAt));
+		case "most_orders":
+			return arr.sort((a, b) => b.totalOrders - a.totalOrders);
+		case "most_spent":
+			return arr.sort((a, b) => b.spendValue - a.spendValue);
+		case "recent_order":
+			return arr.sort(
+				(a, b) =>
+					(b.lastOrderAt ? +new Date(b.lastOrderAt) : 0) -
+					(a.lastOrderAt ? +new Date(a.lastOrderAt) : 0),
+			);
+	}
 }
 
-function filterByActivity(homeowners: Homeowner[], f: ActivityFilter): Homeowner[] {
-	if (f === "all") return homeowners;
-	if (f === "recent") return homeowners.filter((h) => isRecent(h.lastOrder));
-	return homeowners.filter((h) => !isRecent(h.lastOrder));
-}
-
-function exportToCSV(homeowners: Homeowner[]) {
+function exportToCSV(homeowners: AdminHomeowner[]) {
 	const cols = ["Name", "Phone", "Email", "City", "Joined", "Orders", "Completed", "Cancelled", "Spend (EGP k)", "Avg rating given", "Last order"];
 	const rows = homeowners.map((h) =>
 		[h.name, h.phone, h.email, h.city, h.joined, h.totalOrders, h.completed, h.cancelled, h.spend, h.avgRatingGiven ?? "", h.lastOrder]
@@ -48,36 +50,30 @@ function exportToCSV(homeowners: Homeowner[]) {
 
 export function ActiveTab({ homeowners, onView }: ActiveTabProps) {
 	const [search, setSearch] = useState("");
-	const [filter, setFilter] = useState<ActivityFilter>("all");
+	const [sort, setSort] = useState<HomeownerSort>("newest");
 	const [page, setPage] = useState(1);
 
-	const byActivity = filterByActivity(homeowners, filter);
-	const filtered = byActivity.filter((h) =>
+	const sorted = sortHomeowners(homeowners, sort);
+	const filtered = sorted.filter((h) =>
 		h.name.toLowerCase().includes(search.toLowerCase()) ||
 		h.city.toLowerCase().includes(search.toLowerCase()) ||
 		h.email.toLowerCase().includes(search.toLowerCase()),
 	);
 
 	const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-	useEffect(() => { setPage(1); }, [filter, search]);
+	useEffect(() => { setPage(1); }, [sort, search]);
 	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 	const pageStart = (page - 1) * PAGE_SIZE;
 	const paged = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<div className="flex flex-col gap-4">
-			<TableToolbar<ActivityFilter>
+			<TableToolbar
 				searchValue={search}
 				onSearchChange={setSearch}
 				searchPlaceholder="Search name, city, email…"
-				filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<ActivityFilter> => ({
-					key,
-					label,
-					count: key === "all" ? homeowners.length : filterByActivity(homeowners, key).length,
-				}))}
-				activeFilter={filter}
-				onFilterChange={setFilter}
 				onExport={() => exportToCSV(filtered)}
+				trailing={<HomeownerSortDropdown value={sort} onChange={setSort} />}
 			/>
 
 			{/* Mobile card view */}

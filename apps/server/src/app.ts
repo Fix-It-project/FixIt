@@ -1,6 +1,6 @@
 import { technicianAddressRoutes, userAddressRoutes, } from "./modules/addresses/addresses.routes.js";
 import adminAuthRoutes from "./modules/admin-auth/admin-auth.routes.js";
-import adminDashboardRoutes from "./modules/admin-dashboard/admin-dashboard.routes.js";
+import adminDashboardRoutes, { ordersRouter as adminOrdersRoutes, homeownersRouter as adminHomeownersRoutes } from "./modules/admin-dashboard/admin-dashboard.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import categoriesRoutes from "./modules/categories/categories.routes.js";
 import ordersRoutes from "./modules/orders/orders.routes.js";
@@ -17,6 +17,8 @@ import { finalErrorMiddleware } from "./shared/errors/final-error-middleware.js"
 
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
+app.use("/api/admin/orders", adminOrdersRoutes);
+app.use("/api/admin/homeowners", adminHomeownersRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/technician-auth", technicianAuthRoutes);
 app.use("/api/addresses", userAddressRoutes);

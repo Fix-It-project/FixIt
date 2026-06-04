@@ -47,7 +47,7 @@ export function CategoryDonutChart() {
 									))}
 								</Pie>
 								<Tooltip
-									formatter={(val: number) => [`${val}%`, "Share"]}
+									formatter={(val) => [`${val}%`, "Share"]}
 									contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
 								/>
 							</PieChart>

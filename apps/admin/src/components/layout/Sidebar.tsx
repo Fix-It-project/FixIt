@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
 	BarChart2,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { FixItLogo } from "@/components/FixItLogo";
 import { apiClient } from "@/lib/api-client";
+import { meQuery } from "@/lib/auth-query";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -83,6 +85,7 @@ function NavItemRow({ item, collapsed, active, onClick }: { item: NavItem; colla
 export function Sidebar({ collapsed, onClose }: SidebarProps) {
 	const routerState = useRouterState();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const pathname = routerState.location.pathname;
 	const { user, clearSession } = useAuthStore();
 
@@ -93,6 +96,9 @@ export function Sidebar({ collapsed, onClose }: SidebarProps) {
 			// Ignore network errors; clear local session regardless.
 		}
 		clearSession();
+		// Drop the cached /me result so the login route's beforeLoad re-verifies
+		// against the (now cleared) cookie instead of redirecting back on stale data.
+		queryClient.removeQueries({ queryKey: meQuery.queryKey });
 		navigate({ to: "/login" });
 	};
 

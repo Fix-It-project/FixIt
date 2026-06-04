@@ -1,29 +1,40 @@
 import { Eye, Inbox, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CategoryTag } from "@/components/CategoryTag";
 import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
 import { StatusBadge } from "@/components/StatusBadge";
-import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
+import { TableToolbar } from "@/components/TableToolbar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CATEGORY_MAP, STATUS_META } from "@/data/mockData";
-import type { Order, OrderFilter, OrderReview, ReviewView } from "@/types";
+import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
+import {
+	humanizeStatus,
+	matchesAmountBucket,
+	matchesDatePreset,
+	matchesOrderFilter,
+	statusVariant,
+} from "@/lib/order-status";
+import type {
+	AdminOrder,
+	AmountBucket,
+	DateRangePreset,
+	OrdersPageFilter,
+	ReviewView,
+} from "@/types";
+import { OrdersFilters } from "./OrdersFilters";
+import { StatusDropdown } from "./StatusDropdown";
 
-const FILTER_KEYS: { key: OrderFilter; label: string }[] = [
-	{ key: "all", label: "All" },
+const FILTER_KEYS: { key: OrdersPageFilter; label: string }[] = [
+	{ key: "all", label: "All statuses" },
 	{ key: "pending", label: "Pending" },
+	{ key: "accepted", label: "Accepted" },
 	{ key: "active", label: "Active" },
 	{ key: "completed", label: "Completed" },
 	{ key: "cancelled", label: "Cancelled" },
 ];
 
-function filterByStatus(orders: Order[], f: OrderFilter): Order[] {
-	if (f === "all") return orders;
-	if (f === "active") return orders.filter((o) => o.status === "in_progress" || o.status === "accepted");
-	return orders.filter((o) => o.status === f);
-}
-
-function exportToCSV(orders: Order[]) {
+function exportToCSV(orders: AdminOrder[]) {
 	const cols = ["Order ID", "Date", "Customer", "Technician", "Service", "Status", "Amount (EGP)", "Rating", "Review"];
 	const rows = orders.map((o) =>
 		[
@@ -31,8 +42,8 @@ function exportToCSV(orders: Order[]) {
 			o.when,
 			o.customer,
 			o.tech,
-			CATEGORY_MAP[o.category]?.name ?? o.category,
-			o.status,
+			o.category,
+			humanizeStatus(o.status),
 			o.amount,
 			o.review?.rating ?? "",
 			(o.review?.comment ?? "").replace(/"/g, '""'),
@@ -50,35 +61,41 @@ function exportToCSV(orders: Order[]) {
 }
 
 interface OrdersTableProps {
-	orders: Order[];
+	orders: AdminOrder[];
+	isLoading?: boolean;
 }
 
-function toReviewView(order: Order): ReviewView | null {
-	const r: OrderReview | null | undefined = order.review;
+function toReviewView(order: AdminOrder): ReviewView | null {
+	const r = order.review;
 	if (!r || !r.comment) return null;
 	return { rating: r.rating, comment: r.comment, customer: r.customer, date: r.date, orderId: order.id };
 }
 
-export function OrdersTable({ orders }: OrdersTableProps) {
-	const [filter, setFilter] = useState<OrderFilter>("all");
+export function OrdersTable({ orders, isLoading }: OrdersTableProps) {
+	const [filter, setFilter] = useState<OrdersPageFilter>("all");
 	const [search, setSearch] = useState("");
+	const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
+	const [amountBucket, setAmountBucket] = useState<AmountBucket>("all");
 	const [expandedReason, setExpandedReason] = useState<string | null>(null);
 	const [reviewView, setReviewView] = useState<ReviewView | null>(null);
 	const [page, setPage] = useState(1);
 
-	const byStatus = filterByStatus(orders, filter);
-	const visible = byStatus.filter((o) => {
-		if (!search) return true;
-		const q = search.toLowerCase();
-		return (
-			o.id.toLowerCase().includes(q) ||
-			o.customer.toLowerCase().includes(q) ||
-			o.tech.toLowerCase().includes(q)
-		);
+	// base = everything except the status chip (so chip counts reflect the other filters)
+	const base = orders.filter((o) => {
+		if (search) {
+			const q = search.toLowerCase();
+			const hit =
+				o.id.toLowerCase().includes(q) ||
+				o.customer.toLowerCase().includes(q) ||
+				o.tech.toLowerCase().includes(q);
+			if (!hit) return false;
+		}
+		return matchesDatePreset(o.createdAt, datePreset) && matchesAmountBucket(o.amount, amountBucket);
 	});
+	const visible = base.filter((o) => matchesOrderFilter(o.status, filter));
 
 	const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
-	useEffect(() => { setPage(1); }, [filter, search]);
+	useEffect(() => { setPage(1); }, [filter, search, datePreset, amountBucket]);
 	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 	const pageStart = (page - 1) * PAGE_SIZE;
 	const paged = visible.slice(pageStart, pageStart + PAGE_SIZE);
@@ -86,18 +103,30 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<TableToolbar<OrderFilter>
+				<TableToolbar<OrdersPageFilter>
 					searchValue={search}
 					onSearchChange={setSearch}
 					searchPlaceholder="Search ID, customer, technician…"
-					filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<OrderFilter> => ({
-						key,
-						label,
-						count: key === "all" ? orders.length : filterByStatus(orders, key).length,
-					}))}
-					activeFilter={filter}
-					onFilterChange={setFilter}
 					onExport={() => exportToCSV(visible)}
+					trailing={
+						<>
+							<StatusDropdown
+								value={filter}
+								options={FILTER_KEYS.map(({ key, label }) => ({
+									key,
+									label,
+									count: key === "all" ? base.length : base.filter((o) => matchesOrderFilter(o.status, key)).length,
+								}))}
+								onChange={setFilter}
+							/>
+							<OrdersFilters
+								datePreset={datePreset}
+								onDatePreset={setDatePreset}
+								amountBucket={amountBucket}
+								onAmountBucket={setAmountBucket}
+							/>
+						</>
+					}
 				/>
 
 				{/* Table */}
@@ -109,14 +138,19 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 								<TableHead className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Date</TableHead>
 								<TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Customer</TableHead>
 								<TableHead className="hidden lg:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Technician</TableHead>
-								<TableHead className="hidden sm:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Service</TableHead>
+								<TableHead className="hidden sm:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Category</TableHead>
 								<TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Status</TableHead>
 								<TableHead className="hidden md:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Review</TableHead>
 								<TableHead className="text-right pr-5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Amount</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{visible.length === 0 && (
+							{isLoading && (
+								<TableRow className="hover:bg-transparent">
+									<TableCell colSpan={8} className="py-16 text-center text-muted-foreground text-sm">Loading orders…</TableCell>
+								</TableRow>
+							)}
+							{!isLoading && visible.length === 0 && (
 								<TableRow className="hover:bg-transparent">
 									<TableCell colSpan={8} className="py-16">
 										<div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -128,13 +162,11 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 								</TableRow>
 							)}
 							{paged.map((order) => {
-								const meta = STATUS_META[order.status];
-								const cat = CATEGORY_MAP[order.category];
 								const reviewItem = toReviewView(order);
 								return (
 									<TableRow key={order.id} className="group transition-colors hover:bg-muted/30">
 										<TableCell className="pl-5 py-3">
-											<p className="text-xs font-mono font-semibold text-foreground">{order.id}</p>
+											<p className="text-xs font-mono font-semibold text-foreground">{order.id.slice(0, 8)}</p>
 											<p className="text-[11px] text-muted-foreground md:hidden mt-0.5">{order.when}</p>
 										</TableCell>
 										<TableCell className="hidden md:table-cell text-xs text-muted-foreground whitespace-nowrap py-3">
@@ -144,21 +176,12 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 										<TableCell className="hidden lg:table-cell py-3">
 											<span className="text-xs text-foreground font-medium">{order.tech}</span>
 										</TableCell>
-										<TableCell className="hidden sm:table-cell text-xs text-foreground py-3">
-											{cat && (
-												<span className="inline-flex items-center gap-1.5">
-													<span
-														className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-														style={{ backgroundColor: cat.color }}
-													/>
-													{cat.name}
-												</span>
-											)}
-											{!cat && <span>{order.category}</span>}
+										<TableCell className="hidden sm:table-cell py-3">
+											<CategoryTag meta={getCategoryMetaBySpecialty(order.category)} fallbackLabel={order.category} size="sm" />
 										</TableCell>
 										<TableCell className="py-3">
 											<div className="flex items-center gap-1.5 whitespace-nowrap">
-												{meta && <StatusBadge variant={meta.cls} label={meta.label} />}
+												<StatusBadge variant={statusVariant(order.status)} label={humanizeStatus(order.status)} />
 												{order.cancelReason && (
 													<button
 														type="button"
@@ -233,7 +256,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 						<div className="flex flex-col gap-3">
 							<div className="flex items-center justify-between">
 								<StarRating rating={reviewView.rating} />
-								<span className="text-[11px] font-mono text-muted-foreground">{reviewView.orderId}</span>
+								<span className="text-[11px] font-mono text-muted-foreground">{reviewView.orderId.slice(0, 8)}</span>
 							</div>
 							<p className="text-sm text-foreground leading-relaxed bg-muted/40 rounded-lg p-3 border-l-2 border-primary">
 								"{reviewView.comment}"
