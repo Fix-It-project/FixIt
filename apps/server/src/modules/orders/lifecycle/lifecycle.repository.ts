@@ -165,6 +165,10 @@ const HUMAN: Record<string, string> = {
 		"Please clear your unpaid fees before submitting another order.",
 	destination_address_not_owned_by_user:
 		"That address isn't on your account.",
+	service_not_offered_by_technician:
+		"This technician doesn't offer that service.",
+	slot_taken: "That time slot was just booked. Please pick another.",
+	tech_unavailable: "The technician isn't available on that day.",
 	order_not_found_or_not_owner: "Order not found.",
 	order_not_found: "Order not found.",
 	not_owner: "You don't have access to this order.",
@@ -233,6 +237,10 @@ export function mapLifecycleRpcError(error: {
 		conflict("cannot_submit_order_unpaid_fee");
 	if (msg.includes("destination_address_not_owned_by_user"))
 		forbidden("destination_address_not_owned_by_user");
+	if (msg.includes("service_not_offered_by_technician"))
+		badRequest("service_not_offered_by_technician");
+	if (msg.includes("slot_taken")) conflict("slot_taken");
+	if (msg.includes("tech_unavailable")) conflict("tech_unavailable");
 	if (msg.includes("order_not_found_or_not_owner"))
 		notFound("order_not_found_or_not_owner");
 

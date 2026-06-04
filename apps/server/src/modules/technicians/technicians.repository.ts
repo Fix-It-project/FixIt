@@ -117,6 +117,15 @@ export interface TechnicianListDTO {
 	review_count: number;
 }
 
+/** A service a technician offers (price range), via technician_services. */
+export interface TechnicianServiceDTO {
+	id: string;
+	name: string;
+	description: string;
+	min_price: number | null;
+	max_price: number | null;
+}
+
 export function toDTO(
 	row: TechnicianWithAddressRow,
 	userLat?: number,
@@ -175,6 +184,9 @@ export interface ITechnicianQueryRepository {
 		query: string,
 	): Promise<TechnicianWithAddressRow[]>;
 	getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null>;
+	getServicesForTechnician(
+		technicianId: string,
+	): Promise<TechnicianServiceDTO[]>;
 	getReviewAggregatesByTechnicianIds(
 		technicianIds: string[],
 	): Promise<Map<string, ReviewAggregate>>;
@@ -357,6 +369,61 @@ export class TechniciansRepository implements ITechniciansRepository {
 			avg_rating: agg.avg_rating,
 			review_count: agg.review_count,
 		};
+	}
+
+	async getServicesForTechnician(
+		technicianId: string,
+	): Promise<TechnicianServiceDTO[]> {
+		const { data, error } = await supabaseAdmin
+			.from("technician_services")
+			.select("services(id, name, description, min_price, max_price)")
+			.eq("technician_id", technicianId);
+
+		if (error) throw new Error(error.message);
+
+		const rows = (data ?? []) as Array<{
+			services: TechnicianServiceDTO | TechnicianServiceDTO[] | null;
+		}>;
+
+		const services = rows
+			.map((row) =>
+				Array.isArray(row.services) ? (row.services[0] ?? null) : row.services,
+			)
+			.filter((s): s is TechnicianServiceDTO => s != null);
+
+		if (services.length > 0) return this.sortTechnicianServices(services);
+
+		// Existing production data may predate technician_services seeding. Fall back
+		// to the technician's category services so the detail page remains real-data only.
+		return this.getCategoryServicesForTechnician(technicianId);
+	}
+
+	private async getCategoryServicesForTechnician(
+		technicianId: string,
+	): Promise<TechnicianServiceDTO[]> {
+		const { data: technician, error: technicianError } = await supabaseAdmin
+			.from("technicians")
+			.select("category_id")
+			.eq("id", technicianId)
+			.maybeSingle();
+
+		if (technicianError) throw new Error(technicianError.message);
+		if (!technician) return [];
+
+		const { data, error } = await supabaseAdmin
+			.from("services")
+			.select("id, name, description, min_price, max_price")
+			.eq("category_id", (technician as { category_id: string }).category_id);
+
+		if (error) throw new Error(error.message);
+
+		return this.sortTechnicianServices((data ?? []) as TechnicianServiceDTO[]);
+	}
+
+	private sortTechnicianServices(
+		services: TechnicianServiceDTO[],
+	): TechnicianServiceDTO[] {
+		return [...services].sort((a, b) => a.name.localeCompare(b.name));
 	}
 
 	async getTechniciansByCategory(

@@ -127,7 +127,9 @@ describe("ReviewsController", () => {
 		});
 
 		it("forwards service errors via next()", async () => {
-			mockService.getReviewsForTechnician.mockRejectedValue(new Error("db down"));
+			mockService.getReviewsForTechnician.mockRejectedValue(
+				new Error("db down"),
+			);
 
 			const req = mockReq({
 				params: { id: "tech-1" },

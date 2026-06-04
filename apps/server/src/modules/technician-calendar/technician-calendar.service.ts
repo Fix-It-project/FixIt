@@ -1,225 +1,280 @@
+import { ordersRepository } from "../orders/orders.repository.js";
 import {
-  technicianCalendarRepository,
-  type CreateCalendarEntryData,
-  type UpdateCalendarEntryData,
-  type CalendarQueryParams,
-  type CreateTemplateData,
-  type UpdateTemplateData,
-} from './technician-calendar.repository.js';
-import { ordersRepository } from '../orders/orders.repository.js';
+	type CalendarQueryParams,
+	type CreateCalendarEntryData,
+	type CreateTemplateData,
+	technicianCalendarRepository,
+	type UpdateCalendarEntryData,
+	type UpdateTemplateData,
+} from "./technician-calendar.repository.js";
 
 export class TechnicianCalendarService {
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+	// ─── Helpers ──────────────────────────────────────────────────────────────
 
-  private normalizeDate(date: string) {
-    const d = new Date(date);
-    if (Number.isNaN(d.getTime())) {
-      throw { status: 400, message: 'Invalid date format. Use YYYY-MM-DD.' };
-    }
-    return d.toISOString().slice(0, 10); // YYYY-MM-DD
-  }
+	private normalizeDate(date: string) {
+		const d = new Date(date);
+		if (Number.isNaN(d.getTime())) {
+			throw { status: 400, message: "Invalid date format. Use YYYY-MM-DD." };
+		}
+		return d.toISOString().slice(0, 10); // YYYY-MM-DD
+	}
 
-  /** Holidays/off days can be today or later (not in the past). */
-  private ensureNotPastDate(date: string) {
-    const normalized = this.normalizeDate(date);
+	/** Holidays/off days can be today or later (not in the past). */
+	private ensureNotPastDate(date: string) {
+		const normalized = this.normalizeDate(date);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
 
-    const target = new Date(normalized);
-    target.setHours(0, 0, 0, 0);
+		const target = new Date(normalized);
+		target.setHours(0, 0, 0, 0);
 
-    if (target < today) {
-      throw { status: 400, message: 'Date cannot be in the past.' };
-    }
+		if (target < today) {
+			throw { status: 400, message: "Date cannot be in the past." };
+		}
 
-    return normalized;
-  }
+		return normalized;
+	}
 
-  private validateDayOfWeek(day: number) {
-    if (!Number.isInteger(day) || day < 0 || day > 6) {
-      throw {
-        status: 400,
-        message: '`day_of_week` must be an integer between 0 (Sunday) and 6 (Saturday).',
-      };
-    }
-  }
+	private validateDayOfWeek(day: number) {
+		if (!Number.isInteger(day) || day < 0 || day > 6) {
+			throw {
+				status: 400,
+				message:
+					"`day_of_week` must be an integer between 0 (Sunday) and 6 (Saturday).",
+			};
+		}
+	}
 
-  private validateSlotHour(slotHour: number) {
-    if (![8, 10, 12, 14, 16].includes(slotHour)) {
-      throw {
-        status: 400,
-        message: "`slot_hour` must be one of 8, 10, 12, 14, 16.",
-      };
-    }
-  }
+	private validateSlotHour(slotHour: number) {
+		if (![8, 10, 12, 14, 16].includes(slotHour)) {
+			throw {
+				status: 400,
+				message: "`slot_hour` must be one of 8, 10, 12, 14, 16.",
+			};
+		}
+	}
 
-  /** Holiday rules: no other exception exists for this day, and no active bookings. */
-  private async ensureHolidayConstraints(technicianId: string, date: string, excludeId?: string) {
-    const entries = await technicianCalendarRepository.getEntriesByTechnicianId(technicianId, {
-      from: date,
-      to: date,
-    });
+	/** Holiday rules: no other exception exists for this day, and no active bookings. */
+	private async ensureHolidayConstraints(
+		technicianId: string,
+		date: string,
+		excludeId?: string,
+	) {
+		const entries = await technicianCalendarRepository.getEntriesByTechnicianId(
+			technicianId,
+			{
+				from: date,
+				to: date,
+			},
+		);
 
-    const hasHoliday = entries.some(e => !excludeId || e.id !== excludeId);
-    if (hasHoliday) {
-      throw { status: 409, message: 'A holiday/exception already exists for this day.' };
-    }
+		const hasHoliday = entries.some((e) => !excludeId || e.id !== excludeId);
+		if (hasHoliday) {
+			throw {
+				status: 409,
+				message: "A holiday/exception already exists for this day.",
+			};
+		}
 
-    // NEW: Check the orders table for active bookings
-    const activeOrdersCount = await ordersRepository.getActiveOrdersCountForDate(technicianId, date);
-    if (activeOrdersCount > 0) {
-      throw {
-        status: 409,
-        message: 'There are active bookings on this day. Cancel them before setting a holiday.',
-      };
-    }
-  }
+		// NEW: Check the orders table for active bookings
+		const activeOrdersCount =
+			await ordersRepository.getActiveOrdersCountForDate(technicianId, date);
+		if (activeOrdersCount > 0) {
+			throw {
+				status: 409,
+				message:
+					"There are active bookings on this day. Cancel them before setting a holiday.",
+			};
+		}
+	}
 
-  // ─── Calendar entries (per‑day exceptions) ──────────────────────
+	// ─── Calendar entries (per‑day exceptions) ──────────────────────
 
-  async getCalendar(technicianId: string, params: CalendarQueryParams) {
-    const { from, to } = params;
-    const normalized: CalendarQueryParams = {};
-    if (from) normalized.from = this.normalizeDate(from);
-    if (to) normalized.to = this.normalizeDate(to);
-    return technicianCalendarRepository.getEntriesByTechnicianId(technicianId, normalized);
-  }
+	async getCalendar(technicianId: string, params: CalendarQueryParams) {
+		const { from, to } = params;
+		const normalized: CalendarQueryParams = {};
+		if (from) normalized.from = this.normalizeDate(from);
+		if (to) normalized.to = this.normalizeDate(to);
+		return technicianCalendarRepository.getEntriesByTechnicianId(
+			technicianId,
+			normalized,
+		);
+	}
 
-  async getEntry(id: string) {
-    const entry = await technicianCalendarRepository.getEntryById(id);
-    if (!entry) throw { status: 404, message: 'Calendar entry not found.' };
-    return entry;
-  }
+	/** Slots already booked (Cairo hour) for a technician within an optional range. */
+	async getBookedSlots(technicianId: string, params: CalendarQueryParams) {
+		const { from, to } = params;
+		const normalized: CalendarQueryParams = {};
+		if (from) normalized.from = this.normalizeDate(from);
+		if (to) normalized.to = this.normalizeDate(to);
+		return technicianCalendarRepository.getBookedSlots(
+			technicianId,
+			normalized,
+		);
+	}
 
-  async createEntry(data: CreateCalendarEntryData) {
-    const technicianId = data.technician_id;
-    const normalizedDate = this.ensureNotPastDate(data.date);
+	async getEntry(id: string) {
+		const entry = await technicianCalendarRepository.getEntryById(id);
+		if (!entry) throw { status: 404, message: "Calendar entry not found." };
+		return entry;
+	}
 
-    await this.ensureHolidayConstraints(technicianId, normalizedDate);
+	async createEntry(data: CreateCalendarEntryData) {
+		const technicianId = data.technician_id;
+		const normalizedDate = this.ensureNotPastDate(data.date);
 
-    return technicianCalendarRepository.createEntry({
-      technician_id: technicianId,
-      date: normalizedDate,
-    });
-  }
+		await this.ensureHolidayConstraints(technicianId, normalizedDate);
 
-  async updateEntry(id: string, data: UpdateCalendarEntryData) {
-    const existing = await technicianCalendarRepository.getEntryById(id);
-    if (!existing) throw { status: 404, message: 'Calendar entry not found.' };
+		return technicianCalendarRepository.createEntry({
+			technician_id: technicianId,
+			date: normalizedDate,
+		});
+	}
 
-    const updates: UpdateCalendarEntryData = {};
+	async updateEntry(id: string, data: UpdateCalendarEntryData) {
+		const existing = await technicianCalendarRepository.getEntryById(id);
+		if (!existing) throw { status: 404, message: "Calendar entry not found." };
 
-    if (data.date) {
-      const normalizedDate = this.ensureNotPastDate(data.date);
-      await this.ensureHolidayConstraints(existing.technician_id, normalizedDate, id);
-      updates.date = normalizedDate;
-    }
+		const updates: UpdateCalendarEntryData = {};
 
-    if (Object.keys(updates).length === 0) {
-      return existing;
-    }
+		if (data.date) {
+			const normalizedDate = this.ensureNotPastDate(data.date);
+			await this.ensureHolidayConstraints(
+				existing.technician_id,
+				normalizedDate,
+				id,
+			);
+			updates.date = normalizedDate;
+		}
 
-    return technicianCalendarRepository.updateEntry(id, updates);
-  }
+		if (Object.keys(updates).length === 0) {
+			return existing;
+		}
 
-  async deleteEntry(id: string) {
-    const existing = await technicianCalendarRepository.getEntryById(id);
-    if (!existing) throw { status: 404, message: 'Calendar entry not found.' };
+		return technicianCalendarRepository.updateEntry(id, updates);
+	}
 
-    await technicianCalendarRepository.deleteEntry(id);
-  }
+	async deleteEntry(id: string) {
+		const existing = await technicianCalendarRepository.getEntryById(id);
+		if (!existing) throw { status: 404, message: "Calendar entry not found." };
 
-  // ─── Availability templates (recurring on/off weekdays) ──────────────────
+		await technicianCalendarRepository.deleteEntry(id);
+	}
 
-  async getTemplates(technicianId: string, activeOnly: boolean) {
-    return technicianCalendarRepository.getTemplatesByTechnicianId(technicianId, activeOnly);
-  }
+	// ─── Availability templates (recurring on/off weekdays) ──────────────────
 
-  async getTemplate(id: string) {
-    const template = await technicianCalendarRepository.getTemplateById(id);
-    if (!template) throw { status: 404, message: 'Availability template not found.' };
-    return template;
-  }
+	async getTemplates(technicianId: string, activeOnly: boolean) {
+		return technicianCalendarRepository.getTemplatesByTechnicianId(
+			technicianId,
+			activeOnly,
+		);
+	}
 
-  async createTemplate(data: CreateTemplateData) {
-    if (data.day_of_week === undefined) {
-      throw { status: 400, message: 'day_of_week is required for availability templates.' };
-    }
+	async getTemplate(id: string) {
+		const template = await technicianCalendarRepository.getTemplateById(id);
+		if (!template)
+			throw { status: 404, message: "Availability template not found." };
+		return template;
+	}
 
-    this.validateDayOfWeek(data.day_of_week);
-    const slotHour = data.slot_hour ?? 8;
-    this.validateSlotHour(slotHour);
+	async createTemplate(data: CreateTemplateData) {
+		if (data.day_of_week === undefined) {
+			throw {
+				status: 400,
+				message: "day_of_week is required for availability templates.",
+			};
+		}
 
-    // Upsert: delegate to the repository which uses Supabase's native upsert
-    // on the (technician_id, day_of_week) unique constraint. POST is now
-    // fully idempotent — no 409 ever reaches the frontend.
-    return technicianCalendarRepository.upsertTemplate({
-      technician_id: data.technician_id,
-      day_of_week: data.day_of_week,
-      slot_hour: slotHour,
-      active: data.active,
-    });
-  }
+		this.validateDayOfWeek(data.day_of_week);
+		const slotHour = data.slot_hour ?? 8;
+		this.validateSlotHour(slotHour);
 
-  async updateTemplate(id: string, data: UpdateTemplateData) {
-    const existing = await technicianCalendarRepository.getTemplateById(id);
-    if (!existing) throw { status: 404, message: 'Availability template not found.' };
+		// Upsert: delegate to the repository which uses Supabase's native upsert
+		// on the (technician_id, day_of_week) unique constraint. POST is now
+		// fully idempotent — no 409 ever reaches the frontend.
+		return technicianCalendarRepository.upsertTemplate({
+			technician_id: data.technician_id,
+			day_of_week: data.day_of_week,
+			slot_hour: slotHour,
+			active: data.active,
+		});
+	}
 
-    if (data.day_of_week !== undefined && data.day_of_week !== existing.day_of_week) {
-      this.validateDayOfWeek(data.day_of_week);
-      const allTemplates = await technicianCalendarRepository.getTemplatesByTechnicianId(existing.technician_id, false);
-      const targetSlot = data.slot_hour ?? existing.slot_hour ?? 8;
-      const duplicate = allTemplates.find(
-        t =>
-          t.day_of_week === data.day_of_week &&
-          (t.slot_hour ?? 8) === targetSlot &&
-          t.id !== existing.id
-      );
-      if (duplicate) {
-        throw {
-          status: 409,
-          message: 'A template for this weekday and slot already exists.',
-        };
-      }
-    }
+	async updateTemplate(id: string, data: UpdateTemplateData) {
+		const existing = await technicianCalendarRepository.getTemplateById(id);
+		if (!existing)
+			throw { status: 404, message: "Availability template not found." };
 
-    if (data.slot_hour !== undefined) {
-      this.validateSlotHour(data.slot_hour);
-      const allTemplates = await technicianCalendarRepository.getTemplatesByTechnicianId(existing.technician_id, false);
-      const targetDay = data.day_of_week ?? existing.day_of_week;
-      const duplicate = allTemplates.find(
-        t =>
-          t.day_of_week === targetDay &&
-          (t.slot_hour ?? 8) === data.slot_hour &&
-          t.id !== existing.id
-      );
-      if (duplicate) {
-        throw {
-          status: 409,
-          message: 'A template for this weekday and slot already exists.',
-        };
-      }
-    }
+		if (
+			data.day_of_week !== undefined &&
+			data.day_of_week !== existing.day_of_week
+		) {
+			this.validateDayOfWeek(data.day_of_week);
+			const allTemplates =
+				await technicianCalendarRepository.getTemplatesByTechnicianId(
+					existing.technician_id,
+					false,
+				);
+			const targetSlot = data.slot_hour ?? existing.slot_hour ?? 8;
+			const duplicate = allTemplates.find(
+				(t) =>
+					t.day_of_week === data.day_of_week &&
+					(t.slot_hour ?? 8) === targetSlot &&
+					t.id !== existing.id,
+			);
+			if (duplicate) {
+				throw {
+					status: 409,
+					message: "A template for this weekday and slot already exists.",
+				};
+			}
+		}
 
-    return technicianCalendarRepository.updateTemplate(id, data);
-  }
+		if (data.slot_hour !== undefined) {
+			this.validateSlotHour(data.slot_hour);
+			const allTemplates =
+				await technicianCalendarRepository.getTemplatesByTechnicianId(
+					existing.technician_id,
+					false,
+				);
+			const targetDay = data.day_of_week ?? existing.day_of_week;
+			const duplicate = allTemplates.find(
+				(t) =>
+					t.day_of_week === targetDay &&
+					(t.slot_hour ?? 8) === data.slot_hour &&
+					t.id !== existing.id,
+			);
+			if (duplicate) {
+				throw {
+					status: 409,
+					message: "A template for this weekday and slot already exists.",
+				};
+			}
+		}
 
-  async deleteTemplate(id: string) {
-    const existing = await technicianCalendarRepository.getTemplateById(id);
-    if (!existing) throw { status: 404, message: 'Availability template not found.' };
+		return technicianCalendarRepository.updateTemplate(id, data);
+	}
 
-    await technicianCalendarRepository.deleteTemplate(id);
-  }
+	async deleteTemplate(id: string) {
+		const existing = await technicianCalendarRepository.getTemplateById(id);
+		if (!existing)
+			throw { status: 404, message: "Availability template not found." };
 
-  async isDateHoliday(technicianId: string, date: string): Promise<boolean> {
-    const entries = await technicianCalendarRepository.getEntriesByTechnicianId(technicianId, {
-      from: date,
-      to: date,
-    });
-    // If any record exists in calendar_exceptions for this date, it's considered blocked.
-    return entries.length > 0;
-  }
+		await technicianCalendarRepository.deleteTemplate(id);
+	}
+
+	async isDateHoliday(technicianId: string, date: string): Promise<boolean> {
+		const entries = await technicianCalendarRepository.getEntriesByTechnicianId(
+			technicianId,
+			{
+				from: date,
+				to: date,
+			},
+		);
+		// If any record exists in calendar_exceptions for this date, it's considered blocked.
+		return entries.length > 0;
+	}
 }
 
 export const technicianCalendarService = new TechnicianCalendarService();
