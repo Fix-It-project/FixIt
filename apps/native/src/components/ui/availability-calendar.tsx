@@ -6,10 +6,24 @@
 // matches the server's EXTRACT(DOW FROM scheduled_date) and never drifts across
 // the UTC-midnight boundary.
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Calendar, type DateData } from "react-native-calendars";
+import Animated, {
+	useAnimatedStyle,
+	useReducedMotion,
+	useSharedValue,
+	withTiming,
+	ZoomIn,
+} from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
+import {
+	CALENDAR_MONTH_SLIDE_X,
+	DUR_CALENDAR_MONTH,
+	DUR_CALENDAR_SELECT,
+	EASE_OUT_EXPO,
+	EASE_OUT_QUART,
+} from "@/src/constants/animation";
 import {
 	getCalendarTheme,
 	useThemeColors,
@@ -39,6 +53,11 @@ function addMonthsYmd(ymd: string, months: number): string {
  */
 function dayOfWeek(ymd: string): number {
 	return new Date(`${ymd}T00:00:00`).getDay();
+}
+
+function monthIndex(ymd: string): number {
+	const [year, month] = ymd.split("-").map(Number);
+	return year * 12 + month;
 }
 
 interface DayTemplate {
@@ -74,9 +93,13 @@ export function AvailabilityCalendar({
 }: AvailabilityCalendarProps) {
 	const themeColors = useThemeColors();
 	const tokens = useThemeTokens();
+	const reducedMotion = useReducedMotion();
+	const monthProgress = useSharedValue(1);
+	const monthDirection = useSharedValue(1);
 	const calendarTheme = useMemo(() => getCalendarTheme(tokens), [tokens]);
 
 	const today = useMemo(() => cairoTodayYmd(), []);
+	const [visibleMonth, setVisibleMonth] = useState(selectedDate ?? today);
 	const maxDate = useMemo(
 		() => addMonthsYmd(today, monthsAhead),
 		[today, monthsAhead],
@@ -91,6 +114,37 @@ export function AvailabilityCalendar({
 	const exceptionDates = useMemo(
 		() => new Set(exceptions.map((e) => e.date)),
 		[exceptions],
+	);
+
+	const calendarAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: 0.78 + monthProgress.value * 0.22,
+		transform: [
+			{
+				translateX:
+					(1 - monthProgress.value) *
+					monthDirection.value *
+					CALENDAR_MONTH_SLIDE_X,
+			},
+		],
+	}));
+
+	const handleMonthChange = useCallback(
+		(date: DateData) => {
+			const nextMonth = date.dateString;
+			if (nextMonth.slice(0, 7) === visibleMonth.slice(0, 7)) return;
+
+			monthDirection.value =
+				monthIndex(nextMonth) > monthIndex(visibleMonth) ? 1 : -1;
+			setVisibleMonth(nextMonth);
+
+			if (reducedMotion) return;
+			monthProgress.value = 0;
+			monthProgress.value = withTiming(1, {
+				duration: DUR_CALENDAR_MONTH,
+				easing: EASE_OUT_EXPO,
+			});
+		},
+		[monthDirection, monthProgress, reducedMotion, visibleMonth],
 	);
 
 	const DayCell = useCallback(
@@ -111,7 +165,12 @@ export function AvailabilityCalendar({
 			// Selected (available) day → filled primary circle.
 			if (isSelected && !isBlocked) {
 				return (
-					<View
+					<Animated.View
+						entering={
+							reducedMotion
+								? undefined
+								: ZoomIn.duration(DUR_CALENDAR_SELECT).easing(EASE_OUT_QUART)
+						}
 						className="h-9 w-9 items-center justify-center rounded-pill"
 						style={{ backgroundColor: themeColors.primary }}
 					>
@@ -122,7 +181,7 @@ export function AvailabilityCalendar({
 						>
 							{date.day}
 						</Text>
-					</View>
+					</Animated.View>
 				);
 			}
 
@@ -163,6 +222,7 @@ export function AvailabilityCalendar({
 				<TouchableOpacity
 					onPress={() => onDateSelect(ymd)}
 					activeOpacity={0.7}
+					testID="calendar-available-day"
 					className="h-9 w-9 items-center justify-center rounded-pill"
 				>
 					<Text variant="bodySm" style={{ color: themeColors.textCalendar }}>
@@ -179,17 +239,25 @@ export function AvailabilityCalendar({
 			exceptionDates,
 			selectedDate,
 			onDateSelect,
+			reducedMotion,
 			themeColors,
 		],
 	);
 
 	return (
-		<Calendar
-			minDate={today}
-			maxDate={maxDate}
-			theme={calendarTheme}
-			dayComponent={DayCell}
-			disableAllTouchEventsForDisabledDays
-		/>
+		<View className="overflow-hidden">
+			<Animated.View style={calendarAnimatedStyle}>
+				<Calendar
+					current={visibleMonth}
+					minDate={today}
+					maxDate={maxDate}
+					theme={calendarTheme}
+					dayComponent={DayCell}
+					onMonthChange={handleMonthChange}
+					enableSwipeMonths
+					disableAllTouchEventsForDisabledDays
+				/>
+			</Animated.View>
+		</View>
 	);
 }

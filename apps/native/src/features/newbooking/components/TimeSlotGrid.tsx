@@ -1,6 +1,16 @@
 import { useMemo } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Text } from "@/src/components/ui/text";
+import {
+	DUR_SLOT_REVEAL,
+	EASE_OUT_QUART,
+	ENTRANCE_STAGGER,
+} from "@/src/constants/animation";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import {
 	BOOKING_SLOT_OPTIONS,
@@ -31,6 +41,8 @@ interface SlotChipProps {
 	readonly isSelected: boolean;
 	readonly isBooked: boolean;
 	readonly isAvailable: boolean;
+	readonly index: number;
+	readonly reducedMotion: boolean;
 	readonly onSelect: (hour: number) => void;
 }
 
@@ -39,38 +51,52 @@ function SlotChip({
 	isSelected,
 	isBooked,
 	isAvailable,
+	index,
+	reducedMotion,
 	onSelect,
 }: SlotChipProps) {
 	const themeColors = useThemeColors();
 	const disabled = !isAvailable || isBooked;
 
 	return (
-		<TouchableOpacity
-			onPress={() => onSelect(option.hour)}
-			disabled={disabled}
-			activeOpacity={0.8}
-			className={`min-w-[30%] grow basis-[30%] items-center rounded-card border px-card py-stack-md ${
-				isSelected ? "bg-app-primary-light" : "bg-card"
-			}`}
-			style={{
-				borderColor: isSelected
-					? themeColors.primary
-					: themeColors.borderDefault,
-				opacity: disabled ? 0.4 : 1,
-			}}
+		<Animated.View
+			className="min-w-[30%] grow basis-[30%]"
+			entering={
+				reducedMotion
+					? undefined
+					: FadeInDown.delay(index * ENTRANCE_STAGGER)
+							.duration(DUR_SLOT_REVEAL)
+							.easing(EASE_OUT_QUART)
+			}
 		>
-			<Text
-				variant="buttonMd"
-				className={isSelected ? "text-app-primary" : "text-content"}
+			<PressableScale
+				onPress={() => onSelect(option.hour)}
+				disabled={disabled}
+				pressedScale={0.965}
+				testID={disabled ? undefined : "time-slot"}
+				className={`items-center rounded-card border px-card py-stack-md ${
+					isSelected ? "bg-app-primary-light" : "bg-card"
+				}`}
+				style={{
+					borderColor: isSelected
+						? themeColors.primary
+						: themeColors.borderDefault,
+					opacity: disabled ? 0.4 : 1,
+				}}
 			>
-				{option.label}
-			</Text>
-			{isBooked ? (
-				<Text variant="caption" className="text-content-muted">
-					Booked
+				<Text
+					variant="buttonMd"
+					className={isSelected ? "text-app-primary" : "text-content"}
+				>
+					{option.label}
 				</Text>
-			) : null}
-		</TouchableOpacity>
+				{isBooked ? (
+					<Text variant="caption" className="text-content-muted">
+						Booked
+					</Text>
+				) : null}
+			</PressableScale>
+		</Animated.View>
 	);
 }
 
@@ -82,6 +108,7 @@ export function TimeSlotGrid({
 	selectedHour,
 	onSelect,
 }: TimeSlotGridProps) {
+	const reducedMotion = useReducedMotion();
 	const dayTemplates = useMemo(() => {
 		if (!selectedDate) return [];
 		return getDayTemplates(templates, getDayOfWeek(selectedDate));
@@ -103,11 +130,18 @@ export function TimeSlotGrid({
 
 	if (!selectedDate) {
 		return (
-			<View className="items-center rounded-card bg-surface-elevated px-card py-card">
+			<Animated.View
+				entering={
+					reducedMotion
+						? undefined
+						: FadeInDown.duration(DUR_SLOT_REVEAL).easing(EASE_OUT_QUART)
+				}
+				className="items-center rounded-card bg-surface-elevated px-card py-card"
+			>
 				<Text variant="bodySm" className="text-content-muted">
 					Pick a date to see available times.
 				</Text>
-			</View>
+			</Animated.View>
 		);
 	}
 
@@ -119,23 +153,32 @@ export function TimeSlotGrid({
 
 	if (dayBlocked) {
 		return (
-			<View className="rounded-card bg-app-primary-light px-card py-stack-md">
+			<Animated.View
+				entering={
+					reducedMotion
+						? undefined
+						: FadeInDown.duration(DUR_SLOT_REVEAL).easing(EASE_OUT_QUART)
+				}
+				className="rounded-card bg-app-primary-light px-card py-stack-md"
+			>
 				<Text variant="buttonMd" className="text-center text-app-primary">
 					No available times on this day. Please pick another date.
 				</Text>
-			</View>
+			</Animated.View>
 		);
 	}
 
-	const renderRow = (options: readonly BookingSlotOption[]) => (
+	const renderRow = (options: readonly BookingSlotOption[], offset: number) => (
 		<View className="flex-row flex-wrap gap-stack-sm">
-			{options.map((option) => (
+			{options.map((option, index) => (
 				<SlotChip
 					key={option.hour}
 					option={option}
 					isSelected={selectedHour === option.hour}
 					isBooked={bookedHours.has(option.hour)}
 					isAvailable={isSlotAvailable(dayTemplates, option.hour)}
+					index={offset + index}
+					reducedMotion={reducedMotion}
 					onSelect={onSelect}
 				/>
 			))}
@@ -145,19 +188,19 @@ export function TimeSlotGrid({
 	return (
 		<View className="gap-stack-md">
 			{MORNING.length > 0 ? (
-				<View className="gap-stack-sm">
+				<View key={`morning-${selectedDate}`} className="gap-stack-sm">
 					<Text variant="label" className="text-content-secondary">
 						Morning
 					</Text>
-					{renderRow(MORNING)}
+					{renderRow(MORNING, 0)}
 				</View>
 			) : null}
 			{EVENING.length > 0 ? (
-				<View className="gap-stack-sm">
+				<View key={`evening-${selectedDate}`} className="gap-stack-sm">
 					<Text variant="label" className="text-content-secondary">
 						Afternoon
 					</Text>
-					{renderRow(EVENING)}
+					{renderRow(EVENING, MORNING.length)}
 				</View>
 			) : null}
 		</View>

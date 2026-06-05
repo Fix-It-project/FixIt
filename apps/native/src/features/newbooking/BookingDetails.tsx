@@ -1,11 +1,20 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import {
+	DUR_SLIDE_UP,
+	EASE_OUT_QUART,
+	ENTRANCE_STAGGER,
+} from "@/src/constants/animation";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
@@ -28,6 +37,7 @@ function getStringParam(value: string | string[] | undefined): string {
 }
 
 export default function BookingDetails() {
+	const reducedMotion = useReducedMotion();
 	const params = useLocalSearchParams<{
 		technicianId: string | string[];
 		technicianName?: string | string[];
@@ -75,6 +85,12 @@ export default function BookingDetails() {
 		!Number.isNaN(selectedHour) &&
 		!isPending &&
 		!isLoadingAddresses;
+	const entering = (index: number) =>
+		reducedMotion
+			? undefined
+			: FadeInDown.delay(index * ENTRANCE_STAGGER)
+					.duration(DUR_SLIDE_UP)
+					.easing(EASE_OUT_QUART);
 
 	const handleConfirm = useDebounce(async () => {
 		if (
@@ -143,7 +159,10 @@ export default function BookingDetails() {
 						keyboardShouldPersistTaps="handled"
 						showsVerticalScrollIndicator={false}
 					>
-						<View className="mb-card rounded-card border border-edge bg-card p-card-compact">
+						<Animated.View
+							entering={entering(0)}
+							className="mb-card rounded-card border border-edge bg-card p-card-compact"
+						>
 							<Text variant="label" className="text-content-secondary">
 								Selected appointment
 							</Text>
@@ -152,17 +171,22 @@ export default function BookingDetails() {
 									? `${selectedDate} · ${selectedTimeLabel}`
 									: "No date and time selected"}
 							</Text>
-						</View>
+						</Animated.View>
 
-						<BookingProblemCard
-							description={description}
-							onDescriptionChange={setDescription}
-							attachment={attachment}
-							onAttachmentChange={setAttachment}
-						/>
+						<Animated.View entering={entering(1)}>
+							<BookingProblemCard
+								description={description}
+								onDescriptionChange={setDescription}
+								attachment={attachment}
+								onAttachmentChange={setAttachment}
+							/>
+						</Animated.View>
 					</ScrollView>
 
-					<View className="px-card pt-stack-md pb-stack-lg">
+					<Animated.View
+						entering={entering(2)}
+						className="px-card pt-stack-md pb-stack-lg"
+					>
 						<Button
 							disabled={!canConfirm}
 							onPress={handleConfirm}
@@ -173,7 +197,7 @@ export default function BookingDetails() {
 								{isPending ? "Booking..." : "Confirm Booking"}
 							</Text>
 						</Button>
-					</View>
+					</Animated.View>
 				</View>
 			</KeyboardAvoidingView>
 		</ScreenSafeAreaView>
