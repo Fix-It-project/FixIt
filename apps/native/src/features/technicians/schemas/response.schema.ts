@@ -8,6 +8,8 @@ export const technicianListItemSchema = z.object({
 	phone: z.string().nullable(),
 	is_available: z.boolean(),
 	category_id: z.string(),
+	profile_image: z.string().nullable(),
+	description: z.string().nullable().optional(),
 	city: z.string().nullable(),
 	street: z.string().nullable(),
 	distance_km: z.number().nullable(),
@@ -28,6 +30,8 @@ export const technicianProfileSchema = z.object({
 	avg_rating: z.number().nullable(),
 	review_count: z.number(),
 	phoneNumber: z.string(),
+	city: z.string().nullable(),
+	street: z.string().nullable(),
 });
 
 export const technicianProfileResponseSchema = z.object({

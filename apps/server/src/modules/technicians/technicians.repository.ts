@@ -63,6 +63,8 @@ export interface TechnicianProfile {
 	totalBookings: number;
 	reviews: number; // backwards-compat; mirrors review_count
 	phoneNumber: string;
+	city: string | null;
+	street: string | null;
 	avg_rating: number | null;
 	review_count: number;
 }
@@ -78,6 +80,7 @@ export interface TechnicianProfileRow {
 	category_id: string;
 	profile_image: string | null;
 	description: string | null;
+	addresses: AddressRow[];
 	avg_rating?: number | null; // hydrated by getReviewAggregatesByTechnicianIds
 	review_count?: number;
 }
@@ -91,6 +94,8 @@ export interface TechnicianWithAddressRow {
 	phone: string | null;
 	is_available: boolean;
 	category_id: string;
+	profile_image: string | null;
+	description: string | null;
 	addresses: Array<{
 		city: string;
 		street: string;
@@ -110,6 +115,8 @@ export interface TechnicianListDTO {
 	phone: string | null;
 	is_available: boolean;
 	category_id: string;
+	profile_image: string | null;
+	description: string | null;
 	city: string | null;
 	street: string | null;
 	distance_km: number | null;
@@ -157,6 +164,8 @@ export function toDTO(
 		phone: row.phone,
 		is_available: row.is_available,
 		category_id: row.category_id,
+		profile_image: row.profile_image ?? null,
+		description: row.description ?? null,
 		city: activeAddr?.city ?? null,
 		street: activeAddr?.street ?? null,
 		distance_km,
@@ -305,7 +314,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data: hydrationData, error: hydrationError } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, email, phone, addresses(city, street, latitude, longitude, is_active)",
+				"id, email, phone, profile_image, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.in("id", ids);
 
@@ -313,17 +322,24 @@ export class TechniciansRepository implements ITechniciansRepository {
 
 		const byId = new Map<
 			string,
-			{ email: string; phone: string | null; addresses: AddressRow[] }
+			{
+				email: string;
+				phone: string | null;
+				profile_image: string | null;
+				addresses: AddressRow[];
+			}
 		>();
 		for (const row of (hydrationData ?? []) as Array<{
 			id: string;
 			email: string;
 			phone: string | null;
+			profile_image: string | null;
 			addresses: AddressRow[] | null;
 		}>) {
 			byId.set(row.id, {
 				email: row.email,
 				phone: row.phone,
+				profile_image: row.profile_image ?? null,
 				addresses: row.addresses ?? [],
 			});
 		}
@@ -332,6 +348,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 			const hydration = byId.get(r.technician_id) ?? {
 				email: "",
 				phone: null,
+				profile_image: r.profile_image ?? null,
 				addresses: [],
 			};
 			return {
@@ -340,8 +357,10 @@ export class TechniciansRepository implements ITechniciansRepository {
 				last_name: r.last_name,
 				email: hydration.email,
 				phone: hydration.phone,
+				profile_image: hydration.profile_image ?? r.profile_image ?? null,
 				is_available: r.is_available,
 				category_id: r.category_id,
+				description: r.description,
 				addresses: hydration.addresses,
 				avg_rating: Number(r.rating),
 				review_count: Number(r.review_count),
@@ -353,7 +372,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description",
+				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.eq("id", id)
 			.maybeSingle();
@@ -364,8 +383,10 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const aggregates = await this.getReviewAggregatesByTechnicianIds([id]);
 		const agg = aggregates.get(id) ?? { avg_rating: 5, review_count: 0 };
 
+		const row = data as TechnicianProfileRow;
 		return {
-			...(data as TechnicianProfileRow),
+			...row,
+			addresses: row.addresses ?? [],
 			avg_rating: agg.avg_rating,
 			review_count: agg.review_count,
 		};
@@ -432,7 +453,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)",
+				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.eq("category_id", categoryId)
 			.order("first_name", { ascending: true });
@@ -464,7 +485,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)",
+				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.eq("category_id", categoryId)
 			.or(`first_name.ilike.${term},last_name.ilike.${term}`)

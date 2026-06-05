@@ -26,7 +26,7 @@ vi.mock('../../technician-auth.repository.js', () => ({
   technicianAuthRepository: mockAuthRepo,
 }));
 
-vi.mock('../../../technicians/index.js', () => ({
+vi.mock('../../../technicians/technicians.repository.js', () => ({
   techniciansRepository: mockTechniciansRepo,
 }));
 
@@ -34,7 +34,7 @@ vi.mock('../../../../shared/storage/storage.repository.js', () => ({
   storageRepository: mockStorageRepo,
 }));
 
-vi.mock('../../../addresses/index.js', () => ({
+vi.mock('../../../addresses/addresses.repository.js', () => ({
   addressesRepository: mockAddressesRepo,
 }));
 

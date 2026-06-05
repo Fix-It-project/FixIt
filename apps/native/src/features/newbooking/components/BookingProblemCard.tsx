@@ -1,7 +1,6 @@
-import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, Paperclip, X } from "lucide-react-native";
-import { TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
@@ -91,8 +90,11 @@ export function BookingProblemCard({
 					<View className="mt-stack-sm overflow-hidden rounded-input border border-edge">
 						<Image
 							source={{ uri: attachment.uri }}
-							className="h-media-attachment w-full"
-							contentFit="cover"
+							resizeMode="cover"
+							style={{
+								width: "100%",
+								height: spacing.media.attachmentPreviewHeight,
+							}}
 						/>
 						<TouchableOpacity
 							onPress={() => onAttachmentChange(null)}

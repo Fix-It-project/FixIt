@@ -1,27 +1,34 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { Briefcase, ClipboardList, Star } from "lucide-react-native";
-import { useCallback, useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
-import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import BackButton from "@/src/components/ui/back-button";
-import { Button } from "@/src/components/ui/button";
 import {
-	SegmentedControl,
-	SegmentedControlItem,
-} from "@/src/components/ui/segmented-control";
+	CalendarCheck,
+	CalendarDays,
+	type LucideIcon,
+	MapPin,
+	Navigation,
+	Star,
+} from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	type LayoutChangeEvent,
+	type NativeScrollEvent,
+	type NativeSyntheticEvent,
+	Pressable,
+	Animated as RNAnimated,
+	ScrollView,
+	View,
+} from "react-native";
+import PageHeader from "@/src/components/layout/PageHeader";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { Badge } from "@/src/components/ui/badge";
+import { Button } from "@/src/components/ui/button";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
-import {
-	Colors,
-	elevation,
-	shadowStyle,
-	spacing,
-	useThemeColors,
-} from "@/src/constants/design-tokens";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
 import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import type { TechnicianService } from "@/src/features/technicians/schemas/response.schema";
+import { formatLocation } from "@/src/features/technicians/utils/technician-utils";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
@@ -29,24 +36,35 @@ import { AboutTab } from "./components/AboutTab";
 import { ReviewsTab } from "./components/ReviewsTab";
 import { ServicesTab } from "./components/ServicesTab";
 
-const TABS = ["About", "Services", "Reviews"] as const;
+const TABS = ["Details", "Services", "Reviews"] as const;
+const TAB_BAR_HEIGHT = 52;
 type TabKey = (typeof TABS)[number];
 
-interface StatChipProps {
-	readonly icon: typeof Briefcase;
-	readonly value: number;
+interface ProfileMetricProps {
+	readonly icon: LucideIcon;
+	readonly value: number | string;
 	readonly label: string;
 }
 
-function StatChip({ icon: Icon, value, label }: StatChipProps) {
+function ProfileMetric({ icon: Icon, value, label }: ProfileMetricProps) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="flex-1 items-center gap-stack-xs rounded-input bg-surface-elevated px-stack-md py-card">
-			<Icon size={18} color={themeColors.primary} strokeWidth={2} />
-			<Text variant="buttonLg" className="font-bold text-content">
-				{value}
-			</Text>
-			<Text variant="caption" className="text-content-muted">
+		<View className="min-w-0 flex-1 items-center gap-stack-xs">
+			<View className="flex-row items-center gap-stack-xs">
+				<Icon
+					size={spacing.icon.sm}
+					color={themeColors.primary}
+					strokeWidth={2.2}
+				/>
+				<Text
+					variant="bodySm"
+					className="font-semibold text-content"
+					numberOfLines={1}
+				>
+					{value}
+				</Text>
+			</View>
+			<Text variant="caption" className="text-center text-content-muted">
 				{label}
 			</Text>
 		</View>
@@ -75,6 +93,7 @@ export default function NewTechnician() {
 		initials?: string;
 		categoryId?: string;
 		categoryName?: string;
+		distanceKm?: string;
 		preselectServiceId?: string;
 		tab?: string;
 	}>();
@@ -85,13 +104,16 @@ export default function NewTechnician() {
 	const initialTab: TabKey =
 		params.tab === "Services" || params.tab === "Reviews"
 			? params.tab
-			: "About";
+			: "Details";
 	const [tab, setTab] = useState<TabKey>(initialTab);
 	const [visited, setVisited] = useState<Set<TabKey>>(
 		() => new Set<TabKey>([initialTab]),
 	);
 	const [selectedService, setSelectedService] =
 		useState<TechnicianService | null>(null);
+	const [reviewEndSignal, setReviewEndSignal] = useState(0);
+	const [tabBarWidth, setTabBarWidth] = useState(0);
+	const tabPosition = useRef(new RNAnimated.Value(TABS.indexOf(initialTab)));
 
 	const selectTab = useCallback((next: TabKey) => {
 		setTab(next);
@@ -101,6 +123,18 @@ export default function NewTechnician() {
 			updated.add(next);
 			return updated;
 		});
+	}, []);
+
+	useEffect(() => {
+		RNAnimated.timing(tabPosition.current, {
+			toValue: TABS.indexOf(tab),
+			duration: 180,
+			useNativeDriver: true,
+		}).start();
+	}, [tab]);
+
+	const handleTabBarLayout = useCallback((event: LayoutChangeEvent) => {
+		setTabBarWidth(event.nativeEvent.layout.width);
 	}, []);
 
 	const resolvedName = useMemo(() => {
@@ -116,6 +150,11 @@ export default function NewTechnician() {
 		}
 		return getPfpInitialsFallback(resolvedName);
 	}, [params.initials, resolvedName]);
+
+	const cachedDistanceLabel = useMemo(() => {
+		const parsed = Number(params.distanceKm);
+		return Number.isFinite(parsed) ? `${parsed.toFixed(1)} km` : "N/A";
+	}, [params.distanceKm]);
 
 	const goBack = useSafeBack(ROUTES.user.home);
 
@@ -135,131 +174,188 @@ export default function NewTechnician() {
 		});
 	}, 600);
 
+	const handleContentScroll = useCallback(
+		(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+			if (tab !== "Reviews") return;
+			const { contentOffset, contentSize, layoutMeasurement } =
+				event.nativeEvent;
+			const distanceFromEnd =
+				contentSize.height - (contentOffset.y + layoutMeasurement.height);
+			if (distanceFromEnd <= 96) {
+				setReviewEndSignal((signal) => signal + 1);
+			}
+		},
+		[tab],
+	);
+
 	return (
-		<ScreenSafeAreaView
-			className="flex-1"
-			edges={["top"]}
-			style={{ backgroundColor: Colors.primary }}
-		>
+		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<View className="flex-1 bg-surface">
-				{/* ── Header band ── */}
-				<View style={{ backgroundColor: Colors.primary }} className="pb-card">
-					<View className="flex-row items-center px-card pt-stack-sm pb-stack-sm">
-						<BackButton
-							variant="header-inverse"
-							className="mr-stack-md"
-							onPress={goBack}
-						/>
-						<Text
-							variant="h3"
-							style={{ color: themeColors.onPrimaryHeader }}
-							numberOfLines={1}
-							className="flex-1"
-						>
-							Technician
-						</Text>
-					</View>
-				</View>
+				<PageHeader
+					title="Technician"
+					variant="app-primary"
+					onBackPress={goBack}
+				/>
 
 				{isLoading || !profile ? (
 					<DetailSkeleton />
 				) : (
 					<>
-						{/* ── Profile card (overlaps the header band) ── */}
-						<View
-							className="mx-card items-center rounded-card border border-edge bg-card p-card"
-							style={{ marginTop: -spacing.stack.lg }}
-						>
-							<TechnicianAvatar
-								id={technicianId}
-								initials={resolvedInitials}
-								size="lg"
-							/>
-							<Text
-								variant="h3"
-								className="mt-stack-md text-center text-content"
-								numberOfLines={1}
-							>
-								{resolvedName}
-							</Text>
-
-							<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-								<Star
-									size={14}
-									color={themeColors.ratingDefault}
-									fill={themeColors.ratingDefault}
-									strokeWidth={0}
-								/>
-								<Text variant="bodySm" className="text-content-secondary">
-									{profile.avg_rating !== null && profile.review_count > 0
-										? `${formatRating(profile.avg_rating)} · ${profile.review_count} ${
-												profile.review_count === 1 ? "review" : "reviews"
-											}`
-										: "No reviews yet"}
-								</Text>
-							</View>
-
-							<View className="mt-card w-full flex-row gap-stack-md">
-								<StatChip
-									icon={Briefcase}
-									value={profile.completedOrders}
-									label="Completed"
-								/>
-								<StatChip
-									icon={ClipboardList}
-									value={profile.totalBookings}
-									label="Bookings"
-								/>
-							</View>
-						</View>
-
-						{/* ── Tabs ── */}
-						<View className="mt-card">
-							<SegmentedControl className="mx-card bg-surface-elevated">
-								{TABS.map((tabKey) => {
-									const isActive = tab === tabKey;
-									return (
-										<SegmentedControlItem
-											key={tabKey}
-											onPress={() => selectTab(tabKey)}
-											className={isActive ? "bg-card" : ""}
-											style={
-												isActive
-													? shadowStyle(elevation.flat, {
-															shadowColor: themeColors.textPrimary,
-															opacity: 0.08,
-														})
-													: undefined
-											}
-										>
-											<Text
-												variant="buttonMd"
-												className={
-													isActive
-														? "font-bold text-content"
-														: "text-content-muted"
-												}
-											>
-												{tabKey}
-											</Text>
-										</SegmentedControlItem>
-									);
-								})}
-							</SegmentedControl>
-						</View>
-
-						{/* ── Tab content (lazy-mounted, kept alive) ── */}
 						<ScrollView
 							className="flex-1"
 							contentContainerStyle={{
 								paddingHorizontal: 16,
-								paddingBottom: 24,
+								paddingTop: spacing.stack.lg,
+								paddingBottom: spacing.stack.lg,
 							}}
+							onScroll={handleContentScroll}
+							scrollEventThrottle={120}
 							showsVerticalScrollIndicator={false}
 						>
-							{visited.has("About") ? (
-								<View style={{ display: tab === "About" ? "flex" : "none" }}>
-									<AboutTab technicianId={technicianId} profile={profile} />
+							{/* ── Profile card ── */}
+							<View className="rounded-card bg-card p-card">
+								<View className="flex-row items-start gap-stack-md">
+									<TechnicianAvatar
+										id={technicianId}
+										initials={resolvedInitials}
+										imageUrl={profile.profilePicture}
+										size="lg"
+									/>
+									<View className="min-w-0 flex-1">
+										<View className="flex-row items-start justify-between gap-stack-sm">
+											<Text
+												variant="buttonLg"
+												className="min-w-0 flex-1 font-google-sans-bold text-content"
+												numberOfLines={1}
+											>
+												{resolvedName}
+											</Text>
+											<View className="flex-row items-center gap-stack-xs pt-px">
+												<Star
+													size={spacing.icon.caption}
+													color={themeColors.ratingDefault}
+													fill={themeColors.ratingDefault}
+													strokeWidth={0}
+												/>
+												<Text
+													variant="caption"
+													className="font-semibold text-content"
+													numberOfLines={1}
+												>
+													{profile.avg_rating !== null &&
+													profile.review_count > 0
+														? formatRating(profile.avg_rating)
+														: "New"}
+												</Text>
+											</View>
+										</View>
+										<Text
+											variant="caption"
+											className="mt-stack-xs text-content-secondary"
+											numberOfLines={3}
+										>
+											{profile.description}
+										</Text>
+										<Badge
+											variant="secondary"
+											className="mt-stack-sm self-start rounded-input border-transparent bg-app-primary-light"
+										>
+											<MapPin
+												size={spacing.icon.caption}
+												color={themeColors.primary}
+												strokeWidth={2.1}
+											/>
+											<Text
+												variant="caption"
+												className="font-medium text-app-primary"
+												numberOfLines={1}
+											>
+												{formatLocation(null, profile.city, profile.street)}
+											</Text>
+										</Badge>
+									</View>
+								</View>
+
+								<View className="my-stack-md h-px bg-edge/20" />
+
+								<View className="flex-row items-start gap-stack-md">
+									<ProfileMetric
+										icon={CalendarCheck}
+										value={profile.completedOrders}
+										label="completed"
+									/>
+									<ProfileMetric
+										icon={Navigation}
+										value={cachedDistanceLabel}
+										label="distance"
+									/>
+									<ProfileMetric
+										icon={CalendarDays}
+										value={profile.totalBookings}
+										label="bookings"
+									/>
+								</View>
+							</View>
+
+							{/* ── Tabs ── */}
+							<View className="mt-card">
+								<View
+									className="relative flex-row rounded-card bg-card px-stack-xs"
+									onLayout={handleTabBarLayout}
+									style={{ height: TAB_BAR_HEIGHT }}
+								>
+									{tabBarWidth > 0 ? (
+										<RNAnimated.View
+											className="absolute bottom-0 h-0.5 rounded-pill bg-app-primary"
+											style={{
+												left: spacing.stack.xs + spacing.stack.md,
+												width:
+													tabBarWidth / TABS.length -
+													(spacing.stack.xs + spacing.stack.md) * 2,
+												transform: [
+													{
+														translateX: tabPosition.current.interpolate({
+															inputRange: [0, 1, 2],
+															outputRange: [
+																0,
+																tabBarWidth / TABS.length,
+																(tabBarWidth / TABS.length) * 2,
+															],
+														}),
+													},
+												],
+											}}
+										/>
+									) : null}
+									{TABS.map((tabKey) => {
+										const isActive = tab === tabKey;
+										return (
+											<Pressable
+												key={tabKey}
+												onPress={() => selectTab(tabKey)}
+												className="relative flex-1 items-center justify-center"
+												style={{ height: TAB_BAR_HEIGHT }}
+											>
+												<Text
+													variant="buttonMd"
+													className={
+														isActive
+															? "font-bold text-content"
+															: "text-content-muted"
+													}
+												>
+													{tabKey}
+												</Text>
+											</Pressable>
+										);
+									})}
+								</View>
+							</View>
+
+							{/* ── Tab content (lazy-mounted, kept alive) ── */}
+							{visited.has("Details") ? (
+								<View style={{ display: tab === "Details" ? "flex" : "none" }}>
+									<AboutTab technicianId={technicianId} />
 								</View>
 							) : null}
 
@@ -276,26 +372,21 @@ export default function NewTechnician() {
 
 							{visited.has("Reviews") ? (
 								<View style={{ display: tab === "Reviews" ? "flex" : "none" }}>
-									<ReviewsTab technicianId={technicianId} />
+									<ReviewsTab
+										technicianId={technicianId}
+										endReachedSignal={reviewEndSignal}
+									/>
 								</View>
 							) : null}
 						</ScrollView>
 
 						{/* ── Sticky CTA ── */}
-						<View className="border-edge border-t bg-card px-card pt-stack-md pb-stack-lg">
-							{selectedService ? (
-								<Text
-									variant="caption"
-									className="mb-stack-xs text-content-muted"
-									numberOfLines={1}
-								>
-									Selected: {selectedService.name}
-								</Text>
-							) : null}
+						<View className="bg-surface px-card pt-stack-sm pb-stack-lg">
 							<Button
 								disabled={!selectedService}
 								onPress={handleSelectDate}
 								className="w-full"
+								testID="select-date"
 							>
 								<Text variant="buttonLg" className="text-surface-on-primary">
 									{selectedService

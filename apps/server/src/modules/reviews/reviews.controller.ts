@@ -3,6 +3,24 @@ import { asyncHandler } from "../../shared/errors/async-handler.js";
 import { requireUserId } from "../../shared/utils/request-auth.js";
 import { reviewsService } from "./reviews.service.js";
 
+const REVIEW_PAGE_SIZE = 20;
+const MAX_REVIEW_LIMIT = 50;
+
+function parseReviewPagination(query: Request["query"]) {
+	const requestedLimit = Number(query.limit);
+	const requestedOffset = Number(query.offset);
+	const limit =
+		Number.isInteger(requestedLimit) && requestedLimit > 0
+			? Math.min(requestedLimit, MAX_REVIEW_LIMIT)
+			: REVIEW_PAGE_SIZE;
+	const offset =
+		Number.isInteger(requestedOffset) && requestedOffset >= 0
+			? requestedOffset
+			: 0;
+
+	return { limit, offset };
+}
+
 export class ReviewsController {
 	createReview: RequestHandler = asyncHandler(async (req: Request, res) => {
 		const userId = requireUserId(req);
@@ -18,10 +36,7 @@ export class ReviewsController {
 	getTechnicianReviews: RequestHandler = asyncHandler(
 		async (req: Request, res) => {
 			const { id } = req.params as { id: string };
-			const { limit, offset } = req.query as unknown as {
-				limit: number;
-				offset: number;
-			};
+			const { limit, offset } = parseReviewPagination(req.query);
 			const reviews = await reviewsService.getReviewsForTechnician(
 				id,
 				limit,

@@ -139,7 +139,7 @@ export function TopRatedSection() {
 									>
 										<InitialsAvatar
 											name={name}
-											imageUrl={null}
+											imageUrl={tech.profile_image}
 											className="size-11"
 										/>
 										<View style={{ flex: 1, minWidth: 0, gap: 5 }}>
@@ -221,6 +221,10 @@ export function TopRatedSection() {
 												initials,
 												categoryId: tech.category_id,
 												categoryName,
+												distanceKm:
+													tech.distance_km != null
+														? tech.distance_km.toFixed(1)
+														: undefined,
 											},
 										});
 									}}

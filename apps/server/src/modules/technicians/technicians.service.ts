@@ -164,6 +164,10 @@ export class TechniciansService implements ITechniciansService {
 			]);
 
 		const reviewCount = technician.review_count ?? 0;
+		const activeAddress =
+			technician.addresses.find((address) => address.is_active) ??
+			technician.addresses[0] ??
+			null;
 
 		return {
 			name: `${technician.first_name} ${technician.last_name}`,
@@ -173,6 +177,8 @@ export class TechniciansService implements ITechniciansService {
 			totalBookings: Number(totalBookings ?? 0),
 			reviews: reviewCount,
 			phoneNumber: technician.phone ?? "Not provided",
+			city: activeAddress?.city ?? null,
+			street: activeAddress?.street ?? null,
 			avg_rating: technician.avg_rating ?? null,
 			review_count: reviewCount,
 		};

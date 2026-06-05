@@ -29,7 +29,7 @@ vi.mock('../../../users/index.js', () => ({
   usersRepository: mockUsersRepo,
 }));
 
-vi.mock('../../../addresses/index.js', () => ({
+vi.mock('../../../addresses/addresses.repository.js', () => ({
   addressesRepository: mockAddressesRepo,
 }));
 

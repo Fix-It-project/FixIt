@@ -95,11 +95,7 @@ export default function RecommendScreen() {
 				<PressableScale onPress={() => router.back()}>
 					<ChevronLeft size={24} className="text-foreground" />
 				</PressableScale>
-				<Text
-					variant="h3"
-					className="flex-1 text-foreground"
-					numberOfLines={1}
-				>
+				<Text variant="h3" className="flex-1 text-foreground" numberOfLines={1}>
 					Results for: {q}
 				</Text>
 			</View>
@@ -124,10 +120,7 @@ export default function RecommendScreen() {
 					<Text variant="label" className="text-foreground">
 						Could not load recommendations.
 					</Text>
-					<Text
-						variant="bodySm"
-						className="text-center text-muted-foreground"
-					>
+					<Text variant="bodySm" className="text-center text-muted-foreground">
 						Something went wrong. Please try again.
 					</Text>
 					<PressableScale onPress={handleRetry}>
@@ -146,10 +139,7 @@ export default function RecommendScreen() {
 					<Text variant="label" className="text-foreground">
 						No technicians in your area yet
 					</Text>
-					<Text
-						variant="bodySm"
-						className="text-center text-muted-foreground"
-					>
+					<Text variant="bodySm" className="text-center text-muted-foreground">
 						Try a different description or expand your search area.
 					</Text>
 				</View>
@@ -168,15 +158,24 @@ export default function RecommendScreen() {
 							key={result.technician_id}
 							pressedScale={0.97}
 							onPress={() => {
-								const route = ROUTES.user.technicianDetail(result.technician_id);
+								const route = ROUTES.user.technicianDetail(
+									result.technician_id,
+								);
 								router.push({
 									...route,
-									params: { ...route.params, technicianName: result.name },
+									params: {
+										...route.params,
+										technicianName: result.name,
+										distanceKm:
+											result.distance_km != null
+												? result.distance_km.toFixed(1)
+												: undefined,
+									},
 								});
 							}}
 						>
 							<View
-								className="border-border bg-card rounded-xl border"
+								className="rounded-xl border border-border bg-card"
 								style={{
 									padding: 16,
 									flexDirection: "row",
@@ -208,10 +207,7 @@ export default function RecommendScreen() {
 											.join(" · ")}
 									</Text>
 									{result.base_hourly_rate != null && (
-										<Text
-											variant="caption"
-											className="text-muted-foreground"
-										>
+										<Text variant="caption" className="text-muted-foreground">
 											From EGP {result.base_hourly_rate.toFixed(0)}/hr
 										</Text>
 									)}

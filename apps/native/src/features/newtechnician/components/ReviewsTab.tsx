@@ -1,7 +1,8 @@
 import { Star } from "lucide-react-native";
-import { useMemo } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { useEffect, useMemo } from "react";
+import { View } from "react-native";
 import { ReviewRow } from "@/src/components/reviews";
+import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
@@ -39,14 +40,18 @@ function DistributionBar({ star, count, total }: DistributionBarProps) {
 
 interface ReviewsTabProps {
 	readonly technicianId: string;
+	readonly endReachedSignal?: number;
 }
 
-export function ReviewsTab({ technicianId }: ReviewsTabProps) {
+export function ReviewsTab({
+	technicianId,
+	endReachedSignal = 0,
+}: ReviewsTabProps) {
 	const themeColors = useThemeColors();
 	const { data: summary, isLoading: summaryLoading } =
 		useReviewSummaryQuery(technicianId);
 	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-		useTechnicianReviewsInfiniteQuery(technicianId, 10);
+		useTechnicianReviewsInfiniteQuery(technicianId, 20);
 
 	const reviews = useMemo(
 		() => data?.pages.flatMap((p) => p.reviews) ?? [],
@@ -61,6 +66,11 @@ export function ReviewsTab({ technicianId }: ReviewsTabProps) {
 			0,
 		);
 	}, [summary]);
+
+	useEffect(() => {
+		if (!endReachedSignal || !hasNextPage || isFetchingNextPage) return;
+		void fetchNextPage();
+	}, [endReachedSignal, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
 	return (
 		<View className="py-stack-md">
@@ -133,21 +143,8 @@ export function ReviewsTab({ technicianId }: ReviewsTabProps) {
 						{reviews.map((review) => (
 							<ReviewRow key={review.id} review={review} variant="row" />
 						))}
-						{hasNextPage ? (
-							<TouchableOpacity
-								onPress={() => fetchNextPage()}
-								disabled={isFetchingNextPage}
-								activeOpacity={0.7}
-								className="mt-stack-md items-center py-stack-md"
-							>
-								{isFetchingNextPage ? (
-									<ActivityIndicator size="small" color={themeColors.primary} />
-								) : (
-									<Text variant="buttonMd" className="text-app-primary">
-										Show more reviews
-									</Text>
-								)}
-							</TouchableOpacity>
+						{isFetchingNextPage ? (
+							<LoadingSpinner className="py-stack-lg" size="small" />
 						) : null}
 					</>
 				)}

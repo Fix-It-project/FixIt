@@ -2,15 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import { FlatList, View } from "react-native";
 import Toast from "react-native-toast-message";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
+import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import BackButton from "@/src/components/ui/back-button";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
 import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
@@ -228,6 +229,8 @@ export default function NewTechnicians() {
 				initials: getPfpInitialsFallback(fullName),
 				categoryId,
 				categoryName,
+				distanceKm:
+					item.distance_km != null ? item.distance_km.toFixed(1) : undefined,
 			},
 		});
 	}, 600);
@@ -267,33 +270,20 @@ export default function NewTechnicians() {
 	const countLabel = count === 1 ? "technician" : "technicians";
 	const listFooter = useMemo(() => {
 		if (!isFetchingNextPage) return null;
-		return (
-			<View className="items-center py-stack-lg">
-				<ActivityIndicator size="small" color={themeColors.primary} />
-			</View>
-		);
-	}, [isFetchingNextPage, themeColors.primary]);
+		return <LoadingSpinner className="py-stack-lg" size="small" />;
+	}, [isFetchingNextPage]);
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<View className="flex-1 bg-background">
-				<View className="bg-app-primary px-screen-x pt-stack-sm pb-card">
-					<View className="flex-row items-center gap-stack-md">
-						<BackButton variant="header-inverse" onPress={goBack} />
-						<View className="min-w-0 flex-1">
-							<Text
-								variant="h4"
-								className="text-surface-on-primary"
-								numberOfLines={1}
-							>
-								{categoryName}
-							</Text>
-							<Text variant="caption" className="text-overlay-bright">
-								{showSkeleton ? "Updating results" : `${count} ${countLabel}`}
-							</Text>
-						</View>
-					</View>
-				</View>
+				<PageHeader
+					title={categoryName}
+					subtitle={
+						showSkeleton ? "Updating results" : `${count} ${countLabel}`
+					}
+					variant="app-primary"
+					onBackPress={goBack}
+				/>
 
 				<View className="px-screen-x pt-stack-lg pb-stack-lg">
 					<View className="h-control-search flex-row items-center gap-control-search rounded-input border border-edge bg-card px-control-search">

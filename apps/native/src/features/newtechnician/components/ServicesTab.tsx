@@ -1,5 +1,5 @@
 import { Check } from "lucide-react-native";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -86,72 +86,78 @@ export function ServicesTab({
 	}
 
 	return (
-		<View className="gap-stack-sm py-stack-md">
-			{services.map((service) => {
-				const isSelected = service.id === selectedServiceId;
-				return (
-					<TouchableOpacity
-						key={service.id}
-						onPress={() => onSelect(service)}
-						activeOpacity={0.85}
-						accessibilityRole="radio"
-						accessibilityState={{ selected: isSelected }}
-						className="flex-row items-center rounded-card border bg-card p-card"
-						style={{
-							borderColor: isSelected
-								? themeColors.primary
-								: themeColors.borderDefault,
-							borderWidth: isSelected ? 2 : 1,
-						}}
-					>
-						<View className="mr-stack-md flex-1">
-							<Text
-								variant="buttonLg"
-								className="font-bold text-content"
-								numberOfLines={1}
+		<View className="py-stack-md">
+			<View className="gap-stack-xs rounded-card bg-card p-stack-xs">
+				{services.map((service, index) => {
+					const isSelected = service.id === selectedServiceId;
+					return (
+						<Fragment key={service.id}>
+							<TouchableOpacity
+								onPress={() => onSelect(service)}
+								activeOpacity={0.85}
+								accessibilityRole="radio"
+								accessibilityState={{ selected: isSelected }}
+								testID="service-option"
+								className="flex-row items-center rounded-input bg-card p-card"
+								style={{
+									backgroundColor: isSelected
+										? themeColors.surfaceElevated
+										: "transparent",
+								}}
 							>
-								{service.name}
-							</Text>
-							{service.description ? (
-								<Text
-									variant="caption"
-									className="mt-stack-xs text-content-muted"
-									numberOfLines={2}
-								>
-									{service.description}
-								</Text>
-							) : null}
-							<Text
-								variant="buttonMd"
-								className="mt-stack-sm font-bold text-app-primary"
-							>
-								{formatPriceRange(service.min_price, service.max_price)}
-							</Text>
-						</View>
+								<View className="mr-stack-md flex-1">
+									<Text
+										variant="buttonLg"
+										className="font-bold text-content"
+										numberOfLines={1}
+									>
+										{service.name}
+									</Text>
+									{service.description ? (
+										<Text
+											variant="caption"
+											className="mt-stack-xs text-content-muted"
+											numberOfLines={2}
+										>
+											{service.description}
+										</Text>
+									) : null}
+									<Text
+										variant="buttonMd"
+										className="mt-stack-sm font-bold text-app-primary"
+									>
+										{formatPriceRange(service.min_price, service.max_price)}
+									</Text>
+								</View>
 
-						{/* Radio indicator */}
-						<View
-							className="h-icon-md w-icon-md items-center justify-center rounded-pill border"
-							style={{
-								borderColor: isSelected
-									? themeColors.primary
-									: themeColors.borderDefault,
-								backgroundColor: isSelected
-									? themeColors.primary
-									: "transparent",
-							}}
-						>
-							{isSelected ? (
-								<Check
-									size={spacing.icon.xs}
-									color={themeColors.surfaceOnPrimary}
-									strokeWidth={3}
-								/>
+								{/* Radio indicator */}
+								<View
+									className="h-icon-md w-icon-md items-center justify-center rounded-pill border"
+									style={{
+										borderColor: isSelected
+											? themeColors.primary
+											: themeColors.borderDefault,
+										backgroundColor: isSelected
+											? themeColors.primary
+											: "transparent",
+									}}
+								>
+									{isSelected ? (
+										<Check
+											size={spacing.icon.xs}
+											color={themeColors.surfaceOnPrimary}
+											strokeWidth={3}
+										/>
+									) : null}
+								</View>
+							</TouchableOpacity>
+							{index < services.length - 1 ? (
+								<View className="mx-stack-sm h-px bg-edge/20" />
 							) : null}
-						</View>
-					</TouchableOpacity>
-				);
-			})}
+						</Fragment>
+					);
+				})}
+			</View>
 		</View>
 	);
 }

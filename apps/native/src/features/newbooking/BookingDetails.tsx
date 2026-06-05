@@ -2,11 +2,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import Toast from "react-native-toast-message";
+import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import BackButton from "@/src/components/ui/back-button";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
@@ -29,7 +28,6 @@ function getStringParam(value: string | string[] | undefined): string {
 }
 
 export default function BookingDetails() {
-	const themeColors = useThemeColors();
 	const params = useLocalSearchParams<{
 		technicianId: string | string[];
 		technicianName?: string | string[];
@@ -126,44 +124,18 @@ export default function BookingDetails() {
 	}, 600);
 
 	return (
-		<ScreenSafeAreaView
-			className="flex-1"
-			edges={["top"]}
-			style={{ backgroundColor: Colors.primary }}
-		>
+		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<KeyboardAvoidingView
 				className="flex-1"
 				behavior={Platform.OS === "ios" ? "padding" : undefined}
 			>
 				<View className="flex-1 bg-surface">
-					<View
-						style={{ backgroundColor: Colors.primary }}
-						className="flex-row items-center px-card pt-stack-sm pb-card"
-					>
-						<BackButton
-							variant="header-inverse"
-							className="mr-stack-md"
-							onPress={goBack}
-						/>
-						<View className="flex-1">
-							<Text
-								variant="h3"
-								style={{ color: themeColors.onPrimaryHeader }}
-								numberOfLines={1}
-							>
-								Booking Details
-							</Text>
-							{serviceName ? (
-								<Text
-									variant="caption"
-									style={{ color: themeColors.overlayBright }}
-									numberOfLines={1}
-								>
-									{serviceName}
-								</Text>
-							) : null}
-						</View>
-					</View>
+					<PageHeader
+						title="Booking Details"
+						subtitle={serviceName || undefined}
+						variant="app-primary"
+						onBackPress={goBack}
+					/>
 
 					<ScrollView
 						className="flex-1"
@@ -190,7 +162,7 @@ export default function BookingDetails() {
 						/>
 					</ScrollView>
 
-					<View className="border-edge border-t bg-card px-card pt-stack-md pb-stack-lg">
+					<View className="px-card pt-stack-md pb-stack-lg">
 						<Button
 							disabled={!canConfirm}
 							onPress={handleConfirm}
