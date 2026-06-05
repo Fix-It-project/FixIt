@@ -1,9 +1,11 @@
 import express, { type Router } from "express";
 import {
 	BlockHomeownerBodySchema,
+	BlockTechnicianBodySchema,
 	HomeownerIdParamSchema,
 	OrderIdParamSchema,
 	RangeQuerySchema,
+	TechnicianIdParamSchema,
 } from "../../shared/dtos/index.js";
 import { requireAdminAuth } from "../../shared/middlewares/admin-auth.middleware.js";
 import { validate } from "../../shared/middlewares/validate.middleware.js";
@@ -43,6 +45,40 @@ homeownersRouter.patch(
 	requireAdminAuth,
 	validate({ params: HomeownerIdParamSchema }),
 	adminDashboardController.unblockHomeowner,
+);
+
+// Mounted separately at /api/admin/technicians.
+export const techniciansRouter: Router = express.Router();
+techniciansRouter.get("/", requireAdminAuth, adminDashboardController.getTechnicians);
+techniciansRouter.get(
+	"/:id/history",
+	requireAdminAuth,
+	validate({ params: TechnicianIdParamSchema }),
+	adminDashboardController.getTechnicianHistory,
+);
+techniciansRouter.patch(
+	"/:id/verify",
+	requireAdminAuth,
+	validate({ params: TechnicianIdParamSchema }),
+	adminDashboardController.verifyTechnician,
+);
+techniciansRouter.patch(
+	"/:id/reject",
+	requireAdminAuth,
+	validate({ params: TechnicianIdParamSchema }),
+	adminDashboardController.rejectTechnician,
+);
+techniciansRouter.patch(
+	"/:id/block",
+	requireAdminAuth,
+	validate({ params: TechnicianIdParamSchema, body: BlockTechnicianBodySchema }),
+	adminDashboardController.blockTechnician,
+);
+techniciansRouter.patch(
+	"/:id/unblock",
+	requireAdminAuth,
+	validate({ params: TechnicianIdParamSchema }),
+	adminDashboardController.unblockTechnician,
 );
 
 export default router;

@@ -17,13 +17,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
 import type { AdminTechnician } from "@/types";
 
-interface BlockedTabProps {
+interface RejectedTabProps {
 	techs: AdminTechnician[];
-	onUnblock: (id: string) => void;
+	onVerify: (id: string) => void;
 }
 
-export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
-	const [unblocking, setUnblocking] = useState<AdminTechnician | null>(null);
+export function RejectedTab({ techs, onVerify }: RejectedTabProps) {
+	const [verifying, setVerifying] = useState<AdminTechnician | null>(null);
 	const [page, setPage] = useState(1);
 
 	const pageCount = Math.max(1, Math.ceil(techs.length / PAGE_SIZE));
@@ -35,7 +35,7 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 		<>
 			{/* Mobile card view */}
 			<div className="md:hidden flex flex-col gap-3">
-				{techs.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">No blocked technicians.</p>}
+				{techs.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">No rejected applicants.</p>}
 				{paged.map((tech) => (
 					<div key={tech.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
 						<TechAvatar initials={tech.initials} color={tech.color} size="md" />
@@ -44,10 +44,9 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 							<div className="mt-0.5">
 								<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
 							</div>
-							<p className="text-xs text-destructive mt-0.5 line-clamp-2">{tech.blockedReason}</p>
-							<p className="text-[11px] text-muted-foreground mt-0.5">Blocked {tech.blockedAt}</p>
+							<p className="text-[11px] text-muted-foreground mt-0.5">Applied {tech.appliedAt}</p>
 						</div>
-						<Button size="sm" variant="outline" onClick={() => setUnblocking(tech)}>Unblock</Button>
+						<Button size="sm" variant="outline" onClick={() => setVerifying(tech)}>Verify</Button>
 					</div>
 				))}
 			</div>
@@ -57,17 +56,17 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead className="pl-4">Technician</TableHead>
-							<TableHead>Reason</TableHead>
-							<TableHead className="hidden lg:table-cell">Blocked on</TableHead>
-							<TableHead className="hidden xl:table-cell">Blocked by</TableHead>
+							<TableHead className="pl-4">Applicant</TableHead>
+							<TableHead className="hidden lg:table-cell">Category</TableHead>
+							<TableHead className="hidden sm:table-cell">City</TableHead>
+							<TableHead>Applied</TableHead>
 							<TableHead className="text-right pr-4">Action</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{techs.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={5} className="text-center text-muted-foreground py-8">No blocked technicians.</TableCell>
+								<TableCell colSpan={5} className="text-center text-muted-foreground py-8">No rejected applicants.</TableCell>
 							</TableRow>
 						)}
 						{paged.map((tech) => (
@@ -77,19 +76,17 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 										<TechAvatar initials={tech.initials} color={tech.color} size="sm" />
 										<div>
 											<p className="text-sm font-semibold text-foreground">{tech.name}</p>
-											<div className="mt-0.5">
-												<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
-											</div>
+											<p className="text-xs text-muted-foreground">{tech.email}</p>
 										</div>
 									</div>
 								</TableCell>
-								<TableCell className="max-w-[200px]">
-									<p className="text-sm text-destructive line-clamp-2">{tech.blockedReason}</p>
+								<TableCell className="hidden lg:table-cell">
+									<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
 								</TableCell>
-								<TableCell className="hidden lg:table-cell text-xs text-muted-foreground">{tech.blockedAt}</TableCell>
-								<TableCell className="hidden xl:table-cell text-xs text-muted-foreground">{tech.blockedBy}</TableCell>
+								<TableCell className="hidden sm:table-cell text-xs text-muted-foreground">{tech.city}</TableCell>
+								<TableCell className="text-xs text-muted-foreground">{tech.appliedAt}</TableCell>
 								<TableCell className="text-right pr-4">
-									<Button size="sm" variant="outline" onClick={() => setUnblocking(tech)}>Unblock</Button>
+									<Button size="sm" variant="outline" onClick={() => setVerifying(tech)}>Verify</Button>
 								</TableCell>
 							</TableRow>
 						))}
@@ -109,18 +106,18 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 				</div>
 			)}
 
-			<AlertDialog open={!!unblocking} onOpenChange={() => setUnblocking(null)}>
+			<AlertDialog open={!!verifying} onOpenChange={() => setVerifying(null)}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Unblock {unblocking?.name}?</AlertDialogTitle>
+						<AlertDialogTitle>Verify {verifying?.name}?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This technician will be able to receive orders again. You can block them again at any time.
+							This will approve the previously rejected application. The technician will be able to log in and receive orders.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={() => { if (unblocking) { onUnblock(unblocking.id); setUnblocking(null); } }}>
-							Unblock
+						<AlertDialogAction onClick={() => { if (verifying) { onVerify(verifying.id); setVerifying(null); } }}>
+							Verify
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
