@@ -2,6 +2,7 @@ import { Star } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/design-tokens";
+import { formatRating } from "@/src/constants/format";
 
 interface RatingRowProps {
 	readonly rating: number | null;
@@ -28,7 +29,7 @@ export default function RatingRow({ rating, reviewCount }: RatingRowProps) {
 				strokeWidth={0}
 			/>
 			<Text variant="caption" className="font-semibold text-content">
-				{rating.toFixed(2)}
+				{formatRating(rating)}
 			</Text>
 			<Text variant="caption" className="text-content-muted">
 				·

@@ -66,3 +66,4 @@ AGENTS.md
 node-compile-cache/
 # Playwright MCP smoke-test artifacts
 .playwright-mcp/
+.agents/

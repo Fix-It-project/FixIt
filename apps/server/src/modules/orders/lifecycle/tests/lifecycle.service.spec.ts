@@ -29,12 +29,25 @@ vi.mock("../lifecycle.repository.js", () => ({
 		submitQuote: vi.fn(),
 		acceptQuote: vi.fn(),
 		confirmCompletion: vi.fn(),
+		declineCompletion: vi.fn(),
 		choosePaymentMethod: vi.fn(),
 		markCashReceived: vi.fn(),
 		cancelOrder: vi.fn(),
 		resolveFeeObligation: vi.fn(),
 		tagPaymentAsSmokeAuto: vi.fn(),
 		getOrderDistance: vi.fn(),
+	},
+}));
+
+vi.mock("../../../notifications/notifications.service.js", () => ({
+	notificationsService: {
+		sendPushToRecipient: vi.fn(),
+	},
+}));
+
+vi.mock("../../orders.repository.js", () => ({
+	ordersRepository: {
+		getOrderById: vi.fn(),
 	},
 }));
 
@@ -75,17 +88,32 @@ vi.mock("../../../../shared/db/supabase.js", () => ({
 
 const repoModule = await import("../lifecycle.repository.js");
 const { LifecycleService } = await import("../lifecycle.service.js");
+const notificationsModule = await import(
+	"../../../notifications/notifications.service.js"
+);
+const ordersModule = await import("../../orders.repository.js");
 
 const repo = repoModule.lifecycleRepository as unknown as {
 	submitOrder: ReturnType<typeof vi.fn>;
 	orderAction: ReturnType<typeof vi.fn>;
 	upsertLocation: ReturnType<typeof vi.fn>;
+	submitQuote: ReturnType<typeof vi.fn>;
+	acceptQuote: ReturnType<typeof vi.fn>;
 	confirmCompletion: ReturnType<typeof vi.fn>;
+	declineCompletion: ReturnType<typeof vi.fn>;
 	choosePaymentMethod: ReturnType<typeof vi.fn>;
 	markCashReceived: ReturnType<typeof vi.fn>;
 	tagPaymentAsSmokeAuto: ReturnType<typeof vi.fn>;
 	cancelOrder: ReturnType<typeof vi.fn>;
 	getOrderDistance: ReturnType<typeof vi.fn>;
+};
+
+const notifications = notificationsModule.notificationsService as unknown as {
+	sendPushToRecipient: ReturnType<typeof vi.fn>;
+};
+
+const ordersRepository = ordersModule.ordersRepository as unknown as {
+	getOrderById: ReturnType<typeof vi.fn>;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -107,6 +135,18 @@ function setOrdersHandlerSequence(...payloads: Array<HandlerResult>) {
 	};
 }
 
+function setOrderQuotesHandlerSequence(...payloads: Array<HandlerResult>) {
+	let i = 0;
+	tableHandlers.order_quotes = () => {
+		const payload = payloads[Math.min(i, payloads.length - 1)] ?? {
+			data: null,
+			error: null,
+		};
+		i += 1;
+		return payload;
+	};
+}
+
 const ORIGINAL_SMOKE_ENV = process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
 
 beforeEach(() => {
@@ -114,11 +154,14 @@ beforeEach(() => {
 	for (const m of Object.values(repo)) {
 		m.mockReset();
 	}
+	notifications.sendPushToRecipient.mockReset();
+	ordersRepository.getOrderById.mockReset();
 	// Restore env baseline (smoke ON by default — anything except 'false')
 	delete process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
 	// Reset table handlers
 	setAddressesHandler(() => ({ data: null, error: null }));
 	tableHandlers.orders = () => ({ data: null, error: null });
+	tableHandlers.order_quotes = () => ({ data: null, error: null });
 });
 
 afterEach(() => {
@@ -142,7 +185,12 @@ describe("LifecycleService.submitOrder", () => {
 			addressesCalled = true;
 			return { data: { id: "should-not-be-used" }, error: null };
 		});
-		repo.submitOrder.mockResolvedValue({ id: "order-1" });
+		repo.submitOrder.mockResolvedValue({ id: "order-1", technician_id: "tech-1" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-1",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		await service.submitOrder("user-1", {
 			technician_id: "tech-1",
@@ -162,6 +210,16 @@ describe("LifecycleService.submitOrder", () => {
 			destinationAddressId: explicitAddressId,
 			scheduledDate: "2026-06-01",
 		});
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "technician",
+			recipientId: "tech-1",
+			type: "order_submitted",
+			title: "New service request",
+			body: "Sarah Ali sent a new booking request.",
+			senderName: "Sarah Ali",
+			orderId: "order-1",
+			viewerRole: "technician",
+		});
 	});
 
 	it("resolves user's single active address when destination_address_id omitted", async () => {
@@ -169,12 +227,17 @@ describe("LifecycleService.submitOrder", () => {
 		const resolvedId = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb";
 		setAddressesHandler(() => ({ data: { id: resolvedId }, error: null }));
 		repo.submitOrder.mockResolvedValue({ id: "order-2" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-2",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		await service.submitOrder("user-2", {
 			technician_id: "tech-2",
 			service_id: "svc-2",
 			scheduled_date: "2026-06-02",
-			scheduled_start_at: "2026-06-02T10:00:00+03:00",
+			scheduled_start_at: "2026-06-02T11:00:00+03:00",
 		});
 
 		expect(repo.submitOrder).toHaveBeenCalledTimes(1);
@@ -195,7 +258,7 @@ describe("LifecycleService.submitOrder", () => {
 				technician_id: "tech-3",
 				service_id: "svc-3",
 				scheduled_date: "2026-06-03",
-				scheduled_start_at: "2026-06-03T12:00:00+03:00",
+				scheduled_start_at: "2026-06-03T14:00:00+03:00",
 			});
 		} catch (err) {
 			caught = err;
@@ -271,6 +334,13 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 		repo.choosePaymentMethod.mockResolvedValue(orderAwaitingPayment);
 		repo.tagPaymentAsSmokeAuto.mockResolvedValue(undefined);
 		repo.markCashReceived.mockResolvedValue(orderCompleted);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-x",
+			user_id: "user-x",
+			technician_id: "tech-x",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
@@ -302,6 +372,13 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 		process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE = "false";
 		const service = new LifecycleService();
 		repo.confirmCompletion.mockResolvedValue(orderAwaitingPayment);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-x",
+			user_id: "user-x",
+			technician_id: "tech-x",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
@@ -314,6 +391,13 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 	it("smoke ON but RPC returns in_progress (only one party confirmed) → no smoke", async () => {
 		const service = new LifecycleService();
 		repo.confirmCompletion.mockResolvedValue(orderInProgress);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-x",
+			user_id: "user-x",
+			technician_id: "tech-x",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
@@ -330,13 +414,15 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 	it("flips arrived=true when pre-read arrived_at is null and post-read is non-null", async () => {
 		const service = new LifecycleService();
 		setOrdersHandlerSequence(
-			{ data: { arrived_at: null }, error: null }, // pre-read
-			{
-				data: { id: "order-loc", arrived_at: "2026-05-15T12:00:00Z" },
-				error: null,
-			}, // post-read
+			{ data: { arrived_at: null }, error: null },
 		);
 		repo.upsertLocation.mockResolvedValue({ id: "loc-1" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-loc",
+			user_id: "user-loc",
+			arrived_at: "2026-05-15T12:00:00Z",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.upsertLocation(
 			"order-loc",
@@ -350,16 +436,30 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 		expect(
 			(result.order as unknown as { arrived_at: string | null }).arrived_at,
 		).toBe("2026-05-15T12:00:00Z");
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-loc",
+			type: "technician_arrived",
+			title: "Technician arrived",
+			body: "Omar Hassan has arrived at the destination.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-loc",
+			viewerRole: "user",
+		});
 	});
 
 	it("keeps arrived=false when both reads already carry a non-null arrived_at", async () => {
 		const service = new LifecycleService();
 		const existing = "2026-05-15T11:00:00Z";
-		setOrdersHandlerSequence(
-			{ data: { arrived_at: existing }, error: null },
-			{ data: { id: "order-loc-2", arrived_at: existing }, error: null },
-		);
+		setOrdersHandlerSequence({ data: { arrived_at: existing }, error: null });
 		repo.upsertLocation.mockResolvedValue({ id: "loc-2" });
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-loc-2",
+			arrived_at: existing,
+			user_id: "user-loc-2",
+			technician_name: "Omar Hassan",
+		});
 
 		const result = await service.upsertLocation(
 			"order-loc-2",
@@ -369,6 +469,219 @@ describe("LifecycleService.upsertLocation (arrived flag)", () => {
 		);
 
 		expect(result.arrived).toBe(false);
+		expect(notifications.sendPushToRecipient).not.toHaveBeenCalled();
+	});
+});
+
+describe("LifecycleService order action notifications", () => {
+	it("notifies the user after technician accepts an order", async () => {
+		const service = new LifecycleService();
+		repo.orderAction.mockResolvedValue({
+			id: "order-accept",
+			user_id: "user-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-accept",
+			user_id: "user-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.techAccept("order-accept", "tech-1");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "order_accepted",
+			title: "Booking accepted",
+			body: "Omar Hassan accepted your booking request.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-accept",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the user when the technician starts inspection", async () => {
+		const service = new LifecycleService();
+		repo.orderAction.mockResolvedValue({
+			id: "order-inspect-start",
+			user_id: "user-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-inspect-start",
+			user_id: "user-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.techStartInspection("order-inspect-start", "tech-1");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "inspection_started",
+			title: "Inspection started",
+			body: "Omar Hassan started the on-site inspection.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-inspect-start",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the user when the technician finishes inspection", async () => {
+		const service = new LifecycleService();
+		repo.orderAction.mockResolvedValue({
+			id: "order-inspect-finish",
+			user_id: "user-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-inspect-finish",
+			user_id: "user-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.techFinishInspection("order-inspect-finish", "tech-1");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "inspection_finished",
+			title: "Inspection finished",
+			body: "Omar Hassan finished the inspection. Final pricing can now be reviewed.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-inspect-finish",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the counterparty when a quote is submitted", async () => {
+		const service = new LifecycleService();
+		repo.submitQuote.mockResolvedValue({
+			id: "quote-1",
+			order_id: "order-quote",
+			amount: 350,
+			proposed_by: "technician",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-quote",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.submitQuote("order-quote", "tech-1", "technician", 350);
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "quote_submitted",
+			title: "New quote received",
+			body: "Omar Hassan sent a quote for 350 EGP.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-quote",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the proposer when a quote is accepted", async () => {
+		const service = new LifecycleService();
+		setOrderQuotesHandlerSequence({
+			data: {
+				id: "quote-2",
+				order_id: "order-quote-accept",
+				amount: 500,
+				proposed_by: "technician",
+			},
+			error: null,
+		});
+		repo.acceptQuote.mockResolvedValue({
+			id: "order-quote-accept",
+			user_id: "user-1",
+			technician_id: "tech-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-quote-accept",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
+
+		await service.acceptQuote("quote-2", "user-1", "user");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "technician",
+			recipientId: "tech-1",
+			type: "quote_accepted",
+			title: "Quote accepted",
+			body: "Sarah Ali accepted your quote for 500 EGP.",
+			senderName: "Sarah Ali",
+			orderId: "order-quote-accept",
+			viewerRole: "technician",
+		});
+	});
+
+	it("notifies the counterparty when an order is cancelled", async () => {
+		const service = new LifecycleService();
+		repo.cancelOrder.mockResolvedValue({
+			id: "order-cancel",
+			user_id: "user-1",
+			technician_id: "tech-1",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-cancel",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			technician_name: "Omar Hassan",
+			user_name: "Sarah Ali",
+		});
+
+		await service.cancelOrder("order-cancel", "tech-1", "technician", "Emergency");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "user",
+			recipientId: "user-1",
+			type: "order_cancelled",
+			title: "Order cancelled",
+			body: "Omar Hassan cancelled the booking. Reason: Emergency.",
+			senderName: "Omar Hassan",
+			senderImageUrl: undefined,
+			orderId: "order-cancel",
+			viewerRole: "user",
+		});
+	});
+
+	it("notifies the counterparty when completion is confirmed", async () => {
+		const service = new LifecycleService();
+		process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE = "false";
+		repo.confirmCompletion.mockResolvedValue({
+			id: "order-confirm",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			status: "in_progress",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-confirm",
+			user_id: "user-1",
+			technician_id: "tech-1",
+			technician_name: "Omar Hassan",
+			user_name: "Sarah Ali",
+		});
+
+		await service.confirmCompletion("order-confirm", "user-1", "user");
+
+		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
+			recipientRole: "technician",
+			recipientId: "tech-1",
+			type: "completion_confirmed",
+			title: "Completion confirmed",
+			body: "Sarah Ali confirmed the booking is complete.",
+			senderName: "Sarah Ali",
+			orderId: "order-confirm",
+			viewerRole: "technician",
+		});
 	});
 });
 

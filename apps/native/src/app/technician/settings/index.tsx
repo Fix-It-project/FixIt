@@ -4,6 +4,9 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSettingsScreen() {
+	const goToNotifications = useDebounce(() =>
+		router.push(ROUTES.technician.settingsNotifications as never),
+	);
 	const goToPrivacy = useDebounce(() =>
 		router.push(ROUTES.technician.settingsPrivacy),
 	);
@@ -12,6 +15,10 @@ export default function TechnicianSettingsScreen() {
 	);
 
 	return (
-		<SettingsContent onPrivacyPress={goToPrivacy} onHelpPress={goToHelp} />
+		<SettingsContent
+			onNotificationsPress={goToNotifications}
+			onPrivacyPress={goToPrivacy}
+			onHelpPress={goToHelp}
+		/>
 	);
 }

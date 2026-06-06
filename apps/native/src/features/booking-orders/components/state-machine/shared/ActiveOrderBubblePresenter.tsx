@@ -135,18 +135,18 @@ export default function ActiveOrderBubblePresenter({
 					{viewer === "technician" ? (
 						<Wrench
 							size={ICON_SIZE}
-							color={Colors.surfaceBase}
+							color={Colors.surfaceOnPrimary}
 							strokeWidth={ICON_STROKE_WIDTH}
 						/>
 					) : (
 						<Truck
 							size={ICON_SIZE}
-							color={Colors.surfaceBase}
+							color={Colors.surfaceOnPrimary}
 							strokeWidth={ICON_STROKE_WIDTH}
 						/>
 					)}
 					{showEta ? (
-						<Text variant="caption" style={{ color: themeColors.surfaceBase }}>
+						<Text variant="caption" style={{ color: themeColors.surfaceOnPrimary }}>
 							{`~${etaMinutes}m`}
 						</Text>
 					) : null}

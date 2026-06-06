@@ -105,7 +105,7 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 							<Text
 								variant="bodyLg"
 								className="font-google-sans-bold"
-								style={{ color: themeColors.surfaceBase }}
+								style={{ color: themeColors.surfaceOnPrimary }}
 							>
 								{initials}
 							</Text>

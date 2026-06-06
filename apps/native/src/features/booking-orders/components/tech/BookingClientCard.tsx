@@ -16,14 +16,14 @@ export default function BookingClientCard({ booking }: Props) {
 	const { width } = useWindowDimensions();
 	const category = CATEGORIES.find((c) => c.id === booking.category_id);
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? themeColors.primary;
+	const categoryColor = themeColors.primary;
 	const initials = getPfpInitialsFallback(booking.user_name);
 	const avatarColor = getAvatarColor(booking.user_name);
 	const avatarSize = width < 360 ? 52 : 64;
 	const nameFontSize = width < 360 ? 16 : 18;
 
 	return (
-		<View className="mb-stack-lg rounded-card border border-edge bg-surface p-card-roomy">
+		<View className="mb-stack-lg rounded-card border border-edge bg-card p-card-roomy">
 			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
 				<View
 					className="items-center justify-center rounded-pill"
@@ -38,7 +38,7 @@ export default function BookingClientCard({ booking }: Props) {
 						className="font-bold"
 						style={{
 							fontSize: avatarSize * 0.32,
-							color: themeColors.surfaceBase,
+							color: themeColors.surfaceOnPrimary,
 						}}
 					>
 						{initials}

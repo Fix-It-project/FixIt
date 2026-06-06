@@ -205,7 +205,7 @@ export default function TechnicianSignUpStep5() {
 				className="mt-stack-sm"
 			>
 				{signUpMutation.isPending ? (
-					<ActivityIndicator color={themeColors.surfaceBase} />
+					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
 					<BtnText variant="buttonLg">Apply as Technician</BtnText>
 				)}

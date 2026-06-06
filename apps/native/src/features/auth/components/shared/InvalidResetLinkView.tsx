@@ -16,7 +16,7 @@ export default function InvalidResetLinkView({
 }: InvalidResetLinkViewProps) {
 	const insets = useSafeAreaInsets();
 	return (
-		<View className="flex-1 bg-app-primary-light">
+		<View className="flex-1 bg-surface">
 			{/* Top Bar */}
 			<View
 				className="flex-row items-center px-card pb-stack-sm"

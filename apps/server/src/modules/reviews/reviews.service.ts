@@ -2,6 +2,7 @@ import { ordersRepository } from "../orders/orders.repository.js";
 import {
 	type Review,
 	reviewsRepository,
+	type TechnicianReviewSummary,
 	type TechnicianReviewWithReviewer,
 } from "./reviews.repository.js";
 
@@ -58,6 +59,12 @@ export class ReviewsService {
 			limit,
 			offset,
 		);
+	}
+
+	async getReviewSummaryForTechnician(
+		technicianId: string,
+	): Promise<TechnicianReviewSummary> {
+		return reviewsRepository.getReviewSummary(technicianId);
 	}
 }
 

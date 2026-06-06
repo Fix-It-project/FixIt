@@ -28,6 +28,10 @@ provider:
     CORS_ORIGIN: ${env:CORS_ORIGIN}
     STORAGE_BUCKET: ${env:STORAGE_BUCKET}
     ORDER_BUCKET: ${env:ORDER_BUCKET}
+    ADMIN_EMAIL: ${env:ADMIN_EMAIL}
+    ADMIN_PASSWORD_HASH: ${env:ADMIN_PASSWORD_HASH}
+    ADMIN_JWT_SECRET: ${env:ADMIN_JWT_SECRET}
+    ADMIN_SESSION_TTL_SECONDS: ${env:ADMIN_SESSION_TTL_SECONDS}
   # Uncomment to easily set up a custom domain. Read the docs for more details:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
   # domain: api.example.com
@@ -92,4 +96,11 @@ functions:
     events:
       - httpApi:
           path: /api/reviews/{proxy+}
+          method: ANY
+
+  notifications:
+    handler: serverless-deploy/notifications-lambda.handler
+    events:
+      - httpApi:
+          path: /api/notifications/{proxy+}
           method: ANY

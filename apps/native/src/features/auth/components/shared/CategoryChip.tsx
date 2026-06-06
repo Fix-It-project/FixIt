@@ -17,7 +17,8 @@ import {
 interface CategoryChipProps {
 	readonly label: string;
 	readonly icon: LucideIcon;
-	readonly color: string;
+	/** Accent color. Defaults to the brand primary — categories share one color. */
+	readonly color?: string;
 	readonly selected: boolean;
 	readonly onPress: () => void;
 }
@@ -33,11 +34,12 @@ function hexToRgba(hex: string, alpha: number) {
 export default function CategoryChip({
 	label,
 	icon: Icon,
-	color,
+	color: colorProp,
 	selected,
 	onPress,
 }: CategoryChipProps) {
 	const themeColors = useThemeColors();
+	const color = colorProp ?? themeColors.primary;
 	const scale = useSharedValue(1);
 	const shadowOpacity = useSharedValue(0.08);
 
@@ -64,7 +66,7 @@ export default function CategoryChip({
 			android_ripple={{ color: hexToRgba(themeColors.shadow, 0.06) }}
 		>
 			<Animated.View
-				className="mx-card my-stack-xs flex-row items-center overflow-hidden rounded-card border-focus bg-surface py-stack-md pr-card pl-0"
+				className="mx-card my-stack-xs flex-row items-center overflow-hidden rounded-card border-focus bg-card py-stack-md pr-card pl-0"
 				style={[
 					{
 						borderColor: selected ? color : Colors.borderChip,
@@ -104,7 +106,7 @@ export default function CategoryChip({
 						className="h-icon-md w-icon-md items-center justify-center rounded-pill"
 						style={{ backgroundColor: color }}
 					>
-						<Check size={13} color={Colors.surfaceBase} strokeWidth={3} />
+						<Check size={13} color={Colors.surfaceOnPrimary} strokeWidth={3} />
 					</View>
 				) : null}
 			</Animated.View>

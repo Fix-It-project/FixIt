@@ -126,8 +126,56 @@ describe("ReviewsController", () => {
 			expect(next).not.toHaveBeenCalled();
 		});
 
+		it("parses string pagination query params", async () => {
+			mockService.getReviewsForTechnician.mockResolvedValue([]);
+
+			const req = mockReq({
+				params: { id: "tech-1" },
+				query: { limit: "20", offset: "40" },
+			});
+			const res = createMockRes();
+			const { next } = await runHandler(
+				reviewsController.getTechnicianReviews,
+				req,
+				res,
+			);
+
+			expect(mockService.getReviewsForTechnician).toHaveBeenCalledWith(
+				"tech-1",
+				20,
+				40,
+			);
+			expect(res.statusCode).toBe(200);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it("defaults invalid pagination and caps large limits", async () => {
+			mockService.getReviewsForTechnician.mockResolvedValue([]);
+
+			const req = mockReq({
+				params: { id: "tech-1" },
+				query: { limit: "500", offset: "-5" },
+			});
+			const res = createMockRes();
+			const { next } = await runHandler(
+				reviewsController.getTechnicianReviews,
+				req,
+				res,
+			);
+
+			expect(mockService.getReviewsForTechnician).toHaveBeenCalledWith(
+				"tech-1",
+				50,
+				0,
+			);
+			expect(res.statusCode).toBe(200);
+			expect(next).not.toHaveBeenCalled();
+		});
+
 		it("forwards service errors via next()", async () => {
-			mockService.getReviewsForTechnician.mockRejectedValue(new Error("db down"));
+			mockService.getReviewsForTechnician.mockRejectedValue(
+				new Error("db down"),
+			);
 
 			const req = mockReq({
 				params: { id: "tech-1" },

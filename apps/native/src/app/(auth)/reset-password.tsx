@@ -189,7 +189,7 @@ export default function ResetPassword() {
 				>
 					<Button onPress={handleResetPassword} disabled={!isButtonActive}>
 						{resetMutation.isPending ? (
-							<ActivityIndicator color={themeColors.surfaceBase} />
+							<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 						) : (
 							<BtnText variant="buttonLg">Reset Password</BtnText>
 						)}

@@ -23,10 +23,9 @@ import {
 	type BottomSheetModalRef,
 } from "@/src/components/ui/bottom-sheet";
 import { Button } from "@/src/components/ui/button";
-import { CalendarPicker } from "@/src/components/ui/calendar-picker";
+import { AvailabilityCalendar } from "@/src/components/ui/availability-calendar";
 import { Text } from "@/src/components/ui/text";
 import {
-	useAvailabilityMarks,
 	useTechnicianPublicSchedule,
 	useTechRequestReschedule,
 	useUserRequestReschedule,
@@ -79,9 +78,6 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 		const [reason, setReason] = useState("");
 		const [currentOrderId, setCurrentOrderId] = useState<string>();
 		const [currentTechnicianId, setCurrentTechnicianId] = useState<string>();
-		const [originalScheduledDateIso, setOriginalScheduledDateIso] =
-			useState<string>();
-		const [visibleMonthIso, setVisibleMonthIso] = useState<string>();
 
 		const userMutation = useUserRequestReschedule();
 		const techMutation = useTechRequestReschedule();
@@ -92,11 +88,6 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 			exceptions,
 			isLoading: isLoadingAvailability,
 		} = useTechnicianPublicSchedule(currentTechnicianId);
-		const availabilityMarks = useAvailabilityMarks(
-			templates,
-			exceptions,
-			selectedDateIso,
-		);
 
 		const resetState = useCallback(() => {
 			setSelectedDateIso(undefined);
@@ -104,8 +95,6 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 			setReason("");
 			setCurrentOrderId(undefined);
 			setCurrentTechnicianId(undefined);
-			setOriginalScheduledDateIso(undefined);
-			setVisibleMonthIso(undefined);
 		}, []);
 
 		const closeSheet = useCallback(() => {
@@ -123,8 +112,6 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 				}) => {
 					setCurrentOrderId(input.orderId);
 					setCurrentTechnicianId(input.technicianId ?? undefined);
-					setOriginalScheduledDateIso(input.originalScheduledDate ?? undefined);
-					setVisibleMonthIso(input.originalScheduledDate ?? todayIso);
 					setSelectedDateIso(undefined);
 					setSelectedSlot(undefined);
 					setReason("");
@@ -214,35 +201,6 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 			},
 			[isDateAvailable, isSubmitting],
 		);
-
-		const markedDates = useMemo(() => {
-			const baseMarks = currentTechnicianId ? { ...availabilityMarks } : {};
-
-			if (!currentTechnicianId && selectedDateIso) {
-				baseMarks[selectedDateIso] = {
-					selected: true,
-					selectedColor: themeColors.primary,
-				};
-			}
-
-			if (originalScheduledDateIso) {
-				const existing = baseMarks[originalScheduledDateIso] ?? {};
-				baseMarks[originalScheduledDateIso] = {
-					...existing,
-					marked: true,
-					dotColor: themeColors.success,
-				};
-			}
-
-			return baseMarks;
-		}, [
-			availabilityMarks,
-			currentTechnicianId,
-			originalScheduledDateIso,
-			selectedDateIso,
-			themeColors.primary,
-			themeColors.success,
-		]);
 
 		const trimmedReason = reason.trim();
 		const submitDisabled =
@@ -339,15 +297,12 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 				>
 					<RescheduleSheetHeader onClose={closeSheet} disabled={isSubmitting} />
 
-					<CalendarPicker
-						minDate={todayIso}
-						initialDate={visibleMonthIso ?? todayIso}
+					<AvailabilityCalendar
+						templates={templates}
+						exceptions={exceptions}
+						selectedDate={selectedDateIso}
 						onDateSelect={handleDayPress}
-						onMonthChange={(month: { dateString: string }) =>
-							setVisibleMonthIso(month.dateString)
-						}
-						markedDates={markedDates}
-						markingType="custom"
+						permissiveWhenEmpty={!currentTechnicianId}
 					/>
 					{currentTechnicianId ? undefined : (
 						<View

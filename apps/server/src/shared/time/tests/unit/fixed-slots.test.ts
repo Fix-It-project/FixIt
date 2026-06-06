@@ -24,7 +24,7 @@ describe("assertFixedSlotStartAtInCairo", () => {
 		expect(() =>
 			assertFixedSlotStartAtInCairo({
 				...baseArgs,
-				startAt: "2026-06-01T10:00:00+03:00",
+				startAt: "2026-06-01T11:00:00+03:00",
 			}),
 		).not.toThrow();
 	});
@@ -62,4 +62,3 @@ describe("assertFixedSlotStartAtInCairo", () => {
 		expect((caught as AppError).message).toContain("invalid_slot_code");
 	});
 });
-

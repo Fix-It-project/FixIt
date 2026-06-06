@@ -23,14 +23,14 @@ export default function CategoriesScreen() {
 	const handleCategoryPress = useDebounce(
 		(categoryId: string, categoryName: string) => {
 			router.push({
-				pathname: ROUTES.user.services,
+				pathname: ROUTES.user.technicians,
 				params: { categoryId, categoryName },
 			});
 		},
 	);
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View className="px-screen-x pt-card pb-stack-md">
 				<Text variant="h2" className="text-content">
 					Categories

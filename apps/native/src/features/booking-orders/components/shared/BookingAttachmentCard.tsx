@@ -9,7 +9,7 @@ interface Props {
 
 export default function BookingAttachmentCard({ uri }: Props) {
 	return (
-		<View className="mb-stack-lg overflow-hidden rounded-card border border-edge bg-surface">
+		<View className="mb-stack-lg overflow-hidden rounded-card border border-edge bg-card">
 			<View className="px-card pt-card pb-stack-md">
 				<Text variant="buttonMd" className="text-content">
 					Attachment

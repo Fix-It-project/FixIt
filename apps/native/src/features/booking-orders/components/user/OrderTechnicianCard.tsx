@@ -19,14 +19,14 @@ export default function OrderTechnicianCard({ order }: Props) {
 		? CATEGORIES.find((c) => c.id === order.category_id)
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const avatarSize = width < 360 ? 52 : 64;
 	const nameFontSize = width < 360 ? 16 : 18;
 
 	return (
-		<View className="mb-stack-lg rounded-card border border-edge bg-surface p-card-roomy">
+		<View className="mb-stack-lg rounded-card border border-edge bg-card p-card-roomy">
 			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
 				{order.technician_image ? (
 					<Image
@@ -53,7 +53,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 							className="font-bold"
 							style={{
 								fontSize: avatarSize * 0.32,
-								color: themeColors.surfaceBase,
+								color: themeColors.surfaceOnPrimary,
 							}}
 						>
 							{initials}

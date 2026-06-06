@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import {
@@ -24,7 +23,7 @@ export default function BookingsTabContent() {
 	useFocusBackHandler(() => calendarRef.current?.closeIfOpen() ?? false);
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View
 				style={{
 					backgroundColor: Colors.primaryDark,
@@ -41,7 +40,7 @@ export default function BookingsTabContent() {
 			>
 				<Animated.View
 					entering={FadeInDown.duration(400)}
-					className="mb-stack-lg flex-row items-center justify-between"
+					className="mb-stack-lg flex-row items-center"
 				>
 					<Text variant="h2" style={{ color: themeColors.onPrimaryHeader }}>
 						Fix
@@ -53,8 +52,6 @@ export default function BookingsTabContent() {
 							Technicians
 						</Text>
 					</Text>
-
-					<NotificationBell />
 				</Animated.View>
 
 				<Animated.View entering={FadeInDown.delay(80).duration(300)}>

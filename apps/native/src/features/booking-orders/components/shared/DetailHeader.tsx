@@ -15,7 +15,7 @@ export default function DetailHeader({ categoryId, onBack, title }: Props) {
 		? CATEGORIES.find((c) => c.id === categoryId)
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 
 	return (
 		<PageHeader

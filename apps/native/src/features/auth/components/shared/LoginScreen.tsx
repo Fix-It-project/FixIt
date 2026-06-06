@@ -117,7 +117,7 @@ export default function LoginScreen({
 				className="mt-stack-sm"
 			>
 				{loginMutation.isPending ? (
-					<ActivityIndicator color={themeColors.surfaceBase} />
+					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
 					<BtnText variant="buttonLg">Log in</BtnText>
 				)}

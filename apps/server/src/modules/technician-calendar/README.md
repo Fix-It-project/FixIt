@@ -44,7 +44,7 @@ Query params:
 
 Template body fields:
 - `day_of_week`: `0..6` (Sunday..Saturday)
-- `slot_hour`: one of `8, 10, 12, 14, 16` (optional in request; defaults to `8` server-side)
+- `slot_hour`: one of `8, 11, 14, 17, 20` (optional in request; defaults to `8` server-side)
 - `active`: `boolean` (optional; default `true`)
 
 ### Calendar Exceptions (technician-auth required)

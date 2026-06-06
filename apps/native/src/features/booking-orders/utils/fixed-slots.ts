@@ -1,7 +1,7 @@
 const CAIRO_TZ = "Africa/Cairo";
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-export const BOOKING_SLOT_HOURS = [8, 10, 12, 14, 16] as const;
+export const BOOKING_SLOT_HOURS = [8, 11, 14, 17, 20] as const;
 export type BookingSlotHour = (typeof BOOKING_SLOT_HOURS)[number];
 
 export interface BookingSlotOption {
@@ -14,12 +14,7 @@ export const BOOKING_SLOT_OPTIONS: ReadonlyArray<BookingSlotOption> =
 	BOOKING_SLOT_HOURS.map((hour) => ({
 		hour,
 		value: `${String(hour).padStart(2, "0")}:00`,
-		label:
-			hour < 12
-				? `${hour}:00 AM`
-				: hour === 12
-					? "12:00 PM"
-					: `${hour - 12}:00 PM`,
+		label: hour < 12 ? `${hour}:00 AM` : `${hour - 12}:00 PM`,
 	}));
 
 function cairoMidnightUtc(dateStr: string): Date {

@@ -2,7 +2,6 @@ import type { MaterialTopTabNavigationProp } from "expo-router/js-top-tabs";
 import { useNavigation } from "expo-router/react-navigation";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import NotificationBell from "@/src/components/ui/notification-bell";
 import { Text } from "@/src/components/ui/text";
 import {
 	Colors,
@@ -24,7 +23,7 @@ export default function ScheduleTabContent() {
 	const themeColors = useThemeColors();
 
 	return (
-		<View className="flex-1 bg-surface-elevated">
+		<View className="flex-1 bg-surface">
 			<View
 				style={{
 					backgroundColor: Colors.primaryDark,
@@ -41,7 +40,7 @@ export default function ScheduleTabContent() {
 			>
 				<Animated.View
 					entering={FadeInDown.duration(400)}
-					className="flex-row items-center justify-between"
+					className="flex-row items-center"
 				>
 					<Text variant="h2" style={{ color: themeColors.onPrimaryHeader }}>
 						Fix
@@ -53,8 +52,6 @@ export default function ScheduleTabContent() {
 							Technicians
 						</Text>
 					</Text>
-
-					<NotificationBell />
 				</Animated.View>
 			</View>
 

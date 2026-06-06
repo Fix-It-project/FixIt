@@ -21,7 +21,7 @@ export default function AuthPageLayout({
 	return (
 		<KeyboardAvoidingView
 			behavior="padding"
-			className="flex-1 bg-app-primary-light"
+			className="flex-1 bg-surface"
 		>
 			<ScrollView
 				showsVerticalScrollIndicator={false}

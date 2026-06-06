@@ -3,8 +3,11 @@ import {
   type TechnicianSignUpData,
 } from './technician-auth.repository.js';
 import { storageRepository, type DocumentFiles } from '../../shared/storage/storage.repository.js';
-import { techniciansRepository } from '../technicians/index.js';
-import { addressesRepository, type SignUpAddressData } from '../addresses/index.js';
+import { techniciansRepository } from '../technicians/technicians.repository.js';
+import {
+  addressesRepository,
+  type SignUpAddressData,
+} from '../addresses/addresses.repository.js';
 import { AppError } from '../../shared/errors/app-error.js';
 
 export class TechnicianAuthService {

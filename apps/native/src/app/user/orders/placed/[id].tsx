@@ -11,25 +11,26 @@ import Animated, {
 	withSpring,
 	withTiming,
 } from "react-native-reanimated";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { OrderInfoCompact } from "@/src/features/booking-orders/components/state-machine/shared";
-import { useUserOrderById } from "@/src/features/booking-orders/hooks/useUserOrders";
 import {
 	DUR_REVEAL,
 	DUR_STAGGER,
 	EASE_OUT_EXPO,
+	EASE_OUT_QUART,
 	SPRING_SOFT,
 	STAGGER_GAP,
 } from "@/src/constants/animation";
-import { Button } from "@/src/components/ui/button";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
+import { OrderInfoCompact } from "@/src/features/booking-orders/components/state-machine/shared";
+import { useUserOrderById } from "@/src/features/booking-orders/hooks/useUserOrders";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
-import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 const CHECK_SIZE = 64;
 const CHECK_HALO_SIZE = 112;
@@ -139,7 +140,9 @@ export default function PlacedOrderScreen() {
 						entering={
 							reducedMotion
 								? undefined
-								: FadeInDown.delay(enterDelay(1)).duration(DUR_STAGGER)
+								: FadeInDown.delay(enterDelay(1))
+										.duration(DUR_STAGGER)
+										.easing(EASE_OUT_QUART)
 						}
 						style={{ alignItems: "center", gap: space[1] }}
 					>
@@ -164,7 +167,9 @@ export default function PlacedOrderScreen() {
 						entering={
 							reducedMotion
 								? undefined
-								: FadeInDown.delay(enterDelay(2)).duration(DUR_STAGGER)
+								: FadeInDown.delay(enterDelay(2))
+										.duration(DUR_STAGGER)
+										.easing(EASE_OUT_QUART)
 						}
 					>
 						<OrderInfoCompact
@@ -184,7 +189,9 @@ export default function PlacedOrderScreen() {
 					entering={
 						reducedMotion
 							? undefined
-							: FadeInDown.delay(enterDelay(3)).duration(DUR_STAGGER)
+							: FadeInDown.delay(enterDelay(3))
+									.duration(DUR_STAGGER)
+									.easing(EASE_OUT_QUART)
 					}
 					style={{ marginTop: "auto", gap: space[2] }}
 				>
@@ -194,6 +201,7 @@ export default function PlacedOrderScreen() {
 						fullWidth
 						iconRight={ArrowRight}
 						onPress={goToOrderDetail}
+						testID="placed-view-order"
 					>
 						View order details
 					</Button>

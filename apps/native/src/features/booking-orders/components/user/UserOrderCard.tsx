@@ -26,7 +26,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 		? CATEGORIES.find((c) => c.id === order.category_id)
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const status = getOrderStatusBadge(order.status, themeColors, "user");
@@ -36,7 +36,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mb-stack-md rounded-card border border-edge bg-surface p-card"
+			className="mb-stack-md rounded-card border border-edge bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{/* Avatar */}
@@ -52,7 +52,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
 						style={{ backgroundColor: avatarColor }}
 					>
-						<Text variant="buttonLg" style={{ color: themeColors.surfaceBase }}>
+						<Text variant="buttonLg" style={{ color: themeColors.surfaceOnPrimary }}>
 							{initials}
 						</Text>
 					</View>

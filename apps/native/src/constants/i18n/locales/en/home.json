@@ -1,0 +1,65 @@
+{
+	"serviceTo": "Service to",
+	"selectAddress": "Select address",
+	"searchPlaceholder": "What do you want to do?",
+	"browseServices": "Browse services",
+	"seeAll": "See all",
+	"viewAll": "View all",
+	"topRated": "Top rated",
+	"previousOrders": "Book again",
+	"noCategories": "No categories available",
+	"couldNotLoadServices": "Could not load services. Pull to refresh.",
+	"couldNotLoadTopRated": "Could not load top rated technicians. Pull to refresh.",
+	"couldNotLoadOrders": "Could not load orders. Pull to refresh.",
+	"noPreviousOrders": "No previous orders yet",
+	"bookFirstService": "Book your first service to see it here.",
+	"technicianFallback": "Technician",
+	"serviceFallback": "Service",
+	"book": "Book",
+	"reorder": "Reorder",
+	"viewOrder": "View order",
+	"scheduled": "Scheduled",
+	"onTheWay": "On the way",
+	"language": {
+		"switchTo": "Switch to {{language}}"
+	},
+	"address": {
+		"current": "Current address",
+		"change": "Change address",
+		"add": "Add address",
+		"delete": "Delete",
+		"sheetTitle": "Choose address",
+		"saved": "Saved addresses",
+		"loading": "Loading addresses...",
+		"loadErrorTitle": "Unable to load addresses",
+		"loadErrorMessage": "Please try again later.",
+		"deleteUnavailableTitle": "Delete address",
+		"deleteUnavailableMessage": "Address deletion is not available yet. The action is ready for the upcoming backend endpoint."
+	},
+	"offers": {
+		"cleaning": {
+			"label": "This week",
+			"title": "Freshen up your home",
+			"subtitle": "Cleaning visits from nearby verified pros.",
+			"cta": "Book cleaning"
+		},
+		"ac": {
+			"label": "Seasonal check",
+			"title": "Cool rooms, fast",
+			"subtitle": "Find AC technicians available around you.",
+			"cta": "Find AC help"
+		},
+		"plumbing": {
+			"label": "Quick repair",
+			"title": "Leaks handled today",
+			"subtitle": "Trusted plumbers for urgent home fixes.",
+			"cta": "Book plumbing"
+		}
+	},
+	"steps": {
+		"booked": "Booked",
+		"assigned": "Assigned",
+		"enRoute": "En route",
+		"arrived": "Arrived"
+	}
+}

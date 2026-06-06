@@ -85,7 +85,7 @@ export default function ProfileMenuSection({
 		<>
 			<View className="mt-card-roomy px-screen-x">
 				<View
-					className="rounded-card bg-surface px-card-roomy"
+					className="rounded-card bg-card px-card-roomy"
 					style={shadowStyle(elevation.raised, {
 						shadowColor: Colors.shadow,
 					})}
@@ -125,7 +125,7 @@ export default function ProfileMenuSection({
 
 			<View className="mt-card-roomy px-screen-x">
 				<View
-					className="rounded-card bg-surface px-card-roomy"
+					className="rounded-card bg-card px-card-roomy"
 					style={shadowStyle(elevation.raised, {
 						shadowColor: Colors.shadow,
 					})}

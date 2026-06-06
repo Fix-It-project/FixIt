@@ -27,7 +27,7 @@ export default function ScheduleOrderCard({ order }: ScheduleOrderCardProps) {
 	);
 
 	return (
-		<View className="mb-stack-md rounded-button border border-edge bg-surface p-card-compact">
+		<View className="mb-stack-md rounded-button border border-edge bg-card p-card-compact">
 			{/* Status badge */}
 			<View className="mb-stack-sm flex-row items-center justify-start">
 				<View

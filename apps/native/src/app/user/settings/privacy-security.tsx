@@ -6,11 +6,11 @@ import { Colors, elevation, shadowStyle } from "@/src/constants/design-tokens";
 export default function PrivacySecurityScreen() {
 	return (
 		<ScrollView
-			className="flex-1 bg-surface-elevated"
+			className="flex-1 bg-surface"
 			contentContainerClassName="px-screen-x py-stack-xl gap-stack-lg"
 		>
 			<View
-				className="rounded-card bg-surface px-card-roomy py-stack-xl"
+				className="rounded-card bg-card px-card-roomy py-stack-xl"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<View className="mb-stack-lg h-avatar-lg w-avatar-lg items-center justify-center rounded-pill bg-app-primary-light">
@@ -27,7 +27,7 @@ export default function PrivacySecurityScreen() {
 			</View>
 
 			<View
-				className="rounded-card bg-surface px-card-roomy py-card-roomy"
+				className="rounded-card bg-card px-card-roomy py-card-roomy"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<Text variant="buttonLg" className="text-content">
@@ -40,7 +40,7 @@ export default function PrivacySecurityScreen() {
 			</View>
 
 			<View
-				className="rounded-card bg-surface px-card-roomy py-card-roomy"
+				className="rounded-card bg-card px-card-roomy py-card-roomy"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<Text variant="buttonLg" className="text-content">
