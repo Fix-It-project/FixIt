@@ -1,0 +1,15 @@
+# Maestro workspace config — applies to every flow under apps/native/.maestro/.
+#
+# Run one flow:        maestro test .maestro/auth/login.yaml
+# Run the suite:       maestro test .maestro       (or: pnpm --filter native test:e2e)
+# Author selectors:    maestro studio              (interactive view-hierarchy inspector)
+#
+# App under test: com.anonymous.fixitapp (Android package / iOS bundle id).
+#
+# Flows tagged `creates-data` mutate backend state (e.g. signup creates a real
+# account) and are excluded from the default suite so it stays idempotent. Run
+# them explicitly: maestro test .maestro/auth/signup.yaml
+flows:
+  - "**"
+excludeTags:
+  - creates-data

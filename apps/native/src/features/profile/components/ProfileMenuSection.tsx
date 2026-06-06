@@ -22,11 +22,13 @@ function MenuItem({
 	label,
 	onPress,
 	destructive = false,
+	testID,
 }: Readonly<{
 	icon: LucideIcon;
 	label: string;
 	onPress: () => void;
 	destructive?: boolean;
+	testID?: string;
 }>) {
 	const themeColors = useThemeColors();
 
@@ -34,6 +36,7 @@ function MenuItem({
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
+			testID={testID}
 			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
 		>
 			<View
@@ -135,6 +138,7 @@ export default function ProfileMenuSection({
 						label={isLoggingOut ? "Logging out…" : "Log Out"}
 						onPress={onLogout}
 						destructive
+						testID="profile-logout"
 					/>
 				</View>
 			</View>

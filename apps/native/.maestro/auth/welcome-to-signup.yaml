@@ -1,0 +1,21 @@
+# Onboarding navigation: welcome -> choose Homeowner role -> signup screen.
+# Pure UI/navigation test (no backend writes). The welcome screen plays a splash
+# + reveal animation before the CTA is tappable, hence the generous timeout.
+appId: com.anonymous.fixitapp
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "welcome-get-started"
+    timeout: 20000
+- tapOn:
+    id: "welcome-get-started"
+- assertVisible:
+    id: "role-user"
+- assertVisible:
+    id: "role-technician"
+- tapOn:
+    id: "role-user"        # Homeowner -> user signup
+- assertVisible:
+    id: "signup-fullname-input"
+    timeout: 10000

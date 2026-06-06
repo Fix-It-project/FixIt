@@ -262,13 +262,18 @@ function DialogProvider() {
 
 			<AlertDialog.Footer>
 				{config.secondary !== undefined && (
-					<Button variant="secondary" onPress={() => pop(false)}>
+					<Button
+						variant="secondary"
+						onPress={() => pop(false)}
+						testID="dialog-confirm-secondary"
+					>
 						{config.secondary.label}
 					</Button>
 				)}
 				<Button
 					variant={config.primary.destructive ? "destructive" : "primary"}
 					onPress={() => pop(true)}
+					testID="dialog-confirm-primary"
 				>
 					{config.primary.label}
 				</Button>

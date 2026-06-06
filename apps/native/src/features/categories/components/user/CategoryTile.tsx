@@ -23,6 +23,7 @@ export default function CategoryTile({
 
 	return (
 		<TouchableOpacity
+			testID="category-tile"
 			className="mb-stack-md overflow-hidden rounded-input"
 			style={{
 				width: "48.5%",

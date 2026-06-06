@@ -15,7 +15,7 @@ export default function TechHome() {
 	const { data: profile } = useTechSelfProfileQuery();
 
 	return (
-		<View className="flex-1 bg-surface">
+		<View testID="technician-home" className="flex-1 bg-surface">
 			{/* Sticky header — outside ScrollView */}
 			<DashboardHeader />
 

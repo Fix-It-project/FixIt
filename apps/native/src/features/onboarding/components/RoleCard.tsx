@@ -30,6 +30,7 @@ interface RoleCardProps {
 	illustrationPanelWidth?: number;
 	cardMinHeight?: number;
 	contentPadding?: number;
+	testID?: string;
 }
 
 export function RoleCard({
@@ -46,6 +47,7 @@ export function RoleCard({
 	illustrationPanelWidth = 142,
 	cardMinHeight,
 	contentPadding,
+	testID,
 }: RoleCardProps) {
 	const reducedMotion = useReducedMotion();
 	const isUser = variant === "user";
@@ -191,6 +193,7 @@ export function RoleCard({
 			<PressableScale
 				onPress={onPress}
 				accessibilityRole="button"
+				testID={testID}
 				style={{ flex: horizontal ? undefined : 1 }}
 			>
 				<View

@@ -21,6 +21,7 @@ interface FormInputProps {
 	readonly required?: boolean;
 	readonly secureToggle?: boolean;
 	readonly multiline?: boolean;
+	readonly testID?: string;
 }
 
 function FormInput({
@@ -39,6 +40,7 @@ function FormInput({
 	required = false,
 	secureToggle,
 	multiline,
+	testID,
 }: FormInputProps) {
 	return (
 		<View className="gap-stack-sm">
@@ -64,6 +66,7 @@ function FormInput({
 						keyboardType={keyboardType}
 						autoCapitalize={autoCapitalize}
 						editable={!disabled}
+						testID={testID}
 						className="flex-1"
 					/>
 				) : (
@@ -77,6 +80,7 @@ function FormInput({
 						autoCapitalize={autoCapitalize}
 						editable={!disabled}
 						secureToggle={secureToggle}
+						testID={testID}
 						className="flex-1"
 					/>
 				)}
