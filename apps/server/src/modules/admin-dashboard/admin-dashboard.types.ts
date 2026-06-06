@@ -189,3 +189,55 @@ export interface AdminHomeowner {
 	blockedBy?: string;
 	history: AdminHomeownerHistory[];
 }
+
+// ---- Technicians (admin technicians page) ----
+
+export type TechnicianStatus = "pending" | "verified" | "blocked" | "rejected";
+
+export interface AdminTechnicianDocument {
+	kind: string;
+	status: "uploaded" | "missing";
+}
+
+/** Tech order-history row (detail page). Mirrors the admin HistoryOrder shape. */
+export interface AdminTechnicianHistory {
+	id: string;
+	date: string;
+	category: string;
+	customer: string;
+	status: string;
+	cancelReason: string | null;
+	cancelledBy: "customer" | "technician" | "system" | null;
+	review: { rating: number; comment: string | null } | null;
+	amount: number;
+}
+
+/** Technician summary row for the admin list (history loads separately). */
+export interface AdminTechnician {
+	id: string;
+	name: string;
+	initials: string;
+	color: string;
+	specialty: string;
+	city: string;
+	phone: string;
+	email: string;
+	joined: string;
+	joinedAt: string;
+	appliedAt: string;
+	availability: "online" | "offline";
+	rating: number | null;
+	reviews: number;
+	completed: number;
+	totalOrders: number;
+	cancelled: number;
+	revenue: string;
+	revenueValue: number;
+	yearsExperience: number | null;
+	documents: AdminTechnicianDocument[];
+	status: TechnicianStatus;
+	blocked: boolean;
+	blockedReason?: string;
+	blockedAt?: string;
+	blockedBy?: string;
+}

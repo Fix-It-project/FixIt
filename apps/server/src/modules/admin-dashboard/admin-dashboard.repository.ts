@@ -1,128 +1,20 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
+import type {
+	CategoryRow,
+	DashboardOrderRow,
+	DetailedOrderRow,
+	HomeownerUserRow,
+	OrderDetailRow,
+	RatingStatRow,
+	ReviewRow,
+	TechnicianRow,
+	TechnicianStatsRow,
+} from "./admin-dashboard.repository.types.js";
 
-// Raw row shapes (slim projections — only what the dashboard aggregates need).
-export interface DashboardOrderRow {
-	id: string;
-	status: string;
-	active: boolean;
-	created_at: string;
-	final_price: number | null;
-	service_id: string | null;
-	technician_id: string | null;
-	user_id: string | null;
-	user_completed_at: string | null;
-	technician_completed_at: string | null;
-	cancellation_reason: string | null;
-}
-
-export interface CategoryRow {
-	id: string;
-	name: string | null;
-}
-
-export interface TechnicianRow {
-	id: string;
-	first_name: string | null;
-	last_name: string | null;
-	category_id: string | null;
-}
-
-export interface RatingStatRow {
-	technician_id: string;
-	review_count: number;
-	rating_sum: number;
-	rating: number;
-}
-
-export interface ReviewRow {
-	order_id: string;
-	rating: number;
-	comment: string | null;
-	created_at: string;
-	user_id: string | null;
-}
-
-export interface HomeownerUserRow {
-	id: string;
-	created_at: string;
-	full_name: string | null;
-	email: string | null;
-	phone: string | null;
-	blocked: boolean;
-	blocked_reason: string | null;
-	blocked_at: string | null;
-	blocked_by: string | null;
-}
-
-export interface OrderQuoteRow {
-	proposed_by: string;
-	amount: number;
-	round_number: number;
-	status: string;
-	notes: string | null;
-	created_at: string;
-}
-
-export interface OrderEventRow {
-	event_type: string;
-	from_status: string | null;
-	to_status: string | null;
-	actor_role: string;
-	metadata: unknown;
-	created_at: string;
-}
-
-export interface OrderPaymentRow {
-	amount: number;
-	payment_method: string;
-	status: string;
-	paid_at: string | null;
-	created_at: string;
-}
-
-/** Single order detail (admin order-detail modal). */
-export interface OrderDetailRow {
-	id: string;
-	problem_description: string | null;
-	status: string;
-	created_at: string;
-	scheduled_date: string | null;
-	scheduled_start_at: string | null;
-	arrived_at: string | null;
-	user_completed_at: string | null;
-	technician_completed_at: string | null;
-	final_price: number | null;
-	payment_method: string | null;
-	cancellation_reason: string | null;
-	attachment: string | null;
-	customerName: string | null;
-	techFirstName: string | null;
-	techLastName: string | null;
-	categoryName: string | null;
-	review: { rating: number; comment: string | null; created_at: string } | null;
-	quotes: OrderQuoteRow[];
-	events: OrderEventRow[];
-	payments: OrderPaymentRow[];
-}
-
-/** Fully-joined order row for the admin orders list. */
-export interface DetailedOrderRow {
-	id: string;
-	status: string;
-	created_at: string;
-	final_price: number | null;
-	cancellation_reason: string | null;
-	customerName: string | null;
-	techFirstName: string | null;
-	techLastName: string | null;
-	categoryName: string | null;
-	review: {
-		rating: number;
-		comment: string | null;
-		created_at: string;
-		user_id: string | null;
-	} | null;
-}
+// Row shapes live in `admin-dashboard.repository.types.js` (colocated with the
+// data layer); re-exported here so existing consumers keep importing from the
+// repository module.
+export type * from "./admin-dashboard.repository.types.js";
 
 const ORDER_FIELDS =
 	"id, status, active, created_at, final_price, service_id, technician_id, user_id, user_completed_at, technician_completed_at, cancellation_reason" as const;
@@ -300,6 +192,88 @@ export class AdminDashboardRepository {
 			throw new Error(error.message);
 		}
 		return data as HomeownerUserRow;
+	}
+
+	// ---- Technicians ----
+
+	/** One already-aggregated row per technician (counts/revenue done by the view). */
+	async getTechnicianStats(): Promise<TechnicianStatsRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_technician_stats")
+			.select("*");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any): TechnicianStatsRow => ({
+			id: r.id,
+			created_at: r.created_at,
+			first_name: r.first_name,
+			last_name: r.last_name,
+			email: r.email,
+			phone: r.phone,
+			is_available: r.is_available,
+			status: r.status,
+			blocked_reason: r.blocked_reason,
+			blocked_at: r.blocked_at,
+			blocked_by: r.blocked_by,
+			category_id: r.category_id,
+			years_experience: r.years_experience == null ? null : Number(r.years_experience),
+			criminal_record: r.criminal_record,
+			birth_certificate: r.birth_certificate,
+			national_id: r.national_id,
+			category_name: r.category_name,
+			city: r.city,
+			rating: r.rating == null ? null : Number(r.rating),
+			review_count: Number(r.review_count ?? 0),
+			total_orders: Number(r.total_orders ?? 0),
+			completed: Number(r.completed ?? 0),
+			cancelled: Number(r.cancelled ?? 0),
+			revenue: Number(r.revenue ?? 0),
+		}));
+	}
+
+	/** One technician's orders (newest first) — powers the detail-page history. */
+	async getOrdersByTechnician(technicianId: string): Promise<DashboardOrderRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("orders")
+			.select(ORDER_FIELDS)
+			.eq("technician_id", technicianId)
+			.order("created_at", { ascending: false });
+		if (error) throw new Error(error.message);
+		return (data ?? []) as DashboardOrderRow[];
+	}
+
+	/** Does a technician id exist? (history endpoint 404 guard.) */
+	async technicianExists(id: string): Promise<boolean> {
+		const { data, error } = await supabaseAdmin
+			.from("technicians")
+			.select("id")
+			.eq("id", id)
+			.maybeSingle();
+		if (error) throw new Error(error.message);
+		return !!data;
+	}
+
+	/** Set a technician's status + block metadata. Returns null if no row matched. */
+	async setTechnicianStatus(
+		id: string,
+		state: { status: string; reason?: string | null; by?: string | null },
+	): Promise<{ id: string } | null> {
+		const isBlocked = state.status === "blocked";
+		const { data, error } = await supabaseAdmin
+			.from("technicians")
+			.update({
+				status: state.status,
+				blocked_reason: state.reason ?? null,
+				blocked_at: isBlocked ? new Date().toISOString() : null,
+				blocked_by: state.by ?? null,
+			})
+			.eq("id", id)
+			.select("id")
+			.single();
+		if (error) {
+			if (error.code === "PGRST116") return null; // no row matched
+			throw new Error(error.message);
+		}
+		return data as { id: string };
 	}
 
 	/** Reviews keyed by order_id — embedded into recent orders. */

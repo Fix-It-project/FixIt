@@ -1,34 +1,30 @@
 import { Inbox } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CategoryTag } from "@/components/CategoryTag";
 import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
 import { StatusBadge } from "@/components/StatusBadge";
-import { TableToolbar, type ToolbarFilter } from "@/components/TableToolbar";
+import { TableToolbar } from "@/components/TableToolbar";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech, AvailabilityFilter } from "@/types";
+import type { AdminTechnician, AvailabilityFilter, TechnicianSort } from "@/types";
+import { AvailabilityFilterDropdown } from "./AvailabilityFilterDropdown";
+import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
 import { CompletionPill } from "./CompletionPill";
 import { TechCardList } from "./TechCardList";
-
-const FILTER_KEYS: { key: AvailabilityFilter; label: string }[] = [
-	{ key: "all", label: "All" },
-	{ key: "online", label: "Online" },
-	{ key: "offline", label: "Offline" },
-];
+import { TechnicianSortDropdown } from "./TechnicianSortDropdown";
 
 interface ActiveTabProps {
-	techs: ActiveTech[];
-	onView: (tech: ActiveTech) => void;
-	onBlock?: (tech: ActiveTech) => void;
+	techs: AdminTechnician[];
+	onView: (tech: AdminTechnician) => void;
 }
 
-function exportToCSV(techs: ActiveTech[]) {
-	const cols = ["Name", "Category", "City", "Completed", "Rating", "Reviews", "Revenue (EGP k)", "Availability", "Joined"];
+function exportToCSV(techs: AdminTechnician[]) {
+	const cols = ["Name", "Category", "City", "Completed", "Rating", "Reviews", "Revenue (EGP)", "Availability", "Joined"];
 	const rows = techs.map((t) =>
-		[t.name, t.specialty, t.city, t.completed, t.rating, t.reviews, t.revenue, t.availability, t.joined]
+		[t.name, t.specialty, t.city, t.completed, t.rating ?? "", t.reviews, t.revenue, t.availability, t.joined]
 			.map((v) => `"${v}"`).join(","),
 	);
 	const csv = [cols.join(","), ...rows].join("\n");
@@ -40,50 +36,71 @@ function exportToCSV(techs: ActiveTech[]) {
 	URL.revokeObjectURL(url);
 }
 
-function filterByAvailability(techs: ActiveTech[], f: AvailabilityFilter): ActiveTech[] {
+function filterByAvailability(techs: AdminTechnician[], f: AvailabilityFilter): AdminTechnician[] {
 	if (f === "all") return techs;
 	return techs.filter((t) => t.availability === f);
+}
+
+function sortTechs(techs: AdminTechnician[], sort: TechnicianSort): AdminTechnician[] {
+	const copy = [...techs];
+	switch (sort) {
+		case "newest":
+			return copy.sort((a, b) => +new Date(b.joinedAt) - +new Date(a.joinedAt));
+		case "most_completed":
+			return copy.sort((a, b) => b.completed - a.completed);
+		case "highest_rating":
+			return copy.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+		case "most_revenue":
+			return copy.sort((a, b) => b.revenueValue - a.revenueValue);
+	}
 }
 
 export function ActiveTab({ techs, onView }: ActiveTabProps) {
 	const [search, setSearch] = useState("");
 	const [filter, setFilter] = useState<AvailabilityFilter>("all");
+	const [category, setCategory] = useState("all");
+	const [sort, setSort] = useState<TechnicianSort>("most_completed");
 	const [page, setPage] = useState(1);
 
+	const categoryOptions = useMemo(
+		() => [...new Set(techs.map((t) => t.specialty).filter(Boolean))].sort(),
+		[techs],
+	);
+
 	const byAvailability = filterByAvailability(techs, filter);
-	const filtered = byAvailability.filter((t) =>
+	const byCategory =
+		category === "all" ? byAvailability : byAvailability.filter((t) => t.specialty === category);
+	const searched = byCategory.filter((t) =>
 		t.name.toLowerCase().includes(search.toLowerCase()) ||
 		t.specialty.toLowerCase().includes(search.toLowerCase()),
 	);
+	const filtered = sortTechs(searched, sort);
 
 	const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-	useEffect(() => { setPage(1); }, [filter, search]);
+	useEffect(() => { setPage(1); }, [filter, search, category, sort]);
 	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 	const pageStart = (page - 1) * PAGE_SIZE;
 	const paged = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<div className="flex flex-col gap-4">
-			<TableToolbar<AvailabilityFilter>
+			<TableToolbar
 				searchValue={search}
 				onSearchChange={setSearch}
 				searchPlaceholder="Search name, category…"
-				filters={FILTER_KEYS.map(({ key, label }): ToolbarFilter<AvailabilityFilter> => ({
-					key,
-					label,
-					count: key === "all" ? techs.length : filterByAvailability(techs, key).length,
-				}))}
-				activeFilter={filter}
-				onFilterChange={setFilter}
 				onExport={() => exportToCSV(filtered)}
+				trailing={
+					<>
+						<AvailabilityFilterDropdown value={filter} onChange={setFilter} />
+						<CategoryFilterDropdown value={category} options={categoryOptions} onChange={setCategory} />
+						<TechnicianSortDropdown value={sort} onChange={setSort} />
+					</>
+				}
 			/>
 
 			{/* Mobile card view */}
 			<div className="md:hidden">
-				<TechCardList
-					techs={paged}
-					onView={onView}
-				/>
+				<TechCardList techs={paged} onView={onView} />
 			</div>
 
 			{/* Desktop table */}
@@ -128,9 +145,13 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 								</TableCell>
 								<TableCell className="text-sm tabular-nums py-3">{tech.completed}</TableCell>
 								<TableCell className="hidden lg:table-cell py-3">
-									<StarRating rating={tech.rating} reviews={tech.reviews} />
+									{tech.rating != null ? (
+										<StarRating rating={tech.rating} reviews={tech.reviews} />
+									) : (
+										<span className="text-xs text-muted-foreground/60">No ratings</span>
+									)}
 								</TableCell>
-								<TableCell className="py-3"><CompletionPill history={tech.history} /></TableCell>
+								<TableCell className="py-3"><CompletionPill completed={tech.completed} total={tech.totalOrders} /></TableCell>
 								<TableCell className="hidden xl:table-cell py-3">
 									<StatusBadge variant={tech.availability === "online" ? "success" : "muted"} label={tech.availability} />
 								</TableCell>

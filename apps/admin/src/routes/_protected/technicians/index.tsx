@@ -3,7 +3,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ActiveTab } from "./components/ActiveTab";
 import { BlockedTab } from "./components/BlockedTab";
 import { PendingTab } from "./components/PendingTab";
-import { useTechState } from "./hooks/useTechState";
+import { RejectedTab } from "./components/RejectedTab";
+import {
+	useRejectTechnician,
+	useTechnicians,
+	useUnblockTechnician,
+	useVerifyTechnician,
+} from "./hooks/useTechnicians";
 
 export const Route = createFileRoute("/_protected/technicians/")({
 	component: TechniciansPage,
@@ -11,7 +17,16 @@ export const Route = createFileRoute("/_protected/technicians/")({
 
 function TechniciansPage() {
 	const navigate = useNavigate();
-	const { activeTechs, blockedTechs, pendingTechs, unblockTech, approveTech, rejectTech } = useTechState();
+	const { data, isLoading } = useTechnicians();
+	const verifyMutation = useVerifyTechnician();
+	const rejectMutation = useRejectTechnician();
+	const unblockMutation = useUnblockTechnician();
+
+	const techs = data ?? [];
+	const activeTechs = techs.filter((t) => t.status === "verified");
+	const pendingTechs = techs.filter((t) => t.status === "pending");
+	const blockedTechs = techs.filter((t) => t.status === "blocked");
+	const rejectedTechs = techs.filter((t) => t.status === "rejected");
 
 	const openDetail = (id: string) =>
 		navigate({ to: "/technicians/$technicianId", params: { technicianId: id } });
@@ -22,7 +37,9 @@ function TechniciansPage() {
 			<div>
 				<h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Technicians</h1>
 				<p className="text-sm text-muted-foreground mt-1">
-					{activeTechs.length} active · {pendingTechs.length} pending verification · {blockedTechs.length} blocked
+					{isLoading
+						? "Loading…"
+						: `${activeTechs.length} active · ${pendingTechs.length} pending verification · ${blockedTechs.length} blocked · ${rejectedTechs.length} rejected`}
 				</p>
 			</div>
 
@@ -50,28 +67,34 @@ function TechniciansPage() {
 							</span>
 						)}
 					</TabsTrigger>
+					<TabsTrigger value="rejected" className="flex-1 sm:flex-none">
+						Rejected
+						{rejectedTechs.length > 0 && (
+							<span className="ml-1.5 rounded-full bg-muted text-muted-foreground text-[11px] font-semibold px-1.5 py-0.5">
+								{rejectedTechs.length}
+							</span>
+						)}
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="active" className="mt-4">
-					<ActiveTab
-						techs={activeTechs}
-						onView={(tech) => openDetail(tech.id)}
-					/>
+					<ActiveTab techs={activeTechs} onView={(tech) => openDetail(tech.id)} />
 				</TabsContent>
 
 				<TabsContent value="pending" className="mt-4">
 					<PendingTab
 						techs={pendingTechs}
-						onApprove={approveTech}
-						onReject={rejectTech}
+						onApprove={(id) => verifyMutation.mutate(id)}
+						onReject={(id) => rejectMutation.mutate(id)}
 					/>
 				</TabsContent>
 
 				<TabsContent value="blocked" className="mt-4">
-					<BlockedTab
-						techs={blockedTechs}
-						onUnblock={unblockTech}
-					/>
+					<BlockedTab techs={blockedTechs} onUnblock={(id) => unblockMutation.mutate(id)} />
+				</TabsContent>
+
+				<TabsContent value="rejected" className="mt-4">
+					<RejectedTab techs={rejectedTechs} onVerify={(id) => verifyMutation.mutate(id)} />
 				</TabsContent>
 			</Tabs>
 		</div>

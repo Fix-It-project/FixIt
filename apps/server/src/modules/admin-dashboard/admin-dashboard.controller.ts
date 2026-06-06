@@ -59,6 +59,58 @@ export class AdminDashboardController {
 			res.status(200).json({ data });
 		},
 	);
+
+	getTechnicians: RequestHandler = asyncHandler(
+		async (_req: Request, res: Response) => {
+			const data = await adminDashboardService.getTechnicians();
+			res.status(200).json({ data });
+		},
+	);
+
+	getTechnicianHistory: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.getTechnicianHistory(id);
+			res.status(200).json({ data });
+		},
+	);
+
+	verifyTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.verifyTechnician(id);
+			req.log.info({ action: "admin_verify_technician", technicianId: id });
+			res.status(200).json({ data });
+		},
+	);
+
+	rejectTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.rejectTechnician(id);
+			req.log.info({ action: "admin_reject_technician", technicianId: id });
+			res.status(200).json({ data });
+		},
+	);
+
+	blockTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const { reason } = req.body as { reason: string };
+			const data = await adminDashboardService.blockTechnician(id, reason);
+			req.log.info({ action: "admin_block_technician", technicianId: id, reason });
+			res.status(200).json({ data });
+		},
+	);
+
+	unblockTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.unblockTechnician(id);
+			req.log.info({ action: "admin_unblock_technician", technicianId: id });
+			res.status(200).json({ data });
+		},
+	);
 }
 
 export const adminDashboardController = new AdminDashboardController();

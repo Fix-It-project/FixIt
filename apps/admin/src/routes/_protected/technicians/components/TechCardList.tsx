@@ -3,13 +3,13 @@ import { CategoryTag } from "@/components/CategoryTag";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech } from "@/types";
+import type { AdminTechnician } from "@/types";
 import { CompletionPill } from "./CompletionPill";
 
 interface TechCardListProps {
-	techs: ActiveTech[];
-	onView: (tech: ActiveTech) => void;
-	actions?: (tech: ActiveTech) => ReactNode;
+	techs: AdminTechnician[];
+	onView: (tech: AdminTechnician) => void;
+	actions?: (tech: AdminTechnician) => ReactNode;
 }
 
 export function TechCardList({ techs, onView, actions }: TechCardListProps) {
@@ -29,7 +29,7 @@ export function TechCardList({ techs, onView, actions }: TechCardListProps) {
 						</div>
 						<div className="mt-1 flex items-center gap-2">
 							<span className="text-xs text-muted-foreground">{tech.completed} jobs</span>
-							<CompletionPill history={tech.history} />
+							<CompletionPill completed={tech.completed} total={tech.totalOrders} />
 						</div>
 					</div>
 					<div className="flex flex-col gap-1.5 flex-shrink-0">

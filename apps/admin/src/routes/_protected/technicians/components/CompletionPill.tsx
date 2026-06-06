@@ -1,14 +1,13 @@
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { HistoryOrder } from "@/types";
 
 interface CompletionPillProps {
-	history: HistoryOrder[];
+	completed: number;
+	total: number;
 }
 
-export function CompletionPill({ history }: CompletionPillProps) {
-	const completed = history.filter((h) => h.status === "completed").length;
-	const rate = history.length > 0 ? Math.round((completed / history.length) * 100) : 0;
+export function CompletionPill({ completed, total }: CompletionPillProps) {
+	const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
 	const low = rate < 50;
 
 	return (

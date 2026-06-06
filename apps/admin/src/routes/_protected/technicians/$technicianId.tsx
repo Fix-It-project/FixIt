@@ -20,10 +20,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { HistoryOrder } from "@/types";
+import { humanizeStatus, statusVariant } from "@/lib/order-status";
+import { OrderDetailModal } from "../homeowners/components/OrderDetailModal";
 import { BlockReasonModal } from "./components/BlockReasonModal";
-import { OrderReasonModal } from "./components/OrderReasonModal";
-import { useTechById, useTechStore } from "./hooks/useTechState";
+import {
+	useBlockTechnician,
+	useTechnicianHistory,
+	useTechnicians,
+	useUnblockTechnician,
+} from "./hooks/useTechnicians";
 
 export const Route = createFileRoute("/_protected/technicians/$technicianId")({
 	component: TechnicianDetailPage,
@@ -31,14 +36,20 @@ export const Route = createFileRoute("/_protected/technicians/$technicianId")({
 
 function TechnicianDetailPage() {
 	const { technicianId } = Route.useParams();
-	const tech = useTechById(technicianId);
-	const blockTech = useTechStore((s) => s.blockTech);
-	const unblockTech = useTechStore((s) => s.unblockTech);
+	const { data, isLoading } = useTechnicians();
+	const { data: history, isLoading: historyLoading } = useTechnicianHistory(technicianId);
+	const blockMutation = useBlockTechnician();
+	const unblockMutation = useUnblockTechnician();
 
 	const [blocking, setBlocking] = useState(false);
 	const [unblocking, setUnblocking] = useState(false);
-	const [reasonOrder, setReasonOrder] = useState<HistoryOrder | null>(null);
+	const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
+	const tech = data?.find((t) => t.id === technicianId);
+
+	if (isLoading) {
+		return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
+	}
 	if (!tech) {
 		return (
 			<div className="p-8 flex flex-col items-start gap-3">
@@ -51,18 +62,8 @@ function TechnicianDetailPage() {
 	}
 
 	const t = tech;
-	const total = t.history.length;
-	const completed = t.history.filter((h) => h.status === "completed");
-	const cancelled = t.history.filter((h) => h.status === "cancelled");
-	const noShow = t.history.filter((h) => h.status === "no_show");
-	const completionRate = total > 0 ? Math.round((completed.length / total) * 100) : 0;
-	const cancellationRate = total > 0 ? Math.round((cancelled.length / total) * 100) : 0;
-	const noShowRate = total > 0 ? Math.round((noShow.length / total) * 100) : 0;
-
-	const rated = completed.filter((h) => h.review !== null);
-	const avgRating = rated.length > 0
-		? rated.reduce((sum, h) => sum + (h.review?.rating ?? 0), 0) / rated.length
-		: null;
+	const completionRate = t.totalOrders > 0 ? Math.round((t.completed / t.totalOrders) * 100) : 0;
+	const cancellationRate = t.totalOrders > 0 ? Math.round((t.cancelled / t.totalOrders) * 100) : 0;
 
 	return (
 		<div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 pb-12">
@@ -87,7 +88,7 @@ function TechnicianDetailPage() {
 							<StatusBadge variant="danger" label="Blocked" />
 						) : (
 							<span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-								<ShieldCheck className="h-3 w-3" /> Active
+								<ShieldCheck className="h-3 w-3" /> Verified
 							</span>
 						)}
 					</>
@@ -105,16 +106,16 @@ function TechnicianDetailPage() {
 			<div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
 				<KpiCard value={t.completed} label={`Completed · ${completionRate}%`} valueClassName="text-emerald-600 dark:text-emerald-400" />
 				<KpiCard value={`EGP ${t.revenue}`} label="Revenue" />
-				<KpiCard value={cancelled.length} label={`Cancelled · ${cancellationRate}%`} valueClassName="text-destructive" />
-				<KpiCard value={`${noShowRate}%`} label="No-show rate" valueClassName="text-amber-500" />
+				<KpiCard value={t.cancelled} label={`Cancelled · ${cancellationRate}%`} valueClassName="text-destructive" />
+				<KpiCard value={t.totalOrders} label="Total orders" />
 				<KpiCard
 					value={
 						<span className="inline-flex items-center gap-1">
-							{avgRating !== null ? avgRating.toFixed(2) : "—"}
-							{avgRating !== null && <Star className="h-4 w-4 fill-amber-400 text-amber-400" />}
+							{t.rating != null ? t.rating.toFixed(2) : "—"}
+							{t.rating != null && <Star className="h-4 w-4 fill-amber-400 text-amber-400" />}
 						</span>
 					}
-					label={`Avg rating · ${rated.length} reviews`}
+					label={`Avg rating · ${t.reviews} reviews`}
 					valueClassName="text-amber-500"
 				/>
 			</div>
@@ -139,63 +140,58 @@ function TechnicianDetailPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{total === 0 && (
+							{historyLoading && (
+								<TableRow>
+									<TableCell colSpan={6} className="text-center text-muted-foreground py-10 text-sm">Loading…</TableCell>
+								</TableRow>
+							)}
+							{!historyLoading && (history?.length ?? 0) === 0 && (
 								<TableRow>
 									<TableCell colSpan={6} className="text-center text-muted-foreground py-10 text-sm">No order history.</TableCell>
 								</TableRow>
 							)}
-							{t.history.map((h) => {
-								const hasReason = (h.status === "cancelled" || h.status === "no_show") && !!h.cancelReason;
-								return (
-									<TableRow key={h.id} className="transition-colors hover:bg-muted/30">
-										<TableCell className="pl-5 py-3 text-xs font-mono">{h.id}</TableCell>
-										<TableCell className="py-3 text-xs text-muted-foreground whitespace-nowrap">{h.date}</TableCell>
-										<TableCell className="hidden sm:table-cell py-3 text-xs">{h.category}</TableCell>
-										<TableCell className="hidden sm:table-cell py-3 text-xs">{h.customer}</TableCell>
-										<TableCell className="py-3">
-											<div className="flex flex-col items-start gap-1">
-												<div className="flex items-center gap-1.5 flex-wrap">
-													<StatusBadge
-														variant={h.status === "completed" ? "success" : h.status === "cancelled" ? "danger" : "warn"}
-														label={h.status === "no_show" ? "No show" : h.status}
-													/>
-													{hasReason && (
-														<Button
-															variant="outline"
-															size="sm"
-															className="h-6 gap-1 px-2 text-[11px]"
-															onClick={() => setReasonOrder(h)}
-														>
-															View reason
-														</Button>
-													)}
-												</div>
-												{h.review && (
-													<span className="flex items-center gap-0.5">
-														{Array.from({ length: 5 }, (_, i) => (
-															<Star
-																key={i}
-																className={`h-3 w-3 ${i < h.review!.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
-															/>
-														))}
-														<span className="text-[11px] text-muted-foreground ml-0.5">{h.review.rating}.0</span>
-													</span>
-												)}
-											</div>
-										</TableCell>
-										<TableCell className="text-right pr-5 py-3 text-xs font-medium tabular-nums">
-											{h.amount > 0 ? `EGP ${h.amount}` : "—"}
-										</TableCell>
-									</TableRow>
-								);
-							})}
+							{history?.map((h) => (
+								<TableRow
+									key={h.id}
+									onClick={() => setSelectedOrderId(h.id)}
+									className="cursor-pointer transition-colors hover:bg-muted/30"
+								>
+									<TableCell className="pl-5 py-3 text-xs font-mono">{h.id.slice(0, 8)}</TableCell>
+									<TableCell className="py-3 text-xs text-muted-foreground whitespace-nowrap">{h.date}</TableCell>
+									<TableCell className="hidden sm:table-cell py-3 text-xs">{h.category}</TableCell>
+									<TableCell className="hidden sm:table-cell py-3 text-xs">{h.customer}</TableCell>
+									<TableCell className="py-3">
+										<div className="flex flex-col items-start gap-1">
+											<StatusBadge variant={statusVariant(h.status)} label={humanizeStatus(h.status)} />
+											{h.review && (
+												<span className="flex items-center gap-0.5">
+													{Array.from({ length: 5 }, (_, i) => (
+														<Star
+															key={i}
+															className={`h-3 w-3 ${i < h.review!.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+														/>
+													))}
+													<span className="text-[11px] text-muted-foreground ml-0.5">{h.review.rating}.0</span>
+												</span>
+											)}
+										</div>
+									</TableCell>
+									<TableCell className="text-right pr-5 py-3 text-xs font-medium tabular-nums">
+										{h.amount > 0 ? `EGP ${h.amount}` : "—"}
+									</TableCell>
+								</TableRow>
+							))}
 						</TableBody>
 					</Table>
 				</div>
 			</div>
 
-			{/* Cancellation / no-show reason */}
-			<OrderReasonModal order={reasonOrder} onClose={() => setReasonOrder(null)} />
+			{/* Order detail */}
+			<OrderDetailModal
+				orderId={selectedOrderId}
+				open={!!selectedOrderId}
+				onClose={() => setSelectedOrderId(null)}
+			/>
 
 			{/* Block reason */}
 			<BlockReasonModal
@@ -203,7 +199,7 @@ function TechnicianDetailPage() {
 				open={blocking}
 				onClose={() => setBlocking(false)}
 				onConfirm={(reason) => {
-					blockTech(t.id, reason);
+					blockMutation.mutate({ id: t.id, reason });
 					setBlocking(false);
 				}}
 			/>
@@ -219,7 +215,7 @@ function TechnicianDetailPage() {
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={() => { unblockTech(t.id); setUnblocking(false); }}>
+						<AlertDialogAction onClick={() => { unblockMutation.mutate(t.id); setUnblocking(false); }}>
 							Unblock
 						</AlertDialogAction>
 					</AlertDialogFooter>
