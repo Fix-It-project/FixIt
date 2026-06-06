@@ -5,6 +5,7 @@ import {
 import { storageRepository, type DocumentFiles } from '../../shared/storage/storage.repository.js';
 import { techniciansRepository } from '../technicians/index.js';
 import { addressesRepository, type SignUpAddressData } from '../addresses/index.js';
+import { AppError } from '../../shared/errors/app-error.js';
 
 export class TechnicianAuthService {
   // ─── Check email ──────────────────────────────────────────────────────────
@@ -90,9 +91,21 @@ export class TechnicianAuthService {
     const techRecord = await techniciansRepository.getTechnicianByEmail(email);
     if (!techRecord) {
       await technicianAuthRepository.signOut(result.session?.access_token ?? '');
-      const err: any = new Error('No technician account found for this email');
-      err.status = 403;
-      throw err;
+      throw AppError.forbidden('No technician account found for this email');
+    }
+
+    // Verification gate: only verified technicians may log in. New signups are
+    // 'pending' until an admin verifies them; 'blocked'/'rejected' stay out.
+    const status = (techRecord as { status?: string }).status ?? 'pending';
+    if (status !== 'verified') {
+      await technicianAuthRepository.signOut(result.session?.access_token ?? '');
+      const message =
+        status === 'pending'
+          ? 'Your account is pending admin verification. Please wait for approval.'
+          : status === 'blocked'
+            ? 'Your account has been blocked. Contact support for assistance.'
+            : 'Your application was not approved.';
+      throw AppError.forbidden(message);
     }
 
     return {

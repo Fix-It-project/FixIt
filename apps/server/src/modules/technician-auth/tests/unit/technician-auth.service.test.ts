@@ -227,7 +227,7 @@ describe('TechnicianAuthService', () => {
         user: { id: 'tech-1', email: 'tech@example.com' },
         session: { access_token: 'at', refresh_token: 'rt', expires_at: 9999 },
       });
-      mockTechniciansRepo.getTechnicianByEmail.mockResolvedValue({ id: 'tech-1' });
+      mockTechniciansRepo.getTechnicianByEmail.mockResolvedValue({ id: 'tech-1', status: 'verified' });
 
       const result = await service.signIn('tech@example.com', 'pass123');
 
@@ -237,6 +237,20 @@ describe('TechnicianAuthService', () => {
         technician: { id: 'tech-1', email: 'tech@example.com' },
         session: { accessToken: 'at', refreshToken: 'rt', expiresAt: 9999 },
       });
+    });
+
+    it('should sign out and throw 403 when the technician is not verified', async () => {
+      mockAuthRepo.signIn.mockResolvedValue({
+        user: { id: 'tech-1', email: 'tech@example.com' },
+        session: { access_token: 'at' },
+      });
+      mockTechniciansRepo.getTechnicianByEmail.mockResolvedValue({ id: 'tech-1', status: 'pending' });
+
+      await expect(service.signIn('tech@example.com', 'pass123')).rejects.toMatchObject({
+        status: 403,
+      });
+
+      expect(mockAuthRepo.signOut).toHaveBeenCalledWith('at');
     });
 
     it('should sign out and throw 403 when no technician record exists', async () => {

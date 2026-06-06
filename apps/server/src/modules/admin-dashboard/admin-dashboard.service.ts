@@ -6,6 +6,7 @@ import {
 	type DashboardOrderRow,
 	type DetailedOrderRow,
 	type HomeownerUserRow,
+	type TechnicianStatsRow,
 } from "./admin-dashboard.repository.js";
 import type {
 	AdminHomeowner,
@@ -13,6 +14,9 @@ import type {
 	AdminOrder,
 	AdminOrderDetail,
 	AdminOrderReview,
+	AdminTechnician,
+	AdminTechnicianDocument,
+	AdminTechnicianHistory,
 	CategoryShare,
 	DashboardOrder,
 	DashboardOrderReview,
@@ -21,6 +25,7 @@ import type {
 	OrdersSeries,
 	SeriesRange,
 	StatusShare,
+	TechnicianStatus,
 	TopTech,
 } from "./admin-dashboard.types.js";
 
@@ -49,6 +54,24 @@ function collapseStatus(raw: string): StatusBucket {
 
 function isCompleted(row: DashboardOrderRow): boolean {
 	return row.status === "completed";
+}
+
+/** Who cancelled, inferred from the raw order status. */
+function cancelledByFrom(status: string): "customer" | "technician" | "system" | null {
+	switch (status) {
+		case "cancelled_by_user":
+			return "customer";
+		case "cancelled_by_technician":
+		case "declined_by_technician":
+			return "technician";
+		case "cancelled":
+		case "cancelled_no_fee":
+		case "cancelled_with_fee":
+		case "rejected":
+			return "system";
+		default:
+			return null;
+	}
 }
 
 // ---- Small formatters / helpers ----
@@ -748,6 +771,126 @@ export class AdminDashboardService {
 		const all = await this.getHomeowners();
 		const found = all.find((h) => h.id === id);
 		if (!found) throw AppError.notFound("Homeowner not found");
+		return found;
+	}
+
+	// --- Technicians (admin technicians page) ---
+	async getTechnicians(): Promise<AdminTechnician[]> {
+		const rows = await this.repo.getTechnicianStats();
+		return rows.map((r) => this.toAdminTechnician(r));
+	}
+
+	private toAdminTechnician(s: TechnicianStatsRow): AdminTechnician {
+		const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "Unknown";
+		const documents: AdminTechnicianDocument[] = [
+			{ kind: "National ID", status: s.national_id ? "uploaded" : "missing" },
+			{ kind: "Criminal Record", status: s.criminal_record ? "uploaded" : "missing" },
+			{ kind: "Birth Certificate", status: s.birth_certificate ? "uploaded" : "missing" },
+		];
+		const joinedDate = new Date(s.created_at);
+		return {
+			id: s.id,
+			name,
+			initials: initialsOf(name),
+			color: colorForName(name),
+			specialty: s.category_name ?? "General",
+			city: s.city ?? "—",
+			phone: s.phone ?? "—",
+			email: s.email ?? "—",
+			joined: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+			joinedAt: s.created_at,
+			appliedAt: relativeWhen(s.created_at).when,
+			availability: s.is_available ? "online" : "offline",
+			rating: s.rating,
+			reviews: s.review_count,
+			completed: s.completed,
+			totalOrders: s.total_orders,
+			cancelled: s.cancelled,
+			revenue: formatCompact(s.revenue),
+			revenueValue: s.revenue,
+			yearsExperience: s.years_experience,
+			documents,
+			status: s.status as TechnicianStatus,
+			blocked: s.status === "blocked",
+			blockedReason: s.blocked_reason ?? undefined,
+			blockedAt: s.blocked_at
+				? new Date(s.blocked_at).toLocaleDateString("en-GB", {
+						day: "2-digit",
+						month: "short",
+						year: "numeric",
+					})
+				: undefined,
+			blockedBy: s.blocked_by ?? undefined,
+		};
+	}
+
+	async getTechnicianHistory(id: string): Promise<AdminTechnicianHistory[]> {
+		if (!(await this.repo.technicianExists(id))) {
+			throw AppError.notFound("Technician not found");
+		}
+		const [orders, serviceCat, categories, users, reviewsByOrder] = await Promise.all([
+			this.repo.getOrdersByTechnician(id),
+			this.repo.getServiceCategoryMap(),
+			this.repo.getCategories(),
+			this.repo.getUsersMap(),
+			this.repo.getReviewsByOrderId(),
+		]);
+		const categoryNameById = new Map(categories.map((c) => [c.id, c.name ?? "Unknown"]));
+
+		return orders.map((o): AdminTechnicianHistory => {
+			const r = reviewsByOrder.get(o.id);
+			return {
+				id: o.id,
+				date: relativeWhen(o.created_at).when,
+				category: o.service_id
+					? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ?? "Unknown")
+					: "Unknown",
+				customer: o.user_id ? (users.get(o.user_id) ?? "Unknown") : "Unknown",
+				status: o.status,
+				cancelReason: o.cancellation_reason,
+				cancelledBy: cancelledByFrom(o.status),
+				review: r ? { rating: r.rating, comment: r.comment } : null,
+				amount: o.final_price ?? 0,
+			};
+		});
+	}
+
+	async verifyTechnician(id: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, { status: "verified" });
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	async rejectTechnician(id: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, { status: "rejected" });
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	async blockTechnician(id: string, reason: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, {
+			status: "blocked",
+			reason,
+			by: env.ADMIN_EMAIL,
+		});
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	async unblockTechnician(id: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, {
+			status: "verified",
+			reason: null,
+			by: null,
+		});
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	private async findTechnicianOrThrow(id: string): Promise<AdminTechnician> {
+		const all = await this.getTechnicians();
+		const found = all.find((t) => t.id === id);
+		if (!found) throw AppError.notFound("Technician not found");
 		return found;
 	}
 }
