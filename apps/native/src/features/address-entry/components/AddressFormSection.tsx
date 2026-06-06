@@ -23,6 +23,8 @@ interface AddressFormSectionProps {
 	readonly required?: boolean;
 	readonly buildingRequired?: boolean;
 	readonly showIcons?: boolean;
+	/** When set, each field gets a testID of `${testIDPrefix}-<field>-input` for E2E selection. */
+	readonly testIDPrefix?: string;
 }
 
 export default function AddressFormSection({
@@ -41,7 +43,11 @@ export default function AddressFormSection({
 	required = true,
 	buildingRequired = false,
 	showIcons = true,
+	testIDPrefix,
 }: AddressFormSectionProps) {
+	const fieldTestID = (field: string) =>
+		testIDPrefix ? `${testIDPrefix}-${field}-input` : undefined;
+
 	return (
 		<>
 			<FormInput
@@ -54,6 +60,7 @@ export default function AddressFormSection({
 				disabled={disabled}
 				required={required}
 				variant={variant}
+				testID={fieldTestID("city")}
 			/>
 
 			<FormInput
@@ -66,6 +73,7 @@ export default function AddressFormSection({
 				disabled={disabled}
 				required={required}
 				variant={variant}
+				testID={fieldTestID("street")}
 			/>
 
 			<View className="flex-row gap-stack-md">
@@ -81,6 +89,7 @@ export default function AddressFormSection({
 						keyboardType="numeric"
 						required={buildingRequired}
 						variant={variant}
+						testID={fieldTestID("building")}
 					/>
 				</View>
 				<View className="flex-1">
@@ -94,6 +103,7 @@ export default function AddressFormSection({
 						disabled={disabled}
 						required={buildingRequired}
 						variant={variant}
+						testID={fieldTestID("apartment")}
 					/>
 				</View>
 			</View>

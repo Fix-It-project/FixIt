@@ -2,7 +2,7 @@ import FormInput, { type FormInputProps } from "@/src/components/forms/FormInput
 
 export type PasswordInputProps = Pick<
 	FormInputProps,
-	"label" | "value" | "onChangeText" | "error" | "disabled" | "variant" | "required"
+	"label" | "value" | "onChangeText" | "error" | "disabled" | "variant" | "required" | "testID"
 > & {
 	readonly placeholder?: string;
 };
@@ -16,6 +16,7 @@ export default function PasswordInput({
 	disabled,
 	variant = "outline",
 	required = false,
+	testID,
 }: PasswordInputProps) {
 	return (
 		<FormInput
@@ -28,6 +29,7 @@ export default function PasswordInput({
 			variant={variant}
 			required={required}
 			secureToggle
+			testID={testID}
 		/>
 	);
 }

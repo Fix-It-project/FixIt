@@ -36,6 +36,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
+			testID="order-card"
 			className="mb-stack-md rounded-card border border-edge bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">

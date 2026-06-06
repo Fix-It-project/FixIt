@@ -1,0 +1,90 @@
+# FULL order-placement flow (user side): sign in, book a technician end to end,
+# create a real order, and verify it on the confirmation screen, the order
+# detail screen, and in the My Orders list.
+#
+# Tagged `creates-data` (writes a real order) -> excluded from the default suite.
+# Run explicitly:  maestro test .maestro/journey/full-order.yaml
+#
+# Data prerequisites in the connected backend:
+#   - the login user (EMAIL/PASSWORD) has a saved address
+#   - >=1 category, with >=1 technician that publishes >=1 service
+#   - that technician has an active weekly schedule (so the calendar offers a
+#     selectable date + an open time slot)
+#
+# The technician-side lifecycle (accept -> in progress -> complete) is a separate
+# multi-actor flow — see the note at the bottom.
+appId: com.anonymous.fixitapp
+tags:
+  - creates-data
+---
+- runFlow: ../auth/login.yaml
+
+# Home -> Categories tab -> first category -> first technician
+- tapOn: "Categories"
+- assertVisible:
+    id: "category-tile"
+    timeout: 15000
+- tapOn:
+    id: "category-tile"
+    index: 0
+- assertVisible:
+    id: "technician-card"
+    timeout: 15000
+- tapOn:
+    id: "technician-card"
+    index: 0
+
+# Detail -> Services tab -> first service -> continue to booking
+- tapOn: "Services"
+- assertVisible:
+    id: "service-option"
+    timeout: 10000
+- tapOn:
+    id: "service-option"
+    index: 0
+- tapOn:
+    id: "select-date"
+
+# Booking screen: pick the first available date, then the first open time slot
+- assertVisible:
+    id: "calendar-available-day"
+    timeout: 15000
+- tapOn:
+    id: "calendar-available-day"
+    index: 0
+- assertVisible:
+    id: "time-slot"
+    timeout: 10000
+- tapOn:
+    id: "time-slot"
+    index: 0
+- tapOn:
+    id: "confirm-booking"
+
+# Order created -> placed/confirmation screen
+- assertVisible:
+    text: "Request sent."
+    timeout: 25000
+- assertVisible:
+    id: "placed-view-order"
+- tapOn:
+    id: "placed-view-order"
+
+# Order detail screen (new order is pending / waiting to be accepted)
+- assertVisible:
+    id: "order-detail"
+    timeout: 15000
+
+# Back navigation lands on the My Orders tab — the new order is listed there
+- back
+- assertVisible:
+    id: "order-card"
+    timeout: 15000
+
+# --- Technician-side lifecycle (future, multi-actor) -------------------------
+# A full accept -> tracking -> in_progress -> awaiting_payment -> completed run
+# needs a second actor (the technician app) and backend state transitions. Model
+# it as a sequenced flow: place order as user -> clearState -> tech-login ->
+# accept the request -> advance states, adding testIDs to the technician
+# state-machine CTAs (features/booking-orders/components/state-machine/tech) and
+# the user-side completed/review views as you go.

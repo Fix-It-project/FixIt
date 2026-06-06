@@ -1,0 +1,25 @@
+# Logout: sign in, open the profile tab, log out via the confirm dialog, and
+# assert we are returned to the welcome (logged-out) screen.
+appId: com.anonymous.fixitapp
+---
+- runFlow: ../auth/login.yaml
+
+# Home -> My Profile tab
+- tapOn: "My Profile"
+- assertVisible:
+    id: "profile-logout"
+    timeout: 15000
+- tapOn:
+    id: "profile-logout"
+
+# Confirm dialog -> destructive primary action
+- assertVisible:
+    id: "dialog-confirm-primary"
+    timeout: 10000
+- tapOn:
+    id: "dialog-confirm-primary"
+
+# Logout clears auth -> root redirects to the welcome screen.
+- assertVisible:
+    id: "welcome-get-started"
+    timeout: 20000

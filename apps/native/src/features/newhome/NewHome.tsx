@@ -15,6 +15,7 @@ import { HomeHeader } from "@/src/features/newhome/components/HomeHeader";
 import { OfferCard } from "@/src/features/newhome/components/OfferCard";
 import { PreviousOrdersSection } from "@/src/features/newhome/components/PreviousOrdersSection";
 import { TopRatedSection } from "@/src/features/newhome/components/TopRatedSection";
+import { formatAddress } from "@/src/lib/helpers/format-address";
 
 export function NewHome() {
 	const { t: tr } = useTranslation("home");
@@ -30,9 +31,7 @@ export function NewHome() {
 	const { data: addresses } = useAddressesQuery();
 	const activeAddress =
 		addresses?.find((address) => address.is_active) ?? addresses?.[0];
-	const addressLabel = activeAddress
-		? `${activeAddress.street}, ${activeAddress.city}`
-		: undefined;
+	const addressLabel = activeAddress ? formatAddress(activeAddress) : undefined;
 
 	const handleChangeAddressPress = useCallback(() => {
 		setIsAddressSheetTransitioning(true);
@@ -68,7 +67,7 @@ export function NewHome() {
 	);
 
 	return (
-		<View className="flex-1 bg-background">
+		<View testID="user-home" className="flex-1 bg-background">
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}

@@ -85,6 +85,7 @@ export function WelcomeContent({
 						onPress={onPressGetStarted}
 						disabled={!inputReady}
 						accessibilityLabel="Get started"
+						testID="welcome-get-started"
 						fullWidth
 						size="lg"
 						iconRight={ArrowRight}

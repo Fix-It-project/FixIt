@@ -59,6 +59,7 @@ export default function EmailEntryView({
 					keyboardType="email-address"
 					autoCapitalize="none"
 					required
+					testID="forgot-email-input"
 				/>
 			</View>
 
@@ -70,7 +71,11 @@ export default function EmailEntryView({
 				className="px-screen-x"
 				style={{ paddingBottom: insets.bottom + 16 }}
 			>
-				<Button onPress={onSubmit} disabled={!isButtonActive}>
+				<Button
+					onPress={onSubmit}
+					disabled={!isButtonActive}
+					testID="forgot-submit"
+				>
 					{mutation.isPending ? (
 						<ActivityIndicator color={Colors.surfaceOnPrimary} />
 					) : (

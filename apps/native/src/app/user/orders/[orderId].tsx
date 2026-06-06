@@ -120,7 +120,7 @@ export default function OrderDetailScreen() {
 	const isCancelled = ui.phase === "cancelled";
 
 	return (
-		<View className="flex-1 bg-surface">
+		<View testID="order-detail" className="flex-1 bg-surface">
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
 				<KeyboardAvoidingView behavior="padding" className="flex-1">
 					<DetailHeader
