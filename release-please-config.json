@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bump-minor-pre-major": true,
+  "separate-pull-requests": true,
+  "plugins": ["node-workspace"],
+  "packages": {
+    "apps/native": {
+      "release-type": "node",
+      "component": "native",
+      "package-name": "fixit-native",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        { "type": "json", "path": "app.json", "jsonpath": "$.expo.version" }
+      ]
+    },
+    "apps/server": {
+      "release-type": "node",
+      "component": "server",
+      "package-name": "fixit-server",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/env":    { "release-type": "node", "component": "env",    "changelog-path": "CHANGELOG.md" },
+    "packages/errors": { "release-type": "node", "component": "errors", "changelog-path": "CHANGELOG.md" },
+    "packages/db":     { "release-type": "node", "component": "db",     "changelog-path": "CHANGELOG.md" },
+    "packages/config": { "release-type": "node", "component": "config", "changelog-path": "CHANGELOG.md" }
+  }
+}

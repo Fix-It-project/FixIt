@@ -2,7 +2,7 @@
   "expo": {
     "name": "FixIt",
     "slug": "fixit",
-    "version": "1.0.0",
+    "version": "0.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/fixit.png",
     "scheme": "fixitapp",
