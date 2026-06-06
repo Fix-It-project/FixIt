@@ -1,4 +1,10 @@
 import { router, useLocalSearchParams } from "expo-router";
+import {
+	CalendarClock,
+	type LucideIcon,
+	MapPin,
+	Wrench,
+} from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import Animated, {
@@ -9,12 +15,14 @@ import Toast from "react-native-toast-message";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
+import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_SLIDE_UP,
 	EASE_OUT_QUART,
 	ENTRANCE_STAGGER,
 } from "@/src/constants/animation";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
@@ -25,6 +33,7 @@ import {
 } from "@/src/features/booking-orders/utils/fixed-slots";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { showError } from "@/src/lib/errors";
+import { formatAddress } from "@/src/lib/helpers/format-address";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import {
 	type AttachmentInfo,
@@ -34,6 +43,39 @@ import {
 function getStringParam(value: string | string[] | undefined): string {
 	if (Array.isArray(value)) return value[0] ?? "";
 	return value ?? "";
+}
+
+interface SummaryRowProps {
+	readonly icon: LucideIcon;
+	readonly label: string;
+	readonly value: string;
+}
+
+function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
+	const themeColors = useThemeColors();
+	return (
+		<View className="flex-row items-start gap-stack-md">
+			<View className="h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-input bg-surface-elevated">
+				<Icon
+					size={spacing.icon.sm}
+					color={themeColors.textSecondary}
+					strokeWidth={2}
+				/>
+			</View>
+			<View className="min-w-0 flex-1">
+				<Text variant="caption" className="text-content-muted">
+					{label}
+				</Text>
+				<Text
+					variant="buttonMd"
+					className="mt-stack-xs text-content"
+					numberOfLines={2}
+				>
+					{value}
+				</Text>
+			</View>
+		</View>
+	);
 }
 
 export default function BookingDetails() {
@@ -74,6 +116,13 @@ export default function BookingDetails() {
 			"",
 		[selectedHour],
 	);
+	const appointmentLabel =
+		selectedDate && selectedTimeLabel
+			? `${selectedDate} at ${selectedTimeLabel}`
+			: "No date and time selected";
+	const addressLabel = isLoadingAddresses
+		? "Loading location"
+		: formatAddress(selectedAddress);
 
 	const fallbackRoute = ROUTES.user.bookingRoot(technicianId);
 	const goBack = useSafeBack(fallbackRoute);
@@ -161,16 +210,24 @@ export default function BookingDetails() {
 					>
 						<Animated.View
 							entering={entering(0)}
-							className="mb-card rounded-card border border-edge bg-card p-card-compact"
+							className="mb-card gap-stack-md rounded-card border border-edge bg-card p-card-compact"
 						>
-							<Text variant="label" className="text-content-secondary">
-								Selected appointment
+							<Text variant="buttonMd" className="font-semibold text-content">
+								Booking summary
 							</Text>
-							<Text variant="bodySm" className="mt-stack-xs text-content">
-								{selectedDate && selectedTimeLabel
-									? `${selectedDate} · ${selectedTimeLabel}`
-									: "No date and time selected"}
-							</Text>
+							<SummaryRow
+								icon={Wrench}
+								label="Service"
+								value={serviceName || "Service not selected"}
+							/>
+							<Separator />
+							<SummaryRow
+								icon={CalendarClock}
+								label="Appointment"
+								value={appointmentLabel}
+							/>
+							<Separator />
+							<SummaryRow icon={MapPin} label="Location" value={addressLabel} />
 						</Animated.View>
 
 						<Animated.View entering={entering(1)}>

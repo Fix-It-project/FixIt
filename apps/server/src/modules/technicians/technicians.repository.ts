@@ -199,6 +199,9 @@ export interface ITechnicianQueryRepository {
 	getReviewAggregatesByTechnicianIds(
 		technicianIds: string[],
 	): Promise<Map<string, ReviewAggregate>>;
+	getTechnicianIdsWithActiveAvailability(
+		technicianIds: string[],
+	): Promise<Set<string>>;
 	/** Bayesian-ranked list via DB RPC (single source of truth for top-rated math). Order is final. */
 	listTopRatedTechnicians(
 		filters: TopRatedFilters,
@@ -287,6 +290,26 @@ export class TechniciansRepository implements ITechniciansRepository {
 		}
 
 		return result;
+	}
+
+	async getTechnicianIdsWithActiveAvailability(
+		technicianIds: string[],
+	): Promise<Set<string>> {
+		if (technicianIds.length === 0) return new Set();
+
+		const { data, error } = await supabaseAdmin
+			.from("availability_templates")
+			.select("technician_id")
+			.in("technician_id", technicianIds)
+			.eq("active", true);
+
+		if (error) throw new Error(error.message);
+
+		return new Set(
+			((data ?? []) as Array<{ technician_id: string }>).map(
+				(row) => row.technician_id,
+			),
+		);
 	}
 
 	async listTopRatedTechnicians(

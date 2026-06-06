@@ -1,9 +1,10 @@
 import * as ImagePicker from "expo-image-picker";
 import { Camera, Paperclip, X } from "lucide-react-native";
-import { Image, TouchableOpacity, View } from "react-native";
+import { Image, View } from "react-native";
+import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface AttachmentInfo {
 	uri: string;
@@ -61,29 +62,29 @@ export function BookingProblemCard({
 
 	return (
 		<View className="gap-stack-md">
-			<View>
-				<Text variant="buttonLg" className="text-content">
+			<View className="rounded-card border border-edge bg-card p-card-compact">
+				<Text variant="buttonMd" className="font-semibold text-content">
 					Describe the problem
 				</Text>
 				<Text variant="caption" className="mt-stack-xs text-content-muted">
-					Optional — help the technician prepare.
+					Optional. Helps the technician prepare.
 				</Text>
 				<Input
 					value={description}
 					onChangeText={onDescriptionChange}
-					placeholder="e.g. AC not cooling, noisy when running…"
+					placeholder="e.g. AC not cooling, noisy when running..."
 					multiline
 					numberOfLines={4}
 					className="mt-stack-sm min-h-[100px]"
 				/>
 			</View>
 
-			<View>
-				<Text variant="buttonLg" className="text-content">
+			<View className="rounded-card border border-edge bg-card p-card-compact">
+				<Text variant="buttonMd" className="font-semibold text-content">
 					Attach a photo
 				</Text>
 				<Text variant="caption" className="mt-stack-xs text-content-muted">
-					Optional — a photo speeds up diagnosis.
+					Optional. A photo speeds up diagnosis.
 				</Text>
 
 				{attachment ? (
@@ -96,48 +97,43 @@ export function BookingProblemCard({
 								height: spacing.media.attachmentPreviewHeight,
 							}}
 						/>
-						<TouchableOpacity
+						<Button
+							variant="secondary"
+							size="icon"
 							onPress={() => onAttachmentChange(null)}
 							className="absolute top-stack-sm right-stack-sm h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-pill bg-shadow/50"
-							activeOpacity={0.7}
-						>
-							<X
-								size={spacing.icon.xs}
-								color={themeColors.surfaceOnPrimary}
-								strokeWidth={2.5}
-							/>
-						</TouchableOpacity>
+							iconLeft={
+								<X
+									size={spacing.icon.xs}
+									color={themeColors.surfaceOnPrimary}
+									strokeWidth={2.5}
+								/>
+							}
+							accessibilityLabel="Remove photo"
+						/>
 					</View>
 				) : (
 					<View className="mt-stack-sm flex-row gap-stack-md">
-						<TouchableOpacity
+						<Button
+							variant="secondary"
+							size="lg"
 							onPress={pickImage}
-							className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-card py-card"
-							activeOpacity={0.7}
+							className="flex-1 border-dashed bg-card"
+							iconLeft={Paperclip}
+							accessibilityLabel="Pick photo from gallery"
 						>
-							<Paperclip
-								size={spacing.icon.sm}
-								color={Colors.primary}
-								strokeWidth={2}
-							/>
-							<Text variant="buttonMd" className="text-app-primary">
-								Gallery
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
+							Gallery
+						</Button>
+						<Button
+							variant="secondary"
+							size="lg"
 							onPress={takePhoto}
-							className="flex-1 flex-row items-center justify-center gap-stack-sm rounded-input border border-edge border-dashed bg-card py-card"
-							activeOpacity={0.7}
+							className="flex-1 border-dashed bg-card"
+							iconLeft={Camera}
+							accessibilityLabel="Take photo"
 						>
-							<Camera
-								size={spacing.icon.sm}
-								color={Colors.primary}
-								strokeWidth={2}
-							/>
-							<Text variant="buttonMd" className="text-app-primary">
-								Camera
-							</Text>
-						</TouchableOpacity>
+							Camera
+						</Button>
 					</View>
 				)}
 			</View>

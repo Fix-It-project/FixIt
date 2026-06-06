@@ -57,6 +57,11 @@ function SlotChip({
 }: SlotChipProps) {
 	const themeColors = useThemeColors();
 	const disabled = !isAvailable || isBooked;
+	const textColor = isSelected
+		? themeColors.primary
+		: disabled
+			? themeColors.textMuted
+			: themeColors.textPrimary;
 
 	return (
 		<Animated.View
@@ -75,25 +80,34 @@ function SlotChip({
 				pressedScale={0.965}
 				testID={disabled ? undefined : "time-slot"}
 				className={`items-center rounded-card border px-card py-stack-md ${
-					isSelected ? "bg-app-primary-light" : "bg-card"
+					isSelected
+						? "bg-app-primary-light"
+						: disabled
+							? "bg-surface-elevated"
+							: "bg-card"
 				}`}
 				style={{
 					borderColor: isSelected
 						? themeColors.primary
 						: themeColors.borderDefault,
-					opacity: disabled ? 0.4 : 1,
+					opacity: disabled ? 0.55 : 1,
 				}}
 			>
-				<Text
-					variant="buttonMd"
-					className={isSelected ? "text-app-primary" : "text-content"}
-				>
+				<Text variant="buttonMd" style={{ color: textColor }}>
 					{option.label}
 				</Text>
 				{isBooked ? (
-					<Text variant="caption" className="text-content-muted">
-						Booked
-					</Text>
+					<View
+						pointerEvents="none"
+						className="absolute h-px w-16"
+						style={{
+							backgroundColor: themeColors.textMuted,
+							left: "50%",
+							marginLeft: -32,
+							top: "50%",
+							transform: [{ rotate: "-14deg" }],
+						}}
+					/>
 				) : null}
 			</PressableScale>
 		</Animated.View>

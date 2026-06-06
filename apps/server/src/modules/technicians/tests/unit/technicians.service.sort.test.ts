@@ -10,6 +10,7 @@ const makeRepo = () =>
 		searchTechniciansByCategory: vi.fn(),
 		getTechnicianProfile: vi.fn(),
 		getReviewAggregatesByTechnicianIds: vi.fn(),
+		getTechnicianIdsWithActiveAvailability: vi.fn(),
 		listTopRatedTechnicians: vi.fn(),
 		getTechnicianSelf: vi.fn(),
 		updateTechnicianSelf: vi.fn(),
@@ -79,6 +80,9 @@ describe("TechniciansService.getTechniciansByCategory", () => {
 			name: "plumbing",
 		});
 		repo.getTechniciansByCategory.mockResolvedValue([rowA, rowB, rowC]);
+		repo.getTechnicianIdsWithActiveAvailability.mockImplementation(
+			async (ids: string[]) => new Set(ids),
+		);
 
 		const { TechniciansService } = await import("../../technicians.service.js");
 		service = new TechniciansService(
@@ -141,6 +145,24 @@ describe("TechniciansService.getTechniciansByCategory", () => {
 			expect(c.avg_rating).toBe(5);
 			expect(c.review_count).toBe(0);
 		});
+
+		it("removes technicians without active availability from the top-rated path", async () => {
+			repo.listTopRatedTechnicians.mockResolvedValue([rowB, rowA, rowC]);
+			repo.getTechnicianIdsWithActiveAvailability.mockResolvedValue(
+				new Set(["tech-B", "tech-C"]),
+			);
+
+			const result = await service.getTechniciansByCategory(categoryId, {
+				sort: "top_rated",
+			});
+
+			expect(result.map((t) => t.id)).toEqual(["tech-B", "tech-C"]);
+			expect(repo.getTechnicianIdsWithActiveAvailability).toHaveBeenCalledWith([
+				"tech-B",
+				"tech-A",
+				"tech-C",
+			]);
+		});
 	});
 
 	describe("default sort (no sort param)", () => {
@@ -191,6 +213,21 @@ describe("TechniciansService.getTechniciansByCategory", () => {
 		it("does NOT call listTopRatedTechnicians on the default path", async () => {
 			await service.getTechniciansByCategory(categoryId);
 			expect(repo.listTopRatedTechnicians).not.toHaveBeenCalled();
+		});
+
+		it("removes technicians without active availability before listing", async () => {
+			repo.getTechnicianIdsWithActiveAvailability.mockResolvedValue(
+				new Set(["tech-A", "tech-C"]),
+			);
+
+			const result = await service.getTechniciansByCategory(categoryId);
+
+			expect(result.map((t) => t.id)).toEqual(["tech-A", "tech-C"]);
+			expect(repo.getTechnicianIdsWithActiveAvailability).toHaveBeenCalledWith([
+				"tech-A",
+				"tech-B",
+				"tech-C",
+			]);
 		});
 	});
 
@@ -304,6 +341,9 @@ describe("TechniciansService.searchTechniciansByCategory", () => {
 			id: categoryId,
 			name: "plumbing",
 		});
+		repo.getTechnicianIdsWithActiveAvailability.mockImplementation(
+			async (ids: string[]) => new Set(ids),
+		);
 
 		const { TechniciansService } = await import("../../technicians.service.js");
 		service = new TechniciansService(
@@ -339,5 +379,20 @@ describe("TechniciansService.searchTechniciansByCategory", () => {
 			"a",
 		);
 		expect(repo.listTopRatedTechnicians).not.toHaveBeenCalled();
+	});
+
+	it("non-top_rated search removes technicians without active availability", async () => {
+		repo.searchTechniciansByCategory.mockResolvedValue([rowA, rowB]);
+		repo.getTechnicianIdsWithActiveAvailability.mockResolvedValue(
+			new Set(["tech-B"]),
+		);
+
+		const result = await service.searchTechniciansByCategory(categoryId, "a");
+
+		expect(result.map((t) => t.id)).toEqual(["tech-B"]);
+		expect(repo.getTechnicianIdsWithActiveAvailability).toHaveBeenCalledWith([
+			"tech-A",
+			"tech-B",
+		]);
 	});
 });

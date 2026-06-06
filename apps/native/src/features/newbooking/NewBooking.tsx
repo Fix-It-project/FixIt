@@ -98,8 +98,11 @@ export default function NewBooking() {
 					keyboardShouldPersistTaps="handled"
 				>
 					<Animated.View entering={entering(0)}>
-						<Text variant="h4" className="mb-stack-sm text-content">
-							Select a date
+						<Text
+							variant="buttonMd"
+							className="mb-stack-sm font-semibold text-content"
+						>
+							Date
 						</Text>
 					</Animated.View>
 					{scheduleLoading ? (
@@ -121,8 +124,11 @@ export default function NewBooking() {
 					)}
 
 					<Animated.View entering={entering(2)}>
-						<Text variant="h4" className="mt-card mb-stack-sm text-content">
-							Select a time
+						<Text
+							variant="buttonMd"
+							className="mt-card mb-stack-sm font-semibold text-content"
+						>
+							Time
 						</Text>
 						<TimeSlotGrid
 							selectedDate={selectedDate}

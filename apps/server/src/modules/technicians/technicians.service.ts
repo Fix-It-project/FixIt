@@ -67,15 +67,19 @@ export class TechniciansService implements ITechniciansService {
 			throw Object.assign(new Error("Category not found"), { status: 404 });
 
 		if (sort === "top_rated") {
-			const rows = await this.repo.listTopRatedTechnicians({
-				categoryId,
-				...(limit != null ? { limit } : {}),
-				...(offset != null ? { offset } : {}),
-			});
+			const rows = await this.filterRowsWithActiveSchedule(
+				await this.repo.listTopRatedTechnicians({
+					categoryId,
+					...(limit != null ? { limit } : {}),
+					...(offset != null ? { offset } : {}),
+				}),
+			);
 			return rows.map((r) => toDTO(r, lat, lng));
 		}
 
-		const rows = await this.repo.getTechniciansByCategory(categoryId);
+		const rows = await this.filterRowsWithActiveSchedule(
+			await this.repo.getTechniciansByCategory(categoryId),
+		);
 		return this.buildListPage(rows, { lat, lng, sort, limit, offset });
 	}
 
@@ -90,17 +94,32 @@ export class TechniciansService implements ITechniciansService {
 			throw Object.assign(new Error("Category not found"), { status: 404 });
 
 		if (sort === "top_rated") {
-			const rows = await this.repo.listTopRatedTechnicians({
-				categoryId,
-				searchQuery: query,
-				...(limit != null ? { limit } : {}),
-				...(offset != null ? { offset } : {}),
-			});
+			const rows = await this.filterRowsWithActiveSchedule(
+				await this.repo.listTopRatedTechnicians({
+					categoryId,
+					searchQuery: query,
+					...(limit != null ? { limit } : {}),
+					...(offset != null ? { offset } : {}),
+				}),
+			);
 			return rows.map((r) => toDTO(r, lat, lng));
 		}
 
-		const rows = await this.repo.searchTechniciansByCategory(categoryId, query);
+		const rows = await this.filterRowsWithActiveSchedule(
+			await this.repo.searchTechniciansByCategory(categoryId, query),
+		);
 		return this.buildListPage(rows, { lat, lng, sort, limit, offset });
+	}
+
+	private async filterRowsWithActiveSchedule(
+		rows: TechnicianWithAddressRow[],
+	): Promise<TechnicianWithAddressRow[]> {
+		if (rows.length === 0) return [];
+
+		const scheduledIds = await this.repo.getTechnicianIdsWithActiveAvailability(
+			rows.map((row) => row.id),
+		);
+		return rows.filter((row) => scheduledIds.has(row.id));
 	}
 
 	private buildListPage(
