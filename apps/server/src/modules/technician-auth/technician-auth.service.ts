@@ -1,3 +1,5 @@
+import { AppError } from '../../shared/errors/app-error.js';
+import { logger } from '../../shared/logger.js';
 import { storageRepository, type DocumentFiles } from '../../shared/storage/storage.repository.js';
 import {
   addressesRepository,
