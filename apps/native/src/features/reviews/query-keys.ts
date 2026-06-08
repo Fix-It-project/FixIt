@@ -19,4 +19,6 @@ export const reviewQueryKeys = {
 			"infinite",
 			pageSize,
 		] as const,
+	summary: (technicianId: string | null) =>
+		[...reviewQueryKeys.all, "summary", technicianId] as const,
 };

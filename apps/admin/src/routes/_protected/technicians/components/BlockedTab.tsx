@@ -15,15 +15,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { ActiveTech } from "@/types";
+import type { AdminTechnician } from "@/types";
 
 interface BlockedTabProps {
-	techs: ActiveTech[];
+	techs: AdminTechnician[];
 	onUnblock: (id: string) => void;
 }
 
 export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
-	const [unblocking, setUnblocking] = useState<ActiveTech | null>(null);
+	const [unblocking, setUnblocking] = useState<AdminTechnician | null>(null);
 	const [page, setPage] = useState(1);
 
 	const pageCount = Math.max(1, Math.ceil(techs.length / PAGE_SIZE));

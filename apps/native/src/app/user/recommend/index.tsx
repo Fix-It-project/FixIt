@@ -1,8 +1,3 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -11,6 +6,11 @@ import { getRecommendedTechnicians } from "@/src/features/technicians/recommenda
 import type { RecommendedTechnicianApi } from "@/src/features/technicians/schemas/response.schema";
 import { showError, toAppError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecommendScreen() {
 	const { q } = useLocalSearchParams<{ q: string }>();
@@ -36,9 +36,9 @@ export default function RecommendScreen() {
 				if (!cancelled) {
 					setResults(data);
 				}
-			} catch (err) {
+			} catch (error) {
 				if (!cancelled) {
-					const appErr = toAppError(err);
+					const appErr = toAppError(error);
 					setHasError(true);
 					showError(appErr);
 				}
@@ -66,9 +66,9 @@ export default function RecommendScreen() {
 			.then((data) => {
 				if (!cancelled) setResults(data);
 			})
-			.catch((err) => {
+			.catch((error) => {
 				if (!cancelled) {
-					const appErr = toAppError(err);
+					const appErr = toAppError(error);
 					setHasError(true);
 					showError(appErr);
 				}
@@ -95,11 +95,7 @@ export default function RecommendScreen() {
 				<PressableScale onPress={() => router.back()}>
 					<ChevronLeft size={24} className="text-foreground" />
 				</PressableScale>
-				<Text
-					variant="h3"
-					className="flex-1 text-foreground"
-					numberOfLines={1}
-				>
+				<Text variant="h3" className="flex-1 text-foreground" numberOfLines={1}>
 					Results for: {q}
 				</Text>
 			</View>
@@ -124,10 +120,7 @@ export default function RecommendScreen() {
 					<Text variant="label" className="text-foreground">
 						Could not load recommendations.
 					</Text>
-					<Text
-						variant="bodySm"
-						className="text-center text-muted-foreground"
-					>
+					<Text variant="bodySm" className="text-center text-muted-foreground">
 						Something went wrong. Please try again.
 					</Text>
 					<PressableScale onPress={handleRetry}>
@@ -146,10 +139,7 @@ export default function RecommendScreen() {
 					<Text variant="label" className="text-foreground">
 						No technicians in your area yet
 					</Text>
-					<Text
-						variant="bodySm"
-						className="text-center text-muted-foreground"
-					>
+					<Text variant="bodySm" className="text-center text-muted-foreground">
 						Try a different description or expand your search area.
 					</Text>
 				</View>
@@ -167,12 +157,25 @@ export default function RecommendScreen() {
 						<PressableScale
 							key={result.technician_id}
 							pressedScale={0.97}
-							onPress={() =>
-								router.push(ROUTES.user.bookingRoot(result.technician_id))
-							}
+							onPress={() => {
+								const route = ROUTES.user.technicianDetail(
+									result.technician_id,
+								);
+								router.push({
+									...route,
+									params: {
+										...route.params,
+										technicianName: result.name,
+										distanceKm:
+											result.distance_km == undefined
+												? undefined
+												: result.distance_km.toFixed(1),
+									},
+								});
+							}}
 						>
 							<View
-								className="border-border bg-card rounded-xl border"
+								className="rounded-xl border border-border bg-card"
 								style={{
 									padding: 16,
 									flexDirection: "row",
@@ -196,18 +199,15 @@ export default function RecommendScreen() {
 									<Text variant="caption" className="text-muted-foreground">
 										{[
 											result.category ?? "",
-											result.distance_km != null
-												? `${result.distance_km.toFixed(1)} km`
-												: null,
+											result.distance_km == undefined
+												? null
+												: `${result.distance_km.toFixed(1)} km`,
 										]
 											.filter(Boolean)
 											.join(" · ")}
 									</Text>
-									{result.base_hourly_rate != null && (
-										<Text
-											variant="caption"
-											className="text-muted-foreground"
-										>
+									{result.base_hourly_rate != undefined && (
+										<Text variant="caption" className="text-muted-foreground">
 											From EGP {result.base_hourly_rate.toFixed(0)}/hr
 										</Text>
 									)}

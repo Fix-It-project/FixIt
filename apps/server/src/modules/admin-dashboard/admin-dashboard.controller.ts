@@ -18,6 +18,99 @@ export class AdminDashboardController {
 			res.status(200).json({ data });
 		},
 	);
+
+	getOrders: RequestHandler = asyncHandler(
+		async (_req: Request, res: Response) => {
+			const data = await adminDashboardService.getAllOrders();
+			res.status(200).json({ data });
+		},
+	);
+
+	getOrderDetail: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.getOrderDetail(id);
+			res.status(200).json({ data });
+		},
+	);
+
+	getHomeowners: RequestHandler = asyncHandler(
+		async (_req: Request, res: Response) => {
+			const data = await adminDashboardService.getHomeowners();
+			res.status(200).json({ data });
+		},
+	);
+
+	blockHomeowner: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const { reason } = req.body as { reason: string };
+			const data = await adminDashboardService.blockHomeowner(id, reason);
+			req.log.info({ action: "admin_block_homeowner", homeownerId: id, reason });
+			res.status(200).json({ data });
+		},
+	);
+
+	unblockHomeowner: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.unblockHomeowner(id);
+			req.log.info({ action: "admin_unblock_homeowner", homeownerId: id });
+			res.status(200).json({ data });
+		},
+	);
+
+	getTechnicians: RequestHandler = asyncHandler(
+		async (_req: Request, res: Response) => {
+			const data = await adminDashboardService.getTechnicians();
+			res.status(200).json({ data });
+		},
+	);
+
+	getTechnicianHistory: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.getTechnicianHistory(id);
+			res.status(200).json({ data });
+		},
+	);
+
+	verifyTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.verifyTechnician(id);
+			req.log.info({ action: "admin_verify_technician", technicianId: id });
+			res.status(200).json({ data });
+		},
+	);
+
+	rejectTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.rejectTechnician(id);
+			req.log.info({ action: "admin_reject_technician", technicianId: id });
+			res.status(200).json({ data });
+		},
+	);
+
+	blockTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const { reason } = req.body as { reason: string };
+			const data = await adminDashboardService.blockTechnician(id, reason);
+			req.log.info({ action: "admin_block_technician", technicianId: id, reason });
+			res.status(200).json({ data });
+		},
+	);
+
+	unblockTechnician: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.unblockTechnician(id);
+			req.log.info({ action: "admin_unblock_technician", technicianId: id });
+			res.status(200).json({ data });
+		},
+	);
 }
 
 export const adminDashboardController = new AdminDashboardController();

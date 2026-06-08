@@ -6,8 +6,6 @@ export function createWebEnv(runtimeEnv: Record<string, string | undefined>) {
 		clientPrefix: "VITE_",
 		client: {
 			VITE_SERVER_URL: z.string().url(),
-			VITE_SUPABASE_URL: z.string().url(),
-			VITE_SUPABASE_ANON_KEY: z.string().min(1),
 		},
 		runtimeEnv,
 		emptyStringAsUndefined: true,

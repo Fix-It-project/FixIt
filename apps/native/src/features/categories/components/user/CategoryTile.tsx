@@ -13,14 +13,13 @@ interface CategoryTileProps {
 
 export default function CategoryTile({
 	category,
-	index,
 	onPress,
 }: CategoryTileProps) {
 	const themeColors = useThemeColors();
 	const meta = getCategoryMeta(category.id);
 	const Icon = meta?.icon ?? Wrench;
-	const fallbackColors = themeColors.category.fallbacks;
-	const color = meta?.color ?? fallbackColors[index % fallbackColors.length];
+	// Unified brand color — categories no longer carry per-category colors.
+	const color = themeColors.primary;
 
 	return (
 		<TouchableOpacity

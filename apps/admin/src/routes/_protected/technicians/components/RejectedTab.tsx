@@ -1,0 +1,127 @@
+import { useEffect, useState } from "react";
+import { CategoryTag } from "@/components/CategoryTag";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
+import { TechAvatar } from "@/components/TechAvatar";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
+import type { AdminTechnician } from "@/types";
+
+interface RejectedTabProps {
+	techs: AdminTechnician[];
+	onVerify: (id: string) => void;
+}
+
+export function RejectedTab({ techs, onVerify }: RejectedTabProps) {
+	const [verifying, setVerifying] = useState<AdminTechnician | null>(null);
+	const [page, setPage] = useState(1);
+
+	const pageCount = Math.max(1, Math.ceil(techs.length / PAGE_SIZE));
+	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	const pageStart = (page - 1) * PAGE_SIZE;
+	const paged = techs.slice(pageStart, pageStart + PAGE_SIZE);
+
+	return (
+		<>
+			{/* Mobile card view */}
+			<div className="md:hidden flex flex-col gap-3">
+				{techs.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">No rejected applicants.</p>}
+				{paged.map((tech) => (
+					<div key={tech.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+						<TechAvatar initials={tech.initials} color={tech.color} size="md" />
+						<div className="flex-1 min-w-0">
+							<p className="text-sm font-semibold text-foreground truncate">{tech.name}</p>
+							<div className="mt-0.5">
+								<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
+							</div>
+							<p className="text-[11px] text-muted-foreground mt-0.5">Applied {tech.appliedAt}</p>
+						</div>
+						<Button size="sm" variant="outline" onClick={() => setVerifying(tech)}>Verify</Button>
+					</div>
+				))}
+			</div>
+
+			{/* Desktop table */}
+			<div className="hidden md:block overflow-x-auto rounded-lg border border-border">
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead className="pl-4">Applicant</TableHead>
+							<TableHead className="hidden lg:table-cell">Category</TableHead>
+							<TableHead className="hidden sm:table-cell">City</TableHead>
+							<TableHead>Applied</TableHead>
+							<TableHead className="text-right pr-4">Action</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{techs.length === 0 && (
+							<TableRow>
+								<TableCell colSpan={5} className="text-center text-muted-foreground py-8">No rejected applicants.</TableCell>
+							</TableRow>
+						)}
+						{paged.map((tech) => (
+							<TableRow key={tech.id}>
+								<TableCell className="pl-4">
+									<div className="flex items-center gap-2.5">
+										<TechAvatar initials={tech.initials} color={tech.color} size="sm" />
+										<div>
+											<p className="text-sm font-semibold text-foreground">{tech.name}</p>
+											<p className="text-xs text-muted-foreground">{tech.email}</p>
+										</div>
+									</div>
+								</TableCell>
+								<TableCell className="hidden lg:table-cell">
+									<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
+								</TableCell>
+								<TableCell className="hidden sm:table-cell text-xs text-muted-foreground">{tech.city}</TableCell>
+								<TableCell className="text-xs text-muted-foreground">{tech.appliedAt}</TableCell>
+								<TableCell className="text-right pr-4">
+									<Button size="sm" variant="outline" onClick={() => setVerifying(tech)}>Verify</Button>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</div>
+
+			{techs.length > 0 && (
+				<div className="mt-3">
+					<Pagination
+						page={page}
+						pageCount={pageCount}
+						pageSize={PAGE_SIZE}
+						totalItems={techs.length}
+						onPageChange={setPage}
+					/>
+				</div>
+			)}
+
+			<AlertDialog open={!!verifying} onOpenChange={() => setVerifying(null)}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Verify {verifying?.name}?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will approve the previously rejected application. The technician will be able to log in and receive orders.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction onClick={() => { if (verifying) { onVerify(verifying.id); setVerifying(null); } }}>
+							Verify
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</>
+	);
+}

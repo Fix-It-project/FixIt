@@ -1,15 +1,6 @@
-import {
-	BottomSheet,
-	type BottomSheetModalRef,
-} from "@/src/components/ui/bottom-sheet";
 import { router } from "expo-router";
 import { Briefcase, ClipboardList, Star } from "lucide-react-native";
-import {
-	forwardRef,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	TouchableOpacity,
@@ -17,11 +8,16 @@ import {
 	View,
 } from "react-native";
 import { ReviewRow } from "@/src/components/reviews";
+import {
+	BottomSheet,
+	type BottomSheetModalRef,
+} from "@/src/components/ui/bottom-sheet";
 import { Text } from "@/src/components/ui/text";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
+import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
-import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
-import { Colors, useThemeColors } from "@/src/constants/design-tokens";
+import { ROUTES } from "@/src/lib/navigation";
 
 export interface TechnicianProfileSheetRef {
 	open: (technicianId: string, initials: string) => void;
@@ -123,6 +119,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 								<TechnicianAvatar
 									id={sheetState.technicianId ?? ""}
 									initials={sheetState.initials}
+									imageUrl={profile.profilePicture}
 									size="lg"
 								/>
 							</View>
@@ -215,9 +212,12 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 									<TouchableOpacity
 										onPress={() => {
 											sheetRef.current?.dismiss();
+											const route = ROUTES.user.technicianDetail(
+												sheetState.technicianId ?? "",
+											);
 											router.push({
-												pathname: "/user/technician/[id]/reviews",
-												params: { id: sheetState.technicianId ?? "" },
+												...route,
+												params: { ...route.params, tab: "Reviews" },
 											});
 										}}
 										activeOpacity={0.7}

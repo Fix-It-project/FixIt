@@ -28,6 +28,13 @@ export interface TechnicianReviewWithReviewer {
 	reviewer_name: string | null;
 }
 
+export interface TechnicianReviewSummary {
+	avg_rating: number | null;
+	review_count: number;
+	/** Count of reviews per star rating (1..5). */
+	distribution: Record<"1" | "2" | "3" | "4" | "5", number>;
+}
+
 export class ReviewsRepository {
 	async createReview(row: CreateReviewRow): Promise<Review> {
 		// technician_rating_stats is updated automatically by trigger_maintain_technician_rating_stats — do not recompute here.
@@ -45,6 +52,41 @@ export class ReviewsRepository {
 
 		if (error) throw error;
 		return data as Review;
+	}
+
+	async getReviewSummary(
+		technicianId: string,
+	): Promise<TechnicianReviewSummary> {
+		const { data, error } = await supabase
+			.from("reviews")
+			.select("rating")
+			.eq("technician_id", technicianId);
+
+		if (error) throw error;
+
+		const distribution: TechnicianReviewSummary["distribution"] = {
+			"1": 0,
+			"2": 0,
+			"3": 0,
+			"4": 0,
+			"5": 0,
+		};
+		let sum = 0;
+		let rated = 0;
+		const rows = (data ?? []) as Array<{ rating: number | null }>;
+		for (const row of rows) {
+			if (row.rating != null && row.rating >= 1 && row.rating <= 5) {
+				distribution[String(row.rating) as keyof typeof distribution] += 1;
+				sum += row.rating;
+				rated += 1;
+			}
+		}
+
+		return {
+			avg_rating: rated > 0 ? Math.round((sum / rated) * 10) / 10 : null,
+			review_count: rows.length,
+			distribution,
+		};
 	}
 
 	async listReviewsForTechnician(

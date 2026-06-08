@@ -1,29 +1,24 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Homeowner } from "@/types";
 import { ActiveTab } from "./components/ActiveTab";
 import { BlockedTab } from "./components/BlockedTab";
-import { BlockReasonModal } from "./components/BlockReasonModal";
-import { HomeownerProfileModal } from "./components/HomeownerProfileModal";
-import { useHomeownerState } from "./hooks/useHomeownerState";
+import { useHomeowners, useUnblockHomeowner } from "./hooks/useHomeowners";
 
 export const Route = createFileRoute("/_protected/homeowners/")({
 	component: HomeownersPage,
 });
 
 function HomeownersPage() {
-	const { activeHomeowners, blockedHomeowners, blockHomeowner, unblockHomeowner } = useHomeownerState();
+	const navigate = useNavigate();
+	const { data, isLoading } = useHomeowners();
+	const unblockMutation = useUnblockHomeowner();
 
-	const [viewing, setViewing] = useState<Homeowner | null>(null);
-	const [blocking, setBlocking] = useState<Homeowner | null>(null);
+	const homeowners = data ?? [];
+	const activeHomeowners = homeowners.filter((h) => !h.blocked);
+	const blockedHomeowners = homeowners.filter((h) => h.blocked);
 
-	function handleBlock(reason: string) {
-		if (blocking) {
-			blockHomeowner(blocking.id, reason);
-			setBlocking(null);
-		}
-	}
+	const openDetail = (id: string) =>
+		navigate({ to: "/homeowners/$homeownerId", params: { homeownerId: id } });
 
 	return (
 		<div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 pb-12">
@@ -31,7 +26,9 @@ function HomeownersPage() {
 			<div>
 				<h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Homeowners</h1>
 				<p className="text-sm text-muted-foreground mt-1">
-					{activeHomeowners.length} active · {blockedHomeowners.length} blocked
+					{isLoading
+						? "Loading…"
+						: `${activeHomeowners.length} active · ${blockedHomeowners.length} blocked`}
 				</p>
 			</div>
 
@@ -54,32 +51,13 @@ function HomeownersPage() {
 				</TabsList>
 
 				<TabsContent value="active" className="mt-4">
-					<ActiveTab homeowners={activeHomeowners} onView={setViewing} />
+					<ActiveTab homeowners={activeHomeowners} onView={(h) => openDetail(h.id)} />
 				</TabsContent>
 
 				<TabsContent value="blocked" className="mt-4">
-					<BlockedTab homeowners={blockedHomeowners} onUnblock={unblockHomeowner} />
+					<BlockedTab homeowners={blockedHomeowners} onUnblock={(id) => unblockMutation.mutate(id)} />
 				</TabsContent>
 			</Tabs>
-
-			{/* Modals */}
-			<HomeownerProfileModal
-				homeowner={viewing}
-				open={!!viewing}
-				onClose={() => setViewing(null)}
-				onBlock={(id) => {
-					const h = activeHomeowners.find((x) => x.id === id);
-					if (h) { setViewing(null); setBlocking(h); }
-				}}
-				onUnblock={unblockHomeowner}
-			/>
-
-			<BlockReasonModal
-				homeownerName={blocking?.name ?? ""}
-				open={!!blocking}
-				onClose={() => setBlocking(null)}
-				onConfirm={handleBlock}
-			/>
 		</div>
 	);
 }

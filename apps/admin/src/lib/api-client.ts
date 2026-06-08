@@ -1,6 +1,5 @@
 import axios from "axios";
 import { env } from "@/lib/env";
-import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/auth-store";
 
 const API_BASE_URL = env.VITE_SERVER_URL;
@@ -32,5 +31,5 @@ apiClient.interceptors.response.use(
 	},
 );
 
-export { apiClient, supabase };
+export { apiClient };
 export default apiClient;

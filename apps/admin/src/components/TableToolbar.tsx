@@ -1,4 +1,5 @@
 import { Download, Search } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,8 @@ interface TableToolbarProps<K extends string = string> {
 	onFilterChange?: (key: K) => void;
 	onExport?: () => void;
 	exportLabel?: string;
+	/** Extra controls rendered in the toolbar bar, right-aligned next to Export. */
+	trailing?: ReactNode;
 }
 
 export function TableToolbar<K extends string = string>({
@@ -29,6 +32,7 @@ export function TableToolbar<K extends string = string>({
 	onFilterChange,
 	onExport,
 	exportLabel = "Export CSV",
+	trailing,
 }: TableToolbarProps<K>) {
 	return (
 		<div className="flex flex-col lg:flex-row lg:items-center gap-3 bg-card border border-border rounded-xl p-3 shadow-sm">
@@ -72,16 +76,21 @@ export function TableToolbar<K extends string = string>({
 				</div>
 			)}
 
-			{onExport && (
-				<Button
-					variant="outline"
-					size="sm"
-					className="gap-1.5 lg:ml-auto flex-shrink-0 h-9"
-					onClick={onExport}
-				>
-					<Download className="h-4 w-4" />
-					{exportLabel}
-				</Button>
+			{(trailing || onExport) && (
+				<div className="flex items-center gap-2 flex-wrap lg:flex-nowrap lg:ml-auto">
+					{trailing}
+					{onExport && (
+						<Button
+							variant="outline"
+							size="sm"
+							className="gap-1.5 flex-shrink-0 h-9"
+							onClick={onExport}
+						>
+							<Download className="h-4 w-4" />
+							{exportLabel}
+						</Button>
+					)}
+				</div>
 			)}
 		</div>
 	);

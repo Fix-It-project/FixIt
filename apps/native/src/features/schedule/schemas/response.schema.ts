@@ -47,6 +47,17 @@ export const publicScheduleResponseSchema = z.object({
 	}),
 });
 
+// A slot already occupied by a blocking order (Cairo-local hour).
+export const bookedSlotSchema = z.object({
+	date: z.string(),
+	slot_hour: z.number().int(),
+});
+export const bookedSlotsResponseSchema = z.object({
+	data: z.object({
+		slots: z.array(bookedSlotSchema),
+	}),
+});
+
 export type AvailabilityTemplate = z.infer<typeof availabilityTemplateSchema>;
 export type CalendarException = z.infer<typeof calendarExceptionSchema>;
 export type ScheduledEvent = z.infer<typeof scheduledEventSchema>;
@@ -60,3 +71,4 @@ export type ScheduledEventsResponse = z.infer<
 export type PublicScheduleResponse = z.infer<
 	typeof publicScheduleResponseSchema
 >;
+export type BookedSlot = z.infer<typeof bookedSlotSchema>;

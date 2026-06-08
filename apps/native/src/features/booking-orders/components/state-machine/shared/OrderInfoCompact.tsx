@@ -66,7 +66,7 @@ export default function OrderInfoCompact({
 		? CATEGORIES.find((c) => c.id === order.category_id)
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? CalendarClock;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 
 	const scheduled = formatScheduled(order.scheduled_start_at);
 	const phone = maskPhone(counterpartyPhone);

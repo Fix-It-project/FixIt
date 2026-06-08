@@ -362,18 +362,17 @@ export function useChatbotController() {
 	const handleOpenTechnician = useCallback(
 		async (
 			technician: { id: string | number; name: string },
-			order: ServiceOrder,
+			_order: ServiceOrder,
 			_promptText: string,
 		) => {
 			setIsOpeningTechnician(true);
 			try {
-				const route = ROUTES.user.bookingDate(String(technician.id));
+				const route = ROUTES.user.technicianDetail(String(technician.id));
 				router.push({
 					...route,
 					params: {
 						...route.params,
 						technicianName: technician.name,
-						serviceName: order.diagnosed_category,
 					},
 				});
 			} finally {

@@ -39,8 +39,8 @@ export function Pagination({ page, pageCount, pageSize, totalItems, onPageChange
 	const pages = buildPageList(page, pageCount);
 
 	return (
-		<div className={cn("flex items-center justify-between gap-3 flex-wrap", className)}>
-			<p className="text-xs text-muted-foreground">
+		<div className={cn("relative flex items-center justify-center gap-3 flex-wrap", className)}>
+			<p className="text-xs text-muted-foreground sm:absolute sm:left-0">
 				Showing <span className="font-semibold text-foreground tabular-nums">{from}–{to}</span> of{" "}
 				<span className="tabular-nums">{totalItems}</span>
 			</p>

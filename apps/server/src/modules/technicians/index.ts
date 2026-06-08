@@ -1,11 +1,14 @@
 export {
-  techniciansRepository,
-  type ITechnicianQueryRepository,
-  type ITechniciansRepository,
-  type CreateTechnicianData,
-  type UpdateTechnicianData,
-  type TechnicianProfile,
-  type TechnicianProfileRow,
-  type TechnicianListDTO,
-} from './technicians.repository.js';
-export { TechniciansService, type ITechniciansService } from './technicians.service.js';
+	type CreateTechnicianData,
+	type ITechnicianQueryRepository,
+	type ITechniciansRepository,
+	type TechnicianListDTO,
+	type TechnicianProfile,
+	type TechnicianProfileRow,
+	techniciansRepository,
+	type UpdateTechnicianData,
+} from "./technicians.repository.js";
+export {
+	type ITechniciansService,
+	TechniciansService,
+} from "./technicians.service.js";

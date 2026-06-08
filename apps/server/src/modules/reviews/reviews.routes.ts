@@ -19,6 +19,13 @@ router.post(
 );
 
 router.get(
+	"/technicians/:id/summary",
+	requireUserAuth,
+	validate({ params: TechnicianIdParamsSchema }),
+	reviewsController.getTechnicianReviewSummary,
+);
+
+router.get(
 	"/technicians/:id",
 	requireUserAuth,
 	validate({

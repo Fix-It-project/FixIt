@@ -1,8 +1,3 @@
-import { router } from "expo-router";
-import { MapPin, Star } from "lucide-react-native";
-import { useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, useWindowDimensions, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
@@ -13,10 +8,16 @@ import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
+import { formatRating } from "@/src/constants/format";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { router } from "expo-router";
+import { MapPin, Star } from "lucide-react-native";
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 
@@ -98,9 +99,9 @@ export function TopRatedSection() {
 							catMap.get(tech.category_id) ?? tr("technicianFallback");
 						const locationText = [
 							tech.city,
-							tech.distance_km != null
-								? `${tech.distance_km.toFixed(1)} km`
-								: null,
+							tech.distance_km == undefined
+								? null
+								: `${tech.distance_km.toFixed(1)} km`,
 						]
 							.filter(Boolean)
 							.join(" · ");
@@ -138,7 +139,7 @@ export function TopRatedSection() {
 									>
 										<InitialsAvatar
 											name={name}
-											imageUrl={null}
+											imageUrl={tech.profile_image}
 											className="size-11"
 										/>
 										<View style={{ flex: 1, minWidth: 0, gap: 5 }}>
@@ -158,7 +159,7 @@ export function TopRatedSection() {
 												</Text>
 											</Badge>
 										</View>
-										{tech.avg_rating !== null ? (
+										{tech.avg_rating === null ? null : (
 											<View
 												style={{
 													flexDirection: "row",
@@ -173,10 +174,10 @@ export function TopRatedSection() {
 													fill={t.ratingDefault}
 												/>
 												<Text variant="caption" className="text-foreground">
-													{tech.avg_rating.toFixed(1)}
+													{formatRating(tech.avg_rating)}
 												</Text>
 											</View>
-										) : null}
+										)}
 									</View>
 
 									{locationText ? (
@@ -210,7 +211,23 @@ export function TopRatedSection() {
 									size="sm"
 									variant="primary"
 									fullWidth
-									onPress={() => router.push(ROUTES.user.bookingRoot(tech.id))}
+									onPress={() => {
+										const route = ROUTES.user.technicianDetail(tech.id);
+										router.push({
+											...route,
+											params: {
+												...route.params,
+												technicianName: name,
+												initials,
+												categoryId: tech.category_id,
+												categoryName,
+												distanceKm:
+													tech.distance_km == undefined
+														? undefined
+														: tech.distance_km.toFixed(1),
+											},
+										});
+									}}
 									accessibilityLabel={tr("book")}
 								>
 									{tr("book")}

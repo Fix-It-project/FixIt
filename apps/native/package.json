@@ -1,6 +1,6 @@
 {
 	"name": "native",
-	"version": "1.0.0",
+	"version": "0.0.0",
 	"private": true,
 	"main": "expo-router/entry",
 	"scripts": {
@@ -16,6 +16,8 @@
 		"verify": "pnpm run check-types && pnpm run check && pnpm run lint",
 		"test": "vitest run",
 		"test:watch": "vitest",
+		"test:e2e": "maestro test .maestro",
+		"test:e2e:studio": "maestro studio",
 		"i18n:migrate": "dotenv -e .env -- bash -c 'locize migrate --project-id $EXPO_PUBLIC_LOCIZE_PROJECT_ID --api-key $EXPO_PUBLIC_LOCIZE_API_KEY --path src/constants/i18n/locales --language en --format json'",
 		"i18n:download": "dotenv -e .env -- bash -c 'locize download --project-id $EXPO_PUBLIC_LOCIZE_PROJECT_ID --ver latest --format json --path src/constants/i18n/locales --clean true'",
 		"i18n:sync": "dotenv -e .env -- bash -c 'locize sync --project-id $EXPO_PUBLIC_LOCIZE_PROJECT_ID --api-key $EXPO_PUBLIC_LOCIZE_API_KEY --path src/constants/i18n/locales --reference-language en'"

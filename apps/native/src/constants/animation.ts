@@ -18,6 +18,10 @@ export const SPRING_PRESS = { damping: 22, stiffness: 320, mass: 0.6 } as const;
 export const DUR_FADE_IN = 380; // Standard fade-in for single elements
 export const DUR_SLIDE_UP = 420; // Slide + fade for cards/sections
 export const ENTRANCE_STAGGER = 60; // Tighter stagger for list sections (vs STAGGER_GAP 90)
+export const DUR_CALENDAR_SELECT = 180;
+export const DUR_CALENDAR_MONTH = 360;
+export const CALENDAR_MONTH_SLIDE_X = 52;
+export const DUR_SLOT_REVEAL = 260;
 
 export const SPRING_CARD = { damping: 20, stiffness: 200, mass: 0.8 } as const; // Card hover/press
 export const SPRING_CHIP = { damping: 24, stiffness: 280, mass: 0.5 } as const; // Category chip press

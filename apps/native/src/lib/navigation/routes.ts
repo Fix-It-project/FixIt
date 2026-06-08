@@ -14,14 +14,18 @@ export const ROUTES = {
 		techSignup: "/tech-signup" as const,
 		techSignupStep: (n: 2 | 3 | 4 | 5) => {
 			switch (n) {
-				case 2:
+				case 2: {
 					return "/tech-signup/step-2" as const;
-				case 3:
+				}
+				case 3: {
 					return "/tech-signup/step-3" as const;
-				case 4:
+				}
+				case 4: {
 					return "/tech-signup/step-4" as const;
-				default:
+				}
+				default: {
 					return "/tech-signup/step-5" as const;
+				}
 			}
 		},
 	},
@@ -42,27 +46,18 @@ export const ROUTES = {
 		profileEdit: "/user/profile/edit" as const,
 		profileAddressNew: "/user/profile/addresses/new" as const,
 		profileOrderHistory: "/user/profile/orders/history" as const,
-		services: "/user/services" as const,
 		technicians: "/user/technicians" as const,
+		technicianDetail: (id: string) => ({
+			pathname: "/user/technician/[id]" as const,
+			params: { id },
+		}),
 		bookingRoot: (technicianId: string) => ({
 			pathname: "/user/booking/[technicianId]" as const,
-			params: { technicianId },
-		}),
-		bookingDate: (technicianId: string) => ({
-			pathname: "/user/booking/[technicianId]/date" as const,
-			params: { technicianId },
-		}),
-		bookingTime: (technicianId: string) => ({
-			pathname: "/user/booking/[technicianId]/time" as const,
 			params: { technicianId },
 		}),
 		bookingDetails: (technicianId: string) => ({
 			pathname: "/user/booking/[technicianId]/details" as const,
 			params: { technicianId },
-		}),
-		technicianReviews: (id: string) => ({
-			pathname: "/user/technician/[id]/reviews" as const,
-			params: { id },
 		}),
 		recommend: "/user/recommend" as const,
 		chat: "/user/chat" as const,

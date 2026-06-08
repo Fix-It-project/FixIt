@@ -18,6 +18,23 @@ export const technicianReviewsResponseSchema = z
     reviews: data,
   }));
 
+// Aggregate rating summary (avg + count + per-star distribution) for a technician.
+export const reviewSummarySchema = z.object({
+  avg_rating: z.number().nullable(),
+  review_count: z.number(),
+  distribution: z.object({
+    "1": z.number(),
+    "2": z.number(),
+    "3": z.number(),
+    "4": z.number(),
+    "5": z.number(),
+  }),
+});
+
+export const reviewSummaryResponseSchema = z.object({
+  data: reviewSummarySchema,
+});
+
 // ─── Client-side create schema ────────────────────────────────────────────────
 // Client UX rule: rating is REQUIRED (server allows comment-only, we don't).
 // comment: optional, but if provided must be 1-1000 chars after trim.
@@ -41,3 +58,4 @@ export type TechnicianReviewsResponse = z.infer<
   typeof technicianReviewsResponseSchema
 >;
 export type CreateReviewClientInput = z.infer<typeof createReviewClientSchema>;
+export type ReviewSummary = z.infer<typeof reviewSummarySchema>;

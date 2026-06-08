@@ -19,7 +19,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 		? CATEGORIES.find((c) => c.id === order.category_id)
 		: undefined;
 	const CategoryIcon: LucideIcon = category?.icon ?? ClipboardList;
-	const categoryColor = category?.color ?? Colors.primary;
+	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
 	const avatarSize = width < 360 ? 52 : 64;

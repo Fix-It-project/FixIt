@@ -63,6 +63,8 @@ export interface TechnicianProfile {
 	totalBookings: number;
 	reviews: number; // backwards-compat; mirrors review_count
 	phoneNumber: string;
+	city: string | null;
+	street: string | null;
 	avg_rating: number | null;
 	review_count: number;
 }
@@ -78,6 +80,7 @@ export interface TechnicianProfileRow {
 	category_id: string;
 	profile_image: string | null;
 	description: string | null;
+	addresses: AddressRow[];
 	avg_rating?: number | null; // hydrated by getReviewAggregatesByTechnicianIds
 	review_count?: number;
 }
@@ -91,6 +94,8 @@ export interface TechnicianWithAddressRow {
 	phone: string | null;
 	is_available: boolean;
 	category_id: string;
+	profile_image: string | null;
+	description: string | null;
 	addresses: Array<{
 		city: string;
 		street: string;
@@ -110,11 +115,22 @@ export interface TechnicianListDTO {
 	phone: string | null;
 	is_available: boolean;
 	category_id: string;
+	profile_image: string | null;
+	description: string | null;
 	city: string | null;
 	street: string | null;
 	distance_km: number | null;
 	avg_rating: number | null;
 	review_count: number;
+}
+
+/** A service a technician offers (price range), via technician_services. */
+export interface TechnicianServiceDTO {
+	id: string;
+	name: string;
+	description: string;
+	min_price: number | null;
+	max_price: number | null;
 }
 
 export function toDTO(
@@ -148,6 +164,8 @@ export function toDTO(
 		phone: row.phone,
 		is_available: row.is_available,
 		category_id: row.category_id,
+		profile_image: row.profile_image ?? null,
+		description: row.description ?? null,
 		city: activeAddr?.city ?? null,
 		street: activeAddr?.street ?? null,
 		distance_km,
@@ -175,9 +193,15 @@ export interface ITechnicianQueryRepository {
 		query: string,
 	): Promise<TechnicianWithAddressRow[]>;
 	getTechnicianProfile(id: string): Promise<TechnicianProfileRow | null>;
+	getServicesForTechnician(
+		technicianId: string,
+	): Promise<TechnicianServiceDTO[]>;
 	getReviewAggregatesByTechnicianIds(
 		technicianIds: string[],
 	): Promise<Map<string, ReviewAggregate>>;
+	getTechnicianIdsWithActiveAvailability(
+		technicianIds: string[],
+	): Promise<Set<string>>;
 	/** Bayesian-ranked list via DB RPC (single source of truth for top-rated math). Order is final. */
 	listTopRatedTechnicians(
 		filters: TopRatedFilters,
@@ -268,6 +292,26 @@ export class TechniciansRepository implements ITechniciansRepository {
 		return result;
 	}
 
+	async getTechnicianIdsWithActiveAvailability(
+		technicianIds: string[],
+	): Promise<Set<string>> {
+		if (technicianIds.length === 0) return new Set();
+
+		const { data, error } = await supabaseAdmin
+			.from("availability_templates")
+			.select("technician_id")
+			.in("technician_id", technicianIds)
+			.eq("active", true);
+
+		if (error) throw new Error(error.message);
+
+		return new Set(
+			((data ?? []) as Array<{ technician_id: string }>).map(
+				(row) => row.technician_id,
+			),
+		);
+	}
+
 	async listTopRatedTechnicians(
 		filters: TopRatedFilters,
 	): Promise<TechnicianWithAddressRow[]> {
@@ -293,7 +337,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data: hydrationData, error: hydrationError } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, email, phone, addresses(city, street, latitude, longitude, is_active)",
+				"id, email, phone, profile_image, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.in("id", ids);
 
@@ -301,17 +345,24 @@ export class TechniciansRepository implements ITechniciansRepository {
 
 		const byId = new Map<
 			string,
-			{ email: string; phone: string | null; addresses: AddressRow[] }
+			{
+				email: string;
+				phone: string | null;
+				profile_image: string | null;
+				addresses: AddressRow[];
+			}
 		>();
 		for (const row of (hydrationData ?? []) as Array<{
 			id: string;
 			email: string;
 			phone: string | null;
+			profile_image: string | null;
 			addresses: AddressRow[] | null;
 		}>) {
 			byId.set(row.id, {
 				email: row.email,
 				phone: row.phone,
+				profile_image: row.profile_image ?? null,
 				addresses: row.addresses ?? [],
 			});
 		}
@@ -320,6 +371,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 			const hydration = byId.get(r.technician_id) ?? {
 				email: "",
 				phone: null,
+				profile_image: r.profile_image ?? null,
 				addresses: [],
 			};
 			return {
@@ -328,8 +380,10 @@ export class TechniciansRepository implements ITechniciansRepository {
 				last_name: r.last_name,
 				email: hydration.email,
 				phone: hydration.phone,
+				profile_image: hydration.profile_image ?? r.profile_image ?? null,
 				is_available: r.is_available,
 				category_id: r.category_id,
+				description: r.description,
 				addresses: hydration.addresses,
 				avg_rating: Number(r.rating),
 				review_count: Number(r.review_count),
@@ -341,7 +395,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description",
+				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.eq("id", id)
 			.maybeSingle();
@@ -352,11 +406,68 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const aggregates = await this.getReviewAggregatesByTechnicianIds([id]);
 		const agg = aggregates.get(id) ?? { avg_rating: 5, review_count: 0 };
 
+		const row = data as TechnicianProfileRow;
 		return {
-			...(data as TechnicianProfileRow),
+			...row,
+			addresses: row.addresses ?? [],
 			avg_rating: agg.avg_rating,
 			review_count: agg.review_count,
 		};
+	}
+
+	async getServicesForTechnician(
+		technicianId: string,
+	): Promise<TechnicianServiceDTO[]> {
+		const { data, error } = await supabaseAdmin
+			.from("technician_services")
+			.select("services(id, name, description, min_price, max_price)")
+			.eq("technician_id", technicianId);
+
+		if (error) throw new Error(error.message);
+
+		const rows = (data ?? []) as Array<{
+			services: TechnicianServiceDTO | TechnicianServiceDTO[] | null;
+		}>;
+
+		const services = rows
+			.map((row) =>
+				Array.isArray(row.services) ? (row.services[0] ?? null) : row.services,
+			)
+			.filter((s): s is TechnicianServiceDTO => s != null);
+
+		if (services.length > 0) return this.sortTechnicianServices(services);
+
+		// Existing production data may predate technician_services seeding. Fall back
+		// to the technician's category services so the detail page remains real-data only.
+		return this.getCategoryServicesForTechnician(technicianId);
+	}
+
+	private async getCategoryServicesForTechnician(
+		technicianId: string,
+	): Promise<TechnicianServiceDTO[]> {
+		const { data: technician, error: technicianError } = await supabaseAdmin
+			.from("technicians")
+			.select("category_id")
+			.eq("id", technicianId)
+			.maybeSingle();
+
+		if (technicianError) throw new Error(technicianError.message);
+		if (!technician) return [];
+
+		const { data, error } = await supabaseAdmin
+			.from("services")
+			.select("id, name, description, min_price, max_price")
+			.eq("category_id", (technician as { category_id: string }).category_id);
+
+		if (error) throw new Error(error.message);
+
+		return this.sortTechnicianServices((data ?? []) as TechnicianServiceDTO[]);
+	}
+
+	private sortTechnicianServices(
+		services: TechnicianServiceDTO[],
+	): TechnicianServiceDTO[] {
+		return [...services].sort((a, b) => a.name.localeCompare(b.name));
 	}
 
 	async getTechniciansByCategory(
@@ -365,7 +476,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)",
+				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.eq("category_id", categoryId)
 			.order("first_name", { ascending: true });
@@ -397,7 +508,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, is_available, category_id, addresses(city, street, latitude, longitude, is_active)",
+				"id, first_name, last_name, email, phone, is_available, category_id, profile_image, description, addresses(city, street, latitude, longitude, is_active)",
 			)
 			.eq("category_id", categoryId)
 			.or(`first_name.ilike.${term},last_name.ilike.${term}`)

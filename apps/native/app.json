@@ -2,7 +2,7 @@
   "expo": {
     "name": "FixIt",
     "slug": "fixit",
-    "version": "1.0.0",
+    "version": "0.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/fixit.png",
     "scheme": "fixitapp",
@@ -17,9 +17,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
-        "backgroundImage": "./src/assets/images/android-icon-background.png",
-        "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./src/assets/images/android-adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.fixitapp",

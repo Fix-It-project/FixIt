@@ -1,9 +1,22 @@
+import { env } from "@FixIt/env/server";
+import { AppError } from "../../shared/errors/app-error.js";
 import {
 	adminDashboardRepository,
 	type AdminDashboardRepository,
 	type DashboardOrderRow,
+	type DetailedOrderRow,
+	type HomeownerUserRow,
+	type TechnicianStatsRow,
 } from "./admin-dashboard.repository.js";
 import type {
+	AdminHomeowner,
+	AdminHomeownerHistory,
+	AdminOrder,
+	AdminOrderDetail,
+	AdminOrderReview,
+	AdminTechnician,
+	AdminTechnicianDocument,
+	AdminTechnicianHistory,
 	CategoryShare,
 	DashboardOrder,
 	DashboardOrderReview,
@@ -12,6 +25,7 @@ import type {
 	OrdersSeries,
 	SeriesRange,
 	StatusShare,
+	TechnicianStatus,
 	TopTech,
 } from "./admin-dashboard.types.js";
 
@@ -40,6 +54,24 @@ function collapseStatus(raw: string): StatusBucket {
 
 function isCompleted(row: DashboardOrderRow): boolean {
 	return row.status === "completed";
+}
+
+/** Who cancelled, inferred from the raw order status. */
+function cancelledByFrom(status: string): "customer" | "technician" | "system" | null {
+	switch (status) {
+		case "cancelled_by_user":
+			return "customer";
+		case "cancelled_by_technician":
+		case "declined_by_technician":
+			return "technician";
+		case "cancelled":
+		case "cancelled_no_fee":
+		case "cancelled_with_fee":
+		case "rejected":
+			return "system";
+		default:
+			return null;
+	}
 }
 
 // ---- Small formatters / helpers ----
@@ -190,7 +222,8 @@ function relativeWhen(iso: string): { when: string; time: string } {
 	let when: string;
 	if (days === 0) when = `Today, ${hhmm}`;
 	else if (days === 1) when = `Yesterday, ${hhmm}`;
-	else when = `${days} days ago`;
+	else if (days < 7) when = `${days} days ago`;
+	else when = `${then.getDate()}/${then.getMonth() + 1}/${then.getFullYear()}`;
 
 	let time: string;
 	if (mins < 60) time = `${Math.max(mins, 1)}m`;
@@ -497,6 +530,368 @@ export class AdminDashboardService {
 			.sort((a, b) => b.jobs - a.jobs);
 
 		return { overall, byCategory };
+	}
+
+	// --- Orders list (admin orders page) ---
+	async getAllOrders(): Promise<AdminOrder[]> {
+		const rows = await this.repo.getDetailedOrders();
+		return rows.map((r) => this.toAdminOrder(r));
+	}
+
+	async getOrderDetail(id: string): Promise<AdminOrderDetail> {
+		const r = await this.repo.getOrderDetail(id);
+		if (!r) throw AppError.notFound("Order not found");
+		const tech =
+			`${r.techFirstName ?? ""} ${r.techLastName ?? ""}`.trim() || "Unassigned";
+		return {
+			id: r.id,
+			problemDescription: r.problem_description,
+			status: r.status,
+			createdAt: r.created_at,
+			scheduledDate: r.scheduled_date,
+			scheduledStartAt: r.scheduled_start_at,
+			arrivedAt: r.arrived_at,
+			userCompletedAt: r.user_completed_at,
+			technicianCompletedAt: r.technician_completed_at,
+			finalPrice: r.final_price,
+			paymentMethod: r.payment_method,
+			cancellationReason: r.cancellation_reason,
+			attachment: r.attachment,
+			customer: r.customerName ?? "Unknown",
+			tech,
+			category: r.categoryName ?? "Unknown",
+			review: r.review
+				? {
+						rating: r.review.rating,
+						comment: r.review.comment,
+						date: new Date(r.review.created_at).toLocaleDateString("en-US", {
+							day: "numeric",
+							month: "short",
+							year: "numeric",
+						}),
+					}
+				: null,
+			quotes: r.quotes.map((q) => ({
+				proposedBy: q.proposed_by,
+				amount: q.amount,
+				round: q.round_number,
+				status: q.status,
+				notes: q.notes,
+				createdAt: q.created_at,
+			})),
+			events: r.events.map((e) => ({
+				type: e.event_type,
+				fromStatus: e.from_status,
+				toStatus: e.to_status,
+				actorRole: e.actor_role,
+				createdAt: e.created_at,
+			})),
+			payments: r.payments.map((p) => ({
+				amount: p.amount,
+				method: p.payment_method,
+				status: p.status,
+				paidAt: p.paid_at,
+			})),
+		};
+	}
+
+	private toAdminOrder(r: DetailedOrderRow): AdminOrder {
+		const tech =
+			`${r.techFirstName ?? ""} ${r.techLastName ?? ""}`.trim() || "Unassigned";
+		const customer = r.customerName ?? "Unknown";
+		const { when, time } = relativeWhen(r.created_at);
+
+		const review: AdminOrderReview | null = r.review
+			? {
+					rating: r.review.rating,
+					comment: r.review.comment,
+					customer,
+					date: new Date(r.review.created_at).toLocaleDateString("en-US", {
+						day: "numeric",
+						month: "short",
+					}),
+				}
+			: null;
+
+		return {
+			id: r.id,
+			customer,
+			tech,
+			techInitials: initialsOf(tech),
+			techColor: colorForName(tech),
+			category: r.categoryName ?? "Unknown",
+			status: r.status,
+			amount: r.final_price ?? 0,
+			time,
+			when,
+			createdAt: r.created_at,
+			cancelReason: r.cancellation_reason ?? undefined,
+			review,
+		};
+	}
+
+	// --- Homeowners (admin homeowners page) ---
+	async getHomeowners(): Promise<AdminHomeowner[]> {
+		const [users, orders, cities, reviewAgg, serviceCat, categories, technicians, reviewsByOrder] =
+			await Promise.all([
+				this.repo.getHomeownerUsers(),
+				this.repo.getOrders(),
+				this.repo.getCitiesByUser(),
+				this.repo.getReviewAggByUser(),
+				this.repo.getServiceCategoryMap(),
+				this.repo.getCategories(),
+				this.repo.getTechnicians(),
+				this.repo.getReviewsByOrderId(),
+			]);
+
+		const categoryNameById = new Map(
+			categories.map((c) => [c.id, c.name ?? "Unknown"]),
+		);
+		const techNameById = new Map(
+			technicians.map((t) => [
+				t.id,
+				`${t.first_name ?? ""} ${t.last_name ?? ""}`.trim() || "Unassigned",
+			]),
+		);
+
+		// Orders come newest-first from getOrders(); group by user preserving order.
+		const ordersByUser = new Map<string, DashboardOrderRow[]>();
+		for (const o of orders) {
+			if (!o.user_id) continue;
+			const arr = ordersByUser.get(o.user_id) ?? [];
+			arr.push(o);
+			ordersByUser.set(o.user_id, arr);
+		}
+
+		return users.map((u) =>
+			this.toAdminHomeowner(
+				u,
+				ordersByUser.get(u.id) ?? [],
+				cities,
+				reviewAgg,
+				serviceCat,
+				categoryNameById,
+				techNameById,
+				reviewsByOrder,
+			),
+		);
+	}
+
+	private toAdminHomeowner(
+		u: HomeownerUserRow,
+		userOrders: DashboardOrderRow[],
+		cities: Map<string, string>,
+		reviewAgg: Map<string, { sum: number; count: number }>,
+		serviceCat: Map<string, string>,
+		categoryNameById: Map<string, string>,
+		techNameById: Map<string, string>,
+		reviewsByOrder: Map<string, { rating: number }>,
+	): AdminHomeowner {
+		const name = u.full_name ?? "Unknown";
+
+		let completed = 0;
+		let cancelled = 0;
+		let spendValue = 0;
+		for (const o of userOrders) {
+			const bucket = collapseStatus(o.status);
+			if (bucket === "completed") {
+				completed += 1;
+				spendValue += o.final_price ?? 0;
+			} else if (bucket === "cancelled") {
+				cancelled += 1;
+			}
+		}
+
+		const lastOrderAt = userOrders[0]?.created_at ?? null;
+		const history: AdminHomeownerHistory[] = userOrders.map((o) => ({
+			id: o.id,
+			date: relativeWhen(o.created_at).when,
+			category: o.service_id
+				? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ?? "Unknown")
+				: "Unknown",
+			tech: o.technician_id ? (techNameById.get(o.technician_id) ?? "Unassigned") : "Unassigned",
+			status: o.status,
+			amount: o.final_price ?? 0,
+			rating: reviewsByOrder.get(o.id)?.rating ?? null,
+		}));
+
+		const agg = reviewAgg.get(u.id);
+		const avgRatingGiven = agg && agg.count > 0 ? Math.round((agg.sum / agg.count) * 100) / 100 : null;
+		const joinedDate = new Date(u.created_at);
+
+		return {
+			id: u.id,
+			name,
+			initials: initialsOf(name),
+			color: colorForName(name),
+			phone: u.phone ?? "—",
+			email: u.email ?? "—",
+			city: cities.get(u.id) ?? "—",
+			joined: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+			joinedAt: u.created_at,
+			totalOrders: userOrders.length,
+			completed,
+			cancelled,
+			spend: formatCompact(spendValue),
+			spendValue,
+			avgRatingGiven,
+			lastOrder: lastOrderAt ? relativeWhen(lastOrderAt).when : "—",
+			lastOrderAt,
+			blocked: u.blocked,
+			blockedReason: u.blocked_reason ?? undefined,
+			blockedAt: u.blocked_at
+				? new Date(u.blocked_at).toLocaleDateString("en-GB", {
+						day: "2-digit",
+						month: "short",
+						year: "numeric",
+					})
+				: undefined,
+			blockedBy: u.blocked_by ?? undefined,
+			history,
+		};
+	}
+
+	async blockHomeowner(id: string, reason: string): Promise<AdminHomeowner> {
+		const row = await this.repo.setBlocked(id, {
+			blocked: true,
+			reason,
+			by: env.ADMIN_EMAIL,
+		});
+		if (!row) throw AppError.notFound("Homeowner not found");
+		return this.findHomeownerOrThrow(id);
+	}
+
+	async unblockHomeowner(id: string): Promise<AdminHomeowner> {
+		const row = await this.repo.setBlocked(id, { blocked: false, reason: null, by: null });
+		if (!row) throw AppError.notFound("Homeowner not found");
+		return this.findHomeownerOrThrow(id);
+	}
+
+	private async findHomeownerOrThrow(id: string): Promise<AdminHomeowner> {
+		const all = await this.getHomeowners();
+		const found = all.find((h) => h.id === id);
+		if (!found) throw AppError.notFound("Homeowner not found");
+		return found;
+	}
+
+	// --- Technicians (admin technicians page) ---
+	async getTechnicians(): Promise<AdminTechnician[]> {
+		const rows = await this.repo.getTechnicianStats();
+		return rows.map((r) => this.toAdminTechnician(r));
+	}
+
+	private toAdminTechnician(s: TechnicianStatsRow): AdminTechnician {
+		const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "Unknown";
+		const documents: AdminTechnicianDocument[] = [
+			{ kind: "National ID", status: s.national_id ? "uploaded" : "missing" },
+			{ kind: "Criminal Record", status: s.criminal_record ? "uploaded" : "missing" },
+			{ kind: "Birth Certificate", status: s.birth_certificate ? "uploaded" : "missing" },
+		];
+		const joinedDate = new Date(s.created_at);
+		return {
+			id: s.id,
+			name,
+			initials: initialsOf(name),
+			color: colorForName(name),
+			specialty: s.category_name ?? "General",
+			city: s.city ?? "—",
+			phone: s.phone ?? "—",
+			email: s.email ?? "—",
+			joined: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+			joinedAt: s.created_at,
+			appliedAt: relativeWhen(s.created_at).when,
+			availability: s.is_available ? "online" : "offline",
+			rating: s.rating,
+			reviews: s.review_count,
+			completed: s.completed,
+			totalOrders: s.total_orders,
+			cancelled: s.cancelled,
+			revenue: formatCompact(s.revenue),
+			revenueValue: s.revenue,
+			yearsExperience: s.years_experience,
+			documents,
+			status: s.status as TechnicianStatus,
+			blocked: s.status === "blocked",
+			blockedReason: s.blocked_reason ?? undefined,
+			blockedAt: s.blocked_at
+				? new Date(s.blocked_at).toLocaleDateString("en-GB", {
+						day: "2-digit",
+						month: "short",
+						year: "numeric",
+					})
+				: undefined,
+			blockedBy: s.blocked_by ?? undefined,
+		};
+	}
+
+	async getTechnicianHistory(id: string): Promise<AdminTechnicianHistory[]> {
+		if (!(await this.repo.technicianExists(id))) {
+			throw AppError.notFound("Technician not found");
+		}
+		const [orders, serviceCat, categories, users, reviewsByOrder] = await Promise.all([
+			this.repo.getOrdersByTechnician(id),
+			this.repo.getServiceCategoryMap(),
+			this.repo.getCategories(),
+			this.repo.getUsersMap(),
+			this.repo.getReviewsByOrderId(),
+		]);
+		const categoryNameById = new Map(categories.map((c) => [c.id, c.name ?? "Unknown"]));
+
+		return orders.map((o): AdminTechnicianHistory => {
+			const r = reviewsByOrder.get(o.id);
+			return {
+				id: o.id,
+				date: relativeWhen(o.created_at).when,
+				category: o.service_id
+					? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ?? "Unknown")
+					: "Unknown",
+				customer: o.user_id ? (users.get(o.user_id) ?? "Unknown") : "Unknown",
+				status: o.status,
+				cancelReason: o.cancellation_reason,
+				cancelledBy: cancelledByFrom(o.status),
+				review: r ? { rating: r.rating, comment: r.comment } : null,
+				amount: o.final_price ?? 0,
+			};
+		});
+	}
+
+	async verifyTechnician(id: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, { status: "verified" });
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	async rejectTechnician(id: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, { status: "rejected" });
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	async blockTechnician(id: string, reason: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, {
+			status: "blocked",
+			reason,
+			by: env.ADMIN_EMAIL,
+		});
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	async unblockTechnician(id: string): Promise<AdminTechnician> {
+		const row = await this.repo.setTechnicianStatus(id, {
+			status: "verified",
+			reason: null,
+			by: null,
+		});
+		if (!row) throw AppError.notFound("Technician not found");
+		return this.findTechnicianOrThrow(id);
+	}
+
+	private async findTechnicianOrThrow(id: string): Promise<AdminTechnician> {
+		const all = await this.getTechnicians();
+		const found = all.find((t) => t.id === id);
+		if (!found) throw AppError.notFound("Technician not found");
+		return found;
 	}
 }
 

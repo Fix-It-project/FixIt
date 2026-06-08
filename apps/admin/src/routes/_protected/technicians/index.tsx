@@ -1,30 +1,35 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ActiveTech } from "@/types";
 import { ActiveTab } from "./components/ActiveTab";
 import { BlockedTab } from "./components/BlockedTab";
-import { BlockReasonModal } from "./components/BlockReasonModal";
 import { PendingTab } from "./components/PendingTab";
-import { TechProfileModal } from "./components/TechProfileModal";
-import { useTechState } from "./hooks/useTechState";
+import { RejectedTab } from "./components/RejectedTab";
+import {
+	useRejectTechnician,
+	useTechnicians,
+	useUnblockTechnician,
+	useVerifyTechnician,
+} from "./hooks/useTechnicians";
 
 export const Route = createFileRoute("/_protected/technicians/")({
 	component: TechniciansPage,
 });
 
 function TechniciansPage() {
-	const { activeTechs, blockedTechs, pendingTechs, blockTech, unblockTech, approveTech, rejectTech } = useTechState();
+	const navigate = useNavigate();
+	const { data, isLoading } = useTechnicians();
+	const verifyMutation = useVerifyTechnician();
+	const rejectMutation = useRejectTechnician();
+	const unblockMutation = useUnblockTechnician();
 
-	const [viewingTech, setViewingTech] = useState<ActiveTech | null>(null);
-	const [blockingTech, setBlockingTech] = useState<ActiveTech | null>(null);
+	const techs = data ?? [];
+	const activeTechs = techs.filter((t) => t.status === "verified");
+	const pendingTechs = techs.filter((t) => t.status === "pending");
+	const blockedTechs = techs.filter((t) => t.status === "blocked");
+	const rejectedTechs = techs.filter((t) => t.status === "rejected");
 
-	function handleBlock(reason: string) {
-		if (blockingTech) {
-			blockTech(blockingTech.id, reason);
-			setBlockingTech(null);
-		}
-	}
+	const openDetail = (id: string) =>
+		navigate({ to: "/technicians/$technicianId", params: { technicianId: id } });
 
 	return (
 		<div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 pb-12">
@@ -32,7 +37,9 @@ function TechniciansPage() {
 			<div>
 				<h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Technicians</h1>
 				<p className="text-sm text-muted-foreground mt-1">
-					{activeTechs.length} active · {pendingTechs.length} pending verification · {blockedTechs.length} blocked
+					{isLoading
+						? "Loading…"
+						: `${activeTechs.length} active · ${pendingTechs.length} pending verification · ${blockedTechs.length} blocked · ${rejectedTechs.length} rejected`}
 				</p>
 			</div>
 
@@ -60,49 +67,36 @@ function TechniciansPage() {
 							</span>
 						)}
 					</TabsTrigger>
+					<TabsTrigger value="rejected" className="flex-1 sm:flex-none">
+						Rejected
+						{rejectedTechs.length > 0 && (
+							<span className="ml-1.5 rounded-full bg-muted text-muted-foreground text-[11px] font-semibold px-1.5 py-0.5">
+								{rejectedTechs.length}
+							</span>
+						)}
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="active" className="mt-4">
-					<ActiveTab
-						techs={activeTechs}
-						onView={setViewingTech}
-						onBlock={setBlockingTech}
-					/>
+					<ActiveTab techs={activeTechs} onView={(tech) => openDetail(tech.id)} />
 				</TabsContent>
 
 				<TabsContent value="pending" className="mt-4">
 					<PendingTab
 						techs={pendingTechs}
-						onApprove={approveTech}
-						onReject={rejectTech}
+						onApprove={(id) => verifyMutation.mutate(id)}
+						onReject={(id) => rejectMutation.mutate(id)}
 					/>
 				</TabsContent>
 
 				<TabsContent value="blocked" className="mt-4">
-					<BlockedTab
-						techs={blockedTechs}
-						onUnblock={unblockTech}
-					/>
+					<BlockedTab techs={blockedTechs} onUnblock={(id) => unblockMutation.mutate(id)} />
+				</TabsContent>
+
+				<TabsContent value="rejected" className="mt-4">
+					<RejectedTab techs={rejectedTechs} onVerify={(id) => verifyMutation.mutate(id)} />
 				</TabsContent>
 			</Tabs>
-
-			{/* Modals */}
-			<TechProfileModal
-				tech={viewingTech}
-				open={!!viewingTech}
-				onClose={() => setViewingTech(null)}
-				onBlock={(id) => {
-					const tech = activeTechs.find((t) => t.id === id);
-					if (tech) { setViewingTech(null); setBlockingTech(tech); }
-				}}
-			/>
-
-			<BlockReasonModal
-				techName={blockingTech?.name ?? ""}
-				open={!!blockingTech}
-				onClose={() => setBlockingTech(null)}
-				onConfirm={handleBlock}
-			/>
 		</div>
 	);
 }
