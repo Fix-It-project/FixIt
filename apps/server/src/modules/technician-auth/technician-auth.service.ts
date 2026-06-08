@@ -1,14 +1,14 @@
-import {
-  technicianAuthRepository,
-  type TechnicianSignUpData,
-} from './technician-auth.repository.js';
+import { AppError } from '../../shared/errors/app-error.js';
 import { storageRepository, type DocumentFiles } from '../../shared/storage/storage.repository.js';
-import { techniciansRepository } from '../technicians/technicians.repository.js';
 import {
   addressesRepository,
   type SignUpAddressData,
 } from '../addresses/addresses.repository.js';
-import { AppError } from '../../shared/errors/app-error.js';
+import { techniciansRepository } from '../technicians/technicians.repository.js';
+import {
+  technicianAuthRepository,
+  type TechnicianSignUpData,
+} from './technician-auth.repository.js';
 
 export class TechnicianAuthService {
   // ─── Check email ──────────────────────────────────────────────────────────

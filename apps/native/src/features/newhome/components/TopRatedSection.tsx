@@ -1,8 +1,3 @@
-import { router } from "expo-router";
-import { MapPin, Star } from "lucide-react-native";
-import { useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, useWindowDimensions, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
@@ -18,6 +13,11 @@ import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategorie
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { router } from "expo-router";
+import { MapPin, Star } from "lucide-react-native";
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 
@@ -99,9 +99,9 @@ export function TopRatedSection() {
 							catMap.get(tech.category_id) ?? tr("technicianFallback");
 						const locationText = [
 							tech.city,
-							tech.distance_km != null
-								? `${tech.distance_km.toFixed(1)} km`
-								: null,
+							tech.distance_km == undefined
+								? null
+								: `${tech.distance_km.toFixed(1)} km`,
 						]
 							.filter(Boolean)
 							.join(" · ");
@@ -159,7 +159,7 @@ export function TopRatedSection() {
 												</Text>
 											</Badge>
 										</View>
-										{tech.avg_rating !== null ? (
+										{tech.avg_rating === null ? null : (
 											<View
 												style={{
 													flexDirection: "row",
@@ -177,7 +177,7 @@ export function TopRatedSection() {
 													{formatRating(tech.avg_rating)}
 												</Text>
 											</View>
-										) : null}
+										)}
 									</View>
 
 									{locationText ? (
@@ -222,9 +222,9 @@ export function TopRatedSection() {
 												categoryId: tech.category_id,
 												categoryName,
 												distanceKm:
-													tech.distance_km != null
-														? tech.distance_km.toFixed(1)
-														: undefined,
+													tech.distance_km == undefined
+														? undefined
+														: tech.distance_km.toFixed(1),
 											},
 										});
 									}}

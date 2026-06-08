@@ -1,7 +1,7 @@
-import serverlessExpress from '@codegenie/serverless-express';
 import app from '../src/shared-app.js';
 import usersRoutes from '../src/modules/users/users.routes.js';
+import { createHttpHandler } from './http-handler.js';
 
-app.use('/api/users', usersRoutes);
+app.use('/', usersRoutes);
 
-export const handler = serverlessExpress({ app });
+export const handler = createHttpHandler(app);

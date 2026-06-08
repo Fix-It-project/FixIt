@@ -29,12 +29,10 @@ const DAYS = [
 	"Saturday",
 ];
 
-const SLOT_HOURS = [8, 10, 12, 14, 16] as const;
+const SLOT_HOURS = [8, 11, 14, 17, 20] as const;
 
 function slotLabel(hour: number): string {
-	if (hour < 12) return `${hour}:00 AM`;
-	if (hour === 12) return "12:00 PM";
-	return `${hour - 12}:00 PM`;
+	return hour < 12 ? `${hour}:00 AM` : `${hour - 12}:00 PM`;
 }
 
 const DEFAULT_SCHEDULE: DaySchedule[] = DAYS.map((dayName, i) => ({

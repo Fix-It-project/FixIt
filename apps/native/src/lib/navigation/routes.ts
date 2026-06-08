@@ -14,14 +14,18 @@ export const ROUTES = {
 		techSignup: "/tech-signup" as const,
 		techSignupStep: (n: 2 | 3 | 4 | 5) => {
 			switch (n) {
-				case 2:
+				case 2: {
 					return "/tech-signup/step-2" as const;
-				case 3:
+				}
+				case 3: {
 					return "/tech-signup/step-3" as const;
-				case 4:
+				}
+				case 4: {
 					return "/tech-signup/step-4" as const;
-				default:
+				}
+				default: {
 					return "/tech-signup/step-5" as const;
+				}
 			}
 		},
 	},

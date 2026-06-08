@@ -33,6 +33,22 @@ const KNOWN_APP_ERROR_CODES: ReadonlySet<string> = new Set([
 	"RATE_LIMITED",
 ]);
 
+function extractCauseResponse(
+	cause: unknown,
+): { status?: number; data?: unknown; url?: string; method?: string } | undefined {
+	if (!cause || typeof cause !== "object") return undefined;
+	const maybe = cause as {
+		response?: { status?: number; data?: unknown };
+		config?: { url?: string; method?: string };
+	};
+	return {
+		status: maybe.response?.status,
+		data: maybe.response?.data,
+		url: maybe.config?.url,
+		method: maybe.config?.method,
+	};
+}
+
 function handleCacheError(
 	err: unknown,
 	source: CacheSource,
@@ -45,10 +61,20 @@ function handleCacheError(
 	// Known business errors → warn (no Expo red overlay). Unknown / unexpected
 	// errors still go through logger.error so real bugs stay visible in dev.
 	if (KNOWN_APP_ERROR_CODES.has(app.code)) {
+		const causeResponse = extractCauseResponse(app.opts.cause);
 		logger.warn(source, keyHead, {
 			code: app.code,
 			userMessage: app.userMessage,
 			token: app.opts.token,
+			machineCode: app.opts.token,
+			status: app.opts.status,
+			devMessage: app.opts.devMessage,
+			fields: app.opts.fields,
+			details: app.opts.details,
+			causeStatus: causeResponse?.status,
+			causeUrl: causeResponse?.url,
+			causeMethod: causeResponse?.method,
+			causeData: causeResponse?.data,
 		});
 	} else {
 		logger.error(source, keyHead, err);

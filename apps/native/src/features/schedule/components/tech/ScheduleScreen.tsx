@@ -37,7 +37,7 @@ const ALL_DAYS = [
 	"Friday",
 	"Saturday",
 ];
-const SLOT_HOURS = [8, 10, 12, 14, 16] as const;
+const SLOT_HOURS = [8, 11, 14, 17, 20] as const;
 const TODAY = new Date().toISOString().split("T")[0];
 
 interface Props {
