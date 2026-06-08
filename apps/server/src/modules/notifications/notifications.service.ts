@@ -81,6 +81,15 @@ export class NotificationsService {
     );
   }
 
+  /** Hard-deletes all devices + preferences for a recipient (account removal). */
+  async removeAllForRecipient(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<void> {
+    await notificationsRepository.deleteDevicesForRecipient(recipientRole, recipientId);
+    await notificationsRepository.deletePreferences(recipientRole, recipientId);
+  }
+
   async getPreferences(
     recipientRole: RecipientRole,
     recipientId: string,
@@ -186,7 +195,17 @@ export class NotificationsService {
       input.recipientRole,
       input.recipientId,
     );
-    if (devices.length === 0) return;
+    if (devices.length === 0) {
+      logger.info(
+        {
+          recipientRole: input.recipientRole,
+          recipientId: input.recipientId,
+          type: input.type,
+        },
+        "[notifications] no active devices — push skipped",
+      );
+      return;
+    }
 
     const payload: ExpoPushPayload = {
       type: input.type,

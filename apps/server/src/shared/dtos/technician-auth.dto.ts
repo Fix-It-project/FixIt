@@ -13,6 +13,10 @@ export const TechnicianSignUpBodySchema = z.object({
   apartment_no: z.string().optional(),
   latitude: z.coerce.number().optional().nullable(),
   longitude: z.coerce.number().optional().nullable(),
+  // Optional Expo push token captured at signup so we can notify the technician
+  // when an admin verifies them (a pending tech cannot reach the auth-gated
+  // device-register endpoint). Best-effort; absent on iOS / denied permission.
+  expo_push_token: z.string().optional(),
 });
 
 export const TechnicianSignInBodySchema = z.object({
@@ -26,6 +30,11 @@ export const TechnicianRefreshTokenBodySchema = z.object({
 
 export const CheckEmailBodySchema = z.object({
   email: z.string().email('Must be a valid email'),
+});
+
+export const CancelApplicationBodySchema = z.object({
+  email: z.string().email('Must be a valid email'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 export type TechnicianSignUpBody = z.infer<typeof TechnicianSignUpBodySchema>;

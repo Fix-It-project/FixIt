@@ -184,6 +184,16 @@ export class AddressesRepository implements IAddressesRepository {
     if (error) throw error;
   }
 
+  /** Hard-deletes every address belonging to a technician (account removal). */
+  async deleteByTechnicianId(technicianId: string) {
+    const { error } = await supabase
+      .from('addresses')
+      .delete()
+      .eq('technician_id', technicianId);
+
+    if (error) throw error;
+  }
+
   async setAddressActive(id: string, ownerId: string, ownerRole: 'user' | 'technician') {
     const ownerColumn = ownerRole === 'user' ? 'user_id' : 'technician_id';
 

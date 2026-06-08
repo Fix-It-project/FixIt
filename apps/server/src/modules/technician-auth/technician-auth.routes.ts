@@ -7,6 +7,7 @@ import {
   TechnicianSignInBodySchema,
   TechnicianRefreshTokenBodySchema,
   CheckEmailBodySchema,
+  CancelApplicationBodySchema,
 } from '../../shared/dtos/index.js';
 
 const router: RouterType = Router();
@@ -22,6 +23,7 @@ const documentFields = upload.fields([
 router.post('/check-email', validate({ body: CheckEmailBodySchema }), technicianAuthController.checkEmail);
 router.post('/signup', documentFields, validate({ body: TechnicianSignUpBodySchema }), technicianAuthController.signUp);
 router.post('/signin', validate({ body: TechnicianSignInBodySchema }), technicianAuthController.signIn);
+router.post('/cancel', validate({ body: CancelApplicationBodySchema }), technicianAuthController.cancelApplication);
 router.post('/signout', technicianAuthController.signOut);
 router.get('/profile', technicianAuthController.getCurrentTechnician);
 router.post('/refresh', validate({ body: TechnicianRefreshTokenBodySchema }), technicianAuthController.refreshToken);

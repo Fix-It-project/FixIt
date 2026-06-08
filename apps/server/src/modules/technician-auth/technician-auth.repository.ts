@@ -1,4 +1,4 @@
-import supabase from '../../shared/db/supabase.js';
+import supabase, { supabaseAdmin } from '../../shared/db/supabase.js';
 
 export interface TechnicianSignUpData {
   email: string;
@@ -15,6 +15,7 @@ export interface ITechnicianAuthRepository {
   signOut(accessToken: string): Promise<{ success: boolean; message: string }>;
   getUser(accessToken: string): Promise<any>;
   refreshToken(refreshToken: string): Promise<any>;
+  deleteAuthUser(userId: string): Promise<void>;
 }
 
 export class TechnicianAuthRepository implements ITechnicianAuthRepository {
@@ -69,6 +70,12 @@ export class TechnicianAuthRepository implements ITechnicianAuthRepository {
     const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
     if (error) throw error;
     return data;
+  }
+
+  /** Permanently deletes the Supabase Auth user (service-role admin op). */
+  async deleteAuthUser(userId: string) {
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (error) throw error;
   }
 }
 

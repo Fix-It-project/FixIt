@@ -1,5 +1,8 @@
 import type { Href } from "expo-router";
 
+/** Account states the technician verification screen can render. */
+export type TechVerificationState = "pending" | "blocked" | "rejected";
+
 export const ROUTES = {
 	root: "/" as const,
 
@@ -24,6 +27,15 @@ export const ROUTES = {
 					return "/tech-signup/step-5" as const;
 			}
 		},
+		techVerification: (params: {
+			state: TechVerificationState;
+			email?: string;
+			message?: string;
+			approved?: "true";
+		}) => ({
+			pathname: "/tech-verification" as const,
+			params,
+		}),
 	},
 
 	user: {

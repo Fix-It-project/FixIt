@@ -127,9 +127,27 @@ describe('technician-auth controller', () => {
           latitude: 31.95,
           longitude: 35.93,
         },
+        undefined,
       );
       expect(res.statusCode).toBe(201);
       expect(res.body).toEqual(payload);
+    });
+
+    it('forwards the expo_push_token when present in the body', async () => {
+      mockService.signUp.mockResolvedValue({ technician: { id: 'tech-1' } });
+
+      const req = mockReq({ body: { ...validBody, expo_push_token: 'ExponentPushToken[abc]' } });
+      req.files = uploadedFiles;
+      const res = createMockRes();
+      await runHandler(controller.signUp, req, res);
+
+      expect(mockService.signUp).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Object),
+        'ExponentPushToken[abc]',
+      );
+      expect(res.statusCode).toBe(201);
     });
 
     it('still calls service with undefined files when req.files is missing', async () => {
@@ -147,6 +165,7 @@ describe('technician-auth controller', () => {
           national_id: undefined,
         },
         expect.any(Object),
+        undefined,
       );
       expect(res.statusCode).toBe(201);
     });
