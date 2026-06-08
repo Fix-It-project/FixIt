@@ -58,3 +58,7 @@ jobs:
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
           STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
           ORDER_BUCKET: ${{ secrets.ORDER_BUCKET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+          ADMIN_SESSION_TTL_SECONDS: ${{ secrets.ADMIN_SESSION_TTL_SECONDS }}

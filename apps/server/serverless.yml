@@ -1,6 +1,9 @@
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: FixIt
 
+plugins:
+  - serverless-plugin-warmup
+
 build:
   esbuild:
     banner:
@@ -18,7 +21,10 @@ package:
 provider:
   name: aws
   runtime: nodejs24.x
-  region: eu-north-1
+  tracing:
+    lambda: true
+    apiGateway: true
+  region: eu-west-3
   stage: dev
   environment:
     SUPABASE_URL: ${env:SUPABASE_URL}
@@ -36,71 +42,124 @@ provider:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
   # domain: api.example.com
 
+custom:
+  warmup:
+    default:
+      enabled: false
+      events:
+        - schedule: rate(5 minutes)
+      concurrency: 3
+      prewarm: true
+      verbose: false
+      logRetentionInDays: 14
+      payload:
+        source: serverless-plugin-warmup
+
 functions:
+  adminAuth:
+    handler: serverless-deploy/admin-auth-lambda.handler
+    events:
+      - http:
+          path: api/admin/auth/{proxy+}
+          method: any
+          cors: true
+
+  adminDashboard:
+    handler: serverless-deploy/admin-dashboard-lambda.handler
+    events:
+      - http:
+          path: api/admin/dashboard/{proxy+}
+          method: any
+          cors: true
+
   auth:
     handler: serverless-deploy/auth-lambda.handler
+    warmup:
+      default:
+        enabled: prod
     events:
-      - httpApi:
-          path: /api/auth/{proxy+}
-          method: ANY
+      - http:
+          path: api/auth/{proxy+}
+          method: any
+          cors: true
 
   technicianAuth:
     handler: serverless-deploy/technician-auth-lambda.handler
+    warmup:
+      default:
+        enabled: prod
     events:
-      - httpApi:
-          path: /api/technician-auth/{proxy+}
-          method: ANY
+      - http:
+          path: api/technician-auth/{proxy+}
+          method: any
+          cors: true
   users:
     handler: serverless-deploy/users-lambda.handler
     events:
-      - httpApi:
-          path: /api/users/{proxy+}
-          method: ANY
+      - http:
+          path: api/users/{proxy+}
+          method: any
 
   technicians:
     handler: serverless-deploy/technicians-lambda.handler
     events:
-      - httpApi:
-          path: /api/technicians/{proxy+}
-          method: ANY
+      - http:
+          path: api/technicians/{proxy+}
+          method: any
+          cors: true
 
   addresses:
     handler: serverless-deploy/addresses-lambda.handler
     events:
-      - httpApi:
-          path: /api/addresses/{proxy+}
-          method: ANY
+      - http:
+          path: api/addresses/{proxy+}
+          method: any
+          cors: true
   categories:
     handler: serverless-deploy/categories-lambda.handler
     events:
-      - httpApi:
-          path: /api/categories/{proxy+}
-          method: ANY
+      - http:
+          path: api/categories/{proxy+}
+          method: any
+          cors: true
 
   technicianCalendar:
     handler: serverless-deploy/technician-calendar-lambda.handler
+    warmup:
+      default:
+        enabled: prod
     events:
-      - httpApi:
-          path: /api/technician-calendar/{proxy+}
-          method: ANY
+      - http:
+          path: api/technician-calendar/{proxy+}
+          method: any
+          cors: true
 
   orders:
     handler: serverless-deploy/orders-lambda.handler
+    warmup:
+      default:
+        enabled: prod
     events:
-      - httpApi:
-          path: /api/orders/{proxy+}
-          method: ANY
+      - http:
+          path: api/orders/{proxy+}
+          method: any
+          cors: true
 
   reviews:
     handler: serverless-deploy/reviews-lambda.handler
     events:
-      - httpApi:
-          path: /api/reviews/{proxy+}
-          method: ANY
+      - http:
+          path: api/reviews/{proxy+}
+          method: any
+          cors: true
 
   notifications:
     handler: serverless-deploy/notifications-lambda.handler
+    warmup:
+      default:
+        enabled: prod
     events:
-      - httpApi:
-          path: /api/notifications/{proxy+}
-          method: ANY
+      - http:
+          path: api/notifications/{proxy+}
+          method: any
+          cors: true
