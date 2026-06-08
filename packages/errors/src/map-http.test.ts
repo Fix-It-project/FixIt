@@ -14,6 +14,25 @@ describe("mapHttpStatus", () => {
 		expect(e.opts.fields).toEqual({ email: "required" });
 	});
 
+	it("400 with validate middleware details → opts.fields populated", () => {
+		const e = mapHttpStatus(400, {
+			error: "scheduled_start_at must be a valid ISO datetime",
+			details: [
+				{
+					field: "scheduled_start_at",
+					message: "scheduled_start_at must be a valid ISO datetime",
+				},
+			],
+		});
+		expect(e.code).toBe("VALIDATION");
+		expect(e.userMessage).toBe(
+			"scheduled_start_at must be a valid ISO datetime",
+		);
+		expect(e.opts.fields).toEqual({
+			scheduled_start_at: "scheduled_start_at must be a valid ISO datetime",
+		});
+	});
+
 	it("401 → UNAUTHENTICATED", () => {
 		expect(mapHttpStatus(401).code).toBe("UNAUTHENTICATED");
 	});

@@ -1,7 +1,7 @@
 const CAIRO_TZ = "Africa/Cairo";
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-export const BOOKING_SLOT_HOURS = [8, 10, 12, 14, 16] as const;
+export const BOOKING_SLOT_HOURS = [8, 11, 14, 17, 20] as const;
 export type BookingSlotHour = (typeof BOOKING_SLOT_HOURS)[number];
 
 export interface BookingSlotOption {
@@ -14,12 +14,7 @@ export const BOOKING_SLOT_OPTIONS: ReadonlyArray<BookingSlotOption> =
 	BOOKING_SLOT_HOURS.map((hour) => ({
 		hour,
 		value: `${String(hour).padStart(2, "0")}:00`,
-		label:
-			hour < 12
-				? `${hour}:00 AM`
-				: hour === 12
-					? "12:00 PM"
-					: `${hour - 12}:00 PM`,
+		label: hour < 12 ? `${hour}:00 AM` : `${hour - 12}:00 PM`,
 	}));
 
 function cairoMidnightUtc(dateStr: string): Date {
@@ -54,11 +49,29 @@ function cairoMidnightUtc(dateStr: string): Date {
 	return new Date(guess - offsetMs);
 }
 
+function cairoOffsetString(dateStr: string): string {
+	if (!ISO_DATE.test(dateStr)) {
+		throw new Error("Invalid date format. Use YYYY-MM-DD.");
+	}
+
+	const [yStr, mStr, dStr] = dateStr.split("-");
+	const y = Number(yStr);
+	const m = Number(mStr);
+	const d = Number(dStr);
+	const utcMidnight = Date.UTC(y, m - 1, d, 0, 0, 0, 0);
+	const cairoMidnight = cairoMidnightUtc(dateStr).getTime();
+	const offsetMinutes = Math.round((utcMidnight - cairoMidnight) / 60_000);
+	const sign = offsetMinutes >= 0 ? "+" : "-";
+	const absoluteMinutes = Math.abs(offsetMinutes);
+	const hours = Math.floor(absoluteMinutes / 60);
+	const minutes = absoluteMinutes % 60;
+
+	return `${sign}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
 export function buildCairoSlotIsoUtc(
 	dateYmd: string,
 	slotHour: BookingSlotHour,
 ): string {
-	const midnightUtc = cairoMidnightUtc(dateYmd);
-	const slotInstant = new Date(midnightUtc.getTime() + slotHour * 3_600_000);
-	return slotInstant.toISOString();
+	return `${dateYmd}T${String(slotHour).padStart(2, "0")}:00:00${cairoOffsetString(dateYmd)}`;
 }
