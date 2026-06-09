@@ -204,7 +204,7 @@ export default function RecommendScreen() {
 												: `${result.distance_km.toFixed(1)} km`,
 										]
 											.filter(Boolean)
-											.join(" Â· ")}
+											.join(" · ")}
 									</Text>
 									{result.base_hourly_rate != undefined && (
 										<Text variant="caption" className="text-muted-foreground">
