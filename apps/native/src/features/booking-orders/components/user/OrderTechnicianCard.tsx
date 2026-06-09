@@ -2,11 +2,11 @@ import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
 import { CATEGORIES } from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -26,7 +26,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 	const nameFontSize = width < 360 ? 16 : 18;
 
 	return (
-		<View className="mb-stack-lg rounded-card border border-edge bg-card p-card-roomy">
+		<View className="mb-stack-lg rounded-card bg-card p-card-roomy">
 			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
 				{order.technician_image ? (
 					<Image
@@ -73,7 +73,11 @@ export default function OrderTechnicianCard({ order }: Props) {
 						{order.technician_name ?? "Technician"}
 					</Text>
 					<View className="mt-stack-xs min-w-0 flex-row items-center gap-stack-xs">
-						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon
+							size={spacing.icon.caption}
+							color={categoryColor}
+							strokeWidth={2}
+						/>
 						<Text
 							variant="bodySm"
 							style={{ flex: 1, color: themeColors.textSecondary }}

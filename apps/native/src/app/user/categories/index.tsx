@@ -1,16 +1,15 @@
 import { router } from "expo-router";
-import {
-	ActivityIndicator,
-	ScrollView,
-	View,
-} from "react-native";
+import { ChevronLeft } from "lucide-react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { Colors } from "@/src/constants/design-tokens";
 import CategoryTile from "@/src/features/categories/components/user/CategoryTile";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
-import { Colors } from "@/src/constants/design-tokens";
 
 export default function CategoriesScreen() {
 	const {
@@ -30,9 +29,16 @@ export default function CategoriesScreen() {
 	);
 
 	return (
-		<View className="flex-1 bg-surface">
-			<View className="px-screen-x pt-card pb-stack-md">
-				<Text variant="h2" className="text-content">
+		<ScreenSafeAreaView edges={["top"]} className="flex-1 bg-surface">
+			<View className="flex-row items-center gap-stack-sm px-screen-x pt-card pb-stack-md">
+				<PressableScale
+					onPress={() => router.back()}
+					accessibilityRole="button"
+					accessibilityLabel="Go back"
+				>
+					<ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2} />
+				</PressableScale>
+				<Text variant="h2" className="flex-1 text-content">
 					Categories
 				</Text>
 			</View>
@@ -72,6 +78,6 @@ export default function CategoriesScreen() {
 					</View>
 				</ScrollView>
 			)}
-		</View>
+		</ScreenSafeAreaView>
 	);
 }

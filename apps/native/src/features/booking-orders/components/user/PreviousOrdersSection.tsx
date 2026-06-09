@@ -1,13 +1,12 @@
 import { RotateCcw } from "lucide-react-native";
-import {
-	FlatList,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { FlatList, useWindowDimensions, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/constants/mock-data/user";
 import { spacing } from "@/src/constants/design-tokens";
+import {
+	PREVIOUS_ORDERS,
+	type PreviousOrder,
+} from "@/src/constants/mock-data/user";
 
 const CARD_WIDTH_RATIO = 0.75;
 const CARD_SPACING = spacing.stack.sm;
@@ -60,7 +59,7 @@ function OrderCard({
 			</View>
 
 			{/* Bottom row: date + price */}
-			<View className="mt-control-search flex-row items-center justify-between border-t border-surface-elevated pt-stack-sm">
+			<View className="mt-control-search flex-row items-center justify-between border-edge border-t pt-stack-sm">
 				<Text variant="caption" className="text-content-muted">
 					{item.date}
 				</Text>

@@ -175,7 +175,7 @@ export default function RecommendScreen() {
 							}}
 						>
 							<View
-								className="rounded-xl border border-border bg-card"
+								className="rounded-xl bg-card"
 								style={{
 									padding: 16,
 									flexDirection: "row",

@@ -33,7 +33,7 @@ function SortBarComponent({ activeSort, onSortPress }: SortBarProps) {
 							className={
 								isActive
 									? "h-control-chip justify-center rounded-compact bg-app-primary px-control-pill-x"
-									: "h-control-chip justify-center rounded-compact bg-surface-elevated px-control-pill-x"
+									: "h-control-chip justify-center rounded-compact bg-surface-muted px-control-pill-x"
 							}
 							accessibilityRole="button"
 							accessibilityState={{ selected: isActive }}

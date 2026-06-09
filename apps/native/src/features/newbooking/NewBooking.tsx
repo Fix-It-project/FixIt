@@ -112,7 +112,7 @@ export default function NewBooking() {
 					) : (
 						<Animated.View
 							entering={entering(1)}
-							className="overflow-hidden rounded-card border border-edge bg-card"
+							className="overflow-hidden rounded-card bg-card"
 						>
 							<AvailabilityCalendar
 								templates={templates}
