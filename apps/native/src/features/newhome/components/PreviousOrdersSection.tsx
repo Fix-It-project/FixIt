@@ -90,7 +90,7 @@ export function PreviousOrdersSection() {
 			{!isLoading && !isError && completedOrders.length === 0 && (
 				<View style={{ paddingHorizontal: 20 }}>
 					<View
-						className="rounded-[14px] border border-border bg-card"
+						className="rounded-[14px] bg-card"
 						style={{ padding: 14, gap: 4 }}
 					>
 						<Text variant="label" className="text-foreground">

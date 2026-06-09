@@ -9,7 +9,7 @@ const BOOK_BUTTON_WIDTH =
 /** Card-shaped placeholder shown while the technician list loads / refetches. */
 export function TechnicianCardSkeleton() {
 	return (
-		<View className="mx-screen-x mb-stack-md rounded-compact border border-edge bg-card px-card-compact py-stack-md">
+		<View className="mx-screen-x mb-stack-md rounded-compact bg-card px-card-compact py-stack-md">
 			<View className="flex-row items-start gap-stack-md">
 				<Skeleton className="h-avatar-lg w-avatar-lg rounded-pill" />
 				<View className="flex-1 gap-stack-xs">

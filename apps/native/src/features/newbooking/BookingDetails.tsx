@@ -3,10 +3,12 @@ import {
 	CalendarClock,
 	type LucideIcon,
 	MapPin,
+	Star,
 	Wrench,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, {
 	FadeInDown,
 	useReducedMotion,
@@ -15,7 +17,6 @@ import Toast from "react-native-toast-message";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
-import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_SLIDE_UP,
@@ -31,9 +32,12 @@ import {
 	type BookingSlotHour,
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
+import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
+import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { showError } from "@/src/lib/errors";
 import { formatAddress } from "@/src/lib/helpers/format-address";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import {
 	type AttachmentInfo,
@@ -54,22 +58,22 @@ interface SummaryRowProps {
 function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="flex-row items-start gap-stack-md">
-			<View className="h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-input bg-surface-elevated">
+		<View className="flex-row items-start gap-stack-md py-stack-xs">
+			<View className="mt-px h-control-icon-box-sm w-control-icon-box-sm items-center justify-center">
 				<Icon
 					size={spacing.icon.sm}
-					color={themeColors.textSecondary}
+					color={themeColors.primary}
 					strokeWidth={2}
 				/>
 			</View>
 			<View className="min-w-0 flex-1">
-				<Text variant="caption" className="text-content-muted">
+				<Text variant="buttonMd" className="font-semibold text-content">
 					{label}
 				</Text>
 				<Text
-					variant="buttonMd"
-					className="mt-stack-xs text-content"
-					numberOfLines={2}
+					variant="bodySm"
+					className="mt-px text-content"
+					numberOfLines={label === "Location" ? 3 : 2}
 				>
 					{value}
 				</Text>
@@ -78,7 +82,24 @@ function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
 	);
 }
 
+function formatRating(value: number | null | undefined): string {
+	if (typeof value !== "number" || Number.isNaN(value)) return "New";
+	return value.toFixed(1);
+}
+
+function formatDateLabel(value: string): string {
+	if (!value) return "";
+	const parsed = new Date(`${value}T00:00:00`);
+	if (Number.isNaN(parsed.getTime())) return value;
+	return parsed.toLocaleDateString(undefined, {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+}
+
 export default function BookingDetails() {
+	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const params = useLocalSearchParams<{
 		technicianId: string | string[];
@@ -92,6 +113,7 @@ export default function BookingDetails() {
 	}>();
 
 	const technicianId = getStringParam(params.technicianId);
+	const technicianNameParam = getStringParam(params.technicianName);
 	const serviceId = getStringParam(params.serviceId);
 	const serviceName = getStringParam(params.serviceName);
 	const selectedDate = getStringParam(params.selectedDate);
@@ -106,6 +128,9 @@ export default function BookingDetails() {
 		isError: isAddressError,
 		isLoading: isLoadingAddresses,
 	} = useAddressesQuery();
+	const { data: technicianProfile } = useTechnicianProfileQuery(
+		technicianId || null,
+	);
 	const { mutateAsync: createBooking, isPending } = useCreateBookingMutation();
 
 	const selectedAddress =
@@ -116,13 +141,21 @@ export default function BookingDetails() {
 			"",
 		[selectedHour],
 	);
+	const technicianName =
+		technicianProfile?.name || technicianNameParam || "Technician";
+	const technicianDescription =
+		technicianProfile?.description || "Professional home service technician";
+	const technicianRating = formatRating(technicianProfile?.avg_rating);
+	const reviewCount = technicianProfile?.review_count ?? 0;
+	const completedOrders = technicianProfile?.completedOrders ?? 0;
 	const appointmentLabel =
 		selectedDate && selectedTimeLabel
-			? `${selectedDate} at ${selectedTimeLabel}`
+			? `${formatDateLabel(selectedDate)} at ${selectedTimeLabel}`
 			: "No date and time selected";
 	const addressLabel = isLoadingAddresses
 		? "Loading location"
 		: formatAddress(selectedAddress);
+	const initials = getPfpInitialsFallback(technicianName);
 
 	const fallbackRoute = ROUTES.user.bookingRoot(technicianId);
 	const goBack = useSafeBack(fallbackRoute);
@@ -190,73 +223,114 @@ export default function BookingDetails() {
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
-			<KeyboardAvoidingView
-				className="flex-1"
-				behavior={Platform.OS === "ios" ? "padding" : undefined}
-			>
-				<View className="flex-1 bg-surface">
-					<PageHeader
-						title="Booking Details"
-						subtitle={serviceName || undefined}
-						variant="app-primary"
-						onBackPress={goBack}
-					/>
+			<View className="flex-1 bg-surface">
+				<PageHeader
+					title="Booking Details"
+					subtitle={serviceName || undefined}
+					variant="app-primary"
+					onBackPress={goBack}
+				/>
 
-					<ScrollView
-						className="flex-1"
-						contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-						keyboardShouldPersistTaps="handled"
-						showsVerticalScrollIndicator={false}
+				<KeyboardAwareScrollView
+					className="flex-1"
+					contentContainerStyle={{ padding: 20, paddingBottom: 20 }}
+					keyboardShouldPersistTaps="handled"
+					keyboardDismissMode="interactive"
+					showsVerticalScrollIndicator={false}
+					bottomOffset={spacing.stack.xl}
+				>
+					<Animated.View
+						entering={entering(0)}
+						className="mb-card flex-row items-center gap-stack-md border-edge border-b pb-card"
 					>
-						<Animated.View
-							entering={entering(0)}
-							className="mb-card gap-stack-md rounded-card border border-edge bg-card p-card-compact"
-						>
-							<Text variant="buttonMd" className="font-semibold text-content">
-								Booking summary
+						<TechnicianAvatar
+							id={technicianId || technicianName}
+							initials={initials}
+							imageUrl={technicianProfile?.profilePicture}
+							size="lg"
+						/>
+						<View className="min-w-0 flex-1">
+							<View className="flex-row items-center">
+								<Text
+									variant="buttonLg"
+									className="font-semibold text-content"
+									numberOfLines={1}
+								>
+									{technicianName}
+								</Text>
+								<View className="ml-stack-sm flex-row items-center gap-stack-xs">
+									<Star
+										size={spacing.icon.xs}
+										color={themeColors.ratingDefault}
+										fill={themeColors.ratingDefault}
+									/>
+									<Text
+										variant="caption"
+										className="font-semibold text-content"
+									>
+										{technicianRating}
+									</Text>
+									<Text variant="caption" className="text-content-muted">
+										({reviewCount})
+									</Text>
+								</View>
+							</View>
+							<Text
+								variant="bodySm"
+								className="mt-stack-xs text-content-muted"
+								numberOfLines={2}
+							>
+								{technicianDescription}
 							</Text>
-							<SummaryRow
-								icon={Wrench}
-								label="Service"
-								value={serviceName || "Service not selected"}
-							/>
-							<Separator />
-							<SummaryRow
-								icon={CalendarClock}
-								label="Appointment"
-								value={appointmentLabel}
-							/>
-							<Separator />
-							<SummaryRow icon={MapPin} label="Location" value={addressLabel} />
-						</Animated.View>
-
-						<Animated.View entering={entering(1)}>
-							<BookingProblemCard
-								description={description}
-								onDescriptionChange={setDescription}
-								attachment={attachment}
-								onAttachmentChange={setAttachment}
-							/>
-						</Animated.View>
-					</ScrollView>
+							<Text
+								variant="caption"
+								className="mt-stack-xs text-content-muted"
+							>
+								{completedOrders} completed jobs
+							</Text>
+						</View>
+					</Animated.View>
 
 					<Animated.View
-						entering={entering(2)}
-						className="px-card pt-stack-md pb-stack-lg"
+						entering={entering(1)}
+						className="mb-card gap-stack-sm"
 					>
-						<Button
-							disabled={!canConfirm}
-							onPress={handleConfirm}
-							className="w-full"
-							testID="confirm-booking"
-						>
-							<Text variant="buttonLg" className="text-surface-on-primary">
-								{isPending ? "Booking..." : "Confirm Booking"}
-							</Text>
-						</Button>
+						<SummaryRow
+							icon={Wrench}
+							label="Service"
+							value={serviceName || "Service not selected"}
+						/>
+						<SummaryRow
+							icon={CalendarClock}
+							label="Schedule"
+							value={appointmentLabel}
+						/>
+						<SummaryRow icon={MapPin} label="Location" value={addressLabel} />
 					</Animated.View>
-				</View>
-			</KeyboardAvoidingView>
+
+					<Animated.View entering={entering(2)}>
+						<BookingProblemCard
+							description={description}
+							onDescriptionChange={setDescription}
+							attachment={attachment}
+							onAttachmentChange={setAttachment}
+						/>
+					</Animated.View>
+				</KeyboardAwareScrollView>
+
+				<Animated.View entering={entering(3)} className="px-card pb-stack-lg">
+					<Button
+						disabled={!canConfirm}
+						onPress={handleConfirm}
+						className="w-full rounded-button"
+						testID="confirm-booking"
+					>
+						<Text variant="buttonLg" className="text-surface-on-primary">
+							{isPending ? "Booking..." : "Confirm Booking"}
+						</Text>
+					</Button>
+				</Animated.View>
+			</View>
 		</ScreenSafeAreaView>
 	);
 }

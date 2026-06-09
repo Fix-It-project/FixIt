@@ -286,7 +286,7 @@ export default function NewTechnicians() {
 				/>
 
 				<View className="px-screen-x pt-stack-lg pb-stack-lg">
-					<View className="h-control-search flex-row items-center gap-control-search rounded-input border border-edge bg-card px-control-search">
+					<View className="h-control-search flex-row items-center gap-control-search rounded-input bg-card px-control-search">
 						<Search
 							size={spacing.icon.sm}
 							color={themeColors.textMuted}

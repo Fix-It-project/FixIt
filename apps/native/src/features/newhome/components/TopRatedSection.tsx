@@ -114,8 +114,6 @@ export function TopRatedSection() {
 									width: cardWidth,
 									minHeight: 154,
 									borderRadius: 14,
-									borderWidth: 1,
-									borderColor: t.borderDefault,
 									padding: 14,
 									justifyContent: "space-between",
 									gap: 12,

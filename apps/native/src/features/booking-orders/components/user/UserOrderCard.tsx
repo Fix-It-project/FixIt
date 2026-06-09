@@ -3,6 +3,7 @@ import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
 	formatDate,
@@ -12,7 +13,6 @@ import {
 import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
 import { CATEGORIES } from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -37,7 +37,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 			onPress={onPress}
 			activeOpacity={0.7}
 			testID="order-card"
-			className="mb-stack-md rounded-card border border-edge bg-card p-card"
+			className="mb-stack-md rounded-card bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{/* Avatar */}
@@ -53,7 +53,10 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
 						style={{ backgroundColor: avatarColor }}
 					>
-						<Text variant="buttonLg" style={{ color: themeColors.surfaceOnPrimary }}>
+						<Text
+							variant="buttonLg"
+							style={{ color: themeColors.surfaceOnPrimary }}
+						>
 							{initials}
 						</Text>
 					</View>
@@ -69,7 +72,11 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						{order.technician_name ?? "Technician"}
 					</Text>
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon
+							size={spacing.icon.caption}
+							color={categoryColor}
+							strokeWidth={2}
+						/>
 						<Text
 							variant="caption"
 							style={{ color: themeColors.textSecondary }}

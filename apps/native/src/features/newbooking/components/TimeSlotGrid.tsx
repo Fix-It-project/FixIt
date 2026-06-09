@@ -58,7 +58,7 @@ function SlotChip({
 	const themeColors = useThemeColors();
 	const disabled = !isAvailable || isBooked;
 	const textColor = isSelected
-		? themeColors.primary
+		? themeColors.surfaceOnPrimary
 		: disabled
 			? themeColors.textMuted
 			: themeColors.textPrimary;
@@ -79,17 +79,14 @@ function SlotChip({
 				disabled={disabled}
 				pressedScale={0.965}
 				testID={disabled ? undefined : "time-slot"}
-				className={`items-center rounded-card border px-card py-stack-md ${
+				className={`items-center rounded-card px-card py-stack-md ${
 					isSelected
-						? "bg-app-primary-light"
+						? "bg-app-primary"
 						: disabled
 							? "bg-surface-elevated"
 							: "bg-card"
 				}`}
 				style={{
-					borderColor: isSelected
-						? themeColors.primary
-						: themeColors.borderDefault,
 					opacity: disabled ? 0.55 : 1,
 				}}
 			>

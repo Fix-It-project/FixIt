@@ -197,7 +197,7 @@ export function CategoryRow() {
 										</View>
 										<Text
 											variant="caption"
-											className="text-center text-foreground"
+											className="text-center font-bold text-foreground"
 											numberOfLines={2}
 											style={{ maxWidth: 64 }}
 										>

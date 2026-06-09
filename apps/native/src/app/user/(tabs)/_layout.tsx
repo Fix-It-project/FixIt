@@ -2,35 +2,29 @@ import { router, Tabs, usePathname } from "expo-router";
 import {
 	Bell,
 	ClipboardList,
-	Grid2X2,
 	House,
 	type LucideProps,
 	MessageCircle,
 	User,
 } from "lucide-react-native";
-import {
-	Platform,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import { Button } from "@/src/components/ui/button";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import {
-	elevation,
-	shadowStyle,
-	spacing,
-} from "@/src/constants/design-tokens";
-import { Colors } from "@/src/constants/design-tokens";
-import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
-import { ROUTES } from "@/src/lib/navigation";
 import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/components/layout/tab-bar";
-import { useThemeColors } from "@/src/constants/design-tokens";
-
+import { Button } from "@/src/components/ui/button";
+import {
+	Colors,
+	elevation,
+	shadowStyle,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
+import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
+import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/navigation";
 
 interface ChatFabProps {
 	readonly bottom: number;
@@ -41,10 +35,6 @@ interface ChatFabProps {
 
 function HomeTabIcon({ color, size }: Readonly<LucideProps>) {
 	return <House size={size} color={color} strokeWidth={1.8} />;
-}
-
-function CategoriesTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <Grid2X2 size={size} color={color} strokeWidth={1.8} />;
 }
 
 function OrdersTabIcon({ color, size }: Readonly<LucideProps>) {
@@ -131,13 +121,6 @@ export default function UserTabsLayout() {
 						options={{
 							title: "Home",
 							tabBarIcon: HomeTabIcon,
-						}}
-					/>
-					<Tabs.Screen
-						name="categories/index"
-						options={{
-							title: "Categories",
-							tabBarIcon: CategoriesTabIcon,
 						}}
 					/>
 					<Tabs.Screen

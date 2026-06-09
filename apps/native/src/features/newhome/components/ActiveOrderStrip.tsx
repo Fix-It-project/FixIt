@@ -150,7 +150,7 @@ export function ActiveOrderStrip() {
 			entering={FadeInDown.delay(80).duration(DUR_REVEAL).easing(EASE_OUT_EXPO)}
 			className="px-5"
 		>
-			<View className="overflow-hidden rounded-[14px] border border-border bg-card">
+			<View className="overflow-hidden rounded-[14px] bg-card">
 				{/* Row 1 — status pill + order ref */}
 				<View
 					style={{

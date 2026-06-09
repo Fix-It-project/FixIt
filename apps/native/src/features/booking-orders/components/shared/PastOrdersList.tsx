@@ -2,9 +2,10 @@ import { Image } from "expo-image";
 import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { ScrollView, TouchableOpacity, View } from "react-native";
-import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import PageHeader from "@/src/components/layout/PageHeader";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	formatDate,
 	formatTime,
@@ -14,11 +15,9 @@ import {
 	getOrderStatusBadge,
 	type OrderStatusPerspective,
 } from "@/src/features/booking-orders/utils/order-status-ui";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import { spacing } from "@/src/constants/design-tokens";
 import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { useDebounce } from "@/src/hooks/useDebounce";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
 
 export interface PastOrdersListItem {
@@ -67,7 +66,7 @@ function PastOrderCard({
 		<TouchableOpacity
 			activeOpacity={0.85}
 			onPress={goToOrder}
-			className="mb-stack-md rounded-card border border-edge bg-card p-card"
+			className="mb-stack-md rounded-card bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{item.avatarImage ? (
@@ -102,7 +101,11 @@ function PastOrderCard({
 						{item.name ?? item.fallbackName}
 					</Text>
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon
+							size={spacing.icon.caption}
+							color={categoryColor}
+							strokeWidth={2}
+						/>
 						<Text
 							variant="caption"
 							style={{ color: themeColors.textSecondary }}

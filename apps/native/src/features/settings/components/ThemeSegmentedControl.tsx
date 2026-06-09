@@ -1,4 +1,4 @@
-import { Moon, Smartphone, Sun } from "lucide-react-native";
+import { Contrast, Moon, Smartphone, Sun } from "lucide-react-native";
 import { View } from "react-native";
 import {
 	SegmentedControl,
@@ -6,14 +6,19 @@ import {
 } from "@/src/components/ui/segmented-control";
 import { Text } from "@/src/components/ui/text";
 import {
+	elevation,
+	shadowStyle,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
+import {
 	type ThemeOption,
 	useThemeEasterEgg,
 } from "@/src/features/settings/hooks/useThemeEasterEgg";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
-import { elevation, shadowStyle, useThemeColors } from "@/src/constants/design-tokens";
 
 const OPTIONS: ThemeOption[] = [
 	{ value: "light", label: "Light", Icon: Sun },
+	{ value: "white", label: "White", Icon: Contrast },
 	{ value: "dark", label: "Dark", Icon: Moon },
 	{ value: "system", label: "System", Icon: Smartphone },
 ];
@@ -47,7 +52,7 @@ export function ThemeSegmentedControl() {
 							...(isActive
 								? shadowStyle(elevation.flat, {
 										shadowColor: themeColors.shadow,
-								  })
+									})
 								: undefined),
 						}}
 					>
@@ -57,7 +62,8 @@ export function ThemeSegmentedControl() {
 								strokeWidth={1.8}
 								color={isActive ? themeColors.primary : themeColors.textMuted}
 							/>
-							<Text variant="bodySm"
+							<Text
+								variant="bodySm"
 								className="font-medium text-sm"
 								style={{
 									color: isActive ? themeColors.primary : themeColors.textMuted,
