@@ -104,7 +104,7 @@ export function TopRatedSection() {
 								: `${tech.distance_km.toFixed(1)} km`,
 						]
 							.filter(Boolean)
-							.join(" Â· ");
+							.join(" · ");
 
 						return (
 							<View

@@ -1,5 +1,14 @@
 // Migrated to declarative <Dialog> with <Dialog.Form> in Phase 11 Plan 07.
 
+import { Button } from "@/src/components/ui/button";
+import { Dialog } from "@/src/components/ui/dialog";
+import { Text } from "@/src/components/ui/text";
+import {
+	Colors,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
+import type { DaySchedule } from "@/src/features/schedule/types/calendar";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -9,15 +18,6 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
-import { Button } from "@/src/components/ui/button";
-import { Dialog } from "@/src/components/ui/dialog";
-import { Text } from "@/src/components/ui/text";
-import type { DaySchedule } from "@/src/features/schedule/types/calendar";
-import {
-	Colors,
-	spacing,
-	useThemeColors,
-} from "@/src/constants/design-tokens";
 
 const DAYS = [
 	"Sunday",
@@ -29,12 +29,10 @@ const DAYS = [
 	"Saturday",
 ];
 
-const SLOT_HOURS = [8, 10, 12, 14, 16] as const;
+const SLOT_HOURS = [8, 11, 14, 17, 20] as const;
 
 function slotLabel(hour: number): string {
-	if (hour < 12) return `${hour}:00 AM`;
-	if (hour === 12) return "12:00 PM";
-	return `${hour - 12}:00 PM`;
+	return hour < 12 ? `${hour}:00 AM` : `${hour - 12}:00 PM`;
 }
 
 const DEFAULT_SCHEDULE: DaySchedule[] = DAYS.map((dayName, i) => ({

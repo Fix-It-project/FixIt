@@ -118,7 +118,7 @@ export function PreviousOrdersSection() {
 							completionDate ? formatCompletionDate(completionDate) : null,
 						]
 							.filter(Boolean)
-							.join(" Â· ");
+							.join(" · ");
 						const price = order.final_price ?? order.estimated_price ?? null;
 
 						return (
