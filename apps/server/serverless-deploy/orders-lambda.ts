@@ -1,7 +1,7 @@
-import serverlessExpress from '@codegenie/serverless-express';
-import app from '../src/shared-app.js';
 import ordersRoutes from '../src/modules/orders/orders.routes.js';
+import app from '../src/shared-app.js';
+import { createHttpHandler } from './http-handler.js';
 
-app.use('/api/orders', ordersRoutes);
+app.use('/', ordersRoutes);
 
-export const handler = serverlessExpress({ app });
+export const handler = createHttpHandler(app);

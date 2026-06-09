@@ -1,7 +1,7 @@
-import serverlessExpress from '@codegenie/serverless-express';
 import app from '../src/shared-app.js';
 import technicianCalendarRoutes from '../src/modules/technician-calendar/technician-calendar.routes';
+import { createHttpHandler } from './http-handler.js';
 
-app.use('/api/technician-calendar', technicianCalendarRoutes);
+app.use('/', technicianCalendarRoutes);
 
-export const handler = serverlessExpress({ app });
+export const handler = createHttpHandler(app);
