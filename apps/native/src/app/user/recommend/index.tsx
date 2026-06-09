@@ -1,8 +1,3 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -11,6 +6,11 @@ import { getRecommendedTechnicians } from "@/src/features/technicians/recommenda
 import type { RecommendedTechnicianApi } from "@/src/features/technicians/schemas/response.schema";
 import { showError, toAppError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecommendScreen() {
 	const { q } = useLocalSearchParams<{ q: string }>();
@@ -36,9 +36,9 @@ export default function RecommendScreen() {
 				if (!cancelled) {
 					setResults(data);
 				}
-			} catch (err) {
+			} catch (error) {
 				if (!cancelled) {
-					const appErr = toAppError(err);
+					const appErr = toAppError(error);
 					setHasError(true);
 					showError(appErr);
 				}
@@ -66,9 +66,9 @@ export default function RecommendScreen() {
 			.then((data) => {
 				if (!cancelled) setResults(data);
 			})
-			.catch((err) => {
+			.catch((error) => {
 				if (!cancelled) {
-					const appErr = toAppError(err);
+					const appErr = toAppError(error);
 					setHasError(true);
 					showError(appErr);
 				}
@@ -167,9 +167,9 @@ export default function RecommendScreen() {
 										...route.params,
 										technicianName: result.name,
 										distanceKm:
-											result.distance_km != null
-												? result.distance_km.toFixed(1)
-												: undefined,
+											result.distance_km == undefined
+												? undefined
+												: result.distance_km.toFixed(1),
 									},
 								});
 							}}
@@ -199,14 +199,14 @@ export default function RecommendScreen() {
 									<Text variant="caption" className="text-muted-foreground">
 										{[
 											result.category ?? "",
-											result.distance_km != null
-												? `${result.distance_km.toFixed(1)} km`
-												: null,
+											result.distance_km == undefined
+												? null
+												: `${result.distance_km.toFixed(1)} km`,
 										]
 											.filter(Boolean)
-											.join(" · ")}
+											.join(" Â· ")}
 									</Text>
-									{result.base_hourly_rate != null && (
+									{result.base_hourly_rate != undefined && (
 										<Text variant="caption" className="text-muted-foreground">
 											From EGP {result.base_hourly_rate.toFixed(0)}/hr
 										</Text>

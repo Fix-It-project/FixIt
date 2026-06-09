@@ -1,10 +1,10 @@
+import { supabase } from "@/src/config/supabase";
+import { toAppError } from "@/src/lib/errors";
+import { logger } from "@/src/lib/logger";
+import { useAuthStore } from "@/src/stores/auth-store";
 import { env } from "@FixIt/env/native";
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { jwtDecode } from "jwt-decode";
-import { toAppError } from "@/src/lib/errors";
-import { logger } from "@/src/lib/logger";
-import { supabase } from "@/src/config/supabase";
-import { useAuthStore } from "@/src/stores/auth-store";
 
 const API_BASE_URL = env.EXPO_PUBLIC_SERVER_URL;
 
@@ -137,6 +137,25 @@ apiClient.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		const originalRequest = error.config as CustomAxiosRequestConfig;
+
+		if (error.response?.status === 400 || error.response?.status === 422) {
+			const responseData =
+				error.response.data &&
+				typeof error.response.data === "object" &&
+				!Array.isArray(error.response.data)
+					? (error.response.data as Record<string, unknown>)
+					: undefined;
+			logger.warn("apiClient", "Validation response", {
+				url: originalRequest?.url,
+				method: originalRequest?.method,
+				status: error.response.status,
+				machineCode:
+					typeof responseData?.token === "string"
+						? responseData.token
+						: undefined,
+				data: error.response.data,
+			});
+		}
 
 		if (
 			error.response?.status !== 401 ||
