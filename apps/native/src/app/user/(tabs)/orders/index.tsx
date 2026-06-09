@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Star } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import {
 	ActivityIndicator,
 	RefreshControl,
@@ -17,6 +18,7 @@ import { ROUTES } from "@/src/lib/navigation";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function MyOrdersScreen() {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const {
 		data: orders = [],
@@ -37,7 +39,7 @@ export default function MyOrdersScreen() {
 				style={{ backgroundColor: themeColors.surfaceBase }}
 			>
 				<Text variant="h3" style={{ color: themeColors.textPrimary }}>
-					My Orders
+					{t("list.title")}
 				</Text>
 			</View>
 
@@ -71,14 +73,14 @@ export default function MyOrdersScreen() {
 									textAlign: "center",
 								}}
 							>
-								No orders yet
+								{t("list.emptyTitle")}
 							</Text>
 							<Text
 								variant="bodySm"
 								className="mt-stack-xs text-center"
 								style={{ color: themeColors.textMuted }}
 							>
-								Your bookings will appear here once you book a technician.
+								{t("list.emptyBody")}
 							</Text>
 						</View>
 					) : (
@@ -109,12 +111,15 @@ export default function MyOrdersScreen() {
 													reviewSheetRef.current?.open(
 														order.id,
 														order.technician_id,
-														order.technician_name ?? "Technician",
+														order.technician_name ?? t("card.technicianFallback"),
 													)
 												}
-												accessibilityLabel={`Leave a review for ${order.technician_name ?? "Technician"}`}
+												accessibilityLabel={t("list.leaveReviewA11y", {
+													name:
+														order.technician_name ?? t("card.technicianFallback"),
+												})}
 											>
-												Leave review
+												{t("list.leaveReview")}
 											</Button>
 										) : undefined
 									}

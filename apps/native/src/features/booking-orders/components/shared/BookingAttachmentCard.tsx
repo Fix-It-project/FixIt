@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 import { Linking, TouchableOpacity, View } from "react-native";
 import { AspectRatio } from "@/src/components/ui/aspect-ratio";
 import { Card } from "@/src/components/ui/card";
@@ -9,11 +10,12 @@ interface Props {
 }
 
 export default function BookingAttachmentCard({ uri }: Props) {
+	const { t } = useTranslation("orders");
 	return (
 		<Card className="mb-stack-lg overflow-hidden">
 			<View className="px-card pt-card pb-stack-md">
 				<Text variant="buttonMd" className="text-content">
-					Attachment
+					{t("detail.attachment")}
 				</Text>
 			</View>
 			<TouchableOpacity

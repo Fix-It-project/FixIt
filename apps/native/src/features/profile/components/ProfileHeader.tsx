@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
@@ -16,6 +17,7 @@ export default function ProfileHeader({
 	imageUrl,
 	onChangePhoto,
 }: ProfileHeaderProps) {
+	const { t } = useTranslation("profile");
 	const themeColors = useThemeColors();
 	return (
 		<View className="items-center bg-app-primary pt-stack-xl pb-stack-3xl">
@@ -31,7 +33,7 @@ export default function ProfileHeader({
 				{isLoading ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
-					(name ?? "User")
+					(name ?? t("header.userFallback"))
 				)}
 			</Text>
 		</View>

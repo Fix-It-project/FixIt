@@ -2,27 +2,214 @@ import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
-import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
+import { Card } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
+import { getCategoryMeta } from "@/src/features/categories/constants/categories";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
+import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
+import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { ROUTES } from "@/src/lib/navigation/routes";
 import { router } from "expo-router";
-import { MapPin, Star } from "lucide-react-native";
+import {
+	BriefcaseBusiness,
+	ClipboardList,
+	MapPin,
+	Star,
+} from "lucide-react-native";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 
-export function TopRatedSection() {
+function formatDistance(distanceKm: number | null, fallback: string): string {
+	return distanceKm == null ? fallback : `${distanceKm.toFixed(1)} km`;
+}
+
+function formatCount(value: number | undefined): string {
+	return value == null ? "—" : value.toLocaleString();
+}
+
+interface TopRatedTechnicianCardProps {
+	readonly tech: TechnicianListItem;
+	readonly categoryName: string;
+	readonly cardWidth: number;
+	readonly onOpenProfile: (technicianId: string, initials: string) => void;
+}
+
+function TopRatedTechnicianCard({
+	tech,
+	categoryName,
+	cardWidth,
+	onOpenProfile,
+}: TopRatedTechnicianCardProps) {
 	const t = useThemeColors();
+	const { t: tr } = useTranslation("home");
+	const { data: profile } = useTechnicianProfileQuery(tech.id);
+	const initials = (
+		(tech.first_name[0] ?? "") + (tech.last_name[0] ?? "")
+	).toUpperCase();
+	const name = `${tech.first_name} ${tech.last_name}`;
+	const categoryMeta = getCategoryMeta(tech.category_id);
+	const CategoryIcon = categoryMeta?.icon ?? ClipboardList;
+	const description =
+		tech.description?.trim() ||
+		profile?.description?.trim() ||
+		tr("technicianDescriptionFallback");
+	const hasRating = tech.avg_rating !== null && tech.review_count > 0;
+	const totalBookings =
+		profile != null
+			? tr("totalJobs", { total: formatCount(profile.totalBookings) })
+			: null;
+
+	function openDetail() {
+		const route = ROUTES.user.technicianDetail(tech.id);
+		router.push({
+			...route,
+			params: {
+				...route.params,
+				technicianName: name,
+				initials,
+				categoryId: tech.category_id,
+				categoryName,
+				distanceKm:
+					tech.distance_km != null ? tech.distance_km.toFixed(1) : undefined,
+			},
+		});
+	}
+
+	return (
+		<Card
+			className="p-card"
+			style={{
+				width: cardWidth,
+				minHeight: 184,
+				gap: 8,
+			}}
+		>
+			<PressableScale
+				pressedScale={0.985}
+				onPress={openDetail}
+				style={{ gap: 8, flex: 1 }}
+				accessibilityRole="button"
+				accessibilityLabel={`Book ${name}`}
+			>
+				<View className="flex-row items-center gap-stack-sm">
+					<PressableScale
+						pressedScale={0.94}
+						onPress={(event) => {
+							event.stopPropagation();
+							onOpenProfile(tech.id, initials);
+						}}
+						accessibilityRole="button"
+						accessibilityLabel={`Open ${name} profile`}
+					>
+						<InitialsAvatar
+							name={name}
+							imageUrl={tech.profile_image}
+							className="size-[72px]"
+							textClassName="font-bold text-primary-foreground"
+							textStyle={{ fontSize: 24, lineHeight: 28 }}
+						/>
+					</PressableScale>
+
+					<View style={{ flex: 1, minWidth: 0 }}>
+						<View className="min-w-0 flex-row items-start justify-between gap-stack-xs">
+							<View className="min-w-0 flex-1">
+								<Text
+									variant="label"
+									className="font-bold text-foreground"
+									numberOfLines={1}
+								>
+									{name}
+								</Text>
+								<View className="mt-[2px] flex-row items-center gap-stack-xs">
+									<Icon
+										as={CategoryIcon}
+										size={12}
+										color={t.textSecondary}
+										strokeWidth={2}
+									/>
+									<Text
+										variant="caption"
+										className="min-w-0 flex-1 text-content-secondary"
+										numberOfLines={1}
+									>
+										{categoryName}
+									</Text>
+								</View>
+								<Text
+									variant="caption"
+									className="mt-[2px] text-content-secondary"
+									numberOfLines={2}
+								>
+									{description}
+								</Text>
+							</View>
+
+							<View className="flex-row items-center gap-stack-xs">
+								<Icon
+									as={Star}
+									size={12}
+									color={t.ratingDefault}
+									fill={hasRating ? t.ratingDefault : "transparent"}
+								/>
+								<Text variant="caption" className="font-bold text-foreground">
+									{hasRating
+										? formatRating(tech.avg_rating ?? 0)
+										: tr("newTech")}
+								</Text>
+							</View>
+						</View>
+					</View>
+				</View>
+
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-row items-center gap-stack-xs">
+						<Icon as={MapPin} size={14} color={t.textSecondary} />
+						<Text
+							variant="caption"
+							className="text-content-muted"
+							numberOfLines={1}
+						>
+							{formatDistance(tech.distance_km, tr("distanceUnavailable"))}
+						</Text>
+					</View>
+					{totalBookings ? (
+						<View className="flex-row items-center gap-stack-xs">
+							<Icon
+								as={BriefcaseBusiness}
+								size={14}
+								color={t.textSecondary}
+								strokeWidth={2}
+							/>
+							<Text
+								variant="caption"
+								className="text-content-muted"
+								numberOfLines={1}
+							>
+								{totalBookings}
+							</Text>
+						</View>
+					) : null}
+				</View>
+			</PressableScale>
+
+			<Button size="sm" variant="primary" fullWidth onPress={openDetail}>
+				{tr("book")}
+			</Button>
+		</Card>
+	);
+}
+
+export function TopRatedSection() {
 	const { t: tr } = useTranslation("home");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const { width } = useWindowDimensions();
@@ -70,7 +257,7 @@ export function TopRatedSection() {
 						<Skeleton
 							key={key}
 							className="rounded-card"
-							style={{ width: cardWidth, height: 154 }}
+							style={{ width: cardWidth, height: 184 }}
 						/>
 					))}
 				</ScrollView>
@@ -91,146 +278,19 @@ export function TopRatedSection() {
 					contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
 				>
 					{technicians.slice(0, 8).map((tech) => {
-						const initials = (
-							(tech.first_name[0] ?? "") + (tech.last_name[0] ?? "")
-						).toUpperCase();
-						const name = `${tech.first_name} ${tech.last_name}`;
 						const categoryName =
 							catMap.get(tech.category_id) ?? tr("technicianFallback");
-						const locationText = [
-							tech.city,
-							tech.distance_km == undefined
-								? null
-								: `${tech.distance_km.toFixed(1)} km`,
-						]
-							.filter(Boolean)
-							.join(" · ");
 
 						return (
-							<View
+							<TopRatedTechnicianCard
 								key={tech.id}
-								className="bg-card"
-								style={{
-									width: cardWidth,
-									minHeight: 154,
-									borderRadius: 14,
-									padding: 14,
-									justifyContent: "space-between",
-									gap: 12,
+								tech={tech}
+								categoryName={categoryName}
+								cardWidth={cardWidth}
+								onOpenProfile={(technicianId, initials) => {
+									profileSheetRef.current?.open(technicianId, initials);
 								}}
-							>
-								<PressableScale
-									pressedScale={0.98}
-									onPress={() => {
-										profileSheetRef.current?.open(tech.id, initials);
-									}}
-									style={{
-										gap: 12,
-									}}
-								>
-									<View
-										style={{
-											flexDirection: "row",
-											alignItems: "flex-start",
-											gap: 11,
-										}}
-									>
-										<InitialsAvatar
-											name={name}
-											imageUrl={tech.profile_image}
-											className="size-11"
-										/>
-										<View style={{ flex: 1, minWidth: 0, gap: 5 }}>
-											<Text
-												variant="label"
-												className="text-foreground"
-												numberOfLines={1}
-											>
-												{name}
-											</Text>
-											<Badge
-												variant="secondary"
-												className="max-w-36 self-start rounded-md"
-											>
-												<Text variant="caption" numberOfLines={1}>
-													{categoryName}
-												</Text>
-											</Badge>
-										</View>
-										{tech.avg_rating === null ? null : (
-											<View
-												style={{
-													flexDirection: "row",
-													alignItems: "center",
-													gap: 3,
-												}}
-											>
-												<Icon
-													as={Star}
-													size={12}
-													color={t.ratingDefault}
-													fill={t.ratingDefault}
-												/>
-												<Text variant="caption" className="text-foreground">
-													{formatRating(tech.avg_rating)}
-												</Text>
-											</View>
-										)}
-									</View>
-
-									{locationText ? (
-										<View
-											style={{
-												flexDirection: "row",
-												alignItems: "center",
-												gap: 4,
-												minWidth: 0,
-											}}
-										>
-											<Icon
-												as={MapPin}
-												size={12}
-												color={t.textMuted}
-												strokeWidth={2}
-											/>
-											<Text
-												variant="caption"
-												className="text-muted-foreground"
-												numberOfLines={1}
-												style={{ flex: 1 }}
-											>
-												{locationText}
-											</Text>
-										</View>
-									) : null}
-								</PressableScale>
-
-								<Button
-									size="sm"
-									variant="primary"
-									fullWidth
-									onPress={() => {
-										const route = ROUTES.user.technicianDetail(tech.id);
-										router.push({
-											...route,
-											params: {
-												...route.params,
-												technicianName: name,
-												initials,
-												categoryId: tech.category_id,
-												categoryName,
-												distanceKm:
-													tech.distance_km == undefined
-														? undefined
-														: tech.distance_km.toFixed(1),
-											},
-										});
-									}}
-									accessibilityLabel={tr("book")}
-								>
-									{tr("book")}
-								</Button>
-							</View>
+							/>
 						);
 					})}
 				</ScrollView>

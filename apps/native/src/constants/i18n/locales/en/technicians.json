@@ -1,0 +1,100 @@
+{
+	"list": {
+		"defaultTitle": "Technicians",
+		"searchPlaceholder": "Search technicians",
+		"clearSearch": "Clear search",
+		"updatingResults": "Updating results",
+		"technicianOne": "technician",
+		"technicianOther": "technicians",
+		"locationPermission": "Location permission required for nearest sort",
+		"empty": {
+			"errorTitle": "Unable to load technicians",
+			"emptyTitle": "No technicians found",
+			"errorBody": "Please try again in a moment.",
+			"searchBody": "Try a shorter name or clear the search.",
+			"categoryBody": "There are no technicians in this category yet.",
+			"retry": "Retry"
+		}
+	},
+	"sort": {
+		"Recommended": "Recommended",
+		"Top Rated": "Top Rated",
+		"Nearest": "Nearest",
+		"Most Reviews": "Most Reviews"
+	},
+	"detail": {
+		"title": "Technician",
+		"technicianFallback": "Technician",
+		"ratingNew": "New",
+		"notAvailable": "N/A",
+		"selectDate": "Select Date",
+		"pickService": "Pick a service to continue",
+		"tabs": {
+			"Details": "Details",
+			"Services": "Services",
+			"Reviews": "Reviews"
+		},
+		"metrics": {
+			"completed": "completed",
+			"distance": "distance",
+			"bookings": "bookings"
+		}
+	},
+	"about": {
+		"heading": "Details",
+		"inspectionFee": "Inspection fee",
+		"availableDays": "Available days",
+		"availableTimes": "Available times",
+		"allHours": "All listed hours",
+		"noSchedule": "This technician hasn't set their working days and times yet.",
+		"days": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		}
+	},
+	"services": {
+		"loadError": "Couldn't load services",
+		"loadErrorBody": "Please try again in a moment.",
+		"emptyTitle": "No services listed",
+		"emptyBody": "This technician hasn't published any services yet.",
+		"priceOnRequest": "Price on request"
+	},
+	"reviews": {
+		"noRating": "—",
+		"reviewOne": "review",
+		"reviewOther": "reviews",
+		"emptyTitle": "No reviews yet",
+		"emptyBody": "Be the first to book and review."
+	},
+	"profileSheet": {
+		"loadingProfile": "Loading profile…",
+		"loadErrorTitle": "Unable to load profile",
+		"loadErrorBody": "Please try again later.",
+		"retry": "Retry",
+		"completed": "Completed",
+		"bookings": "Bookings",
+		"reviewSummaryOne": "{{rating}} · {{count}} review",
+		"reviewSummaryOther": "{{rating}} · {{count}} reviews",
+		"noReviewsYet": "No reviews yet",
+		"viewAllReviews": "View all reviews ({{count}})"
+	},
+	"card": {
+		"distanceAway": "{{km}} km away",
+		"distance": "Distance",
+		"inspectionFee": "Inspection Fee",
+		"location": "Location",
+		"bookNow": "Book Now",
+		"homeService": "Home service",
+		"categoryService": "{{category}} service",
+		"noReviews": "No reviews yet",
+		"reviewOne": "review",
+		"reviewOther": "reviews",
+		"bookAccessibility": "Book {{name}}",
+		"profileAccessibility": "Open {{name}} profile"
+	}
+}

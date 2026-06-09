@@ -26,7 +26,7 @@ export default function AddressListItem({
 	onPress,
 	disabled = false,
 	onDelete,
-	deleteLabel = "Delete",
+	deleteLabel,
 }: AddressListItemProps) {
 	const themeColors = useThemeColors();
 	const activeColor = themeColors.primary;

@@ -1,5 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { Camera, ImageIcon, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Image, Pressable, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
@@ -25,6 +26,7 @@ export function BookingProblemCard({
 	attachment,
 	onAttachmentChange,
 }: BookingProblemCardProps) {
+	const { t } = useTranslation("booking");
 	const themeColors = useThemeColors();
 
 	const pickImage = async () => {
@@ -65,16 +67,16 @@ export function BookingProblemCard({
 			<View>
 				<View className="flex-row items-center justify-between">
 					<Text variant="buttonMd" className="font-semibold text-content">
-						Note for technician
+						{t("problem.noteTitle")}
 					</Text>
 					<Text variant="caption" className="text-content-muted">
-						Optional
+						{t("problem.optional")}
 					</Text>
 				</View>
 				<Textarea
 					value={description}
 					onChangeText={onDescriptionChange}
-					placeholder="Add specific details about the issue or access instructions..."
+					placeholder={t("problem.notePlaceholder")}
 					multiline
 					numberOfLines={4}
 					variant="filled"
@@ -85,14 +87,14 @@ export function BookingProblemCard({
 			<View>
 				<View className="flex-row items-center justify-between">
 					<Text variant="buttonMd" className="font-semibold text-content">
-						Attach photos
+						{t("problem.attachTitle")}
 					</Text>
 					<Text variant="caption" className="text-content-muted">
-						Optional
+						{t("problem.optional")}
 					</Text>
 				</View>
 				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
-					Help the technician prepare by showing the issue clearly.
+					{t("problem.attachHint")}
 				</Text>
 
 				{attachment ? (
@@ -117,7 +119,7 @@ export function BookingProblemCard({
 									strokeWidth={2.5}
 								/>
 							}
-							accessibilityLabel="Remove photo"
+							accessibilityLabel={t("problem.removePhoto")}
 						/>
 					</View>
 				) : (
@@ -125,20 +127,20 @@ export function BookingProblemCard({
 						<Pressable
 							onPress={takePhoto}
 							className="aspect-square flex-1 items-center justify-center gap-stack-sm rounded-input border border-app-primary border-dashed bg-app-primary-light"
-							accessibilityLabel="Take photo"
+							accessibilityLabel={t("problem.takePhoto")}
 						>
 							<Camera size={22} color={themeColors.primary} strokeWidth={2} />
 							<Text
 								variant="buttonMd"
 								className="font-semibold text-app-primary"
 							>
-								Take photo
+								{t("problem.takePhoto")}
 							</Text>
 						</Pressable>
 						<Pressable
 							onPress={pickImage}
 							className="aspect-square flex-1 items-center justify-center gap-stack-sm rounded-input border border-app-primary border-dashed bg-app-primary-light"
-							accessibilityLabel="Upload photo"
+							accessibilityLabel={t("problem.uploadPhoto")}
 						>
 							<ImageIcon
 								size={22}
@@ -149,7 +151,7 @@ export function BookingProblemCard({
 								variant="buttonMd"
 								className="font-semibold text-app-primary"
 							>
-								Upload
+								{t("problem.upload")}
 							</Text>
 						</Pressable>
 					</View>

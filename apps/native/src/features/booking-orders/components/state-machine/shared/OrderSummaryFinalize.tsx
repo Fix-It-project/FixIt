@@ -1,15 +1,23 @@
 import { Check, CheckCircle2, Circle, Wallet } from "lucide-react-native";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
 	useReducedMotion,
 } from "react-native-reanimated";
-import { Text } from "@/src/components/ui/text";
-import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
 import { Button } from "@/src/components/ui/button";
-import OrderInfoCompact from "./OrderInfoCompact";
-import StageHero from "./StageHero";
+import { Text } from "@/src/components/ui/text";
+import { DUR_STAGGER, STAGGER_GAP } from "@/src/constants/animation";
+import {
+	radius,
+	space,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
 import {
 	useTechMarkCashReceived,
 	useUserCheckout,
@@ -18,18 +26,14 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
+import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpers";
+import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 import CustomerInfoSheet, {
 	type CustomerInfoSheetHandle,
 } from "./CustomerInfoSheet";
-import {
-	DUR_STAGGER,
-	STAGGER_GAP,
-} from "@/src/constants/animation";
-import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
+import OrderInfoCompact from "./OrderInfoCompact";
+import StageHero from "./StageHero";
 
 export type SummaryViewer = "user" | "technician";
 
@@ -43,11 +47,14 @@ interface TimelineRow {
 	timestamp: string | null;
 }
 
-function formatTimestamp(value: string | null | undefined): string {
+function formatTimestamp(
+	value: string | null | undefined,
+	language?: string,
+): string {
 	if (!value) return "—";
 	const d = new Date(value);
 	if (Number.isNaN(d.getTime())) return "—";
-	return d.toLocaleString(undefined, {
+	return d.toLocaleString(getDateLocale(language), {
 		month: "short",
 		day: "numeric",
 		hour: "2-digit",
@@ -56,6 +63,7 @@ function formatTimestamp(value: string | null | undefined): string {
 }
 
 export default function OrderSummaryFinalize({ order, viewer }: Props) {
+	const { t, i18n } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const userCheckout = useUserCheckout();
@@ -87,19 +95,27 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 			? undefined
 			: FadeInDown.delay(i * STAGGER_GAP).duration(DUR_STAGGER);
 
-	const counterpartyLabel = isUser ? "Technician" : "Customer";
+	const counterpartyLabel = isUser
+		? t("card.technicianFallback")
+		: t("card.customerFallback");
 	const workCompletedAt =
 		order.user_completed_at && order.technician_completed_at
 			? new Date(order.user_completed_at) >
 				new Date(order.technician_completed_at)
 				? order.user_completed_at
 				: order.technician_completed_at
-			: order.user_completed_at ?? order.technician_completed_at ?? null;
+			: (order.user_completed_at ?? order.technician_completed_at ?? null);
 
 	const timeline: TimelineRow[] = [
-		{ label: "Order placed", timestamp: order.created_at ?? null },
-		{ label: "Tech arrived", timestamp: order.arrived_at ?? null },
-		{ label: "Work complete", timestamp: workCompletedAt },
+		{
+			label: t("detail.finalize.orderPlaced"),
+			timestamp: order.created_at ?? null,
+		},
+		{
+			label: t("detail.finalize.techArrived"),
+			timestamp: order.arrived_at ?? null,
+		},
+		{ label: t("detail.finalize.workComplete"), timestamp: workCompletedAt },
 	];
 
 	const finalAmount = order.final_price ?? order.estimated_price ?? 0;
@@ -112,7 +128,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 			);
 		} else {
 			customerSheetRef.current?.open({
-				name: booking.user_name ?? "Customer",
+				name: booking.user_name ?? t("card.customerFallback"),
 				phone: booking.user_phone ?? null,
 				address: booking.user_address ?? null,
 				problem: order.problem_description ?? null,
@@ -124,9 +140,9 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={CheckCircle2}
-				eyebrow="Finalize"
-				title="One tap to close out."
-				subtitle="Confirm cash handover, then we wrap the order."
+				eyebrow={t("detail.finalize.eyebrow")}
+				title={t("detail.finalize.title")}
+				subtitle={t("detail.finalize.subtitle")}
 			/>
 
 			<Animated.View entering={fadeIn(0)}>
@@ -147,7 +163,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							letterSpacing: 1.1,
 						}}
 					>
-						Final price
+						{t("detail.finalize.finalPrice")}
 					</Text>
 					<View
 						style={{
@@ -173,7 +189,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 								opacity: 0.85,
 							}}
 						>
-							EGP
+							{t("detail.finalize.currency")}
 						</Text>
 					</View>
 					<View
@@ -196,7 +212,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 								opacity: 0.85,
 							}}
 						>
-							Cash on delivery · in-app payments soon
+							{t("detail.finalize.cashNote")}
 						</Text>
 					</View>
 				</View>
@@ -222,7 +238,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 						className="font-google-sans-bold uppercase"
 						style={{ color: themeColors.textMuted, letterSpacing: 1 }}
 					>
-						Timeline
+						{t("detail.finalize.timeline")}
 					</Text>
 					{timeline.map((row) => (
 						<View
@@ -251,7 +267,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 									/>
 								</View>
 							) : (
-								<Circle size={spacing.icon.sm} color={themeColors.borderDefault} />
+								<Circle
+									size={spacing.icon.sm}
+									color={themeColors.borderDefault}
+								/>
 							)}
 							<Text
 								variant="bodySm"
@@ -264,11 +283,8 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							>
 								{row.label}
 							</Text>
-							<Text
-								variant="caption"
-								style={{ color: themeColors.textMuted }}
-							>
-								{formatTimestamp(row.timestamp)}
+							<Text variant="caption" style={{ color: themeColors.textMuted }}>
+								{formatTimestamp(row.timestamp, i18n.language)}
 							</Text>
 						</View>
 					))}
@@ -297,7 +313,9 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							className="font-google-sans-bold"
 							style={{ color: themeColors.onPrimaryHeader, flex: 1 }}
 						>
-							{counterpartyLabel} confirmed. Tap to finalize.
+							{t("detail.finalize.confirmedTapFinalize", {
+								role: counterpartyLabel,
+							})}
 						</Text>
 					</View>
 				</Animated.View>
@@ -312,7 +330,9 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				loading={finalizePending}
 				disabled={meConfirmed}
 			>
-				{meConfirmed ? "Waiting on the other side…" : "Mark order completed"}
+				{meConfirmed
+					? t("detail.finalize.waitingOther")
+					: t("detail.finalize.markCompleted")}
 			</Button>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />

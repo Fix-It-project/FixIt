@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
@@ -12,6 +13,7 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function CategoriesScreen() {
+	const { t } = useTranslation("categories");
 	const {
 		data: categories,
 		isLoading,
@@ -34,12 +36,12 @@ export default function CategoriesScreen() {
 				<PressableScale
 					onPress={() => router.back()}
 					accessibilityRole="button"
-					accessibilityLabel="Go back"
+					accessibilityLabel={t("goBack")}
 				>
 					<ChevronLeft size={24} color={Colors.textPrimary} strokeWidth={2} />
 				</PressableScale>
 				<Text variant="h2" className="flex-1 text-content">
-					Categories
+					{t("title")}
 				</Text>
 			</View>
 
@@ -52,10 +54,10 @@ export default function CategoriesScreen() {
 			{isError && !isLoading && (
 				<View className="flex-1 items-center justify-center gap-stack-sm">
 					<Text variant="bodySm" className="text-content-muted">
-						Failed to load categories.
+						{t("loadError")}
 					</Text>
 					<Button variant="link" size="sm" onPress={() => refetch()}>
-						Retry
+						{t("retry")}
 					</Button>
 				</View>
 			)}

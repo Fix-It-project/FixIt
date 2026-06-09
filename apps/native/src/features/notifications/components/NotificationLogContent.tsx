@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { BellRing } from "lucide-react-native";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	ActivityIndicator,
 	FlatList,
@@ -61,8 +62,9 @@ function inferSenderNameFromBody(body: string): string | undefined {
 }
 
 function senderLabel(item: NotificationLogItem): string {
-	if (!isGenericSenderName(item.senderName)) {
-		return item.senderName!.trim();
+	const senderName = item.senderName?.trim();
+	if (senderName && !isGenericSenderName(senderName)) {
+		return senderName;
 	}
 	return inferSenderNameFromBody(item.body) ?? "FixIt";
 }
@@ -76,6 +78,7 @@ export default function NotificationLogContent({
 	title: string;
 	showBackButton?: boolean;
 }>) {
+	const { t, i18n } = useTranslation("notifications");
 	const themeColors = useThemeColors();
 	const { data, isLoading, isRefetching, refetch } =
 		useNotificationLogsQuery(role);
@@ -195,7 +198,11 @@ export default function NotificationLogContent({
 												variant="caption"
 												className="mt-stack-sm text-content-muted"
 											>
-												{formatRelativeTime(item.createdAt)}
+												{formatRelativeTime(
+													item.createdAt,
+													new Date(),
+													i18n.language,
+												)}
 											</Text>
 										</View>
 									</View>
@@ -213,14 +220,13 @@ export default function NotificationLogContent({
 									variant="buttonLg"
 									className="mt-stack-md text-center text-content"
 								>
-									No notifications yet
+									{t("emptyTitle")}
 								</Text>
 								<Text
 									variant="bodySm"
 									className="mt-stack-xs text-center text-content-muted"
 								>
-									Notifications sent from your bookings and reschedules will
-									appear here.
+									{t("emptyBody")}
 								</Text>
 							</View>
 						}

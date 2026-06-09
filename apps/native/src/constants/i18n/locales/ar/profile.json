@@ -1,0 +1,45 @@
+{
+	"header": {
+		"userFallback": "مستخدم",
+		"editTitle": "تعديل الملف الشخصي"
+	},
+	"stats": {
+		"bookings": "الحجوزات",
+		"completed": "المكتملة"
+	},
+	"menu": {
+		"editProfile": "تعديل الملف الشخصي",
+		"pastOrders": "الطلبات السابقة",
+		"addresses": "عناويني",
+		"settings": "الإعدادات",
+		"loggingOut": "جارٍ تسجيل الخروج…",
+		"logout": "تسجيل الخروج"
+	},
+	"logout": {
+		"title": "تسجيل الخروج",
+		"description": "هل أنت متأكد من تسجيل الخروج؟",
+		"confirm": "تسجيل الخروج",
+		"cancel": "إلغاء"
+	},
+	"info": {
+		"email": "البريد الإلكتروني",
+		"phone": "الهاتف",
+		"address": "العنوان",
+		"noAddress": "لا يوجد عنوان",
+		"notProvided": "غير متوفر",
+		"empty": "—"
+	},
+	"edit": {
+		"fullName": "الاسم الكامل",
+		"fullNamePlaceholder": "أدخل اسمك الكامل",
+		"email": "البريد الإلكتروني",
+		"emailPlaceholder": "أدخل بريدك الإلكتروني",
+		"phone": "الهاتف",
+		"phonePlaceholder": "أدخل رقم هاتفك",
+		"save": "حفظ التغييرات"
+	},
+	"avatar": {
+		"alt": "صورة الملف الشخصي",
+		"change": "تغيير صورة الملف الشخصي"
+	}
+}

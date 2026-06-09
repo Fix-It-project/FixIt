@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
@@ -14,6 +15,7 @@ export default function ReviewStatsHeader({
 	reviewCount,
 	distribution,
 }: Props) {
+	const { t } = useTranslation("reviews");
 	const themeColors = useThemeColors();
 	const maxCount = useMemo(
 		() => Math.max(...Object.values(distribution ?? {}), 1),
@@ -32,10 +34,10 @@ export default function ReviewStatsHeader({
 				</Text>
 				<Text variant="caption" className="mt-stack-xs text-content-muted">
 					{reviewCount === 0
-						? "No reviews yet"
+						? t("stats.noReviews")
 						: reviewCount === 1
-							? "1 review"
-							: `${reviewCount} reviews`}
+							? t("stats.reviewOne")
+							: t("stats.reviewOther", { count: reviewCount })}
 				</Text>
 			</View>
 

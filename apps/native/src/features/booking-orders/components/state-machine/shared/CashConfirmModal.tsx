@@ -6,6 +6,7 @@
 //
 // Binary confirmation: use AlertDialog, not Dialog.
 
+import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 import { AlertDialog } from "@/src/components/ui/alert-dialog";
 import { Button } from "@/src/components/ui/button";
@@ -24,6 +25,7 @@ export default function CashConfirmModal({
 	orderId,
 	amount,
 }: Props) {
+	const { t } = useTranslation("orders");
 	const mutation = useUserConfirmCompletion();
 
 	const handleConfirm = () => {
@@ -36,8 +38,9 @@ export default function CashConfirmModal({
 				onError: (err) => {
 					Toast.show({
 						type: "info",
-						text1: "Payment confirmation failed",
-						text2: err instanceof Error ? err.message : "Please try again.",
+						text1: t("detail.cash.confirmFailed"),
+						text2:
+							err instanceof Error ? err.message : t("detail.cash.tryAgain"),
 					});
 				},
 			},
@@ -46,22 +49,24 @@ export default function CashConfirmModal({
 
 	return (
 		<AlertDialog visible={visible} onClose={onClose}>
-			<AlertDialog.Header>Confirm cash payment</AlertDialog.Header>
-			<AlertDialog.Body>{`Confirm you paid ${amount} EGP in cash`}</AlertDialog.Body>
+			<AlertDialog.Header>{t("detail.cash.title")}</AlertDialog.Header>
+			<AlertDialog.Body>
+				{t("detail.cash.body", { amount })}
+			</AlertDialog.Body>
 			<AlertDialog.Footer>
 				<Button
 					variant="secondary"
 					onPress={onClose}
 					disabled={mutation.isPending}
 				>
-					Cancel
+					{t("detail.cash.cancel")}
 				</Button>
 				<Button
 					variant="primary"
 					onPress={handleConfirm}
 					loading={mutation.isPending}
 				>
-					Confirm
+					{t("detail.cash.confirm")}
 				</Button>
 			</AlertDialog.Footer>
 		</AlertDialog>

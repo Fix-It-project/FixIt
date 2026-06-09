@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, useWindowDimensions, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
@@ -22,6 +23,7 @@ export default function ProfileEditScreenLayout({
 	onBackPress,
 	onSavePress,
 }: ProfileEditScreenLayoutProps) {
+	const { t } = useTranslation("profile");
 	const themeColors = useThemeColors();
 	const { width } = useWindowDimensions();
 	const horizontalPadding = Math.min(Math.max(width * 0.05, 16), 28);
@@ -29,7 +31,7 @@ export default function ProfileEditScreenLayout({
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-surface" edges={["top"]}>
 			<PageHeader
-				title="Edit Profile"
+				title={t("header.editTitle")}
 				variant="surface"
 				onBackPress={onBackPress}
 			/>
@@ -55,7 +57,7 @@ export default function ProfileEditScreenLayout({
 							{isPending ? (
 								<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 							) : (
-								<Text variant="body">Save Changes</Text>
+								<Text variant="body">{t("edit.save")}</Text>
 							)}
 						</Button>
 					</View>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
@@ -13,8 +14,9 @@ export default function OrderStatusBanner({
 	status,
 	cancellationReason,
 }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
-	const config = getOrderStatusBadge(status, themeColors, "user");
+	const config = getOrderStatusBadge(status, themeColors, "user", t);
 
 	return (
 		<View

@@ -1,5 +1,6 @@
 import { Check } from "lucide-react-native";
 import { Fragment, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -14,11 +15,19 @@ import {
 	ENTRANCE_STAGGER,
 } from "@/src/constants/animation";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
+import {
+	translateServiceDescription,
+	translateServiceName,
+} from "@/src/features/categories/constants/categories";
 import { useTechnicianServicesQuery } from "@/src/features/technicians/hooks/useTechnicianServicesQuery";
 import type { TechnicianService } from "@/src/features/technicians/schemas/response.schema";
 
-function formatPriceRange(min: number | null, max: number | null): string {
-	if (min == null && max == null) return "Price on request";
+function formatPriceRange(
+	min: number | null,
+	max: number | null,
+	onRequestLabel: string,
+): string {
+	if (min == null && max == null) return onRequestLabel;
 	if (min != null && max != null && min !== max) {
 		return `EGP ${min.toLocaleString()} – ${max.toLocaleString()}`;
 	}
@@ -42,6 +51,8 @@ export function ServicesTab({
 	onSelect,
 	preselectServiceId,
 }: ServicesTabProps) {
+	const { t } = useTranslation("technicians");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const {
@@ -71,10 +82,10 @@ export function ServicesTab({
 		return (
 			<View className="items-center py-section-y">
 				<Text variant="buttonLg" className="text-content">
-					Couldn't load services
+					{t("services.loadError")}
 				</Text>
 				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
-					Please try again in a moment.
+					{t("services.loadErrorBody")}
 				</Text>
 			</View>
 		);
@@ -84,13 +95,13 @@ export function ServicesTab({
 		return (
 			<View className="items-center py-section-y">
 				<Text variant="buttonLg" className="text-content">
-					No services listed
+					{t("services.emptyTitle")}
 				</Text>
 				<Text
 					variant="bodySm"
 					className="mt-stack-xs text-center text-content-muted"
 				>
-					This technician hasn't published any services yet.
+					{t("services.emptyBody")}
 				</Text>
 			</View>
 		);
@@ -101,6 +112,16 @@ export function ServicesTab({
 			<View className="gap-stack-xs rounded-card bg-card p-stack-xs">
 				{services.map((service, index) => {
 					const isSelected = service.id === selectedServiceId;
+					const serviceName = translateServiceName(
+						tc,
+						service.id,
+						service.name,
+					);
+					const serviceDescription = translateServiceDescription(
+						tc,
+						service.id,
+						service.description,
+					);
 					return (
 						<Fragment key={service.id}>
 							<Animated.View
@@ -131,22 +152,26 @@ export function ServicesTab({
 											className="font-bold text-content"
 											numberOfLines={1}
 										>
-											{service.name}
+											{serviceName}
 										</Text>
-										{service.description ? (
+										{serviceDescription ? (
 											<Text
 												variant="caption"
 												className="mt-stack-xs text-content-muted"
 												numberOfLines={2}
 											>
-												{service.description}
+												{serviceDescription}
 											</Text>
 										) : null}
 										<Text
 											variant="buttonMd"
 											className="mt-stack-sm font-bold text-app-primary"
 										>
-											{formatPriceRange(service.min_price, service.max_price)}
+											{formatPriceRange(
+												service.min_price,
+												service.max_price,
+												t("services.priceOnRequest"),
+											)}
 										</Text>
 									</View>
 

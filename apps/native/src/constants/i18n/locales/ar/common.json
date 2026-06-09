@@ -2,5 +2,18 @@
 	"appearance": "المظهر",
 	"language": "اللغة",
 	"english": "English",
-	"arabic": "العربية"
+	"arabic": "العربية",
+	"tabs": {
+		"home": "الرئيسية",
+		"notifications": "الإشعارات",
+		"orders": "طلباتي",
+		"profile": "ملفي الشخصي",
+		"openChat": "فتح الدردشة الذكية"
+	},
+	"theme": {
+		"light": "فاتح",
+		"white": "أبيض",
+		"dark": "داكن",
+		"system": "النظام"
+	}
 }

@@ -9,6 +9,7 @@
 
 import { Truck, Wrench } from "lucide-react-native";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -50,6 +51,7 @@ export default function ActiveOrderBubblePresenter({
 	viewer,
 	onPress,
 }: ActiveOrderBubblePresenterProps) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
 	const reducedMotion = useReducedMotion();
@@ -118,11 +120,11 @@ export default function ActiveOrderBubblePresenter({
 					accessibilityLabel={
 						viewer === "technician"
 							? showEta
-								? `Active job — arrives in about ${etaMinutes} minutes`
-								: "Active job"
+								? t("detail.bubble.activeJobEta", { n: etaMinutes })
+								: t("detail.bubble.activeJob")
 							: showEta
-								? `Open active order — arrives in about ${etaMinutes} minutes`
-								: "Open active order"
+								? t("detail.bubble.activeOrderEta", { n: etaMinutes })
+								: t("detail.bubble.activeOrder")
 					}
 					className="flex-row items-center gap-stack-xs rounded-pill bg-app-primary px-card py-stack-sm"
 					style={shadowStyle(elevation.header, {
@@ -147,7 +149,7 @@ export default function ActiveOrderBubblePresenter({
 					)}
 					{showEta ? (
 						<Text variant="caption" style={{ color: themeColors.surfaceOnPrimary }}>
-							{`~${etaMinutes}m`}
+							{t("detail.bubble.etaShort", { n: etaMinutes })}
 						</Text>
 					) : null}
 				</PressableScale>

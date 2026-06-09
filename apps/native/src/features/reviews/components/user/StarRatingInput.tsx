@@ -1,4 +1,5 @@
 import { Star } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
 import { useThemeColors } from "@/src/constants/design-tokens";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function StarRatingInput({ value, onChange, size = 36 }: Props) {
+  const { t } = useTranslation("reviews");
   const themeColors = useThemeColors();
   return (
     <View className="flex-row items-center justify-center gap-stack-sm" accessibilityRole="adjustable">
@@ -21,7 +23,9 @@ export default function StarRatingInput({ value, onChange, size = 36 }: Props) {
             activeOpacity={0.6}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel={`Rate ${star} star${star === 1 ? "" : "s"}`}
+            accessibilityLabel={
+              star === 1 ? t("star.rateOne") : t("star.rateOther", { n: star })
+            }
             accessibilityState={{ selected: filled }}
           >
             <Star

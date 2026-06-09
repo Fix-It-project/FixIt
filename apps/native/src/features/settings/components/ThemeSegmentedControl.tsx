@@ -1,4 +1,5 @@
 import { Contrast, Moon, Smartphone, Sun } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
 	SegmentedControl,
@@ -24,6 +25,7 @@ const OPTIONS: ThemeOption[] = [
 ];
 
 export function ThemeSegmentedControl() {
+	const { t } = useTranslation("common");
 	const { preference, setPreference } = useColorScheme();
 	const themeColors = useThemeColors();
 	const { options, handlePreferencePress } = useThemeEasterEgg(
@@ -38,7 +40,7 @@ export function ThemeSegmentedControl() {
 				backgroundColor: themeColors.surfaceElevated,
 			}}
 		>
-			{options.map(({ value, label, Icon }) => {
+			{options.map(({ value, Icon }) => {
 				const isActive = preference === value;
 
 				return (
@@ -69,7 +71,7 @@ export function ThemeSegmentedControl() {
 									color: isActive ? themeColors.primary : themeColors.textMuted,
 								}}
 							>
-								{label}
+								{t(`theme.${value}` as Parameters<typeof t>[0])}
 							</Text>
 						</View>
 					</SegmentedControlItem>

@@ -2,5 +2,18 @@
 	"appearance": "Appearance",
 	"language": "Language",
 	"english": "English",
-	"arabic": "العربية"
+	"arabic": "العربية",
+	"tabs": {
+		"home": "Home",
+		"notifications": "Notifications",
+		"orders": "My Orders",
+		"profile": "My Profile",
+		"openChat": "Open AI chat"
+	},
+	"theme": {
+		"light": "Light",
+		"white": "White",
+		"dark": "Dark",
+		"system": "System"
+	}
 }

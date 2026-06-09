@@ -1,0 +1,40 @@
+{
+	"sheet": {
+		"title": "اختر الموقع",
+		"saved": "العناوين المحفوظة",
+		"loading": "جارٍ تحميل العناوين...",
+		"loadErrorTitle": "تعذر تحميل العناوين",
+		"loadErrorMessage": "يرجى المحاولة مرة أخرى بعد قليل.",
+		"add": "إضافة عنوان",
+		"delete": "حذف"
+	},
+	"addSheet": {
+		"title": "إضافة موقع جديد",
+		"heading": "التقاط موقعك",
+		"description": "اضغط الزر أدناه لالتقاط إحداثيات GPS الحالية، ثم املأ تفاصيل عنوانك.",
+		"useCurrentLocation": "استخدام الموقع الحالي"
+	},
+	"header": {
+		"location": "موقعك",
+		"select": "اختر الموقع"
+	},
+	"form": {
+		"title": "تفاصيل العنوان",
+		"location": "الموقع: {{latitude}}, {{longitude}}",
+		"city": "المدينة",
+		"cityPlaceholder": "مثال: القاهرة",
+		"street": "الشارع",
+		"streetAddress": "عنوان الشارع",
+		"streetPlaceholder": "عنوان الشارع أو المنطقة",
+		"building": "رقم المبنى",
+		"buildingPlaceholder": "مثال: 12",
+		"apartment": "رقم الشقة",
+		"apartmentPlaceholder": "مثال: 5A",
+		"save": "حفظ العنوان",
+		"errors": {
+			"cityRequired": "المدينة مطلوبة",
+			"streetMin": "يجب أن يكون عنوان الشارع 5 أحرف على الأقل",
+			"streetMax": "يجب أن يكون عنوان الشارع أقل من 200 حرف"
+		}
+	}
+}

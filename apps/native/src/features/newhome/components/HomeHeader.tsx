@@ -16,7 +16,6 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import {
 	Accordion,
@@ -30,6 +29,7 @@ import { Text } from "@/src/components/ui/text";
 import { EASE_OUT_QUART } from "@/src/constants/animation";
 import {
 	arabicFontFamily,
+	spacing,
 	typography,
 	useThemeColors,
 } from "@/src/constants/design-tokens";
@@ -58,7 +58,6 @@ export function HomeHeader({
 	const t = useThemeColors();
 	const { t: tr } = useTranslation("home");
 	const router = useRouter();
-	const insets = useSafeAreaInsets();
 	const { width } = useWindowDimensions();
 	const language = useLanguageStore((state) => state.language);
 	const setLanguage = useLanguageStore((state) => state.setLanguage);
@@ -106,7 +105,6 @@ export function HomeHeader({
 		<View
 			style={{
 				backgroundColor: t.tint.heroStart,
-				paddingTop: insets.top + 2,
 			}}
 		>
 			<View
@@ -115,7 +113,7 @@ export function HomeHeader({
 					alignItems: "center",
 					justifyContent: "space-between",
 					paddingHorizontal: 20,
-					paddingTop: 4,
+					paddingTop: spacing.stack.md,
 				}}
 			>
 				<Image

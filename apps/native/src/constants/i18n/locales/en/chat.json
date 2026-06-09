@@ -1,0 +1,50 @@
+{
+	"header": {
+		"title": "AI Assistant",
+		"subtitle": "Describe the issue or send a photo to get a technician recommendation."
+	},
+	"composer": {
+		"imageNote": "Image will be sent with the diagnosis request",
+		"voiceMessage": "Voice message · {{duration}}",
+		"voiceReplaces": "Voice replaces text input",
+		"recording": "Recording · {{duration}}",
+		"modeLabel": "Mode: {{mode}}",
+		"modeRecommend": "Recommend",
+		"modeAgent": "Agent",
+		"gallery": "Gallery",
+		"camera": "Camera",
+		"placeholderVoice": "Voice message attached",
+		"placeholderText": "Ask FixIt AI about your problem...",
+		"hintVoice": "Voice message will be sent instead of text.",
+		"hintText": "Text can be empty for recommendations with an image or voice."
+	},
+	"messages": {
+		"assistant": "FixIt Assistant",
+		"agent": "FixIt Agent",
+		"intro": "Tell me what is happening at home and I'll suggest the most suitable technician nearby.",
+		"agentDraft": "Agent order draft",
+		"recommendationReady": "Recommendation ready",
+		"diagnosedCategory": "Diagnosed category",
+		"summary": "Summary",
+		"estimatedCost": "Estimated cost",
+		"notAvailable": "N/A",
+		"recommendedTechs": "Recommended technicians",
+		"distanceAway": "{{km}} km away",
+		"match": "{{n}}% match",
+		"rate": "{{n}} EGP/hr",
+		"topPick": "Top pick",
+		"continueBooking": "Continue to booking",
+		"loadingAgent": "Agent is preparing your order...",
+		"loadingRecommend": "Finding technician recommendations..."
+	},
+	"recommend": {
+		"title": "Results for: {{query}}",
+		"loadErrorTitle": "Could not load recommendations.",
+		"loadErrorMessage": "Something went wrong. Please try again.",
+		"tryAgain": "Try again",
+		"emptyTitle": "No technicians in your area yet",
+		"emptyMessage": "Try a different description or expand your search area.",
+		"distance": "{{km}} km",
+		"rate": "From EGP {{rate}}/hr"
+	}
+}

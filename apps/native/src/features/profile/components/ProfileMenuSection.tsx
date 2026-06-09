@@ -7,6 +7,7 @@ import {
 	Pencil,
 	Settings,
 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
@@ -84,6 +85,7 @@ export default function ProfileMenuSection({
 	onPastOrders,
 	onAddresses,
 }: ProfileMenuSectionProps) {
+	const { t } = useTranslation("profile");
 	return (
 		<>
 			<View className="mt-card-roomy px-screen-x">
@@ -95,7 +97,7 @@ export default function ProfileMenuSection({
 				>
 					<MenuItem
 						icon={Pencil}
-						label="Edit Profile"
+						label={t("menu.editProfile")}
 						onPress={onEditProfile}
 					/>
 					<Separator />
@@ -104,7 +106,7 @@ export default function ProfileMenuSection({
 						<>
 							<MenuItem
 								icon={ClipboardList}
-								label="Past Orders"
+								label={t("menu.pastOrders")}
 								onPress={onPastOrders}
 							/>
 							<Separator />
@@ -115,14 +117,18 @@ export default function ProfileMenuSection({
 						<>
 							<MenuItem
 								icon={MapPin}
-								label="My Addresses"
+								label={t("menu.addresses")}
 								onPress={onAddresses}
 							/>
 							<Separator />
 						</>
 					)}
 
-					<MenuItem icon={Settings} label="Settings" onPress={onSettings} />
+					<MenuItem
+						icon={Settings}
+						label={t("menu.settings")}
+						onPress={onSettings}
+					/>
 				</View>
 			</View>
 
@@ -135,7 +141,7 @@ export default function ProfileMenuSection({
 				>
 					<MenuItem
 						icon={LogOut}
-						label={isLoggingOut ? "Logging out…" : "Log Out"}
+						label={isLoggingOut ? t("menu.loggingOut") : t("menu.logout")}
 						onPress={onLogout}
 						destructive
 						testID="profile-logout"

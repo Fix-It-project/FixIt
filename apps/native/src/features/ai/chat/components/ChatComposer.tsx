@@ -1,311 +1,378 @@
-import {
-  Image,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Input } from "@/src/components/ui/input";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Camera, ImagePlus, Mic, MicOff, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Image, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/constants/design-tokens";
-import { useColorScheme } from "@/src/hooks/use-color-scheme";
+import type {
+	AudioRecorderState,
+	RecordedAudio,
+} from "../hooks/useAudioRecorder";
 import type { ChatFlow, SelectedImage } from "../types";
-import type { AudioRecorderState, RecordedAudio } from "../hooks/useAudioRecorder";
 
 type Props = {
-  mode: ChatFlow;
-  onToggleMode: () => void;
-  message: string;
-  onMessageChange: (value: string) => void;
-  selectedImage: SelectedImage | null;
-  onClearImage: () => void;
-  onPickImage: () => void;
-  onTakePhoto: () => void;
-  onSend: () => void;
-  canSend: boolean;
-  isLoading: boolean;
-  activeFlow: ChatFlow | null;
-  // Audio props
-  recorderState: AudioRecorderState;
-  recordedAudio: RecordedAudio | null;
-  recordingDurationMs: number;
-  onStartRecording: () => void;
-  onStopRecording: () => void;
-  onClearAudio: () => void;
-  onCancelRecording: () => void;
+	mode: ChatFlow;
+	onToggleMode: () => void;
+	message: string;
+	onMessageChange: (value: string) => void;
+	selectedImage: SelectedImage | null;
+	onClearImage: () => void;
+	onPickImage: () => void;
+	onTakePhoto: () => void;
+	onSend: () => void;
+	canSend: boolean;
+	isLoading: boolean;
+	activeFlow: ChatFlow | null;
+	// Audio props
+	recorderState: AudioRecorderState;
+	recordedAudio: RecordedAudio | null;
+	recordingDurationMs: number;
+	onStartRecording: () => void;
+	onStopRecording: () => void;
+	onClearAudio: () => void;
+	onCancelRecording: () => void;
 };
 
 function formatDuration(ms: number) {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+	const totalSeconds = Math.floor(ms / 1000);
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = totalSeconds % 60;
+	return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 export default function ChatComposer({
-  mode,
-  onToggleMode,
-  message,
-  onMessageChange,
-  selectedImage,
-  onClearImage,
-  onPickImage,
-  onTakePhoto,
-  onSend,
-  canSend,
-  isLoading,
-  activeFlow,
-  recorderState,
-  recordedAudio,
-  recordingDurationMs,
-  onStartRecording,
-  onStopRecording,
-  onClearAudio,
-  onCancelRecording,
+	mode,
+	onToggleMode,
+	message,
+	onMessageChange,
+	selectedImage,
+	onClearImage,
+	onPickImage,
+	onTakePhoto,
+	onSend,
+	canSend,
+	isLoading,
+	activeFlow,
+	recorderState,
+	recordedAudio,
+	recordingDurationMs,
+	onStartRecording,
+	onStopRecording,
+	onClearAudio,
+	onCancelRecording,
 }: Props) {
-  const insets = useSafeAreaInsets();
-  const themeColors = useThemeColors();
-  const { isDarkColorScheme } = useColorScheme();
+	const { t } = useTranslation("chat");
+	const insets = useSafeAreaInsets();
+	const themeColors = useThemeColors();
 
-  const isRecording = recorderState === "recording";
-  const hasAudio = recorderState === "recorded" && !!recordedAudio;
-  const disableTyping = isRecording || hasAudio;
+	const isRecording = recorderState === "recording";
+	const hasAudio = recorderState === "recorded" && !!recordedAudio;
+	const disableTyping = isRecording || hasAudio;
 
-  const containerBg = themeColors.surfaceBase;
-  const borderColor = themeColors.borderDefault;
-  const inputBg = themeColors.surfaceElevated;
-  const mutedText = themeColors.textMuted;
-  const bodyText = themeColors.textPrimary;
+	const containerBg = themeColors.surfaceBase;
+	const borderColor = themeColors.borderDefault;
+	const inputBg = themeColors.surfaceElevated;
+	const mutedText = themeColors.textMuted;
+	const bodyText = themeColors.textPrimary;
 
-  const danger = themeColors.danger;
-  const dangerSoft = themeColors.dangerSoft;
-  const overlayMd = themeColors.overlayMd;
-  const overlaySm = themeColors.overlaySm;
-  const micIdleBg = themeColors.surfaceElevated;
-  const micRecordedBg = themeColors.textMuted;
-  const micIcon = themeColors.primary;
-  const primary = themeColors.primary;
+	const danger = themeColors.danger;
+	const dangerSoft = themeColors.dangerSoft;
+	const overlaySm = themeColors.overlaySm;
+	const micIdleBg = themeColors.surfaceElevated;
+	const micRecordedBg = themeColors.textMuted;
+	const micIcon = themeColors.primary;
+	const primary = themeColors.primary;
 
-  return (
-    <View
-      className="border-t border-black/5 px-4 pt-4"
-      style={{ paddingBottom: insets.bottom + 12, backgroundColor: containerBg }}
-    >
-      {/* Selected image preview */}
-      {selectedImage ? (
-        <View className="mb-3 rounded-2xl border px-3 py-3" style={{ borderColor }}>
-          <View className="flex-row items-center">
-            <Image
-              source={{ uri: selectedImage.uri }}
-              className="h-14 w-14 rounded-xl"
-              resizeMode="cover"
-            />
-            <View className="ml-3 flex-1">
-              <Text variant="bodySm" style={{ color: bodyText }} numberOfLines={1}>
-                {selectedImage.name}
-              </Text>
-              <Text variant="caption" className="mt-1" style={{ color: mutedText }}>
-                Image will be sent with the diagnosis request
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={onClearImage}
-              activeOpacity={0.75}
-              className="h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: themeColors.overlaySm }}
-            >
-              <X size={16} color={themeColors.textSecondary} strokeWidth={2.4} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null}
+	return (
+		<View
+			className="border-black/5 border-t px-4 pt-4"
+			style={{
+				paddingBottom: insets.bottom + 12,
+				backgroundColor: containerBg,
+			}}
+		>
+			{/* Selected image preview */}
+			{selectedImage ? (
+				<View
+					className="mb-3 rounded-2xl border px-3 py-3"
+					style={{ borderColor }}
+				>
+					<View className="flex-row items-center">
+						<Image
+							source={{ uri: selectedImage.uri }}
+							className="h-14 w-14 rounded-xl"
+							resizeMode="cover"
+						/>
+						<View className="ml-3 flex-1">
+							<Text
+								variant="bodySm"
+								style={{ color: bodyText }}
+								numberOfLines={1}
+							>
+								{selectedImage.name}
+							</Text>
+							<Text
+								variant="caption"
+								className="mt-1"
+								style={{ color: mutedText }}
+							>
+								{t("composer.imageNote")}
+							</Text>
+						</View>
+						<TouchableOpacity
+							onPress={onClearImage}
+							activeOpacity={0.75}
+							className="h-9 w-9 items-center justify-center rounded-full"
+							style={{ backgroundColor: themeColors.overlaySm }}
+						>
+							<X
+								size={16}
+								color={themeColors.textSecondary}
+								strokeWidth={2.4}
+							/>
+						</TouchableOpacity>
+					</View>
+				</View>
+			) : null}
 
-      {/* Recorded audio preview */}
-      {hasAudio ? (
-        <View className="mb-3 rounded-2xl border px-3 py-3" style={{ borderColor }}>
-          <View className="flex-row items-center">
-            <View className="h-11 w-11 items-center justify-center rounded-xl" style={{ backgroundColor: primary }}>
-              <Mic size={18} color={themeColors.onPrimaryHeader} strokeWidth={2} />
-            </View>
-            <View className="ml-3 flex-1">
-              <Text variant="bodySm" style={{ color: bodyText }}>
-                Voice message · {formatDuration(recordingDurationMs)}
-              </Text>
-              <Text variant="caption" className="mt-1" style={{ color: mutedText }}>
-                Voice replaces text input
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={onClearAudio}
-              activeOpacity={0.75}
-              className="h-9 w-9 items-center justify-center rounded-full"
-              style={{ backgroundColor: themeColors.overlaySm }}
-            >
-              <X size={16} color={themeColors.textSecondary} strokeWidth={2.4} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null}
+			{/* Recorded audio preview */}
+			{hasAudio ? (
+				<View
+					className="mb-3 rounded-2xl border px-3 py-3"
+					style={{ borderColor }}
+				>
+					<View className="flex-row items-center">
+						<View
+							className="h-11 w-11 items-center justify-center rounded-xl"
+							style={{ backgroundColor: primary }}
+						>
+							<Mic
+								size={18}
+								color={themeColors.onPrimaryHeader}
+								strokeWidth={2}
+							/>
+						</View>
+						<View className="ml-3 flex-1">
+							<Text variant="bodySm" style={{ color: bodyText }}>
+								{t("composer.voiceMessage", {
+									duration: formatDuration(recordingDurationMs),
+								})}
+							</Text>
+							<Text
+								variant="caption"
+								className="mt-1"
+								style={{ color: mutedText }}
+							>
+								{t("composer.voiceReplaces")}
+							</Text>
+						</View>
+						<TouchableOpacity
+							onPress={onClearAudio}
+							activeOpacity={0.75}
+							className="h-9 w-9 items-center justify-center rounded-full"
+							style={{ backgroundColor: themeColors.overlaySm }}
+						>
+							<X
+								size={16}
+								color={themeColors.textSecondary}
+								strokeWidth={2.4}
+							/>
+						</TouchableOpacity>
+					</View>
+				</View>
+			) : null}
 
-      {/* Recording in-progress indicator */}
-      {isRecording ? (
-        <View className="mb-3 rounded-2xl border px-3 py-3" style={{ borderColor: dangerSoft }}>
-          <View className="flex-row items-center">
-            <View className="h-3 w-3 rounded-full" style={{ backgroundColor: danger }} />
-            <Text
-              variant="bodySm"
-              className="ml-2 flex-1 font-google-sans-semibold"
-              style={{ color: danger }}
-            >
-              Recording · {formatDuration(recordingDurationMs)}
-            </Text>
-            <TouchableOpacity
-              onPress={onCancelRecording}
-              activeOpacity={0.75}
-              className="flex-row items-center rounded-full border px-3 py-1.5"
-              style={{ borderColor: dangerSoft, backgroundColor: overlaySm }}
-            >
-              <MicOff size={13} color={danger} strokeWidth={2.2} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null}
+			{/* Recording in-progress indicator */}
+			{isRecording ? (
+				<View
+					className="mb-3 rounded-2xl border px-3 py-3"
+					style={{ borderColor: dangerSoft }}
+				>
+					<View className="flex-row items-center">
+						<View
+							className="h-3 w-3 rounded-full"
+							style={{ backgroundColor: danger }}
+						/>
+						<Text
+							variant="bodySm"
+							className="ml-2 flex-1 font-google-sans-semibold"
+							style={{ color: danger }}
+						>
+							{t("composer.recording", {
+								duration: formatDuration(recordingDurationMs),
+							})}
+						</Text>
+						<TouchableOpacity
+							onPress={onCancelRecording}
+							activeOpacity={0.75}
+							className="flex-row items-center rounded-full border px-3 py-1.5"
+							style={{ borderColor: dangerSoft, backgroundColor: overlaySm }}
+						>
+							<MicOff size={13} color={danger} strokeWidth={2.2} />
+						</TouchableOpacity>
+					</View>
+				</View>
+			) : null}
 
-      {/* Mode toggle */}
-      <View className="mb-3">
-        <TouchableOpacity
-          onPress={onToggleMode}
-          activeOpacity={0.8}
-          className="flex-row items-center justify-center rounded-2xl border px-4 py-3"
-          style={{
-            backgroundColor: inputBg,
-            borderColor,
-          }}
-        >
-          <Text
-            variant="bodySm"
-            className="font-google-sans-semibold"
-            style={{ color: bodyText }}
-          >
-            Mode: {mode === "recommend" ? "Recommend" : "Agent"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+			{/* Mode toggle */}
+			<View className="mb-3">
+				<TouchableOpacity
+					onPress={onToggleMode}
+					activeOpacity={0.8}
+					className="flex-row items-center justify-center rounded-2xl border px-4 py-3"
+					style={{
+						backgroundColor: inputBg,
+						borderColor,
+					}}
+				>
+					<Text
+						variant="bodySm"
+						className="font-google-sans-semibold"
+						style={{ color: bodyText }}
+					>
+						{t("composer.modeLabel", {
+							mode:
+								mode === "recommend"
+									? t("composer.modeRecommend")
+									: t("composer.modeAgent"),
+						})}
+					</Text>
+				</TouchableOpacity>
+			</View>
 
-      {/* Media buttons */}
-      <View className="mb-3 flex-row gap-3">
-        <TouchableOpacity
-          onPress={onPickImage}
-          activeOpacity={0.8}
-          disabled={isRecording}
-          className="flex-1 flex-row items-center justify-center rounded-2xl border py-3"
-          style={{
-            backgroundColor: inputBg,
-            borderColor,
-            opacity: isRecording ? 0.5 : 1,
-          }}
-        >
-          <ImagePlus size={18} color={Colors.primary} strokeWidth={2} />
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            variant="bodySm"
-            className="ml-2 font-google-sans-semibold"
-            style={{ color: bodyText }}
-          >
-            Gallery
-          </Text>
-        </TouchableOpacity>
+			{/* Media buttons */}
+			<View className="mb-3 flex-row gap-3">
+				<TouchableOpacity
+					onPress={onPickImage}
+					activeOpacity={0.8}
+					disabled={isRecording}
+					className="flex-1 flex-row items-center justify-center rounded-2xl border py-3"
+					style={{
+						backgroundColor: inputBg,
+						borderColor,
+						opacity: isRecording ? 0.5 : 1,
+					}}
+				>
+					<ImagePlus size={18} color={Colors.primary} strokeWidth={2} />
+					<Text
+						numberOfLines={1}
+						ellipsizeMode="tail"
+						variant="bodySm"
+						className="ml-2 font-google-sans-semibold"
+						style={{ color: bodyText }}
+					>
+						{t("composer.gallery")}
+					</Text>
+				</TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={onTakePhoto}
-          activeOpacity={0.8}
-          disabled={isRecording}
-          className="flex-1 flex-row items-center justify-center rounded-2xl border py-3"
-          style={{
-            backgroundColor: inputBg,
-            borderColor,
-            opacity: isRecording ? 0.5 : 1,
-          }}
-        >
-          <Camera size={18} color={Colors.primary} strokeWidth={2} />
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            variant="bodySm"
-            className="ml-2 font-google-sans-semibold"
-            style={{ color: bodyText }}
-          >
-            Camera
-          </Text>
-        </TouchableOpacity>
-      </View>
+				<TouchableOpacity
+					onPress={onTakePhoto}
+					activeOpacity={0.8}
+					disabled={isRecording}
+					className="flex-1 flex-row items-center justify-center rounded-2xl border py-3"
+					style={{
+						backgroundColor: inputBg,
+						borderColor,
+						opacity: isRecording ? 0.5 : 1,
+					}}
+				>
+					<Camera size={18} color={Colors.primary} strokeWidth={2} />
+					<Text
+						numberOfLines={1}
+						ellipsizeMode="tail"
+						variant="bodySm"
+						className="ml-2 font-google-sans-semibold"
+						style={{ color: bodyText }}
+					>
+						{t("composer.camera")}
+					</Text>
+				</TouchableOpacity>
+			</View>
 
-      {/* Text input + action row */}
-      <View
-        className="rounded-[28px] border px-4 py-3"
-        style={{ backgroundColor: inputBg, borderColor }}
-      >
-        <Input
-          placeholder={hasAudio ? "Voice message attached" : "Ask FixIt AI about your problem..."}
-          placeholderTextColor={mutedText}
-          value={message}
-          onChangeText={onMessageChange}
-          multiline
-          editable={!disableTyping}
-          className="min-h-[76px] border-0"
-          style={{
-            color: bodyText,
-            opacity: disableTyping ? 0.4 : 1,
-          }}
-        />
+			{/* Text input + action row */}
+			<View
+				className="rounded-[28px] border px-4 py-3"
+				style={{ backgroundColor: inputBg, borderColor }}
+			>
+				<Input
+					placeholder={
+						hasAudio
+							? t("composer.placeholderVoice")
+							: t("composer.placeholderText")
+					}
+					placeholderTextColor={mutedText}
+					value={message}
+					onChangeText={onMessageChange}
+					multiline
+					editable={!disableTyping}
+					className="min-h-[76px] border-0"
+					style={{
+						color: bodyText,
+						opacity: disableTyping ? 0.4 : 1,
+					}}
+				/>
 
-        <View className="mt-3 flex-row items-center justify-between">
-          <Text variant="caption" className="flex-1 pr-3" style={{ color: mutedText }}>
-            {hasAudio
-              ? "Voice message will be sent instead of text."
-              : "Text can be empty for recommendations with an image or voice."}
-          </Text>
-        </View>
+				<View className="mt-3 flex-row items-center justify-between">
+					<Text
+						variant="caption"
+						className="flex-1 pr-3"
+						style={{ color: mutedText }}
+					>
+						{hasAudio ? t("composer.hintVoice") : t("composer.hintText")}
+					</Text>
+				</View>
 
-        {/* Action buttons */}
-        <View className="mt-3 flex-row items-center gap-2">
-          {/* Mic button */}
-          <TouchableOpacity
-            onPress={isRecording ? onStopRecording : onStartRecording}
-            disabled={isLoading || hasAudio}
-            activeOpacity={0.85}
-            className="h-12 w-12 items-center justify-center rounded-full"
-            style={{
-              backgroundColor: isRecording
-                ? danger
-                : hasAudio
-                  ? micRecordedBg
-                  : micIdleBg,
-            }}
-          >
-            {isRecording ? (
-              <View className="h-4 w-4 rounded-sm" style={{ backgroundColor: themeColors.onPrimaryHeader }} />
-            ) : (
-              <Mic size={18} color={hasAudio ? themeColors.onPrimaryHeader : micIcon} strokeWidth={2.2} />
-            )}
-          </TouchableOpacity>
+				{/* Action buttons */}
+				<View className="mt-3 flex-row items-center gap-2">
+					{/* Mic button */}
+					<TouchableOpacity
+						onPress={isRecording ? onStopRecording : onStartRecording}
+						disabled={isLoading || hasAudio}
+						activeOpacity={0.85}
+						className="h-12 w-12 items-center justify-center rounded-full"
+						style={{
+							backgroundColor: isRecording
+								? danger
+								: hasAudio
+									? micRecordedBg
+									: micIdleBg,
+						}}
+					>
+						{isRecording ? (
+							<View
+								className="h-4 w-4 rounded-sm"
+								style={{ backgroundColor: themeColors.onPrimaryHeader }}
+							/>
+						) : (
+							<Mic
+								size={18}
+								color={hasAudio ? themeColors.onPrimaryHeader : micIcon}
+								strokeWidth={2.2}
+							/>
+						)}
+					</TouchableOpacity>
 
-          <Button
-            variant="primary"
-            className="flex-1"
-            loading={activeFlow === mode}
-            disabled={!canSend || isLoading || isRecording}
-            onPress={onSend}
-          >
-            <Text variant="bodySm" className="font-google-sans-semibold" style={{ color: themeColors.onPrimaryHeader }}>
-              {mode === "recommend" ? "Recommend" : "Agent"}
-            </Text>
-          </Button>
-        </View>
-      </View>
-    </View>
-  );
+					<Button
+						variant="primary"
+						className="flex-1"
+						loading={activeFlow === mode}
+						disabled={!canSend || isLoading || isRecording}
+						onPress={onSend}
+					>
+						<Text
+							variant="bodySm"
+							className="font-google-sans-semibold"
+							style={{ color: themeColors.onPrimaryHeader }}
+						>
+							{mode === "recommend"
+								? t("composer.modeRecommend")
+								: t("composer.modeAgent")}
+						</Text>
+					</Button>
+				</View>
+			</View>
+		</View>
+	);
 }

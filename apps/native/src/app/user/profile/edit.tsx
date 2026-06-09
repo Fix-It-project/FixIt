@@ -1,6 +1,6 @@
 import { Mail, Phone, User } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import FormInput from "@/src/components/forms/FormInput";
-import { ROUTES } from "@/src/lib/navigation";
 import ProfileEditScreenLayout from "@/src/features/profile/components/ProfileEditScreenLayout";
 import { useProfileQuery } from "@/src/features/users/hooks/useProfileQuery";
 import { useUpdateProfileMutation } from "@/src/features/users/hooks/useUpdateProfileMutation";
@@ -8,9 +8,10 @@ import { useUserProfileEditController } from "@/src/features/users/hooks/useUser
 import { editProfileSchema } from "@/src/features/users/schemas/form.schema";
 import { useEditProfileStore } from "@/src/features/users/stores/edit-profile-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { useSafeBack } from "@/src/lib/navigation";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 export default function EditProfileScreen() {
+	const { t } = useTranslation("profile");
 	const { data: profile } = useProfileQuery();
 	const updateProfile = useUpdateProfileMutation();
 	const { fieldErrors, clearFieldError, validate } =
@@ -65,13 +66,13 @@ export default function EditProfileScreen() {
 			onSavePress={handleSave}
 		>
 			<FormInput
-				label="Full Name"
+				label={t("edit.fullName")}
 				value={fullName}
 				onChangeText={(text) => {
 					setFullName(text);
 					clearFieldError("full_name");
 				}}
-				placeholder="Enter your full name"
+				placeholder={t("edit.fullNamePlaceholder")}
 				icon={User}
 				error={fieldErrors.full_name}
 				disabled={isPending}
@@ -80,34 +81,38 @@ export default function EditProfileScreen() {
 			/>
 
 			<FormInput
-				label="Email"
+				label={t("edit.email")}
 				value={email}
 				onChangeText={(text) => {
 					setEmail(text);
 					clearFieldError("email");
 				}}
-				placeholder="Enter your email"
+				placeholder={t("edit.emailPlaceholder")}
 				icon={Mail}
 				error={fieldErrors.email}
 				disabled={isPending}
 				variant="outline"
 				keyboardType="email-address"
 				autoCapitalize="none"
+				textAlign="left"
+				textDirection="ltr"
 			/>
 
 			<FormInput
-				label="Phone"
+				label={t("edit.phone")}
 				value={phone}
 				onChangeText={(text) => {
 					setPhone(text);
 					clearFieldError("phone");
 				}}
-				placeholder="Enter your phone number"
+				placeholder={t("edit.phonePlaceholder")}
 				icon={Phone}
 				error={fieldErrors.phone}
 				disabled={isPending}
 				variant="outline"
 				keyboardType="phone-pad"
+				textAlign="left"
+				textDirection="ltr"
 			/>
 		</ProfileEditScreenLayout>
 	);

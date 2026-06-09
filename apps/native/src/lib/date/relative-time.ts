@@ -1,23 +1,53 @@
-/**
- * Format an ISO timestamp as a human-readable relative duration ("Xm ago", "Xy ago").
- *
- * `now` is injectable so this stays unit-testable without a mocked global Date.
- */
+function formatArabicRelative(value: number, unit: string): string {
+	if (value === 0) return "الآن";
+	return `منذ ${value} ${unit}`;
+}
+
+function formatEnglishRelative(value: number, unit: string): string {
+	if (value === 0) return "just now";
+	return `${value}${unit} ago`;
+}
+
+/** Format an ISO timestamp as a human-readable relative duration. */
 export function formatRelativeTime(
 	iso: string,
 	now: Date = new Date(),
+	language?: string,
 ): string {
 	const then = Date.parse(iso);
 	if (Number.isNaN(then)) return "";
 	const seconds = Math.floor((now.getTime() - then) / 1000);
-	if (seconds < 60) return "just now";
+	const isArabic = language?.startsWith("ar");
+	const locale = isArabic ? "ar-EG" : "en-US";
+	const intlFormatter =
+		typeof Intl.RelativeTimeFormat === "function"
+			? new Intl.RelativeTimeFormat(locale, {
+					numeric: "auto",
+					style: "narrow",
+				})
+			: null;
+	if (intlFormatter) {
+		if (seconds < 60) return intlFormatter.format(0, "second");
+		const minutes = Math.floor(seconds / 60);
+		if (minutes < 60) return intlFormatter.format(-minutes, "minute");
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return intlFormatter.format(-hours, "hour");
+		const days = Math.floor(hours / 24);
+		if (days < 30) return intlFormatter.format(-days, "day");
+		const months = Math.floor(days / 30);
+		if (months < 12) return intlFormatter.format(-months, "month");
+		return intlFormatter.format(-Math.floor(days / 365), "year");
+	}
+
+	const format = isArabic ? formatArabicRelative : formatEnglishRelative;
+	if (seconds < 60) return format(0, "s");
 	const minutes = Math.floor(seconds / 60);
-	if (minutes < 60) return `${minutes}m ago`;
+	if (minutes < 60) return format(minutes, isArabic ? "د" : "m");
 	const hours = Math.floor(minutes / 60);
-	if (hours < 24) return `${hours}h ago`;
+	if (hours < 24) return format(hours, isArabic ? "س" : "h");
 	const days = Math.floor(hours / 24);
-	if (days < 30) return `${days}d ago`;
+	if (days < 30) return format(days, isArabic ? "ي" : "d");
 	const months = Math.floor(days / 30);
-	if (months < 12) return `${months}mo ago`;
-	return `${Math.floor(days / 365)}y ago`;
+	if (months < 12) return format(months, isArabic ? "ش" : "mo");
+	return format(Math.floor(days / 365), isArabic ? "سنة" : "y");
 }

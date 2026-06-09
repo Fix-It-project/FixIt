@@ -1,4 +1,5 @@
 import { ChevronDown, MapPin } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/constants/design-tokens";
@@ -12,11 +13,12 @@ interface LocationHeaderProps {
 export default function LocationHeader({
 	onLocationPress,
 }: LocationHeaderProps) {
+	const { t } = useTranslation("addresses");
 	const themeColors = useThemeColors();
 	const { data: addresses } = useAddressesQuery();
 
 	const activeAddress = addresses?.find((a) => a.is_active) ?? addresses?.[0];
-	const locationLabel = formatAddress(activeAddress, "Select Location");
+	const locationLabel = formatAddress(activeAddress, t("header.select"));
 
 	return (
 		<View className="px-screen-x pt-stack-sm pb-stack-md">
@@ -39,7 +41,7 @@ export default function LocationHeader({
 
 				<View className="shrink">
 					<Text variant="caption" style={{ color: Colors.overlayBright }}>
-						Your Location
+						{t("header.location")}
 					</Text>
 					<View className="flex-row items-center gap-stack-xs">
 						<Text

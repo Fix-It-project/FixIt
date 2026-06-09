@@ -1,6 +1,7 @@
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
+import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
 import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
 import type { RecommendedTechnicianApi } from "@/src/features/technicians/schemas/response.schema";
@@ -9,10 +10,13 @@ import { ROUTES } from "@/src/lib/navigation/routes";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecommendScreen() {
+	const { t } = useTranslation("chat");
+	const { t: tc } = useTranslation("categories");
 	const { q } = useLocalSearchParams<{ q: string }>();
 	const router = useRouter();
 
@@ -96,7 +100,7 @@ export default function RecommendScreen() {
 					<ChevronLeft size={24} className="text-foreground" />
 				</PressableScale>
 				<Text variant="h3" className="flex-1 text-foreground" numberOfLines={1}>
-					Results for: {q}
+					{t("recommend.title", { query: q })}
 				</Text>
 			</View>
 
@@ -118,14 +122,14 @@ export default function RecommendScreen() {
 					className="mt-8"
 				>
 					<Text variant="label" className="text-foreground">
-						Could not load recommendations.
+						{t("recommend.loadErrorTitle")}
 					</Text>
 					<Text variant="bodySm" className="text-center text-muted-foreground">
-						Something went wrong. Please try again.
+						{t("recommend.loadErrorMessage")}
 					</Text>
 					<PressableScale onPress={handleRetry}>
 						<Text variant="buttonMd" className="text-app-primary">
-							Try again
+							{t("recommend.tryAgain")}
 						</Text>
 					</PressableScale>
 				</View>
@@ -137,10 +141,10 @@ export default function RecommendScreen() {
 					className="mt-8"
 				>
 					<Text variant="label" className="text-foreground">
-						No technicians in your area yet
+						{t("recommend.emptyTitle")}
 					</Text>
 					<Text variant="bodySm" className="text-center text-muted-foreground">
-						Try a different description or expand your search area.
+						{t("recommend.emptyMessage")}
 					</Text>
 				</View>
 			)}
@@ -167,9 +171,9 @@ export default function RecommendScreen() {
 										...route.params,
 										technicianName: result.name,
 										distanceKm:
-											result.distance_km == undefined
-												? undefined
-												: result.distance_km.toFixed(1),
+											result.distance_km != null
+												? result.distance_km.toFixed(1)
+												: undefined,
 									},
 								});
 							}}
@@ -198,17 +202,23 @@ export default function RecommendScreen() {
 									</Text>
 									<Text variant="caption" className="text-muted-foreground">
 										{[
-											result.category ?? "",
-											result.distance_km == undefined
-												? null
-												: `${result.distance_km.toFixed(1)} km`,
+											result.category
+												? translateCategoryLabel(tc, null, result.category)
+												: "",
+											result.distance_km != null
+												? t("recommend.distance", {
+														km: result.distance_km.toFixed(1),
+													})
+												: null,
 										]
 											.filter(Boolean)
 											.join(" · ")}
 									</Text>
-									{result.base_hourly_rate != undefined && (
+									{result.base_hourly_rate != null && (
 										<Text variant="caption" className="text-muted-foreground">
-											From EGP {result.base_hourly_rate.toFixed(0)}/hr
+											{t("recommend.rate", {
+												rate: result.base_hourly_rate.toFixed(0),
+											})}
 										</Text>
 									)}
 								</View>

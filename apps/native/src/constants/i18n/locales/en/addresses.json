@@ -1,0 +1,40 @@
+{
+	"sheet": {
+		"title": "Select location",
+		"saved": "Saved addresses",
+		"loading": "Loading addresses...",
+		"loadErrorTitle": "Could not load addresses",
+		"loadErrorMessage": "Please try again in a moment.",
+		"add": "Add address",
+		"delete": "Delete"
+	},
+	"addSheet": {
+		"title": "Add New Location",
+		"heading": "Capture Your Location",
+		"description": "Tap the button below to capture your current GPS coordinates, then fill in your address details.",
+		"useCurrentLocation": "Use current location"
+	},
+	"header": {
+		"location": "Your Location",
+		"select": "Select Location"
+	},
+	"form": {
+		"title": "Address Details",
+		"location": "Location: {{latitude}}, {{longitude}}",
+		"city": "City",
+		"cityPlaceholder": "e.g. Cairo",
+		"street": "Street",
+		"streetAddress": "Street Address",
+		"streetPlaceholder": "Street address or area",
+		"building": "Building No.",
+		"buildingPlaceholder": "e.g. 12",
+		"apartment": "Apartment No.",
+		"apartmentPlaceholder": "e.g. 5A",
+		"save": "Save Address",
+		"errors": {
+			"cityRequired": "City is required",
+			"streetMin": "Street address must be at least 5 characters",
+			"streetMax": "Street address must be less than 200 characters"
+		}
+	}
+}

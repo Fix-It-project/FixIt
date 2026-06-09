@@ -1,20 +1,22 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { MapPin } from "lucide-react-native";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import PageHeader from "@/src/components/layout/PageHeader";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import AddressFormSection from "@/src/features/address-entry/components/AddressFormSection";
 import { useAddAddressMutation } from "@/src/features/addresses/hooks/useAddAddressMutation";
 import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/errors";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function AddAddressScreen() {
+	const { t } = useTranslation("addresses");
 	const themeColors = useThemeColors();
 	const params = useLocalSearchParams<{
 		latitude: string;
@@ -28,8 +30,9 @@ export default function AddAddressScreen() {
 	const [buildingNumber, setBuildingNumber] = useState("");
 	const [apartmentNumber, setApartmentNumber] = useState("");
 
-	const { fieldErrors, clearFieldError, validate } =
-		useFormValidation(addAddressSchema);
+	const { fieldErrors, clearFieldError, validate } = useFormValidation(
+		addAddressSchema(t),
+	);
 	const addMutation = useAddAddressMutation();
 
 	const handleSubmit = useCallback(() => {
@@ -68,7 +71,7 @@ export default function AddAddressScreen() {
 			style={{ backgroundColor: themeColors.surfaceBase }}
 		>
 			{/* Header */}
-			<PageHeader title="Address Details" variant="surface" />
+			<PageHeader title={t("form.title")} variant="surface" />
 
 			<KeyboardAwareScrollView
 				style={{ flex: 1, paddingHorizontal: spacing.screen.paddingX }}
@@ -92,7 +95,10 @@ export default function AddAddressScreen() {
 						className="ml-stack-sm"
 						style={{ color: Colors.primary }}
 					>
-						Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+						{t("form.location", {
+							latitude: latitude.toFixed(4),
+							longitude: longitude.toFixed(4),
+						})}
 					</Text>
 				</View>
 
@@ -114,7 +120,7 @@ export default function AddAddressScreen() {
 					onApartmentNumberChange={setApartmentNumber}
 					errors={{ city: fieldErrors.city, street: fieldErrors.street }}
 					variant="outline"
-					streetLabel="Street"
+					streetLabel={t("form.street")}
 					showIcons={false}
 				/>
 
@@ -136,9 +142,12 @@ export default function AddAddressScreen() {
 					className="w-full rounded-button"
 				>
 					{addMutation.isPending ? (
-						<ActivityIndicator size="small" color={themeColors.surfaceOnPrimary} />
+						<ActivityIndicator
+							size="small"
+							color={themeColors.surfaceOnPrimary}
+						/>
 					) : (
-						<Text variant="buttonLg">Save Address</Text>
+						<Text variant="buttonLg">{t("form.save")}</Text>
 					)}
 				</Button>
 			</KeyboardAwareScrollView>

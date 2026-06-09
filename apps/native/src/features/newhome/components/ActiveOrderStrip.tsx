@@ -23,6 +23,7 @@ import {
 } from "@/src/constants/animation";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { useUserActiveOrder } from "@/src/features/booking-orders/hooks/useUserActiveOrder";
+import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
 import type { OrderStatus } from "@/src/features/booking-orders/utils/order-status-ui";
 import { getOrderStatusLabel } from "@/src/features/booking-orders/utils/order-status-ui";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
@@ -120,7 +121,7 @@ const STEP_KEYS = [
 
 export function ActiveOrderStrip() {
 	const t = useThemeColors();
-	const { t: tr } = useTranslation("home");
+	const { t: tr, i18n } = useTranslation("home");
 	const router = useRouter();
 	const { activeOrder, isLoading } = useUserActiveOrder();
 
@@ -136,12 +137,7 @@ export function ActiveOrderStrip() {
 
 	// Format the scheduled time
 	const rawTime = activeOrder.scheduled_start_at ?? activeOrder.scheduled_date;
-	const formattedTime = rawTime
-		? new Date(rawTime).toLocaleTimeString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-			})
-		: "—";
+	const formattedTime = rawTime ? formatTime(rawTime, i18n.language) : "—";
 
 	const orderRef = `#${activeOrder.id.slice(0, 8)}`;
 

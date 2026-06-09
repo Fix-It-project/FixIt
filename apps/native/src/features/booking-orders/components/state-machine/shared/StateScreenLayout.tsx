@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { type LayoutChangeEvent, ScrollView, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
@@ -13,7 +14,6 @@ import StepBodySlide from "./StepBodySlide";
 import StickyBottomCTA from "./StickyBottomCTA";
 
 const IN_PROGRESS_PILL_COUNT = 4;
-const PILL_LABELS = ["On the way", "Inspecting", "Quote", "Finalize"] as const;
 
 interface StateScreenLayoutProps {
 	readonly order: Order;
@@ -34,7 +34,14 @@ export default function StateScreenLayout({
 	children,
 	stickyCta,
 }: StateScreenLayoutProps) {
+	const { t } = useTranslation("orders");
 	const ui = deriveUiState(order, viewer);
+	const pillLabels = [
+		t("detail.pills.onTheWay"),
+		t("detail.pills.inspecting"),
+		t("detail.pills.quote"),
+		t("detail.pills.finalize"),
+	] as const;
 	const visibleStepIndex = toVisibleStepIndex(ui.stepIndex);
 	const [ctaHeight, setCtaHeight] = useState(0);
 
@@ -58,12 +65,12 @@ export default function StateScreenLayout({
 				<DetailHeader
 					categoryId={order.category_id}
 					onBack={goBack}
-					title="Order"
+					title={t("detail.orderTitle")}
 				/>
 				<StageProgressBar
 					stepIndex={visibleStepIndex}
 					stepCount={IN_PROGRESS_PILL_COUNT}
-					labels={PILL_LABELS}
+					labels={pillLabels}
 				/>
 				<ScrollView
 					className="flex-1"

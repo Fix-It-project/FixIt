@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { confirm } from "@/src/components/ui/dialog";
 import { useLogoutMutation } from "@/src/features/auth/hooks/useLogoutMutation";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
@@ -11,6 +12,7 @@ import { showError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function UserProfileRoute() {
+	const { t } = useTranslation("profile");
 	const { data: profile, isLoading } = useProfileQuery();
 	const { data: orders = [] } = useUserOrdersQuery();
 	const logout = useLogoutMutation();
@@ -33,10 +35,10 @@ export default function UserProfileRoute() {
 
 	const handleLogout = async () => {
 		const ok = await confirm({
-			title: "Log out",
-			description: "Are you sure you want to log out?",
-			primary: { label: "Log out", destructive: true },
-			secondary: { label: "Cancel" },
+			title: t("logout.title"),
+			description: t("logout.description"),
+			primary: { label: t("logout.confirm"), destructive: true },
+			secondary: { label: t("logout.cancel") },
 		});
 		if (ok) {
 			logout.mutate(undefined, {
