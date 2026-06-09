@@ -1,5 +1,6 @@
 import { Ban, CalendarClock, Clock } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import TechnicianProfileSheet, {
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function PendingWaitingCard({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const rescheduleRef = useRef<RescheduleSheetHandle>(null);
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
@@ -49,25 +51,25 @@ export default function PendingWaitingCard({ order }: Props) {
 				onSuccess: () => {
 					setCancelOpen(false);
 					setCancelReason("");
-					Toast.show({ type: "success", text1: "Order cancelled" });
+					Toast.show({ type: "success", text1: t("detail.toast.cancelled") });
 				},
 				onError: (err) =>
 					Toast.show({
 						type: "info",
-						text1: "Failed to cancel",
+						text1: t("detail.toast.cancelFailed"),
 						text2: err instanceof Error ? err.message : undefined,
 					}),
 			},
 		);
-	}, [cancelMutation, cancelReason, order.id]);
+	}, [cancelMutation, cancelReason, order.id, t]);
 
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={Clock}
-				eyebrow="Request sent"
-				title="Waiting on the tech."
-				subtitle="Usually under 30 min. You'll get a ping the moment they accept."
+				eyebrow={t("detail.stage.pending.eyebrow")}
+				title={t("detail.stage.pending.title")}
+				subtitle={t("detail.stage.pending.subtitle")}
 			/>
 
 			<OrderInfoCompact
@@ -97,14 +99,16 @@ export default function PendingWaitingCard({ order }: Props) {
 						onPress={openReschedule}
 						disabled={hasPendingReschedule}
 					>
-						{hasPendingReschedule ? "Request pending" : "Reschedule"}
+						{hasPendingReschedule
+							? t("detail.cta.requestPending")
+							: t("detail.cta.reschedule")}
 					</Button>
 				</View>
 				<View className="shrink-0">
 					<Button
 						variant="destructive"
 						size="icon"
-						accessibilityLabel="Cancel order"
+						accessibilityLabel={t("detail.a11y.cancelOrder")}
 						onPress={() => setCancelOpen(true)}
 						loading={cancelMutation.isPending}
 					>
@@ -118,10 +122,10 @@ export default function PendingWaitingCard({ order }: Props) {
 
 			<CancelReasonModal
 				visible={cancelOpen}
-				title="Cancel Order"
+				title={t("detail.cancelModal.title")}
 				subjectRole="order"
 				subjectName={order.technician_name}
-				subjectFallback="this technician"
+				subjectFallback={t("detail.cancelModal.subjectFallback")}
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

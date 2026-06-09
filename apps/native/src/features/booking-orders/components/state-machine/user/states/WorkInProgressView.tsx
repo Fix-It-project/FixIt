@@ -1,5 +1,6 @@
 import { Ban, CheckCircle2, Hammer } from "lucide-react-native";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export default function WorkInProgressView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const userCompletedAt = order.user_completed_at ?? null;
 	const techCompletedAt = order.technician_completed_at ?? null;
@@ -34,14 +36,14 @@ export default function WorkInProgressView({ order }: Props) {
 	const decline = useUserDeclineCompletion();
 	const confirm = useUserConfirmCompletion();
 
-	const fire = (mutation: typeof confirm, label: string) => {
+	const fire = (mutation: typeof confirm, failMessage: string) => {
 		mutation.mutate(
 			{ orderId: order.id },
 			{
 				onError: (err) =>
 					Toast.show({
 						type: "info",
-						text1: `Could not ${label}`,
+						text1: failMessage,
 						text2: err.message,
 					}),
 			},
@@ -52,9 +54,9 @@ export default function WorkInProgressView({ order }: Props) {
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={Hammer}
-				eyebrow="In progress"
-				title="Your tech is fixing it."
-				subtitle="Tap finish when the work is done. Tech must agree."
+				eyebrow={t("detail.stage.inProgress.eyebrow")}
+				title={t("detail.stage.inProgress.title")}
+				subtitle={t("detail.stage.inProgress.subtitle")}
 			/>
 			<OrderInfoCompact
 				order={order}
@@ -69,19 +71,19 @@ export default function WorkInProgressView({ order }: Props) {
 			{userRequested ? (
 				<CompletionRequestPendingCard
 					direction="awaiting_them"
-					actorLabel="Technician"
+					actorLabel={t("card.technicianFallback")}
 					requestedAt={userCompletedAt}
-					onDecline={() => fire(decline, "decline")}
+					onDecline={() => fire(decline, t("detail.toast.couldNotDecline"))}
 					declinePending={decline.isPending}
 				/>
 			) : null}
 			{techRequested ? (
 				<CompletionRequestPendingCard
 					direction="awaiting_me"
-					actorLabel="Technician"
+					actorLabel={t("card.technicianFallback")}
 					requestedAt={techCompletedAt}
-					onConfirm={() => fire(confirm, "confirm")}
-					onDecline={() => fire(decline, "decline")}
+					onConfirm={() => fire(confirm, t("detail.toast.couldNotConfirm"))}
+					onDecline={() => fire(decline, t("detail.toast.couldNotDecline"))}
 					confirmPending={confirm.isPending}
 					declinePending={decline.isPending}
 				/>
@@ -92,6 +94,7 @@ export default function WorkInProgressView({ order }: Props) {
 }
 
 export function WorkInProgressViewCta({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const userCompletedAt = order.user_completed_at ?? null;
 	const techCompletedAt = order.technician_completed_at ?? null;
 	const noPending = !userCompletedAt && !techCompletedAt;
@@ -111,12 +114,12 @@ export function WorkInProgressViewCta({ order }: Props) {
 				onSuccess: () => {
 					setCancelOpen(false);
 					setCancelReason("");
-					Toast.show({ type: "success", text1: "Order cancelled" });
+					Toast.show({ type: "success", text1: t("detail.toast.cancelled") });
 				},
 				onError: (err) =>
 					Toast.show({
 						type: "info",
-						text1: "Failed to cancel order",
+						text1: t("detail.toast.cancelFailed"),
 						text2: err.message,
 					}),
 			},
@@ -139,7 +142,7 @@ export function WorkInProgressViewCta({ order }: Props) {
 									onError: (err) =>
 										Toast.show({
 											type: "info",
-											text1: "Could not confirm",
+											text1: t("detail.toast.couldNotConfirm"),
 											text2: err.message,
 										}),
 								},
@@ -147,14 +150,14 @@ export function WorkInProgressViewCta({ order }: Props) {
 						}
 						loading={confirm.isPending}
 					>
-						Mark work complete
+						{t("detail.cta.markWorkComplete")}
 					</Button>
 				</View>
 				<View className="shrink-0">
 					<Button
 						variant="destructive"
 						size="icon"
-						accessibilityLabel="Cancel order"
+						accessibilityLabel={t("detail.a11y.cancelOrder")}
 						onPress={() => setCancelOpen(true)}
 						loading={cancel.isPending}
 					>
@@ -164,10 +167,10 @@ export function WorkInProgressViewCta({ order }: Props) {
 			</View>
 			<CancelReasonModal
 				visible={cancelOpen}
-				title="Cancel Order"
+				title={t("detail.cancelModal.title")}
 				subjectRole="order"
 				subjectName={order.technician_name}
-				subjectFallback="this technician"
+				subjectFallback={t("detail.cancelModal.subjectFallback")}
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

@@ -1,7 +1,27 @@
+import arAddresses from "./locales/ar/addresses.json";
+import arBooking from "./locales/ar/booking.json";
+import arCategories from "./locales/ar/categories.json";
+import arChat from "./locales/ar/chat.json";
 import arCommon from "./locales/ar/common.json";
 import arHome from "./locales/ar/home.json";
+import arNotifications from "./locales/ar/notifications.json";
+import arOrders from "./locales/ar/orders.json";
+import arProfile from "./locales/ar/profile.json";
+import arReviews from "./locales/ar/reviews.json";
+import arSettings from "./locales/ar/settings.json";
+import arTechnicians from "./locales/ar/technicians.json";
+import enAddresses from "./locales/en/addresses.json";
+import enBooking from "./locales/en/booking.json";
+import enCategories from "./locales/en/categories.json";
+import enChat from "./locales/en/chat.json";
 import enCommon from "./locales/en/common.json";
 import enHome from "./locales/en/home.json";
+import enNotifications from "./locales/en/notifications.json";
+import enOrders from "./locales/en/orders.json";
+import enProfile from "./locales/en/profile.json";
+import enReviews from "./locales/en/reviews.json";
+import enSettings from "./locales/en/settings.json";
+import enTechnicians from "./locales/en/technicians.json";
 
 /**
  * Centralized i18n resources. English is the source of truth (and the shape
@@ -14,15 +34,56 @@ export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 export const DEFAULT_LANGUAGE: Language = "en";
 
 export const defaultNS = "common" as const;
-export const namespaces = ["common", "home"] as const;
+export const namespaces = [
+	"common",
+	"home",
+	"booking",
+	"technicians",
+	"categories",
+	"orders",
+	"profile",
+	"settings",
+	"notifications",
+	"reviews",
+	"chat",
+	"addresses",
+] as const;
 
 export const resources = {
-	en: { common: enCommon, home: enHome },
-	ar: { common: arCommon, home: arHome },
+	en: {
+		common: enCommon,
+		home: enHome,
+		booking: enBooking,
+		technicians: enTechnicians,
+		categories: enCategories,
+		orders: enOrders,
+		profile: enProfile,
+		settings: enSettings,
+		notifications: enNotifications,
+		reviews: enReviews,
+		chat: enChat,
+		addresses: enAddresses,
+	},
+	ar: {
+		common: arCommon,
+		home: arHome,
+		booking: arBooking,
+		technicians: arTechnicians,
+		categories: arCategories,
+		orders: arOrders,
+		profile: arProfile,
+		settings: arSettings,
+		notifications: arNotifications,
+		reviews: arReviews,
+		chat: arChat,
+		addresses: arAddresses,
+	},
 } as const;
 
 export function isSupportedLanguage(
 	value: string | null | undefined,
 ): value is Language {
-	return value != null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
+	return (
+		value != null && (SUPPORTED_LANGUAGES as readonly string[]).includes(value)
+	);
 }

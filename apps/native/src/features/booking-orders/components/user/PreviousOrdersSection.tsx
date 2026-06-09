@@ -1,4 +1,5 @@
 import { RotateCcw } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
@@ -18,6 +19,7 @@ function OrderCard({
 	item: PreviousOrder;
 	cardWidth: number;
 }>) {
+	const { t } = useTranslation("orders");
 	return (
 		<View
 			className="rounded-card bg-card p-card"
@@ -54,7 +56,7 @@ function OrderCard({
 
 				{/* Reorder button */}
 				<Button variant="outline" size="sm" iconLeft={RotateCcw}>
-					Reorder
+					{t("card.reorder")}
 				</Button>
 			</View>
 
@@ -72,6 +74,7 @@ function OrderCard({
 }
 
 export default function PreviousOrdersSection() {
+	const { t } = useTranslation("orders");
 	const { width } = useWindowDimensions();
 	const cardWidth = width * CARD_WIDTH_RATIO;
 
@@ -82,7 +85,7 @@ export default function PreviousOrdersSection() {
 			{/* Header */}
 			<View className="mb-stack-sm flex-row items-center px-screen-x">
 				<Text variant="h2" className="text-content">
-					Previous Orders
+					{t("card.previousOrders")}
 				</Text>
 			</View>
 

@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
@@ -15,7 +16,10 @@ import {
 	getOrderStatusBadge,
 	type OrderStatusPerspective,
 } from "@/src/features/booking-orders/utils/order-status-ui";
-import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import {
+	CATEGORIES,
+	translateServiceName,
+} from "@/src/features/categories/constants/categories";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import type { OrderStatus } from "@/src/schemas/shared.schema";
@@ -30,6 +34,7 @@ export interface PastOrdersListItem {
 	readonly route: Href;
 	readonly scheduledDate: string;
 	readonly scheduledStartAt?: string | null;
+	readonly serviceId?: string | null;
 	readonly serviceName: string | null | undefined;
 	readonly status: OrderStatus;
 }
@@ -48,6 +53,8 @@ function PastOrderCard({
 	readonly item: PastOrdersListItem;
 	readonly statusPerspective: OrderStatusPerspective;
 }) {
+	const { t, i18n } = useTranslation("orders");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const goToOrder = useDebounce(() => router.push(item.route as never));
 	const category = item.categoryId
@@ -59,8 +66,14 @@ function PastOrderCard({
 		item.status,
 		themeColors,
 		statusPerspective,
+		t,
 	);
-	const scheduledTime = formatTime(item.scheduledStartAt);
+	const scheduledTime = formatTime(item.scheduledStartAt, i18n.language);
+	const serviceName = translateServiceName(
+		tc,
+		item.serviceId,
+		item.serviceName,
+	);
 
 	return (
 		<TouchableOpacity
@@ -111,14 +124,14 @@ function PastOrderCard({
 							style={{ color: themeColors.textSecondary }}
 							numberOfLines={1}
 						>
-							{item.serviceName ?? "Service"}
+							{serviceName || t("card.serviceFallback")}
 						</Text>
 					</View>
 				</View>
 
 				<View className="items-end">
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						{formatDate(item.scheduledDate)}
+						{formatDate(item.scheduledDate, i18n.language)}
 						{scheduledTime ? ` • ${scheduledTime}` : ""}
 					</Text>
 					<View
@@ -143,14 +156,15 @@ export default function PastOrdersList({
 	items,
 	onBack,
 	statusPerspective = "neutral",
-	title = "Past Orders",
+	title,
 }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 
 	return (
 		<View className="flex-1 bg-surface">
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
-				<PageHeader title={title} onBackPress={onBack} />
+				<PageHeader title={title ?? t("list.pastTitle")} onBackPress={onBack} />
 
 				<ScrollView
 					className="flex-1"
@@ -163,7 +177,7 @@ export default function PastOrdersList({
 					{items.length === 0 ? (
 						<View className="items-center py-stack-4xl">
 							<Text variant="bodySm" style={{ color: themeColors.textMuted }}>
-								No past orders yet
+								{t("list.pastEmpty")}
 							</Text>
 						</View>
 					) : (

@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { CheckCircle2 } from "lucide-react-native";
 import { useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export default function CompletedView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
@@ -63,9 +65,9 @@ export default function CompletedView({ order }: Props) {
 		<View style={{ flex: 1, gap: space[5] }}>
 			<StageHero
 				icon={CheckCircle2}
-				eyebrow="Done"
-				title="All wrapped up."
-				subtitle="Thanks for using FixIt."
+				eyebrow={t("detail.stage.completed.eyebrow")}
+				title={t("detail.stage.completed.title")}
+				subtitle={t("detail.stage.completed.subtitle")}
 				accentColor={themeColors.success}
 			/>
 
@@ -82,7 +84,7 @@ export default function CompletedView({ order }: Props) {
 				>
 					<View style={{ gap: space[1] }}>
 						<Text variant="caption" style={{ color: themeColors.textMuted }}>
-							Final price
+							{t("detail.completed.finalPrice")}
 						</Text>
 						<Text
 							variant="h2"
@@ -96,7 +98,7 @@ export default function CompletedView({ order }: Props) {
 								style={{ color: themeColors.success }}
 							>
 								{" "}
-								EGP
+								{t("detail.completed.currency")}
 							</Text>
 						</Text>
 					</View>
@@ -134,7 +136,7 @@ export default function CompletedView({ order }: Props) {
 			<PressableScale
 				onPress={handleDone}
 				accessibilityRole="button"
-				accessibilityLabel="Done"
+				accessibilityLabel={t("detail.a11y.done")}
 				style={{ marginTop: "auto" }}
 			>
 				<View
@@ -146,7 +148,7 @@ export default function CompletedView({ order }: Props) {
 						className="font-google-sans-bold"
 						style={{ color: themeColors.onPrimaryHeader }}
 					>
-						Done
+						{t("detail.cta.done")}
 					</Text>
 				</View>
 			</PressableScale>

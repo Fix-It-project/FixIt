@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -119,6 +120,7 @@ export function TimeSlotGrid({
 	selectedHour,
 	onSelect,
 }: TimeSlotGridProps) {
+	const { t } = useTranslation("booking");
 	const reducedMotion = useReducedMotion();
 	const dayTemplates = useMemo(() => {
 		if (!selectedDate) return [];
@@ -150,7 +152,7 @@ export function TimeSlotGrid({
 				className="items-center rounded-card bg-surface-elevated px-card py-card"
 			>
 				<Text variant="bodySm" className="text-content-muted">
-					Pick a date to see available times.
+					{t("slots.pickDate")}
 				</Text>
 			</Animated.View>
 		);
@@ -173,7 +175,7 @@ export function TimeSlotGrid({
 				className="rounded-card bg-app-primary-light px-card py-stack-md"
 			>
 				<Text variant="buttonMd" className="text-center text-app-primary">
-					No available times on this day. Please pick another date.
+					{t("slots.dayUnavailable")}
 				</Text>
 			</Animated.View>
 		);
@@ -201,7 +203,7 @@ export function TimeSlotGrid({
 			{MORNING.length > 0 ? (
 				<View key={`morning-${selectedDate}`} className="gap-stack-sm">
 					<Text variant="label" className="text-content-secondary">
-						Morning
+						{t("slots.morning")}
 					</Text>
 					{renderRow(MORNING, 0)}
 				</View>
@@ -209,7 +211,7 @@ export function TimeSlotGrid({
 			{EVENING.length > 0 ? (
 				<View key={`evening-${selectedDate}`} className="gap-stack-sm">
 					<Text variant="label" className="text-content-secondary">
-						Afternoon
+						{t("slots.afternoon")}
 					</Text>
 					{renderRow(EVENING, MORNING.length)}
 				</View>

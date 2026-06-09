@@ -1,17 +1,23 @@
 import { router } from "expo-router";
 import {
+	AirVent,
+	BrushCleaning,
 	Bug,
 	ClipboardList,
+	CookingPot,
+	Drill,
 	Droplets,
 	Fan,
 	Flame,
 	Hammer,
+	HousePlug,
 	Leaf,
 	type LucideIcon,
+	Paintbrush,
 	PaintRoller,
+	Refrigerator,
 	SatelliteDish,
 	Sparkles,
-	Thermometer,
 	WashingMachine,
 	Zap,
 } from "lucide-react-native";
@@ -24,33 +30,37 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { DUR_SLIDE_UP, ENTRANCE_STAGGER } from "@/src/constants/animation";
 import { useThemeColors } from "@/src/constants/design-tokens";
-import { getCategoryMeta } from "@/src/features/categories/constants/categories";
+import {
+	getCategoryMeta,
+	translateCategoryLabel,
+} from "@/src/features/categories/constants/categories";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { ROUTES } from "@/src/lib/navigation/routes";
 
 const ICON_MAP: Record<string, LucideIcon> = {
-	"air condition": Fan,
-	ac: Fan,
-	hvac: Fan,
+	"air condition": AirVent,
+	ac: AirVent,
+	hvac: AirVent,
 	fan: Fan,
 	dish: SatelliteDish,
-	"fridge freezer": Thermometer,
-	fridge: Thermometer,
-	freezer: Thermometer,
-	"oven cooker": Flame,
+	"fridge freezer": Refrigerator,
+	fridge: Refrigerator,
+	freezer: Refrigerator,
+	refrigerator: Refrigerator,
+	"oven cooker": CookingPot,
 	oven: Flame,
-	cooker: Flame,
-	"home cleaning": Sparkles,
-	cleaning: Sparkles,
+	cooker: CookingPot,
+	"home cleaning": BrushCleaning,
+	cleaning: BrushCleaning,
 	painter: PaintRoller,
-	painting: PaintRoller,
+	painting: Paintbrush,
 	appliance: WashingMachine,
 	"appliance repair": WashingMachine,
 	"washing machine": WashingMachine,
-	carpenter: Hammer,
-	carpentry: Hammer,
-	electrician: Zap,
-	electrical: Zap,
+	carpenter: Drill,
+	carpentry: Drill,
+	electrician: HousePlug,
+	electrical: HousePlug,
 	plumbing: Droplets,
 	droplets: Droplets,
 	zap: Zap,
@@ -93,6 +103,7 @@ const SKELETON_KEYS = [
 export function CategoryRow() {
 	const t = useThemeColors();
 	const { t: tr } = useTranslation("home");
+	const { t: tc } = useTranslation("categories");
 	const { data: categories, isLoading, isError } = useCategoriesQuery();
 
 	return (
@@ -122,7 +133,7 @@ export function CategoryRow() {
 				<ScrollView
 					horizontal
 					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+					contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
 				>
 					{SKELETON_KEYS.map((key) => (
 						<Skeleton key={key} className="h-14 w-14 rounded-xl" />
@@ -152,10 +163,11 @@ export function CategoryRow() {
 				<ScrollView
 					horizontal
 					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+					contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
 				>
 					{categories?.map((cat, index) => {
 						const IconComponent = resolveIcon(cat.id, cat.name);
+						const categoryLabel = translateCategoryLabel(tc, cat.id, cat.name);
 						return (
 							<Animated.View
 								key={cat.id}
@@ -175,12 +187,12 @@ export function CategoryRow() {
 										})
 									}
 								>
-									<View style={{ alignItems: "center", gap: 8, width: 70 }}>
+									<View style={{ alignItems: "center", gap: 6, width: 64 }}>
 										<View
 											style={{
-												width: 58,
-												height: 58,
-												borderRadius: 15,
+												width: 56,
+												height: 56,
+												borderRadius: 14,
 												backgroundColor: t.surfaceElevated,
 												borderWidth: 1,
 												borderColor: t.borderChip,
@@ -199,9 +211,9 @@ export function CategoryRow() {
 											variant="caption"
 											className="text-center font-bold text-foreground"
 											numberOfLines={2}
-											style={{ maxWidth: 64 }}
+											style={{ maxWidth: 60 }}
 										>
-											{cat.name}
+											{categoryLabel}
 										</Text>
 									</View>
 								</PressableScale>

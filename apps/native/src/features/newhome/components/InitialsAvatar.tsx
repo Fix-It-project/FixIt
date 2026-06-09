@@ -1,3 +1,4 @@
+import type { TextStyle } from "react-native";
 import {
 	Avatar,
 	AvatarFallback,
@@ -9,6 +10,8 @@ interface InitialsAvatarProps {
 	readonly name: string;
 	readonly imageUrl?: string | null;
 	readonly className?: string;
+	readonly textClassName?: string;
+	readonly textStyle?: TextStyle;
 }
 
 function computeInitials(name: string): string {
@@ -24,6 +27,8 @@ export function InitialsAvatar({
 	name,
 	imageUrl,
 	className,
+	textClassName,
+	textStyle,
 }: InitialsAvatarProps) {
 	const initials = computeInitials(name);
 
@@ -33,7 +38,8 @@ export function InitialsAvatar({
 			<AvatarFallback className="bg-app-primary">
 				<Text
 					variant="caption"
-					className="font-semibold text-primary-foreground"
+					className={textClassName ?? "font-semibold text-primary-foreground"}
+					style={textStyle}
 				>
 					{initials}
 				</Text>

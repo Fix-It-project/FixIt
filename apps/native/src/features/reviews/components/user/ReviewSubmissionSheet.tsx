@@ -11,6 +11,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	ActivityIndicator,
 	type ScrollViewProps,
@@ -42,6 +43,7 @@ interface SheetState {
 
 const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 	function ReviewSubmissionSheet(_, ref) {
+		const { t } = useTranslation("reviews");
 		const themeColors = useThemeColors();
 		const { height } = useWindowDimensions();
 		const bottomSheetRef = useRef<BottomSheetRef>(null);
@@ -156,7 +158,7 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 									/>
 								) : (
 									<Text variant="buttonMd" className="text-surface-on-primary">
-										Submit
+										{t("submit")}
 									</Text>
 								)}
 							</TouchableOpacity>
@@ -167,7 +169,7 @@ const ReviewSubmissionSheet = forwardRef<ReviewSubmissionSheetRef, object>(
 								className="items-center py-control-compact-cta-y"
 							>
 								<Text variant="buttonMd" className="text-content-muted">
-									Skip
+									{t("skip")}
 								</Text>
 							</TouchableOpacity>
 						</View>

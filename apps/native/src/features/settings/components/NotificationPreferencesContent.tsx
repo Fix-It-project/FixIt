@@ -5,6 +5,7 @@ import {
 	Vibrate,
 } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, Switch, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -90,6 +91,7 @@ export default function NotificationPreferencesContent({
 }: Readonly<{
 	role: NotificationPreferencesRole;
 }>) {
+	const { t } = useTranslation("settings");
 	const themeColors = useThemeColors();
 	const { data, isLoading } = useNotificationPreferencesQuery(role);
 	const updateMutation = useUpdateNotificationPreferencesMutation(role);
@@ -129,11 +131,10 @@ export default function NotificationPreferencesContent({
 					<BellRing size={28} color={Colors.primary} strokeWidth={1.8} />
 				</View>
 				<Text variant="bodyLg" className="font-bold text-content">
-					Notification preferences
+					{t("notifications.title")}
 				</Text>
 				<Text variant="bodySm" className="mt-stack-sm text-content-muted">
-					Control whether FixIt sends notifications to this device and whether
-					they play sound or vibrate when they arrive.
+					{t("notifications.description")}
 				</Text>
 			</View>
 
@@ -145,15 +146,15 @@ export default function NotificationPreferencesContent({
 					<View className="items-center py-stack-xl">
 						<ActivityIndicator color={Colors.primary} />
 						<Text variant="caption" className="mt-stack-sm text-content-muted">
-							Loading notification settings…
+							{t("notifications.loading")}
 						</Text>
 					</View>
 				) : (
 					<>
 						<PreferenceRow
 							icon={BellRing}
-							label="Notifications"
-							description="Master switch for push notifications from FixIt."
+							label={t("notifications.notificationsLabel")}
+							description={t("notifications.notificationsDesc")}
 							value={preferences.notificationsEnabled}
 							onChange={(value) =>
 								updatePreferences({
@@ -168,8 +169,8 @@ export default function NotificationPreferencesContent({
 						/>
 						<PreferenceRow
 							icon={Smartphone}
-							label="Sound"
-							description="Play the default alert sound for incoming notifications."
+							label={t("notifications.soundLabel")}
+							description={t("notifications.soundDesc")}
 							value={displayedSoundValue}
 							disabled={detailControlsDisabled}
 							onChange={(value) =>
@@ -185,8 +186,8 @@ export default function NotificationPreferencesContent({
 						/>
 						<PreferenceRow
 							icon={Vibrate}
-							label="Vibration"
-							description="Vibrate this device when FixIt notifications arrive."
+							label={t("notifications.vibrationLabel")}
+							description={t("notifications.vibrationDesc")}
 							value={displayedVibrationValue}
 							disabled={detailControlsDisabled}
 							onChange={(value) =>

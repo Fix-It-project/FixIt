@@ -7,6 +7,7 @@ import {
 	Wrench,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, {
@@ -27,11 +28,13 @@ import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
+import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpers";
 import {
 	BOOKING_SLOT_OPTIONS,
 	type BookingSlotHour,
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
+import { translateServiceName } from "@/src/features/categories/constants/categories";
 import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
@@ -53,9 +56,15 @@ interface SummaryRowProps {
 	readonly icon: LucideIcon;
 	readonly label: string;
 	readonly value: string;
+	readonly valueLines?: number;
 }
 
-function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
+function SummaryRow({
+	icon: Icon,
+	label,
+	value,
+	valueLines = 2,
+}: SummaryRowProps) {
 	const themeColors = useThemeColors();
 	return (
 		<View className="flex-row items-start gap-stack-md py-stack-xs">
@@ -73,7 +82,7 @@ function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
 				<Text
 					variant="bodySm"
 					className="mt-px text-content"
-					numberOfLines={label === "Location" ? 3 : 2}
+					numberOfLines={valueLines}
 				>
 					{value}
 				</Text>
@@ -83,15 +92,15 @@ function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
 }
 
 function formatRating(value: number | null | undefined): string {
-	if (typeof value !== "number" || Number.isNaN(value)) return "New";
+	if (typeof value !== "number" || Number.isNaN(value)) return "";
 	return value.toFixed(1);
 }
 
-function formatDateLabel(value: string): string {
+function formatDateLabel(value: string, language?: string): string {
 	if (!value) return "";
 	const parsed = new Date(`${value}T00:00:00`);
 	if (Number.isNaN(parsed.getTime())) return value;
-	return parsed.toLocaleDateString(undefined, {
+	return parsed.toLocaleDateString(getDateLocale(language), {
 		month: "long",
 		day: "numeric",
 		year: "numeric",
@@ -99,6 +108,8 @@ function formatDateLabel(value: string): string {
 }
 
 export default function BookingDetails() {
+	const { t, i18n } = useTranslation("booking");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const params = useLocalSearchParams<{
@@ -115,7 +126,11 @@ export default function BookingDetails() {
 	const technicianId = getStringParam(params.technicianId);
 	const technicianNameParam = getStringParam(params.technicianName);
 	const serviceId = getStringParam(params.serviceId);
-	const serviceName = getStringParam(params.serviceName);
+	const serviceName = translateServiceName(
+		tc,
+		serviceId,
+		getStringParam(params.serviceName),
+	);
 	const selectedDate = getStringParam(params.selectedDate);
 	const selectedHourRaw = getStringParam(params.selectedHour);
 	const selectedHour = selectedHourRaw ? Number(selectedHourRaw) : null;
@@ -142,18 +157,21 @@ export default function BookingDetails() {
 		[selectedHour],
 	);
 	const technicianName =
-		technicianProfile?.name || technicianNameParam || "Technician";
+		technicianProfile?.name || technicianNameParam || t("technicianFallback");
 	const technicianDescription =
-		technicianProfile?.description || "Professional home service technician";
+		technicianProfile?.description || t("technicianDescriptionFallback");
 	const technicianRating = formatRating(technicianProfile?.avg_rating);
 	const reviewCount = technicianProfile?.review_count ?? 0;
 	const completedOrders = technicianProfile?.completedOrders ?? 0;
 	const appointmentLabel =
 		selectedDate && selectedTimeLabel
-			? `${formatDateLabel(selectedDate)} at ${selectedTimeLabel}`
-			: "No date and time selected";
+			? t("appointmentAt", {
+					date: formatDateLabel(selectedDate, i18n.language),
+					time: selectedTimeLabel,
+				})
+			: t("noDateTimeSelected");
 	const addressLabel = isLoadingAddresses
-		? "Loading location"
+		? t("loadingLocation")
 		: formatAddress(selectedAddress);
 	const initials = getPfpInitialsFallback(technicianName);
 
@@ -182,15 +200,15 @@ export default function BookingDetails() {
 			selectedHour === null ||
 			Number.isNaN(selectedHour)
 		) {
-			Toast.show({ type: "info", text1: "Pick a date and time first." });
+			Toast.show({ type: "info", text1: t("toast.pickDateTime") });
 			return;
 		}
 		if (isAddressError) {
-			Toast.show({ type: "info", text1: "Unable to load your location." });
+			Toast.show({ type: "info", text1: t("toast.locationError") });
 			return;
 		}
 		if (!selectedAddress) {
-			Toast.show({ type: "info", text1: "Add a location before booking." });
+			Toast.show({ type: "info", text1: t("toast.addLocation") });
 			return;
 		}
 
@@ -225,7 +243,7 @@ export default function BookingDetails() {
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<View className="flex-1 bg-surface">
 				<PageHeader
-					title="Booking Details"
+					title={t("detailsTitle")}
 					subtitle={serviceName || undefined}
 					variant="app-primary"
 					onBackPress={goBack}
@@ -268,7 +286,7 @@ export default function BookingDetails() {
 										variant="caption"
 										className="font-semibold text-content"
 									>
-										{technicianRating}
+										{technicianRating || t("ratingNew")}
 									</Text>
 									<Text variant="caption" className="text-content-muted">
 										({reviewCount})
@@ -286,7 +304,7 @@ export default function BookingDetails() {
 								variant="caption"
 								className="mt-stack-xs text-content-muted"
 							>
-								{completedOrders} completed jobs
+								{t("completedJobs", { count: completedOrders })}
 							</Text>
 						</View>
 					</Animated.View>
@@ -297,15 +315,20 @@ export default function BookingDetails() {
 					>
 						<SummaryRow
 							icon={Wrench}
-							label="Service"
-							value={serviceName || "Service not selected"}
+							label={t("service")}
+							value={serviceName || t("serviceNotSelected")}
 						/>
 						<SummaryRow
 							icon={CalendarClock}
-							label="Schedule"
+							label={t("schedule")}
 							value={appointmentLabel}
 						/>
-						<SummaryRow icon={MapPin} label="Location" value={addressLabel} />
+						<SummaryRow
+							icon={MapPin}
+							label={t("location")}
+							value={addressLabel}
+							valueLines={3}
+						/>
 					</Animated.View>
 
 					<Animated.View entering={entering(2)}>
@@ -326,7 +349,7 @@ export default function BookingDetails() {
 						testID="confirm-booking"
 					>
 						<Text variant="buttonLg" className="text-surface-on-primary">
-							{isPending ? "Booking..." : "Confirm Booking"}
+							{isPending ? t("confirming") : t("confirm")}
 						</Text>
 					</Button>
 				</Animated.View>

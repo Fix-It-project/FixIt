@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -18,11 +19,14 @@ import {
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { useBookedSlots } from "@/src/features/booking-orders/hooks/useBookedSlots";
 import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
+import { translateServiceName } from "@/src/features/categories/constants/categories";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { TimeSlotGrid } from "./components/TimeSlotGrid";
 
 export default function NewBooking() {
+	const { t } = useTranslation("booking");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const params = useLocalSearchParams<{
@@ -34,6 +38,7 @@ export default function NewBooking() {
 		categoryName?: string;
 	}>();
 	const { technicianId, serviceId } = params;
+	const serviceName = translateServiceName(tc, serviceId, params.serviceName);
 
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);
 	const [selectedHour, setSelectedHour] = useState<number | null>(null);
@@ -71,7 +76,7 @@ export default function NewBooking() {
 			params: {
 				...route.params,
 				serviceId,
-				serviceName: params.serviceName,
+				serviceName,
 				technicianName: params.technicianName,
 				categoryId: params.categoryId,
 				categoryName: params.categoryName,
@@ -85,8 +90,8 @@ export default function NewBooking() {
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<View className="flex-1 bg-surface">
 				<PageHeader
-					title="Date & Time"
-					subtitle={params.serviceName}
+					title={t("title")}
+					subtitle={serviceName}
 					variant="app-primary"
 					onBackPress={goBack}
 				/>
@@ -102,7 +107,7 @@ export default function NewBooking() {
 							variant="buttonMd"
 							className="mb-stack-sm font-semibold text-content"
 						>
-							Date
+							{t("dateLabel")}
 						</Text>
 					</Animated.View>
 					{scheduleLoading ? (
@@ -128,7 +133,7 @@ export default function NewBooking() {
 							variant="buttonMd"
 							className="mt-card mb-stack-sm font-semibold text-content"
 						>
-							Time
+							{t("timeLabel")}
 						</Text>
 						<TimeSlotGrid
 							selectedDate={selectedDate}
@@ -149,7 +154,7 @@ export default function NewBooking() {
 						testID="continue-booking"
 					>
 						<Text variant="buttonLg" className="text-surface-on-primary">
-							Continue
+							{t("continue")}
 						</Text>
 					</Button>
 				</View>

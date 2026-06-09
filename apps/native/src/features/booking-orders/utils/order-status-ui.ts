@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import {
 	AlertTriangle,
 	CheckCircle,
@@ -99,10 +100,23 @@ const STATUS_ICONS: Record<OrderStatus, LucideIcon> = {
 	reschedule_requested_by_technician: Clock,
 };
 
+/**
+ * Resolve a human status label. Pass a `t` bound to the `orders` namespace to
+ * localize; omit it to fall back to the English maps (used by callers that
+ * have not been migrated to i18n yet).
+ */
 export function getOrderStatusLabel(
 	status: OrderStatus,
 	perspective: OrderStatusPerspective = "neutral",
+	t?: TFunction,
 ): string {
+	if (t) {
+		const base = t(`status.base.${status}` as Parameters<typeof t>[0]);
+		if (perspective === "neutral") return base;
+		return t(`status.${perspective}.${status}` as Parameters<typeof t>[0], {
+			defaultValue: base,
+		});
+	}
 	if (perspective === "user") {
 		return USER_STATUS_LABELS[status] ?? BASE_STATUS_LABELS[status];
 	}
@@ -116,10 +130,11 @@ export function getOrderStatusBadge(
 	status: OrderStatus,
 	themeColors: ThemeColors,
 	perspective: OrderStatusPerspective = "neutral",
+	t?: TFunction,
 ) {
 	if (status === "accepted" || status === "completed") {
 		return {
-			label: getOrderStatusLabel(status, perspective),
+			label: getOrderStatusLabel(status, perspective, t),
 			color: themeColors.success,
 			bg: themeColors.orderBg,
 			icon: STATUS_ICONS[status],
@@ -128,7 +143,7 @@ export function getOrderStatusBadge(
 
 	if (status === "pending" || status.startsWith("reschedule_requested")) {
 		return {
-			label: getOrderStatusLabel(status, perspective),
+			label: getOrderStatusLabel(status, perspective, t),
 			color: themeColors.warning,
 			bg: themeColors.warningLight,
 			icon: STATUS_ICONS[status],
@@ -136,7 +151,7 @@ export function getOrderStatusBadge(
 	}
 
 	return {
-		label: getOrderStatusLabel(status, perspective),
+		label: getOrderStatusLabel(status, perspective, t),
 		color: themeColors.danger,
 		bg: themeColors.dangerLight,
 		icon: STATUS_ICONS[status],

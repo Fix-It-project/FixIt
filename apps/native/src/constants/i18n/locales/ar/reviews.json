@@ -1,0 +1,18 @@
+{
+	"submit": "إرسال",
+	"skip": "تخطٍّ",
+	"rateNamed": "قيّم {{name}}",
+	"rateTechnician": "قيّم الفني",
+	"commentPlaceholder": "أضف تعليقاً (اختياري)",
+	"invalidInput": "إدخال غير صالح.",
+	"anonymous": "مجهول",
+	"stats": {
+		"noReviews": "لا توجد تقييمات بعد",
+		"reviewOne": "تقييم واحد",
+		"reviewOther": "{{count}} تقييمات"
+	},
+	"star": {
+		"rateOne": "قيّم بنجمة واحدة",
+		"rateOther": "قيّم بـ {{n}} نجوم"
+	}
+}

@@ -7,6 +7,7 @@
 
 import { CheckCircle2, Clock, X } from "lucide-react-native";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -43,6 +44,7 @@ export default function CompletionRequestPendingCard({
 	confirmPending = false,
 	declinePending = false,
 }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 
@@ -79,12 +81,12 @@ export default function CompletionRequestPendingCard({
 	const isWaitingForOther = direction === "awaiting_them";
 
 	const title = isWaitingForOther
-		? "Waiting for confirmation"
-		: `${actorLabel} marked the job complete`;
+		? t("detail.completion.waitingTitle")
+		: t("detail.completion.markedTitle", { actor: actorLabel });
 
 	const description = isWaitingForOther
-		? `Hold on while ${actorLabel.toLowerCase()} confirms the work is done.`
-		: "Confirm only if the work has actually been finished — otherwise tap Decline.";
+		? t("detail.completion.waitingBody", { actor: actorLabel })
+		: t("detail.completion.confirmBody");
 
 	const card = (
 		<View
@@ -150,7 +152,7 @@ export default function CompletionRequestPendingCard({
 									fontVariant: ["tabular-nums"],
 								}}
 							>
-								{secondsLeft}s
+								{t("detail.completion.seconds", { n: secondsLeft })}
 							</Text>
 						</View>
 					</View>
@@ -169,7 +171,7 @@ export default function CompletionRequestPendingCard({
 					onPress={onDecline}
 					loading={declinePending}
 				>
-					Cancel my request
+					{t("detail.completion.cancelRequest")}
 				</Button>
 			) : (
 				<View style={{ gap: spacing.stack.sm }}>
@@ -181,7 +183,7 @@ export default function CompletionRequestPendingCard({
 						onPress={onConfirm}
 						loading={confirmPending}
 					>
-						Confirm complete
+						{t("detail.completion.confirmComplete")}
 					</Button>
 					<Button
 						variant="destructive"
@@ -189,17 +191,20 @@ export default function CompletionRequestPendingCard({
 						fullWidth
 						onPress={async () => {
 							const ok = await confirm({
-								title: "Decline completion?",
-								description: "The other party's completion request will be cancelled. They can request again.",
-								primary: { label: "Decline", destructive: true },
-								secondary: { label: "Keep request" },
+								title: t("detail.completion.declineTitle"),
+								description: t("detail.completion.declineBody"),
+								primary: {
+									label: t("detail.completion.decline"),
+									destructive: true,
+								},
+								secondary: { label: t("detail.completion.keepRequest") },
 							});
 							if (!ok) return;
 							onDecline();
 						}}
 						loading={declinePending}
 					>
-						Decline
+						{t("detail.completion.decline")}
 					</Button>
 				</View>
 			)}

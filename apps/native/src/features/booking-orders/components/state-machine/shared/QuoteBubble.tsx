@@ -1,6 +1,7 @@
 // One round's quote message bubble for the negotiation timeline.
 // Extracted from QuoteChatPanel to keep that file focused on orchestration.
 
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
@@ -28,6 +29,7 @@ export default function QuoteBubble({
 	showWaiting,
 	reducedMotion,
 }: QuoteBubbleProps) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const isSelf =
 		(viewer === "user" && item.proposed_by === "user") ||
@@ -48,9 +50,13 @@ export default function QuoteBubble({
 					alignSelf: isSelf ? "flex-end" : "flex-start",
 				}}
 			>
-				{item.proposed_by === "user" ? "You" : "Technician"} · Round{" "}
-				{item.round_number}
-				{item.round_number === maxRounds ? " · Final" : ""}
+				{item.proposed_by === "user"
+					? t("detail.quote.you")
+					: t("card.technicianFallback")}{" "}
+				· {t("detail.quote.round", { n: item.round_number })}
+				{item.round_number === maxRounds
+					? ` · ${t("detail.quote.final")}`
+					: ""}
 			</Text>
 			<View
 				style={{
@@ -84,7 +90,7 @@ export default function QuoteBubble({
 								: themeColors.textSecondary,
 						}}
 					>
-						EGP
+						{t("detail.quote.currency")}
 					</Text>
 				</Text>
 				{item.notes ? (
@@ -109,8 +115,8 @@ export default function QuoteBubble({
 					}}
 				>
 					{viewer === "user"
-						? "Waiting on technician…"
-						: "Waiting on customer…"}
+						? t("detail.quote.waitingTechnician")
+						: t("detail.quote.waitingCustomer")}
 				</Text>
 			) : null}
 		</View>

@@ -8,6 +8,7 @@ import {
 	Star,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	type LayoutChangeEvent,
 	type NativeScrollEvent,
@@ -25,6 +26,7 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
+import { translateServiceName } from "@/src/features/categories/constants/categories";
 import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import type { TechnicianService } from "@/src/features/technicians/schemas/response.schema";
@@ -86,6 +88,8 @@ function DetailSkeleton() {
 }
 
 export default function NewTechnician() {
+	const { t } = useTranslation("technicians");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const params = useLocalSearchParams<{
 		id: string;
@@ -141,8 +145,8 @@ export default function NewTechnician() {
 		if (typeof params.technicianName === "string" && params.technicianName) {
 			return params.technicianName;
 		}
-		return profile?.name ?? "Technician";
-	}, [params.technicianName, profile?.name]);
+		return profile?.name ?? t("detail.technicianFallback");
+	}, [params.technicianName, profile?.name, t]);
 
 	const resolvedInitials = useMemo(() => {
 		if (typeof params.initials === "string" && params.initials) {
@@ -153,20 +157,27 @@ export default function NewTechnician() {
 
 	const cachedDistanceLabel = useMemo(() => {
 		const parsed = Number(params.distanceKm);
-		return Number.isFinite(parsed) ? `${parsed.toFixed(1)} km` : "N/A";
-	}, [params.distanceKm]);
+		return Number.isFinite(parsed)
+			? `${parsed.toFixed(1)} km`
+			: t("detail.notAvailable");
+	}, [params.distanceKm, t]);
 
 	const goBack = useSafeBack(ROUTES.user.home);
 
 	const handleSelectDate = useDebounce(() => {
 		if (!selectedService) return;
 		const route = ROUTES.user.bookingRoot(technicianId);
+		const serviceName = translateServiceName(
+			tc,
+			selectedService.id,
+			selectedService.name,
+		);
 		router.push({
 			...route,
 			params: {
 				...route.params,
 				serviceId: selectedService.id,
-				serviceName: selectedService.name,
+				serviceName,
 				technicianName: resolvedName,
 				categoryId: params.categoryId,
 				categoryName: params.categoryName,
@@ -192,7 +203,7 @@ export default function NewTechnician() {
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<View className="flex-1 bg-surface">
 				<PageHeader
-					title="Technician"
+					title={t("detail.title")}
 					variant="app-primary"
 					onBackPress={goBack}
 				/>
@@ -245,7 +256,7 @@ export default function NewTechnician() {
 													{profile.avg_rating !== null &&
 													profile.review_count > 0
 														? formatRating(profile.avg_rating)
-														: "New"}
+														: t("detail.ratingNew")}
 												</Text>
 											</View>
 										</View>
@@ -282,17 +293,17 @@ export default function NewTechnician() {
 									<ProfileMetric
 										icon={CalendarCheck}
 										value={profile.completedOrders}
-										label="completed"
+										label={t("detail.metrics.completed")}
 									/>
 									<ProfileMetric
 										icon={Navigation}
 										value={cachedDistanceLabel}
-										label="distance"
+										label={t("detail.metrics.distance")}
 									/>
 									<ProfileMetric
 										icon={CalendarDays}
 										value={profile.totalBookings}
-										label="bookings"
+										label={t("detail.metrics.bookings")}
 									/>
 								</View>
 							</View>
@@ -344,7 +355,9 @@ export default function NewTechnician() {
 															: "text-content-muted"
 													}
 												>
-													{tabKey}
+													{t(
+														`detail.tabs.${tabKey}` as Parameters<typeof t>[0],
+													)}
 												</Text>
 											</Pressable>
 										);
@@ -390,8 +403,8 @@ export default function NewTechnician() {
 							>
 								<Text variant="buttonLg" className="text-surface-on-primary">
 									{selectedService
-										? "Select Date"
-										: "Pick a service to continue"}
+										? t("detail.selectDate")
+										: t("detail.pickService")}
 								</Text>
 							</Button>
 						</View>

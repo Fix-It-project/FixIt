@@ -1,5 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
@@ -37,6 +38,7 @@ import { ROUTES } from "@/src/lib/navigation";
 import { space, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function OrderDetailScreen() {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const { orderId } = useLocalSearchParams<{ orderId: string }>();
 	const order = useUserOrderById(orderId);
@@ -126,7 +128,7 @@ export default function OrderDetailScreen() {
 					<DetailHeader
 						categoryId={order.category_id}
 						onBack={goBack}
-						title="Order"
+						title={t("detail.orderTitle")}
 					/>
 					<ScrollView
 						className="flex-1"

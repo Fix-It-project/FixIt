@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowRight, Check, Home } from "lucide-react-native";
 import { useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -36,6 +37,7 @@ const CHECK_SIZE = 64;
 const CHECK_HALO_SIZE = 112;
 
 export default function PlacedOrderScreen() {
+	const { t } = useTranslation("orders");
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const order = useUserOrderById(id ?? "");
 	const themeColors = useThemeColors();
@@ -151,13 +153,13 @@ export default function PlacedOrderScreen() {
 							className="font-google-sans-bold text-content"
 							style={{ textAlign: "center" }}
 						>
-							Request sent.
+							{t("detail.placed.title")}
 						</Text>
 						<Text
 							variant="bodySm"
 							className="text-center text-content-secondary"
 						>
-							We pinged the technician. You'll get a ping when they accept.
+							{t("detail.placed.subtitle")}
 						</Text>
 					</Animated.View>
 				</View>
@@ -203,7 +205,7 @@ export default function PlacedOrderScreen() {
 						onPress={goToOrderDetail}
 						testID="placed-view-order"
 					>
-						View order details
+						{t("detail.placed.viewDetails")}
 					</Button>
 
 					<Button
@@ -213,7 +215,7 @@ export default function PlacedOrderScreen() {
 						iconLeft={Home}
 						onPress={goHome}
 					>
-						Back to home
+						{t("detail.placed.backHome")}
 					</Button>
 				</Animated.View>
 			</View>

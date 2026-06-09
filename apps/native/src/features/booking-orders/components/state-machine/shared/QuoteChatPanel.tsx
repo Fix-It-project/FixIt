@@ -8,6 +8,7 @@
 
 import { Ban, Check, MessageSquare, Pencil } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -56,6 +57,7 @@ function deriveQuoteState(
 }
 
 export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 
@@ -89,8 +91,10 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 					className="font-google-sans-bold"
 					style={{ color: themeColors.textPrimary }}
 				>
-					Negotiation · Round {Math.min(MAX_ROUNDS, Math.max(1, roundCount))}/
-					{MAX_ROUNDS}
+					{t("detail.quote.negotiation", {
+						n: Math.min(MAX_ROUNDS, Math.max(1, roundCount)),
+						max: MAX_ROUNDS,
+					})}
 				</Text>
 			</View>
 
@@ -102,8 +106,8 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 						style={{ textAlign: "center" }}
 					>
 						{viewer === "technician"
-							? 'Press "Offer price" to send your first quote.'
-							: "Waiting for technician to send a price."}
+							? t("detail.quote.emptyTech")
+							: t("detail.quote.emptyUser")}
 					</Text>
 				) : (
 					rounds.map((q, idx) => (
@@ -125,6 +129,7 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 }
 
 export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
+	const { t } = useTranslation("orders");
 	const sheetRef = useRef<QuoteOfferSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
@@ -165,7 +170,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
-					text1: "Submit failed",
+					text1: t("detail.quote.toastSubmitFailed"),
 					text2: err.message,
 				}),
 		});
@@ -186,7 +191,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
-					text1: "Accept failed",
+					text1: t("detail.quote.toastAcceptFailed"),
 					text2: err.message,
 				}),
 		});
@@ -196,7 +201,8 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		const trimmed = cancelReason.trim();
 		const args = {
 			orderId: order.id,
-			reason: trimmed.length > 0 ? trimmed : "Negotiation ended",
+			reason:
+				trimmed.length > 0 ? trimmed : t("detail.quote.cancelReasonDefault"),
 		};
 		const mutation = viewer === "technician" ? techCancel : userCancel;
 		mutation.mutate(args, {
@@ -207,7 +213,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
-					text1: "Cancel failed",
+					text1: t("detail.quote.toastCancelFailed"),
 					text2: err.message,
 				}),
 		});
@@ -230,15 +236,22 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	const showAcceptDecline = canActOnLatest && roundCount > 0;
 
 	const sheetTitle = useMemo(() => {
-		if (showTechInitial) return "Send your quote";
-		if (viewer === "technician") return "Counter the customer";
-		return "Suggest a different price";
-	}, [showTechInitial, viewer]);
+		if (showTechInitial) return t("detail.quote.sheetTitleInitial");
+		if (viewer === "technician") return t("detail.quote.sheetTitleCounterTech");
+		return t("detail.quote.sheetTitleCounterUser");
+	}, [showTechInitial, viewer, t]);
 	const sheetSubtitle = useMemo(() => {
-		if (showTechInitial) return "Inspect done — propose a fair price.";
-		return `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left before lock-in.`;
-	}, [showTechInitial, roundsLeft]);
-	const sheetCta = showTechInitial ? "Send quote" : "Send counter";
+		if (showTechInitial) return t("detail.quote.sheetSubtitleInitial");
+		return t(
+			roundsLeft === 1
+				? "detail.quote.roundsLeftOne"
+				: "detail.quote.roundsLeftOther",
+			{ n: roundsLeft },
+		);
+	}, [showTechInitial, roundsLeft, t]);
+	const sheetCta = showTechInitial
+		? t("detail.quote.ctaSendQuote")
+		: t("detail.quote.ctaSendCounter");
 
 	if (!showTechInitial && !showAcceptDecline) {
 		return (
@@ -267,14 +280,14 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 							onPress={openSheet}
 							loading={isSubmitPending}
 						>
-							Offer price
+							{t("detail.quote.offerPrice")}
 						</Button>
 					</View>
 					<View className="shrink-0">
 						<Button
 							variant="destructive"
 							size="icon"
-							accessibilityLabel="Cancel order"
+							accessibilityLabel={t("detail.a11y.cancelOrder")}
 							onPress={() => setCancelOpen(true)}
 							loading={isCancelPending}
 						>
@@ -296,14 +309,18 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 								onPress={handleAccept}
 								loading={isAcceptPending}
 							>
-								{latest ? `Accept ${formatCurrency(latest.amount)}` : "Accept"}
+								{latest
+									? t("detail.quote.acceptAmount", {
+											amount: formatCurrency(latest.amount),
+										})
+									: t("detail.quote.accept")}
 							</Button>
 						</View>
 						<View className="shrink-0">
 							<Button
 								variant="destructive"
 								size="icon"
-								accessibilityLabel="Cancel order"
+								accessibilityLabel={t("detail.a11y.cancelOrder")}
 								onPress={() => setCancelOpen(true)}
 								loading={isCancelPending}
 							>
@@ -320,7 +337,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 							onPress={openSheet}
 							loading={isSubmitPending}
 						>
-							Suggest another price
+							{t("detail.quote.suggestAnother")}
 						</Button>
 					) : null}
 				</>
@@ -337,11 +354,13 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			/>
 			<CancelReasonModal
 				visible={cancelOpen}
-				title="Cancel Order"
+				title={t("detail.cancelModal.title")}
 				subjectRole="order"
 				subjectName={subjectName}
 				subjectFallback={
-					viewer === "technician" ? "this customer" : "this technician"
+					viewer === "technician"
+						? t("detail.cancelModal.subjectFallbackCustomer")
+						: t("detail.cancelModal.subjectFallback")
 				}
 				reason={cancelReason}
 				onReasonChange={setCancelReason}

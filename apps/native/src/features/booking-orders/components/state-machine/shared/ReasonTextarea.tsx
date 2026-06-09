@@ -2,6 +2,7 @@
 // Owns its own grow-to-content height clamp.
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Textarea } from "@/src/components/ui/textarea";
 import { space } from "@/src/constants/design-tokens";
 
@@ -19,15 +20,16 @@ export default function ReasonTextarea({
 	value,
 	onChangeText,
 	editable,
-	placeholder = "Why are you rescheduling?",
+	placeholder,
 }: ReasonTextareaProps) {
+	const { t } = useTranslation("orders");
 	const [height, setHeight] = useState(MIN_HEIGHT);
 
 	return (
 		<Textarea
 			value={value}
 			onChangeText={onChangeText}
-			placeholder={placeholder}
+			placeholder={placeholder ?? t("detail.reschedule.reasonPlaceholder")}
 			editable={editable}
 			autoCorrect={false}
 			spellCheck={false}

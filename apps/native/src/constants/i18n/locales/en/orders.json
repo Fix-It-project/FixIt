@@ -1,0 +1,316 @@
+{
+	"status": {
+		"base": {
+			"pending": "Pending",
+			"accepted": "Accepted",
+			"tracking": "On the way",
+			"arrived_inspection": "Inspecting",
+			"awaiting_final_cost": "Quote pending",
+			"negotiating": "Negotiating quote",
+			"in_progress": "Inspecting",
+			"awaiting_payment": "Awaiting payment",
+			"completed": "Completed",
+			"declined_by_technician": "Declined by technician",
+			"cancelled_no_fee": "Cancelled",
+			"cancelled_with_fee": "Cancelled (fee applied)",
+			"rejected": "Rejected",
+			"cancelled": "Cancelled",
+			"cancelled_by_user": "Cancelled by user",
+			"cancelled_by_technician": "Cancelled by technician",
+			"reschedule_requested_by_user": "Reschedule requested by user",
+			"reschedule_requested_by_technician": "Reschedule requested by technician"
+		},
+		"user": {
+			"pending": "Waiting for technician to accept",
+			"accepted": "Accepted by technician",
+			"tracking": "Technician on the way",
+			"arrived_inspection": "Technician inspecting",
+			"awaiting_final_cost": "Reviewing final price",
+			"negotiating": "Negotiating final price",
+			"in_progress": "Technician inspecting",
+			"awaiting_payment": "Hand over cash and confirm",
+			"declined_by_technician": "Declined by technician",
+			"cancelled_no_fee": "Cancelled",
+			"cancelled_with_fee": "Cancelled (fee applied)",
+			"rejected": "Rejected by technician",
+			"cancelled_by_user": "Cancelled by you",
+			"reschedule_requested_by_user": "Reschedule requested by you"
+		},
+		"technician": {
+			"pending": "New request — accept or decline",
+			"accepted": "You accepted — start tracking",
+			"tracking": "Heading to client",
+			"arrived_inspection": "Inspecting on site",
+			"awaiting_final_cost": "Send final price",
+			"negotiating": "Quote round in progress",
+			"in_progress": "Inspecting on site",
+			"awaiting_payment": "Awaiting cash from client",
+			"declined_by_technician": "Declined by you",
+			"cancelled_no_fee": "Cancelled",
+			"cancelled_with_fee": "Cancelled (fee applied)",
+			"cancelled_by_user": "Cancelled by client",
+			"cancelled_by_technician": "Cancelled by you",
+			"reschedule_requested_by_user": "Reschedule requested by client",
+			"reschedule_requested_by_technician": "Reschedule requested by you"
+		}
+	},
+	"card": {
+		"technicianFallback": "Technician",
+		"customerFallback": "Customer",
+		"serviceFallback": "Service",
+		"viewDetails": "View Details",
+		"reorder": "Reorder",
+		"previousOrders": "Previous Orders"
+	},
+	"list": {
+		"title": "My Orders",
+		"emptyTitle": "No orders yet",
+		"emptyBody": "Your bookings will appear here once you book a technician.",
+		"leaveReview": "Leave review",
+		"leaveReviewA11y": "Leave a review for {{name}}",
+		"pastTitle": "Past Orders",
+		"pastEmpty": "No past orders yet"
+	},
+	"detail": {
+		"orderTitle": "Order",
+		"placed": {
+			"title": "Request sent.",
+			"subtitle": "We pinged the technician. You'll get a ping when they accept.",
+			"viewDetails": "View order details",
+			"backHome": "Back to home"
+		},
+		"toast": {
+			"cancelled": "Order cancelled",
+			"cancelFailed": "Failed to cancel order",
+			"couldNotConfirm": "Could not confirm",
+			"couldNotDecline": "Could not decline"
+		},
+		"a11y": {
+			"cancelOrder": "Cancel order",
+			"rescheduleOrder": "Reschedule order",
+			"done": "Done",
+			"openInfo": "Open {{name}} info",
+			"call": "Call {{phone}}"
+		},
+		"info": {
+			"service": "Service",
+			"scheduled": "Scheduled",
+			"flexible": "Flexible"
+		},
+		"eta": {
+			"locating": "Locating technician…",
+			"arrivingNow": "Arriving now",
+			"arrivesIn": "Arrives in ~{{n}} min"
+		},
+		"cancelModal": {
+			"title": "Cancel Order",
+			"subjectFallback": "this technician",
+			"subjectFallbackCustomer": "this customer",
+			"body": "Are you sure you want to cancel the {{role}} with {{name}}?",
+			"reasonPlaceholder": "Reason (optional)",
+			"keep": "Keep",
+			"confirm": "Cancel",
+			"role": {
+				"order": "order",
+				"booking": "booking"
+			}
+		},
+		"stage": {
+			"pending": {
+				"eyebrow": "Request sent",
+				"title": "Waiting on the tech.",
+				"subtitle": "Usually under 30 min. You'll get a ping the moment they accept."
+			},
+			"accepted": {
+				"eyebrow": "Confirmed",
+				"title": "Technician accepted.",
+				"subtitle": "Live ETA arrives the moment they start moving."
+			},
+			"tracking": {
+				"eyebrow": "On the way",
+				"title": "Heading your way.",
+				"subtitle": "Track the ETA. Your technician is moving toward you."
+			},
+			"inProgress": {
+				"eyebrow": "In progress",
+				"title": "Your tech is fixing it.",
+				"subtitle": "Tap finish when the work is done. Tech must agree."
+			},
+			"completed": {
+				"eyebrow": "Done",
+				"title": "All wrapped up.",
+				"subtitle": "Thanks for using FixIt."
+			},
+			"quote": {
+				"eyebrow": "Quote",
+				"title": "Lock in a fair price.",
+				"subtitle": "3 rounds max. Counter, accept, or cancel."
+			},
+			"arrived": {
+				"eyebrow": "On site",
+				"title": "Inspection in progress.",
+				"subtitle": "A fair quote arrives once the scope is clear."
+			},
+			"cancelled": {
+				"eyebrow": "Closed",
+				"title": "Order cancelled.",
+				"subtitle": "No further action needed."
+			}
+		},
+		"cta": {
+			"waitingForTechnician": "Waiting for technician",
+			"pendingReschedule": "Resolve the pending reschedule request before requesting another.",
+			"liveTracking": "Live tracking",
+			"markWorkComplete": "Mark work complete",
+			"done": "Done",
+			"reschedule": "Reschedule",
+			"requestPending": "Request pending"
+		},
+		"distance": {
+			"km": "{{n}} km",
+			"min": "{{n}} min",
+			"eta": "ETA {{eta}}",
+			"live": "Live"
+		},
+		"completed": {
+			"finalPrice": "Final price",
+			"currency": "EGP"
+		},
+		"arrived": {
+			"inspecting": "Inspecting your problem…"
+		},
+		"cancelled": {
+			"reason": "Reason"
+		},
+		"completion": {
+			"waitingTitle": "Waiting for confirmation",
+			"markedTitle": "{{actor}} marked the job complete",
+			"waitingBody": "Hold on while {{actor}} confirms the work is done.",
+			"confirmBody": "Confirm only if the work has actually been finished — otherwise tap Decline.",
+			"seconds": "{{n}}s",
+			"cancelRequest": "Cancel my request",
+			"confirmComplete": "Confirm complete",
+			"decline": "Decline",
+			"declineTitle": "Decline completion?",
+			"declineBody": "The other party's completion request will be cancelled. They can request again.",
+			"keepRequest": "Keep request"
+		},
+		"quote": {
+			"you": "You",
+			"round": "Round {{n}}",
+			"final": "Final",
+			"currency": "EGP",
+			"waitingTechnician": "Waiting on technician…",
+			"waitingCustomer": "Waiting on customer…",
+			"negotiation": "Negotiation · Round {{n}}/{{max}}",
+			"emptyTech": "Press \"Offer price\" to send your first quote.",
+			"emptyUser": "Waiting for technician to send a price.",
+			"toastSubmitFailed": "Submit failed",
+			"toastAcceptFailed": "Accept failed",
+			"toastCancelFailed": "Cancel failed",
+			"cancelReasonDefault": "Negotiation ended",
+			"sheetTitleInitial": "Send your quote",
+			"sheetTitleCounterTech": "Counter the customer",
+			"sheetTitleCounterUser": "Suggest a different price",
+			"sheetSubtitleInitial": "Inspect done — propose a fair price.",
+			"roundsLeftOne": "{{n}} round left before lock-in.",
+			"roundsLeftOther": "{{n}} rounds left before lock-in.",
+			"ctaSendQuote": "Send quote",
+			"ctaSendCounter": "Send counter",
+			"offerPrice": "Offer price",
+			"accept": "Accept",
+			"acceptAmount": "Accept {{amount}}",
+			"suggestAnother": "Suggest another price",
+			"offer": {
+				"invalidTitle": "Invalid amount",
+				"invalidBody": "Enter a positive whole number.",
+				"sameTitle": "Same amount",
+				"sameBody": "Your offer must differ from the last one.",
+				"amountPlaceholder": "Amount ({{currency}})",
+				"lastOffer": "Last offer: {{amount}}",
+				"notePlaceholder": "Add a note (optional)",
+				"cancel": "Cancel",
+				"send": "Send"
+			}
+		},
+		"reschedule": {
+			"countdownExpired": "Expired",
+			"countdownMinutes": "{{m}}m left",
+			"countdownHours": "{{h}}h {{m}}m left",
+			"toastApproved": "Reschedule approved",
+			"toastApproveFailed": "Approve failed",
+			"toastRejected": "Reschedule rejected",
+			"toastRejectFailed": "Reject failed",
+			"toastWithdrawn": "Request withdrawn",
+			"toastWithdrawFailed": "Withdraw failed",
+			"declineTitle": "Decline reschedule request?",
+			"declineBody": "The other party will be notified. The original schedule remains active.",
+			"decline": "Decline",
+			"keepRequest": "Keep request",
+			"declinedReason": "Declined by counterparty",
+			"checkingTitle": "Checking reschedule request",
+			"checkingBody": "Loading the latest request status...",
+			"loadingTitle": "Loading reschedule request",
+			"loadingBody": "Fetching the accept, decline, and cancel controls...",
+			"eyebrowYou": "You requested a reschedule",
+			"eyebrowTech": "Technician requested a reschedule",
+			"eyebrowCustomer": "Customer requested a reschedule",
+			"requestedDate": "Requested date: {{value}}",
+			"counterpartyHint": "Accept to move the order, or decline to keep the original date.",
+			"requesterHint": "Waiting for the other side. You can cancel this request.",
+			"original": "Original",
+			"reason": "Reason",
+			"accepting": "Accepting...",
+			"accept": "Accept",
+			"declining": "Declining...",
+			"cancelling": "Cancelling...",
+			"cancelRequest": "Cancel request",
+			"toastRequested": "Reschedule requested",
+			"availabilityError": "Could not load technician availability for this reschedule.",
+			"availabilityLoading": "Loading technician availability...",
+			"selectTime": "Select Time",
+			"sendingRequest": "Sending request...",
+			"sending": "Sending...",
+			"submit": "Request reschedule",
+			"reasonPlaceholder": "Why are you rescheduling?"
+		},
+		"cash": {
+			"confirmFailed": "Payment confirmation failed",
+			"tryAgain": "Please try again.",
+			"title": "Confirm cash payment",
+			"body": "Confirm you paid {{amount}} EGP in cash",
+			"cancel": "Cancel",
+			"confirm": "Confirm"
+		},
+		"pills": {
+			"onTheWay": "On the way",
+			"inspecting": "Inspecting",
+			"quote": "Quote",
+			"finalize": "Finalize"
+		},
+		"finalize": {
+			"eyebrow": "Finalize",
+			"title": "One tap to close out.",
+			"subtitle": "Confirm cash handover, then we wrap the order.",
+			"finalPrice": "Final price",
+			"currency": "EGP",
+			"cashNote": "Cash on delivery · in-app payments soon",
+			"timeline": "Timeline",
+			"orderPlaced": "Order placed",
+			"techArrived": "Tech arrived",
+			"workComplete": "Work complete",
+			"confirmedTapFinalize": "{{role}} confirmed. Tap to finalize.",
+			"waitingOther": "Waiting on the other side…",
+			"markCompleted": "Mark order completed"
+		},
+		"attachment": "Attachment",
+		"problemDescription": "Problem Description",
+		"bubble": {
+			"activeOrder": "Open active order",
+			"activeOrderEta": "Open active order — arrives in about {{n}} minutes",
+			"activeJob": "Active job",
+			"activeJobEta": "Active job — arrives in about {{n}} minutes",
+			"etaShort": "~{{n}}m"
+		}
+	}
+}

@@ -7,6 +7,7 @@ import {
 	MessageCircle,
 	User,
 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Platform, useWindowDimensions, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
@@ -31,6 +32,7 @@ interface ChatFabProps {
 	readonly onPress: () => void;
 	readonly primaryColor: string;
 	readonly surfaceColor: string;
+	readonly accessibilityLabel: string;
 }
 
 function HomeTabIcon({ color, size }: Readonly<LucideProps>) {
@@ -68,13 +70,14 @@ function ChatFab({
 	onPress,
 	primaryColor,
 	surfaceColor,
+	accessibilityLabel,
 }: ChatFabProps) {
 	return (
 		<Button
 			variant="primary"
 			size="icon"
 			onPress={onPress}
-			accessibilityLabel="Open AI chat"
+			accessibilityLabel={accessibilityLabel}
 			style={{
 				position: "absolute",
 				right: spacing.screen.paddingX,
@@ -93,6 +96,7 @@ function ChatFab({
 }
 
 export default function UserTabsLayout() {
+	const { t } = useTranslation("common");
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
 	const { width } = useWindowDimensions();
@@ -105,7 +109,7 @@ export default function UserTabsLayout() {
 	});
 	const topSafeAreaBackground =
 		pathname === ROUTES.user.home
-			? themeColors.primary
+			? themeColors.tint.heroStart
 			: themeColors.surfaceElevated;
 
 	return (
@@ -119,14 +123,14 @@ export default function UserTabsLayout() {
 					<Tabs.Screen
 						name="index"
 						options={{
-							title: "Home",
+							title: t("tabs.home"),
 							tabBarIcon: HomeTabIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="notifications/index"
 						options={{
-							title: "Notifications",
+							title: t("tabs.notifications"),
 							tabBarIcon: ({ color, size }) => (
 								<NotificationTabIcon
 									color={color}
@@ -139,14 +143,14 @@ export default function UserTabsLayout() {
 					<Tabs.Screen
 						name="orders/index"
 						options={{
-							title: "My Orders",
+							title: t("tabs.orders"),
 							tabBarIcon: OrdersTabIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="profile/index"
 						options={{
-							title: "My Profile",
+							title: t("tabs.profile"),
 							tabBarIcon: ProfileTabIcon,
 						}}
 					/>
@@ -156,6 +160,7 @@ export default function UserTabsLayout() {
 					bottom={metrics.tabBarHeight + spacing.stack.md}
 					primaryColor={themeColors.primary}
 					surfaceColor={themeColors.surfaceOnPrimary}
+					accessibilityLabel={t("tabs.openChat")}
 				/>
 			</View>
 		</ScreenSafeAreaView>
