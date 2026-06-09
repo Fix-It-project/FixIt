@@ -1,13 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
-import {
-	ActivityIndicator,
-	ScrollView,
-	View,
-} from "react-native";
-import { CalendarPicker } from "@/src/components/ui/calendar-picker";
 import { Button } from "@/src/components/ui/button";
+import { CalendarPicker } from "@/src/components/ui/calendar-picker";
 import { Text } from "@/src/components/ui/text";
 import { Toast } from "@/src/components/ui/toast";
+import {
+	spacing, useThemeColors,
+	useThemeTokens
+} from "@/src/constants/design-tokens";
 import {
 	useAddExceptionMutation,
 	useDeleteExceptionMutation,
@@ -17,12 +15,12 @@ import {
 } from "@/src/features/schedule/hooks/useCalendar";
 import type { DaySchedule } from "@/src/features/schedule/types/calendar";
 import { buildMarkedDates } from "@/src/features/schedule/utils/buildMarkedDates";
-import { spacing } from "@/src/constants/design-tokens";
+import { useCallback, useMemo, useState } from "react";
 import {
-	getCalendarTheme,
-	useThemeColors,
-	useThemeTokens,
-} from "@/src/constants/design-tokens";
+	ActivityIndicator,
+	ScrollView,
+	View,
+} from "react-native";
 import { useScheduledEventsByDate } from "../../hooks/useScheduledEvents";
 import ScheduleDayPanel from "./ScheduleDayPanel";
 import ScheduleLegend from "./ScheduleLegend";

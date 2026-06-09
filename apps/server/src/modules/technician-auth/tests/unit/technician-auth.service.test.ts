@@ -1,24 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { DocumentFiles } from '../../../../shared/storage/storage.repository.js';
 
-const { mockAuthRepo, mockTechniciansRepo, mockStorageRepo, mockAddressesRepo } = vi.hoisted(() => ({
+const {
+  mockAuthRepo,
+  mockTechniciansRepo,
+  mockStorageRepo,
+  mockAddressesRepo,
+  mockNotificationsService,
+} = vi.hoisted(() => ({
   mockAuthRepo: {
     signUp: vi.fn(),
     signIn: vi.fn(),
     signOut: vi.fn(),
     getUser: vi.fn(),
     refreshToken: vi.fn(),
+    deleteAuthUser: vi.fn(),
   },
   mockTechniciansRepo: {
     emailExists: vi.fn(),
     createTechnician: vi.fn(),
     getTechnicianByEmail: vi.fn(),
+    deleteTechnician: vi.fn(),
   },
   mockStorageRepo: {
     uploadDocuments: vi.fn(),
+    deleteDocuments: vi.fn(),
   },
   mockAddressesRepo: {
     createAddress: vi.fn(),
+    deleteByTechnicianId: vi.fn(),
+  },
+  mockNotificationsService: {
+    registerDevice: vi.fn(),
+    removeAllForRecipient: vi.fn(),
   },
 }));
 
@@ -36,6 +50,10 @@ vi.mock('../../../../shared/storage/storage.repository.js', () => ({
 
 vi.mock('../../../addresses/addresses.repository.js', () => ({
   addressesRepository: mockAddressesRepo,
+}));
+
+vi.mock('../../../notifications/notifications.service.js', () => ({
+  notificationsService: mockNotificationsService,
 }));
 
 const { TechnicianAuthService } = await import('../../technician-auth.service.js');
@@ -248,6 +266,7 @@ describe('TechnicianAuthService', () => {
 
       await expect(service.signIn('tech@example.com', 'pass123')).rejects.toMatchObject({
         status: 403,
+        opts: { fields: { accountStatus: 'pending' } },
       });
 
       expect(mockAuthRepo.signOut).toHaveBeenCalledWith('at');
@@ -281,6 +300,56 @@ describe('TechnicianAuthService', () => {
       });
 
       expect(mockAuthRepo.signOut).toHaveBeenCalledWith('');
+    });
+  });
+
+  describe('cancelApplication', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      mockAuthRepo.signIn.mockResolvedValue({
+        user: { id: 'tech-1', email: 'tech@example.com' },
+        session: { access_token: 'at' },
+      });
+      mockAuthRepo.deleteAuthUser.mockResolvedValue(undefined);
+      mockStorageRepo.deleteDocuments.mockResolvedValue(undefined);
+      mockNotificationsService.removeAllForRecipient.mockResolvedValue(undefined);
+      mockAddressesRepo.deleteByTechnicianId.mockResolvedValue(undefined);
+      mockTechniciansRepo.deleteTechnician.mockResolvedValue(undefined);
+    });
+
+    it('deletes everything and returns cancelled for a pending application', async () => {
+      mockTechniciansRepo.getTechnicianByEmail.mockResolvedValue({ id: 'tech-1', status: 'pending' });
+
+      const result = await service.cancelApplication('tech@example.com', 'pass123');
+
+      expect(mockAuthRepo.deleteAuthUser).toHaveBeenCalledWith('tech-1');
+      expect(mockStorageRepo.deleteDocuments).toHaveBeenCalledWith('tech-1');
+      expect(mockNotificationsService.removeAllForRecipient).toHaveBeenCalledWith('technician', 'tech-1');
+      expect(mockAddressesRepo.deleteByTechnicianId).toHaveBeenCalledWith('tech-1');
+      expect(mockTechniciansRepo.deleteTechnician).toHaveBeenCalledWith('tech-1');
+      expect(result).toEqual({ cancelled: true });
+    });
+
+    it('signs out and throws 403 when the account is not pending', async () => {
+      mockTechniciansRepo.getTechnicianByEmail.mockResolvedValue({ id: 'tech-1', status: 'verified' });
+
+      await expect(
+        service.cancelApplication('tech@example.com', 'pass123'),
+      ).rejects.toMatchObject({ status: 403 });
+
+      expect(mockAuthRepo.signOut).toHaveBeenCalledWith('at');
+      expect(mockAuthRepo.deleteAuthUser).not.toHaveBeenCalled();
+    });
+
+    it('still cancels when a cleanup step fails (best-effort)', async () => {
+      mockTechniciansRepo.getTechnicianByEmail.mockResolvedValue({ id: 'tech-1', status: 'pending' });
+      mockStorageRepo.deleteDocuments.mockRejectedValue(new Error('storage down'));
+
+      const result = await service.cancelApplication('tech@example.com', 'pass123');
+
+      expect(mockAuthRepo.deleteAuthUser).toHaveBeenCalledWith('tech-1');
+      expect(mockTechniciansRepo.deleteTechnician).toHaveBeenCalledWith('tech-1');
+      expect(result).toEqual({ cancelled: true });
     });
   });
 

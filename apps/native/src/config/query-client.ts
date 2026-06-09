@@ -1,3 +1,5 @@
+import { showError, toAppError } from "@/src/lib/errors";
+import { logger } from "@/src/lib/logger";
 import { isRetryable } from "@FixIt/errors";
 import {
 	focusManager,
@@ -8,9 +10,6 @@ import {
 } from "@tanstack/react-query";
 import * as Network from "expo-network";
 import { AppState, type AppStateStatus, Platform } from "react-native";
-import { showError } from "@/src/lib/errors";
-import { toAppError } from "@/src/lib/errors";
-import { logger } from "@/src/lib/logger";
 
 // Noise-control dedupe — bounded by (distinct AppErrorCode) × (distinct queryKey heads).
 // Realistic ceiling ~100 entries over a long session. If growth becomes a concern,

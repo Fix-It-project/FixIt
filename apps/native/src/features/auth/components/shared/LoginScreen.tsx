@@ -2,11 +2,12 @@ import { type Href, router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import OAuthDivider from "@/src/features/auth/components/shared/OAuthDivider";
 import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
@@ -15,7 +16,6 @@ import { useDebounce } from "@/src/hooks/useDebounce";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation";
-import { useThemeColors } from "@/src/constants/design-tokens";
 
 interface LoginMutationResult {
 	mutate: (data: { email: string; password: string }) => void;
@@ -32,6 +32,7 @@ interface LoginScreenProps {
 	readonly signupRoute: Href;
 	readonly signupPrefixText?: string;
 	readonly signupActionText?: string;
+	readonly initialEmail?: string;
 }
 
 export default function LoginScreen({
@@ -42,9 +43,10 @@ export default function LoginScreen({
 	signupRoute,
 	signupPrefixText,
 	signupActionText,
+	initialEmail,
 }: LoginScreenProps) {
 	const themeColors = useThemeColors();
-	const [emailOrUsername, setEmailOrUsername] = useState("");
+	const [emailOrUsername, setEmailOrUsername] = useState(initialEmail ?? "");
 	const [password, setPassword] = useState("");
 
 	const { fieldErrors, clearFieldError, validate } =

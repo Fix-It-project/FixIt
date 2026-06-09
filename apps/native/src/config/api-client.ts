@@ -1,10 +1,10 @@
+import { supabase } from "@/src/config/supabase";
+import { toAppError } from "@/src/lib/errors";
+import { logger } from "@/src/lib/logger";
+import { useAuthStore } from "@/src/stores/auth-store";
 import { env } from "@FixIt/env/native";
 import axios, { type InternalAxiosRequestConfig } from "axios";
 import { jwtDecode } from "jwt-decode";
-import { toAppError } from "@/src/lib/errors";
-import { logger } from "@/src/lib/logger";
-import { supabase } from "@/src/config/supabase";
-import { useAuthStore } from "@/src/stores/auth-store";
 
 const API_BASE_URL = env.EXPO_PUBLIC_SERVER_URL;
 

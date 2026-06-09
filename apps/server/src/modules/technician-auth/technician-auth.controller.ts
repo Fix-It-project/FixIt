@@ -12,7 +12,7 @@ export class TechnicianAuthController {
   });
 
   signUp: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
-    const { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude } = req.body;
+    const { email, password, first_name, last_name, phone, category_id, city, street, building_no, apartment_no, latitude, longitude, expo_push_token } = req.body;
 
     const uploadedFiles = req.files as {
       [fieldname: string]: Express.Multer.File[];
@@ -28,6 +28,7 @@ export class TechnicianAuthController {
       { email, password, first_name, last_name, phone, category_id },
       files,
       { city, street, building_no, apartment_no, latitude, longitude },
+      expo_push_token,
     );
 
     req.log.info({ action: 'technician_signup', technicianId: result.technician?.id });
@@ -38,6 +39,13 @@ export class TechnicianAuthController {
     const { email, password } = req.body;
     const result = await technicianAuthService.signIn(email, password);
     req.log.info({ action: 'technician_signin', technicianId: result.technician?.id });
+    res.status(200).json(result);
+  });
+
+  cancelApplication: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    const result = await technicianAuthService.cancelApplication(email, password);
+    req.log.info({ action: 'technician_cancel_application' });
     res.status(200).json(result);
   });
 

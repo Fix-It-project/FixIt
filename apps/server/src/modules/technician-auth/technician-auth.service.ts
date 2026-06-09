@@ -1,9 +1,11 @@
 import { AppError } from '../../shared/errors/app-error.js';
+import { logger } from '../../shared/logger.js';
 import { storageRepository, type DocumentFiles } from '../../shared/storage/storage.repository.js';
 import {
   addressesRepository,
   type SignUpAddressData,
 } from '../addresses/addresses.repository.js';
+import { notificationsService } from '../notifications/notifications.service.js';
 import { techniciansRepository } from '../technicians/technicians.repository.js';
 import {
   technicianAuthRepository,
@@ -32,6 +34,7 @@ export class TechnicianAuthService {
     data: TechnicianSignUpData,
     files: DocumentFiles,
     addressData: SignUpAddressData,
+    expoPushToken?: string,
   ) {
     // 1. Guard: reject if email already taken for a technician
     const alreadyExists = await techniciansRepository.emailExists(data.email);
@@ -74,6 +77,25 @@ export class TechnicianAuthService {
       is_active: true,
     });
 
+    // 6. Register the device's push token (best-effort). A pending technician
+    //    can't reach the auth-gated device-register endpoint, so we capture the
+    //    token here to notify them the moment an admin verifies their account.
+    //    Never fails signup — token is absent on iOS / denied notif permission.
+    if (expoPushToken) {
+      try {
+        await notificationsService.registerDevice({
+          recipientRole: 'technician',
+          recipientId: technicianId,
+          expoPushToken,
+        });
+      } catch (err) {
+        logger.warn(
+          { err, technicianId },
+          '[technician-auth] push device registration at signup failed',
+        );
+      }
+    }
+
     return {
       technician: {
         id: technicianId,
@@ -87,13 +109,36 @@ export class TechnicianAuthService {
 
   // ─── Sign in ──────────────────────────────────────────────────────────────
 
+  /**
+   * Best-effort session cleanup. A failed sign-out (network blip, missing
+   * session) must never turn an intended gate result (e.g. a 403) into a 500.
+   */
+  private async safeSignOut(accessToken: string): Promise<void> {
+    try {
+      await technicianAuthRepository.signOut(accessToken);
+    } catch (err) {
+      logger.warn({ err }, '[technician-auth] signOut cleanup failed');
+    }
+  }
+
   async signIn(email: string, password: string) {
-    const result = await technicianAuthRepository.signIn(email, password);
+    let result: Awaited<ReturnType<typeof technicianAuthRepository.signIn>>;
+    try {
+      result = await technicianAuthRepository.signIn(email, password);
+    } catch (err) {
+      // Map Supabase's invalid-credentials error to a clean 401 instead of a
+      // generic 500. Other failures (network, etc.) propagate unchanged.
+      const message = err instanceof Error ? err.message : String(err);
+      if (/invalid login credentials|invalid_credentials/i.test(message)) {
+        throw AppError.unauthorized('Invalid email or password');
+      }
+      throw err;
+    }
 
     // Guard: reject if this email belongs to a user, not a technician
     const techRecord = await techniciansRepository.getTechnicianByEmail(email);
     if (!techRecord) {
-      await technicianAuthRepository.signOut(result.session?.access_token ?? '');
+      await this.safeSignOut(result.session?.access_token ?? '');
       throw AppError.forbidden('No technician account found for this email');
     }
 
@@ -101,14 +146,17 @@ export class TechnicianAuthService {
     // 'pending' until an admin verifies them; 'blocked'/'rejected' stay out.
     const status = (techRecord as { status?: string }).status ?? 'pending';
     if (status !== 'verified') {
-      await technicianAuthRepository.signOut(result.session?.access_token ?? '');
+      await this.safeSignOut(result.session?.access_token ?? '');
       const message =
         status === 'pending'
           ? 'Your account is pending admin verification. Please wait for approval.'
           : status === 'blocked'
             ? 'Your account has been blocked. Contact support for assistance.'
             : 'Your application was not approved.';
-      throw AppError.forbidden(message);
+      // Machine-readable status discriminator for the native verification screen.
+      // Carried via the existing `fields` slot (round-trips through problem+json)
+      // so the client can render the right state without parsing the message.
+      throw AppError.forbidden(message, { fields: { accountStatus: status } });
     }
 
     return {
@@ -122,6 +170,56 @@ export class TechnicianAuthService {
         expiresAt: result.session?.expires_at,
       },
     };
+  }
+
+  // ─── Cancel application ───────────────────────────────────────────────────
+
+  /**
+   * Withdraws a PENDING technician's application and hard-deletes everything
+   * created at signup. The applicant has no session, so we re-authenticate with
+   * their password first, then remove the auth user (which frees the email for
+   * re-signup) followed by a best-effort cleanup of the remaining artifacts.
+   */
+  async cancelApplication(email: string, password: string) {
+    // Re-auth confirms identity (signIn at the repo level succeeds for pending).
+    const result = await technicianAuthRepository.signIn(email, password);
+    const accessToken = result.session?.access_token ?? '';
+    const userId = result.user?.id;
+
+    const techRecord = await techniciansRepository.getTechnicianByEmail(email);
+    const status = (techRecord as { status?: string } | null)?.status;
+    if (!techRecord || status !== 'pending') {
+      await this.safeSignOut(accessToken);
+      throw AppError.forbidden('Only a pending application can be cancelled');
+    }
+    if (!userId) {
+      await this.safeSignOut(accessToken);
+      throw AppError.internal('Could not resolve technician account');
+    }
+
+    // Critical first: removing the auth user frees the email for re-signup.
+    await technicianAuthRepository.deleteAuthUser(userId);
+
+    // Best-effort cleanup — a single failure is logged but never blocks cancel.
+    const cleanup: Array<[string, () => Promise<unknown>]> = [
+      ['documents', () => storageRepository.deleteDocuments(userId)],
+      ['notifications', () => notificationsService.removeAllForRecipient('technician', userId)],
+      ['addresses', () => addressesRepository.deleteByTechnicianId(userId)],
+      ['technician', () => techniciansRepository.deleteTechnician(userId)],
+    ];
+    for (const [step, run] of cleanup) {
+      try {
+        await run();
+      } catch (err) {
+        logger.warn(
+          { err, technicianId: userId, step },
+          '[technician-auth] cancel cleanup step failed',
+        );
+      }
+    }
+
+    logger.info({ technicianId: userId }, '[technician-auth] application cancelled');
+    return { cancelled: true };
   }
 
   // ─── Sign out ─────────────────────────────────────────────────────────────

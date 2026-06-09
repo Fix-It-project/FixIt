@@ -20,6 +20,7 @@ export interface IStorageRepository {
     national_id?: string;
   }>;
   uploadOrderAttachment(orderId: string, file: Express.Multer.File): Promise<string>;
+  deleteDocuments(technicianId: string): Promise<void>;
 }
 
 export class StorageRepository implements IStorageRepository {
@@ -101,6 +102,19 @@ export class StorageRepository implements IStorageRepository {
       .getPublicUrl(filePath);
 
     return urlData.publicUrl;
+  }
+
+  /**
+   * Removes a technician's three uploaded documents from the bucket.
+   * Used when a pending applicant cancels their application.
+   */
+  async deleteDocuments(technicianId: string): Promise<void> {
+    const documentNames: DocumentName[] = ['criminal_record', 'birth_certificate', 'national_id'];
+    const paths = documentNames.map((name) => `${technicianId}/${name}`);
+    const { error } = await supabaseAdmin.storage.from(STORAGE_BUCKET).remove(paths);
+    if (error) {
+      throw new Error(`Failed to delete documents: ${error.message}`);
+    }
   }
 }
 
