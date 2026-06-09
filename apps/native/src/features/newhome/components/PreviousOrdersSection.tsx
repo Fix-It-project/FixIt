@@ -1,8 +1,3 @@
-import { router } from "expo-router";
-import { ClipboardList, type LucideIcon, RotateCcw } from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Button } from "@/src/components/ui/button";
 import { Icon } from "@/src/components/ui/icon";
@@ -14,6 +9,11 @@ import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserO
 import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
 import { getCategoryMeta } from "@/src/features/categories/constants/categories";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { router } from "expo-router";
+import { ClipboardList, type LucideIcon, RotateCcw } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 function resolveCategoryIcon(categoryId?: string | null): LucideIcon {
 	if (!categoryId) return ClipboardList;
@@ -118,7 +118,7 @@ export function PreviousOrdersSection() {
 							completionDate ? formatCompletionDate(completionDate) : null,
 						]
 							.filter(Boolean)
-							.join(" · ");
+							.join(" Â· ");
 						const price = order.final_price ?? order.estimated_price ?? null;
 
 						return (
@@ -190,11 +190,11 @@ export function PreviousOrdersSection() {
 									</PressableScale>
 
 									<View style={{ alignItems: "flex-end", gap: 7 }}>
-										{price != null ? (
+										{price == undefined ? null : (
 											<Text variant="caption" className="text-muted-foreground">
 												{formatCurrency(price)}
 											</Text>
-										) : null}
+										)}
 
 										<Button
 											size="sm"
