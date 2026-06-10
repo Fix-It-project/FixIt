@@ -144,7 +144,8 @@ export class TechnicianAuthService {
 
     // Verification gate: only verified technicians may log in. New signups are
     // 'pending' until an admin verifies them; 'blocked'/'rejected' stay out.
-    const status = (techRecord as { status?: string }).status ?? 'pending';
+    const record = techRecord as { status?: string; blocked_reason?: string | null };
+    const status = record.status ?? 'pending';
     if (status !== 'verified') {
       await this.safeSignOut(result.session?.access_token ?? '');
       const message =
@@ -153,10 +154,17 @@ export class TechnicianAuthService {
           : status === 'blocked'
             ? 'Your account has been blocked. Contact support for assistance.'
             : 'Your application was not approved.';
-      // Machine-readable status discriminator for the native verification screen.
-      // Carried via the existing `fields` slot (round-trips through problem+json)
-      // so the client can render the right state without parsing the message.
-      throw AppError.forbidden(message, { fields: { accountStatus: status } });
+      // Machine-readable status discriminator for the native verification/blocked
+      // screens. Carried via the existing `fields` slot (round-trips through
+      // problem+json) so the client renders the right state without parsing text.
+      throw AppError.forbidden(message, {
+        fields: {
+          accountStatus: status,
+          ...(status === 'blocked' && record.blocked_reason
+            ? { blockReason: record.blocked_reason }
+            : {}),
+        },
+      });
     }
 
     return {

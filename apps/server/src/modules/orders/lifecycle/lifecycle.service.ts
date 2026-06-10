@@ -555,11 +555,13 @@ export class LifecycleService {
 		orderId: string;
 		viewerRole: "user" | "technician";
 	}): Promise<void> {
-		try {
-			await notificationsService.sendPushToRecipient(input);
-		} catch (error) {
-			logger.warn({ err: error, ...input }, "[lifecycle] notification failed");
-		}
+		// Fire-and-forget: a push must never block the order action's response.
+		// Slow/blocked exp.host egress would otherwise stall the request ~10-30s.
+		void Promise.resolve(notificationsService.sendPushToRecipient(input)).catch(
+			(error) => {
+				logger.warn({ err: error, ...input }, "[lifecycle] notification failed");
+			},
+		);
 	}
 }
 

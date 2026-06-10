@@ -58,6 +58,30 @@ export class AuthService {
 			});
 		}
 
+		// Blocking gate: a blocked homeowner cannot sign in. Mirrors the
+		// technician gate's `accountStatus` discriminator so native handling is
+		// symmetric; the block reason rides along for the Blocked screen.
+		const blockedUser = userRecord as {
+			blocked?: boolean;
+			blocked_reason?: string | null;
+		};
+		if (blockedUser.blocked) {
+			await Promise.resolve(
+				authRepository.signOut(result.session?.access_token ?? ""),
+			).catch(() => undefined);
+			throw AppError.forbidden(
+				"Your account has been blocked. Contact support for assistance.",
+				{
+					fields: {
+						accountStatus: "blocked",
+						...(blockedUser.blocked_reason
+							? { blockReason: blockedUser.blocked_reason }
+							: {}),
+					},
+				},
+			);
+		}
+
 		return {
 			user: {
 				id: result.user?.id,
