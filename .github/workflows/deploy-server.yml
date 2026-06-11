@@ -41,7 +41,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
+          aws-region: eu-west-3
 
       - name: Package check (serverless)
         run: pnpm --dir apps/server exec serverless package
@@ -54,6 +54,10 @@ jobs:
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
           STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
           ORDER_BUCKET: ${{ secrets.ORDER_BUCKET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+          ADMIN_SESSION_TTL_SECONDS: ${{ secrets.ADMIN_SESSION_TTL_SECONDS }}
 
       - name: Deploy with Serverless
         run: pnpm --dir apps/server exec serverless deploy
@@ -66,3 +70,7 @@ jobs:
           CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
           STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
           ORDER_BUCKET: ${{ secrets.ORDER_BUCKET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+          ADMIN_SESSION_TTL_SECONDS: ${{ secrets.ADMIN_SESSION_TTL_SECONDS }}

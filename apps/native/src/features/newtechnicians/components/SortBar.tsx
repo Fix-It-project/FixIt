@@ -1,12 +1,12 @@
-import { memo } from "react";
-import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { spacing } from "@/src/constants/design-tokens";
 import {
 	SORT_OPTIONS,
 	type SortKey,
 } from "@/src/features/technicians/types/sort";
+import { memo } from "react";
+import { useTranslation } from "react-i18next";
+import { Pressable, ScrollView, View } from "react-native";
 
 interface SortBarProps {
 	readonly activeSort: SortKey;

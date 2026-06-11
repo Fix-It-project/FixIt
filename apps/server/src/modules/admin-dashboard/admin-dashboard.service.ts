@@ -1,5 +1,7 @@
 import { env } from "@FixIt/env/server";
 import { AppError } from "../../shared/errors/app-error.js";
+import { logger } from "../../shared/logger.js";
+import { notificationsService } from "../notifications/notifications.service.js";
 import {
 	adminDashboardRepository,
 	type AdminDashboardRepository,
@@ -858,12 +860,37 @@ export class AdminDashboardService {
 	async verifyTechnician(id: string): Promise<AdminTechnician> {
 		const row = await this.repo.setTechnicianStatus(id, { status: "verified" });
 		if (!row) throw AppError.notFound("Technician not found");
+		// Fire-and-forget: a slow/failed push (exp.host egress) must never delay or
+		// fail the verification. Runs in the background with its own retries.
+		void Promise.resolve(
+			notificationsService.sendPushToRecipient({
+				recipientRole: "technician",
+				recipientId: id,
+				type: "technician_verified",
+				title: "You're approved!",
+				body: "Your FixIt technician account is verified. Open the app to sign in.",
+			}),
+		).catch((err) => {
+			logger.warn({ err, technicianId: id }, "[admin-dashboard] verify push failed");
+		});
 		return this.findTechnicianOrThrow(id);
 	}
 
 	async rejectTechnician(id: string): Promise<AdminTechnician> {
 		const row = await this.repo.setTechnicianStatus(id, { status: "rejected" });
 		if (!row) throw AppError.notFound("Technician not found");
+		// Fire-and-forget (see verifyTechnician).
+		void Promise.resolve(
+			notificationsService.sendPushToRecipient({
+				recipientRole: "technician",
+				recipientId: id,
+				type: "technician_rejected",
+				title: "Application update",
+				body: "Your FixIt technician application was not approved. Open the app for details.",
+			}),
+		).catch((err) => {
+			logger.warn({ err, technicianId: id }, "[admin-dashboard] reject push failed");
+		});
 		return this.findTechnicianOrThrow(id);
 	}
 

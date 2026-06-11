@@ -1,3 +1,15 @@
+import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { Icon } from "@/src/components/ui/icon";
+import { Skeleton } from "@/src/components/ui/skeleton";
+import { Text } from "@/src/components/ui/text";
+import { DUR_SLIDE_UP, ENTRANCE_STAGGER } from "@/src/constants/animation";
+import { useThemeColors } from "@/src/constants/design-tokens";
+import {
+	getCategoryMeta,
+	translateCategoryLabel,
+} from "@/src/features/categories/constants/categories";
+import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
+import { ROUTES } from "@/src/lib/navigation/routes";
 import { router } from "expo-router";
 import {
 	AirVent,
@@ -24,18 +36,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { PressableScale } from "@/src/components/animation/pressable-scale";
-import { Icon } from "@/src/components/ui/icon";
-import { Skeleton } from "@/src/components/ui/skeleton";
-import { Text } from "@/src/components/ui/text";
-import { DUR_SLIDE_UP, ENTRANCE_STAGGER } from "@/src/constants/animation";
-import { useThemeColors } from "@/src/constants/design-tokens";
-import {
-	getCategoryMeta,
-	translateCategoryLabel,
-} from "@/src/features/categories/constants/categories";
-import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
-import { ROUTES } from "@/src/lib/navigation/routes";
 
 const ICON_MAP: Record<string, LucideIcon> = {
 	"air condition": AirVent,

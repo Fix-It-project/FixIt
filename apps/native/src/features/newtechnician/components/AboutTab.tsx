@@ -1,12 +1,3 @@
-import {
-	Banknote,
-	CalendarDays,
-	Clock,
-	type LucideIcon,
-} from "lucide-react-native";
-import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -16,16 +7,17 @@ import {
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
 import { BOOKING_SLOT_OPTIONS } from "@/src/features/booking-orders/utils/fixed-slots";
+import {
+	Banknote,
+	CalendarDays,
+	Clock,
+	type LucideIcon,
+} from "lucide-react-native";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
 
-const DAY_KEYS = [
-	"sun",
-	"mon",
-	"tue",
-	"wed",
-	"thu",
-	"fri",
-	"sat",
-] as const;
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 function hourLabel(hour: number): string {
 	const opt = BOOKING_SLOT_OPTIONS.find((o) => o.hour === hour);
@@ -110,7 +102,9 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 							icon={CalendarDays}
 							label={t("about.availableDays")}
 							value={activeDays
-								.map((d) => t(`about.days.${DAY_KEYS[d]}` as Parameters<typeof t>[0]))
+								.map((d) =>
+									t(`about.days.${DAY_KEYS[d]}` as Parameters<typeof t>[0]),
+								)
 								.join(" · ")}
 						/>
 						<View className="mx-stack-sm h-px bg-edge/20" />

@@ -1,10 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { Search, X } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { FlatList, View } from "react-native";
-import Toast from "react-native-toast-message";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
@@ -28,6 +21,13 @@ import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
+import { useQuery } from "@tanstack/react-query";
+import { router, useLocalSearchParams } from "expo-router";
+import { Search, X } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FlatList, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { SortBar } from "./components/SortBar";
 import { TechnicianCard } from "./components/TechnicianCard";
 import { TechnicianListSkeleton } from "./components/TechnicianCardSkeleton";
@@ -290,9 +290,7 @@ export default function NewTechnicians() {
 				<PageHeader
 					title={headerTitle}
 					subtitle={
-						showSkeleton
-							? t("list.updatingResults")
-							: `${count} ${countLabel}`
+						showSkeleton ? t("list.updatingResults") : `${count} ${countLabel}`
 					}
 					variant="app-primary"
 					onBackPress={goBack}

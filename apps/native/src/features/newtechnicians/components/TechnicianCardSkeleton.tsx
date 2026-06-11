@@ -1,7 +1,7 @@
-import { View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { spacing } from "@/src/constants/design-tokens";
+import { View } from "react-native";
 
 const BOOK_BUTTON_WIDTH =
 	spacing.avatar.hero + spacing.stack.xl + spacing.stack.lg;

@@ -1,7 +1,7 @@
-import serverlessExpress from '@codegenie/serverless-express';
 import technicianAuthRoutes from '../src/modules/technician-auth/technician-auth.routes.js';
 import app from '../src/shared-app.js';
+import { createHttpHandler } from './http-handler.js';
 
-app.use('/api/technician-auth', technicianAuthRoutes);
+app.use('/', technicianAuthRoutes);
 
-export const handler = serverlessExpress({ app });
+export const handler = createHttpHandler(app);

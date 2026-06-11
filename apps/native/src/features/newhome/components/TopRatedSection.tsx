@@ -1,13 +1,3 @@
-import { router } from "expo-router";
-import {
-	BriefcaseBusiness,
-	ClipboardList,
-	MapPin,
-	Star,
-} from "lucide-react-native";
-import { useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, useWindowDimensions, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
@@ -26,6 +16,16 @@ import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRated
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { router } from "expo-router";
+import {
+	BriefcaseBusiness,
+	ClipboardList,
+	MapPin,
+	Star,
+} from "lucide-react-native";
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 

@@ -1,3 +1,19 @@
+import PageHeader from "@/src/components/layout/PageHeader";
+import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { Badge } from "@/src/components/ui/badge";
+import { Button } from "@/src/components/ui/button";
+import { Skeleton } from "@/src/components/ui/skeleton";
+import { Text } from "@/src/components/ui/text";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { formatRating } from "@/src/constants/format";
+import { translateServiceName } from "@/src/features/categories/constants/categories";
+import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
+import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
+import type { TechnicianService } from "@/src/features/technicians/schemas/response.schema";
+import { formatLocation } from "@/src/features/technicians/utils/technician-utils";
+import { useDebounce } from "@/src/hooks/useDebounce";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { router, useLocalSearchParams } from "expo-router";
 import {
 	CalendarCheck,
@@ -18,22 +34,6 @@ import {
 	ScrollView,
 	View,
 } from "react-native";
-import PageHeader from "@/src/components/layout/PageHeader";
-import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import { Badge } from "@/src/components/ui/badge";
-import { Button } from "@/src/components/ui/button";
-import { Skeleton } from "@/src/components/ui/skeleton";
-import { Text } from "@/src/components/ui/text";
-import { spacing, useThemeColors } from "@/src/constants/design-tokens";
-import { formatRating } from "@/src/constants/format";
-import { translateServiceName } from "@/src/features/categories/constants/categories";
-import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
-import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import type { TechnicianService } from "@/src/features/technicians/schemas/response.schema";
-import { formatLocation } from "@/src/features/technicians/utils/technician-utils";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { AboutTab } from "./components/AboutTab";
 import { ReviewsTab } from "./components/ReviewsTab";
 import { ServicesTab } from "./components/ServicesTab";

@@ -13,6 +13,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function extractFields(body: unknown): Record<string, string> | undefined {
 	if (!isRecord(body)) return undefined;
+
+	const rawDetails = body.details;
+	if (Array.isArray(rawDetails)) {
+		const fields: Record<string, string> = {};
+		for (const item of rawDetails) {
+			if (!isRecord(item)) continue;
+			const field = typeof item.field === "string" ? item.field : null;
+			const message = typeof item.message === "string" ? item.message : null;
+			if (!field || !message) continue;
+			fields[field] = message;
+		}
+		if (Object.keys(fields).length > 0) return fields;
+	}
+
 	const raw = body.fields;
 	if (!isRecord(raw)) return undefined;
 	const fields: Record<string, string> = {};
@@ -26,6 +40,7 @@ function extractUserMessage(body: unknown, fallback: string): string {
 	if (isRecord(body)) {
 		if (typeof body.userMessage === "string") return body.userMessage;
 		if (typeof body.message === "string") return body.message;
+		if (typeof body.error === "string") return body.error;
 	}
 	return fallback;
 }

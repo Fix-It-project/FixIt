@@ -1,13 +1,3 @@
-import { router } from "expo-router";
-import {
-	CalendarDays,
-	ClipboardList,
-	type LucideIcon,
-	Plus,
-} from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
@@ -25,6 +15,16 @@ import {
 	translateServiceName,
 } from "@/src/features/categories/constants/categories";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { router } from "expo-router";
+import {
+	CalendarDays,
+	ClipboardList,
+	type LucideIcon,
+	Plus,
+} from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 function resolveCategoryIcon(categoryId?: string | null): LucideIcon {
 	if (!categoryId) return ClipboardList;

@@ -11,6 +11,7 @@ export interface ProblemDetails {
   code: string;
   userMessage: string;
   token?: string;
+  fields?: Record<string, string>;
   traceId: string;
   timestamp: string;
 }
@@ -36,6 +37,7 @@ export const finalErrorMiddleware: ErrorRequestHandler = (err, req: Request, res
   let detail = 'An unexpected error occurred';
   let userMessage = detail;
   let token: string | undefined;
+  let fields: Record<string, string> | undefined;
 
   if (err instanceof AppError) {
     status = err.status;
@@ -43,6 +45,7 @@ export const finalErrorMiddleware: ErrorRequestHandler = (err, req: Request, res
     detail = err.message;
     userMessage = err.userMessage;
     token = err.opts.token;
+    fields = err.opts.fields;
   } else {
     req.log.error(
       {
@@ -65,6 +68,7 @@ export const finalErrorMiddleware: ErrorRequestHandler = (err, req: Request, res
     code,
     userMessage,
     ...(token ? { token } : {}),
+    ...(fields ? { fields } : {}),
     traceId,
     timestamp,
   };

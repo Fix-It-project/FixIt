@@ -1,10 +1,3 @@
-import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
-import Animated, {
-	FadeInDown,
-	useReducedMotion,
-} from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -24,6 +17,13 @@ import {
 	isDayUnavailable,
 	isSlotAvailable,
 } from "@/src/features/booking-orders/utils/slot-availability";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
 
 const MORNING = BOOKING_SLOT_OPTIONS.filter((s) => s.hour < 12);
 const EVENING = BOOKING_SLOT_OPTIONS.filter((s) => s.hour >= 12);

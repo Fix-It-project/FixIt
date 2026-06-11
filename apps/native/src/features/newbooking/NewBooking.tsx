@@ -1,11 +1,3 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ActivityIndicator, ScrollView, View } from "react-native";
-import Animated, {
-	FadeInDown,
-	useReducedMotion,
-} from "react-native-reanimated";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { AvailabilityCalendar } from "@/src/components/ui/availability-calendar";
@@ -22,6 +14,14 @@ import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks
 import { translateServiceName } from "@/src/features/categories/constants/categories";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
+import { router, useLocalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
 import { TimeSlotGrid } from "./components/TimeSlotGrid";
 
 export default function NewBooking() {

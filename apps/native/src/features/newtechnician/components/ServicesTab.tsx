@@ -1,11 +1,3 @@
-import { Check } from "lucide-react-native";
-import { Fragment, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
-import Animated, {
-	FadeInDown,
-	useReducedMotion,
-} from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -21,6 +13,14 @@ import {
 } from "@/src/features/categories/constants/categories";
 import { useTechnicianServicesQuery } from "@/src/features/technicians/hooks/useTechnicianServicesQuery";
 import type { TechnicianService } from "@/src/features/technicians/schemas/response.schema";
+import { Check } from "lucide-react-native";
+import { Fragment, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
 
 function formatPriceRange(
 	min: number | null,

@@ -1,13 +1,3 @@
-import { router } from "expo-router";
-import { Briefcase, ClipboardList, Star } from "lucide-react-native";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import {
-	ActivityIndicator,
-	TouchableOpacity,
-	useWindowDimensions,
-	View,
-} from "react-native";
 import { ReviewRow } from "@/src/components/reviews";
 import {
 	BottomSheet,
@@ -19,6 +9,16 @@ import TechnicianAvatar from "@/src/features/technicians/components/user/Technic
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useTechnicianReviewsQuery } from "@/src/hooks/useTechnicianReviewsQuery";
 import { ROUTES } from "@/src/lib/navigation";
+import { router } from "expo-router";
+import { Briefcase, ClipboardList, Star } from "lucide-react-native";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+	ActivityIndicator,
+	TouchableOpacity,
+	useWindowDimensions,
+	View,
+} from "react-native";
 
 export interface TechnicianProfileSheetRef {
 	open: (technicianId: string, initials: string) => void;

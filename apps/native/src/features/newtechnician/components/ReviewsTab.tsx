@@ -1,7 +1,3 @@
-import { Star } from "lucide-react-native";
-import { useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
 import { ReviewRow } from "@/src/components/reviews";
 import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -10,6 +6,10 @@ import { useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
 import { useReviewSummaryQuery } from "@/src/features/reviews/hooks/useReviewSummaryQuery";
 import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
+import { Star } from "lucide-react-native";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
 
 const STARS = [5, 4, 3, 2, 1] as const;
 

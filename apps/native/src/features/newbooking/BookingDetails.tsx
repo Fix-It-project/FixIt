@@ -1,20 +1,3 @@
-import { router, useLocalSearchParams } from "expo-router";
-import {
-	CalendarClock,
-	type LucideIcon,
-	MapPin,
-	Star,
-	Wrench,
-} from "lucide-react-native";
-import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import Animated, {
-	FadeInDown,
-	useReducedMotion,
-} from "react-native-reanimated";
-import Toast from "react-native-toast-message";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
@@ -42,6 +25,23 @@ import { showError } from "@/src/lib/errors";
 import { formatAddress } from "@/src/lib/helpers/format-address";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
+import { router, useLocalSearchParams } from "expo-router";
+import {
+	CalendarClock,
+	type LucideIcon,
+	MapPin,
+	Star,
+	Wrench,
+} from "lucide-react-native";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 import {
 	type AttachmentInfo,
 	BookingProblemCard,

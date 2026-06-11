@@ -1,6 +1,3 @@
-import { Wrench } from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import {
@@ -8,6 +5,9 @@ import {
 	translateCategoryLabel,
 } from "@/src/features/categories/constants/categories";
 import type { Category } from "@/src/features/categories/schemas/response.schema";
+import { Wrench } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { TouchableOpacity, View } from "react-native";
 
 interface CategoryTileProps {
 	readonly category: Category;

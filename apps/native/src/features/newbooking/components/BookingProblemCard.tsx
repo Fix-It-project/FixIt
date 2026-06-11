@@ -1,11 +1,11 @@
-import * as ImagePicker from "expo-image-picker";
-import { Camera, ImageIcon, X } from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { Image, Pressable, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Textarea } from "@/src/components/ui/textarea";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
+import * as ImagePicker from "expo-image-picker";
+import { Camera, ImageIcon, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Image, Pressable, View } from "react-native";
 
 export interface AttachmentInfo {
 	uri: string;

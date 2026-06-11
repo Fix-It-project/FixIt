@@ -1,10 +1,10 @@
-import { ChevronDown, MapPin } from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { formatAddress } from "@/src/lib/helpers/format-address";
+import { ChevronDown, MapPin } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { TouchableOpacity, View } from "react-native";
 
 interface LocationHeaderProps {
 	readonly onLocationPress?: () => void;

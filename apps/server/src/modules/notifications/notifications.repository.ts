@@ -163,6 +163,30 @@ export class NotificationsRepository {
     return (data ?? []) as PushDevice[];
   }
 
+  async deleteDevicesForRecipient(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<void> {
+    const { error } = await supabase
+      .from("push_devices")
+      .delete()
+      .eq("recipient_role", recipientRole)
+      .eq("recipient_id", recipientId);
+    if (error) throw error;
+  }
+
+  async deletePreferences(
+    recipientRole: RecipientRole,
+    recipientId: string,
+  ): Promise<void> {
+    const { error } = await supabase
+      .from("notification_preferences")
+      .delete()
+      .eq("recipient_role", recipientRole)
+      .eq("recipient_id", recipientId);
+    if (error) throw error;
+  }
+
   async ensurePreferences(
     recipientRole: RecipientRole,
     recipientId: string,

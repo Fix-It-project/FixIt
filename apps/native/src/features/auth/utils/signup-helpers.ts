@@ -35,6 +35,7 @@ function appendDocument(
 export function buildFormData(
 	data: TechnicianSignUpInput,
 	location: { latitude: number; longitude: number } | null,
+	expoPushToken?: string,
 ): FormData {
 	const formData = new FormData();
 
@@ -54,6 +55,12 @@ export function buildFormData(
 	if (location) {
 		formData.append("latitude", location.latitude.toString());
 		formData.append("longitude", location.longitude.toString());
+	}
+
+	// Push token so the server can notify this device when an admin verifies
+	// the account (a pending tech can't register via the auth-gated endpoint).
+	if (expoPushToken) {
+		formData.append("expo_push_token", expoPushToken);
 	}
 
 	// Document files

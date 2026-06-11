@@ -1,11 +1,11 @@
-import { type LucideIcon, Mail, MapPin, Phone } from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { ActivityIndicator, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import { Colors, elevation, shadowStyle } from "@/src/constants/design-tokens";
 import type { UserProfile } from "@/src/features/users/schemas/response.schema";
 import { formatAddress } from "@/src/lib/helpers/format-address";
+import { type LucideIcon, Mail, MapPin, Phone } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, View } from "react-native";
 
 function InfoRow({
 	icon: Icon,

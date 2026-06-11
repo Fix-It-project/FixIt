@@ -1,19 +1,3 @@
-import {
-	Banknote,
-	CalendarDays,
-	type LucideIcon,
-	MapPin,
-	Navigation,
-	Star,
-} from "lucide-react-native";
-import { memo } from "react";
-import { useTranslation } from "react-i18next";
-import type { GestureResponderEvent } from "react-native";
-import { View } from "react-native";
-import Animated, {
-	FadeInDown,
-	useReducedMotion,
-} from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import {
 	Avatar,
@@ -34,6 +18,22 @@ import { getCategorySlug } from "@/src/features/categories/constants/categories"
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { formatLocation } from "@/src/features/technicians/utils/technician-utils";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import {
+	Banknote,
+	CalendarDays,
+	type LucideIcon,
+	MapPin,
+	Navigation,
+	Star,
+} from "lucide-react-native";
+import { memo } from "react";
+import { useTranslation } from "react-i18next";
+import type { GestureResponderEvent } from "react-native";
+import { View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useReducedMotion,
+} from "react-native-reanimated";
 
 interface TechnicianCardProps {
 	readonly item: TechnicianListItem;

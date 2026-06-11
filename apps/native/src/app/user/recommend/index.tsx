@@ -1,9 +1,3 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -13,6 +7,12 @@ import { getRecommendedTechnicians } from "@/src/features/technicians/recommenda
 import type { RecommendedTechnicianApi } from "@/src/features/technicians/schemas/response.schema";
 import { showError, toAppError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecommendScreen() {
 	const { t } = useTranslation("chat");
@@ -40,9 +40,9 @@ export default function RecommendScreen() {
 				if (!cancelled) {
 					setResults(data);
 				}
-			} catch (err) {
+			} catch (error) {
 				if (!cancelled) {
-					const appErr = toAppError(err);
+					const appErr = toAppError(error);
 					setHasError(true);
 					showError(appErr);
 				}
@@ -70,9 +70,9 @@ export default function RecommendScreen() {
 			.then((data) => {
 				if (!cancelled) setResults(data);
 			})
-			.catch((err) => {
+			.catch((error) => {
 				if (!cancelled) {
-					const appErr = toAppError(err);
+					const appErr = toAppError(error);
 					setHasError(true);
 					showError(appErr);
 				}

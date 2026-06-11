@@ -66,6 +66,14 @@ export async function technicianSignOut(): Promise<TechSignOutResponse> {
 	);
 }
 
+export async function technicianCancelApplication(data: {
+	email: string;
+	password: string;
+}): Promise<{ cancelled: boolean }> {
+	const response = await apiClient.post("/api/technician-auth/cancel", data);
+	return response.data as { cancelled: boolean };
+}
+
 export async function technicianRefreshSession(
 	refreshToken: string,
 ): Promise<TechRefreshTokenResponse> {
