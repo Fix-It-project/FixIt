@@ -7,19 +7,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-<<<<<<< HEAD
-
-concurrency:
-  group: release-please-${{ github.ref }}
-  cancel-in-progress: false
-
-jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: googleapis/release-please-action@v4
-||||||| merged common ancestors
-=======
   issues: write
 
 concurrency:
@@ -31,9 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v5
->>>>>>> 79500f589c67eaabcc89fd9b28a7cb474f9552a0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: main
