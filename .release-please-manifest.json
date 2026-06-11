@@ -1,8 +1,4 @@
 {
-  "apps/native": "0.0.0",
-  "apps/server": "0.0.0",
-  "packages/env": "0.0.0",
-  "packages/errors": "0.0.0",
-  "packages/db": "0.0.0",
-  "packages/config": "0.0.0"
+	"apps/native": "0.0.0",
+	"apps/server": "0.0.0"
 }
