@@ -58,6 +58,15 @@ export interface Order {
 	scheduled_start_at?: string | null;
 	active: boolean;
 	created_at: string;
+	inspection_fee?: number | null;
+	inspection_distance_km?: number | null;
+	work_price?: number | null;
+	final_price?: number | null;
+	payment_method?: "cash" | "card" | null;
+	estimated_price?: number | null;
+	arrived_at?: string | null;
+	user_completed_at?: string | null;
+	technician_completed_at?: string | null;
 	user_address?: string | null;
 	service_name?: string | null;
 	category_id?: string | null;

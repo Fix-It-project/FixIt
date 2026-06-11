@@ -23,10 +23,6 @@ import { Button } from "@/src/components/ui/button";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import { DUR_CARDS } from "@/src/constants/animation";
-import {
-	ESTIMATED_INSPECTION_FEE_EGP,
-	formatInspectionFee,
-} from "@/src/constants/booking";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
 import { CATEGORIES } from "@/src/features/categories/constants/categories";
@@ -37,6 +33,7 @@ import { getPfpInitialsFallback } from "@/src/lib/initials";
 interface TechnicianCardProps {
 	readonly item: TechnicianListItem;
 	readonly index: number;
+	readonly inspectionFeeLabel?: string;
 	/** Tapping the card (or its CTA) opens the technician detail page. */
 	readonly onPress: (item: TechnicianListItem) => void;
 	/** Tapping the avatar opens the quick-profile bottom sheet. */
@@ -113,6 +110,7 @@ function DetailRow({
 function TechnicianCardComponent({
 	item,
 	index,
+	inspectionFeeLabel,
 	onPress,
 	onAvatarPress,
 }: TechnicianCardProps) {
@@ -234,12 +232,14 @@ function TechnicianCardComponent({
 						value={formatDistanceAway(item.distance_km)}
 						tone={themeColors.primary}
 					/>
-					<DetailRow
-						icon={Banknote}
-						label="Inspection Fee"
-						value={formatInspectionFee(ESTIMATED_INSPECTION_FEE_EGP)}
-						tone={themeColors.success}
-					/>
+					{inspectionFeeLabel ? (
+						<DetailRow
+							icon={Banknote}
+							label="Inspection Fee"
+							value={inspectionFeeLabel}
+							tone={themeColors.success}
+						/>
+					) : null}
 					<DetailRow
 						icon={MapPin}
 						label="Location"

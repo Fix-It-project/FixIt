@@ -58,10 +58,14 @@ function deriveQuoteState(
 export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
+	const inspectionFee = order.inspection_fee ?? 0;
 
 	const { data: rounds = [] } = useOrderQuoteHistory(order.id, { viewer });
 	const { roundCount, canActOnLatest } = deriveQuoteState(rounds, viewer);
 	const showWaiting = canActOnLatest === false && roundCount > 0;
+	const latestQuote = rounds[rounds.length - 1] ?? null;
+	const latestTotal =
+		latestQuote != null ? latestQuote.amount + inspectionFee : inspectionFee;
 
 	return (
 		<View
@@ -94,6 +98,38 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 				</Text>
 			</View>
 
+			<View
+				style={{
+					borderRadius: radius.card,
+					backgroundColor: `${themeColors.primary}10`,
+					padding: space[3],
+					gap: space[1],
+				}}
+			>
+				<Text
+					variant="caption"
+					className="font-google-sans-bold uppercase"
+					style={{ color: themeColors.textMuted, letterSpacing: 0.8 }}
+				>
+					Total pricing
+				</Text>
+				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+					Inspection fee: {formatCurrency(inspectionFee)}
+				</Text>
+				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+					Accepted total = work price + inspection fee
+				</Text>
+				{latestQuote ? (
+					<Text
+						variant="bodySm"
+						className="font-google-sans-medium"
+						style={{ color: themeColors.textPrimary }}
+					>
+						Latest total if accepted: {formatCurrency(latestTotal)}
+					</Text>
+				) : null}
+			</View>
+
 			<View style={{ gap: space[2] }}>
 				{rounds.length === 0 ? (
 					<Text
@@ -102,8 +138,8 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 						style={{ textAlign: "center" }}
 					>
 						{viewer === "technician"
-							? 'Press "Offer price" to send your first quote.'
-							: "Waiting for technician to send a price."}
+							? 'Press "Offer work price" to send your first quote.'
+							: "Waiting for technician to send a work price."}
 					</Text>
 				) : (
 					rounds.map((q, idx) => (
@@ -128,6 +164,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	const sheetRef = useRef<QuoteOfferSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
+	const inspectionFee = order.inspection_fee ?? 0;
 
 	const { data: rounds = [] } = useOrderQuoteHistory(order.id, { viewer });
 	const { roundCount, roundsLeft, isFinalRound, latest, canActOnLatest } =
@@ -228,17 +265,20 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		latest != null &&
 		latest.proposed_by !== viewer;
 	const showAcceptDecline = canActOnLatest && roundCount > 0;
+	const latestTotal = latest ? latest.amount + inspectionFee : null;
 
 	const sheetTitle = useMemo(() => {
-		if (showTechInitial) return "Send your quote";
-		if (viewer === "technician") return "Counter the customer";
-		return "Suggest a different price";
+		if (showTechInitial) return "Send your work price";
+		if (viewer === "technician") return "Counter the customer's work price";
+		return "Suggest a different work price";
 	}, [showTechInitial, viewer]);
 	const sheetSubtitle = useMemo(() => {
-		if (showTechInitial) return "Inspect done — propose a fair price.";
-		return `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left before lock-in.`;
-	}, [showTechInitial, roundsLeft]);
-	const sheetCta = showTechInitial ? "Send quote" : "Send counter";
+		if (showTechInitial) {
+			return `Inspection fee ${formatCurrency(inspectionFee)} will be added to your work price.`;
+		}
+		return `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left before lock-in. Inspection fee stays ${formatCurrency(inspectionFee)}.`;
+	}, [inspectionFee, roundsLeft, showTechInitial]);
+	const sheetCta = showTechInitial ? "Send work price" : "Send work counter";
 
 	if (!showTechInitial && !showAcceptDecline) {
 		return (
@@ -267,7 +307,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 							onPress={openSheet}
 							loading={isSubmitPending}
 						>
-							Offer price
+							Offer work price
 						</Button>
 					</View>
 					<View className="shrink-0">
@@ -293,12 +333,14 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 								size="lg"
 								fullWidth
 								iconLeft={Check}
-								onPress={handleAccept}
-								loading={isAcceptPending}
-							>
-								{latest ? `Accept ${formatCurrency(latest.amount)}` : "Accept"}
-							</Button>
-						</View>
+							onPress={handleAccept}
+							loading={isAcceptPending}
+						>
+							{latestTotal != null
+								? `Accept total ${formatCurrency(latestTotal)}`
+								: "Accept"}
+						</Button>
+					</View>
 						<View className="shrink-0">
 							<Button
 								variant="destructive"
@@ -320,7 +362,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 							onPress={openSheet}
 							loading={isSubmitPending}
 						>
-							Suggest another price
+							Suggest another work price
 						</Button>
 					) : null}
 				</>

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +15,10 @@ import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
 import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
+import { getInspectionFeePreview } from "@/src/features/booking-orders/api/orders";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import { useTechniciansInfiniteQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
 import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
@@ -92,8 +96,8 @@ export default function NewTechnicians() {
 	const { location, permissionStatus, requestLocationPermission } =
 		useLocationStore();
 	const { data: addresses } = useAddressesQuery();
-	const activeAddressCoords = useMemo(() => {
-		const addressWithCoords =
+	const activePricingAddress = useMemo(() => {
+		return (
 			addresses?.find(
 				(address) =>
 					address.is_active &&
@@ -102,13 +106,17 @@ export default function NewTechnicians() {
 			) ??
 			addresses?.find(
 				(address) => address.latitude != null && address.longitude != null,
-			);
-		if (!addressWithCoords) return null;
-		return {
-			latitude: addressWithCoords.latitude as number,
-			longitude: addressWithCoords.longitude as number,
-		};
+			) ??
+			null
+		);
 	}, [addresses]);
+	const activeAddressCoords = useMemo(() => {
+		if (!activePricingAddress) return null;
+		return {
+			latitude: activePricingAddress.latitude as number,
+			longitude: activePricingAddress.longitude as number,
+		};
+	}, [activePricingAddress]);
 	const coords = activeAddressCoords ?? location;
 	const [sortRefreshToken, setSortRefreshToken] = useState(0);
 	const lastCategoryRef = useRef<string | null>(null);
@@ -245,16 +253,61 @@ export default function NewTechnicians() {
 		});
 	}, [technicians, activeSort, recommendedRank]);
 
+	const inspectionFeeQueries = useQueries({
+		queries: displayedTechnicians.map((technician) => ({
+			queryKey: orderQueryKeys.inspectionFeePreview(
+				technician.id,
+				activePricingAddress?.id ?? "missing",
+			),
+			queryFn: async () => {
+				const response = await getInspectionFeePreview(
+					technician.id,
+					activePricingAddress?.id as string,
+				);
+				return response.data;
+			},
+			enabled: !!activePricingAddress?.id,
+			retry: false,
+			meta: { showToast: false },
+			staleTime: 5 * 60 * 1000,
+		})),
+	});
+
+	const inspectionFeeLabels = useMemo(() => {
+		return new Map(
+			displayedTechnicians.map((technician, index) => {
+				if (!activePricingAddress?.id) {
+					return [technician.id, "Add address to preview fee"] as const;
+				}
+				const query = inspectionFeeQueries[index];
+				if (!query || query.isLoading) {
+					return [technician.id, "Calculating fee..."] as const;
+				}
+				if (query.isError) {
+					return [technician.id, translateOrderError(query.error)] as const;
+				}
+				if (!query.data) {
+					return [technician.id, "Calculated from distance"] as const;
+				}
+				return [
+					technician.id,
+					formatCurrency(query.data.inspection_fee),
+				] as const;
+			}),
+		);
+	}, [activePricingAddress?.id, displayedTechnicians, inspectionFeeQueries]);
+
 	const renderItem = useCallback(
 		({ item, index }: { item: TechnicianListItem; index: number }) => (
 			<TechnicianCard
 				item={item}
 				index={index}
+				inspectionFeeLabel={inspectionFeeLabels.get(item.id)}
 				onPress={handleCardPress}
 				onAvatarPress={handleAvatarPress}
 			/>
 		),
-		[handleCardPress, handleAvatarPress],
+		[handleCardPress, handleAvatarPress, inspectionFeeLabels],
 	);
 
 	const keyExtractor = useCallback((item: TechnicianListItem) => item.id, []);

@@ -67,6 +67,22 @@ export const submitOrder: RequestHandler = asyncHandler(async (req: Request, res
 	res.status(201).json({ data: order });
 });
 
+export const getUserInspectionFeePreview: RequestHandler = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = requireUserId(req);
+		const { technician_id, destination_address_id } = req.query as {
+			technician_id: string;
+			destination_address_id: string;
+		};
+		const preview = await lifecycleService.previewInspectionFee(
+			userId,
+			technician_id,
+			destination_address_id,
+		);
+		res.status(200).json({ data: preview });
+	},
+);
+
 export const userCancelOrder: RequestHandler = asyncHandler(async (req: Request, res) => {
 	const userId = requireUserId(req);
 	const orderId = req.params.id as string;

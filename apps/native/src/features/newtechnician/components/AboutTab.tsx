@@ -8,10 +8,6 @@ import { useMemo } from "react";
 import { View } from "react-native";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
-import {
-	ESTIMATED_INSPECTION_FEE_EGP,
-	formatInspectionFee,
-} from "@/src/constants/booking";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
 import { BOOKING_SLOT_OPTIONS } from "@/src/features/booking-orders/utils/fixed-slots";
@@ -85,7 +81,7 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 				<InfoRow
 					icon={Banknote}
 					label="Inspection fee"
-					value={formatInspectionFee(ESTIMATED_INSPECTION_FEE_EGP)}
+					value="Calculated from distance when you book"
 				/>
 				<View className="mx-stack-sm h-px bg-edge/20" />
 

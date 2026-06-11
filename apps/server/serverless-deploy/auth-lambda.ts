@@ -1,7 +1,10 @@
-import authRoutes from '../src/modules/auth/auth.routes.js';
-import app from '../src/shared-app.js';
-import { createHttpHandler } from './http-handler.js';
+import authRoutes from "../src/modules/auth/auth.routes.js";
+import { createSharedApp, mountTerminalHandlers } from "../src/shared-app.js";
+import { createHttpHandler } from "./http-handler.js";
 
-app.use('/', authRoutes);
+const app = createSharedApp();
+
+app.use("/", authRoutes);
+mountTerminalHandlers(app);
 
 export const handler = createHttpHandler(app);

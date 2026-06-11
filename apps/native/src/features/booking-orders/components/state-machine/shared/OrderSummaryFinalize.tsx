@@ -102,7 +102,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 		{ label: "Work complete", timestamp: workCompletedAt },
 	];
 
-	const finalAmount = order.final_price ?? order.estimated_price ?? 0;
+	const inspectionFee = order.inspection_fee ?? 0;
+	const workAmount =
+		order.work_price ?? order.estimated_price ?? order.final_price ?? 0;
+	const finalAmount = order.final_price ?? workAmount + inspectionFee;
 
 	const onIdentityPress = () => {
 		if (isUser) {
@@ -198,6 +201,95 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 						>
 							Cash on delivery · in-app payments soon
 						</Text>
+					</View>
+					<View
+						style={{
+							marginTop: space[3],
+							borderTopWidth: 1,
+							borderTopColor: `${themeColors.onPrimaryHeader}22`,
+							paddingTop: space[3],
+							gap: space[2],
+						}}
+					>
+						<View
+							style={{
+								flexDirection: "row",
+								alignItems: "center",
+								justifyContent: "space-between",
+							}}
+						>
+							<Text
+								variant="caption"
+								style={{
+									color: themeColors.onPrimaryHeader,
+									opacity: 0.82,
+								}}
+							>
+								Work price
+							</Text>
+							<Text
+								variant="caption"
+								className="font-google-sans-bold"
+								style={{
+									color: themeColors.onPrimaryHeader,
+								}}
+							>
+								{formatAmount(workAmount)} EGP
+							</Text>
+						</View>
+						<View
+							style={{
+								flexDirection: "row",
+								alignItems: "center",
+								justifyContent: "space-between",
+							}}
+						>
+							<Text
+								variant="caption"
+								style={{
+									color: themeColors.onPrimaryHeader,
+									opacity: 0.82,
+								}}
+							>
+								Inspection fee
+							</Text>
+							<Text
+								variant="caption"
+								className="font-google-sans-bold"
+								style={{
+									color: themeColors.onPrimaryHeader,
+								}}
+							>
+								{formatAmount(inspectionFee)} EGP
+							</Text>
+						</View>
+						<View
+							style={{
+								flexDirection: "row",
+								alignItems: "center",
+								justifyContent: "space-between",
+							}}
+						>
+							<Text
+								variant="caption"
+								className="font-google-sans-bold uppercase"
+								style={{
+									color: themeColors.onPrimaryHeader,
+									letterSpacing: 0.8,
+								}}
+							>
+								Total payable
+							</Text>
+							<Text
+								variant="caption"
+								className="font-google-sans-bold"
+								style={{
+									color: themeColors.onPrimaryHeader,
+								}}
+							>
+								{formatAmount(finalAmount)} EGP
+							</Text>
+						</View>
 					</View>
 				</View>
 			</Animated.View>

@@ -49,6 +49,8 @@ const TOKEN_MESSAGES: Record<string, string> = {
 	service_not_offered_by_technician:
 		"This technician doesn't offer that service. Please pick another.",
 	slot_taken: "That time slot was just booked. Please choose another.",
+	inspection_fee_pricing_unavailable:
+		"We couldn't calculate the inspection fee for this booking. Please update the saved locations and try again.",
 
 	// Lifecycle / tracking (lifecycle.repository.ts)
 	cannot_submit_order_unpaid_fee:

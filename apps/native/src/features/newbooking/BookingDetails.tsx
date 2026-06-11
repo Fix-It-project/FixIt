@@ -3,6 +3,7 @@ import {
 	CalendarClock,
 	type LucideIcon,
 	MapPin,
+	Wallet,
 	Wrench,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
@@ -24,13 +25,18 @@ import {
 } from "@/src/constants/animation";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
-import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
+import {
+	useCreateBookingMutation,
+	useInspectionFeePreview,
+} from "@/src/features/booking-orders/hooks";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
 import {
 	BOOKING_SLOT_OPTIONS,
 	type BookingSlotHour,
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { showError } from "@/src/lib/errors";
 import { formatAddress } from "@/src/lib/helpers/format-address";
@@ -110,6 +116,10 @@ export default function BookingDetails() {
 
 	const selectedAddress =
 		addresses?.find((address) => address.is_active) ?? addresses?.[0];
+	const inspectionFeeQuery = useInspectionFeePreview(
+		technicianId,
+		selectedAddress?.id,
+	);
 	const selectedTimeLabel = useMemo(
 		() =>
 			BOOKING_SLOT_OPTIONS.find((slot) => slot.hour === selectedHour)?.label ??
@@ -123,6 +133,23 @@ export default function BookingDetails() {
 	const addressLabel = isLoadingAddresses
 		? "Loading location"
 		: formatAddress(selectedAddress);
+	const inspectionFeeLabel = useMemo(() => {
+		if (isLoadingAddresses) return "Loading location";
+		if (!selectedAddress) return "Add a location to preview the fee";
+		if (inspectionFeeQuery.isLoading) return "Calculating from distance";
+		if (inspectionFeeQuery.isError) {
+			return translateOrderError(inspectionFeeQuery.error);
+		}
+		if (!inspectionFeeQuery.data) return "Calculating from distance";
+		return `${formatCurrency(inspectionFeeQuery.data.inspection_fee)} · based on ${inspectionFeeQuery.data.inspection_distance_km.toFixed(1)} km`;
+	}, [
+		inspectionFeeQuery.data,
+		inspectionFeeQuery.error,
+		inspectionFeeQuery.isError,
+		inspectionFeeQuery.isLoading,
+		isLoadingAddresses,
+		selectedAddress,
+	]);
 
 	const fallbackRoute = ROUTES.user.bookingRoot(technicianId);
 	const goBack = useSafeBack(fallbackRoute);
@@ -132,8 +159,11 @@ export default function BookingDetails() {
 		!!selectedDate &&
 		selectedHour !== null &&
 		!Number.isNaN(selectedHour) &&
+		!!inspectionFeeQuery.data &&
 		!isPending &&
-		!isLoadingAddresses;
+		!isLoadingAddresses &&
+		!inspectionFeeQuery.isLoading &&
+		!inspectionFeeQuery.isError;
 	const entering = (index: number) =>
 		reducedMotion
 			? undefined
@@ -228,6 +258,12 @@ export default function BookingDetails() {
 							/>
 							<Separator />
 							<SummaryRow icon={MapPin} label="Location" value={addressLabel} />
+							<Separator />
+							<SummaryRow
+								icon={Wallet}
+								label="Inspection fee"
+								value={inspectionFeeLabel}
+							/>
 						</Animated.View>
 
 						<Animated.View entering={entering(1)}>

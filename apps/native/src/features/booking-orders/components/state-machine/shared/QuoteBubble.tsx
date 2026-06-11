@@ -32,6 +32,11 @@ export default function QuoteBubble({
 	const isSelf =
 		(viewer === "user" && item.proposed_by === "user") ||
 		(viewer === "technician" && item.proposed_by === "technician");
+	const proposerLabel = isSelf
+		? "You"
+		: item.proposed_by === "user"
+			? "Customer"
+			: "Technician";
 
 	const body = (
 		<View
@@ -48,8 +53,7 @@ export default function QuoteBubble({
 					alignSelf: isSelf ? "flex-end" : "flex-start",
 				}}
 			>
-				{item.proposed_by === "user" ? "You" : "Technician"} · Round{" "}
-				{item.round_number}
+				{proposerLabel} · Work price · Round {item.round_number}
 				{item.round_number === maxRounds ? " · Final" : ""}
 			</Text>
 			<View

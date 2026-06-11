@@ -93,7 +93,7 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 								value={amount}
 								onChangeText={setAmount}
 								keyboardType="decimal-pad"
-								placeholder={`Amount (${currency})`}
+								placeholder={`Work price (${currency})`}
 								autoFocus
 							/>
 							{typeof previousAmount === "number" ? (
@@ -101,7 +101,7 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 									variant="caption"
 									style={{ color: themeColors.textMuted }}
 								>
-									Last offer: {formatCurrency(previousAmount, currency)}
+									Last work price: {formatCurrency(previousAmount, currency)}
 								</Text>
 							) : undefined}
 						</View>
