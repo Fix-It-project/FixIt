@@ -860,37 +860,37 @@ export class AdminDashboardService {
 	async verifyTechnician(id: string): Promise<AdminTechnician> {
 		const row = await this.repo.setTechnicianStatus(id, { status: "verified" });
 		if (!row) throw AppError.notFound("Technician not found");
-		// Notify the technician their account is approved (best-effort — never
-		// fails the verification). No-op when they have no registered device.
-		try {
-			await notificationsService.sendPushToRecipient({
+		// Fire-and-forget: a slow/failed push (exp.host egress) must never delay or
+		// fail the verification. Runs in the background with its own retries.
+		void Promise.resolve(
+			notificationsService.sendPushToRecipient({
 				recipientRole: "technician",
 				recipientId: id,
 				type: "technician_verified",
 				title: "You're approved!",
 				body: "Your FixIt technician account is verified. Open the app to sign in.",
-			});
-		} catch (err) {
+			}),
+		).catch((err) => {
 			logger.warn({ err, technicianId: id }, "[admin-dashboard] verify push failed");
-		}
+		});
 		return this.findTechnicianOrThrow(id);
 	}
 
 	async rejectTechnician(id: string): Promise<AdminTechnician> {
 		const row = await this.repo.setTechnicianStatus(id, { status: "rejected" });
 		if (!row) throw AppError.notFound("Technician not found");
-		// Notify the applicant their application was not approved (best-effort).
-		try {
-			await notificationsService.sendPushToRecipient({
+		// Fire-and-forget (see verifyTechnician).
+		void Promise.resolve(
+			notificationsService.sendPushToRecipient({
 				recipientRole: "technician",
 				recipientId: id,
 				type: "technician_rejected",
 				title: "Application update",
 				body: "Your FixIt technician application was not approved. Open the app for details.",
-			});
-		} catch (err) {
+			}),
+		).catch((err) => {
 			logger.warn({ err, technicianId: id }, "[admin-dashboard] reject push failed");
-		}
+		});
 		return this.findTechnicianOrThrow(id);
 	}
 

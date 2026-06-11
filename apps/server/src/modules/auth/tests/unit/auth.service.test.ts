@@ -173,6 +173,47 @@ describe('AuthService', () => {
       expect(mockAuthRepo.signOut).toHaveBeenCalledWith('at');
     });
 
+    it('should reject a blocked homeowner with accountStatus + blockReason', async () => {
+      mockAuthRepo.signIn.mockResolvedValue({
+        user: { id: 'uuid-1', email: 'test@example.com' },
+        session: { access_token: 'at' },
+      });
+      mockUsersRepo.getUserByEmail.mockResolvedValue({
+        id: 'uuid-1',
+        email: 'test@example.com',
+        blocked: true,
+        blocked_reason: 'Repeated cancellations',
+      });
+
+      await expect(service.signIn(signInData)).rejects.toMatchObject({
+        status: 403,
+        opts: { fields: { accountStatus: 'blocked', blockReason: 'Repeated cancellations' } },
+      });
+      expect(mockAuthRepo.signOut).toHaveBeenCalledWith('at');
+    });
+
+    it('should omit blockReason when the blocked user has none', async () => {
+      mockAuthRepo.signIn.mockResolvedValue({
+        user: { id: 'uuid-1' },
+        session: { access_token: 'at' },
+      });
+      mockUsersRepo.getUserByEmail.mockResolvedValue({
+        id: 'uuid-1',
+        blocked: true,
+        blocked_reason: null,
+      });
+
+      await service.signIn(signInData).then(
+        () => {
+          throw new Error('expected signIn to throw');
+        },
+        (e: { status: number; opts: { fields?: Record<string, string> } }) => {
+          expect(e.status).toBe(403);
+          expect(e.opts.fields).toEqual({ accountStatus: 'blocked' });
+        },
+      );
+    });
+
     it('should call signOut with empty string when session is undefined', async () => {
       mockAuthRepo.signIn.mockResolvedValue({ user: { id: 'uuid-1' }, session: undefined });
       mockUsersRepo.getUserByEmail.mockResolvedValue(null);

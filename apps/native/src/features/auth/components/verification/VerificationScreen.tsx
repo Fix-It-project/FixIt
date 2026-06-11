@@ -6,7 +6,6 @@ import {
 	FileX,
 	type LucideIcon,
 	ShieldCheck,
-	ShieldOff,
 } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -56,16 +55,6 @@ const COPY: Record<TechVerificationState, StateCopy> = {
 		contactPrompt: "Questions about your application?",
 		contactSubject: "Question about my FixIt technician application",
 		contactEmphasis: "tonal",
-	},
-	blocked: {
-		icon: ShieldOff,
-		tint: (c) => c.danger,
-		eyebrow: "Account blocked",
-		title: "Your account has been blocked",
-		body: "Your technician account is currently blocked, so you can't sign in. Reach out and our team will help you sort it out.",
-		contactPrompt: "We're here to help you get back to work.",
-		contactSubject: "Help with my blocked FixIt technician account",
-		contactEmphasis: "primary",
 	},
 	rejected: {
 		icon: FileX,

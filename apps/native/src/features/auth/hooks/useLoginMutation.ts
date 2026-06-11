@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { signIn } from "@/src/features/auth/api/auth";
+import { toAppError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -17,6 +18,22 @@ export function useLoginMutation() {
 				response.session.refreshToken,
 			);
 			router.replace(ROUTES.user.home);
+		},
+		onError: (error, variables) => {
+			// A blocked homeowner is tagged with `accountStatus: "blocked"` (mirrors
+			// the technician convention). Route them to the shared Blocked screen;
+			// every other error falls through to the form banner.
+			const app = toAppError(error);
+			if (app.opts.fields?.accountStatus === "blocked") {
+				router.replace(
+					ROUTES.auth.blocked({
+						role: "user",
+						email: variables.email,
+						message: app.userMessage,
+						reason: app.opts.fields?.blockReason,
+					}),
+				);
+			}
 		},
 	});
 }

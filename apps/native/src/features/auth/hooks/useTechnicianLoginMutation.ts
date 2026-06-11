@@ -7,7 +7,6 @@ import { useAuthStore } from "@/src/stores/auth-store";
 
 const VERIFICATION_STATES: readonly TechVerificationState[] = [
 	"pending",
-	"blocked",
 	"rejected",
 ];
 
@@ -27,11 +26,22 @@ export function useTechnicianLoginMutation() {
 			router.replace(ROUTES.technician.home);
 		},
 		onError: (error, variables) => {
-			// The server blocks non-verified technicians and tags the 403 with a
-			// machine-readable `accountStatus`. Route those to the verification
-			// screen; let every other error fall through to the form's banner.
+			// The server tags non-verified technicians with a machine-readable
+			// `accountStatus`. Blocked → shared Blocked screen; pending/rejected →
+			// verification screen; everything else falls through to the form banner.
 			const app = toAppError(error);
 			const status = app.opts.fields?.accountStatus;
+			if (status === "blocked") {
+				router.replace(
+					ROUTES.auth.blocked({
+						role: "technician",
+						email: variables.email,
+						message: app.userMessage,
+						reason: app.opts.fields?.blockReason,
+					}),
+				);
+				return;
+			}
 			if (
 				status &&
 				VERIFICATION_STATES.includes(status as TechVerificationState)

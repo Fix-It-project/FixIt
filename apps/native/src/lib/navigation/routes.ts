@@ -1,5 +1,11 @@
 import type { Href } from "expo-router";
 
+/** Application-lifecycle states the technician verification screen renders. */
+export type TechVerificationState = "pending" | "rejected";
+
+/** Account roles the shared Blocked screen serves. */
+export type BlockedRole = "user" | "technician";
+
 export const ROUTES = {
 	root: "/" as const,
 
@@ -28,6 +34,24 @@ export const ROUTES = {
 				}
 			}
 		},
+		techVerification: (params: {
+			state: TechVerificationState;
+			email?: string;
+			message?: string;
+			approved?: "true";
+		}) => ({
+			pathname: "/tech-verification" as const,
+			params,
+		}),
+		blocked: (params: {
+			role: BlockedRole;
+			email?: string;
+			message?: string;
+			reason?: string;
+		}) => ({
+			pathname: "/blocked" as const,
+			params,
+		}),
 	},
 
 	user: {

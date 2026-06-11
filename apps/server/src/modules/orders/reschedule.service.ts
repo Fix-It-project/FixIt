@@ -404,11 +404,12 @@ export class RescheduleService {
 		orderId: string;
 		viewerRole: "user" | "technician";
 	}): Promise<void> {
-		try {
-			await notificationsService.sendPushToRecipient(input);
-		} catch (error) {
-			logger.warn({ err: error, ...input }, "[reschedule] notification failed");
-		}
+		// Fire-and-forget: a push must never block the reschedule response.
+		void Promise.resolve(notificationsService.sendPushToRecipient(input)).catch(
+			(error) => {
+				logger.warn({ err: error, ...input }, "[reschedule] notification failed");
+			},
+		);
 	}
 }
 

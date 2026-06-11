@@ -3,7 +3,7 @@ import { VerificationScreen } from "@/src/features/auth/components/verification/
 import type { TechVerificationState } from "@/src/lib/navigation";
 
 function resolveState(value: string | undefined): TechVerificationState {
-	return value === "blocked" || value === "rejected" ? value : "pending";
+	return value === "rejected" ? "rejected" : "pending";
 }
 
 export default function TechVerification() {
