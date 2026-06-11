@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { spacing } from "@/src/constants/design-tokens";
@@ -13,6 +14,7 @@ interface SortBarProps {
 }
 
 function SortBarComponent({ activeSort, onSortPress }: SortBarProps) {
+	const { t } = useTranslation("technicians");
 	return (
 		<View className="shrink-0 bg-background pb-stack-lg">
 			<ScrollView
@@ -33,7 +35,7 @@ function SortBarComponent({ activeSort, onSortPress }: SortBarProps) {
 							className={
 								isActive
 									? "h-control-chip justify-center rounded-compact bg-app-primary px-control-pill-x"
-									: "h-control-chip justify-center rounded-compact bg-surface-elevated px-control-pill-x"
+									: "h-control-chip justify-center rounded-compact bg-surface-muted px-control-pill-x"
 							}
 							accessibilityRole="button"
 							accessibilityState={{ selected: isActive }}
@@ -46,7 +48,7 @@ function SortBarComponent({ activeSort, onSortPress }: SortBarProps) {
 										: "font-medium text-content-secondary"
 								}
 							>
-								{option}
+								{t(`sort.${option}` as Parameters<typeof t>[0])}
 							</Text>
 						</Pressable>
 					);

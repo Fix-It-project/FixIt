@@ -1,0 +1,18 @@
+{
+	"submit": "Submit",
+	"skip": "Skip",
+	"rateNamed": "Rate {{name}}",
+	"rateTechnician": "Rate technician",
+	"commentPlaceholder": "Add a comment (optional)",
+	"invalidInput": "Invalid input.",
+	"anonymous": "Anonymous",
+	"stats": {
+		"noReviews": "No reviews yet",
+		"reviewOne": "1 review",
+		"reviewOther": "{{count}} reviews"
+	},
+	"star": {
+		"rateOne": "Rate 1 star",
+		"rateOther": "Rate {{n}} stars"
+	}
+}

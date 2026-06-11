@@ -1,0 +1,42 @@
+{
+	"title": "Date & Time",
+	"dateLabel": "Date",
+	"timeLabel": "Time",
+	"continue": "Continue",
+	"detailsTitle": "Booking Details",
+	"technicianFallback": "Technician",
+	"technicianDescriptionFallback": "Professional home service technician",
+	"ratingNew": "New",
+	"completedJobs": "{{count}} completed jobs",
+	"appointmentAt": "{{date}} at {{time}}",
+	"noDateTimeSelected": "No date and time selected",
+	"loadingLocation": "Loading location",
+	"service": "Service",
+	"serviceNotSelected": "Service not selected",
+	"schedule": "Schedule",
+	"location": "Location",
+	"confirm": "Confirm Booking",
+	"confirming": "Booking...",
+	"toast": {
+		"pickDateTime": "Pick a date and time first.",
+		"locationError": "Unable to load your location.",
+		"addLocation": "Add a location before booking."
+	},
+	"problem": {
+		"noteTitle": "Note for technician",
+		"optional": "Optional",
+		"notePlaceholder": "Add specific details about the issue or access instructions...",
+		"attachTitle": "Attach photos",
+		"attachHint": "Help the technician prepare by showing the issue clearly.",
+		"removePhoto": "Remove photo",
+		"takePhoto": "Take photo",
+		"uploadPhoto": "Upload photo",
+		"upload": "Upload"
+	},
+	"slots": {
+		"pickDate": "Pick a date to see available times.",
+		"dayUnavailable": "No available times on this day. Please pick another date.",
+		"morning": "Morning",
+		"afternoon": "Afternoon"
+	}
+}

@@ -1,8 +1,10 @@
 import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
 	formatDate,
@@ -10,9 +12,11 @@ import {
 	getAvatarColor,
 } from "@/src/features/booking-orders/utils/booking-helpers";
 import { getOrderStatusBadge } from "@/src/features/booking-orders/utils/order-status-ui";
-import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import {
+	CATEGORIES,
+	translateServiceName,
+} from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -21,6 +25,8 @@ interface Props {
 }
 
 export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
+	const { t, i18n } = useTranslation("orders");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const category = order.category_id
 		? CATEGORIES.find((c) => c.id === order.category_id)
@@ -29,14 +35,20 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
-	const status = getOrderStatusBadge(order.status, themeColors, "user");
-	const scheduledTime = formatTime(order.scheduled_start_at);
+	const status = getOrderStatusBadge(order.status, themeColors, "user", t);
+	const scheduledTime = formatTime(order.scheduled_start_at, i18n.language);
+	const serviceName = translateServiceName(
+		tc,
+		order.service_id,
+		order.service_name,
+	);
 
 	return (
 		<TouchableOpacity
 			onPress={onPress}
 			activeOpacity={0.7}
-			className="mb-stack-md rounded-card border border-edge bg-card p-card"
+			testID="order-card"
+			className="mb-stack-md rounded-card bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{/* Avatar */}
@@ -52,7 +64,10 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
 						style={{ backgroundColor: avatarColor }}
 					>
-						<Text variant="buttonLg" style={{ color: themeColors.surfaceOnPrimary }}>
+						<Text
+							variant="buttonLg"
+							style={{ color: themeColors.surfaceOnPrimary }}
+						>
 							{initials}
 						</Text>
 					</View>
@@ -65,16 +80,20 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						style={{ color: themeColors.textPrimary }}
 						numberOfLines={1}
 					>
-						{order.technician_name ?? "Technician"}
+						{order.technician_name ?? t("card.technicianFallback")}
 					</Text>
 					<View className="mt-stack-xs flex-row items-center gap-stack-xs">
-						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon
+							size={spacing.icon.caption}
+							color={categoryColor}
+							strokeWidth={2}
+						/>
 						<Text
 							variant="caption"
 							style={{ color: themeColors.textSecondary }}
 							numberOfLines={1}
 						>
-							{order.service_name ?? "Service"}
+							{serviceName || t("card.serviceFallback")}
 						</Text>
 					</View>
 				</View>
@@ -98,7 +117,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 			<View className="mt-stack-md border-edge border-t pt-stack-md">
 				<View className="min-w-0">
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						{formatDate(order.scheduled_date)}
+						{formatDate(order.scheduled_date, i18n.language)}
 					</Text>
 					{scheduledTime ? (
 						<Text
@@ -118,7 +137,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 						className="font-semibold"
 						style={{ color: Colors.primary }}
 					>
-						View Details
+						{t("card.viewDetails")}
 					</Text>
 				</View>
 			</View>

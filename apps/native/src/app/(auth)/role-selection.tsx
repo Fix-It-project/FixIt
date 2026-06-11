@@ -139,6 +139,7 @@ export default function RoleSelectionScreen() {
 							/>
 						}
 						onPress={goToUserSignup}
+						testID="role-user"
 						enterIndex={0}
 						horizontal={horizontalCards}
 						illustrationPanelWidth={illustrationPanelWidth}
@@ -162,6 +163,7 @@ export default function RoleSelectionScreen() {
 							/>
 						}
 						onPress={goToTechSignup}
+						testID="role-technician"
 						enterIndex={1}
 						horizontal={horizontalCards}
 						illustrationPanelWidth={illustrationPanelWidth}

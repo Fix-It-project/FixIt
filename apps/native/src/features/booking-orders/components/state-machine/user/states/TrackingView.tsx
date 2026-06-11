@@ -1,5 +1,6 @@
 import { Ban, MapPin, Navigation } from "lucide-react-native";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
@@ -25,6 +26,7 @@ interface Props {
 }
 
 function Distance({ orderId }: { orderId: string }) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const { data: distance } = useOrderDistance(orderId, {
 		enabled: true,
@@ -33,12 +35,13 @@ function Distance({ orderId }: { orderId: string }) {
 	const km = distance?.distance_km;
 	const eta =
 		typeof distance?.eta_minutes === "number"
-			? `${distance.eta_minutes} min`
+			? t("detail.distance.min", { n: distance.eta_minutes })
 			: null;
 	const parts: string[] = [];
-	if (typeof km === "number") parts.push(`${km.toFixed(1)} km`);
-	if (eta) parts.push(`ETA ${eta}`);
-	parts.push("Live");
+	if (typeof km === "number")
+		parts.push(t("detail.distance.km", { n: km.toFixed(1) }));
+	if (eta) parts.push(t("detail.distance.eta", { eta }));
+	parts.push(t("detail.distance.live"));
 	return (
 		<View
 			style={{
@@ -65,14 +68,15 @@ function Distance({ orderId }: { orderId: string }) {
 }
 
 export default function TrackingView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={Navigation}
-				eyebrow="On the way"
-				title="Heading your way."
-				subtitle="Track the ETA. Your technician is moving toward you."
+				eyebrow={t("detail.stage.tracking.eyebrow")}
+				title={t("detail.stage.tracking.title")}
+				subtitle={t("detail.stage.tracking.subtitle")}
 			/>
 			<Distance orderId={order.id} />
 			<OrderInfoCompact
@@ -91,6 +95,7 @@ export default function TrackingView({ order }: Props) {
 }
 
 export function TrackingViewCta({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const cancel = useUserCancelOrder();
@@ -103,12 +108,12 @@ export function TrackingViewCta({ order }: Props) {
 				onSuccess: () => {
 					setCancelOpen(false);
 					setCancelReason("");
-					Toast.show({ type: "success", text1: "Order cancelled" });
+					Toast.show({ type: "success", text1: t("detail.toast.cancelled") });
 				},
 				onError: (err) =>
 					Toast.show({
 						type: "info",
-						text1: "Failed to cancel",
+						text1: t("detail.toast.cancelFailed"),
 						text2: err.message,
 					}),
 			},
@@ -127,14 +132,14 @@ export function TrackingViewCta({ order }: Props) {
 						onPress={() => {}}
 						disabled
 					>
-						Live tracking
+						{t("detail.cta.liveTracking")}
 					</Button>
 				</View>
 				<View className="shrink-0">
 					<Button
 						variant="destructive"
 						size="icon"
-						accessibilityLabel="Cancel order"
+						accessibilityLabel={t("detail.a11y.cancelOrder")}
 						onPress={() => setCancelOpen(true)}
 						loading={cancel.isPending}
 					>
@@ -144,10 +149,10 @@ export function TrackingViewCta({ order }: Props) {
 			</View>
 			<CancelReasonModal
 				visible={cancelOpen}
-				title="Cancel Order"
+				title={t("detail.cancelModal.title")}
 				subjectRole="order"
 				subjectName={order.technician_name}
-				subjectFallback="this technician"
+				subjectFallback={t("detail.cancelModal.subjectFallback")}
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

@@ -8,6 +8,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, useWindowDimensions, View } from "react-native";
 import {
 	BottomSheet,
@@ -34,6 +35,7 @@ const AddNewAddressSheet = forwardRef<
 	AddNewAddressSheetRef,
 	AddNewAddressSheetProps
 >(function AddNewAddressSheet({ onBack, onOpenChange }, ref) {
+	const { t } = useTranslation("addresses");
 	const themeColors = useThemeColors();
 	const bottomSheetRef = useRef<BottomSheetRef>(null);
 	const { requestLocationPermission, isLoading: isLocating } =
@@ -99,7 +101,7 @@ const AddNewAddressSheet = forwardRef<
 			<BottomSheet.View className="flex-1 px-button-x pb-screen-bottom-inset">
 				<View className="mb-stack-sm flex-row items-center justify-between">
 					<Text variant="bodyLg" className="font-bold text-content">
-						Add New Location
+						{t("addSheet.title")}
 					</Text>
 					<TouchableOpacity onPress={handleBack} activeOpacity={0.7}>
 						<X size={22} color={themeColors.textSecondary} strokeWidth={2} />
@@ -115,15 +117,14 @@ const AddNewAddressSheet = forwardRef<
 					</View>
 
 					<Text variant="bodyLg" className="text-center font-bold text-content">
-						Capture Your Location
+						{t("addSheet.heading")}
 					</Text>
 
 					<Text
 						variant="bodySm"
 						className="px-card text-center text-content-secondary"
 					>
-						Tap the button below to capture your current GPS coordinates, then
-						fill in your address details.
+						{t("addSheet.description")}
 					</Text>
 
 					<Button
@@ -133,9 +134,9 @@ const AddNewAddressSheet = forwardRef<
 						onPress={handleCaptureLocation}
 						disabled={isLocating}
 						loading={isLocating}
-						accessibilityLabel="Use current location"
+						accessibilityLabel={t("addSheet.useCurrentLocation")}
 					>
-						Use current location
+						{t("addSheet.useCurrentLocation")}
 					</Button>
 				</View>
 			</BottomSheet.View>

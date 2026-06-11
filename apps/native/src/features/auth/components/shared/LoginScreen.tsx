@@ -92,6 +92,7 @@ export default function LoginScreen({
 				keyboardType="email-address"
 				autoCapitalize="none"
 				required
+				testID="login-email-input"
 			/>
 
 			<PasswordInput
@@ -104,6 +105,7 @@ export default function LoginScreen({
 				error={fieldErrors.password}
 				disabled={loginMutation.isPending}
 				required
+				testID="login-password-input"
 			/>
 
 			{/* Forgot Password */}
@@ -117,6 +119,7 @@ export default function LoginScreen({
 				onPress={handleLogin}
 				disabled={!isFormValid || loginMutation.isPending}
 				className="mt-stack-sm"
+				testID="login-submit"
 			>
 				{loginMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />

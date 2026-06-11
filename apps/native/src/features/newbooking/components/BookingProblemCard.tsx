@@ -1,9 +1,10 @@
 import * as ImagePicker from "expo-image-picker";
-import { Camera, Paperclip, X } from "lucide-react-native";
-import { Image, View } from "react-native";
+import { Camera, ImageIcon, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Image, Pressable, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { Text } from "@/src/components/ui/text";
+import { Textarea } from "@/src/components/ui/textarea";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export interface AttachmentInfo {
@@ -25,6 +26,7 @@ export function BookingProblemCard({
 	attachment,
 	onAttachmentChange,
 }: BookingProblemCardProps) {
+	const { t } = useTranslation("booking");
 	const themeColors = useThemeColors();
 
 	const pickImage = async () => {
@@ -62,29 +64,37 @@ export function BookingProblemCard({
 
 	return (
 		<View className="gap-stack-md">
-			<View className="rounded-card border border-edge bg-card p-card-compact">
-				<Text variant="buttonMd" className="font-semibold text-content">
-					Describe the problem
-				</Text>
-				<Text variant="caption" className="mt-stack-xs text-content-muted">
-					Optional. Helps the technician prepare.
-				</Text>
-				<Input
+			<View>
+				<View className="flex-row items-center justify-between">
+					<Text variant="buttonMd" className="font-semibold text-content">
+						{t("problem.noteTitle")}
+					</Text>
+					<Text variant="caption" className="text-content-muted">
+						{t("problem.optional")}
+					</Text>
+				</View>
+				<Textarea
 					value={description}
 					onChangeText={onDescriptionChange}
-					placeholder="e.g. AC not cooling, noisy when running..."
+					placeholder={t("problem.notePlaceholder")}
 					multiline
 					numberOfLines={4}
-					className="mt-stack-sm min-h-[100px]"
+					variant="filled"
+					className="mt-stack-sm min-h-[108px] bg-app-primary-light"
 				/>
 			</View>
 
-			<View className="rounded-card border border-edge bg-card p-card-compact">
-				<Text variant="buttonMd" className="font-semibold text-content">
-					Attach a photo
-				</Text>
-				<Text variant="caption" className="mt-stack-xs text-content-muted">
-					Optional. A photo speeds up diagnosis.
+			<View>
+				<View className="flex-row items-center justify-between">
+					<Text variant="buttonMd" className="font-semibold text-content">
+						{t("problem.attachTitle")}
+					</Text>
+					<Text variant="caption" className="text-content-muted">
+						{t("problem.optional")}
+					</Text>
+				</View>
+				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
+					{t("problem.attachHint")}
 				</Text>
 
 				{attachment ? (
@@ -109,31 +119,41 @@ export function BookingProblemCard({
 									strokeWidth={2.5}
 								/>
 							}
-							accessibilityLabel="Remove photo"
+							accessibilityLabel={t("problem.removePhoto")}
 						/>
 					</View>
 				) : (
 					<View className="mt-stack-sm flex-row gap-stack-md">
-						<Button
-							variant="secondary"
-							size="lg"
-							onPress={pickImage}
-							className="flex-1 border-dashed bg-card"
-							iconLeft={Paperclip}
-							accessibilityLabel="Pick photo from gallery"
-						>
-							Gallery
-						</Button>
-						<Button
-							variant="secondary"
-							size="lg"
+						<Pressable
 							onPress={takePhoto}
-							className="flex-1 border-dashed bg-card"
-							iconLeft={Camera}
-							accessibilityLabel="Take photo"
+							className="aspect-square flex-1 items-center justify-center gap-stack-sm rounded-input border border-app-primary border-dashed bg-app-primary-light"
+							accessibilityLabel={t("problem.takePhoto")}
 						>
-							Camera
-						</Button>
+							<Camera size={22} color={themeColors.primary} strokeWidth={2} />
+							<Text
+								variant="buttonMd"
+								className="font-semibold text-app-primary"
+							>
+								{t("problem.takePhoto")}
+							</Text>
+						</Pressable>
+						<Pressable
+							onPress={pickImage}
+							className="aspect-square flex-1 items-center justify-center gap-stack-sm rounded-input border border-app-primary border-dashed bg-app-primary-light"
+							accessibilityLabel={t("problem.uploadPhoto")}
+						>
+							<ImageIcon
+								size={22}
+								color={themeColors.primary}
+								strokeWidth={2}
+							/>
+							<Text
+								variant="buttonMd"
+								className="font-semibold text-app-primary"
+							>
+								{t("problem.upload")}
+							</Text>
+						</Pressable>
 					</View>
 				)}
 			</View>

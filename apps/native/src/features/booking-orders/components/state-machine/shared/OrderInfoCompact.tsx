@@ -1,16 +1,29 @@
 import { CalendarClock, type LucideIcon, Phone } from "lucide-react-native";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Linking, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Text } from "@/src/components/ui/text";
+import {
+	Colors,
+	radius,
+	space,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
 import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
-import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import {
+	getAvatarColor,
+	getDateLocale,
+} from "@/src/features/booking-orders/utils/booking-helpers";
+import {
+	CATEGORIES,
+	translateServiceName,
+} from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { Colors, radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import OrderIdentityRow from "./OrderIdentityRow";
 
 interface OrderInfoCompactProps {
@@ -20,11 +33,14 @@ interface OrderInfoCompactProps {
 	readonly footer?: ReactNode;
 }
 
-function formatScheduled(value: string | null | undefined): string | null {
+function formatScheduled(
+	value: string | null | undefined,
+	language?: string,
+): string | null {
 	if (!value) return null;
 	const d = new Date(value);
 	if (Number.isNaN(d.getTime())) return null;
-	return d.toLocaleString(undefined, {
+	return d.toLocaleString(getDateLocale(language), {
 		month: "short",
 		day: "numeric",
 		hour: "2-digit",
@@ -44,13 +60,15 @@ export default function OrderInfoCompact({
 	onIdentityPress,
 	footer,
 }: OrderInfoCompactProps) {
+	const { t, i18n } = useTranslation("orders");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const isUserViewer = viewer === "user";
 	const booking = order as unknown as TechnicianBooking;
 
 	const counterpartyName = isUserViewer
-		? (order.technician_name ?? "Technician")
-		: (booking.user_name ?? "Customer");
+		? (order.technician_name ?? t("card.technicianFallback"))
+		: (booking.user_name ?? t("card.customerFallback"));
 	const counterpartyImage = isUserViewer
 		? (order.technician_image ?? null)
 		: null;
@@ -68,8 +86,13 @@ export default function OrderInfoCompact({
 	const CategoryIcon: LucideIcon = category?.icon ?? CalendarClock;
 	const categoryColor = Colors.primary;
 
-	const scheduled = formatScheduled(order.scheduled_start_at);
+	const scheduled = formatScheduled(order.scheduled_start_at, i18n.language);
 	const phone = maskPhone(counterpartyPhone);
+	const serviceName = translateServiceName(
+		tc,
+		order.service_id,
+		order.service_name,
+	);
 
 	const handlePhonePress = () => {
 		if (!phone) return;
@@ -82,7 +105,9 @@ export default function OrderInfoCompact({
 			imageUrl={counterpartyImage}
 			initials={initials}
 			avatarColor={avatarColor}
-			roleLabel={isUserViewer ? "Technician" : "Customer"}
+			roleLabel={
+				isUserViewer ? t("card.technicianFallback") : t("card.customerFallback")
+			}
 			ratingTechnicianId={
 				isUserViewer && counterpartyId ? counterpartyId : null
 			}
@@ -103,7 +128,9 @@ export default function OrderInfoCompact({
 				<PressableScale
 					onPress={onIdentityPress}
 					accessibilityRole="button"
-					accessibilityLabel={`Open ${counterpartyName} info`}
+					accessibilityLabel={t("detail.a11y.openInfo", {
+						name: counterpartyName,
+					})}
 				>
 					{identityRow}
 				</PressableScale>
@@ -128,7 +155,7 @@ export default function OrderInfoCompact({
 			>
 				<View style={{ flex: 1, gap: space[1] }}>
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						Service
+						{t("detail.info.service")}
 					</Text>
 					<View
 						style={{
@@ -137,26 +164,30 @@ export default function OrderInfoCompact({
 							gap: space[2],
 						}}
 					>
-						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2.2} />
+						<CategoryIcon
+							size={spacing.icon.caption}
+							color={categoryColor}
+							strokeWidth={2.2}
+						/>
 						<Text
 							variant="bodySm"
 							style={{ color: themeColors.textPrimary, flex: 1 }}
 							numberOfLines={1}
 						>
-							{order.service_name ?? "—"}
+							{serviceName || "—"}
 						</Text>
 					</View>
 				</View>
 				<View style={{ flex: 1, gap: space[1] }}>
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						Scheduled
+						{t("detail.info.scheduled")}
 					</Text>
 					<Text
 						variant="bodySm"
 						style={{ color: themeColors.textPrimary }}
 						numberOfLines={1}
 					>
-						{scheduled ?? "Flexible"}
+						{scheduled ?? t("detail.info.flexible")}
 					</Text>
 				</View>
 			</View>
@@ -165,7 +196,7 @@ export default function OrderInfoCompact({
 				<PressableScale
 					onPress={handlePhonePress}
 					accessibilityRole="button"
-					accessibilityLabel={`Call ${phone}`}
+					accessibilityLabel={t("detail.a11y.call", { phone })}
 				>
 					<View
 						style={{
@@ -179,7 +210,11 @@ export default function OrderInfoCompact({
 							alignSelf: "flex-start",
 						}}
 					>
-						<Phone size={spacing.icon.caption} color={themeColors.primary} strokeWidth={2.4} />
+						<Phone
+							size={spacing.icon.caption}
+							color={themeColors.primary}
+							strokeWidth={2.4}
+						/>
 						<Text
 							variant="bodySm"
 							className="font-google-sans-bold"

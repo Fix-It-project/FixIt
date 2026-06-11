@@ -1,9 +1,11 @@
 import { Shield } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors, elevation, shadowStyle } from "@/src/constants/design-tokens";
 
 export default function PrivacySecurityScreen() {
+	const { t } = useTranslation("settings");
 	return (
 		<ScrollView
 			className="flex-1 bg-surface"
@@ -17,12 +19,10 @@ export default function PrivacySecurityScreen() {
 					<Shield size={28} color={Colors.primary} strokeWidth={1.8} />
 				</View>
 				<Text variant="bodyLg" className="font-bold text-content">
-					Privacy & Security
+					{t("privacy.title")}
 				</Text>
 				<Text variant="bodySm" className="mt-stack-sm text-content-muted">
-					Your data is encrypted and never shared with third parties without
-					your consent. We follow industry-standard security practices to keep
-					your account safe.
+					{t("privacy.description")}
 				</Text>
 			</View>
 
@@ -31,11 +31,10 @@ export default function PrivacySecurityScreen() {
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<Text variant="buttonLg" className="text-content">
-					Data we collect
+					{t("privacy.dataTitle")}
 				</Text>
 				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
-					Name, email, phone number, and address — only what's needed to provide
-					the service.
+					{t("privacy.dataBody")}
 				</Text>
 			</View>
 
@@ -44,11 +43,10 @@ export default function PrivacySecurityScreen() {
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
 				<Text variant="buttonLg" className="text-content">
-					How we use your data
+					{t("privacy.useTitle")}
 				</Text>
 				<Text variant="bodySm" className="mt-stack-xs text-content-muted">
-					Solely to match you with technicians and manage your bookings. We
-					never sell your information.
+					{t("privacy.useBody")}
 				</Text>
 			</View>
 		</ScrollView>

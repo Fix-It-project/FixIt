@@ -1,4 +1,5 @@
 import { Camera, User } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
 	Avatar,
@@ -40,13 +41,14 @@ export default function ProfileAvatar({
 	imageUrl,
 	onChangePhoto,
 }: ProfileAvatarProps) {
+	const { t } = useTranslation("profile");
 	const themeColors = useThemeColors();
 	const initials = getPfpInitialsFallback(name);
 
 	return (
 		<View className="relative h-avatar-2xl w-avatar-2xl">
 			<Avatar
-				alt={name ?? "Profile photo"}
+				alt={name ?? t("avatar.alt")}
 				className="h-avatar-2xl w-avatar-2xl items-center justify-center rounded-pill"
 				style={{ backgroundColor: themeColors.overlayMd }}
 			>
@@ -66,7 +68,7 @@ export default function ProfileAvatar({
 					variant="secondary"
 					size="icon"
 					onPress={onChangePhoto}
-					accessibilityLabel="Change profile photo"
+					accessibilityLabel={t("avatar.change")}
 					className="absolute right-0 bottom-0 h-control-icon-box-sm w-control-icon-box-sm rounded-pill bg-card"
 					style={shadowStyle(elevation.raised, {
 						shadowColor: Colors.shadow,

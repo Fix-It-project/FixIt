@@ -1,0 +1,34 @@
+# Login happy path. Deep-links straight to the login screen, signs in with the
+# E2E test account, and asserts we land on the user home.
+#
+# Credentials default to the values below; override per run with:
+#   maestro test -e EMAIL=you@x.com -e PASSWORD=secret .maestro/auth/login.yaml
+#
+# Requires a seeded user matching EMAIL/PASSWORD in the connected backend.
+appId: com.anonymous.fixitapp
+env:
+  EMAIL: "user@fixit.dev"
+  PASSWORD: "Password123!"
+---
+- launchApp:
+    clearState: true        # wipe stored auth so we always start logged out
+    permissions:
+      all: allow
+# (auth) is a route group, so the login route is reachable at /login.
+- openLink: "fixitapp:///login"
+- assertVisible:
+    id: "login-email-input"
+    timeout: 15000
+- tapOn:
+    id: "login-email-input"
+- inputText: "${EMAIL}"
+- hideKeyboard
+- tapOn:
+    id: "login-password-input"
+- inputText: "${PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- assertVisible:
+    id: "user-home"
+    timeout: 20000

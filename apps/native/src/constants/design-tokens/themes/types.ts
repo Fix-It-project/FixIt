@@ -1,4 +1,4 @@
-export type ThemeId = "light" | "dark" | "forest";
+export type ThemeId = "light" | "white" | "dark" | "forest";
 export type ThemePreference = ThemeId | "system";
 export type ThemeAppearance = "light" | "dark";
 

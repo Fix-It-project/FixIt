@@ -2,49 +2,41 @@ import { router, Tabs, usePathname } from "expo-router";
 import {
 	Bell,
 	ClipboardList,
-	Grid2X2,
 	House,
 	type LucideProps,
 	MessageCircle,
 	User,
 } from "lucide-react-native";
-import {
-	Platform,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { useTranslation } from "react-i18next";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import { Button } from "@/src/components/ui/button";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import {
-	elevation,
-	shadowStyle,
-	spacing,
-} from "@/src/constants/design-tokens";
-import { Colors } from "@/src/constants/design-tokens";
-import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
-import { ROUTES } from "@/src/lib/navigation";
 import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/components/layout/tab-bar";
-import { useThemeColors } from "@/src/constants/design-tokens";
-
+import { Button } from "@/src/components/ui/button";
+import {
+	Colors,
+	elevation,
+	shadowStyle,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
+import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
+import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/navigation";
 
 interface ChatFabProps {
 	readonly bottom: number;
 	readonly onPress: () => void;
 	readonly primaryColor: string;
 	readonly surfaceColor: string;
+	readonly accessibilityLabel: string;
 }
 
 function HomeTabIcon({ color, size }: Readonly<LucideProps>) {
 	return <House size={size} color={color} strokeWidth={1.8} />;
-}
-
-function CategoriesTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <Grid2X2 size={size} color={color} strokeWidth={1.8} />;
 }
 
 function OrdersTabIcon({ color, size }: Readonly<LucideProps>) {
@@ -78,13 +70,14 @@ function ChatFab({
 	onPress,
 	primaryColor,
 	surfaceColor,
+	accessibilityLabel,
 }: ChatFabProps) {
 	return (
 		<Button
 			variant="primary"
 			size="icon"
 			onPress={onPress}
-			accessibilityLabel="Open AI chat"
+			accessibilityLabel={accessibilityLabel}
 			style={{
 				position: "absolute",
 				right: spacing.screen.paddingX,
@@ -103,6 +96,7 @@ function ChatFab({
 }
 
 export default function UserTabsLayout() {
+	const { t } = useTranslation("common");
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
 	const { width } = useWindowDimensions();
@@ -115,7 +109,7 @@ export default function UserTabsLayout() {
 	});
 	const topSafeAreaBackground =
 		pathname === ROUTES.user.home
-			? themeColors.primary
+			? themeColors.tint.heroStart
 			: themeColors.surfaceElevated;
 
 	return (
@@ -129,21 +123,14 @@ export default function UserTabsLayout() {
 					<Tabs.Screen
 						name="index"
 						options={{
-							title: "Home",
+							title: t("tabs.home"),
 							tabBarIcon: HomeTabIcon,
-						}}
-					/>
-					<Tabs.Screen
-						name="categories/index"
-						options={{
-							title: "Categories",
-							tabBarIcon: CategoriesTabIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="notifications/index"
 						options={{
-							title: "Notifications",
+							title: t("tabs.notifications"),
 							tabBarIcon: ({ color, size }) => (
 								<NotificationTabIcon
 									color={color}
@@ -156,14 +143,14 @@ export default function UserTabsLayout() {
 					<Tabs.Screen
 						name="orders/index"
 						options={{
-							title: "My Orders",
+							title: t("tabs.orders"),
 							tabBarIcon: OrdersTabIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="profile/index"
 						options={{
-							title: "My Profile",
+							title: t("tabs.profile"),
 							tabBarIcon: ProfileTabIcon,
 						}}
 					/>
@@ -173,6 +160,7 @@ export default function UserTabsLayout() {
 					bottom={metrics.tabBarHeight + spacing.stack.md}
 					primaryColor={themeColors.primary}
 					surfaceColor={themeColors.surfaceOnPrimary}
+					accessibilityLabel={t("tabs.openChat")}
 				/>
 			</View>
 		</ScreenSafeAreaView>

@@ -1,0 +1,50 @@
+{
+	"header": {
+		"title": "المساعد الذكي",
+		"subtitle": "صف المشكلة أو أرسل صورة للحصول على توصية بفني."
+	},
+	"composer": {
+		"imageNote": "سترسل الصورة مع طلب التشخيص",
+		"voiceMessage": "رسالة صوتية · {{duration}}",
+		"voiceReplaces": "الصوت يحل محل النص",
+		"recording": "جارٍ التسجيل · {{duration}}",
+		"modeLabel": "الوضع: {{mode}}",
+		"modeRecommend": "توصية",
+		"modeAgent": "وكيل",
+		"gallery": "المعرض",
+		"camera": "الكاميرا",
+		"placeholderVoice": "تم إرفاق رسالة صوتية",
+		"placeholderText": "اسأل مساعد FixIt الذكي عن مشكلتك...",
+		"hintVoice": "ستُرسل الرسالة الصوتية بدلاً من النص.",
+		"hintText": "يمكن ترك النص فارغاً للتوصيات مع صورة أو صوت."
+	},
+	"messages": {
+		"assistant": "مساعد FixIt",
+		"agent": "وكيل FixIt",
+		"intro": "أخبرني بما يحدث في منزلك وسأقترح أنسب فني قريب منك.",
+		"agentDraft": "مسودة طلب الوكيل",
+		"recommendationReady": "التوصية جاهزة",
+		"diagnosedCategory": "الفئة المُشخّصة",
+		"summary": "الملخص",
+		"estimatedCost": "التكلفة التقديرية",
+		"notAvailable": "غير متاح",
+		"recommendedTechs": "الفنيون الموصى بهم",
+		"distanceAway": "{{km}} كم",
+		"match": "{{n}}% تطابق",
+		"rate": "{{n}} ج.م/ساعة",
+		"topPick": "الاختيار الأفضل",
+		"continueBooking": "متابعة الحجز",
+		"loadingAgent": "الوكيل يجهّز طلبك...",
+		"loadingRecommend": "جارٍ البحث عن توصيات الفنيين..."
+	},
+	"recommend": {
+		"title": "نتائج عن: {{query}}",
+		"loadErrorTitle": "تعذر تحميل التوصيات.",
+		"loadErrorMessage": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+		"tryAgain": "حاول مرة أخرى",
+		"emptyTitle": "لا يوجد فنيون في منطقتك بعد",
+		"emptyMessage": "جرّب وصفاً مختلفاً أو وسّع نطاق البحث.",
+		"distance": "{{km}} كم",
+		"rate": "من {{rate}} ج.م/ساعة"
+	}
+}

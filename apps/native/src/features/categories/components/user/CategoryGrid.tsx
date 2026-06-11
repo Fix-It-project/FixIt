@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -28,6 +29,7 @@ export default function CategoryGrid({
 	onCategoryPress,
 	onMorePress,
 }: CategoryGridProps) {
+	const { t } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const displayCategories = categories?.slice(0, 4) ?? [];
 	const goToCategories = useDebounce(() => {
@@ -71,7 +73,7 @@ export default function CategoryGrid({
 			{/* Section header */}
 			<View className="mb-stack-md flex-row items-center justify-between">
 				<Text variant="h2" className="text-content">
-					Categories
+					{t("title")}
 				</Text>
 				<TouchableOpacity onPress={goToCategories} activeOpacity={0.6}>
 					<Text
@@ -79,7 +81,7 @@ export default function CategoryGrid({
 						className="font-medium"
 						style={{ color: themeColors.textMuted }}
 					>
-						Show all
+						{t("showAll")}
 					</Text>
 				</TouchableOpacity>
 			</View>

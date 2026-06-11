@@ -5,6 +5,7 @@ import {
 	type LucideIcon,
 } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
@@ -16,7 +17,15 @@ import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
 import { BOOKING_SLOT_OPTIONS } from "@/src/features/booking-orders/utils/fixed-slots";
 
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+const DAY_KEYS = [
+	"sun",
+	"mon",
+	"tue",
+	"wed",
+	"thu",
+	"fri",
+	"sat",
+] as const;
 
 function hourLabel(hour: number): string {
 	const opt = BOOKING_SLOT_OPTIONS.find((o) => o.hour === hour);
@@ -57,18 +66,19 @@ interface AboutTabProps {
 }
 
 export function AboutTab({ technicianId }: AboutTabProps) {
+	const { t } = useTranslation("technicians");
 	const { templates, isLoading } = useTechnicianPublicSchedule(technicianId);
 
 	const activeDays = useMemo(() => {
 		const set = new Set<number>();
-		for (const t of templates) if (t.active) set.add(t.day_of_week);
+		for (const tpl of templates) if (tpl.active) set.add(tpl.day_of_week);
 		return [...set].sort((a, b) => a - b);
 	}, [templates]);
 
 	const activeHours = useMemo(() => {
 		const set = new Set<number>();
-		for (const t of templates) {
-			if (t.active && t.slot_hour != null) set.add(t.slot_hour);
+		for (const tpl of templates) {
+			if (tpl.active && tpl.slot_hour != null) set.add(tpl.slot_hour);
 		}
 		return [...set].sort((a, b) => a - b);
 	}, [templates]);
@@ -78,13 +88,13 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 	return (
 		<View className="py-stack-md">
 			<Text variant="h4" className="text-content">
-				Details
+				{t("about.heading")}
 			</Text>
 
 			<View className="mt-stack-lg gap-stack-xs rounded-card bg-card p-stack-xs">
 				<InfoRow
 					icon={Banknote}
-					label="Inspection fee"
+					label={t("about.inspectionFee")}
 					value={formatInspectionFee(ESTIMATED_INSPECTION_FEE_EGP)}
 				/>
 				<View className="mx-stack-sm h-px bg-edge/20" />
@@ -98,24 +108,26 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 					<>
 						<InfoRow
 							icon={CalendarDays}
-							label="Available days"
-							value={activeDays.map((d) => DAY_NAMES[d]).join(" · ")}
+							label={t("about.availableDays")}
+							value={activeDays
+								.map((d) => t(`about.days.${DAY_KEYS[d]}` as Parameters<typeof t>[0]))
+								.join(" · ")}
 						/>
 						<View className="mx-stack-sm h-px bg-edge/20" />
 						<InfoRow
 							icon={Clock}
-							label="Available times"
+							label={t("about.availableTimes")}
 							value={
 								activeHours.length > 0
 									? activeHours.map(hourLabel).join(" · ")
-									: "All listed hours"
+									: t("about.allHours")
 							}
 						/>
 					</>
 				) : (
 					<View className="mt-stack-xs rounded-input bg-surface-elevated px-card py-stack-md">
 						<Text variant="bodySm" className="text-content-muted">
-							This technician hasn't set their working days and times yet.
+							{t("about.noSchedule")}
 						</Text>
 					</View>
 				)}
