@@ -1,6 +1,7 @@
 import apiClient from "@/src/config/api-client";
 import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import type {
+	InspectionFeePreviewResponse,
 	OrderDistanceResponse,
 	OrderQuoteResponse,
 	OrderQuotesResponse,
@@ -10,6 +11,7 @@ import type {
 	RescheduleResponse,
 } from "../schemas";
 import {
+	inspectionFeePreviewResponseSchema,
 	orderDistanceResponseSchema,
 	orderQuoteResponseSchema,
 	orderQuotesResponseSchema,
@@ -25,6 +27,23 @@ import type { CreateOrderPayload } from "../types/order";
 export interface CreateOrderOptions {
 	payload: CreateOrderPayload;
 	attachment?: { uri: string; name: string; type: string };
+}
+
+export async function getInspectionFeePreview(
+	technicianId: string,
+	destinationAddressId: string,
+): Promise<InspectionFeePreviewResponse> {
+	const response = await apiClient.get("/api/orders/user/inspection-fee-preview", {
+		params: {
+			technician_id: technicianId,
+			destination_address_id: destinationAddressId,
+		},
+	});
+	return safeParseResponse(
+		inspectionFeePreviewResponseSchema,
+		response.data,
+		"getInspectionFeePreview",
+	);
 }
 
 export async function createOrder(

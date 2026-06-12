@@ -44,6 +44,7 @@ import {
 	ChoosePaymentMethodBodySchema,
 	ConfirmCompletionBodySchema,
 	EventsQuerySchema,
+	InspectionFeePreviewQuerySchema,
 	OrderActionBodySchema,
 	OrderIdParamsSchema,
 	SubmitQuoteBodySchema,
@@ -55,6 +56,7 @@ import { requireUserAuth } from "../../../shared/middlewares/user-auth.middlewar
 import { validate } from "../../../shared/middlewares/validate.middleware.js";
 import {
 	userCancelOrder,
+	getUserInspectionFeePreview,
 	userSubmitQuote,
 	userAcceptQuote,
 	userConfirmCompletion,
@@ -83,6 +85,13 @@ import {
 const router: RouterType = Router();
 
 // ─── User surface ────────────────────────────────────────────────────────────
+
+router.get(
+	"/user/inspection-fee-preview",
+	requireUserAuth,
+	validate({ query: InspectionFeePreviewQuerySchema }),
+	getUserInspectionFeePreview,
+);
 
 router.post(
 	"/user/orders/:id/cancel",

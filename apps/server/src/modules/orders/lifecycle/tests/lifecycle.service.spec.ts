@@ -53,11 +53,17 @@ vi.mock("../../orders.repository.js", () => ({
 
 // Programmable per-table behavior. Tests reassign these handlers in beforeEach.
 type HandlerResult = { data: unknown; error: unknown };
-type TableHandler = () => HandlerResult;
+type TableContext = {
+	eq: Record<string, unknown>;
+	method: "single" | "maybeSingle" | "select" | "update" | "insert";
+	payload?: unknown;
+};
+type TableHandler = (context: TableContext) => HandlerResult;
 const tableHandlers: Record<string, TableHandler> = {
 	addresses: () => ({ data: null, error: null }),
 	orders: () => ({ data: null, error: null }),
 	order_quotes: () => ({ data: null, error: null }),
+	user_fee_obligations: () => ({ data: null, error: null }),
 };
 
 function buildSupabaseMock() {
@@ -65,15 +71,44 @@ function buildSupabaseMock() {
 	// captures method calls (select/eq/limit/etc.) and `single()`/`maybeSingle()`
 	// return real Promises whose value comes from the current table handler.
 	function makeChain(table: string) {
-		const settle = (): Promise<HandlerResult> =>
-			Promise.resolve(tableHandlers[table]?.() ?? { data: null, error: null });
+		const state: TableContext = {
+			eq: {},
+			method: "select",
+		};
+		const settle = (method: TableContext["method"]): Promise<HandlerResult> => {
+			state.method = method;
+			return Promise.resolve(
+				tableHandlers[table]?.(state) ?? { data: null, error: null },
+			);
+		};
 		const builder: Record<string, unknown> = {
-			select: () => builder,
-			eq: () => builder,
+			select: () => {
+				state.method = "select";
+				return builder;
+			},
+			update: (payload: unknown) => {
+				state.method = "update";
+				state.payload = payload;
+				return builder;
+			},
+			insert: (payload: unknown) => {
+				state.method = "insert";
+				state.payload = payload;
+				return builder;
+			},
+			eq: (column: string, value: unknown) => {
+				state.eq[column] = value;
+				return builder;
+			},
 			is: () => builder,
+			order: () => builder,
 			limit: () => builder,
-			maybeSingle: () => settle(),
-			single: () => settle(),
+			maybeSingle: () => settle("maybeSingle"),
+			single: () => settle("single"),
+			then: (
+				resolve: (value: HandlerResult) => unknown,
+				reject?: (reason: unknown) => unknown,
+			) => settle(state.method).then(resolve, reject),
 		};
 		return builder;
 	}
@@ -125,7 +160,10 @@ function setOrdersHandlerSequence(...payloads: Array<HandlerResult>) {
 	// For upsertLocation we need TWO calls (pre-read arrived_at, post-read row).
 	// Each subsequent .single() returns the next payload in the sequence.
 	let i = 0;
-	tableHandlers.orders = () => {
+	tableHandlers.orders = (context) => {
+		if (context.method !== "single" && context.method !== "maybeSingle") {
+			return { data: null, error: null };
+		}
 		const payload = payloads[Math.min(i, payloads.length - 1)] ?? {
 			data: null,
 			error: null,
@@ -137,7 +175,10 @@ function setOrdersHandlerSequence(...payloads: Array<HandlerResult>) {
 
 function setOrderQuotesHandlerSequence(...payloads: Array<HandlerResult>) {
 	let i = 0;
-	tableHandlers.order_quotes = () => {
+	tableHandlers.order_quotes = (context) => {
+		if (context.method !== "single" && context.method !== "maybeSingle") {
+			return { data: null, error: null };
+		}
 		const payload = payloads[Math.min(i, payloads.length - 1)] ?? {
 			data: null,
 			error: null,
@@ -145,6 +186,10 @@ function setOrderQuotesHandlerSequence(...payloads: Array<HandlerResult>) {
 		i += 1;
 		return payload;
 	};
+}
+
+function setUserFeeObligationsHandler(handler: TableHandler) {
+	tableHandlers.user_fee_obligations = handler;
 }
 
 const ORIGINAL_SMOKE_ENV = process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
@@ -162,6 +207,7 @@ beforeEach(() => {
 	setAddressesHandler(() => ({ data: null, error: null }));
 	tableHandlers.orders = () => ({ data: null, error: null });
 	tableHandlers.order_quotes = () => ({ data: null, error: null });
+	tableHandlers.user_fee_obligations = () => ({ data: null, error: null });
 });
 
 afterEach(() => {
@@ -178,12 +224,40 @@ describe("LifecycleService.submitOrder", () => {
 	it("uses explicit destination_address_id when provided (addresses NOT queried)", async () => {
 		const service = new LifecycleService();
 		const explicitAddressId = "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
-		// If the service queries addresses anyway, the handler would still match;
-		// we assert the value passed to repo.submitOrder is the explicit one.
-		let addressesCalled = false;
-		setAddressesHandler(() => {
-			addressesCalled = true;
-			return { data: { id: "should-not-be-used" }, error: null };
+		let activeLookupCalled = false;
+		setAddressesHandler((context) => {
+			if (context.eq.user_id === "user-1" && context.eq.is_active === true) {
+				activeLookupCalled = true;
+				return { data: null, error: null };
+			}
+			if (
+				context.eq.id === explicitAddressId &&
+				context.eq.user_id === "user-1"
+			) {
+				return {
+					data: {
+						id: explicitAddressId,
+						latitude: 30.0444,
+						longitude: 31.2357,
+					},
+					error: null,
+				};
+			}
+			if (context.eq.technician_id === "tech-1") {
+				return {
+					data: [
+						{
+							id: "tech-addr-1",
+							latitude: 30.0444,
+							longitude: 31.2357,
+							is_active: true,
+							created_at: "2026-06-01T00:00:00.000Z",
+						},
+					],
+					error: null,
+				};
+			}
+			return { data: null, error: null };
 		});
 		repo.submitOrder.mockResolvedValue({ id: "order-1", technician_id: "tech-1" });
 		ordersRepository.getOrderById.mockResolvedValue({
@@ -200,7 +274,7 @@ describe("LifecycleService.submitOrder", () => {
 			destination_address_id: explicitAddressId,
 		});
 
-		expect(addressesCalled).toBe(false);
+		expect(activeLookupCalled).toBe(false);
 		expect(repo.submitOrder).toHaveBeenCalledTimes(1);
 		const firstCall = repo.submitOrder.mock.calls[0];
 		expect(firstCall?.[0]).toMatchObject({
@@ -208,6 +282,8 @@ describe("LifecycleService.submitOrder", () => {
 			technicianId: "tech-1",
 			serviceId: "svc-1",
 			destinationAddressId: explicitAddressId,
+			inspectionFee: 100,
+			inspectionDistanceKm: 0,
 			scheduledDate: "2026-06-01",
 		});
 		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
@@ -225,7 +301,36 @@ describe("LifecycleService.submitOrder", () => {
 	it("resolves user's single active address when destination_address_id omitted", async () => {
 		const service = new LifecycleService();
 		const resolvedId = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb";
-		setAddressesHandler(() => ({ data: { id: resolvedId }, error: null }));
+		setAddressesHandler((context) => {
+			if (context.eq.user_id === "user-2" && context.eq.is_active === true) {
+				return { data: { id: resolvedId }, error: null };
+			}
+			if (context.eq.id === resolvedId && context.eq.user_id === "user-2") {
+				return {
+					data: {
+						id: resolvedId,
+						latitude: 30.0444,
+						longitude: 31.2357,
+					},
+					error: null,
+				};
+			}
+			if (context.eq.technician_id === "tech-2") {
+				return {
+					data: [
+						{
+							id: "tech-addr-2",
+							latitude: 30.0444,
+							longitude: 31.2357,
+							is_active: true,
+							created_at: "2026-06-02T00:00:00.000Z",
+						},
+					],
+					error: null,
+				};
+			}
+			return { data: null, error: null };
+		});
 		repo.submitOrder.mockResolvedValue({ id: "order-2" });
 		ordersRepository.getOrderById.mockResolvedValue({
 			id: "order-2",
@@ -246,6 +351,9 @@ describe("LifecycleService.submitOrder", () => {
 			(firstCall?.[0] as { destinationAddressId?: string })
 				.destinationAddressId,
 		).toBe(resolvedId);
+		expect(
+			(firstCall?.[0] as { inspectionFee?: number }).inspectionFee,
+		).toBe(100);
 	});
 
 	it("throws AppError(no_active_address) when user has 0 active addresses", async () => {
@@ -313,6 +421,146 @@ describe("LifecycleService.submitOrder", () => {
 		expect((caught as AppError).status).toBe(400);
 		expect((caught as AppError).message).toContain("invalid_scheduled_slot");
 		expect(repo.submitOrder).not.toHaveBeenCalled();
+	});
+});
+
+describe("LifecycleService.previewInspectionFee", () => {
+	it("returns the inspection fee snapshot for valid user and technician addresses", async () => {
+		const service = new LifecycleService();
+		setAddressesHandler((context) => {
+			if (
+				context.eq.id === "addr-preview" &&
+				context.eq.user_id === "user-preview"
+			) {
+				return {
+					data: {
+						id: "addr-preview",
+						latitude: 30.0444,
+						longitude: 31.2357,
+					},
+					error: null,
+				};
+			}
+			if (context.eq.technician_id === "tech-preview") {
+				return {
+					data: [
+						{
+							id: "tech-addr-preview",
+							latitude: 30.0561,
+							longitude: 31.2394,
+							is_active: true,
+							created_at: "2026-06-03T00:00:00.000Z",
+						},
+					],
+					error: null,
+				};
+			}
+			return { data: null, error: null };
+		});
+
+		const preview = await service.previewInspectionFee(
+			"user-preview",
+			"tech-preview",
+			"addr-preview",
+		);
+
+		expect(preview.inspection_fee).toBeGreaterThan(0);
+		expect(preview.inspection_distance_km).toBeGreaterThan(0);
+	});
+
+	it("throws a pricing token when pricing coordinates are unavailable", async () => {
+		const service = new LifecycleService();
+		setAddressesHandler((context) => {
+			if (
+				context.eq.id === "addr-missing" &&
+				context.eq.user_id === "user-missing"
+			) {
+				return {
+					data: {
+						id: "addr-missing",
+						latitude: null,
+						longitude: 31.2357,
+					},
+					error: null,
+				};
+			}
+			if (context.eq.technician_id === "tech-missing") {
+				return {
+					data: [
+						{
+							id: "tech-addr-missing",
+							latitude: 30.0561,
+							longitude: 31.2394,
+							is_active: true,
+							created_at: "2026-06-03T00:00:00.000Z",
+						},
+					],
+					error: null,
+				};
+			}
+			return { data: null, error: null };
+		});
+
+		let caught: unknown;
+		try {
+			await service.previewInspectionFee(
+				"user-missing",
+				"tech-missing",
+				"addr-missing",
+			);
+		} catch (error) {
+			caught = error;
+		}
+
+		expect(caught).toBeInstanceOf(AppError);
+		expect((caught as AppError).status).toBe(400);
+		expect((caught as AppError).opts.token).toBe(
+			"inspection_fee_pricing_unavailable",
+		);
+	});
+
+	it("rejects preview when the destination address is not owned by the user", async () => {
+		const service = new LifecycleService();
+		setAddressesHandler((context) => {
+			if (
+				context.eq.id === "addr-foreign" &&
+				context.eq.user_id === "user-preview"
+			) {
+				return { data: null, error: null };
+			}
+			if (context.eq.technician_id === "tech-preview") {
+				return {
+					data: [
+						{
+							id: "tech-addr-preview",
+							latitude: 30.0561,
+							longitude: 31.2394,
+							is_active: true,
+							created_at: "2026-06-03T00:00:00.000Z",
+						},
+					],
+					error: null,
+				};
+			}
+			return { data: null, error: null };
+		});
+
+		let caught: unknown;
+		try {
+			await service.previewInspectionFee(
+				"user-preview",
+				"tech-preview",
+				"addr-foreign",
+			);
+		} catch (error) {
+			caught = error;
+		}
+
+		expect(caught).toBeInstanceOf(AppError);
+		expect((caught as AppError).status).toBe(403);
+		expect((caught as AppError).opts.token).toBe(
+			"destination_address_not_owned_by_user",
+		);
 	});
 });
 
@@ -587,6 +835,13 @@ describe("LifecycleService order action notifications", () => {
 
 	it("notifies the proposer when a quote is accepted", async () => {
 		const service = new LifecycleService();
+		const orderUpdates: Array<unknown> = [];
+		tableHandlers.orders = (context) => {
+			if (context.method === "update") {
+				orderUpdates.push(context.payload);
+			}
+			return { data: null, error: null };
+		};
 		setOrderQuotesHandlerSequence({
 			data: {
 				id: "quote-2",
@@ -605,11 +860,17 @@ describe("LifecycleService order action notifications", () => {
 			id: "order-quote-accept",
 			user_id: "user-1",
 			technician_id: "tech-1",
+			inspection_fee: 150,
 			user_name: "Sarah Ali",
 			technician_name: "Omar Hassan",
 		});
 
 		await service.acceptQuote("quote-2", "user-1", "user");
+
+		expect(orderUpdates).toContainEqual({
+			work_price: 500,
+			final_price: 650,
+		});
 
 		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
 			recipientRole: "technician",
@@ -625,20 +886,34 @@ describe("LifecycleService order action notifications", () => {
 
 	it("notifies the counterparty when an order is cancelled", async () => {
 		const service = new LifecycleService();
+		const obligationUpdates: Array<unknown> = [];
+		setUserFeeObligationsHandler((context) => {
+			if (context.method === "maybeSingle") {
+				return { data: { id: "obligation-1" }, error: null };
+			}
+			if (context.method === "update") {
+				obligationUpdates.push(context.payload);
+			}
+			return { data: null, error: null };
+		});
 		repo.cancelOrder.mockResolvedValue({
 			id: "order-cancel",
 			user_id: "user-1",
 			technician_id: "tech-1",
+			status: "cancelled_with_fee",
 		});
 		ordersRepository.getOrderById.mockResolvedValue({
 			id: "order-cancel",
 			user_id: "user-1",
 			technician_id: "tech-1",
+			inspection_fee: 150,
 			technician_name: "Omar Hassan",
 			user_name: "Sarah Ali",
 		});
 
 		await service.cancelOrder("order-cancel", "tech-1", "technician", "Emergency");
+
+		expect(obligationUpdates).toContainEqual({ amount: 150 });
 
 		expect(notifications.sendPushToRecipient).toHaveBeenCalledWith({
 			recipientRole: "user",

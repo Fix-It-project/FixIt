@@ -134,6 +134,19 @@ export const EventsQuerySchema = z.object({
 	pageSize: z.coerce.number().int().min(1).max(100).default(25),
 });
 
+// ─── Inspection fee preview ────────────────────────────────────────────────
+
+/**
+ * GET /user/inspection-fee-preview — compute the snapped inspection fee before
+ * the booking is submitted.
+ */
+export const InspectionFeePreviewQuerySchema = z.object({
+	technician_id: z.string().uuid("technician_id must be a valid UUID"),
+	destination_address_id: z
+		.string()
+		.uuid("destination_address_id must be a valid UUID"),
+});
+
 // ─── Inferred types ──────────────────────────────────────────────────────────
 
 export type SubmitOrderBody = z.infer<typeof SubmitOrderBodySchema>;
@@ -148,3 +161,6 @@ export type ChoosePaymentMethodBody = z.infer<
 export type ConfirmCompletionBody = z.infer<typeof ConfirmCompletionBodySchema>;
 export type UpsertLocationBody = z.infer<typeof UpsertLocationBodySchema>;
 export type EventsQuery = z.infer<typeof EventsQuerySchema>;
+export type InspectionFeePreviewQuery = z.infer<
+	typeof InspectionFeePreviewQuerySchema
+>;

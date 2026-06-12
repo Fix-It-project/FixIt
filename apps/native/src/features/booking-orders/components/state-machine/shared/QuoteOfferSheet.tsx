@@ -31,7 +31,15 @@ interface QuoteOfferSheetProps {
 
 const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 	function QuoteOfferSheet(
-		{ title, subtitle, currency = "EGP", isPending, previousAmount, onSubmit },
+		{
+			title,
+			subtitle,
+			ctaLabel,
+			currency = "EGP",
+			isPending,
+			previousAmount,
+			onSubmit,
+		},
 		ref,
 	) {
 		const { t } = useTranslation("orders");
@@ -129,7 +137,7 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 						loading={isPending}
 						disabled={submitDisabled}
 					>
-						{t("detail.quote.offer.send")}
+						{ctaLabel}
 					</Button>
 				</Dialog.Footer>
 			</Dialog>

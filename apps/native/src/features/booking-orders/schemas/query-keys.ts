@@ -8,6 +8,8 @@ export const orderQueryKeys = {
 	technicianBookings: ["technician-bookings"] as const,
 	technicianBookingsFor: (userId: string | undefined) =>
 		["technician-bookings", userId] as const,
+	inspectionFeePreview: (technicianId: string, destinationAddressId: string) =>
+		["inspection-fee-preview", technicianId, destinationAddressId] as const,
 	orderQuotes: (orderId: string, viewer: "user" | "technician") =>
 		["order-quotes", viewer, orderId] as const,
 	orderDistance: (orderId: string, viewer: "user" | "technician") =>

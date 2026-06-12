@@ -1,12 +1,16 @@
 // Orchestrates order lifecycle operations and delegates state changes to the repository.
 
+import {
+	calculateInspectionFeePreview,
+	type InspectionFeePreview,
+} from "../../../config/inspection-pricing.js";
 import { AVG_SPEED_KMH } from "../../../config/lifecycle.js";
 import { supabaseAdmin } from "../../../shared/db/supabase.js";
 import { AppError } from "../../../shared/errors/index.js";
 import { logger } from "../../../shared/logger.js";
 import { assertFixedSlotStartAtInCairo } from "../../../shared/time/fixed-slots.js";
-import type { Order } from "../orders.repository.js";
 import { notificationsService } from "../../notifications/notifications.service.js";
+import type { Order } from "../orders.repository.js";
 import {
 	type ActorRole,
 	lifecycleRepository,
@@ -37,6 +41,16 @@ export interface OrderDistanceResult {
 	distance_km: number | null;
 	eta_minutes: number | null;
 	within_geofence: boolean;
+}
+
+export interface InspectionFeePreviewResult extends InspectionFeePreview {}
+
+interface PricingAddressRow {
+	id: string;
+	latitude: number | null;
+	longitude: number | null;
+	is_active?: boolean | null;
+	created_at?: string | null;
 }
 
 function technicianName(order: Pick<Order, "technician_name">): string {
@@ -78,6 +92,18 @@ export class LifecycleService {
 
 	// Submit
 
+	async previewInspectionFee(
+		userId: string,
+		technicianId: string,
+		destinationAddressId: string,
+	): Promise<InspectionFeePreviewResult> {
+		return this.calculateInspectionFeeForBooking(
+			userId,
+			technicianId,
+			destinationAddressId,
+		);
+	}
+
 	async submitOrder(userId: string, body: SubmitOrderInput): Promise<Order> {
 		assertFixedSlotStartAtInCairo({
 			dateYmd: body.scheduled_date,
@@ -95,20 +121,28 @@ export class LifecycleService {
 				throw AppError.badRequest("no_active_address");
 			}
 		}
+		const inspectionPricing = await this.calculateInspectionFeeForBooking(
+			userId,
+			body.technician_id,
+			destinationAddressId,
+		);
 		const order = await this.repo.submitOrder({
 			userId,
 			technicianId: body.technician_id,
 			serviceId: body.service_id,
 			destinationAddressId,
+			inspectionFee: inspectionPricing.inspection_fee,
+			inspectionDistanceKm: inspectionPricing.inspection_distance_km,
 			problemDescription: body.problem_description ?? null,
 			attachment: body.attachment ?? null,
 			scheduledDate: body.scheduled_date,
 			scheduledStartAt: body.scheduled_start_at ?? null,
 		});
+		await this.writeOrderPricingSnapshot(order.id, inspectionPricing);
 		const notificationOrder = await this.readOrder(order.id);
 		await this.notifyBestEffort({
 			recipientRole: "technician",
-			recipientId: order.technician_id,
+			recipientId: notificationOrder.technician_id ?? order.technician_id,
 			type: "order_submitted",
 			title: "New service request",
 			body: `${customerName(notificationOrder)} sent a new booking request.`,
@@ -116,7 +150,7 @@ export class LifecycleService {
 			orderId: order.id,
 			viewerRole: "technician",
 		});
-		return order;
+		return notificationOrder;
 	}
 
 	// Technician actions
@@ -345,10 +379,13 @@ export class LifecycleService {
 	): Promise<Order> {
 		const quote = await this.readQuote(quoteId);
 		const order = await this.repo.acceptQuote({ quoteId, actorId, actorRole });
+		await this.syncAcceptedQuotePricing(order.id, quote.amount);
 		const notificationOrder = await this.readOrder(order.id);
 		const recipientRole = quote.proposed_by;
 		const recipientId =
-			recipientRole === "user" ? order.user_id : order.technician_id;
+			recipientRole === "user"
+				? notificationOrder.user_id
+				: notificationOrder.technician_id;
 		await this.notifyBestEffort({
 			recipientRole,
 			recipientId,
@@ -359,7 +396,7 @@ export class LifecycleService {
 			orderId: order.id,
 			viewerRole: recipientRole,
 		});
-		return order;
+		return notificationOrder;
 	}
 
 	// Completion
@@ -466,6 +503,9 @@ export class LifecycleService {
 			actorRole,
 			reason: reason ?? null,
 		});
+		if (order.status === "cancelled_with_fee") {
+			await this.syncCancellationFeeObligation(order.id);
+		}
 		const notificationOrder = await this.readOrder(order.id);
 		const recipientRole = actorRole === "user" ? "technician" : "user";
 		const recipientId =
@@ -487,7 +527,7 @@ export class LifecycleService {
 			orderId: order.id,
 			viewerRole: recipientRole,
 		});
-		return order;
+		return notificationOrder;
 	}
 
 	async resolveFeeObligation(
@@ -498,6 +538,104 @@ export class LifecycleService {
 	}
 
 	// Private helpers
+
+	private async calculateInspectionFeeForBooking(
+		userId: string,
+		technicianId: string,
+		destinationAddressId: string,
+	): Promise<InspectionFeePreviewResult> {
+		const destinationAddress = await this.readDestinationAddressForPricing(
+			userId,
+			destinationAddressId,
+		);
+		const technicianAddress =
+			await this.readTechnicianPricingAddress(technicianId);
+
+		if (
+			destinationAddress.latitude == null ||
+			destinationAddress.longitude == null ||
+			technicianAddress?.latitude == null ||
+			technicianAddress.longitude == null
+		) {
+			throw AppError.badRequest(
+				"We couldn't calculate the inspection fee for this booking.",
+				{ token: "inspection_fee_pricing_unavailable" },
+			);
+		}
+
+		return calculateInspectionFeePreview({
+			technicianLatitude: technicianAddress.latitude,
+			technicianLongitude: technicianAddress.longitude,
+			destinationLatitude: destinationAddress.latitude,
+			destinationLongitude: destinationAddress.longitude,
+		});
+	}
+
+	private async writeOrderPricingSnapshot(
+		orderId: string,
+		preview: InspectionFeePreviewResult,
+	): Promise<void> {
+		const { error } = await supabaseAdmin
+			.from("orders")
+			.update({
+				inspection_fee: preview.inspection_fee,
+				inspection_distance_km: preview.inspection_distance_km,
+			})
+			.eq("id", orderId);
+		if (error) throw error;
+	}
+
+	private async syncAcceptedQuotePricing(
+		orderId: string,
+		workPrice: number,
+	): Promise<void> {
+		const order = await this.readOrder(orderId);
+		const inspectionFee = order.inspection_fee ?? 0;
+		const { error } = await supabaseAdmin
+			.from("orders")
+			.update({
+				work_price: workPrice,
+				final_price: workPrice + inspectionFee,
+			})
+			.eq("id", orderId);
+		if (error) throw error;
+	}
+
+	private async syncCancellationFeeObligation(orderId: string): Promise<void> {
+		const order = await this.readOrder(orderId);
+		const inspectionFee = order.inspection_fee ?? 0;
+
+		const { data, error } = await supabaseAdmin
+			.from("user_fee_obligations")
+			.select("id")
+			.eq("source_order_id", orderId)
+			.eq("status", "unpaid")
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+		if (error) throw error;
+
+		if (data) {
+			const { error: updateError } = await supabaseAdmin
+				.from("user_fee_obligations")
+				.update({ amount: inspectionFee })
+				.eq("id", (data as { id: string }).id);
+			if (updateError) throw updateError;
+			return;
+		}
+
+		const { error: insertError } = await supabaseAdmin
+			.from("user_fee_obligations")
+			.insert({
+				user_id: order.user_id,
+				technician_id: order.technician_id,
+				source_order_id: order.id,
+				amount: inspectionFee,
+				reason: "inspection_cancellation_fee",
+				status: "unpaid",
+			});
+		if (insertError) throw insertError;
+	}
 
 	// Returns the caller's active address id, or null when none is set.
 	private async resolveActiveAddressId(userId: string): Promise<string | null> {
@@ -510,6 +648,49 @@ export class LifecycleService {
 			.maybeSingle();
 		if (error) throw error;
 		return (data as { id?: string } | null)?.id ?? null;
+	}
+
+	private async readDestinationAddressForPricing(
+		userId: string,
+		addressId: string,
+	): Promise<PricingAddressRow> {
+		const { data, error } = await supabaseAdmin
+			.from("addresses")
+			.select("id, latitude, longitude")
+			.eq("id", addressId)
+			.eq("user_id", userId)
+			.maybeSingle();
+		if (error) throw error;
+		if (!data) {
+			throw AppError.forbidden("That address isn't on your account.", {
+				token: "destination_address_not_owned_by_user",
+			});
+		}
+		return data as PricingAddressRow;
+	}
+
+	private async readTechnicianPricingAddress(
+		technicianId: string,
+	): Promise<PricingAddressRow | null> {
+		const { data, error } = await supabaseAdmin
+			.from("addresses")
+			.select("id, latitude, longitude, is_active, created_at")
+			.eq("technician_id", technicianId)
+			.order("is_active", { ascending: false })
+			.order("created_at", { ascending: true });
+		if (error) throw error;
+
+		const rows = (data ?? []) as PricingAddressRow[];
+		return (
+			rows.find(
+				(row) =>
+					row.is_active === true &&
+					row.latitude != null &&
+					row.longitude != null,
+			) ??
+			rows.find((row) => row.latitude != null && row.longitude != null) ??
+			null
+		);
 	}
 
 	// Reads only arrived_at so arrival transitions can be detected cheaply.

@@ -76,6 +76,8 @@ export interface SubmitOrderParams {
 	technicianId: string;
 	serviceId: string;
 	destinationAddressId: string;
+	inspectionFee: number;
+	inspectionDistanceKm: number;
 	problemDescription?: string | null;
 	attachment?: string | null;
 	scheduledDate: string;
@@ -211,6 +213,20 @@ function humanMessageFor(code: string): string {
 	return HUMAN[code] ?? "Something went wrong. Please try again.";
 }
 
+function shouldRetryLegacySubmitOrder(error: {
+	code?: string;
+	message?: string;
+}): boolean {
+	const message = error.message ?? "";
+	return (
+		typeof error.code === "string" &&
+		error.code.startsWith("PGRST") &&
+		message.includes("rpc_submit_order") &&
+		(message.includes("p_inspection_fee") ||
+			message.includes("p_inspection_distance_km"))
+	);
+}
+
 export function mapLifecycleRpcError(error: {
 	code?: string;
 	message?: string;
@@ -313,16 +329,36 @@ export function mapLifecycleRpcError(error: {
 
 export class LifecycleRepository {
 	async submitOrder(p: SubmitOrderParams): Promise<Order> {
-		const { data, error } = await supabase.rpc("rpc_submit_order", {
+		const nextArgs = {
 			p_user_id: p.userId,
 			p_technician_id: p.technicianId,
 			p_service_id: p.serviceId,
 			p_destination_address_id: p.destinationAddressId,
+			p_inspection_fee: p.inspectionFee,
+			p_inspection_distance_km: p.inspectionDistanceKm,
 			p_problem_description: p.problemDescription ?? null,
 			p_attachment: p.attachment ?? null,
 			p_scheduled_date: p.scheduledDate,
 			p_scheduled_start_at: p.scheduledStartAt ?? null,
-		});
+		};
+		let { data, error } = await supabase.rpc("rpc_submit_order", nextArgs);
+		if (
+			error &&
+			shouldRetryLegacySubmitOrder(
+				error as { code?: string; message?: string },
+			)
+		) {
+			({ data, error } = await supabase.rpc("rpc_submit_order", {
+				p_user_id: p.userId,
+				p_technician_id: p.technicianId,
+				p_service_id: p.serviceId,
+				p_destination_address_id: p.destinationAddressId,
+				p_problem_description: p.problemDescription ?? null,
+				p_attachment: p.attachment ?? null,
+				p_scheduled_date: p.scheduledDate,
+				p_scheduled_start_at: p.scheduledStartAt ?? null,
+			}));
+		}
 		if (error)
 			mapLifecycleRpcError(
 				error as { code?: string; message?: string; hint?: string },

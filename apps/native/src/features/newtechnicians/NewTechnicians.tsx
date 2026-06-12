@@ -1,10 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { Search, X } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { FlatList, View } from "react-native";
-import Toast from "react-native-toast-message";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
@@ -16,6 +9,10 @@ import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
 import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
+import { getInspectionFeePreview } from "@/src/features/booking-orders/api/orders";
+import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import { getCategorySlug } from "@/src/features/categories/constants/categories";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import { useTechniciansInfiniteQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
@@ -28,6 +25,13 @@ import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { router, useLocalSearchParams } from "expo-router";
+import { Search, X } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FlatList, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { SortBar } from "./components/SortBar";
 import { TechnicianCard } from "./components/TechnicianCard";
 import { TechnicianListSkeleton } from "./components/TechnicianCardSkeleton";
@@ -61,9 +65,9 @@ function EmptyState({
 			>
 				{isError
 					? t("list.empty.errorBody")
-					: hasSearch
+					: (hasSearch
 						? t("list.empty.searchBody")
-						: t("list.empty.categoryBody")}
+						: t("list.empty.categoryBody"))}
 			</Text>
 			{isError ? (
 				<Button
@@ -101,23 +105,27 @@ export default function NewTechnicians() {
 	const { location, permissionStatus, requestLocationPermission } =
 		useLocationStore();
 	const { data: addresses } = useAddressesQuery();
-	const activeAddressCoords = useMemo(() => {
-		const addressWithCoords =
+	const activePricingAddress = useMemo(() => {
+		return (
 			addresses?.find(
 				(address) =>
 					address.is_active &&
-					address.latitude != null &&
-					address.longitude != null,
+					address.latitude != undefined &&
+					address.longitude != undefined,
 			) ??
 			addresses?.find(
-				(address) => address.latitude != null && address.longitude != null,
-			);
-		if (!addressWithCoords) return null;
-		return {
-			latitude: addressWithCoords.latitude as number,
-			longitude: addressWithCoords.longitude as number,
-		};
+				(address) => address.latitude != undefined && address.longitude != undefined,
+			) ??
+			null
+		);
 	}, [addresses]);
+	const activeAddressCoords = useMemo(() => {
+		if (!activePricingAddress) return null;
+		return {
+			latitude: activePricingAddress.latitude as number,
+			longitude: activePricingAddress.longitude as number,
+		};
+	}, [activePricingAddress]);
 	const coords = activeAddressCoords ?? location;
 	const [sortRefreshToken, setSortRefreshToken] = useState(0);
 	const lastCategoryRef = useRef<string | null>(null);
@@ -240,7 +248,7 @@ export default function NewTechnicians() {
 				categoryId,
 				categoryName,
 				distanceKm:
-					item.distance_km != null ? item.distance_km.toFixed(1) : undefined,
+					item.distance_km == undefined ? undefined : item.distance_km.toFixed(1),
 			},
 		});
 	}, 600);
@@ -255,16 +263,61 @@ export default function NewTechnicians() {
 		});
 	}, [technicians, activeSort, recommendedRank]);
 
+	const inspectionFeeQueries = useQueries({
+		queries: displayedTechnicians.map((technician) => ({
+			queryKey: orderQueryKeys.inspectionFeePreview(
+				technician.id,
+				activePricingAddress?.id ?? "missing",
+			),
+			queryFn: async () => {
+				const response = await getInspectionFeePreview(
+					technician.id,
+					activePricingAddress?.id as string,
+				);
+				return response.data;
+			},
+			enabled: !!activePricingAddress?.id,
+			retry: false,
+			meta: { showToast: false },
+			staleTime: 5 * 60 * 1000,
+		})),
+	});
+
+	const inspectionFeeLabels = useMemo(() => {
+		return new Map(
+			displayedTechnicians.map((technician, index) => {
+				if (!activePricingAddress?.id) {
+					return [technician.id, "Add address to preview fee"] as const;
+				}
+				const query = inspectionFeeQueries[index];
+				if (!query || query.isLoading) {
+					return [technician.id, "Calculating fee..."] as const;
+				}
+				if (query.isError) {
+					return [technician.id, translateOrderError(query.error)] as const;
+				}
+				if (!query.data) {
+					return [technician.id, "Calculated from distance"] as const;
+				}
+				return [
+					technician.id,
+					formatCurrency(query.data.inspection_fee),
+				] as const;
+			}),
+		);
+	}, [activePricingAddress?.id, displayedTechnicians, inspectionFeeQueries]);
+
 	const renderItem = useCallback(
 		({ item, index }: { item: TechnicianListItem; index: number }) => (
 			<TechnicianCard
 				item={item}
 				index={index}
+				inspectionFeeLabel={inspectionFeeLabels.get(item.id)}
 				onPress={handleCardPress}
 				onAvatarPress={handleAvatarPress}
 			/>
 		),
-		[handleCardPress, handleAvatarPress],
+		[handleCardPress, handleAvatarPress, inspectionFeeLabels],
 	);
 
 	const keyExtractor = useCallback((item: TechnicianListItem) => item.id, []);
@@ -337,7 +390,7 @@ export default function NewTechnicians() {
 
 				{showSkeleton ? (
 					<TechnicianListSkeleton />
-				) : displayedTechnicians.length === 0 ? (
+				) : (displayedTechnicians.length === 0 ? (
 					<EmptyState
 						isError={isError}
 						hasSearch={hasSearch}
@@ -367,7 +420,7 @@ export default function NewTechnicians() {
 						windowSize={9}
 						removeClippedSubviews
 					/>
-				)}
+				))}
 			</View>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />

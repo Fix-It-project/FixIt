@@ -60,6 +60,10 @@ functions:
     handler: serverless-deploy/admin-auth-lambda.handler
     events:
       - http:
+          path: api/admin/auth
+          method: any
+          cors: true
+      - http:
           path: api/admin/auth/{proxy+}
           method: any
           cors: true
@@ -67,6 +71,10 @@ functions:
   adminDashboard:
     handler: serverless-deploy/admin-dashboard-lambda.handler
     events:
+      - http:
+          path: api/admin/dashboard
+          method: any
+          cors: true
       - http:
           path: api/admin/dashboard/{proxy+}
           method: any
@@ -79,6 +87,10 @@ functions:
         enabled: prod
     events:
       - http:
+          path: api/auth
+          method: any
+          cors: true
+      - http:
           path: api/auth/{proxy+}
           method: any
           cors: true
@@ -90,6 +102,10 @@ functions:
         enabled: prod
     events:
       - http:
+          path: api/technician-auth
+          method: any
+          cors: true
+      - http:
           path: api/technician-auth/{proxy+}
           method: any
           cors: true
@@ -97,12 +113,19 @@ functions:
     handler: serverless-deploy/users-lambda.handler
     events:
       - http:
+          path: api/users
+          method: any
+      - http:
           path: api/users/{proxy+}
           method: any
 
   technicians:
     handler: serverless-deploy/technicians-lambda.handler
     events:
+      - http:
+          path: api/technicians
+          method: any
+          cors: true
       - http:
           path: api/technicians/{proxy+}
           method: any
@@ -112,12 +135,20 @@ functions:
     handler: serverless-deploy/addresses-lambda.handler
     events:
       - http:
+          path: api/addresses
+          method: any
+          cors: true
+      - http:
           path: api/addresses/{proxy+}
           method: any
           cors: true
   categories:
     handler: serverless-deploy/categories-lambda.handler
     events:
+      - http:
+          path: api/categories
+          method: any
+          cors: true
       - http:
           path: api/categories/{proxy+}
           method: any
@@ -130,6 +161,10 @@ functions:
         enabled: prod
     events:
       - http:
+          path: api/technician-calendar
+          method: any
+          cors: true
+      - http:
           path: api/technician-calendar/{proxy+}
           method: any
           cors: true
@@ -141,6 +176,10 @@ functions:
         enabled: prod
     events:
       - http:
+          path: api/orders
+          method: any
+          cors: true
+      - http:
           path: api/orders/{proxy+}
           method: any
           cors: true
@@ -148,6 +187,10 @@ functions:
   reviews:
     handler: serverless-deploy/reviews-lambda.handler
     events:
+      - http:
+          path: api/reviews
+          method: any
+          cors: true
       - http:
           path: api/reviews/{proxy+}
           method: any
@@ -159,6 +202,10 @@ functions:
       default:
         enabled: prod
     events:
+      - http:
+          path: api/notifications
+          method: any
+          cors: true
       - http:
           path: api/notifications/{proxy+}
           method: any
