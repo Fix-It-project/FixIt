@@ -1,0 +1,31 @@
+# Technician login happy path. The tech login screen reuses the shared
+# LoginScreen, so it exposes the same login-* selectors. Asserts we land on the
+# technician dashboard home.
+#
+# Requires a seeded technician account; override with -e TECH_EMAIL=... -e TECH_PASSWORD=...
+appId: com.anonymous.fixitapp
+env:
+  TECH_EMAIL: "tech@fixit.dev"
+  TECH_PASSWORD: "Password123!"
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- openLink: "fixitapp:///tech-login"
+- assertVisible:
+    id: "login-email-input"
+    timeout: 15000
+- tapOn:
+    id: "login-email-input"
+- inputText: "${TECH_EMAIL}"
+- hideKeyboard
+- tapOn:
+    id: "login-password-input"
+- inputText: "${TECH_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- assertVisible:
+    id: "technician-home"
+    timeout: 20000

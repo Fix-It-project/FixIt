@@ -1,4 +1,5 @@
 import { Building2, Home, MapPin, Navigation } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import FormInput from "@/src/components/forms/FormInput";
 
@@ -23,6 +24,8 @@ interface AddressFormSectionProps {
 	readonly required?: boolean;
 	readonly buildingRequired?: boolean;
 	readonly showIcons?: boolean;
+	/** When set, each field gets a testID of `${testIDPrefix}-<field>-input` for E2E selection. */
+	readonly testIDPrefix?: string;
 }
 
 export default function AddressFormSection({
@@ -37,63 +40,72 @@ export default function AddressFormSection({
 	errors,
 	disabled,
 	variant,
-	streetLabel = "Street Address",
+	streetLabel,
 	required = true,
 	buildingRequired = false,
 	showIcons = true,
+	testIDPrefix,
 }: AddressFormSectionProps) {
+	const { t } = useTranslation("addresses");
+	const fieldTestID = (field: string) =>
+		testIDPrefix ? `${testIDPrefix}-${field}-input` : undefined;
+
 	return (
 		<>
 			<FormInput
-				label="City"
+				label={t("form.city")}
 				value={city}
 				onChangeText={onCityChange}
-				placeholder="e.g. Cairo"
+				placeholder={t("form.cityPlaceholder")}
 				icon={showIcons ? MapPin : undefined}
 				error={errors?.city}
 				disabled={disabled}
 				required={required}
 				variant={variant}
+				testID={fieldTestID("city")}
 			/>
 
 			<FormInput
-				label={streetLabel}
+				label={streetLabel ?? t("form.streetAddress")}
 				value={street}
 				onChangeText={onStreetChange}
-				placeholder="Street address or area"
+				placeholder={t("form.streetPlaceholder")}
 				icon={showIcons ? Navigation : undefined}
 				error={errors?.street}
 				disabled={disabled}
 				required={required}
 				variant={variant}
+				testID={fieldTestID("street")}
 			/>
 
 			<View className="flex-row gap-stack-md">
 				<View className="flex-1">
 					<FormInput
-						label="Building No."
+						label={t("form.building")}
 						value={buildingNumber}
 						onChangeText={onBuildingNumberChange}
-						placeholder="e.g. 12"
+						placeholder={t("form.buildingPlaceholder")}
 						icon={showIcons ? Building2 : undefined}
 						error={errors?.buildingNumber}
 						disabled={disabled}
 						keyboardType="numeric"
 						required={buildingRequired}
 						variant={variant}
+						testID={fieldTestID("building")}
 					/>
 				</View>
 				<View className="flex-1">
 					<FormInput
-						label="Apartment No."
+						label={t("form.apartment")}
 						value={apartmentNumber}
 						onChangeText={onApartmentNumberChange}
-						placeholder="e.g. 5A"
+						placeholder={t("form.apartmentPlaceholder")}
 						icon={showIcons ? Home : undefined}
 						error={errors?.apartmentNumber}
 						disabled={disabled}
 						required={buildingRequired}
 						variant={variant}
+						testID={fieldTestID("apartment")}
 					/>
 				</View>
 			</View>

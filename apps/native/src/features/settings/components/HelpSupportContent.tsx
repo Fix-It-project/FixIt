@@ -4,6 +4,7 @@ import {
 	Mail,
 	MessageCircle,
 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
@@ -48,6 +49,7 @@ interface HelpSupportContentProps {
 export default function HelpSupportContent({
 	description,
 }: HelpSupportContentProps) {
+	const { t } = useTranslation("settings");
 	return (
 		<ScrollView
 			className="flex-1 bg-surface"
@@ -60,7 +62,9 @@ export default function HelpSupportContent({
 				<View className="mb-stack-lg h-avatar-lg w-avatar-lg items-center justify-center rounded-pill bg-app-primary-light">
 					<CircleHelp size={28} color={Colors.primary} strokeWidth={1.8} />
 				</View>
-				<Text variant="bodyLg" className="font-bold text-content text-lg">Help & Support</Text>
+				<Text variant="bodyLg" className="font-bold text-content text-lg">
+						{t("help.title")}
+					</Text>
 				<Text variant="bodySm" className="mt-stack-sm text-content-muted">
 					{description}
 				</Text>
@@ -72,7 +76,7 @@ export default function HelpSupportContent({
 			>
 				<ContactItem
 					icon={Mail}
-					label="Email us"
+					label={t("help.emailLabel")}
 					value="support@fixit.app"
 					onPress={() => {
 						void Linking.openURL("mailto:support@fixit.app");
@@ -81,7 +85,7 @@ export default function HelpSupportContent({
 				<Separator />
 				<ContactItem
 					icon={MessageCircle}
-					label="WhatsApp"
+					label={t("help.whatsappLabel")}
 					value="+20 100 000 0000"
 					onPress={() => {
 						void Linking.openURL("whatsapp://send?phone=201000000000");

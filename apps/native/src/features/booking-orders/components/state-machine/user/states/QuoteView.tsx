@@ -1,5 +1,6 @@
 import { Tag } from "lucide-react-native";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
 	OrderInfoCompact,
@@ -19,14 +20,15 @@ interface Props {
 }
 
 export default function QuoteView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={Tag}
-				eyebrow="Quote"
-				title="Lock in a fair price."
-				subtitle="3 rounds max. Counter, accept, or cancel."
+				eyebrow={t("detail.stage.quote.eyebrow")}
+				title={t("detail.stage.quote.title")}
+				subtitle={t("detail.stage.quote.subtitle")}
 			/>
 			<OrderInfoCompact
 				order={order}

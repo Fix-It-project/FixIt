@@ -7,6 +7,7 @@ import {
 	Star,
 } from "lucide-react-native";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import type { GestureResponderEvent } from "react-native";
 import { View } from "react-native";
 import Animated, {
@@ -25,7 +26,7 @@ import { Text } from "@/src/components/ui/text";
 import { DUR_CARDS } from "@/src/constants/animation";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
-import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import { getCategorySlug } from "@/src/features/categories/constants/categories";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { formatLocation } from "@/src/features/technicians/utils/technician-utils";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
@@ -45,17 +46,6 @@ const BOOK_BUTTON_WIDTH =
 	spacing.avatar.hero + spacing.stack.xl + spacing.stack.lg;
 const TRAILING_BUTTON_RESERVED_WIDTH = BOOK_BUTTON_WIDTH + spacing.stack.sm;
 const MAX_ENTERING_ANIMATED_CARDS = 8;
-
-function formatDistanceAway(distanceKm: number | null): string {
-	if (distanceKm == null) return "N/A";
-	return `${distanceKm.toFixed(1)} km away`;
-}
-
-function formatCategoryLine(categoryId: string): string {
-	const category = CATEGORIES.find((item) => item.id === categoryId);
-	if (!category) return "Home service";
-	return `${category.label} service`;
-}
 
 function DetailRow({
 	icon: Icon,
@@ -114,17 +104,31 @@ function TechnicianCardComponent({
 	onPress,
 	onAvatarPress,
 }: TechnicianCardProps) {
+	const { t } = useTranslation(["technicians", "categories"]);
 	const themeColors = useThemeColors();
 	const reduceMotion = useReducedMotion();
 	const fullName = `${item.first_name} ${item.last_name}`;
 	const initials = getPfpInitialsFallback(fullName);
 	const hasReviews = item.avg_rating !== null && item.review_count > 0;
-	const ratingLabel = hasReviews ? formatRating(item.avg_rating ?? 0) : "New";
+	const ratingLabel = hasReviews
+		? formatRating(item.avg_rating ?? 0)
+		: t("detail.ratingNew");
 	const reviewLabel = hasReviews
-		? `${item.review_count} ${item.review_count === 1 ? "review" : "reviews"}`
-		: "No reviews yet";
+		? `${item.review_count} ${t(item.review_count === 1 ? "card.reviewOne" : "card.reviewOther")}`
+		: t("card.noReviews");
+	const categorySlug = getCategorySlug(item.category_id);
+	const categoryLabel = categorySlug
+		? t(`categories:labels.${categorySlug}` as Parameters<typeof t>[0])
+		: null;
 	const subtitle =
-		item.description?.trim() || formatCategoryLine(item.category_id);
+		item.description?.trim() ||
+		(categoryLabel
+			? t("card.categoryService", { category: categoryLabel })
+			: t("card.homeService"));
+	const distanceLabel =
+		item.distance_km == null
+			? t("detail.notAvailable")
+			: t("card.distanceAway", { km: item.distance_km.toFixed(1) });
 
 	const entering =
 		reduceMotion || index >= MAX_ENTERING_ANIMATED_CARDS
@@ -148,7 +152,7 @@ function TechnicianCardComponent({
 				pressedScale={0.985}
 				className="rounded-card bg-card px-card-compact py-stack-md"
 				accessibilityRole="button"
-				accessibilityLabel={`Book ${fullName}`}
+				accessibilityLabel={t("card.bookAccessibility", { name: fullName })}
 				testID="technician-card"
 			>
 				<View className="flex-row items-center gap-stack-md pr-stack-xs">
@@ -157,7 +161,9 @@ function TechnicianCardComponent({
 						pressedScale={0.94}
 						className="h-avatar-lg w-avatar-lg"
 						accessibilityRole="button"
-						accessibilityLabel={`Open ${fullName} profile`}
+						accessibilityLabel={t("card.profileAccessibility", {
+							name: fullName,
+						})}
 					>
 						<Avatar
 							alt={initials}
@@ -228,21 +234,21 @@ function TechnicianCardComponent({
 				<View className="relative gap-stack-sm">
 					<DetailRow
 						icon={Navigation}
-						label="Distance"
-						value={formatDistanceAway(item.distance_km)}
+						label={t("card.distance")}
+						value={distanceLabel}
 						tone={themeColors.primary}
 					/>
 					{inspectionFeeLabel ? (
 						<DetailRow
 							icon={Banknote}
-							label="Inspection Fee"
+							label={t("card.inspectionFee")}
 							value={inspectionFeeLabel}
 							tone={themeColors.success}
 						/>
 					) : null}
 					<DetailRow
 						icon={MapPin}
-						label="Location"
+						label={t("card.location")}
 						value={formatLocation(null, item.city, item.street)}
 						tone={themeColors.accentCyan}
 						trailingSpace={TRAILING_BUTTON_RESERVED_WIDTH}
@@ -259,7 +265,7 @@ function TechnicianCardComponent({
 							className="font-semibold text-surface-on-primary"
 							maxFontSizeMultiplier={1.05}
 						>
-							Book Now
+							{t("card.bookNow")}
 						</Text>
 					</Button>
 				</View>

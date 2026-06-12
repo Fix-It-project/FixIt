@@ -1,36 +1,32 @@
 /** Shared formatting utilities for booking-related UI. */
 import { getAvatarColor } from "@/src/lib/avatar";
 
-const MONTHS = [
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec",
-];
-
-/** Format "2026-03-27" → "Mar 27, 2026". */
-export function formatDate(dateStr: string): string {
-	const [y, m, d] = dateStr.split("-");
-	return `${MONTHS[Number(m) - 1]} ${Number(d)}, ${y}`;
+export function getDateLocale(language?: string): string {
+	return language?.startsWith("ar") ? "ar-EG" : "en-US";
 }
 
-/** Format ISO datetime to local 12h time, e.g. "10:00 AM". */
-export function formatTime(iso: string | null | undefined): string | null {
+/** Format "2026-03-27" for the active app locale. */
+export function formatDate(dateStr: string, language?: string): string {
+	const parsed = new Date(`${dateStr}T00:00:00`);
+	if (Number.isNaN(parsed.getTime())) return dateStr;
+	return new Intl.DateTimeFormat(getDateLocale(language), {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	}).format(parsed);
+}
+
+/** Format ISO datetime for the active app locale. */
+export function formatTime(
+	iso: string | null | undefined,
+	language?: string,
+): string | null {
 	if (!iso) return null;
 	const d = new Date(iso);
 	if (Number.isNaN(d.getTime())) return null;
-	return new Intl.DateTimeFormat("en-US", {
+	return new Intl.DateTimeFormat(getDateLocale(language), {
 		hour: "numeric",
 		minute: "2-digit",
-		hour12: true,
 	}).format(d);
 }
 

@@ -1,10 +1,17 @@
 import { CalendarClock, Check, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
 import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
+import {
+	radius,
+	space,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
 import {
 	useOrderRescheduleQuery,
 	useTechApproveReschedule,
@@ -14,13 +21,15 @@ import {
 	useUserRejectReschedule,
 	useUserWithdrawReschedule,
 } from "@/src/features/booking-orders/hooks";
-import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
+import {
+	formatTime,
+	getDateLocale,
+} from "@/src/features/booking-orders/utils/booking-helpers";
 import {
 	extractOrderErrorToken,
 	translateOrderError,
 } from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export type ReschedulePanelViewer = "user" | "technician";
 
@@ -30,10 +39,10 @@ interface Props {
 	readonly forceVisible?: boolean;
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, language?: string): string {
 	const d = new Date(`${iso}T00:00:00`);
 	if (Number.isNaN(d.getTime())) return iso;
-	return d.toLocaleDateString(undefined, {
+	return d.toLocaleDateString(getDateLocale(language), {
 		weekday: "short",
 		month: "short",
 		day: "numeric",
@@ -44,13 +53,14 @@ function formatDate(iso: string): string {
 function formatDateTime(
 	dateIso: string,
 	startAtIso: string | null | undefined,
+	language?: string,
 ): string {
-	const date = formatDate(dateIso);
-	const time = formatTime(startAtIso);
+	const date = formatDate(dateIso, language);
+	const time = formatTime(startAtIso, language);
 	return time ? `${date} • ${time}` : date;
 }
 
-function useCountdown(targetIso: string | null): string | null {
+function useCountdownMs(targetIso: string | null): number | null {
 	const [now, setNow] = useState(() => Date.now());
 	useEffect(() => {
 		if (!targetIso) return;
@@ -62,11 +72,7 @@ function useCountdown(targetIso: string | null): string | null {
 		if (!targetIso) return null;
 		const ms = new Date(targetIso).getTime() - now;
 		if (Number.isNaN(ms)) return null;
-		if (ms <= 0) return "Expired";
-		const h = Math.floor(ms / 3_600_000);
-		const m = Math.floor((ms % 3_600_000) / 60_000);
-		if (h <= 0) return `${m}m left`;
-		return `${h}h ${m}m left`;
+		return ms;
 	}, [now, targetIso]);
 }
 
@@ -75,6 +81,7 @@ export default function RescheduleRequestPanel({
 	viewer,
 	forceVisible = false,
 }: Props) {
+	const { t, i18n } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const { data, isLoading } = useOrderRescheduleQuery(orderId, viewer);
 
@@ -101,7 +108,16 @@ export default function RescheduleRequestPanel({
 		).toISOString();
 	}, [request]);
 
-	const countdown = useCountdown(expiresAtIso);
+	const countdownMs = useCountdownMs(expiresAtIso);
+	const countdown = useMemo(() => {
+		if (countdownMs == null) return null;
+		if (countdownMs <= 0) return t("detail.reschedule.countdownExpired");
+		const h = Math.floor(countdownMs / 3_600_000);
+		const m = Math.floor((countdownMs % 3_600_000) / 60_000);
+		return h <= 0
+			? t("detail.reschedule.countdownMinutes", { m })
+			: t("detail.reschedule.countdownHours", { h, m });
+	}, [countdownMs, t]);
 
 	const isRequester = request ? request.requested_by === viewer : false;
 	const isCounterparty = request ? request.requested_by !== viewer : false;
@@ -115,7 +131,10 @@ export default function RescheduleRequestPanel({
 			{ orderId },
 			{
 				onSuccess: () =>
-					Toast.show({ type: "success", text1: "Reschedule approved" }),
+					Toast.show({
+						type: "success",
+						text1: t("detail.reschedule.toastApproved"),
+					}),
 				onError: (err) => {
 					logger.warn("booking.reschedule", "approve_failed", {
 						orderId,
@@ -124,28 +143,30 @@ export default function RescheduleRequestPanel({
 					});
 					Toast.show({
 						type: "info",
-						text1: "Approve failed",
+						text1: t("detail.reschedule.toastApproveFailed"),
 						text2: translateOrderError(err),
 					});
 				},
 			},
 		);
-	}, [approveMutation, orderId, viewer]);
+	}, [approveMutation, orderId, viewer, t]);
 
 	const handleReject = useCallback(async () => {
 		const ok = await confirm({
-			title: "Decline reschedule request?",
-			description:
-				"The other party will be notified. The original schedule remains active.",
-			primary: { label: "Decline", destructive: true },
-			secondary: { label: "Keep request" },
+			title: t("detail.reschedule.declineTitle"),
+			description: t("detail.reschedule.declineBody"),
+			primary: { label: t("detail.reschedule.decline"), destructive: true },
+			secondary: { label: t("detail.reschedule.keepRequest") },
 		});
 		if (!ok) return;
 		rejectMutation.mutate(
-			{ orderId, reason: "Declined by counterparty" },
+			{ orderId, reason: t("detail.reschedule.declinedReason") },
 			{
 				onSuccess: () =>
-					Toast.show({ type: "success", text1: "Reschedule rejected" }),
+					Toast.show({
+						type: "success",
+						text1: t("detail.reschedule.toastRejected"),
+					}),
 				onError: (err) => {
 					logger.warn("booking.reschedule", "reject_failed", {
 						orderId,
@@ -154,20 +175,23 @@ export default function RescheduleRequestPanel({
 					});
 					Toast.show({
 						type: "info",
-						text1: "Reject failed",
+						text1: t("detail.reschedule.toastRejectFailed"),
 						text2: translateOrderError(err),
 					});
 				},
 			},
 		);
-	}, [rejectMutation, orderId, viewer]);
+	}, [rejectMutation, orderId, viewer, t]);
 
 	const handleWithdraw = useCallback(() => {
 		withdrawMutation.mutate(
 			{ orderId },
 			{
 				onSuccess: () =>
-					Toast.show({ type: "success", text1: "Request withdrawn" }),
+					Toast.show({
+						type: "success",
+						text1: t("detail.reschedule.toastWithdrawn"),
+					}),
 				onError: (err) => {
 					logger.warn("booking.reschedule", "withdraw_failed", {
 						orderId,
@@ -176,13 +200,13 @@ export default function RescheduleRequestPanel({
 					});
 					Toast.show({
 						type: "info",
-						text1: "Withdraw failed",
+						text1: t("detail.reschedule.toastWithdrawFailed"),
 						text2: translateOrderError(err),
 					});
 				},
 			},
 		);
-	}, [withdrawMutation, orderId, viewer]);
+	}, [withdrawMutation, orderId, viewer, t]);
 
 	if (isLoading && !data) {
 		return (
@@ -205,10 +229,10 @@ export default function RescheduleRequestPanel({
 						className="font-google-sans-bold"
 						style={{ color: themeColors.textPrimary }}
 					>
-						Checking reschedule request
+						{t("detail.reschedule.checkingTitle")}
 					</Text>
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						Loading the latest request status...
+						{t("detail.reschedule.checkingBody")}
 					</Text>
 				</View>
 			</View>
@@ -237,10 +261,10 @@ export default function RescheduleRequestPanel({
 						className="font-google-sans-bold"
 						style={{ color: themeColors.textPrimary }}
 					>
-						Loading reschedule request
+						{t("detail.reschedule.loadingTitle")}
 					</Text>
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						Fetching the accept, decline, and cancel controls...
+						{t("detail.reschedule.loadingBody")}
 					</Text>
 				</View>
 			</View>
@@ -248,10 +272,10 @@ export default function RescheduleRequestPanel({
 	}
 
 	const eyebrow = isRequester
-		? "You requested a reschedule"
+		? t("detail.reschedule.eyebrowYou")
 		: viewer === "user"
-			? "Technician requested a reschedule"
-			: "Customer requested a reschedule";
+			? t("detail.reschedule.eyebrowTech")
+			: t("detail.reschedule.eyebrowCustomer");
 
 	return (
 		<View
@@ -303,16 +327,18 @@ export default function RescheduleRequestPanel({
 						className="font-google-sans-bold"
 						style={{ color: themeColors.textPrimary }}
 					>
-						Requested date:{" "}
-						{formatDateTime(
-							request.proposed_scheduled_date,
-							request.proposed_scheduled_start_at,
-						)}
+						{t("detail.reschedule.requestedDate", {
+							value: formatDateTime(
+								request.proposed_scheduled_date,
+								request.proposed_scheduled_start_at,
+								i18n.language,
+							),
+						})}
 					</Text>
 					<Text variant="caption" style={{ color: themeColors.textMuted }}>
 						{isCounterparty
-							? "Accept to move the order, or decline to keep the original date."
-							: "Waiting for the other side. You can cancel this request."}
+							? t("detail.reschedule.counterpartyHint")
+							: t("detail.reschedule.requesterHint")}
 					</Text>
 				</View>
 				{countdown ? (
@@ -344,12 +370,13 @@ export default function RescheduleRequestPanel({
 					className="uppercase"
 					style={{ color: themeColors.textMuted, letterSpacing: 0.6 }}
 				>
-					Original
+					{t("detail.reschedule.original")}
 				</Text>
 				<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
 					{formatDateTime(
 						request.original_scheduled_date,
 						request.original_scheduled_start_at,
+						i18n.language,
 					)}
 				</Text>
 				<View
@@ -364,7 +391,7 @@ export default function RescheduleRequestPanel({
 					className="uppercase"
 					style={{ color: themeColors.textMuted, letterSpacing: 0.6 }}
 				>
-					Reason
+					{t("detail.reschedule.reason")}
 				</Text>
 				<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
 					{request.request_reason}
@@ -383,7 +410,9 @@ export default function RescheduleRequestPanel({
 							loading={approveMutation.isPending}
 							disabled={rejectMutation.isPending || withdrawMutation.isPending}
 						>
-							{approveMutation.isPending ? "Accepting..." : "Accept"}
+							{approveMutation.isPending
+								? t("detail.reschedule.accepting")
+								: t("detail.reschedule.accept")}
 						</Button>
 					</View>
 					<View style={{ flex: 1 }}>
@@ -396,7 +425,9 @@ export default function RescheduleRequestPanel({
 							loading={rejectMutation.isPending}
 							disabled={approveMutation.isPending || withdrawMutation.isPending}
 						>
-							{rejectMutation.isPending ? "Declining..." : "Decline"}
+							{rejectMutation.isPending
+								? t("detail.reschedule.declining")
+								: t("detail.reschedule.decline")}
 						</Button>
 					</View>
 				</View>
@@ -410,7 +441,9 @@ export default function RescheduleRequestPanel({
 					loading={withdrawMutation.isPending}
 					disabled={approveMutation.isPending || rejectMutation.isPending}
 				>
-					{withdrawMutation.isPending ? "Cancelling..." : "Cancel request"}
+					{withdrawMutation.isPending
+						? t("detail.reschedule.cancelling")
+						: t("detail.reschedule.cancelRequest")}
 				</Button>
 			)}
 		</View>

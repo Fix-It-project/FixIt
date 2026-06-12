@@ -1,18 +1,24 @@
 import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
-import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import {
+	CATEGORIES,
+	translateServiceName,
+} from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
 }
 
 export default function OrderTechnicianCard({ order }: Props) {
+	const { t } = useTranslation("orders");
+	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
 	const { width } = useWindowDimensions();
 	const category = order.category_id
@@ -24,9 +30,14 @@ export default function OrderTechnicianCard({ order }: Props) {
 	const avatarColor = getAvatarColor(order.technician_name);
 	const avatarSize = width < 360 ? 52 : 64;
 	const nameFontSize = width < 360 ? 16 : 18;
+	const serviceName = translateServiceName(
+		tc,
+		order.service_id,
+		order.service_name,
+	);
 
 	return (
-		<View className="mb-stack-lg rounded-card border border-edge bg-card p-card-roomy">
+		<View className="mb-stack-lg rounded-card bg-card p-card-roomy">
 			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
 				{order.technician_image ? (
 					<Image
@@ -70,16 +81,20 @@ export default function OrderTechnicianCard({ order }: Props) {
 						}}
 						numberOfLines={2}
 					>
-						{order.technician_name ?? "Technician"}
+						{order.technician_name ?? t("card.technicianFallback")}
 					</Text>
 					<View className="mt-stack-xs min-w-0 flex-row items-center gap-stack-xs">
-						<CategoryIcon size={spacing.icon.caption} color={categoryColor} strokeWidth={2} />
+						<CategoryIcon
+							size={spacing.icon.caption}
+							color={categoryColor}
+							strokeWidth={2}
+						/>
 						<Text
 							variant="bodySm"
 							style={{ flex: 1, color: themeColors.textSecondary }}
 							numberOfLines={2}
 						>
-							{order.service_name ?? "Service"}
+							{serviceName || t("card.serviceFallback")}
 						</Text>
 					</View>
 				</View>

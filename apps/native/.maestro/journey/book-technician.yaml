@@ -1,0 +1,61 @@
+# End-to-end user journey: sign in, browse a category, open a technician,
+# pick a service, and reach the booking screen.
+#
+# Reuses the login flow as a precondition (leaves the app on the user home),
+# then drives the real navigation + data-fetch chain:
+#   home -> Categories tab -> category -> technician -> detail -> booking.
+#
+# Lists are backend-driven, so the flow taps the FIRST item in each list
+# (index: 0). The connected backend must have >=1 category, >=1 technician in
+# that category, and that technician must publish >=1 service.
+appId: com.anonymous.fixitapp
+---
+- runFlow: ../auth/login.yaml
+
+# Home -> Categories tab
+- tapOn: "Categories"
+- assertVisible:
+    id: "category-tile"
+    timeout: 15000
+- tapOn:
+    id: "category-tile"
+    index: 0
+
+# Technicians list -> open first technician's detail
+- assertVisible:
+    id: "technician-card"
+    timeout: 15000
+- tapOn:
+    id: "technician-card"
+    index: 0
+
+# Detail -> Services tab -> pick a service -> continue to booking
+- tapOn: "Services"
+- assertVisible:
+    id: "service-option"
+    timeout: 10000
+- tapOn:
+    id: "service-option"
+    index: 0
+- tapOn:
+    id: "select-date"
+
+# Booking screen reached. Selecting a date + time slot and confirming requires
+# real published availability for the technician, so the guaranteed assertion
+# here is that we landed on the booking screen.
+- assertVisible:
+    id: "confirm-booking"
+    timeout: 15000
+
+# --- Full booking confirmation (needs seeded availability) -------------------
+# Uncomment once the test technician has bookable slots. Date/slot cells are
+# dynamic; add testIDs to TimeSlotGrid / the date picker, then:
+# - tapOn:
+#     id: "date-slot"
+#     index: 0
+# - tapOn:
+#     id: "time-slot"
+#     index: 0
+# - tapOn:
+#     id: "confirm-booking"
+# - assertVisible: "Booking confirmed"   # or a booking-success testID

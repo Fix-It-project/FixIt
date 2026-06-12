@@ -1,13 +1,13 @@
 import { RotateCcw } from "lucide-react-native";
-import {
-	FlatList,
-	useWindowDimensions,
-	View,
-} from "react-native";
+import { useTranslation } from "react-i18next";
+import { FlatList, useWindowDimensions, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { PREVIOUS_ORDERS, type PreviousOrder } from "@/src/constants/mock-data/user";
 import { spacing } from "@/src/constants/design-tokens";
+import {
+	PREVIOUS_ORDERS,
+	type PreviousOrder,
+} from "@/src/constants/mock-data/user";
 
 const CARD_WIDTH_RATIO = 0.75;
 const CARD_SPACING = spacing.stack.sm;
@@ -19,6 +19,7 @@ function OrderCard({
 	item: PreviousOrder;
 	cardWidth: number;
 }>) {
+	const { t } = useTranslation("orders");
 	return (
 		<View
 			className="rounded-card bg-card p-card"
@@ -55,12 +56,12 @@ function OrderCard({
 
 				{/* Reorder button */}
 				<Button variant="outline" size="sm" iconLeft={RotateCcw}>
-					Reorder
+					{t("card.reorder")}
 				</Button>
 			</View>
 
 			{/* Bottom row: date + price */}
-			<View className="mt-control-search flex-row items-center justify-between border-t border-surface-elevated pt-stack-sm">
+			<View className="mt-control-search flex-row items-center justify-between border-edge border-t pt-stack-sm">
 				<Text variant="caption" className="text-content-muted">
 					{item.date}
 				</Text>
@@ -73,6 +74,7 @@ function OrderCard({
 }
 
 export default function PreviousOrdersSection() {
+	const { t } = useTranslation("orders");
 	const { width } = useWindowDimensions();
 	const cardWidth = width * CARD_WIDTH_RATIO;
 
@@ -83,7 +85,7 @@ export default function PreviousOrdersSection() {
 			{/* Header */}
 			<View className="mb-stack-sm flex-row items-center px-screen-x">
 				<Text variant="h2" className="text-content">
-					Previous Orders
+					{t("card.previousOrders")}
 				</Text>
 			</View>
 

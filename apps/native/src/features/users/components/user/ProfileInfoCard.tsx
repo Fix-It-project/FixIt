@@ -1,4 +1,5 @@
 import { type LucideIcon, Mail, MapPin, Phone } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
@@ -41,6 +42,7 @@ export default function ProfileInfoCard({
 	profile,
 	isLoading,
 }: ProfileInfoCardProps) {
+	const { t } = useTranslation("profile");
 	if (isLoading) {
 		return (
 			<View className="items-center py-stack-3xl">
@@ -50,7 +52,7 @@ export default function ProfileInfoCard({
 	}
 
 	const primaryAddress = profile?.addresses?.[0];
-	const addressText = formatAddress(primaryAddress, "No address added");
+	const addressText = formatAddress(primaryAddress, t("info.noAddress"));
 
 	return (
 		<View className="mt-stack-md px-screen-x">
@@ -58,15 +60,19 @@ export default function ProfileInfoCard({
 				className="rounded-card bg-card px-card-roomy py-stack-sm"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
-				<InfoRow icon={Mail} label="Email" value={profile?.email ?? "—"} />
+				<InfoRow
+					icon={Mail}
+					label={t("info.email")}
+					value={profile?.email ?? t("info.empty")}
+				/>
 				<Separator />
 				<InfoRow
 					icon={Phone}
-					label="Phone"
-					value={profile?.phone ?? "Not provided"}
+					label={t("info.phone")}
+					value={profile?.phone ?? t("info.notProvided")}
 				/>
 				<Separator />
-				<InfoRow icon={MapPin} label="Address" value={addressText} />
+				<InfoRow icon={MapPin} label={t("info.address")} value={addressText} />
 			</View>
 		</View>
 	);

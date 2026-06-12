@@ -10,6 +10,7 @@
 // so the caller can decide whether to navigate / close anyway.
 
 import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Textarea } from "@/src/components/ui/textarea";
@@ -48,6 +49,7 @@ const InlineReviewForm = forwardRef<
 	},
 	ref,
 ) {
+	const { t } = useTranslation("reviews");
 	const themeColors = useThemeColors();
 	const mutation = useCreateReviewMutation();
 	const [rating, setRating] = useState(0);
@@ -66,7 +68,8 @@ const InlineReviewForm = forwardRef<
 					comment: comment || undefined,
 				});
 				if (!parsed.success) {
-					const message = parsed.error.issues[0]?.message ?? "Invalid input.";
+					const message =
+						parsed.error.issues[0]?.message ?? t("invalidInput");
 					onError?.(new Error(message));
 					resolve({ submitted: false });
 					return;
@@ -85,7 +88,7 @@ const InlineReviewForm = forwardRef<
 					},
 				);
 			}),
-		[rating, comment, mutation, orderId, technicianId, onSubmitted, onError],
+		[rating, comment, mutation, orderId, technicianId, onSubmitted, onError, t],
 	);
 
 	useImperativeHandle(
@@ -97,7 +100,9 @@ const InlineReviewForm = forwardRef<
 		[submit, rating],
 	);
 
-	const title = technicianName ? `Rate ${technicianName}` : "Rate technician";
+	const title = technicianName
+		? t("rateNamed", { name: technicianName })
+		: t("rateTechnician");
 
 	return (
 		<View style={{ gap: space[3] }}>
@@ -130,7 +135,7 @@ const InlineReviewForm = forwardRef<
 					onChangeText={setComment}
 					maxLength={1000}
 					editable={!mutation.isPending}
-					placeholder="Add a comment (optional)"
+					placeholder={t("commentPlaceholder")}
 					className="min-h-[96px]"
 				/>
 			) : null}

@@ -12,7 +12,7 @@ const TAB_BAR_TOP_PADDING = spacing.stack.sm;
 const MIN_TAB_BAR_BOTTOM_PADDING = spacing.stack.md;
 
 const TAB_BAR_LABEL_STYLE = {
-	fontFamily: fontFamily.semibold,
+	fontFamily: fontFamily.bold,
 	fontSize: 11,
 	marginTop: 2,
 } as const;
@@ -53,7 +53,7 @@ export function getBaseTabScreenOptions(
 	return {
 		headerShown: false,
 		tabBarActiveTintColor: themeColors.primary,
-		tabBarInactiveTintColor: themeColors.textMuted,
+		tabBarInactiveTintColor: themeColors.textPrimary,
 		tabBarShowLabel: showLabels,
 		tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
 		tabBarStyle: {

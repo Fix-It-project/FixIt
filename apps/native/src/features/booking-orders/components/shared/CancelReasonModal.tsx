@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/src/components/ui/button";
 import { Dialog } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
@@ -29,9 +30,14 @@ export default function CancelReasonModal({
 	subjectRole,
 	title,
 	visible,
-	confirmLabel = "Cancel",
+	confirmLabel,
 }: Props) {
+	const { t } = useTranslation("orders");
 	const reasonRef = React.useRef(reason);
+	const roleLabel = t(
+		`detail.cancelModal.role.${subjectRole}` as Parameters<typeof t>[0],
+		{ defaultValue: subjectRole },
+	);
 
 	React.useEffect(() => {
 		if (visible) {
@@ -49,11 +55,10 @@ export default function CancelReasonModal({
 			<Dialog.Header>{title}</Dialog.Header>
 			<Dialog.Body>
 				<Text variant="bodySm">
-					Are you sure you want to cancel the {subjectRole} with{" "}
-					<Text variant="bodySm" className="font-semibold">
-						{subjectName ?? subjectFallback}
-					</Text>
-					?
+					{t("detail.cancelModal.body", {
+						role: roleLabel,
+						name: subjectName ?? subjectFallback,
+					})}
 				</Text>
 			</Dialog.Body>
 			<Dialog.Form>
@@ -62,14 +67,14 @@ export default function CancelReasonModal({
 					onChangeText={(text) => {
 						reasonRef.current = text;
 					}}
-					placeholder="Reason (optional)"
+					placeholder={t("detail.cancelModal.reasonPlaceholder")}
 					numberOfLines={3}
 					className="min-h-[72px]"
 				/>
 			</Dialog.Form>
 			<Dialog.Footer>
 				<Button variant="secondary" onPress={onClose}>
-					Keep
+					{t("detail.cancelModal.keep")}
 				</Button>
 				<Button
 					variant="destructive"
@@ -77,7 +82,7 @@ export default function CancelReasonModal({
 					disabled={isLoading}
 					onPress={handleConfirm}
 				>
-					{confirmLabel}
+					{confirmLabel ?? t("detail.cancelModal.confirm")}
 				</Button>
 			</Dialog.Footer>
 		</Dialog>

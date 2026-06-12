@@ -1,5 +1,6 @@
 import { Star } from "lucide-react-native";
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { ReviewRow } from "@/src/components/reviews";
 import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
@@ -47,6 +48,7 @@ export function ReviewsTab({
 	technicianId,
 	endReachedSignal = 0,
 }: ReviewsTabProps) {
+	const { t } = useTranslation("technicians");
 	const themeColors = useThemeColors();
 	const { data: summary, isLoading: summaryLoading } =
 		useReviewSummaryQuery(technicianId);
@@ -83,7 +85,7 @@ export function ReviewsTab({
 						<Text variant="display" className="text-content">
 							{summary.avg_rating != null
 								? formatRating(summary.avg_rating)
-								: "—"}
+								: t("reviews.noRating")}
 						</Text>
 						<View className="mt-stack-xs flex-row gap-stack-xs">
 							{[1, 2, 3, 4, 5].map((s) => (
@@ -102,7 +104,11 @@ export function ReviewsTab({
 						</View>
 						<Text variant="caption" className="mt-stack-xs text-content-muted">
 							{summary.review_count}{" "}
-							{summary.review_count === 1 ? "review" : "reviews"}
+							{t(
+								summary.review_count === 1
+									? "reviews.reviewOne"
+									: "reviews.reviewOther",
+							)}
 						</Text>
 					</View>
 					<View className="flex-1 justify-center gap-stack-xs">
@@ -132,10 +138,10 @@ export function ReviewsTab({
 				) : reviews.length === 0 ? (
 					<View className="items-center py-section-y">
 						<Text variant="buttonLg" className="text-content">
-							No reviews yet
+							{t("reviews.emptyTitle")}
 						</Text>
 						<Text variant="bodySm" className="mt-stack-xs text-content-muted">
-							Be the first to book and review.
+							{t("reviews.emptyBody")}
 						</Text>
 					</View>
 				) : (

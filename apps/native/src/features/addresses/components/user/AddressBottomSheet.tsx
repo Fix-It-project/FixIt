@@ -57,7 +57,7 @@ const AddressBottomSheet = forwardRef<
 	},
 	ref,
 ) {
-	const { t } = useTranslation("home");
+	const { t } = useTranslation("addresses");
 	const themeColors = useThemeColors();
 	const bottomSheetRef = useRef<BottomSheetRef>(null);
 
@@ -127,7 +127,7 @@ const AddressBottomSheet = forwardRef<
 			<BottomSheet.View className="flex-1 px-button-x pb-stack-xl">
 				<View className="mb-stack-sm flex-row items-center justify-between">
 					<Text variant="bodyLg" className="font-bold text-content">
-						{t("address.sheetTitle")}
+						{t("sheet.title")}
 					</Text>
 					<TouchableOpacity onPress={handleClose} activeOpacity={0.7}>
 						<X size={22} color={themeColors.textSecondary} strokeWidth={2} />
@@ -138,7 +138,7 @@ const AddressBottomSheet = forwardRef<
 					<View className="flex-1 items-center justify-center">
 						<ActivityIndicator size="large" color={Colors.primary} />
 						<Text variant="bodySm" className="mt-stack-md text-content-muted">
-							{t("address.loading")}
+							{t("sheet.loading")}
 						</Text>
 					</View>
 				)}
@@ -146,13 +146,13 @@ const AddressBottomSheet = forwardRef<
 				{isError && !isLoading && (
 					<View className="flex-1 items-center justify-center">
 						<Text variant="buttonLg" className="text-center text-danger">
-							{t("address.loadErrorTitle")}
+							{t("sheet.loadErrorTitle")}
 						</Text>
 						<Text
 							variant="bodySm"
 							className="mt-stack-xs text-center text-content-muted"
 						>
-							{t("address.loadErrorMessage")}
+							{t("sheet.loadErrorMessage")}
 						</Text>
 					</View>
 				)}
@@ -163,7 +163,7 @@ const AddressBottomSheet = forwardRef<
 							variant="bodySm"
 							className="mb-stack-xs font-semibold text-content-secondary"
 						>
-							{t("address.saved")}
+							{t("sheet.saved")}
 						</Text>
 
 						<FlatList
@@ -183,7 +183,7 @@ const AddressBottomSheet = forwardRef<
 											? () => onDeleteAddress(item.id)
 											: undefined
 									}
-									deleteLabel={t("address.delete")}
+									deleteLabel={t("sheet.delete")}
 								/>
 							)}
 						/>
@@ -195,9 +195,9 @@ const AddressBottomSheet = forwardRef<
 								fullWidth
 								iconLeft={Plus}
 								className="mt-stack-md"
-								accessibilityLabel={t("address.add")}
+								accessibilityLabel={t("sheet.add")}
 							>
-								{t("address.add")}
+								{t("sheet.add")}
 							</Button>
 						) : null}
 					</View>

@@ -189,9 +189,11 @@ const amber: Record<number, HSL> = {
 
 const white = "#ffffff";
 
-// App page background — a soft off-white (#f2f2f2) per product direction.
-// Kept separate from `white` so cards/sheets/on-blue text can stay pure white.
-const appBackground = "#f2f2f2";
+// Default LIGHT theme: soft-gray page canvas (#f5f5f5) with WHITE cards above it.
+const pageGray = "#f5f5f5";
+
+// "WHITE" theme: gray card fill (#f2f2f2) above a pure-white page (inverse model).
+const cardSurface = "#f2f2f2";
 
 // ----------------------------------------------------------------------------
 // Helpers (unchanged behavior; category palette stays multi-hue for data viz)
@@ -295,30 +297,44 @@ function buildTintDark(): ThemeTint {
 // ----------------------------------------------------------------------------
 
 const lightPrimitives: ThemePrimitiveTokens = {
-	background: tok([0, 0, 95]), // #f2f2f2 — soft off-white app background
-	foreground: tok(neutral[900]),
-	card: tok([0, 0, 100]), // cards stay pure white so they lift off the page
-	cardForeground: tok(neutral[900]),
+	// DEFAULT LIGHT (Google-neutral text). Soft-gray page canvas (#f5f5f5) with
+	// WHITE cards above it; wells a touch darker. No card outlines.
+	// The "white" theme below swaps only these surfaces. Revert: COLOR-MIGRATION.md.
+	background: tok([0, 0, 96]), // #f5f5f5 — soft-gray page canvas
+	foreground: tok([0, 0, 6]), // #0f0f0f — Google primary text
+	card: tok([0, 0, 100]), // #ffffff — white cards above the gray page (no outline)
+	cardForeground: tok([0, 0, 6]),
 	popover: tok([0, 0, 100]),
-	popoverForeground: tok(neutral[900]),
-	primary: tok(blue[600]),
+	popoverForeground: tok([0, 0, 6]),
+	primary: tok(blue[600]), // brand True Blue — unchanged
 	primaryForeground: tok([0, 0, 100]),
-	secondary: tok(neutral[100]),
-	secondaryForeground: tok(neutral[800]),
-	muted: tok(neutral[100]),
-	mutedForeground: tok(neutral[500]),
-	accent: tok(neutral[100]),
-	accentForeground: tok(neutral[900]),
+	secondary: tok([0, 0, 93]), // #ececec — inset wells / chips
+	secondaryForeground: tok([0, 0, 6]),
+	muted: tok([0, 0, 93]), // #ececec
+	mutedForeground: tok([0, 0, 38]), // #606060 — secondary text
+	accent: tok([0, 0, 93]), // #ececec
+	accentForeground: tok([0, 0, 6]),
 	destructive: tok(red[600]),
-	border: tok(neutral[200]),
-	input: tok(neutral[200]),
-	ring: tok(blue[500]),
+	border: tok([0, 0, 90]), // #e5e5e5 — hairline
+	input: tok([0, 0, 90]), // #e5e5e5
+	ring: tok(blue[500]), // brand — unchanged
 	radius: "0.625rem",
 	chart1: tok(blue[500]),
 	chart2: tok(teal[500]),
 	chart3: tok(green[500]),
 	chart4: tok(amber[400]),
 	chart5: tok(neutral[500]),
+};
+
+// "WHITE" theme primitives — derived from light; only the surfaces swap to the
+// white-page / gray-card model. Text, brand, borders, charts are all shared.
+const whitePrimitives: ThemePrimitiveTokens = {
+	...lightPrimitives,
+	background: tok([0, 0, 100]), // #ffffff — white page
+	card: tok([0, 0, 95]), // #f2f2f2 — gray cards
+	secondary: tok([0, 0, 91]), // #e8e8e8 — wells (darker than the gray cards)
+	muted: tok([0, 0, 91]),
+	accent: tok([0, 0, 91]),
 };
 
 const darkPrimitives: ThemePrimitiveTokens = {
@@ -376,70 +392,87 @@ const forestPrimitives: ThemePrimitiveTokens = {
 	chart5: "340 75% 55%",
 };
 
+const lightTheme: ThemeTokens = {
+	id: "light",
+	appearance: "light",
+	primary: hex(blue[600]),
+	primaryLight: hex(blue[50]),
+	primaryDark: hex(blue[700]),
+	onPrimaryHeader: white,
+	// GOOGLE-NEUTRAL LIGHT text (de-blued). Revert: themes/COLOR-MIGRATION.md.
+	textPrimary: "#0f0f0f",
+	textSecondary: "#606060",
+	textMuted: "#909090",
+	textContrast: "#0f0f0f",
+	textCalendar: "#0f0f0f",
+	borderDefault: "#e5e5e5",
+	borderChip: "#e5e5e5",
+	success: hex(green[600]),
+	successAlt: hex(green[500]), // alias of success
+	danger: hex(red[500]),
+	dangerLight: hex(red[50]),
+	dangerSoft: hex(red[100]),
+	warning: hex(amber[500]), // functional
+	warningLight: hex(amber[100]),
+	surfaceBase: pageGray, // #f5f5f5 — soft-gray page canvas
+	surfaceElevated: white, // #ffffff — white cards (no outline)
+	surfaceMuted: "#ececec", // wells / chips / muted rows
+	surfaceOnPrimary: white,
+	ratingDefault: hex(amber[400]), // functional (stars)
+	ratingLight: hex(amber[200]),
+	statusAvailable: hex(green[100]),
+	statusOnline: hex(green[500]),
+	statusUnavailable: hex(amber[500]), // functional
+	statusUnavailableBg: hex(amber[100]),
+	orderBg: hex(blue[50]),
+	orderText: hex(blue[700]),
+	accentCyan: hex(teal[500]),
+	accentPurple: hex(teal[600]), // alias (purple removed)
+	accentSky: hex(sky[500]), // Walmart Everyday Blue
+	roleUser: hex(blue[100]),
+	roleTech: hex(blue[600]),
+	roleAccent: hex(blue[500]),
+	roleLabel: hex(blue[800]),
+	overlayWhite: "rgba(255,255,255,0.18)",
+	overlayMd: "rgba(255,255,255,0.2)",
+	overlaySm: "rgba(255,255,255,0.15)",
+	overlaySub: "rgba(255,255,255,0.55)",
+	overlayDim: "rgba(255,255,255,0.4)",
+	overlayBright: "rgba(255,255,255,0.7)",
+	backdrop: "rgba(0,0,0,0.45)",
+	gradientStart: hex(blue[50]),
+	gradientMid: hex(blue[100]),
+	gradientEnd: hex(blue[50]),
+	gradientRoleStart: hex(blue[50]),
+	gradientRoleMid: hex(blue[100]),
+	gradientRoleEnd: hex(blue[50]),
+	shadow: "#000000",
+	disabledText: "#c4c4c4",
+	socialIcon: "#606060",
+	category: buildCategoryTokens(),
+	primitives: lightPrimitives,
+	navigation: createNavigationTokens(lightPrimitives),
+	tint: buildTintLight(),
+	statusBarStyle: "dark",
+	androidNavigationBarStyle: "light",
+};
+
+// "WHITE" theme — white page + gray (#f2f2f2) cards. Spreads the default light
+// theme and overrides ONLY the surface tokens (this is the single source: the two
+// light themes differ by ~6 values, nothing else).
+const whiteTheme: ThemeTokens = {
+	...lightTheme,
+	id: "white",
+	surfaceBase: white, // #ffffff — white page
+	surfaceElevated: cardSurface, // #f2f2f2 — gray cards
+	surfaceMuted: "#e8e8e8", // wells
+	primitives: whitePrimitives,
+	navigation: createNavigationTokens(whitePrimitives),
+};
+
 export const themeRegistry: Record<ThemeId, ThemeTokens> = {
-	light: {
-		id: "light",
-		appearance: "light",
-		primary: hex(blue[600]),
-		primaryLight: hex(blue[50]),
-		primaryDark: hex(blue[700]),
-		onPrimaryHeader: white,
-		textPrimary: hex(neutral[900]),
-		textSecondary: hex(neutral[600]),
-		textMuted: hex(neutral[500]), // now genuinely distinct from textSecondary
-		textContrast: hex(neutral[950]),
-		textCalendar: hex(neutral[900]),
-		borderDefault: hex(neutral[200]),
-		borderChip: hex(blue[100]),
-		success: hex(green[600]),
-		successAlt: hex(green[500]), // alias of success
-		danger: hex(red[500]),
-		dangerLight: hex(red[50]),
-		dangerSoft: hex(red[100]),
-		warning: hex(amber[500]), // functional
-		warningLight: hex(amber[100]),
-		surfaceBase: appBackground, // #f2f2f2 — app/page background
-		surfaceElevated: hex(neutral[50]),
-		surfaceMuted: hex(neutral[100]), // FIX: was slate-500 (a dark value used as a surface)
-		surfaceOnPrimary: white,
-		ratingDefault: hex(amber[400]), // functional (stars)
-		ratingLight: hex(amber[200]),
-		statusAvailable: hex(green[100]),
-		statusOnline: hex(green[500]),
-		statusUnavailable: hex(amber[500]), // functional
-		statusUnavailableBg: hex(amber[100]),
-		orderBg: hex(blue[50]),
-		orderText: hex(blue[700]),
-		accentCyan: hex(teal[500]),
-		accentPurple: hex(teal[600]), // alias (purple removed)
-		accentSky: hex(sky[500]), // Walmart Everyday Blue
-		roleUser: hex(blue[100]),
-		roleTech: hex(blue[600]),
-		roleAccent: hex(blue[500]),
-		roleLabel: hex(blue[800]),
-		overlayWhite: "rgba(255,255,255,0.18)",
-		overlayMd: "rgba(255,255,255,0.2)",
-		overlaySm: "rgba(255,255,255,0.15)",
-		overlaySub: "rgba(255,255,255,0.55)",
-		overlayDim: "rgba(255,255,255,0.4)",
-		overlayBright: "rgba(255,255,255,0.7)",
-		backdrop: "rgba(0,0,0,0.45)",
-		gradientStart: hex(blue[50]),
-		gradientMid: hex(blue[100]),
-		gradientEnd: hex(blue[50]),
-		gradientRoleStart: hex(blue[50]),
-		gradientRoleMid: hex(blue[100]),
-		gradientRoleEnd: hex(blue[50]),
-		shadow: "#000000",
-		disabledText: hex(neutral[400]),
-		socialIcon: hex(neutral[600]),
-		category: buildCategoryTokens(),
-		primitives: lightPrimitives,
-		navigation: createNavigationTokens(lightPrimitives),
-		tint: buildTintLight(),
-		statusBarStyle: "dark",
-		androidNavigationBarStyle: "light",
-	},
+	light: lightTheme,
+	white: whiteTheme,
 	dark: {
 		id: "dark",
 		appearance: "dark",

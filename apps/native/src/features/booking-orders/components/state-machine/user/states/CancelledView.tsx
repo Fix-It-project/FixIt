@@ -1,5 +1,6 @@
 import { XCircle } from "lucide-react-native";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function CancelledView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const reason = order.cancellation_reason?.trim();
@@ -26,9 +28,9 @@ export default function CancelledView({ order }: Props) {
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={XCircle}
-				eyebrow="Closed"
-				title="Order cancelled."
-				subtitle="No further action needed."
+				eyebrow={t("detail.stage.cancelled.eyebrow")}
+				title={t("detail.stage.cancelled.title")}
+				subtitle={t("detail.stage.cancelled.subtitle")}
 				accentColor={themeColors.danger}
 			/>
 
@@ -42,7 +44,7 @@ export default function CancelledView({ order }: Props) {
 					}}
 				>
 					<Text variant="caption" style={{ color: themeColors.danger }}>
-						Reason
+						{t("detail.cancelled.reason")}
 					</Text>
 					<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
 						{reason}

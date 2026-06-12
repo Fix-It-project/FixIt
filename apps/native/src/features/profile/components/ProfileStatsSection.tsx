@@ -1,4 +1,5 @@
 import { BadgeCheck, CalendarDays, type LucideIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -52,6 +53,7 @@ export default function ProfileStatsSection({
 	bookings,
 	completed,
 }: ProfileStatsSectionProps) {
+	const { t } = useTranslation("profile");
 	return (
 		<View
 			className="flex-row gap-stack-md px-screen-x"
@@ -61,13 +63,13 @@ export default function ProfileStatsSection({
 				icon={CalendarDays}
 				iconBg={Colors.accentCyan}
 				count={bookings}
-				label="Bookings"
+				label={t("stats.bookings")}
 			/>
 			<StatsCard
 				icon={BadgeCheck}
 				iconBg={Colors.accentPurple}
 				count={completed}
-				label="Completed"
+				label={t("stats.completed")}
 			/>
 		</View>
 	);

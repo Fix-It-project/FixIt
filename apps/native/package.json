@@ -1,6 +1,6 @@
 {
 	"name": "native",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"private": true,
 	"main": "expo-router/entry",
 	"scripts": {
@@ -29,6 +29,10 @@
 		"@expo-google-fonts/google-sans": "^0.4.0",
 		"@expo/metro-runtime": "^56.0.13",
 		"@expo/ui": "~56.0.14",
+		"@formatjs/intl-getcanonicallocales": "^3.2.10",
+		"@formatjs/intl-locale": "^5.3.9",
+		"@formatjs/intl-pluralrules": "^6.3.10",
+		"@formatjs/intl-relativetimeformat": "^12.3.10",
 		"@gorhom/bottom-sheet": "^5.2.8",
 		"@react-native-async-storage/async-storage": "^2.2.0",
 		"@rn-primitives/alert-dialog": "^1.4.0",

@@ -1,5 +1,6 @@
 import { Search } from "lucide-react-native";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -18,15 +19,16 @@ interface Props {
 }
 
 export default function ArrivedInspectingView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={Search}
-				eyebrow="On site"
-				title="Inspection in progress."
-				subtitle="A fair quote arrives once the scope is clear."
+				eyebrow={t("detail.stage.arrived.eyebrow")}
+				title={t("detail.stage.arrived.title")}
+				subtitle={t("detail.stage.arrived.subtitle")}
 			/>
 			<View
 				style={{
@@ -44,7 +46,7 @@ export default function ArrivedInspectingView({ order }: Props) {
 					className="font-google-sans-bold"
 					style={{ color: themeColors.primary, flex: 1 }}
 				>
-					Inspecting your problem…
+					{t("detail.arrived.inspecting")}
 				</Text>
 			</View>
 			<OrderInfoCompact

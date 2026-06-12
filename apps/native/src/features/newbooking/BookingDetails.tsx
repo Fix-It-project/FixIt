@@ -3,11 +3,13 @@ import {
 	CalendarClock,
 	type LucideIcon,
 	MapPin,
-	Wallet,
+	Star,
 	Wrench,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, {
 	FadeInDown,
 	useReducedMotion,
@@ -16,7 +18,6 @@ import Toast from "react-native-toast-message";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { Button } from "@/src/components/ui/button";
-import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_SLIDE_UP,
@@ -30,16 +31,19 @@ import {
 	useInspectionFeePreview,
 } from "@/src/features/booking-orders/hooks";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
-import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpers";
 import {
 	BOOKING_SLOT_OPTIONS,
 	type BookingSlotHour,
 	buildCairoSlotIsoUtc,
 } from "@/src/features/booking-orders/utils/fixed-slots";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import { translateServiceName } from "@/src/features/categories/constants/categories";
+import TechnicianAvatar from "@/src/features/technicians/components/user/TechnicianAvatar";
+import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { showError } from "@/src/lib/errors";
 import { formatAddress } from "@/src/lib/helpers/format-address";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import {
 	type AttachmentInfo,
@@ -55,27 +59,33 @@ interface SummaryRowProps {
 	readonly icon: LucideIcon;
 	readonly label: string;
 	readonly value: string;
+	readonly valueLines?: number;
 }
 
-function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
+function SummaryRow({
+	icon: Icon,
+	label,
+	value,
+	valueLines = 2,
+}: SummaryRowProps) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="flex-row items-start gap-stack-md">
-			<View className="h-control-icon-box-sm w-control-icon-box-sm items-center justify-center rounded-input bg-surface-elevated">
+		<View className="flex-row items-start gap-stack-md py-stack-xs">
+			<View className="mt-px h-control-icon-box-sm w-control-icon-box-sm items-center justify-center">
 				<Icon
 					size={spacing.icon.sm}
-					color={themeColors.textSecondary}
+					color={themeColors.primary}
 					strokeWidth={2}
 				/>
 			</View>
 			<View className="min-w-0 flex-1">
-				<Text variant="caption" className="text-content-muted">
+				<Text variant="buttonMd" className="font-semibold text-content">
 					{label}
 				</Text>
 				<Text
-					variant="buttonMd"
-					className="mt-stack-xs text-content"
-					numberOfLines={2}
+					variant="bodySm"
+					className="mt-px text-content"
+					numberOfLines={valueLines}
 				>
 					{value}
 				</Text>
@@ -84,7 +94,26 @@ function SummaryRow({ icon: Icon, label, value }: SummaryRowProps) {
 	);
 }
 
+function formatRating(value: number | null | undefined): string {
+	if (typeof value !== "number" || Number.isNaN(value)) return "";
+	return value.toFixed(1);
+}
+
+function formatDateLabel(value: string, language?: string): string {
+	if (!value) return "";
+	const parsed = new Date(`${value}T00:00:00`);
+	if (Number.isNaN(parsed.getTime())) return value;
+	return parsed.toLocaleDateString(getDateLocale(language), {
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+}
+
 export default function BookingDetails() {
+	const { t, i18n } = useTranslation("booking");
+	const { t: tc } = useTranslation("categories");
+	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const params = useLocalSearchParams<{
 		technicianId: string | string[];
@@ -98,8 +127,13 @@ export default function BookingDetails() {
 	}>();
 
 	const technicianId = getStringParam(params.technicianId);
+	const technicianNameParam = getStringParam(params.technicianName);
 	const serviceId = getStringParam(params.serviceId);
-	const serviceName = getStringParam(params.serviceName);
+	const serviceName = translateServiceName(
+		tc,
+		serviceId,
+		getStringParam(params.serviceName),
+	);
 	const selectedDate = getStringParam(params.selectedDate);
 	const selectedHourRaw = getStringParam(params.selectedHour);
 	const selectedHour = selectedHourRaw ? Number(selectedHourRaw) : null;
@@ -112,6 +146,9 @@ export default function BookingDetails() {
 		isError: isAddressError,
 		isLoading: isLoadingAddresses,
 	} = useAddressesQuery();
+	const { data: technicianProfile } = useTechnicianProfileQuery(
+		technicianId || null,
+	);
 	const { mutateAsync: createBooking, isPending } = useCreateBookingMutation();
 
 	const selectedAddress =
@@ -126,30 +163,24 @@ export default function BookingDetails() {
 			"",
 		[selectedHour],
 	);
+	const technicianName =
+		technicianProfile?.name || technicianNameParam || t("technicianFallback");
+	const technicianDescription =
+		technicianProfile?.description || t("technicianDescriptionFallback");
+	const technicianRating = formatRating(technicianProfile?.avg_rating);
+	const reviewCount = technicianProfile?.review_count ?? 0;
+	const completedOrders = technicianProfile?.completedOrders ?? 0;
 	const appointmentLabel =
 		selectedDate && selectedTimeLabel
-			? `${selectedDate} at ${selectedTimeLabel}`
-			: "No date and time selected";
+			? t("appointmentAt", {
+					date: formatDateLabel(selectedDate, i18n.language),
+					time: selectedTimeLabel,
+				})
+			: t("noDateTimeSelected");
 	const addressLabel = isLoadingAddresses
-		? "Loading location"
+		? t("loadingLocation")
 		: formatAddress(selectedAddress);
-	const inspectionFeeLabel = useMemo(() => {
-		if (isLoadingAddresses) return "Loading location";
-		if (!selectedAddress) return "Add a location to preview the fee";
-		if (inspectionFeeQuery.isLoading) return "Calculating from distance";
-		if (inspectionFeeQuery.isError) {
-			return translateOrderError(inspectionFeeQuery.error);
-		}
-		if (!inspectionFeeQuery.data) return "Calculating from distance";
-		return `${formatCurrency(inspectionFeeQuery.data.inspection_fee)} · based on ${inspectionFeeQuery.data.inspection_distance_km.toFixed(1)} km`;
-	}, [
-		inspectionFeeQuery.data,
-		inspectionFeeQuery.error,
-		inspectionFeeQuery.isError,
-		inspectionFeeQuery.isLoading,
-		isLoadingAddresses,
-		selectedAddress,
-	]);
+	const initials = getPfpInitialsFallback(technicianName);
 
 	const fallbackRoute = ROUTES.user.bookingRoot(technicianId);
 	const goBack = useSafeBack(fallbackRoute);
@@ -179,15 +210,15 @@ export default function BookingDetails() {
 			selectedHour === null ||
 			Number.isNaN(selectedHour)
 		) {
-			Toast.show({ type: "info", text1: "Pick a date and time first." });
+			Toast.show({ type: "info", text1: t("toast.pickDateTime") });
 			return;
 		}
 		if (isAddressError) {
-			Toast.show({ type: "info", text1: "Unable to load your location." });
+			Toast.show({ type: "info", text1: t("toast.locationError") });
 			return;
 		}
 		if (!selectedAddress) {
-			Toast.show({ type: "info", text1: "Add a location before booking." });
+			Toast.show({ type: "info", text1: t("toast.addLocation") });
 			return;
 		}
 
@@ -220,79 +251,119 @@ export default function BookingDetails() {
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
-			<KeyboardAvoidingView
-				className="flex-1"
-				behavior={Platform.OS === "ios" ? "padding" : undefined}
-			>
-				<View className="flex-1 bg-surface">
-					<PageHeader
-						title="Booking Details"
-						subtitle={serviceName || undefined}
-						variant="app-primary"
-						onBackPress={goBack}
-					/>
+			<View className="flex-1 bg-surface">
+				<PageHeader
+					title={t("detailsTitle")}
+					subtitle={serviceName || undefined}
+					variant="app-primary"
+					onBackPress={goBack}
+				/>
 
-					<ScrollView
-						className="flex-1"
-						contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-						keyboardShouldPersistTaps="handled"
-						showsVerticalScrollIndicator={false}
+				<KeyboardAwareScrollView
+					className="flex-1"
+					contentContainerStyle={{ padding: 20, paddingBottom: 20 }}
+					keyboardShouldPersistTaps="handled"
+					keyboardDismissMode="interactive"
+					showsVerticalScrollIndicator={false}
+					bottomOffset={spacing.stack.xl}
+				>
+					<Animated.View
+						entering={entering(0)}
+						className="mb-card flex-row items-center gap-stack-md border-edge border-b pb-card"
 					>
-						<Animated.View
-							entering={entering(0)}
-							className="mb-card gap-stack-md rounded-card border border-edge bg-card p-card-compact"
-						>
-							<Text variant="buttonMd" className="font-semibold text-content">
-								Booking summary
+						<TechnicianAvatar
+							id={technicianId || technicianName}
+							initials={initials}
+							imageUrl={technicianProfile?.profilePicture}
+							size="lg"
+						/>
+						<View className="min-w-0 flex-1">
+							<View className="flex-row items-center">
+								<Text
+									variant="buttonLg"
+									className="font-semibold text-content"
+									numberOfLines={1}
+								>
+									{technicianName}
+								</Text>
+								<View className="ml-stack-sm flex-row items-center gap-stack-xs">
+									<Star
+										size={spacing.icon.xs}
+										color={themeColors.ratingDefault}
+										fill={themeColors.ratingDefault}
+									/>
+									<Text
+										variant="caption"
+										className="font-semibold text-content"
+									>
+										{technicianRating || t("ratingNew")}
+									</Text>
+									<Text variant="caption" className="text-content-muted">
+										({reviewCount})
+									</Text>
+								</View>
+							</View>
+							<Text
+								variant="bodySm"
+								className="mt-stack-xs text-content-muted"
+								numberOfLines={2}
+							>
+								{technicianDescription}
 							</Text>
-							<SummaryRow
-								icon={Wrench}
-								label="Service"
-								value={serviceName || "Service not selected"}
-							/>
-							<Separator />
-							<SummaryRow
-								icon={CalendarClock}
-								label="Appointment"
-								value={appointmentLabel}
-							/>
-							<Separator />
-							<SummaryRow icon={MapPin} label="Location" value={addressLabel} />
-							<Separator />
-							<SummaryRow
-								icon={Wallet}
-								label="Inspection fee"
-								value={inspectionFeeLabel}
-							/>
-						</Animated.View>
-
-						<Animated.View entering={entering(1)}>
-							<BookingProblemCard
-								description={description}
-								onDescriptionChange={setDescription}
-								attachment={attachment}
-								onAttachmentChange={setAttachment}
-							/>
-						</Animated.View>
-					</ScrollView>
+							<Text
+								variant="caption"
+								className="mt-stack-xs text-content-muted"
+							>
+								{t("completedJobs", { count: completedOrders })}
+							</Text>
+						</View>
+					</Animated.View>
 
 					<Animated.View
-						entering={entering(2)}
-						className="px-card pt-stack-md pb-stack-lg"
+						entering={entering(1)}
+						className="mb-card gap-stack-sm"
 					>
-						<Button
-							disabled={!canConfirm}
-							onPress={handleConfirm}
-							className="w-full"
-							testID="confirm-booking"
-						>
-							<Text variant="buttonLg" className="text-surface-on-primary">
-								{isPending ? "Booking..." : "Confirm Booking"}
-							</Text>
-						</Button>
+						<SummaryRow
+							icon={Wrench}
+							label={t("service")}
+							value={serviceName || t("serviceNotSelected")}
+						/>
+						<SummaryRow
+							icon={CalendarClock}
+							label={t("schedule")}
+							value={appointmentLabel}
+						/>
+						<SummaryRow
+							icon={MapPin}
+							label={t("location")}
+							value={addressLabel}
+							valueLines={3}
+						/>
 					</Animated.View>
-				</View>
-			</KeyboardAvoidingView>
+
+					<Animated.View entering={entering(2)}>
+						<BookingProblemCard
+							description={description}
+							onDescriptionChange={setDescription}
+							attachment={attachment}
+							onAttachmentChange={setAttachment}
+						/>
+					</Animated.View>
+				</KeyboardAwareScrollView>
+
+				<Animated.View entering={entering(3)} className="px-card pb-stack-lg">
+					<Button
+						disabled={!canConfirm}
+						onPress={handleConfirm}
+						className="w-full rounded-button"
+						testID="confirm-booking"
+					>
+						<Text variant="buttonLg" className="text-surface-on-primary">
+							{isPending ? t("confirming") : t("confirm")}
+						</Text>
+					</Button>
+				</Animated.View>
+			</View>
 		</ScreenSafeAreaView>
 	);
 }

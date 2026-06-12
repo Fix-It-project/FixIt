@@ -20,6 +20,7 @@ export default function SettingsContent({
 	onHelpPress,
 }: SettingsContentProps) {
 	const { t } = useTranslation("common");
+	const { t: ts } = useTranslation("settings");
 
 	return (
 		<ScrollView
@@ -52,19 +53,19 @@ export default function SettingsContent({
 			>
 				<SettingsItem
 					icon={Bell}
-					label="Notifications"
+					label={ts("menu.notifications")}
 					onPress={onNotificationsPress}
 				/>
 				<Separator />
 				<SettingsItem
 					icon={Shield}
-					label="Privacy & Security"
+					label={ts("menu.privacy")}
 					onPress={onPrivacyPress}
 				/>
 				<Separator />
 				<SettingsItem
 					icon={CircleHelp}
-					label="Help & Support"
+					label={ts("menu.help")}
 					onPress={onHelpPress}
 				/>
 			</View>

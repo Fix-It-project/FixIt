@@ -1,0 +1,56 @@
+# Full user signup. Tagged `creates-data` because it registers a real account,
+# so it is excluded from the default suite (see config.yaml). Run explicitly:
+#   maestro test .maestro/auth/signup.yaml
+#
+# A fresh email is generated each run to avoid duplicate-account collisions.
+# Location permission is auto-granted (signup requests it on mount to capture
+# coordinates for the new address).
+appId: com.anonymous.fixitapp
+tags:
+  - creates-data
+---
+- runScript:
+    script: |
+      output.email = "e2e_" + Date.now() + "@fixit.dev"
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- openLink: "fixitapp:///signup"
+- assertVisible:
+    id: "signup-fullname-input"
+    timeout: 15000
+- tapOn:
+    id: "signup-fullname-input"
+- inputText: "E2E Test User"
+- hideKeyboard
+- tapOn:
+    id: "signup-email-input"
+- inputText: "${output.email}"
+- hideKeyboard
+- tapOn:
+    id: "signup-phone-input"
+- inputText: "01000000000"
+- hideKeyboard
+- tapOn:
+    id: "signup-password-input"
+- inputText: "Password123!"
+- hideKeyboard
+- tapOn:
+    id: "signup-confirm-password-input"
+- inputText: "Password123!"
+- hideKeyboard
+- tapOn:
+    id: "signup-city-input"
+- inputText: "Cairo"
+- hideKeyboard
+- tapOn:
+    id: "signup-street-input"
+- inputText: "Tahrir Street"
+- hideKeyboard
+- tapOn:
+    id: "signup-submit"
+# On success the app authenticates and routes to the user home.
+- assertVisible:
+    id: "user-home"
+    timeout: 25000

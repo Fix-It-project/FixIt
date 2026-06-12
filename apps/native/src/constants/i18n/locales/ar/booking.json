@@ -1,0 +1,42 @@
+{
+	"title": "التاريخ والوقت",
+	"dateLabel": "التاريخ",
+	"timeLabel": "الوقت",
+	"continue": "متابعة",
+	"detailsTitle": "تفاصيل الحجز",
+	"technicianFallback": "فنّي",
+	"technicianDescriptionFallback": "فني خدمات منزلية محترف",
+	"ratingNew": "جديد",
+	"completedJobs": "{{count}} مهمة مكتملة",
+	"appointmentAt": "{{date}} الساعة {{time}}",
+	"noDateTimeSelected": "لم يتم اختيار تاريخ ووقت",
+	"loadingLocation": "جارٍ تحميل الموقع",
+	"service": "الخدمة",
+	"serviceNotSelected": "لم يتم اختيار خدمة",
+	"schedule": "الموعد",
+	"location": "الموقع",
+	"confirm": "تأكيد الحجز",
+	"confirming": "جارٍ الحجز...",
+	"toast": {
+		"pickDateTime": "اختر التاريخ والوقت أولاً.",
+		"locationError": "تعذّر تحميل موقعك.",
+		"addLocation": "أضف موقعاً قبل الحجز."
+	},
+	"problem": {
+		"noteTitle": "ملاحظة للفنّي",
+		"optional": "اختياري",
+		"notePlaceholder": "أضف تفاصيل محددة عن المشكلة أو تعليمات الوصول...",
+		"attachTitle": "إرفاق صور",
+		"attachHint": "ساعد الفنّي على الاستعداد بعرض المشكلة بوضوح.",
+		"removePhoto": "إزالة الصورة",
+		"takePhoto": "التقاط صورة",
+		"uploadPhoto": "رفع صورة",
+		"upload": "رفع"
+	},
+	"slots": {
+		"pickDate": "اختر تاريخاً لعرض الأوقات المتاحة.",
+		"dayUnavailable": "لا توجد أوقات متاحة في هذا اليوم. يرجى اختيار تاريخ آخر.",
+		"morning": "صباحاً",
+		"afternoon": "مساءً"
+	}
+}

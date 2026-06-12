@@ -97,6 +97,20 @@ const config: Config = {
 				"accent-cyan": "var(--accent-cyan)",
 				"accent-purple": "var(--accent-purple)",
 				"accent-sky": "var(--accent-sky)",
+				// Tonal-blue tint ramp — feature surfaces (hero/offer/info/chip).
+				tint: {
+					"hero-start": "var(--tint-hero-start)",
+					"hero-mid": "var(--tint-hero-mid)",
+					"hero-end": "var(--tint-hero-end)",
+					"on-hero": "var(--tint-on-hero)",
+					"surface-strong": "var(--tint-surface-strong)",
+					"on-strong": "var(--tint-on-strong)",
+					"surface-soft": "var(--tint-surface-soft)",
+					"on-soft": "var(--tint-on-soft)",
+					"surface-faint": "var(--tint-surface-faint)",
+					chip: "var(--tint-chip)",
+					"on-chip": "var(--tint-on-chip)",
+				},
 				role: {
 					user: "var(--role-user)",
 					tech: "var(--role-tech)",

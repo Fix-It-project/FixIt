@@ -1,0 +1,316 @@
+{
+	"status": {
+		"base": {
+			"pending": "قيد الانتظار",
+			"accepted": "مقبول",
+			"tracking": "في الطريق",
+			"arrived_inspection": "جارٍ الفحص",
+			"awaiting_final_cost": "بانتظار التسعير",
+			"negotiating": "التفاوض على السعر",
+			"in_progress": "جارٍ الفحص",
+			"awaiting_payment": "بانتظار الدفع",
+			"completed": "مكتمل",
+			"declined_by_technician": "رفضه الفني",
+			"cancelled_no_fee": "ملغى",
+			"cancelled_with_fee": "ملغى (مع رسوم)",
+			"rejected": "مرفوض",
+			"cancelled": "ملغى",
+			"cancelled_by_user": "ألغاه المستخدم",
+			"cancelled_by_technician": "ألغاه الفني",
+			"reschedule_requested_by_user": "طلب المستخدم إعادة الجدولة",
+			"reschedule_requested_by_technician": "طلب الفني إعادة الجدولة"
+		},
+		"user": {
+			"pending": "بانتظار قبول الفني",
+			"accepted": "قبله الفني",
+			"tracking": "الفني في الطريق",
+			"arrived_inspection": "الفني يقوم بالفحص",
+			"awaiting_final_cost": "مراجعة السعر النهائي",
+			"negotiating": "التفاوض على السعر النهائي",
+			"in_progress": "الفني يقوم بالفحص",
+			"awaiting_payment": "سلّم المبلغ النقدي وأكّد",
+			"declined_by_technician": "رفضه الفني",
+			"cancelled_no_fee": "ملغى",
+			"cancelled_with_fee": "ملغى (مع رسوم)",
+			"rejected": "رفضه الفني",
+			"cancelled_by_user": "ألغيته أنت",
+			"reschedule_requested_by_user": "طلبت إعادة الجدولة"
+		},
+		"technician": {
+			"pending": "طلب جديد — اقبل أو ارفض",
+			"accepted": "قبلت — ابدأ التتبع",
+			"tracking": "في الطريق إلى العميل",
+			"arrived_inspection": "الفحص في الموقع",
+			"awaiting_final_cost": "أرسل السعر النهائي",
+			"negotiating": "جولة تسعير جارية",
+			"in_progress": "الفحص في الموقع",
+			"awaiting_payment": "بانتظار الدفع من العميل",
+			"declined_by_technician": "رفضته أنت",
+			"cancelled_no_fee": "ملغى",
+			"cancelled_with_fee": "ملغى (مع رسوم)",
+			"cancelled_by_user": "ألغاه العميل",
+			"cancelled_by_technician": "ألغيته أنت",
+			"reschedule_requested_by_user": "طلب العميل إعادة الجدولة",
+			"reschedule_requested_by_technician": "طلبت إعادة الجدولة"
+		}
+	},
+	"card": {
+		"technicianFallback": "فني",
+		"customerFallback": "العميل",
+		"serviceFallback": "خدمة",
+		"viewDetails": "عرض التفاصيل",
+		"reorder": "إعادة الطلب",
+		"previousOrders": "الطلبات السابقة"
+	},
+	"list": {
+		"title": "طلباتي",
+		"emptyTitle": "لا توجد طلبات بعد",
+		"emptyBody": "ستظهر حجوزاتك هنا بمجرد حجز فني.",
+		"leaveReview": "أضف تقييماً",
+		"leaveReviewA11y": "أضف تقييماً لـ {{name}}",
+		"pastTitle": "الطلبات السابقة",
+		"pastEmpty": "لا توجد طلبات سابقة بعد"
+	},
+	"detail": {
+		"orderTitle": "الطلب",
+		"placed": {
+			"title": "تم إرسال الطلب.",
+			"subtitle": "أبلغنا الفني. ستصلك رسالة عند قبوله.",
+			"viewDetails": "عرض تفاصيل الطلب",
+			"backHome": "العودة للرئيسية"
+		},
+		"toast": {
+			"cancelled": "تم إلغاء الطلب",
+			"cancelFailed": "تعذّر إلغاء الطلب",
+			"couldNotConfirm": "تعذّر التأكيد",
+			"couldNotDecline": "تعذّر الرفض"
+		},
+		"a11y": {
+			"cancelOrder": "إلغاء الطلب",
+			"rescheduleOrder": "إعادة جدولة الطلب",
+			"done": "تم",
+			"openInfo": "افتح معلومات {{name}}",
+			"call": "اتصل بـ {{phone}}"
+		},
+		"info": {
+			"service": "الخدمة",
+			"scheduled": "الموعد",
+			"flexible": "مرن"
+		},
+		"eta": {
+			"locating": "جارٍ تحديد موقع الفني…",
+			"arrivingNow": "يصل الآن",
+			"arrivesIn": "يصل خلال ~{{n}} دقيقة"
+		},
+		"cancelModal": {
+			"title": "إلغاء الطلب",
+			"subjectFallback": "هذا الفني",
+			"subjectFallbackCustomer": "هذا العميل",
+			"body": "هل أنت متأكد من إلغاء {{role}} مع {{name}}؟",
+			"reasonPlaceholder": "السبب (اختياري)",
+			"keep": "الإبقاء عليه",
+			"confirm": "إلغاء",
+			"role": {
+				"order": "الطلب",
+				"booking": "الحجز"
+			}
+		},
+		"stage": {
+			"pending": {
+				"eyebrow": "تم إرسال الطلب",
+				"title": "بانتظار الفني.",
+				"subtitle": "عادةً أقل من 30 دقيقة. ستصلك رسالة فور قبوله."
+			},
+			"accepted": {
+				"eyebrow": "مؤكد",
+				"title": "قبل الفني الطلب.",
+				"subtitle": "يظهر الوقت المتوقع للوصول فور تحرّكه."
+			},
+			"tracking": {
+				"eyebrow": "في الطريق",
+				"title": "في طريقه إليك.",
+				"subtitle": "تابع الوقت المتوقع. الفني يتجه إليك."
+			},
+			"inProgress": {
+				"eyebrow": "قيد التنفيذ",
+				"title": "الفني يصلح المشكلة.",
+				"subtitle": "اضغط إنهاء عند اكتمال العمل. يجب أن يوافق الفني."
+			},
+			"completed": {
+				"eyebrow": "تم",
+				"title": "اكتمل كل شيء.",
+				"subtitle": "شكراً لاستخدامك FixIt."
+			},
+			"quote": {
+				"eyebrow": "عرض السعر",
+				"title": "اتفق على سعر عادل.",
+				"subtitle": "3 جولات كحد أقصى. قدّم عرضاً مضاداً أو اقبل أو ألغِ."
+			},
+			"arrived": {
+				"eyebrow": "في الموقع",
+				"title": "الفحص جارٍ.",
+				"subtitle": "يصل عرض سعر عادل بمجرد وضوح نطاق العمل."
+			},
+			"cancelled": {
+				"eyebrow": "مغلق",
+				"title": "تم إلغاء الطلب.",
+				"subtitle": "لا حاجة لأي إجراء آخر."
+			}
+		},
+		"cta": {
+			"waitingForTechnician": "بانتظار الفني",
+			"pendingReschedule": "قم بحل طلب إعادة الجدولة المعلّق قبل طلب آخر.",
+			"liveTracking": "تتبّع مباشر",
+			"markWorkComplete": "تأكيد اكتمال العمل",
+			"done": "تم",
+			"reschedule": "إعادة الجدولة",
+			"requestPending": "الطلب معلّق"
+		},
+		"distance": {
+			"km": "{{n}} كم",
+			"min": "{{n}} دقيقة",
+			"eta": "الوصول {{eta}}",
+			"live": "مباشر"
+		},
+		"completed": {
+			"finalPrice": "السعر النهائي",
+			"currency": "ج.م"
+		},
+		"arrived": {
+			"inspecting": "جارٍ فحص مشكلتك…"
+		},
+		"cancelled": {
+			"reason": "السبب"
+		},
+		"completion": {
+			"waitingTitle": "بانتظار التأكيد",
+			"markedTitle": "أكمل {{actor}} المهمة",
+			"waitingBody": "انتظر بينما يؤكد {{actor}} اكتمال العمل.",
+			"confirmBody": "أكّد فقط إذا اكتمل العمل فعلاً — وإلا فاضغط رفض.",
+			"seconds": "{{n}} ث",
+			"cancelRequest": "إلغاء طلبي",
+			"confirmComplete": "تأكيد الاكتمال",
+			"decline": "رفض",
+			"declineTitle": "رفض الاكتمال؟",
+			"declineBody": "سيُلغى طلب الاكتمال للطرف الآخر. يمكنه الطلب مجدداً.",
+			"keepRequest": "الإبقاء على الطلب"
+		},
+		"quote": {
+			"you": "أنت",
+			"round": "الجولة {{n}}",
+			"final": "نهائي",
+			"currency": "ج.م",
+			"waitingTechnician": "بانتظار الفني…",
+			"waitingCustomer": "بانتظار العميل…",
+			"negotiation": "التفاوض · الجولة {{n}}/{{max}}",
+			"emptyTech": "اضغط «اعرض سعراً» لإرسال أول عرض.",
+			"emptyUser": "بانتظار إرسال الفني للسعر.",
+			"toastSubmitFailed": "فشل الإرسال",
+			"toastAcceptFailed": "فشل القبول",
+			"toastCancelFailed": "فشل الإلغاء",
+			"cancelReasonDefault": "انتهى التفاوض",
+			"sheetTitleInitial": "أرسل عرضك",
+			"sheetTitleCounterTech": "قدّم عرضاً مضاداً للعميل",
+			"sheetTitleCounterUser": "اقترح سعراً مختلفاً",
+			"sheetSubtitleInitial": "اكتمل الفحص — اقترح سعراً عادلاً.",
+			"roundsLeftOne": "بقيت {{n}} جولة قبل الإقفال.",
+			"roundsLeftOther": "بقيت {{n}} جولات قبل الإقفال.",
+			"ctaSendQuote": "إرسال العرض",
+			"ctaSendCounter": "إرسال العرض المضاد",
+			"offerPrice": "اعرض سعراً",
+			"accept": "قبول",
+			"acceptAmount": "قبول {{amount}}",
+			"suggestAnother": "اقترح سعراً آخر",
+			"offer": {
+				"invalidTitle": "مبلغ غير صالح",
+				"invalidBody": "أدخل رقماً صحيحاً موجباً.",
+				"sameTitle": "نفس المبلغ",
+				"sameBody": "يجب أن يختلف عرضك عن السابق.",
+				"amountPlaceholder": "المبلغ ({{currency}})",
+				"lastOffer": "آخر عرض: {{amount}}",
+				"notePlaceholder": "أضف ملاحظة (اختياري)",
+				"cancel": "إلغاء",
+				"send": "إرسال"
+			}
+		},
+		"reschedule": {
+			"countdownExpired": "انتهى",
+			"countdownMinutes": "بقيت {{m}} د",
+			"countdownHours": "بقيت {{h}} س {{m}} د",
+			"toastApproved": "تمت الموافقة على إعادة الجدولة",
+			"toastApproveFailed": "فشلت الموافقة",
+			"toastRejected": "تم رفض إعادة الجدولة",
+			"toastRejectFailed": "فشل الرفض",
+			"toastWithdrawn": "تم سحب الطلب",
+			"toastWithdrawFailed": "فشل السحب",
+			"declineTitle": "رفض طلب إعادة الجدولة؟",
+			"declineBody": "سيتم إخطار الطرف الآخر. يبقى الموعد الأصلي ساري المفعول.",
+			"decline": "رفض",
+			"keepRequest": "الإبقاء على الطلب",
+			"declinedReason": "رفضه الطرف الآخر",
+			"checkingTitle": "جارٍ التحقق من طلب إعادة الجدولة",
+			"checkingBody": "جارٍ تحميل حالة الطلب...",
+			"loadingTitle": "جارٍ تحميل طلب إعادة الجدولة",
+			"loadingBody": "جارٍ جلب أزرار القبول والرفض والإلغاء...",
+			"eyebrowYou": "لقد طلبت إعادة الجدولة",
+			"eyebrowTech": "طلب الفني إعادة الجدولة",
+			"eyebrowCustomer": "طلب العميل إعادة الجدولة",
+			"requestedDate": "التاريخ المطلوب: {{value}}",
+			"counterpartyHint": "اقبل لنقل الطلب، أو ارفض للإبقاء على التاريخ الأصلي.",
+			"requesterHint": "بانتظار الطرف الآخر. يمكنك إلغاء هذا الطلب.",
+			"original": "الأصلي",
+			"reason": "السبب",
+			"accepting": "جارٍ القبول...",
+			"accept": "قبول",
+			"declining": "جارٍ الرفض...",
+			"cancelling": "جارٍ الإلغاء...",
+			"cancelRequest": "إلغاء الطلب",
+			"toastRequested": "تم طلب إعادة الجدولة",
+			"availabilityError": "تعذّر تحميل توفر الفني لإعادة الجدولة.",
+			"availabilityLoading": "جارٍ تحميل توفر الفني...",
+			"selectTime": "اختر الوقت",
+			"sendingRequest": "جارٍ إرسال الطلب...",
+			"sending": "جارٍ الإرسال...",
+			"submit": "طلب إعادة الجدولة",
+			"reasonPlaceholder": "لماذا تعيد الجدولة؟"
+		},
+		"cash": {
+			"confirmFailed": "فشل تأكيد الدفع",
+			"tryAgain": "يرجى المحاولة مرة أخرى.",
+			"title": "تأكيد الدفع النقدي",
+			"body": "أكّد أنك دفعت {{amount}} ج.م نقداً",
+			"cancel": "إلغاء",
+			"confirm": "تأكيد"
+		},
+		"pills": {
+			"onTheWay": "في الطريق",
+			"inspecting": "الفحص",
+			"quote": "عرض السعر",
+			"finalize": "الإنهاء"
+		},
+		"finalize": {
+			"eyebrow": "الإنهاء",
+			"title": "ضغطة واحدة للإغلاق.",
+			"subtitle": "أكّد تسليم النقد، ثم ننهي الطلب.",
+			"finalPrice": "السعر النهائي",
+			"currency": "ج.م",
+			"cashNote": "الدفع نقداً عند التسليم · الدفع داخل التطبيق قريباً",
+			"timeline": "المسار الزمني",
+			"orderPlaced": "تم إنشاء الطلب",
+			"techArrived": "وصل الفني",
+			"workComplete": "اكتمل العمل",
+			"confirmedTapFinalize": "أكّد {{role}}. اضغط للإنهاء.",
+			"waitingOther": "بانتظار الطرف الآخر…",
+			"markCompleted": "تأكيد إكمال الطلب"
+		},
+		"attachment": "المرفق",
+		"problemDescription": "وصف المشكلة",
+		"bubble": {
+			"activeOrder": "افتح الطلب النشط",
+			"activeOrderEta": "افتح الطلب النشط — يصل خلال {{n}} دقيقة تقريباً",
+			"activeJob": "مهمة نشطة",
+			"activeJobEta": "مهمة نشطة — تصل خلال {{n}} دقيقة تقريباً",
+			"etaShort": "~{{n}} د"
+		}
+	}
+}

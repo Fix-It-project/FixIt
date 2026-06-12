@@ -1,30 +1,32 @@
 import { Stack } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 export default function SettingsLayout() {
+	const { t } = useTranslation("settings");
 	return (
 		<Stack>
 			<Stack.Screen
 				name="index"
 				options={{
-					title: "Settings",
+					title: t("layout.settings"),
 					headerShown: true,
-					headerBackTitle: "Back",
+					headerBackTitle: t("layout.back"),
 				}}
 			/>
 			<Stack.Screen
 				name="privacy-security"
 				options={{
-					title: "Privacy & Security",
+					title: t("privacy.title"),
 					headerShown: true,
-					headerBackTitle: "Settings",
+					headerBackTitle: t("layout.settings"),
 				}}
 			/>
 			<Stack.Screen
 				name="help-support"
 				options={{
-					title: "Help & Support",
+					title: t("help.title"),
 					headerShown: true,
-					headerBackTitle: "Settings",
+					headerBackTitle: t("layout.settings"),
 				}}
 			/>
 		</Stack>

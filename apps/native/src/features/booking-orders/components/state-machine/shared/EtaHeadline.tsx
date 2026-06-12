@@ -9,6 +9,7 @@
 // reads as part of the same state-machine surface language.
 
 import { Truck } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useOrderDistance } from "@/src/features/booking-orders/hooks";
@@ -18,16 +19,17 @@ interface Props {
 	readonly orderId: string;
 }
 
-function buildHeadline(etaMinutes: number | null | undefined): string {
-	if (etaMinutes == null) return "Locating technician…";
-	if (etaMinutes < 1) return "Arriving now";
-	return `Arrives in ~${etaMinutes} min`;
-}
-
 export default function EtaHeadline({ orderId }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const { data: distance } = useOrderDistance(orderId);
-	const headline = buildHeadline(distance?.eta_minutes);
+	const etaMinutes = distance?.eta_minutes;
+	const headline =
+		etaMinutes == null
+			? t("detail.eta.locating")
+			: etaMinutes < 1
+				? t("detail.eta.arrivingNow")
+				: t("detail.eta.arrivesIn", { n: etaMinutes });
 
 	return (
 		<View

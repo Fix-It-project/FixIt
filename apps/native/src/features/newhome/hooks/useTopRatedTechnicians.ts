@@ -1,4 +1,5 @@
 import { useQueries } from "@tanstack/react-query";
+import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { getTechniciansByCategory } from "@/src/features/technicians/api/technicians";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
@@ -11,13 +12,29 @@ export function useTopRatedTechnicians(): {
 	isError: boolean;
 } {
 	const categoriesQuery = useCategoriesQuery();
+	const addressesQuery = useAddressesQuery();
 	const categories = categoriesQuery.data ?? [];
+	const activeAddress =
+		addressesQuery.data?.find((address) => address.is_active) ??
+		addressesQuery.data?.[0];
+	const coords =
+		activeAddress?.latitude != null && activeAddress.longitude != null
+			? {
+					latitude: activeAddress.latitude,
+					longitude: activeAddress.longitude,
+				}
+			: undefined;
 
 	const technicianQueries = useQueries({
 		queries: categories.map((category) => ({
-			queryKey: ["newhome", "top-rated", category.id] as const,
-			queryFn: () =>
-				getTechniciansByCategory(category.id, undefined, "top_rated"),
+			queryKey: [
+				"newhome",
+				"top-rated",
+				category.id,
+				coords?.latitude ?? null,
+				coords?.longitude ?? null,
+			] as const,
+			queryFn: () => getTechniciansByCategory(category.id, coords, "top_rated"),
 			enabled: categories.length > 0,
 		})),
 	});

@@ -110,6 +110,7 @@ export default function SignUp() {
 				error={fieldErrors.fullName}
 				disabled={signUpMutation.isPending}
 				required
+				testID="signup-fullname-input"
 			/>
 
 			<FormInput
@@ -126,6 +127,7 @@ export default function SignUp() {
 				keyboardType="email-address"
 				autoCapitalize="none"
 				required
+				testID="signup-email-input"
 			/>
 
 			<FormInput
@@ -141,6 +143,7 @@ export default function SignUp() {
 				disabled={signUpMutation.isPending}
 				keyboardType="phone-pad"
 				required
+				testID="signup-phone-input"
 			/>
 
 			<PasswordInput
@@ -153,6 +156,7 @@ export default function SignUp() {
 				error={fieldErrors.password}
 				disabled={signUpMutation.isPending}
 				required
+				testID="signup-password-input"
 			/>
 
 			<PasswordInput
@@ -166,6 +170,7 @@ export default function SignUp() {
 				error={fieldErrors.confirmPassword}
 				disabled={signUpMutation.isPending}
 				required
+				testID="signup-confirm-password-input"
 			/>
 
 			<AddressFormSection
@@ -196,12 +201,14 @@ export default function SignUp() {
 					apartmentNumber: fieldErrors.apartmentNumber,
 				}}
 				disabled={signUpMutation.isPending}
+				testIDPrefix="signup"
 			/>
 
 			<Button
 				onPress={handleSignUp}
 				disabled={!isFormValid || signUpMutation.isPending}
 				className="mt-stack-sm"
+				testID="signup-submit"
 			>
 				{signUpMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />

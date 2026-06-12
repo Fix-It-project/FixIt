@@ -15,6 +15,7 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -68,6 +69,7 @@ interface RescheduleSheetProps {
 
 const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 	function RescheduleSheet({ viewer = "user" }, ref) {
+		const { t: tr } = useTranslation("orders");
 		const themeColors = useThemeColors();
 		const sheetRef = useRef<BottomSheetModalRef>(undefined as never);
 		const { height: screenHeight } = useWindowDimensions();
@@ -238,7 +240,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 					onSuccess: () => {
 						Toast.show({
 							type: "success",
-							text1: "Reschedule requested",
+							text1: tr("detail.reschedule.toastRequested"),
 						});
 						sheetRef.current?.dismiss();
 						resetState();
@@ -254,7 +256,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 						});
 						Toast.show({
 							type: "info",
-							text1: "Reschedule rejected",
+							text1: tr("detail.reschedule.toastRejected"),
 							text2: translateOrderError(error),
 						});
 					},
@@ -267,6 +269,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 			selectedDateIso,
 			selectedSlot,
 			trimmedReason,
+			tr,
 		]);
 
 		return (
@@ -315,7 +318,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 							}}
 						>
 							<Text variant="caption" style={{ color: themeColors.danger }}>
-								Could not load technician availability for this reschedule.
+								{tr("detail.reschedule.availabilityError")}
 							</Text>
 						</View>
 					)}
@@ -330,14 +333,14 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 						>
 							<ActivityIndicator size="small" color={themeColors.primary} />
 							<Text variant="caption" style={{ color: themeColors.textMuted }}>
-								Loading technician availability...
+								{tr("detail.reschedule.availabilityLoading")}
 							</Text>
 						</View>
 					) : undefined}
 
 					<View className="mt-stack-md">
 						<Text variant="buttonMd" className="mb-stack-sm text-content">
-							Select Time
+							{tr("detail.reschedule.selectTime")}
 						</Text>
 						<View className="gap-stack-sm">
 							{BOOKING_SLOT_OPTIONS.map((slot) => {
@@ -401,7 +404,7 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 						>
 							<ActivityIndicator size="small" color={themeColors.primary} />
 							<Text variant="caption" style={{ color: themeColors.primary }}>
-								Sending request...
+								{tr("detail.reschedule.sendingRequest")}
 							</Text>
 						</View>
 					) : undefined}
@@ -422,7 +425,9 @@ const RescheduleSheet = forwardRef<RescheduleSheetHandle, RescheduleSheetProps>(
 								variant="buttonLg"
 								style={{ color: themeColors.surfaceOnPrimary }}
 							>
-								{isSubmitting ? "Sending..." : "Request reschedule"}
+								{isSubmitting
+									? tr("detail.reschedule.sending")
+									: tr("detail.reschedule.submit")}
 							</Text>
 						</Button>
 					</View>

@@ -1,9 +1,3 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { Search, X } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, View } from "react-native";
-import Toast from "react-native-toast-message";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
@@ -16,9 +10,10 @@ import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
 import { getInspectionFeePreview } from "@/src/features/booking-orders/api/orders";
+import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
 import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
 import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
-import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
+import { getCategorySlug } from "@/src/features/categories/constants/categories";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import { useTechniciansInfiniteQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
 import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
@@ -30,6 +25,13 @@ import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { router, useLocalSearchParams } from "expo-router";
+import { Search, X } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FlatList, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { SortBar } from "./components/SortBar";
 import { TechnicianCard } from "./components/TechnicianCard";
 import { TechnicianListSkeleton } from "./components/TechnicianCardSkeleton";
@@ -48,23 +50,24 @@ function EmptyState({
 	readonly hasSearch: boolean;
 	readonly onRetry: () => void;
 }) {
+	const { t } = useTranslation("technicians");
 	return (
 		<View className="flex-1 items-center justify-center px-screen-x">
 			<Text
 				variant="buttonLg"
 				className="text-center font-semibold text-content"
 			>
-				{isError ? "Unable to load technicians" : "No technicians found"}
+				{isError ? t("list.empty.errorTitle") : t("list.empty.emptyTitle")}
 			</Text>
 			<Text
 				variant="bodySm"
 				className="mt-stack-xs max-w-sm text-center text-content-muted"
 			>
 				{isError
-					? "Please try again in a moment."
-					: hasSearch
-						? "Try a shorter name or clear the search."
-						: "There are no technicians in this category yet."}
+					? t("list.empty.errorBody")
+					: (hasSearch
+						? t("list.empty.searchBody")
+						: t("list.empty.categoryBody"))}
 			</Text>
 			{isError ? (
 				<Button
@@ -73,7 +76,7 @@ function EmptyState({
 					className="mt-stack-md"
 					onPress={onRetry}
 				>
-					Retry
+					{t("list.empty.retry")}
 				</Button>
 			) : null}
 		</View>
@@ -81,13 +84,19 @@ function EmptyState({
 }
 
 export default function NewTechnicians() {
+	const { t } = useTranslation(["technicians", "categories"]);
 	const themeColors = useThemeColors();
 	const params = useLocalSearchParams<{
 		categoryId?: string | string[];
 		categoryName?: string | string[];
 	}>();
 	const categoryId = getStringParam(params.categoryId);
-	const categoryName = getStringParam(params.categoryName) || "Technicians";
+	const categoryName =
+		getStringParam(params.categoryName) || t("list.defaultTitle");
+	const categorySlug = getCategorySlug(categoryId);
+	const headerTitle = categorySlug
+		? t(`categories:labels.${categorySlug}` as Parameters<typeof t>[0])
+		: categoryName;
 
 	const { searchText, setSearchText, activeSort, setActiveSort } =
 		useTechnicianSearchStore();
@@ -101,11 +110,11 @@ export default function NewTechnicians() {
 			addresses?.find(
 				(address) =>
 					address.is_active &&
-					address.latitude != null &&
-					address.longitude != null,
+					address.latitude != undefined &&
+					address.longitude != undefined,
 			) ??
 			addresses?.find(
-				(address) => address.latitude != null && address.longitude != null,
+				(address) => address.latitude != undefined && address.longitude != undefined,
 			) ??
 			null
 		);
@@ -202,7 +211,7 @@ export default function NewTechnicians() {
 				if (updatedStatus !== "granted") {
 					Toast.show({
 						type: "info",
-						text1: "Location permission required for nearest sort",
+						text1: t("list.locationPermission"),
 					});
 					return;
 				}
@@ -216,6 +225,7 @@ export default function NewTechnicians() {
 			permissionStatus,
 			requestLocationPermission,
 			setActiveSort,
+			t,
 		],
 	);
 
@@ -238,7 +248,7 @@ export default function NewTechnicians() {
 				categoryId,
 				categoryName,
 				distanceKm:
-					item.distance_km != null ? item.distance_km.toFixed(1) : undefined,
+					item.distance_km == undefined ? undefined : item.distance_km.toFixed(1),
 			},
 		});
 	}, 600);
@@ -320,7 +330,8 @@ export default function NewTechnicians() {
 	const hasSearch =
 		debouncedSearch.trim().length > 0 || searchText.trim().length > 0;
 	const count = showSkeleton ? technicians.length : displayedTechnicians.length;
-	const countLabel = count === 1 ? "technician" : "technicians";
+	const countLabel =
+		count === 1 ? t("list.technicianOne") : t("list.technicianOther");
 	const listFooter = useMemo(() => {
 		if (!isFetchingNextPage) return null;
 		return <LoadingSpinner className="py-stack-lg" size="small" />;
@@ -330,16 +341,18 @@ export default function NewTechnicians() {
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
 			<View className="flex-1 bg-background">
 				<PageHeader
-					title={categoryName}
+					title={headerTitle}
 					subtitle={
-						showSkeleton ? "Updating results" : `${count} ${countLabel}`
+						showSkeleton
+							? t("list.updatingResults")
+							: `${count} ${countLabel}`
 					}
 					variant="app-primary"
 					onBackPress={goBack}
 				/>
 
 				<View className="px-screen-x pt-stack-lg pb-stack-lg">
-					<View className="h-control-search flex-row items-center gap-control-search rounded-input border border-edge bg-card px-control-search">
+					<View className="h-control-search flex-row items-center gap-control-search rounded-input bg-card px-control-search">
 						<Search
 							size={spacing.icon.sm}
 							color={themeColors.textMuted}
@@ -348,7 +361,7 @@ export default function NewTechnicians() {
 						<Input
 							value={searchText}
 							onChangeText={setSearchText}
-							placeholder="Search technicians"
+							placeholder={t("list.searchPlaceholder")}
 							variant="outline"
 							className="h-auto flex-1 border-0 bg-transparent p-0 text-sm"
 							returnKeyType="search"
@@ -361,7 +374,7 @@ export default function NewTechnicians() {
 								size="icon"
 								className="h-control-icon-box-sm w-control-icon-box-sm"
 								onPress={() => setSearchText("")}
-								accessibilityLabel="Clear search"
+								accessibilityLabel={t("list.clearSearch")}
 							>
 								<X
 									size={spacing.icon.xs}
@@ -377,7 +390,7 @@ export default function NewTechnicians() {
 
 				{showSkeleton ? (
 					<TechnicianListSkeleton />
-				) : displayedTechnicians.length === 0 ? (
+				) : (displayedTechnicians.length === 0 ? (
 					<EmptyState
 						isError={isError}
 						hasSearch={hasSearch}
@@ -407,7 +420,7 @@ export default function NewTechnicians() {
 						windowSize={9}
 						removeClippedSubviews
 					/>
-				)}
+				))}
 			</View>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />

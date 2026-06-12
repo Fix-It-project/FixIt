@@ -22,7 +22,11 @@ function InfoRow({ icon: Icon, label, onPress, value }: InfoSectionRow) {
 				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-button"
 				style={{ backgroundColor: `${themeColors.primary}12` }}
 			>
-				<Icon size={spacing.icon.sm} color={themeColors.primary} strokeWidth={2} />
+				<Icon
+					size={spacing.icon.sm}
+					color={themeColors.primary}
+					strokeWidth={2}
+				/>
 			</View>
 			<View className="min-w-0 flex-1">
 				<Text
@@ -64,7 +68,7 @@ export default function InfoSection({ rows }: Props) {
 	const themeColors = useThemeColors();
 
 	return (
-		<View className="mb-stack-lg gap-stack-lg rounded-card border border-edge bg-card p-card">
+		<View className="mb-stack-lg gap-stack-lg rounded-card bg-card p-card">
 			{rows.map((row) => (
 				<InfoRow
 					key={`${row.label}:${row.value}`}

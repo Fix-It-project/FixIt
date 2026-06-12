@@ -8,6 +8,7 @@
 
 import { Ban, Check, MessageSquare, Pencil } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -56,6 +57,7 @@ function deriveQuoteState(
 }
 
 export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const inspectionFee = order.inspection_fee ?? 0;
@@ -93,8 +95,10 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 					className="font-google-sans-bold"
 					style={{ color: themeColors.textPrimary }}
 				>
-					Negotiation · Round {Math.min(MAX_ROUNDS, Math.max(1, roundCount))}/
-					{MAX_ROUNDS}
+					{t("detail.quote.negotiation", {
+						n: Math.min(MAX_ROUNDS, Math.max(1, roundCount)),
+						max: MAX_ROUNDS,
+					})}
 				</Text>
 			</View>
 
@@ -111,13 +115,15 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 					className="font-google-sans-bold uppercase"
 					style={{ color: themeColors.textMuted, letterSpacing: 0.8 }}
 				>
-					Total pricing
+					{t("detail.quote.totalPricing")}
 				</Text>
 				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-					Inspection fee: {formatCurrency(inspectionFee)}
+					{t("detail.quote.inspectionFee", {
+						amount: formatCurrency(inspectionFee),
+					})}
 				</Text>
 				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-					Accepted total = work price + inspection fee
+					{t("detail.quote.acceptedTotalRule")}
 				</Text>
 				{latestQuote ? (
 					<Text
@@ -125,7 +131,9 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 						className="font-google-sans-medium"
 						style={{ color: themeColors.textPrimary }}
 					>
-						Latest total if accepted: {formatCurrency(latestTotal)}
+						{t("detail.quote.latestTotalIfAccepted", {
+							amount: formatCurrency(latestTotal),
+						})}
 					</Text>
 				) : null}
 			</View>
@@ -138,8 +146,8 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 						style={{ textAlign: "center" }}
 					>
 						{viewer === "technician"
-							? 'Press "Offer work price" to send your first quote.'
-							: "Waiting for technician to send a work price."}
+							? t("detail.quote.emptyTech")
+							: t("detail.quote.emptyUser")}
 					</Text>
 				) : (
 					rounds.map((q, idx) => (
@@ -161,6 +169,7 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 }
 
 export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
+	const { t } = useTranslation("orders");
 	const sheetRef = useRef<QuoteOfferSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
@@ -202,7 +211,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
-					text1: "Submit failed",
+					text1: t("detail.quote.toastSubmitFailed"),
 					text2: err.message,
 				}),
 		});
@@ -223,7 +232,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
-					text1: "Accept failed",
+					text1: t("detail.quote.toastAcceptFailed"),
 					text2: err.message,
 				}),
 		});
@@ -233,7 +242,8 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		const trimmed = cancelReason.trim();
 		const args = {
 			orderId: order.id,
-			reason: trimmed.length > 0 ? trimmed : "Negotiation ended",
+			reason:
+				trimmed.length > 0 ? trimmed : t("detail.quote.cancelReasonDefault"),
 		};
 		const mutation = viewer === "technician" ? techCancel : userCancel;
 		mutation.mutate(args, {
@@ -244,7 +254,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
-					text1: "Cancel failed",
+					text1: t("detail.quote.toastCancelFailed"),
 					text2: err.message,
 				}),
 		});
@@ -268,17 +278,29 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	const latestTotal = latest ? latest.amount + inspectionFee : null;
 
 	const sheetTitle = useMemo(() => {
-		if (showTechInitial) return "Send your work price";
-		if (viewer === "technician") return "Counter the customer's work price";
-		return "Suggest a different work price";
-	}, [showTechInitial, viewer]);
+		if (showTechInitial) return t("detail.quote.sheetTitleInitial");
+		if (viewer === "technician") return t("detail.quote.sheetTitleCounterTech");
+		return t("detail.quote.sheetTitleCounterUser");
+	}, [showTechInitial, viewer, t]);
 	const sheetSubtitle = useMemo(() => {
 		if (showTechInitial) {
-			return `Inspection fee ${formatCurrency(inspectionFee)} will be added to your work price.`;
+			return t("detail.quote.sheetSubtitleInitial", {
+				amount: formatCurrency(inspectionFee),
+			});
 		}
-		return `${roundsLeft} round${roundsLeft === 1 ? "" : "s"} left before lock-in. Inspection fee stays ${formatCurrency(inspectionFee)}.`;
-	}, [inspectionFee, roundsLeft, showTechInitial]);
-	const sheetCta = showTechInitial ? "Send work price" : "Send work counter";
+		return t(
+			roundsLeft === 1
+				? "detail.quote.roundsLeftOne"
+				: "detail.quote.roundsLeftOther",
+			{
+				n: roundsLeft,
+				amount: formatCurrency(inspectionFee),
+			},
+		);
+	}, [inspectionFee, roundsLeft, showTechInitial, t]);
+	const sheetCta = showTechInitial
+		? t("detail.quote.ctaSendQuote")
+		: t("detail.quote.ctaSendCounter");
 
 	if (!showTechInitial && !showAcceptDecline) {
 		return (
@@ -307,14 +329,14 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 							onPress={openSheet}
 							loading={isSubmitPending}
 						>
-							Offer work price
+							{t("detail.quote.offerPrice")}
 						</Button>
 					</View>
 					<View className="shrink-0">
 						<Button
 							variant="destructive"
 							size="icon"
-							accessibilityLabel="Cancel order"
+							accessibilityLabel={t("detail.a11y.cancelOrder")}
 							onPress={() => setCancelOpen(true)}
 							loading={isCancelPending}
 						>
@@ -333,19 +355,21 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 								size="lg"
 								fullWidth
 								iconLeft={Check}
-							onPress={handleAccept}
-							loading={isAcceptPending}
-						>
-							{latestTotal != null
-								? `Accept total ${formatCurrency(latestTotal)}`
-								: "Accept"}
-						</Button>
-					</View>
+								onPress={handleAccept}
+								loading={isAcceptPending}
+							>
+								{latestTotal != null
+									? t("detail.quote.acceptAmount", {
+											amount: formatCurrency(latestTotal),
+										})
+									: t("detail.quote.accept")}
+							</Button>
+						</View>
 						<View className="shrink-0">
 							<Button
 								variant="destructive"
 								size="icon"
-								accessibilityLabel="Cancel order"
+								accessibilityLabel={t("detail.a11y.cancelOrder")}
 								onPress={() => setCancelOpen(true)}
 								loading={isCancelPending}
 							>
@@ -362,7 +386,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 							onPress={openSheet}
 							loading={isSubmitPending}
 						>
-							Suggest another work price
+							{t("detail.quote.suggestAnother")}
 						</Button>
 					) : null}
 				</>
@@ -379,11 +403,13 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			/>
 			<CancelReasonModal
 				visible={cancelOpen}
-				title="Cancel Order"
+				title={t("detail.cancelModal.title")}
 				subjectRole="order"
 				subjectName={subjectName}
 				subjectFallback={
-					viewer === "technician" ? "this customer" : "this technician"
+					viewer === "technician"
+						? t("detail.cancelModal.subjectFallbackCustomer")
+						: t("detail.cancelModal.subjectFallback")
 				}
 				reason={cancelReason}
 				onReasonChange={setCancelReason}

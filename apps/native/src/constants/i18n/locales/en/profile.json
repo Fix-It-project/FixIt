@@ -1,0 +1,45 @@
+{
+	"header": {
+		"userFallback": "User",
+		"editTitle": "Edit Profile"
+	},
+	"stats": {
+		"bookings": "Bookings",
+		"completed": "Completed"
+	},
+	"menu": {
+		"editProfile": "Edit Profile",
+		"pastOrders": "Past Orders",
+		"addresses": "My Addresses",
+		"settings": "Settings",
+		"loggingOut": "Logging out…",
+		"logout": "Log Out"
+	},
+	"logout": {
+		"title": "Log out",
+		"description": "Are you sure you want to log out?",
+		"confirm": "Log out",
+		"cancel": "Cancel"
+	},
+	"info": {
+		"email": "Email",
+		"phone": "Phone",
+		"address": "Address",
+		"noAddress": "No address added",
+		"notProvided": "Not provided",
+		"empty": "—"
+	},
+	"edit": {
+		"fullName": "Full Name",
+		"fullNamePlaceholder": "Enter your full name",
+		"email": "Email",
+		"emailPlaceholder": "Enter your email",
+		"phone": "Phone",
+		"phonePlaceholder": "Enter your phone number",
+		"save": "Save Changes"
+	},
+	"avatar": {
+		"alt": "Profile photo",
+		"change": "Change profile photo"
+	}
+}

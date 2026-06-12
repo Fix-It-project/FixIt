@@ -1,5 +1,6 @@
 import { Ban, CalendarClock, CheckCircle2 } from "lucide-react-native";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
@@ -25,15 +26,16 @@ interface Props {
 }
 
 export default function AcceptedView({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
 				icon={CheckCircle2}
-				eyebrow="Confirmed"
-				title="Technician accepted."
-				subtitle="Live ETA arrives the moment they start moving."
+				eyebrow={t("detail.stage.accepted.eyebrow")}
+				title={t("detail.stage.accepted.title")}
+				subtitle={t("detail.stage.accepted.subtitle")}
 				accentColor={themeColors.success}
 			/>
 			<OrderInfoCompact
@@ -57,6 +59,7 @@ export default function AcceptedView({ order }: Props) {
 }
 
 export function AcceptedViewCta({ order }: Props) {
+	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const rescheduleRef = useRef<RescheduleSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
@@ -72,12 +75,12 @@ export function AcceptedViewCta({ order }: Props) {
 				onSuccess: () => {
 					setCancelOpen(false);
 					setCancelReason("");
-					Toast.show({ type: "success", text1: "Order cancelled" });
+					Toast.show({ type: "success", text1: t("detail.toast.cancelled") });
 				},
 				onError: (err) =>
 					Toast.show({
 						type: "info",
-						text1: "Failed to cancel",
+						text1: t("detail.toast.cancelFailed"),
 						text2: err.message,
 					}),
 			},
@@ -97,14 +100,14 @@ export function AcceptedViewCta({ order }: Props) {
 							onPress={() => {}}
 							disabled
 						>
-							Waiting for technician
+							{t("detail.cta.waitingForTechnician")}
 						</Button>
 					</View>
 					<View className="shrink-0 flex-row" style={{ gap: space[2] }}>
 						<Button
 							variant="secondary"
 							size="icon"
-							accessibilityLabel="Reschedule order"
+							accessibilityLabel={t("detail.a11y.rescheduleOrder")}
 							onPress={() =>
 								rescheduleRef.current?.open({
 									orderId: order.id,
@@ -119,7 +122,7 @@ export function AcceptedViewCta({ order }: Props) {
 						<Button
 							variant="destructive"
 							size="icon"
-							accessibilityLabel="Cancel order"
+							accessibilityLabel={t("detail.a11y.cancelOrder")}
 							onPress={() => setCancelOpen(true)}
 							disabled={cancel.isPending}
 						>
@@ -135,17 +138,17 @@ export function AcceptedViewCta({ order }: Props) {
 							textAlign: "center",
 						}}
 					>
-						{"Resolve the pending reschedule request before requesting another."}
+						{t("detail.cta.pendingReschedule")}
 					</Text>
 				) : null}
 			</View>
 			<RescheduleSheet ref={rescheduleRef} viewer="user" />
 			<CancelReasonModal
 				visible={cancelOpen}
-				title="Cancel Order"
+				title={t("detail.cancelModal.title")}
 				subjectRole="order"
 				subjectName={order.technician_name}
-				subjectFallback="this technician"
+				subjectFallback={t("detail.cancelModal.subjectFallback")}
 				reason={cancelReason}
 				onReasonChange={setCancelReason}
 				onClose={() => {

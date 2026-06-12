@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Briefcase, ClipboardList, Star } from "lucide-react-native";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	ActivityIndicator,
 	TouchableOpacity,
@@ -32,8 +33,12 @@ interface SheetState {
 const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 	function TechnicianProfileSheet(_, ref) {
 		const themeColors = useThemeColors();
+		const { t, i18n } = useTranslation("technicians");
 		const sheetRef = useRef<BottomSheetModalRef>(null);
 		const { height } = useWindowDimensions();
+		const numberFormatter = new Intl.NumberFormat(
+			i18n.language.startsWith("ar") ? "ar-EG" : "en-US",
+		);
 		const [sheetState, setSheetState] = useState<SheetState>({
 			technicianId: null,
 			initials: "",
@@ -84,7 +89,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 						<View className="items-center justify-center py-stack-xl">
 							<ActivityIndicator size="large" color={themeColors.primary} />
 							<Text variant="bodySm" className="mt-stack-md text-content-muted">
-								Loading profile…
+								{t("profileSheet.loadingProfile")}
 							</Text>
 						</View>
 					)}
@@ -92,13 +97,13 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 					{isError && !isLoading && (
 						<View className="items-center justify-center py-stack-xl">
 							<Text variant="buttonLg" className="text-center text-danger">
-								Unable to load profile
+								{t("profileSheet.loadErrorTitle")}
 							</Text>
 							<Text
 								variant="bodySm"
 								className="mt-stack-xs text-center text-content-muted"
 							>
-								Please try again later.
+								{t("profileSheet.loadErrorBody")}
 							</Text>
 							<TouchableOpacity
 								onPress={() => refetch()}
@@ -107,7 +112,7 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 								style={{ backgroundColor: themeColors.primary }}
 							>
 								<Text variant="buttonMd" className="text-surface-on-primary">
-									Retry
+									{t("profileSheet.retry")}
 								</Text>
 							</TouchableOpacity>
 						</View>
@@ -151,10 +156,10 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 										variant="buttonLg"
 										className="mt-stack-xs font-bold text-content"
 									>
-										{profile.completedOrders}
+										{numberFormatter.format(profile.completedOrders)}
 									</Text>
 									<Text variant="caption" className="text-content-muted">
-										Completed
+										{t("profileSheet.completed")}
 									</Text>
 								</View>
 								<View className="flex-1 items-center gap-stack-xs rounded-input bg-surface-elevated px-stack-md py-card">
@@ -167,10 +172,10 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 										variant="buttonLg"
 										className="mt-stack-xs font-bold text-content"
 									>
-										{profile.totalBookings}
+										{numberFormatter.format(profile.totalBookings)}
 									</Text>
 									<Text variant="caption" className="text-content-muted">
-										Bookings
+										{t("profileSheet.bookings")}
 									</Text>
 								</View>
 							</View>
@@ -189,8 +194,16 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 										style={{ includeFontPadding: false }}
 									>
 										{profile.avg_rating !== null && profile.review_count > 0
-											? `${profile.avg_rating.toFixed(2)} · ${profile.review_count} ${profile.review_count === 1 ? "review" : "reviews"}`
-											: "No reviews yet"}
+											? t(
+													profile.review_count === 1
+														? "profileSheet.reviewSummaryOne"
+														: "profileSheet.reviewSummaryOther",
+													{
+														rating: numberFormatter.format(profile.avg_rating),
+														count: numberFormatter.format(profile.review_count),
+													},
+												)
+											: t("profileSheet.noReviewsYet")}
 									</Text>
 								</View>
 							</View>
@@ -232,7 +245,9 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 											className="text-center"
 											style={{ color: Colors.primary }}
 										>
-											View all reviews ({profile.review_count})
+											{t("profileSheet.viewAllReviews", {
+												count: numberFormatter.format(profile.review_count),
+											})}
 										</Text>
 									</TouchableOpacity>
 								</View>

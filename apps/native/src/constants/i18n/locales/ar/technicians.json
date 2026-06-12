@@ -1,0 +1,100 @@
+{
+	"list": {
+		"defaultTitle": "الفنيون",
+		"searchPlaceholder": "ابحث عن فني",
+		"clearSearch": "مسح البحث",
+		"updatingResults": "جارٍ تحديث النتائج",
+		"technicianOne": "فني",
+		"technicianOther": "فنيين",
+		"locationPermission": "إذن الموقع مطلوب للترتيب حسب الأقرب",
+		"empty": {
+			"errorTitle": "تعذّر تحميل الفنيين",
+			"emptyTitle": "لا يوجد فنيون",
+			"errorBody": "يرجى المحاولة بعد قليل.",
+			"searchBody": "جرّب اسماً أقصر أو امسح البحث.",
+			"categoryBody": "لا يوجد فنيون في هذه الفئة بعد.",
+			"retry": "إعادة المحاولة"
+		}
+	},
+	"sort": {
+		"Recommended": "موصى به",
+		"Top Rated": "الأعلى تقييماً",
+		"Nearest": "الأقرب",
+		"Most Reviews": "الأكثر تقييماً"
+	},
+	"detail": {
+		"title": "الفني",
+		"technicianFallback": "فني",
+		"ratingNew": "جديد",
+		"notAvailable": "غير متاح",
+		"selectDate": "اختيار الموعد",
+		"pickService": "اختر خدمة للمتابعة",
+		"tabs": {
+			"Details": "التفاصيل",
+			"Services": "الخدمات",
+			"Reviews": "التقييمات"
+		},
+		"metrics": {
+			"completed": "مكتملة",
+			"distance": "المسافة",
+			"bookings": "الحجوزات"
+		}
+	},
+	"about": {
+		"heading": "التفاصيل",
+		"inspectionFee": "رسوم المعاينة",
+		"availableDays": "أيام التوفر",
+		"availableTimes": "أوقات التوفر",
+		"allHours": "جميع الساعات المدرجة",
+		"noSchedule": "لم يحدد هذا الفني أيام وأوقات عمله بعد.",
+		"days": {
+			"sun": "أحد",
+			"mon": "اثنين",
+			"tue": "ثلاثاء",
+			"wed": "أربعاء",
+			"thu": "خميس",
+			"fri": "جمعة",
+			"sat": "سبت"
+		}
+	},
+	"services": {
+		"loadError": "تعذّر تحميل الخدمات",
+		"loadErrorBody": "يرجى المحاولة بعد قليل.",
+		"emptyTitle": "لا توجد خدمات مدرجة",
+		"emptyBody": "لم ينشر هذا الفني أي خدمات بعد.",
+		"priceOnRequest": "السعر عند الطلب"
+	},
+	"reviews": {
+		"noRating": "—",
+		"reviewOne": "تقييم",
+		"reviewOther": "تقييمات",
+		"emptyTitle": "لا توجد تقييمات بعد",
+		"emptyBody": "كن أول من يحجز ويقيّم."
+	},
+	"profileSheet": {
+		"loadingProfile": "جارٍ تحميل الملف…",
+		"loadErrorTitle": "تعذّر تحميل الملف",
+		"loadErrorBody": "يرجى المحاولة مرة أخرى لاحقاً.",
+		"retry": "إعادة المحاولة",
+		"completed": "مكتملة",
+		"bookings": "الحجوزات",
+		"reviewSummaryOne": "{{rating}} · تقييم واحد",
+		"reviewSummaryOther": "{{rating}} · {{count}} تقييمات",
+		"noReviewsYet": "لا توجد تقييمات بعد",
+		"viewAllReviews": "عرض كل التقييمات ({{count}})"
+	},
+	"card": {
+		"distanceAway": "{{km}} كم",
+		"distance": "المسافة",
+		"inspectionFee": "رسوم المعاينة",
+		"location": "الموقع",
+		"bookNow": "احجز الآن",
+		"homeService": "خدمة منزلية",
+		"categoryService": "خدمة {{category}}",
+		"noReviews": "لا توجد تقييمات بعد",
+		"reviewOne": "تقييم",
+		"reviewOther": "تقييمات",
+		"bookAccessibility": "احجز مع {{name}}",
+		"profileAccessibility": "افتح ملف {{name}}"
+	}
+}

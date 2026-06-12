@@ -3,6 +3,7 @@
 // QuoteOffer is a focused price-entry form that was a centered Modal; it remains centered.
 
 import { forwardRef, useImperativeHandle, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
@@ -30,9 +31,18 @@ interface QuoteOfferSheetProps {
 
 const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 	function QuoteOfferSheet(
-		{ title, subtitle, currency = "EGP", isPending, previousAmount, onSubmit },
+		{
+			title,
+			subtitle,
+			ctaLabel,
+			currency = "EGP",
+			isPending,
+			previousAmount,
+			onSubmit,
+		},
 		ref,
 	) {
+		const { t } = useTranslation("orders");
 		const themeColors = useThemeColors();
 		const [visible, setVisible] = useState(false);
 		const [amount, setAmount] = useState("");
@@ -60,16 +70,16 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 			if (!Number.isInteger(parsed) || parsed <= 0) {
 				Toast.show({
 					type: "info",
-					text1: "Invalid amount",
-					text2: "Enter a positive whole number.",
+					text1: t("detail.quote.offer.invalidTitle"),
+					text2: t("detail.quote.offer.invalidBody"),
 				});
 				return;
 			}
 			if (typeof previousAmount === "number" && parsed === previousAmount) {
 				Toast.show({
 					type: "info",
-					text1: "Same amount",
-					text2: "Your offer must differ from the last one.",
+					text1: t("detail.quote.offer.sameTitle"),
+					text2: t("detail.quote.offer.sameBody"),
 				});
 				return;
 			}
@@ -93,7 +103,9 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 								value={amount}
 								onChangeText={setAmount}
 								keyboardType="decimal-pad"
-								placeholder={`Work price (${currency})`}
+								placeholder={t("detail.quote.offer.amountPlaceholder", {
+									currency,
+								})}
 								autoFocus
 							/>
 							{typeof previousAmount === "number" ? (
@@ -101,21 +113,23 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 									variant="caption"
 									style={{ color: themeColors.textMuted }}
 								>
-									Last work price: {formatCurrency(previousAmount, currency)}
+									{t("detail.quote.offer.lastOffer", {
+										amount: formatCurrency(previousAmount, currency),
+									})}
 								</Text>
 							) : undefined}
 						</View>
 						<Textarea
 							value={note}
 							onChangeText={setNote}
-							placeholder="Add a note (optional)"
+							placeholder={t("detail.quote.offer.notePlaceholder")}
 							numberOfLines={3}
 						/>
 					</View>
 				</Dialog.Form>
 				<Dialog.Footer>
 					<Button variant="secondary" onPress={close} disabled={isPending}>
-						Cancel
+						{t("detail.quote.offer.cancel")}
 					</Button>
 					<Button
 						variant="primary"
@@ -123,7 +137,7 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 						loading={isPending}
 						disabled={submitDisabled}
 					>
-						Send
+						{ctaLabel}
 					</Button>
 				</Dialog.Footer>
 			</Dialog>
