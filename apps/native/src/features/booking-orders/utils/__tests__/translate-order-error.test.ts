@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/src/lib/errors", () => ({
+	getErrorMessage: vi.fn(() => "fallback message"),
+}));
+
 import {
 	extractOrderErrorToken,
 	translateOrderError,
@@ -49,5 +54,19 @@ describe("translateOrderError", () => {
 		};
 
 		expect(translateOrderError(error)).toBe("some_future_token");
+	});
+
+	it("translates inspection_fee_pricing_unavailable into a booking-safe message", () => {
+		const error = {
+			response: {
+				data: {
+					error: "inspection_fee_pricing_unavailable",
+				},
+			},
+		};
+
+		expect(translateOrderError(error)).toBe(
+			"We couldn't calculate the inspection fee for this booking. Please update the saved locations and try again.",
+		);
 	});
 });

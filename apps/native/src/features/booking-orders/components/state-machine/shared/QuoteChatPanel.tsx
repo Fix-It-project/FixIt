@@ -60,10 +60,14 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
+	const inspectionFee = order.inspection_fee ?? 0;
 
 	const { data: rounds = [] } = useOrderQuoteHistory(order.id, { viewer });
 	const { roundCount, canActOnLatest } = deriveQuoteState(rounds, viewer);
 	const showWaiting = canActOnLatest === false && roundCount > 0;
+	const latestQuote = rounds[rounds.length - 1] ?? null;
+	const latestTotal =
+		latestQuote != null ? latestQuote.amount + inspectionFee : inspectionFee;
 
 	return (
 		<View
@@ -96,6 +100,42 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 						max: MAX_ROUNDS,
 					})}
 				</Text>
+			</View>
+
+			<View
+				style={{
+					borderRadius: radius.card,
+					backgroundColor: `${themeColors.primary}10`,
+					padding: space[3],
+					gap: space[1],
+				}}
+			>
+				<Text
+					variant="caption"
+					className="font-google-sans-bold uppercase"
+					style={{ color: themeColors.textMuted, letterSpacing: 0.8 }}
+				>
+					{t("detail.quote.totalPricing")}
+				</Text>
+				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+					{t("detail.quote.inspectionFee", {
+						amount: formatCurrency(inspectionFee),
+					})}
+				</Text>
+				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+					{t("detail.quote.acceptedTotalRule")}
+				</Text>
+				{latestQuote ? (
+					<Text
+						variant="bodySm"
+						className="font-google-sans-medium"
+						style={{ color: themeColors.textPrimary }}
+					>
+						{t("detail.quote.latestTotalIfAccepted", {
+							amount: formatCurrency(latestTotal),
+						})}
+					</Text>
+				) : null}
 			</View>
 
 			<View style={{ gap: space[2] }}>
@@ -133,6 +173,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	const sheetRef = useRef<QuoteOfferSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
+	const inspectionFee = order.inspection_fee ?? 0;
 
 	const { data: rounds = [] } = useOrderQuoteHistory(order.id, { viewer });
 	const { roundCount, roundsLeft, isFinalRound, latest, canActOnLatest } =
@@ -234,6 +275,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		latest != null &&
 		latest.proposed_by !== viewer;
 	const showAcceptDecline = canActOnLatest && roundCount > 0;
+	const latestTotal = latest ? latest.amount + inspectionFee : null;
 
 	const sheetTitle = useMemo(() => {
 		if (showTechInitial) return t("detail.quote.sheetTitleInitial");
@@ -241,14 +283,21 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		return t("detail.quote.sheetTitleCounterUser");
 	}, [showTechInitial, viewer, t]);
 	const sheetSubtitle = useMemo(() => {
-		if (showTechInitial) return t("detail.quote.sheetSubtitleInitial");
+		if (showTechInitial) {
+			return t("detail.quote.sheetSubtitleInitial", {
+				amount: formatCurrency(inspectionFee),
+			});
+		}
 		return t(
 			roundsLeft === 1
 				? "detail.quote.roundsLeftOne"
 				: "detail.quote.roundsLeftOther",
-			{ n: roundsLeft },
+			{
+				n: roundsLeft,
+				amount: formatCurrency(inspectionFee),
+			},
 		);
-	}, [showTechInitial, roundsLeft, t]);
+	}, [inspectionFee, roundsLeft, showTechInitial, t]);
 	const sheetCta = showTechInitial
 		? t("detail.quote.ctaSendQuote")
 		: t("detail.quote.ctaSendCounter");
@@ -309,9 +358,9 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 								onPress={handleAccept}
 								loading={isAcceptPending}
 							>
-								{latest
+								{latestTotal != null
 									? t("detail.quote.acceptAmount", {
-											amount: formatCurrency(latest.amount),
+											amount: formatCurrency(latestTotal),
 										})
 									: t("detail.quote.accept")}
 							</Button>

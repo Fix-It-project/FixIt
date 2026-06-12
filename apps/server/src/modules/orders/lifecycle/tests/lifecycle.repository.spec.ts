@@ -197,3 +197,40 @@ describe("LifecycleRepository.getOrderDistance", () => {
 		expect((caught as AppError).opts.token).toBe("order_not_found");
 	});
 });
+
+describe("LifecycleRepository.submitOrder", () => {
+	beforeEach(() => {
+		rpcSpy.mockReset();
+		rpcHandler = () => ({ data: { id: "order-new" }, error: null });
+	});
+
+	it("passes inspection fee snapshot fields to rpc_submit_order", async () => {
+		const repo = new LifecycleRepository();
+
+		await repo.submitOrder({
+			userId: "user-1",
+			technicianId: "tech-1",
+			serviceId: "svc-1",
+			destinationAddressId: "addr-1",
+			inspectionFee: 150,
+			inspectionDistanceKm: 7.4,
+			problemDescription: "Leaky pipe",
+			attachment: null,
+			scheduledDate: "2026-06-11",
+			scheduledStartAt: "2026-06-11T08:00:00+03:00",
+		});
+
+		expect(rpcSpy).toHaveBeenCalledWith("rpc_submit_order", {
+			p_user_id: "user-1",
+			p_technician_id: "tech-1",
+			p_service_id: "svc-1",
+			p_destination_address_id: "addr-1",
+			p_inspection_fee: 150,
+			p_inspection_distance_km: 7.4,
+			p_problem_description: "Leaky pipe",
+			p_attachment: null,
+			p_scheduled_date: "2026-06-11",
+			p_scheduled_start_at: "2026-06-11T08:00:00+03:00",
+		});
+	});
+});

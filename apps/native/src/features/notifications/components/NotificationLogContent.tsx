@@ -9,7 +9,6 @@ import {
 	View,
 } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
-import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
 	Avatar,
 	AvatarFallback,
@@ -92,155 +91,154 @@ export default function NotificationLogContent({
 	}, [data, isMarkingRead, markAllRead]);
 
 	return (
-		<ScreenSafeAreaView
-			className="flex-1"
-			edges={["top"]}
-			style={{ backgroundColor: Colors.primary }}
-		>
-			<View className="flex-1 bg-surface">
+		<View className="flex-1 bg-surface">
+			{showBackButton ? (
 				<View
-					style={{ backgroundColor: Colors.primary }}
-					className="flex-row items-center gap-stack-md px-card pt-stack-sm pb-card"
+					className="min-h-header flex-row items-center gap-stack-md px-screen-x pt-card pb-card"
+					style={{ backgroundColor: themeColors.surfaceBase }}
 				>
-					{showBackButton ? (
-						<BackButton
-							variant="header-inverse"
-							onPress={() => router.back()}
-						/>
-					) : null}
-					<Text variant="h3" style={{ color: themeColors.onPrimaryHeader }}>
+					<BackButton variant="surface" onPress={() => router.back()} />
+					<Text variant="h3" style={{ color: themeColors.textPrimary }}>
 						{title}
 					</Text>
 				</View>
+			) : (
+				<View
+					className="min-h-header px-screen-x pt-card pb-card"
+					style={{ backgroundColor: themeColors.surfaceBase }}
+				>
+					<Text variant="h3" style={{ color: themeColors.textPrimary }}>
+						{title}
+					</Text>
+				</View>
+			)}
 
-				{isLoading ? (
-					<View className="flex-1 items-center justify-center">
-						<ActivityIndicator size="large" color={Colors.primary} />
-					</View>
-				) : (
-					<FlatList
-						data={data ?? []}
-						keyExtractor={(item) => item.id}
-						contentContainerStyle={{
-							paddingVertical: spacing.stack.lg,
-							paddingHorizontal: spacing.screen.paddingX,
-							paddingBottom: spacing.stack["2xl"],
-							gap: spacing.stack.sm,
-							flexGrow: 1,
-						}}
-						renderItem={({ item }) => {
-							const target = notificationTarget(item, role);
-							const avatarLabel = senderLabel(item);
-							return (
-								<PressableScale
-									pressedScale={target ? 0.985 : 1}
-									disabled={!target}
-									onPress={() => {
-										if (target) {
-											router.push(target as never);
-										}
-									}}
-									className="rounded-card bg-card px-card-roomy py-card-roomy"
-									style={{
-										opacity: item.isRead ? 0.9 : 1,
-									}}
-								>
-									<View className="flex-row items-start gap-stack-md">
-										<Avatar
-											alt={avatarLabel}
-											className="h-avatar-lg w-avatar-lg"
+			{isLoading ? (
+				<View className="flex-1 items-center justify-center">
+					<ActivityIndicator size="large" color={Colors.primary} />
+				</View>
+			) : (
+				<FlatList
+					data={data ?? []}
+					keyExtractor={(item) => item.id}
+					contentContainerStyle={{
+						padding: spacing.card.padding,
+						paddingBottom: spacing.screen.paddingBottom + spacing.stack.lg,
+						gap: spacing.stack.sm,
+						flexGrow: 1,
+					}}
+					renderItem={({ item }) => {
+						const target = notificationTarget(item, role);
+						const avatarLabel = senderLabel(item);
+						return (
+							<PressableScale
+								pressedScale={target ? 0.985 : 1}
+								disabled={!target}
+								onPress={() => {
+									if (target) {
+										router.push(target as never);
+									}
+								}}
+								className="rounded-card bg-card px-card-roomy py-card-roomy"
+								style={{
+									opacity: item.isRead ? 0.9 : 1,
+								}}
+							>
+								<View className="flex-row items-start gap-stack-md">
+									<Avatar
+										alt={avatarLabel}
+										className="h-avatar-lg w-avatar-lg"
+									>
+										{item.senderImageUrl ? (
+											<AvatarImage source={{ uri: item.senderImageUrl }} />
+										) : null}
+										<AvatarFallback
+											style={{
+												backgroundColor: getAvatarColor(item.senderName),
+											}}
 										>
-											{item.senderImageUrl ? (
-												<AvatarImage source={{ uri: item.senderImageUrl }} />
-											) : null}
-											<AvatarFallback
-												style={{
-													backgroundColor: getAvatarColor(item.senderName),
-												}}
-											>
-												<Text
-													variant="label"
-													className="font-bold"
-													style={{ color: themeColors.surfaceBase }}
-												>
-													{getPfpInitialsFallback(item.senderName)}
-												</Text>
-											</AvatarFallback>
-										</Avatar>
-
-										<View className="flex-1">
-											<View className="flex-row items-start justify-between gap-stack-md">
-												<View className="flex-1">
-													<Text variant="buttonLg" className="text-content">
-														{avatarLabel}
-													</Text>
-													<Text
-														variant="caption"
-														className="mt-1 text-content-muted"
-													>
-														{item.title}
-													</Text>
-													<Text
-														variant="bodySm"
-														className="mt-stack-xs text-content-muted"
-													>
-														{item.body}
-													</Text>
-												</View>
-												{!item.isRead ? (
-													<View
-														className="mt-1 h-status-dot-sm w-status-dot-sm rounded-pill"
-														style={{ backgroundColor: Colors.danger }}
-													/>
-												) : null}
-											</View>
 											<Text
-												variant="caption"
-												className="mt-stack-sm text-content-muted"
+												variant="label"
+												className="font-bold"
+												style={{ color: themeColors.surfaceBase }}
 											>
-												{formatRelativeTime(
-													item.createdAt,
-													new Date(),
-													i18n.language,
-												)}
+												{getPfpInitialsFallback(item.senderName)}
 											</Text>
+										</AvatarFallback>
+									</Avatar>
+
+									<View className="flex-1">
+										<View className="flex-row items-start justify-between gap-stack-md">
+											<View className="flex-1">
+												<Text variant="buttonLg" className="text-content">
+													{avatarLabel}
+												</Text>
+												<Text
+													variant="caption"
+													className="mt-1 text-content-muted"
+												>
+													{item.title}
+												</Text>
+												<Text
+													variant="bodySm"
+													className="mt-stack-xs text-content-muted"
+												>
+													{item.body}
+												</Text>
+											</View>
+											{!item.isRead ? (
+												<View
+													className="mt-1 h-status-dot-sm w-status-dot-sm rounded-pill"
+													style={{ backgroundColor: Colors.danger }}
+												/>
+											) : null}
 										</View>
+										<Text
+											variant="caption"
+											className="mt-stack-sm text-content-muted"
+										>
+											{formatRelativeTime(
+												item.createdAt,
+												new Date(),
+												i18n.language,
+											)}
+										</Text>
 									</View>
-								</PressableScale>
-							);
-						}}
-						ListEmptyComponent={
-							<View className="flex-1 items-center justify-center px-button-x py-stack-xl">
-								<BellRing
-									size={40}
-									color={themeColors.borderDefault}
-									strokeWidth={1.5}
-								/>
-								<Text
-									variant="buttonLg"
-									className="mt-stack-md text-center text-content"
-								>
-									{t("emptyTitle")}
-								</Text>
-								<Text
-									variant="bodySm"
-									className="mt-stack-xs text-center text-content-muted"
-								>
-									{t("emptyBody")}
-								</Text>
-							</View>
-						}
-						refreshControl={
-							<RefreshControl
-								refreshing={isRefetching}
-								onRefresh={refetch}
-								tintColor={Colors.primary}
+								</View>
+							</PressableScale>
+						);
+					}}
+					ListEmptyComponent={
+						<View className="flex-1 items-center justify-center px-button-x py-stack-xl">
+							<BellRing
+								size={40}
+								color={themeColors.borderDefault}
+								strokeWidth={1.5}
 							/>
-						}
-						showsVerticalScrollIndicator={false}
-					/>
-				)}
-			</View>
-		</ScreenSafeAreaView>
+							<Text
+								variant="buttonLg"
+								className="mt-stack-md text-center text-content"
+							>
+								{t("emptyTitle")}
+							</Text>
+							<Text
+								variant="bodySm"
+								className="mt-stack-xs text-center text-content-muted"
+							>
+								{t("emptyBody")}
+							</Text>
+						</View>
+					}
+					refreshControl={
+						<RefreshControl
+							refreshing={isRefetching}
+							onRefresh={refetch}
+							tintColor={Colors.primary}
+						/>
+					}
+					showsVerticalScrollIndicator={false}
+				/>
+			)}
+		</View>
 	);
 }

@@ -26,7 +26,10 @@ import {
 } from "@/src/constants/animation";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
-import { useCreateBookingMutation } from "@/src/features/booking-orders/hooks/useCreateBooking";
+import {
+	useCreateBookingMutation,
+	useInspectionFeePreview,
+} from "@/src/features/booking-orders/hooks";
 import { bookingSchema } from "@/src/features/booking-orders/schemas/form.schema";
 import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpers";
 import {
@@ -150,6 +153,10 @@ export default function BookingDetails() {
 
 	const selectedAddress =
 		addresses?.find((address) => address.is_active) ?? addresses?.[0];
+	const inspectionFeeQuery = useInspectionFeePreview(
+		technicianId,
+		selectedAddress?.id,
+	);
 	const selectedTimeLabel = useMemo(
 		() =>
 			BOOKING_SLOT_OPTIONS.find((slot) => slot.hour === selectedHour)?.label ??
@@ -183,8 +190,11 @@ export default function BookingDetails() {
 		!!selectedDate &&
 		selectedHour !== null &&
 		!Number.isNaN(selectedHour) &&
+		!!inspectionFeeQuery.data &&
 		!isPending &&
-		!isLoadingAddresses;
+		!isLoadingAddresses &&
+		!inspectionFeeQuery.isLoading &&
+		!inspectionFeeQuery.isError;
 	const entering = (index: number) =>
 		reducedMotion
 			? undefined

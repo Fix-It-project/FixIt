@@ -1,8 +1,14 @@
-import {userAddressRoutes, technicianAddressRoutes} from '../src/modules/addresses/addresses.routes.js';
-import app from '../src/shared-app.js';
-import { createHttpHandler } from './http-handler.js';
+import {
+	technicianAddressRoutes,
+	userAddressRoutes,
+} from "../src/modules/addresses/addresses.routes.js";
+import { createSharedApp, mountTerminalHandlers } from "../src/shared-app.js";
+import { createHttpHandler } from "./http-handler.js";
 
-app.use('/', userAddressRoutes);
-app.use('/', technicianAddressRoutes);
+const app = createSharedApp();
+
+app.use("/", userAddressRoutes);
+app.use("/", technicianAddressRoutes);
+mountTerminalHandlers(app);
 
 export const handler = createHttpHandler(app);

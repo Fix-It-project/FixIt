@@ -34,6 +34,11 @@ export default function QuoteBubble({
 	const isSelf =
 		(viewer === "user" && item.proposed_by === "user") ||
 		(viewer === "technician" && item.proposed_by === "technician");
+	const proposerLabel = isSelf
+		? t("detail.quote.you")
+		: item.proposed_by === "user"
+			? t("card.customerFallback")
+			: t("card.technicianFallback");
 
 	const body = (
 		<View
@@ -50,10 +55,8 @@ export default function QuoteBubble({
 					alignSelf: isSelf ? "flex-end" : "flex-start",
 				}}
 			>
-				{item.proposed_by === "user"
-					? t("detail.quote.you")
-					: t("card.technicianFallback")}{" "}
-				· {t("detail.quote.round", { n: item.round_number })}
+				{proposerLabel} · {t("detail.quote.workPrice")} ·{" "}
+				{t("detail.quote.round", { n: item.round_number })}
 				{item.round_number === maxRounds
 					? ` · ${t("detail.quote.final")}`
 					: ""}

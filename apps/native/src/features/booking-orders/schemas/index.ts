@@ -1,4 +1,5 @@
 export * from "./form.schema";
+export * from "./inspection-fee.schema";
 export * from "./order-eta.schema";
 export * from "./order-status.schema";
 export * from "./quote.schema";
