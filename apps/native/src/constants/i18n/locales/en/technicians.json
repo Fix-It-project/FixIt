@@ -43,6 +43,7 @@
 	"about": {
 		"heading": "Details",
 		"inspectionFee": "Inspection fee",
+		"inspectionFeeDynamic": "Calculated from distance when you book",
 		"availableDays": "Available days",
 		"availableTimes": "Available times",
 		"allHours": "All listed hours",
