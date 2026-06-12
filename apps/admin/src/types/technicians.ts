@@ -65,6 +65,7 @@ export type TechnicianStatus = "pending" | "verified" | "blocked" | "rejected";
 export interface AdminTechnicianDocument {
 	kind: string;
 	status: "uploaded" | "missing";
+	url: string | null;
 }
 
 /** Technician order-history row (detail page). */
@@ -105,6 +106,7 @@ export interface AdminTechnician {
 	documents: AdminTechnicianDocument[];
 	status: TechnicianStatus;
 	blocked: boolean;
+	blockPending: boolean;
 	blockedReason?: string;
 	blockedAt?: string;
 	blockedBy?: string;

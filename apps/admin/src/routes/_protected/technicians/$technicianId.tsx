@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ShieldCheck, Star } from "lucide-react";
 import { useState } from "react";
 import { CategoryTag } from "@/components/CategoryTag";
+import { DocumentList } from "@/components/DocumentList";
 import { BlockedNotice } from "@/components/detail/BlockedNotice";
 import { ContactCards } from "@/components/detail/ContactCards";
 import { DetailHeader } from "@/components/detail/DetailHeader";
@@ -18,7 +19,14 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
 import { humanizeStatus, statusVariant } from "@/lib/order-status";
 import { OrderDetailModal } from "../homeowners/components/OrderDetailModal";
@@ -37,7 +45,8 @@ export const Route = createFileRoute("/_protected/technicians/$technicianId")({
 function TechnicianDetailPage() {
 	const { technicianId } = Route.useParams();
 	const { data, isLoading } = useTechnicians();
-	const { data: history, isLoading: historyLoading } = useTechnicianHistory(technicianId);
+	const { data: history, isLoading: historyLoading } =
+		useTechnicianHistory(technicianId);
 	const blockMutation = useBlockTechnician();
 	const unblockMutation = useUnblockTechnician();
 
@@ -48,13 +57,16 @@ function TechnicianDetailPage() {
 	const tech = data?.find((t) => t.id === technicianId);
 
 	if (isLoading) {
-		return <div className="p-8 text-sm text-muted-foreground">Loading…</div>;
+		return <div className="p-8 text-muted-foreground text-sm">Loading…</div>;
 	}
 	if (!tech) {
 		return (
-			<div className="p-8 flex flex-col items-start gap-3">
-				<p className="text-sm text-muted-foreground">Technician not found.</p>
-				<Link to="/technicians" className="text-sm text-primary inline-flex items-center gap-1">
+			<div className="flex flex-col items-start gap-3 p-8">
+				<p className="text-muted-foreground text-sm">Technician not found.</p>
+				<Link
+					to="/technicians"
+					className="inline-flex items-center gap-1 text-primary text-sm"
+				>
 					<ArrowLeft className="h-4 w-4" /> Back to technicians
 				</Link>
 			</div>
@@ -62,12 +74,17 @@ function TechnicianDetailPage() {
 	}
 
 	const t = tech;
-	const completionRate = t.totalOrders > 0 ? Math.round((t.completed / t.totalOrders) * 100) : 0;
-	const cancellationRate = t.totalOrders > 0 ? Math.round((t.cancelled / t.totalOrders) * 100) : 0;
+	const completionRate =
+		t.totalOrders > 0 ? Math.round((t.completed / t.totalOrders) * 100) : 0;
+	const cancellationRate =
+		t.totalOrders > 0 ? Math.round((t.cancelled / t.totalOrders) * 100) : 0;
 
 	return (
-		<div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 pb-12">
-			<Link to="/technicians" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 w-fit">
+		<div className="flex flex-col gap-6 p-4 pb-12 sm:p-6 lg:p-8">
+			<Link
+				to="/technicians"
+				className="inline-flex w-fit items-center gap-1.5 text-muted-foreground text-sm hover:text-foreground"
+			>
 				<ArrowLeft className="h-4 w-4" /> Technicians
 			</Link>
 
@@ -77,42 +94,67 @@ function TechnicianDetailPage() {
 				title={t.name}
 				subtitle={
 					<>
-						<CategoryTag meta={getCategoryMetaBySpecialty(t.specialty)} fallbackLabel={t.specialty} size="sm" />
-						<span>· {t.city} · Joined {t.joined}</span>
+						<CategoryTag
+							meta={getCategoryMetaBySpecialty(t.specialty)}
+							fallbackLabel={t.specialty}
+							size="sm"
+						/>
+						<span>
+							· {t.city} · Joined {t.joined}
+						</span>
 					</>
 				}
 				badges={
 					<>
-						<StatusBadge variant={t.availability === "online" ? "success" : "muted"} label={t.availability === "online" ? "Online" : "Offline"} />
+						<StatusBadge
+							variant={t.availability === "online" ? "success" : "muted"}
+							label={t.availability === "online" ? "Online" : "Offline"}
+						/>
 						{t.blocked ? (
 							<StatusBadge variant="danger" label="Blocked" />
+						) : t.blockPending ? (
+							<StatusBadge variant="warn" label="Block scheduled" />
 						) : (
-							<span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+							<span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 px-2 py-0.5 font-medium text-[11px] text-emerald-700 dark:text-emerald-400">
 								<ShieldCheck className="h-3 w-3" /> Verified
 							</span>
 						)}
 					</>
 				}
 				action={
-					t.blocked ? (
-						<Button variant="default" onClick={() => setUnblocking(true)}>Unblock technician</Button>
+					t.blocked || t.blockPending ? (
+						<Button variant="default" onClick={() => setUnblocking(true)}>
+							Unblock technician
+						</Button>
 					) : (
-						<Button variant="destructive" onClick={() => setBlocking(true)}>Block technician</Button>
+						<Button variant="destructive" onClick={() => setBlocking(true)}>
+							Block technician
+						</Button>
 					)
 				}
 			/>
 
 			{/* KPI strip */}
-			<div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-				<KpiCard value={t.completed} label={`Completed · ${completionRate}%`} valueClassName="text-emerald-600 dark:text-emerald-400" />
+			<div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+				<KpiCard
+					value={t.completed}
+					label={`Completed · ${completionRate}%`}
+					valueClassName="text-emerald-600 dark:text-emerald-400"
+				/>
 				<KpiCard value={`EGP ${t.revenue}`} label="Revenue" />
-				<KpiCard value={t.cancelled} label={`Cancelled · ${cancellationRate}%`} valueClassName="text-destructive" />
+				<KpiCard
+					value={t.cancelled}
+					label={`Cancelled · ${cancellationRate}%`}
+					valueClassName="text-destructive"
+				/>
 				<KpiCard value={t.totalOrders} label="Total orders" />
 				<KpiCard
 					value={
 						<span className="inline-flex items-center gap-1">
 							{t.rating != null ? t.rating.toFixed(2) : "—"}
-							{t.rating != null && <Star className="h-4 w-4 fill-amber-400 text-amber-400" />}
+							{t.rating != null && (
+								<Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+							)}
 						</span>
 					}
 					label={`Avg rating · ${t.reviews} reviews`}
@@ -122,32 +164,78 @@ function TechnicianDetailPage() {
 
 			<ContactCards phone={t.phone} email={t.email} />
 
-			{t.blocked && <BlockedNotice reason={t.blockedReason} at={t.blockedAt} by={t.blockedBy} />}
+			{t.blocked && (
+				<BlockedNotice
+					reason={t.blockedReason}
+					at={t.blockedAt}
+					by={t.blockedBy}
+				/>
+			)}
+
+			{!t.blocked && t.blockPending && (
+				<div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-amber-700 text-sm dark:text-amber-400">
+					Block scheduled. This technician is finishing their active orders and
+					will be blocked automatically once the last one completes. Unblock to
+					cancel.
+				</div>
+			)}
+
+			{/* Verification documents */}
+			<div>
+				<p className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+					Verification documents
+				</p>
+				<DocumentList documents={t.documents} />
+			</div>
 
 			{/* Order history */}
 			<div>
-				<p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">Order history</p>
+				<p className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+					Order history
+				</p>
 				<div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
 					<Table>
 						<TableHeader>
-							<TableRow className="bg-muted/40 hover:bg-muted/40 border-b border-border">
-								<TableHead className="pl-5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Order</TableHead>
-								<TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Date</TableHead>
-								<TableHead className="hidden sm:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Service</TableHead>
-								<TableHead className="hidden sm:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Customer</TableHead>
-								<TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Status</TableHead>
-								<TableHead className="text-right pr-5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Amount</TableHead>
+							<TableRow className="border-border border-b bg-muted/40 hover:bg-muted/40">
+								<TableHead className="h-11 pl-5 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+									Order
+								</TableHead>
+								<TableHead className="h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+									Date
+								</TableHead>
+								<TableHead className="hidden h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider sm:table-cell">
+									Service
+								</TableHead>
+								<TableHead className="hidden h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider sm:table-cell">
+									Customer
+								</TableHead>
+								<TableHead className="h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+									Status
+								</TableHead>
+								<TableHead className="h-11 pr-5 text-right font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+									Amount
+								</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{historyLoading && (
 								<TableRow>
-									<TableCell colSpan={6} className="text-center text-muted-foreground py-10 text-sm">Loading…</TableCell>
+									<TableCell
+										colSpan={6}
+										className="py-10 text-center text-muted-foreground text-sm"
+									>
+										Loading…
+									</TableCell>
 								</TableRow>
 							)}
 							{!historyLoading && (history?.length ?? 0) === 0 && (
 								<TableRow>
-									<TableCell colSpan={6} className="text-center text-muted-foreground py-10 text-sm">No order history.</TableCell>
+									<TableCell
+										colSpan={6}
+										className="py-10 text-center text-muted-foreground text-sm"
+									>
+										No order history.
+									</TableCell>
 								</TableRow>
 							)}
 							{history?.map((h) => (
@@ -156,13 +244,24 @@ function TechnicianDetailPage() {
 									onClick={() => setSelectedOrderId(h.id)}
 									className="cursor-pointer transition-colors hover:bg-muted/30"
 								>
-									<TableCell className="pl-5 py-3 text-xs font-mono">{h.id.slice(0, 8)}</TableCell>
-									<TableCell className="py-3 text-xs text-muted-foreground whitespace-nowrap">{h.date}</TableCell>
-									<TableCell className="hidden sm:table-cell py-3 text-xs">{h.category}</TableCell>
-									<TableCell className="hidden sm:table-cell py-3 text-xs">{h.customer}</TableCell>
+									<TableCell className="py-3 pl-5 font-mono text-xs">
+										{h.id.slice(0, 8)}
+									</TableCell>
+									<TableCell className="whitespace-nowrap py-3 text-muted-foreground text-xs">
+										{h.date}
+									</TableCell>
+									<TableCell className="hidden py-3 text-xs sm:table-cell">
+										{h.category}
+									</TableCell>
+									<TableCell className="hidden py-3 text-xs sm:table-cell">
+										{h.customer}
+									</TableCell>
 									<TableCell className="py-3">
 										<div className="flex flex-col items-start gap-1">
-											<StatusBadge variant={statusVariant(h.status)} label={humanizeStatus(h.status)} />
+											<StatusBadge
+												variant={statusVariant(h.status)}
+												label={humanizeStatus(h.status)}
+											/>
 											{h.review && (
 												<span className="flex items-center gap-0.5">
 													{Array.from({ length: 5 }, (_, i) => (
@@ -171,12 +270,14 @@ function TechnicianDetailPage() {
 															className={`h-3 w-3 ${i < h.review!.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
 														/>
 													))}
-													<span className="text-[11px] text-muted-foreground ml-0.5">{h.review.rating}.0</span>
+													<span className="ml-0.5 text-[11px] text-muted-foreground">
+														{h.review.rating}.0
+													</span>
 												</span>
 											)}
 										</div>
 									</TableCell>
-									<TableCell className="text-right pr-5 py-3 text-xs font-medium tabular-nums">
+									<TableCell className="py-3 pr-5 text-right font-medium text-xs tabular-nums">
 										{h.amount > 0 ? `EGP ${h.amount}` : "—"}
 									</TableCell>
 								</TableRow>
@@ -210,12 +311,18 @@ function TechnicianDetailPage() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Unblock {t.name}?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This technician will be able to receive orders again. You can block them again at any time.
+							This technician will be able to receive orders again. You can
+							block them again at any time.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={() => { unblockMutation.mutate(t.id); setUnblocking(false); }}>
+						<AlertDialogAction
+							onClick={() => {
+								unblockMutation.mutate(t.id);
+								setUnblocking(false);
+							}}
+						>
 							Unblock
 						</AlertDialogAction>
 					</AlertDialogFooter>

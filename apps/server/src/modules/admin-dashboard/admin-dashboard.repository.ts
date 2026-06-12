@@ -19,6 +19,21 @@ export type * from "./admin-dashboard.repository.types.js";
 const ORDER_FIELDS =
 	"id, status, active, created_at, final_price, service_id, technician_id, user_id, user_completed_at, technician_completed_at, cancellation_reason" as const;
 
+// Non-terminal order statuses (everything except completed / declined / the
+// cancelled* variants / rejected). An account with any of these is mid-engagement.
+const ACTIVE_ORDER_STATUSES = [
+	"pending",
+	"accepted",
+	"tracking",
+	"arrived_inspection",
+	"awaiting_final_cost",
+	"negotiating",
+	"in_progress",
+	"awaiting_payment",
+	"reschedule_requested_by_user",
+	"reschedule_requested_by_technician",
+] as const;
+
 const DETAILED_SELECT =
 	"id, status, created_at, final_price, cancellation_reason, " +
 	"users(full_name), " +
@@ -129,7 +144,7 @@ export class AdminDashboardRepository {
 		const { data, error } = await supabaseAdmin
 			.from("users")
 			.select(
-				"id, created_at, full_name, email, phone, blocked, blocked_reason, blocked_at, blocked_by",
+				"id, created_at, full_name, email, phone, blocked, block_pending, blocked_reason, blocked_at, blocked_by",
 			);
 		if (error) throw new Error(error.message);
 		return (data ?? []) as HomeownerUserRow[];
@@ -172,19 +187,27 @@ export class AdminDashboardRepository {
 
 	async setBlocked(
 		userId: string,
-		state: { blocked: boolean; reason: string | null; by: string | null },
+		state: {
+			blocked: boolean;
+			blockPending: boolean;
+			reason: string | null;
+			by: string | null;
+		},
 	): Promise<HomeownerUserRow | null> {
 		const { data, error } = await supabaseAdmin
 			.from("users")
 			.update({
 				blocked: state.blocked,
+				block_pending: state.blockPending,
 				blocked_reason: state.reason,
+				// blocked_at is set now when fully blocked; for a deferred block the
+				// finalize trigger sets it when the last order completes.
 				blocked_at: state.blocked ? new Date().toISOString() : null,
 				blocked_by: state.by,
 			})
 			.eq("id", userId)
 			.select(
-				"id, created_at, full_name, email, phone, blocked, blocked_reason, blocked_at, blocked_by",
+				"id, created_at, full_name, email, phone, blocked, block_pending, blocked_reason, blocked_at, blocked_by",
 			)
 			.single();
 		if (error) {
@@ -192,6 +215,21 @@ export class AdminDashboardRepository {
 			throw new Error(error.message);
 		}
 		return data as HomeownerUserRow;
+	}
+
+	/** Non-terminal (active) orders for an account — drives block deferral. */
+	async getActiveOrders(
+		role: "user" | "technician",
+		id: string,
+	): Promise<{ id: string; status: string }[]> {
+		const column = role === "user" ? "user_id" : "technician_id";
+		const { data, error } = await supabaseAdmin
+			.from("orders")
+			.select("id, status")
+			.eq(column, id)
+			.in("status", ACTIVE_ORDER_STATUSES);
+		if (error) throw new Error(error.message);
+		return (data ?? []) as { id: string; status: string }[];
 	}
 
 	// ---- Technicians ----
@@ -211,6 +249,7 @@ export class AdminDashboardRepository {
 			phone: r.phone,
 			is_available: r.is_available,
 			status: r.status,
+			block_pending: !!r.block_pending,
 			blocked_reason: r.blocked_reason,
 			blocked_at: r.blocked_at,
 			blocked_by: r.blocked_by,
@@ -255,13 +294,19 @@ export class AdminDashboardRepository {
 	/** Set a technician's status + block metadata. Returns null if no row matched. */
 	async setTechnicianStatus(
 		id: string,
-		state: { status: string; reason?: string | null; by?: string | null },
+		state: {
+			status: string;
+			reason?: string | null;
+			by?: string | null;
+			blockPending?: boolean;
+		},
 	): Promise<{ id: string } | null> {
 		const isBlocked = state.status === "blocked";
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.update({
 				status: state.status,
+				block_pending: state.blockPending ?? false,
 				blocked_reason: state.reason ?? null,
 				blocked_at: isBlocked ? new Date().toISOString() : null,
 				blocked_by: state.by ?? null,

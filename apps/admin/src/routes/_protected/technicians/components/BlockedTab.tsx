@@ -13,47 +13,85 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
 import type { AdminTechnician } from "@/types";
 
 interface BlockedTabProps {
 	techs: AdminTechnician[];
 	onUnblock: (id: string) => void;
+	onView: (tech: AdminTechnician) => void;
 }
 
-export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
+export function BlockedTab({ techs, onUnblock, onView }: BlockedTabProps) {
 	const [unblocking, setUnblocking] = useState<AdminTechnician | null>(null);
 	const [page, setPage] = useState(1);
 
 	const pageCount = Math.max(1, Math.ceil(techs.length / PAGE_SIZE));
-	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	useEffect(() => {
+		if (page > pageCount) setPage(pageCount);
+	}, [page, pageCount]);
 	const pageStart = (page - 1) * PAGE_SIZE;
 	const paged = techs.slice(pageStart, pageStart + PAGE_SIZE);
 
 	return (
 		<>
 			{/* Mobile card view */}
-			<div className="md:hidden flex flex-col gap-3">
-				{techs.length === 0 && <p className="text-center text-muted-foreground py-8 text-sm">No blocked technicians.</p>}
+			<div className="flex flex-col gap-3 md:hidden">
+				{techs.length === 0 && (
+					<p className="py-8 text-center text-muted-foreground text-sm">
+						No blocked technicians.
+					</p>
+				)}
 				{paged.map((tech) => (
-					<div key={tech.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+					<div
+						key={tech.id}
+						className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
+					>
 						<TechAvatar initials={tech.initials} color={tech.color} size="md" />
-						<div className="flex-1 min-w-0">
-							<p className="text-sm font-semibold text-foreground truncate">{tech.name}</p>
+						<div className="min-w-0 flex-1">
+							<p className="truncate font-semibold text-foreground text-sm">
+								{tech.name}
+							</p>
 							<div className="mt-0.5">
-								<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
+								<CategoryTag
+									meta={getCategoryMetaBySpecialty(tech.specialty)}
+									fallbackLabel={tech.specialty}
+									size="sm"
+								/>
 							</div>
-							<p className="text-xs text-destructive mt-0.5 line-clamp-2">{tech.blockedReason}</p>
-							<p className="text-[11px] text-muted-foreground mt-0.5">Blocked {tech.blockedAt}</p>
+							<p className="mt-0.5 line-clamp-2 text-destructive text-xs">
+								{tech.blockedReason}
+							</p>
+							<p className="mt-0.5 text-[11px] text-muted-foreground">
+								Blocked {tech.blockedAt}
+							</p>
 						</div>
-						<Button size="sm" variant="outline" onClick={() => setUnblocking(tech)}>Unblock</Button>
+						<div className="flex flex-col gap-2">
+							<Button size="sm" variant="outline" onClick={() => onView(tech)}>
+								View
+							</Button>
+							<Button
+								size="sm"
+								variant="outline"
+								onClick={() => setUnblocking(tech)}
+							>
+								Unblock
+							</Button>
+						</div>
 					</div>
 				))}
 			</div>
 
 			{/* Desktop table */}
-			<div className="hidden md:block overflow-x-auto rounded-lg border border-border">
+			<div className="hidden overflow-x-auto rounded-lg border border-border md:block">
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -61,35 +99,71 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 							<TableHead>Reason</TableHead>
 							<TableHead className="hidden lg:table-cell">Blocked on</TableHead>
 							<TableHead className="hidden xl:table-cell">Blocked by</TableHead>
-							<TableHead className="text-right pr-4">Action</TableHead>
+							<TableHead className="pr-4 text-right">Action</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{techs.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={5} className="text-center text-muted-foreground py-8">No blocked technicians.</TableCell>
+								<TableCell
+									colSpan={5}
+									className="py-8 text-center text-muted-foreground"
+								>
+									No blocked technicians.
+								</TableCell>
 							</TableRow>
 						)}
 						{paged.map((tech) => (
 							<TableRow key={tech.id}>
 								<TableCell className="pl-4">
 									<div className="flex items-center gap-2.5">
-										<TechAvatar initials={tech.initials} color={tech.color} size="sm" />
+										<TechAvatar
+											initials={tech.initials}
+											color={tech.color}
+											size="sm"
+										/>
 										<div>
-											<p className="text-sm font-semibold text-foreground">{tech.name}</p>
+											<p className="font-semibold text-foreground text-sm">
+												{tech.name}
+											</p>
 											<div className="mt-0.5">
-												<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
+												<CategoryTag
+													meta={getCategoryMetaBySpecialty(tech.specialty)}
+													fallbackLabel={tech.specialty}
+													size="sm"
+												/>
 											</div>
 										</div>
 									</div>
 								</TableCell>
 								<TableCell className="max-w-[200px]">
-									<p className="text-sm text-destructive line-clamp-2">{tech.blockedReason}</p>
+									<p className="line-clamp-2 text-destructive text-sm">
+										{tech.blockedReason}
+									</p>
 								</TableCell>
-								<TableCell className="hidden lg:table-cell text-xs text-muted-foreground">{tech.blockedAt}</TableCell>
-								<TableCell className="hidden xl:table-cell text-xs text-muted-foreground">{tech.blockedBy}</TableCell>
-								<TableCell className="text-right pr-4">
-									<Button size="sm" variant="outline" onClick={() => setUnblocking(tech)}>Unblock</Button>
+								<TableCell className="hidden text-muted-foreground text-xs lg:table-cell">
+									{tech.blockedAt}
+								</TableCell>
+								<TableCell className="hidden text-muted-foreground text-xs xl:table-cell">
+									{tech.blockedBy}
+								</TableCell>
+								<TableCell className="pr-4 text-right">
+									<div className="inline-flex gap-2">
+										<Button
+											size="sm"
+											variant="outline"
+											onClick={() => onView(tech)}
+										>
+											View
+										</Button>
+										<Button
+											size="sm"
+											variant="outline"
+											onClick={() => setUnblocking(tech)}
+										>
+											Unblock
+										</Button>
+									</div>
 								</TableCell>
 							</TableRow>
 						))}
@@ -114,12 +188,20 @@ export function BlockedTab({ techs, onUnblock }: BlockedTabProps) {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Unblock {unblocking?.name}?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This technician will be able to receive orders again. You can block them again at any time.
+							This technician will be able to receive orders again. You can
+							block them again at any time.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={() => { if (unblocking) { onUnblock(unblocking.id); setUnblocking(null); } }}>
+						<AlertDialogAction
+							onClick={() => {
+								if (unblocking) {
+									onUnblock(unblocking.id);
+									setUnblocking(null);
+								}
+							}}
+						>
 							Unblock
 						</AlertDialogAction>
 					</AlertDialogFooter>

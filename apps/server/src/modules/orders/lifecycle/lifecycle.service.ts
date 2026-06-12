@@ -7,6 +7,8 @@ import { logger } from "../../../shared/logger.js";
 import { assertFixedSlotStartAtInCairo } from "../../../shared/time/fixed-slots.js";
 import type { Order } from "../orders.repository.js";
 import { notificationsService } from "../../notifications/notifications.service.js";
+import { techniciansRepository } from "../../technicians/technicians.repository.js";
+import { usersRepository } from "../../users/index.js";
 import {
 	type ActorRole,
 	lifecycleRepository,
@@ -76,9 +78,36 @@ function senderForRole(
 export class LifecycleService {
 	constructor(private readonly repo = lifecycleRepository) {}
 
+	// A blocked OR block_pending account cannot START new work. Plain 403 with
+	// NO `accountStatus` field — a block_pending user finishing existing orders
+	// must just see "can't start new orders", not get force-logged-out by the
+	// native interceptor (fully-blocked users are already stopped at the auth
+	// middleware before they reach here).
+	private async assertCanStartWork(
+		role: "user" | "technician",
+		id: string,
+	): Promise<void> {
+		const suspended =
+			role === "user"
+				? await usersRepository
+						.getUserById(id)
+						.then((u) => !!(u?.blocked || u?.block_pending))
+						.catch(() => false)
+				: await techniciansRepository
+						.getTechnicianById(id)
+						.then((t) => t?.status === "blocked" || !!t?.block_pending)
+						.catch(() => false);
+		if (suspended) {
+			throw AppError.forbidden(
+				"Your account is suspended, so you can't start new orders. Contact support for help.",
+			);
+		}
+	}
+
 	// Submit
 
 	async submitOrder(userId: string, body: SubmitOrderInput): Promise<Order> {
+		await this.assertCanStartWork("user", userId);
 		assertFixedSlotStartAtInCairo({
 			dateYmd: body.scheduled_date,
 			startAt: body.scheduled_start_at,
@@ -122,6 +151,7 @@ export class LifecycleService {
 	// Technician actions
 
 	async techAccept(orderId: string, techId: string): Promise<Order> {
+		await this.assertCanStartWork("technician", techId);
 		const order = await this.repo.orderAction({
 			orderId,
 			actorId: techId,

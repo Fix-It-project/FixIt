@@ -37,6 +37,7 @@ export interface AdminHomeowner extends Homeowner {
 	joinedAt: string;
 	lastOrderAt: string | null;
 	spendValue: number;
+	blockPending: boolean;
 }
 
 export type HomeownerSort = "newest" | "most_orders" | "most_spent" | "recent_order";

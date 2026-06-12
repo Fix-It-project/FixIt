@@ -247,6 +247,25 @@ export class TechnicianAuthService {
   async refreshSession(refreshToken: string) {
     const result = await technicianAuthRepository.refreshToken(refreshToken);
 
+    // Re-gate the refresh so a blocked technician can't silently renew its
+    // session for days (fail-open on read error). block_pending passes.
+    const techId = result.user?.id;
+    if (techId) {
+      let blocked = false;
+      try {
+        const rec = await techniciansRepository.getTechnicianById(techId);
+        blocked = (rec as { status?: string } | null)?.status === 'blocked';
+      } catch {
+        // fail-open
+      }
+      if (blocked) {
+        throw AppError.forbidden(
+          'Your account has been blocked. Contact support for assistance.',
+          { fields: { accountStatus: 'blocked' } },
+        );
+      }
+    }
+
     return {
       technician: result.user,
       session: {

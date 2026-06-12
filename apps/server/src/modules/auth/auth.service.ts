@@ -106,6 +106,25 @@ export class AuthService {
 	async refreshSession(refreshToken: string) {
 		const result = await authRepository.refreshToken(refreshToken);
 
+		// Re-gate the refresh so a blocked account can't silently renew its session
+		// for days (fail-open on read error). block_pending passes.
+		const userId = result.user?.id;
+		if (userId) {
+			let blocked = false;
+			try {
+				const rec = await usersRepository.getUserById(userId);
+				blocked = !!(rec as { blocked?: boolean } | null)?.blocked;
+			} catch {
+				// fail-open
+			}
+			if (blocked) {
+				throw AppError.forbidden(
+					"Your account has been blocked. Contact support for assistance.",
+					{ fields: { accountStatus: "blocked" } },
+				);
+			}
+		}
+
 		return {
 			user: result.user,
 			session: {
