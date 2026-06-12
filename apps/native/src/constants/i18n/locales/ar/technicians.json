@@ -43,7 +43,9 @@
 	"about": {
 		"heading": "التفاصيل",
 		"inspectionFee": "رسوم المعاينة",
-		"inspectionFeeDynamic": "يتم احتسابها حسب المسافة عند الحجز",
+		"loadingInspectionFee": "جارٍ احتساب رسوم المعاينة...",
+		"addAddressForFee": "أضف عنواناً لمعاينة الرسوم",
+		"inspectionFeeUnavailable": "رسوم المعاينة غير متاحة",
 		"availableDays": "أيام التوفر",
 		"availableTimes": "أوقات التوفر",
 		"allHours": "جميع الساعات المدرجة",

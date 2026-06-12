@@ -43,7 +43,9 @@
 	"about": {
 		"heading": "Details",
 		"inspectionFee": "Inspection fee",
-		"inspectionFeeDynamic": "Calculated from distance when you book",
+		"loadingInspectionFee": "Calculating inspection fee...",
+		"addAddressForFee": "Add address to preview fee",
+		"inspectionFeeUnavailable": "Inspection fee unavailable",
 		"availableDays": "Available days",
 		"availableTimes": "Available times",
 		"allHours": "All listed hours",

@@ -10,6 +10,9 @@ import { View } from "react-native";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
+import { useInspectionFeePreview } from "@/src/features/booking-orders/hooks";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
 import { useTechnicianPublicSchedule } from "@/src/features/booking-orders/hooks/usePublicSchedule";
 import { BOOKING_SLOT_OPTIONS } from "@/src/features/booking-orders/utils/fixed-slots";
 
@@ -63,7 +66,27 @@ interface AboutTabProps {
 
 export function AboutTab({ technicianId }: AboutTabProps) {
 	const { t } = useTranslation("technicians");
+	const { data: addresses, isLoading: isLoadingAddresses } = useAddressesQuery();
 	const { templates, isLoading } = useTechnicianPublicSchedule(technicianId);
+	const activePricingAddress = useMemo(() => {
+		return (
+			addresses?.find(
+				(address) =>
+					address.is_active &&
+					address.latitude != undefined &&
+					address.longitude != undefined,
+			) ??
+			addresses?.find(
+				(address) =>
+					address.latitude != undefined && address.longitude != undefined,
+			) ??
+			null
+		);
+	}, [addresses]);
+	const inspectionFeeQuery = useInspectionFeePreview(
+		technicianId,
+		activePricingAddress?.id,
+	);
 
 	const activeDays = useMemo(() => {
 		const set = new Set<number>();
@@ -80,6 +103,13 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 	}, [templates]);
 
 	const hasSchedule = activeDays.length > 0;
+	const inspectionFeeLabel = inspectionFeeQuery.data
+		? formatCurrency(inspectionFeeQuery.data.inspection_fee)
+		: isLoadingAddresses || inspectionFeeQuery.isLoading
+			? t("about.loadingInspectionFee")
+			: !activePricingAddress?.id
+				? t("about.addAddressForFee")
+				: t("about.inspectionFeeUnavailable");
 
 	return (
 		<View className="py-stack-md">
@@ -91,7 +121,7 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 				<InfoRow
 					icon={Banknote}
 					label={t("about.inspectionFee")}
-					value={t("about.inspectionFeeDynamic")}
+					value={inspectionFeeLabel}
 				/>
 				<View className="mx-stack-sm h-px bg-edge/20" />
 

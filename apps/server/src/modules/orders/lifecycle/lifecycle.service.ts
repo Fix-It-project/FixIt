@@ -9,8 +9,8 @@ import { supabaseAdmin } from "../../../shared/db/supabase.js";
 import { AppError } from "../../../shared/errors/index.js";
 import { logger } from "../../../shared/logger.js";
 import { assertFixedSlotStartAtInCairo } from "../../../shared/time/fixed-slots.js";
-import type { Order } from "../orders.repository.js";
 import { notificationsService } from "../../notifications/notifications.service.js";
+import type { Order } from "../orders.repository.js";
 import {
 	type ActorRole,
 	lifecycleRepository,
