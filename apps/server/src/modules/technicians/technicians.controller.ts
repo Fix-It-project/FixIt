@@ -7,11 +7,13 @@ import { parseCoords } from "../../shared/utils/technicians/index.js";
 import { categoriesRepository } from "../categories/categories.repository.js";
 import { techniciansRepository } from "./technicians.repository.js";
 import { TechniciansService } from "./technicians.service.js";
+import { techniciansStatsRepository } from "./technicians-stats.repository.js";
 
 const service = new TechniciansService(
 	techniciansRepository,
 	categoriesRepository,
 	storageRepository,
+	techniciansStatsRepository,
 );
 
 export class TechniciansController {
@@ -121,6 +123,42 @@ export class TechniciansController {
 			});
 			req.log.info({ action: "technician_self_profile_updated", technicianId });
 			res.json({ profile });
+		},
+	);
+
+	updateAvailability: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const technicianId = (req as any).technician?.id;
+			if (!technicianId) {
+				throw AppError.unauthorized("Technician not authenticated", {
+					token: "no_technician",
+				});
+			}
+			const { is_available } = req.body as { is_available: boolean };
+			const profile = await service.updateAvailability(
+				technicianId,
+				is_available,
+			);
+			req.log.info({
+				action: "technician_availability_updated",
+				technicianId,
+				is_available,
+			});
+			res.json({ profile });
+		},
+	);
+
+	getStats: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const technicianId = (req as any).technician?.id;
+			if (!technicianId) {
+				throw AppError.unauthorized("Technician not authenticated", {
+					token: "no_technician",
+				});
+			}
+			const stats = await service.getStats(technicianId);
+			req.log.info({ action: "technician_stats_retrieved", technicianId });
+			res.json({ stats });
 		},
 	);
 

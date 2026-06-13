@@ -1,6 +1,16 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
 import type { TechnicianSort } from "../../shared/dtos/index.js";
 import type { IStorageRepository } from "../../shared/storage/storage.repository.js";
+import {
+	cairoDateString,
+	cairoLastNDays,
+	cairoMidnightUtc,
+	cairoStartOfToday,
+	cairoStartOfWeek,
+	cairoStartOfYesterday,
+	shiftDateString,
+} from "../../shared/time/cairo-time.js";
+import { PENDING_ORDER_EXPIRY_HOURS } from "../../shared/time/order-expiry.js";
 import { sortByDistance } from "../../shared/utils/technicians/index.js";
 import type { ICategoriesRepository } from "../categories/categories.repository.js";
 import type {
@@ -14,6 +24,7 @@ import type {
 	UpdateTechnicianSelfData,
 } from "./technicians.repository.js";
 import { toDTO } from "./technicians.repository.js";
+import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 
 export interface TechnicianListOpts {
 	lat?: number;
@@ -21,6 +32,32 @@ export interface TechnicianListOpts {
 	sort?: TechnicianSort;
 	limit?: number;
 	offset?: number;
+}
+
+/** Dashboard aggregates for the technician home screen. */
+export interface TechnicianDashboardStats {
+	earnings: {
+		today: number;
+		yesterday: number;
+		thisWeek: number;
+		/** Last 7 Cairo calendar days, oldest first, today last. */
+		daily: Array<{ date: string; amount: number }>;
+	};
+	jobs: {
+		doneToday: number;
+		thisWeek: number;
+		pendingCount: number;
+	};
+	rates: {
+		/** tech_accept / (tech_accept + tech_decline), last 30 days. Null when no decisions. */
+		acceptanceRate: number | null;
+		/** cancelled_by_technician / (cancelled_by_technician + completed), last 30 days. Null when no resolved orders. */
+		cancellationRate: number | null;
+		rating: number | null;
+		reviewCount: number;
+	};
+	/** Hours before a pending order is auto-rejected (see shared/time/order-expiry). */
+	pendingExpiryHours: number;
 }
 
 export interface ITechniciansService {
@@ -40,6 +77,11 @@ export interface ITechniciansService {
 		technicianId: string,
 		data: UpdateTechnicianSelfData,
 	): Promise<TechnicianSelfProfile>;
+	updateAvailability(
+		technicianId: string,
+		isAvailable: boolean,
+	): Promise<TechnicianSelfProfile>;
+	getStats(technicianId: string): Promise<TechnicianDashboardStats>;
 	uploadProfileImage(
 		technicianId: string,
 		file: Express.Multer.File,
@@ -55,6 +97,7 @@ export class TechniciansService implements ITechniciansService {
 			>,
 		private readonly categoriesRepo: ICategoriesRepository,
 		private readonly storageRepo: IStorageRepository,
+		private readonly statsRepo: ITechniciansStatsRepository,
 	) {}
 
 	async getTechniciansByCategory(
@@ -221,6 +264,97 @@ export class TechniciansService implements ITechniciansService {
 	): Promise<TechnicianSelfProfile> {
 		await this.repo.updateTechnicianSelf(technicianId, data);
 		return this.getSelf(technicianId);
+	}
+
+	async updateAvailability(
+		technicianId: string,
+		isAvailable: boolean,
+	): Promise<TechnicianSelfProfile> {
+		await this.repo.updateTechnicianSelf(technicianId, {
+			is_available: isAvailable,
+		});
+		return this.getSelf(technicianId);
+	}
+
+	async getStats(technicianId: string): Promise<TechnicianDashboardStats> {
+		const now = new Date();
+		const todayStr = cairoDateString(now);
+		const last7Days = cairoLastNDays(7, now);
+		const startOfToday = cairoStartOfToday(now);
+		const startOfYesterday = cairoStartOfYesterday(now);
+		const startOfWeek = cairoStartOfWeek(now);
+		const weekStartDate = cairoDateString(startOfWeek);
+		const thirtyDaysAgo = cairoMidnightUtc(shiftDateString(todayStr, -30));
+		// Single window wide enough for every aggregate (30d covers the 7-day
+		// series, yesterday, and the week).
+		const sinceIso = thirtyDaysAgo.toISOString();
+
+		const [payments, orders, decisions, ratingStats] = await Promise.all([
+			this.statsRepo.getPaidPaymentsSince(technicianId, sinceIso),
+			this.statsRepo.getOrdersSince(technicianId, sinceIso, weekStartDate),
+			this.statsRepo.getAcceptDeclineEvents(technicianId, sinceIso),
+			this.statsRepo.getRatingStats(technicianId),
+		]);
+
+		const dailyMap = new Map<string, number>(last7Days.map((d) => [d, 0]));
+		let today = 0;
+		let yesterday = 0;
+		let thisWeek = 0;
+		for (const p of payments) {
+			const paidAt = new Date(p.paid_at);
+			const day = cairoDateString(paidAt);
+			if (dailyMap.has(day))
+				dailyMap.set(day, (dailyMap.get(day) ?? 0) + p.amount);
+			if (paidAt >= startOfToday) today += p.amount;
+			else if (paidAt >= startOfYesterday) yesterday += p.amount;
+			if (paidAt >= startOfWeek) thisWeek += p.amount;
+		}
+
+		let doneToday = 0;
+		let doneThisWeek = 0;
+		let pendingCount = 0;
+		let cancelledByTech = 0;
+		let completedTotal = 0;
+		for (const o of orders) {
+			if (o.status === "pending") pendingCount += 1;
+			if (o.status === "completed") {
+				completedTotal += 1;
+				if (o.scheduled_date === todayStr) doneToday += 1;
+				if (o.scheduled_date >= weekStartDate) doneThisWeek += 1;
+			}
+			if (o.status === "cancelled_by_technician") cancelledByTech += 1;
+		}
+
+		const accepts = decisions.filter(
+			(d) => d.event_type === "tech_accept",
+		).length;
+		const declines = decisions.length - accepts;
+		const acceptanceRate =
+			accepts + declines > 0 ? accepts / (accepts + declines) : null;
+		const cancellationRate =
+			cancelledByTech + completedTotal > 0
+				? cancelledByTech / (cancelledByTech + completedTotal)
+				: null;
+
+		return {
+			earnings: {
+				today,
+				yesterday,
+				thisWeek,
+				daily: last7Days.map((date) => ({
+					date,
+					amount: dailyMap.get(date) ?? 0,
+				})),
+			},
+			jobs: { doneToday, thisWeek: doneThisWeek, pendingCount },
+			rates: {
+				acceptanceRate,
+				cancellationRate,
+				rating: ratingStats.rating,
+				reviewCount: ratingStats.review_count,
+			},
+			pendingExpiryHours: PENDING_ORDER_EXPIRY_HOURS,
+		};
 	}
 
 	async uploadProfileImage(
