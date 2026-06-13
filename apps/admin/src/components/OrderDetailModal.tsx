@@ -4,10 +4,15 @@ import { CancellationReasonModal } from "@/components/CancellationReasonModal";
 import { CategoryTag } from "@/components/CategoryTag";
 import { StarRating } from "@/components/StarRating";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { useOrderDetail } from "@/hooks/useOrderDetail";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
 import { humanizeStatus, statusVariant } from "@/lib/order-status";
-import { useOrderDetail } from "../hooks/useOrderDetail";
 
 interface OrderDetailModalProps {
 	orderId: string | null;
@@ -33,58 +38,106 @@ function egp(n: number | null): string {
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
 	return (
 		<div>
-			<p className="text-[11px] text-muted-foreground uppercase tracking-wider">{label}</p>
-			<div className="text-sm text-foreground mt-0.5">{value}</div>
+			<p className="text-[11px] text-muted-foreground uppercase tracking-wider">
+				{label}
+			</p>
+			<div className="mt-0.5 text-foreground text-sm">{value}</div>
 		</div>
 	);
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+	title,
+	children,
+}: {
+	title: string;
+	children: React.ReactNode;
+}) {
 	return (
 		<div>
-			<p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">{title}</p>
+			<p className="mb-2 font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+				{title}
+			</p>
 			{children}
 		</div>
 	);
 }
 
-export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalProps) {
+export function OrderDetailModal({
+	orderId,
+	open,
+	onClose,
+}: OrderDetailModalProps) {
 	const { data: o, isLoading } = useOrderDetail(open ? orderId : null);
 	const [reasonOpen, setReasonOpen] = useState(false);
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						Order detail
-						{o && <span className="text-xs font-mono text-muted-foreground">{o.id.slice(0, 8)}</span>}
-						{o && <StatusBadge variant={statusVariant(o.status)} label={humanizeStatus(o.status)} />}
+						{o && (
+							<span className="font-mono text-muted-foreground text-xs">
+								{o.id.slice(0, 8)}
+							</span>
+						)}
+						{o && (
+							<StatusBadge
+								variant={statusVariant(o.status)}
+								label={humanizeStatus(o.status)}
+							/>
+						)}
 					</DialogTitle>
 				</DialogHeader>
 
 				{isLoading || !o ? (
-					<div className="py-10 text-center text-sm text-muted-foreground">Loading…</div>
+					<div className="py-10 text-center text-muted-foreground text-sm">
+						Loading…
+					</div>
 				) : (
 					<div className="flex flex-col gap-6">
 						{/* Summary */}
 						<Section title="Summary">
-							<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+							<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
 								<Field label="Customer" value={o.customer} />
 								<Field label="Technician" value={o.tech} />
 								<Field
 									label="Category"
-									value={<CategoryTag meta={getCategoryMetaBySpecialty(o.category)} fallbackLabel={o.category} size="sm" />}
+									value={
+										<CategoryTag
+											meta={getCategoryMetaBySpecialty(o.category)}
+											fallbackLabel={o.category}
+											size="sm"
+										/>
+									}
 								/>
 								<Field label="Created" value={fmt(o.createdAt)} />
-								<Field label="Scheduled" value={o.scheduledStartAt ? fmt(o.scheduledStartAt) : (o.scheduledDate ?? "—")} />
+								<Field
+									label="Scheduled"
+									value={
+										o.scheduledStartAt
+											? fmt(o.scheduledStartAt)
+											: (o.scheduledDate ?? "—")
+									}
+								/>
 								<Field label="Tech arrived" value={fmt(o.arrivedAt)} />
 								<Field label="User completed" value={fmt(o.userCompletedAt)} />
-								<Field label="Tech completed" value={fmt(o.technicianCompletedAt)} />
+								<Field
+									label="Tech completed"
+									value={fmt(o.technicianCompletedAt)}
+								/>
 							</div>
 							{o.problemDescription && (
 								<div className="mt-3">
-									<Field label="Problem" value={<span className="text-muted-foreground">{o.problemDescription}</span>} />
+									<Field
+										label="Problem"
+										value={
+											<span className="text-muted-foreground">
+												{o.problemDescription}
+											</span>
+										}
+									/>
 								</div>
 							)}
 						</Section>
@@ -92,13 +145,18 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 						{/* Attachment */}
 						{o.attachment && (
 							<Section title="Attachment">
-								<a href={o.attachment} target="_blank" rel="noreferrer" className="inline-block group">
+								<a
+									href={o.attachment}
+									target="_blank"
+									rel="noreferrer"
+									className="group inline-block"
+								>
 									<img
 										src={o.attachment}
 										alt="Order attachment"
 										className="max-h-56 rounded-lg border border-border object-cover"
 									/>
-									<span className="mt-1 inline-flex items-center gap-1 text-xs text-primary">
+									<span className="mt-1 inline-flex items-center gap-1 text-primary text-xs">
 										<ExternalLink className="h-3 w-3" /> Open full size
 									</span>
 								</a>
@@ -106,7 +164,7 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 						)}
 						{!o.attachment && (
 							<Section title="Attachment">
-								<p className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+								<p className="inline-flex items-center gap-1.5 text-muted-foreground text-sm">
 									<Paperclip className="h-3.5 w-3.5" /> No attachment
 								</p>
 							</Section>
@@ -121,11 +179,23 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 											key={`${q.round}-${i}`}
 											className="flex items-center gap-3 rounded-lg border border-border px-3 py-2 text-sm"
 										>
-											<span className="text-[11px] font-bold text-muted-foreground w-12">R{q.round}</span>
-											<span className="capitalize text-foreground font-medium w-24">{q.proposedBy}</span>
-											<span className="tabular-nums font-semibold text-foreground">{egp(q.amount)}</span>
-											<StatusBadge variant={q.status === "accepted" ? "success" : "muted"} label={q.status} className="ml-auto" />
-											<span className="text-[11px] text-muted-foreground whitespace-nowrap hidden sm:inline">{fmt(q.createdAt)}</span>
+											<span className="w-12 font-bold text-[11px] text-muted-foreground">
+												R{q.round}
+											</span>
+											<span className="w-24 font-medium text-foreground capitalize">
+												{q.proposedBy}
+											</span>
+											<span className="font-semibold text-foreground tabular-nums">
+												{egp(q.amount)}
+											</span>
+											<StatusBadge
+												variant={q.status === "accepted" ? "success" : "muted"}
+												label={q.status}
+												className="ml-auto"
+											/>
+											<span className="hidden whitespace-nowrap text-[11px] text-muted-foreground sm:inline">
+												{fmt(q.createdAt)}
+											</span>
 										</div>
 									))}
 								</div>
@@ -135,12 +205,16 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 						{/* Timeline */}
 						{o.events.length > 0 && (
 							<Section title="Timeline">
-								<div className="flex flex-col gap-2 border-l border-border pl-4">
+								<div className="flex flex-col gap-2 border-border border-l pl-4">
 									{o.events.map((e, i) => (
 										<div key={`${e.type}-${i}`} className="relative">
-											<span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-primary" />
-											<p className="text-sm text-foreground">{humanizeStatus(e.type)}</p>
-											<p className="text-[11px] text-muted-foreground">{e.actorRole} · {fmt(e.createdAt)}</p>
+											<span className="absolute top-1.5 -left-[21px] h-2 w-2 rounded-full bg-primary" />
+											<p className="text-foreground text-sm">
+												{humanizeStatus(e.type)}
+											</p>
+											<p className="text-[11px] text-muted-foreground">
+												{e.actorRole} · {fmt(e.createdAt)}
+											</p>
 										</div>
 									))}
 								</div>
@@ -149,10 +223,13 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 
 						{/* Payment (always shown; payments not implemented yet) */}
 						<Section title="Payment">
-							<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+							<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
 								<Field label="Final price" value={egp(o.finalPrice)} />
 								<Field label="Method" value={o.paymentMethod ?? "—"} />
-								<Field label="Status" value={o.payments[0]?.status ?? "Not available"} />
+								<Field
+									label="Status"
+									value={o.payments[0]?.status ?? "Not available"}
+								/>
 							</div>
 						</Section>
 
@@ -162,9 +239,13 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 								<div className="flex flex-col gap-1.5">
 									<StarRating rating={o.review.rating} />
 									{o.review.comment && (
-										<p className="text-sm text-foreground bg-muted/40 rounded-lg p-3 border-l-2 border-primary">"{o.review.comment}"</p>
+										<p className="rounded-lg border-primary border-l-2 bg-muted/40 p-3 text-foreground text-sm">
+											"{o.review.comment}"
+										</p>
 									)}
-									<p className="text-[11px] text-muted-foreground">{o.review.date}</p>
+									<p className="text-[11px] text-muted-foreground">
+										{o.review.date}
+									</p>
 								</div>
 							</Section>
 						)}
@@ -175,7 +256,7 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 								<button
 									type="button"
 									onClick={() => setReasonOpen(true)}
-									className="inline-flex items-center gap-2 rounded-lg border border-destructive/25 bg-destructive/[0.04] px-3.5 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+									className="inline-flex items-center gap-2 rounded-lg border border-destructive/25 bg-destructive/[0.04] px-3.5 py-2 font-medium text-destructive text-sm transition-colors hover:bg-destructive/10"
 								>
 									<Ban className="h-4 w-4" strokeWidth={2.25} />
 									View cancellation reason

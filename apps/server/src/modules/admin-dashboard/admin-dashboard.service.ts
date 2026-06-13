@@ -1,11 +1,11 @@
 import { env } from "@FixIt/env/server";
 import { AppError } from "../../shared/errors/app-error.js";
 import { logger } from "../../shared/logger.js";
-import { lifecycleService } from "../orders/lifecycle/lifecycle.service.js";
 import { notificationsService } from "../notifications/notifications.service.js";
+import { lifecycleService } from "../orders/lifecycle/lifecycle.service.js";
 import {
-	adminDashboardRepository,
 	type AdminDashboardRepository,
+	adminDashboardRepository,
 	type DashboardOrderRow,
 	type DetailedOrderRow,
 	type HomeownerUserRow,
@@ -60,7 +60,9 @@ function isCompleted(row: DashboardOrderRow): boolean {
 }
 
 /** Who cancelled, inferred from the raw order status. */
-function cancelledByFrom(status: string): "customer" | "technician" | "system" | null {
+function cancelledByFrom(
+	status: string,
+): "customer" | "technician" | "system" | null {
 	switch (status) {
 		case "cancelled_by_user":
 			return "customer";
@@ -177,6 +179,64 @@ function last14DayTrend(dates: string[], values: number[]): number[] {
 	return out;
 }
 
+/** Average rating over the last `days` vs the prior `days`, as a % delta.
+ *  Null when either window has no reviews (no honest comparison to show). */
+function rollingRatingDelta(
+	ratings: { created_at: string; rating: number }[],
+	days: number,
+): { delta: number | null } {
+	const now = Date.now();
+	const windowMs = days * 24 * 60 * 60 * 1000;
+	const currentStart = now - windowMs;
+	const priorStart = now - 2 * windowMs;
+	let curSum = 0;
+	let curCount = 0;
+	let priorSum = 0;
+	let priorCount = 0;
+	for (const r of ratings) {
+		const t = new Date(r.created_at).getTime();
+		if (t >= currentStart) {
+			curSum += r.rating;
+			curCount += 1;
+		} else if (t >= priorStart) {
+			priorSum += r.rating;
+			priorCount += 1;
+		}
+	}
+	if (curCount === 0 || priorCount === 0) return { delta: null };
+	return { delta: pctDelta(curSum / curCount, priorSum / priorCount) };
+}
+
+/** Last 14 days' daily average rating, carrying the last known value forward
+ *  (and seeded with the overall average) so the sparkline never collapses to 0. */
+function dailyAvgRatingTrend(
+	ratings: { created_at: string; rating: number }[],
+	overallAvg: number,
+): number[] {
+	const keys: string[] = [];
+	const today = new Date();
+	for (let i = 13; i >= 0; i--) {
+		const d = new Date(today);
+		d.setUTCDate(d.getUTCDate() - i);
+		keys.push(dayKeyFor(d));
+	}
+	const sums = new Map<string, number>();
+	const counts = new Map<string, number>();
+	for (const r of ratings) {
+		const k = dayKeyFor(new Date(r.created_at));
+		sums.set(k, (sums.get(k) ?? 0) + r.rating);
+		counts.set(k, (counts.get(k) ?? 0) + 1);
+	}
+	const out: number[] = [];
+	let last = Math.round(overallAvg * 100) / 100;
+	for (const k of keys) {
+		const c = counts.get(k) ?? 0;
+		if (c > 0) last = Math.round(((sums.get(k) ?? 0) / c) * 100) / 100;
+		out.push(last);
+	}
+	return out;
+}
+
 /**
  * Build an N-day window ending today: `labels` are short dates ("May 23"),
  * `count(dates)` buckets timestamps into per-day counts aligned to the window.
@@ -241,24 +301,37 @@ export class AdminDashboardService {
 	constructor(private readonly repo: AdminDashboardRepository) {}
 
 	async getSummary(): Promise<DashboardSummary> {
-		const [orders, categories, serviceCat, technicians, ratingStats, users, reviews] =
-			await Promise.all([
-				this.repo.getOrders(),
-				this.repo.getCategories(),
-				this.repo.getServiceCategoryMap(),
-				this.repo.getTechnicians(),
-				this.repo.getRatingStats(),
-				this.repo.getUsersMap(),
-				this.repo.getReviewsByOrderId(),
-			]);
+		const [
+			orders,
+			categories,
+			serviceCat,
+			technicians,
+			ratingStats,
+			users,
+			reviews,
+			reviewRatings,
+		] = await Promise.all([
+			this.repo.getOrders(),
+			this.repo.getCategories(),
+			this.repo.getServiceCategoryMap(),
+			this.repo.getTechnicians(),
+			this.repo.getRatingStats(),
+			this.repo.getUsersMap(),
+			this.repo.getReviewsByOrderId(),
+			this.repo.getReviewRatings(),
+		]);
 
 		const categoryNameById = new Map(
 			categories.map((c) => [c.id, c.name ?? "Unknown"]),
 		);
 
 		return {
-			kpis: this.buildKpis(orders, ratingStats),
-			categoryShare: this.buildCategoryShare(orders, serviceCat, categoryNameById),
+			kpis: this.buildKpis(orders, ratingStats, reviewRatings),
+			categoryShare: this.buildCategoryShare(
+				orders,
+				serviceCat,
+				categoryNameById,
+			),
 			statusShare: this.buildStatusShare(orders),
 			recentOrders: this.buildRecentOrders(
 				orders,
@@ -301,18 +374,21 @@ export class AdminDashboardService {
 	private buildKpis(
 		orders: DashboardOrderRow[],
 		ratingStats: Map<string, { review_count: number; rating_sum: number }>,
+		reviewRatings: { created_at: string; rating: number }[],
 	): KpiMetric[] {
 		const createdDates = orders.map((o) => o.created_at);
 		const ones = orders.map(() => 1);
 
-		// Total Orders
+		// Orders — 30-day headline (so the % vs the prior 30 days actually matches);
+		// the all-time total is surfaced as the secondary figure.
 		const totalOrders = orders.length;
 		const totalCmp = rollingWindowCompare(createdDates, ones, 30);
 
-		// Active Now (no historical snapshot -> delta 0, trend is a new-orders proxy)
+		// Active Orders — a live snapshot of in-flight orders (orders.active=true:
+		// accepted -> awaiting_payment). No history exists, so there's no delta.
 		const activeNow = orders.filter((o) => o.active).length;
 
-		// Revenue (completed orders' final_price)
+		// Revenue — 30-day headline; all-time total as the secondary figure.
 		const completedOrders = orders.filter(isCompleted);
 		const revenueTotal = completedOrders.reduce(
 			(s, o) => s + (o.final_price ?? 0),
@@ -324,7 +400,8 @@ export class AdminDashboardService {
 			30,
 		);
 
-		// Avg Rating (weighted global from rating stats)
+		// Avg Rating — overall weighted average (headline) plus a real last-30d vs
+		// prior-30d delta from review timestamps.
 		let sumRatings = 0;
 		let sumCount = 0;
 		for (const s of ratingStats.values()) {
@@ -332,44 +409,47 @@ export class AdminDashboardService {
 			sumCount += s.review_count;
 		}
 		const avgRating = sumCount > 0 ? sumRatings / sumCount : 5;
+		const ratingCmp = rollingRatingDelta(reviewRatings, 30);
 
 		return [
 			{
-				label: "Total Orders",
-				value: formatInt(totalOrders),
+				label: "Orders (30d)",
+				value: formatInt(totalCmp.current),
 				delta: pctDelta(totalCmp.current, totalCmp.prior),
-				deltaLabel: "vs. last month",
+				deltaLabel: "vs. prior 30 days",
 				icon: "list",
 				trend: last14DayTrend(createdDates, ones),
-				previous: formatInt(totalCmp.prior),
+				previous: formatInt(totalOrders),
+				previousLabel: "all-time",
 			},
 			{
-				label: "Active Now",
+				label: "Active Orders",
 				value: formatInt(activeNow),
-				delta: 0,
-				deltaLabel: "since yesterday",
+				delta: null,
+				deltaLabel: "orders in progress",
 				icon: "activity",
-				trend: last14DayTrend(createdDates, ones),
+				trend: [],
 			},
 			{
-				label: "Revenue (EGP)",
-				value: formatCompact(revenueTotal),
+				label: "Revenue (30d)",
+				value: formatCompact(revCmp.current),
 				delta: pctDelta(revCmp.current, revCmp.prior),
-				deltaLabel: "vs. last month",
+				deltaLabel: "vs. prior 30 days",
 				icon: "wallet",
 				trend: last14DayTrend(
 					completedOrders.map(completionDate),
 					completedOrders.map((o) => o.final_price ?? 0),
 				),
-				previous: formatCompact(revCmp.prior),
+				previous: formatCompact(revenueTotal),
+				previousLabel: "all-time",
 			},
 			{
 				label: "Avg. Rating",
 				value: avgRating.toFixed(2),
-				delta: 0,
-				deltaLabel: "vs. last month",
+				delta: ratingCmp.delta,
+				deltaLabel: "vs. prior 30 days",
 				icon: "star",
-				trend: new Array(14).fill(Math.round(avgRating * 100) / 100),
+				trend: dailyAvgRatingTrend(reviewRatings, avgRating),
 			},
 		];
 	}
@@ -413,10 +493,30 @@ export class AdminDashboardService {
 		};
 		for (const o of orders) counts[collapseStatus(o.status)] += 1;
 		return [
-			{ key: "completed", label: "Completed", count: counts.completed, color: "#10b981" },
-			{ key: "in_progress", label: "Accepted", count: counts.active, color: "#3b82f6" },
-			{ key: "pending", label: "Pending", count: counts.pending, color: "#f59e0b" },
-			{ key: "cancelled", label: "Cancelled", count: counts.cancelled, color: "#ef4444" },
+			{
+				key: "completed",
+				label: "Completed",
+				count: counts.completed,
+				color: "#10b981",
+			},
+			{
+				key: "in_progress",
+				label: "Accepted",
+				count: counts.active,
+				color: "#3b82f6",
+			},
+			{
+				key: "pending",
+				label: "Pending",
+				count: counts.pending,
+				color: "#f59e0b",
+			},
+			{
+				key: "cancelled",
+				label: "Cancelled",
+				count: counts.cancelled,
+				color: "#ef4444",
+			},
 		];
 	}
 
@@ -425,9 +525,21 @@ export class AdminDashboardService {
 		orders: DashboardOrderRow[],
 		serviceCat: Map<string, string>,
 		categoryNameById: Map<string, string>,
-		technicians: Array<{ id: string; first_name: string | null; last_name: string | null }>,
+		technicians: Array<{
+			id: string;
+			first_name: string | null;
+			last_name: string | null;
+		}>,
 		users: Map<string, string>,
-		reviews: Map<string, { rating: number; comment: string | null; created_at: string; user_id: string | null }>,
+		reviews: Map<
+			string,
+			{
+				rating: number;
+				comment: string | null;
+				created_at: string;
+				user_id: string | null;
+			}
+		>,
 	): DashboardOrder[] {
 		const techNameById = new Map(
 			technicians.map((t) => [
@@ -438,11 +550,15 @@ export class AdminDashboardService {
 
 		return orders.slice(0, 8).map((o) => {
 			const techName = o.technician_id
-				? techNameById.get(o.technician_id) ?? "Unassigned"
+				? (techNameById.get(o.technician_id) ?? "Unassigned")
 				: "Unassigned";
-			const customer = o.user_id ? users.get(o.user_id) ?? "Unknown" : "Unknown";
+			const customer = o.user_id
+				? (users.get(o.user_id) ?? "Unknown")
+				: "Unknown";
 			const catId = o.service_id ? serviceCat.get(o.service_id) : undefined;
-			const category = catId ? categoryNameById.get(catId) ?? "Unknown" : "Unknown";
+			const category = catId
+				? (categoryNameById.get(catId) ?? "Unknown")
+				: "Unknown";
 			const { when, time } = relativeWhen(o.created_at);
 
 			const r = reviews.get(o.id);
@@ -450,7 +566,7 @@ export class AdminDashboardService {
 				? {
 						rating: r.rating,
 						comment: r.comment,
-						customer: r.user_id ? users.get(r.user_id) ?? customer : customer,
+						customer: r.user_id ? (users.get(r.user_id) ?? customer) : customer,
 						date: new Date(r.created_at).toLocaleDateString("en-US", {
 							day: "numeric",
 							month: "short",
@@ -499,9 +615,10 @@ export class AdminDashboardService {
 		}
 
 		const toTopTech = (t: (typeof technicians)[number]): TopTech => {
-			const name = `${t.first_name ?? ""} ${t.last_name ?? ""}`.trim() || "Unknown";
+			const name =
+				`${t.first_name ?? ""} ${t.last_name ?? ""}`.trim() || "Unknown";
 			const specialty = t.category_id
-				? categoryNameById.get(t.category_id) ?? "General"
+				? (categoryNameById.get(t.category_id) ?? "General")
 				: "General";
 			return {
 				name,
@@ -635,17 +752,25 @@ export class AdminDashboardService {
 
 	// --- Homeowners (admin homeowners page) ---
 	async getHomeowners(): Promise<AdminHomeowner[]> {
-		const [users, orders, cities, reviewAgg, serviceCat, categories, technicians, reviewsByOrder] =
-			await Promise.all([
-				this.repo.getHomeownerUsers(),
-				this.repo.getOrders(),
-				this.repo.getCitiesByUser(),
-				this.repo.getReviewAggByUser(),
-				this.repo.getServiceCategoryMap(),
-				this.repo.getCategories(),
-				this.repo.getTechnicians(),
-				this.repo.getReviewsByOrderId(),
-			]);
+		const [
+			users,
+			orders,
+			cities,
+			reviewAgg,
+			serviceCat,
+			categories,
+			technicians,
+			reviewsByOrder,
+		] = await Promise.all([
+			this.repo.getHomeownerUsers(),
+			this.repo.getOrders(),
+			this.repo.getCitiesByUser(),
+			this.repo.getReviewAggByUser(),
+			this.repo.getServiceCategoryMap(),
+			this.repo.getCategories(),
+			this.repo.getTechnicians(),
+			this.repo.getReviewsByOrderId(),
+		]);
 
 		const categoryNameById = new Map(
 			categories.map((c) => [c.id, c.name ?? "Unknown"]),
@@ -710,16 +835,22 @@ export class AdminDashboardService {
 			id: o.id,
 			date: relativeWhen(o.created_at).when,
 			category: o.service_id
-				? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ?? "Unknown")
+				? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ??
+					"Unknown")
 				: "Unknown",
-			tech: o.technician_id ? (techNameById.get(o.technician_id) ?? "Unassigned") : "Unassigned",
+			tech: o.technician_id
+				? (techNameById.get(o.technician_id) ?? "Unassigned")
+				: "Unassigned",
 			status: o.status,
 			amount: o.final_price ?? 0,
 			rating: reviewsByOrder.get(o.id)?.rating ?? null,
 		}));
 
 		const agg = reviewAgg.get(u.id);
-		const avgRatingGiven = agg && agg.count > 0 ? Math.round((agg.sum / agg.count) * 100) / 100 : null;
+		const avgRatingGiven =
+			agg && agg.count > 0
+				? Math.round((agg.sum / agg.count) * 100) / 100
+				: null;
 		const joinedDate = new Date(u.created_at);
 
 		return {
@@ -730,7 +861,10 @@ export class AdminDashboardService {
 			phone: u.phone ?? "—",
 			email: u.email ?? "—",
 			city: cities.get(u.id) ?? "—",
-			joined: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+			joined: joinedDate.toLocaleDateString("en-US", {
+				month: "short",
+				year: "numeric",
+			}),
 			joinedAt: u.created_at,
 			totalOrders: userOrders.length,
 			completed,
@@ -824,11 +958,24 @@ export class AdminDashboardService {
 	}
 
 	private toAdminTechnician(s: TechnicianStatsRow): AdminTechnician {
-		const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "Unknown";
+		const name =
+			`${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "Unknown";
 		const documents: AdminTechnicianDocument[] = [
-			{ kind: "National ID", status: s.national_id ? "uploaded" : "missing", url: s.national_id ?? null },
-			{ kind: "Criminal Record", status: s.criminal_record ? "uploaded" : "missing", url: s.criminal_record ?? null },
-			{ kind: "Birth Certificate", status: s.birth_certificate ? "uploaded" : "missing", url: s.birth_certificate ?? null },
+			{
+				kind: "National ID",
+				status: s.national_id ? "uploaded" : "missing",
+				url: s.national_id ?? null,
+			},
+			{
+				kind: "Criminal Record",
+				status: s.criminal_record ? "uploaded" : "missing",
+				url: s.criminal_record ?? null,
+			},
+			{
+				kind: "Birth Certificate",
+				status: s.birth_certificate ? "uploaded" : "missing",
+				url: s.birth_certificate ?? null,
+			},
 		];
 		const joinedDate = new Date(s.created_at);
 		return {
@@ -840,7 +987,10 @@ export class AdminDashboardService {
 			city: s.city ?? "—",
 			phone: s.phone ?? "—",
 			email: s.email ?? "—",
-			joined: joinedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+			joined: joinedDate.toLocaleDateString("en-US", {
+				month: "short",
+				year: "numeric",
+			}),
 			joinedAt: s.created_at,
 			appliedAt: relativeWhen(s.created_at).when,
 			availability: s.is_available ? "online" : "offline",
@@ -872,14 +1022,17 @@ export class AdminDashboardService {
 		if (!(await this.repo.technicianExists(id))) {
 			throw AppError.notFound("Technician not found");
 		}
-		const [orders, serviceCat, categories, users, reviewsByOrder] = await Promise.all([
-			this.repo.getOrdersByTechnician(id),
-			this.repo.getServiceCategoryMap(),
-			this.repo.getCategories(),
-			this.repo.getUsersMap(),
-			this.repo.getReviewsByOrderId(),
-		]);
-		const categoryNameById = new Map(categories.map((c) => [c.id, c.name ?? "Unknown"]));
+		const [orders, serviceCat, categories, users, reviewsByOrder] =
+			await Promise.all([
+				this.repo.getOrdersByTechnician(id),
+				this.repo.getServiceCategoryMap(),
+				this.repo.getCategories(),
+				this.repo.getUsersMap(),
+				this.repo.getReviewsByOrderId(),
+			]);
+		const categoryNameById = new Map(
+			categories.map((c) => [c.id, c.name ?? "Unknown"]),
+		);
 
 		return orders.map((o): AdminTechnicianHistory => {
 			const r = reviewsByOrder.get(o.id);
@@ -887,7 +1040,8 @@ export class AdminDashboardService {
 				id: o.id,
 				date: relativeWhen(o.created_at).when,
 				category: o.service_id
-					? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ?? "Unknown")
+					? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ??
+						"Unknown")
 					: "Unknown",
 				customer: o.user_id ? (users.get(o.user_id) ?? "Unknown") : "Unknown",
 				status: o.status,
@@ -913,7 +1067,10 @@ export class AdminDashboardService {
 				body: "Your FixIt technician account is verified. Open the app to sign in.",
 			}),
 		).catch((err) => {
-			logger.warn({ err, technicianId: id }, "[admin-dashboard] verify push failed");
+			logger.warn(
+				{ err, technicianId: id },
+				"[admin-dashboard] verify push failed",
+			);
 		});
 		return this.findTechnicianOrThrow(id);
 	}
@@ -931,7 +1088,10 @@ export class AdminDashboardService {
 				body: "Your FixIt technician application was not approved. Open the app for details.",
 			}),
 		).catch((err) => {
-			logger.warn({ err, technicianId: id }, "[admin-dashboard] reject push failed");
+			logger.warn(
+				{ err, technicianId: id },
+				"[admin-dashboard] reject push failed",
+			);
 		});
 		return this.findTechnicianOrThrow(id);
 	}
@@ -944,7 +1104,12 @@ export class AdminDashboardService {
 			id,
 			fullyBlocked
 				? { status: "blocked", reason, by: env.ADMIN_EMAIL }
-				: { status: "verified", reason, by: env.ADMIN_EMAIL, blockPending: true },
+				: {
+						status: "verified",
+						reason,
+						by: env.ADMIN_EMAIL,
+						blockPending: true,
+					},
 		);
 		if (!row) throw AppError.notFound("Technician not found");
 		return this.findTechnicianOrThrow(id);

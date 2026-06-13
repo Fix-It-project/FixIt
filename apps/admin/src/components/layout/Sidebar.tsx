@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
 	BarChart2,
+	ClipboardList,
 	Home,
 	List,
 	LogOut,
@@ -43,6 +44,7 @@ const NAV_SECTIONS = [
 		items: [
 			{ key: "technicians", href: "/technicians", icon: <Wrench className="h-[18px] w-[18px]" />, label: "Technicians" },
 			{ key: "homeowners", href: "/homeowners", icon: <Users className="h-[18px] w-[18px]" />, label: "Homeowners" },
+			{ key: "services", href: "/services", icon: <ClipboardList className="h-[18px] w-[18px]" />, label: "Services" },
 			{ key: "reviews", href: "/reviews", icon: <Star className="h-[18px] w-[18px]" />, label: "Reviews" },
 		] satisfies NavItem[],
 	},

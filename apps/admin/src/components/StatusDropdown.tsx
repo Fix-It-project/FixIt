@@ -15,7 +15,11 @@ interface StatusDropdownProps {
 	onChange: (value: OrdersPageFilter) => void;
 }
 
-export function StatusDropdown({ value, options, onChange }: StatusDropdownProps) {
+export function StatusDropdown({
+	value,
+	options,
+	onChange,
+}: StatusDropdownProps) {
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 
@@ -25,7 +29,8 @@ export function StatusDropdown({ value, options, onChange }: StatusDropdownProps
 	useEffect(() => {
 		if (!open) return;
 		const onDown = (e: MouseEvent) => {
-			if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+			if (ref.current && !ref.current.contains(e.target as Node))
+				setOpen(false);
 		};
 		const onEsc = (e: KeyboardEvent) => {
 			if (e.key === "Escape") setOpen(false);
@@ -44,7 +49,7 @@ export function StatusDropdown({ value, options, onChange }: StatusDropdownProps
 				type="button"
 				onClick={() => setOpen((v) => !v)}
 				className={cn(
-					"inline-flex items-center gap-2 h-9 rounded-full border px-3.5 text-xs font-semibold transition-colors",
+					"inline-flex h-9 items-center gap-2 rounded-full border px-3.5 font-semibold text-xs transition-colors",
 					open || value !== "all"
 						? "border-primary/30 bg-primary/10 text-primary"
 						: "border-border bg-muted text-muted-foreground hover:text-foreground",
@@ -52,11 +57,16 @@ export function StatusDropdown({ value, options, onChange }: StatusDropdownProps
 				aria-expanded={open}
 			>
 				{label}
-				<ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
+				<ChevronDown
+					className={cn(
+						"h-3.5 w-3.5 transition-transform",
+						open && "rotate-180",
+					)}
+				/>
 			</button>
 
 			{open && (
-				<div className="absolute left-0 z-50 mt-2 w-52 origin-top-left rounded-xl border border-border bg-card p-1.5 shadow-lg animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150">
+				<div className="fade-in-0 zoom-in-95 slide-in-from-top-1 absolute left-0 z-50 mt-2 w-52 origin-top-left animate-in rounded-xl border border-border bg-card p-1.5 shadow-lg duration-150">
 					{options.map((opt) => {
 						const active = opt.key === value;
 						return (
@@ -68,15 +78,22 @@ export function StatusDropdown({ value, options, onChange }: StatusDropdownProps
 									setOpen(false);
 								}}
 								className={cn(
-									"flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs font-medium text-left transition-colors",
+									"flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left font-medium text-xs transition-colors",
 									active
 										? "bg-primary/10 text-primary"
 										: "text-muted-foreground hover:bg-muted hover:text-foreground",
 								)}
 							>
-								<Check className={cn("h-3.5 w-3.5 flex-shrink-0", active ? "opacity-100" : "opacity-0")} />
+								<Check
+									className={cn(
+										"h-3.5 w-3.5 flex-shrink-0",
+										active ? "opacity-100" : "opacity-0",
+									)}
+								/>
 								<span className="flex-1">{opt.label}</span>
-								<span className="tabular-nums text-[10px] font-bold text-muted-foreground">{opt.count}</span>
+								<span className="font-bold text-[10px] text-muted-foreground tabular-nums">
+									{opt.count}
+								</span>
 							</button>
 						);
 					})}
