@@ -1,0 +1,35 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { acceptOrder, declineOrder } from "../api/tech-home";
+import { techHomeKeys } from "../schemas/query-keys";
+
+function useInvalidateOrderCaches() {
+	const queryClient = useQueryClient();
+	return () => {
+		void queryClient.invalidateQueries({ queryKey: techHomeKeys.orders });
+		// Old dashboard feature still exists on disk — keep its cache honest too.
+		void queryClient.invalidateQueries({
+			queryKey: techHomeKeys.legacyDashboardOrders,
+		});
+		void queryClient.invalidateQueries({
+			queryKey: techHomeKeys.scheduleEvents,
+		});
+		void queryClient.invalidateQueries({ queryKey: techHomeKeys.stats });
+	};
+}
+
+export function useAcceptOrderMutation() {
+	const invalidate = useInvalidateOrderCaches();
+	return useMutation({
+		mutationFn: (orderId: string) => acceptOrder(orderId),
+		onSuccess: invalidate,
+	});
+}
+
+export function useDeclineOrderMutation() {
+	const invalidate = useInvalidateOrderCaches();
+	return useMutation({
+		mutationFn: ({ orderId, reason }: { orderId: string; reason?: string }) =>
+			declineOrder(orderId, reason),
+		onSuccess: invalidate,
+	});
+}

@@ -9,6 +9,8 @@ export const technicianSelfProfileSchema = z.object({
 	profile_image: z.string().nullable(),
 	description: z.string().nullable(),
 	category_name: z.string().nullable(),
+	// Defaulted for rollout safety: an app updated before the server still parses.
+	is_available: z.boolean().optional().default(false),
 
 	total_orders: z.number(),
 	completed_orders: z.number(),

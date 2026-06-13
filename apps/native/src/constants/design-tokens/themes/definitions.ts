@@ -1,4 +1,5 @@
 import colors from "tailwindcss/colors";
+import { colorPrimitives, type Hsl } from "./primitives";
 import type {
 	ThemeCategoryTokens,
 	ThemeId,
@@ -53,7 +54,7 @@ import type {
  *   gradientRole* -> use gradient*      (textSecondary/textMuted now differ)
  */
 
-type HSL = readonly [number, number, number];
+type HSL = Hsl;
 
 function hslToRgb([h, s, l]: HSL): [number, number, number] {
 	const sN = s / 100;
@@ -96,19 +97,7 @@ function tok([h, s, l]: HSL): string {
 // Walmart True Blue family — anchored to the official brand values:
 //   600 = True Blue #0053E2   900 = Bentonville Blue #001E60
 // (600 and 900 are pinned to the exact official hex via `wm()` below.)
-const blue: Record<number, HSL> = {
-	50: [214, 100, 97],
-	100: [214, 100, 93],
-	200: [214, 98, 86],
-	300: [216, 97, 74],
-	400: [217, 98, 60],
-	500: [218, 100, 50],
-	600: [217.96, 100, 44.31], // True Blue #0053E2 (exact)
-	700: [219, 100, 33],
-	800: [221, 100, 25],
-	900: [221.25, 100, 18.82], // Bentonville #001E60 (exact)
-	950: [222, 100, 13],
-};
+const blue = colorPrimitives.blue;
 
 // Walmart Everyday Blue / Sky Blue — the brand's own light secondary tints.
 const sky: Record<number, HSL> = {
