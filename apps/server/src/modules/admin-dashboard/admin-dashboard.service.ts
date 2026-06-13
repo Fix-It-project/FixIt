@@ -1,6 +1,7 @@
 import { env } from "@FixIt/env/server";
 import { AppError } from "../../shared/errors/app-error.js";
 import { logger } from "../../shared/logger.js";
+import { lifecycleService } from "../orders/lifecycle/lifecycle.service.js";
 import { notificationsService } from "../notifications/notifications.service.js";
 import {
 	adminDashboardRepository,
@@ -740,6 +741,7 @@ export class AdminDashboardService {
 			lastOrder: lastOrderAt ? relativeWhen(lastOrderAt).when : "—",
 			lastOrderAt,
 			blocked: u.blocked,
+			blockPending: u.block_pending,
 			blockedReason: u.blocked_reason ?? undefined,
 			blockedAt: u.blocked_at
 				? new Date(u.blocked_at).toLocaleDateString("en-GB", {
@@ -753,9 +755,43 @@ export class AdminDashboardService {
 		};
 	}
 
+	/**
+	 * Order-aware block: cancel the account's `pending`/`accepted` orders (no
+	 * fee), and decide whether to block fully now or defer until in-flight orders
+	 * finish. Returns `fullyBlocked=false` when in-flight orders remain (the
+	 * finalize trigger flips the account to blocked once they terminate).
+	 */
+	private async resolveBlock(
+		role: "user" | "technician",
+		id: string,
+	): Promise<{ fullyBlocked: boolean }> {
+		const active = await this.repo.getActiveOrders(role, id);
+		const reasonText =
+			role === "user"
+				? "The customer's account was suspended"
+				: "The technician's account was suspended";
+		const toCancel = active.filter(
+			(o) => o.status === "pending" || o.status === "accepted",
+		);
+		for (const o of toCancel) {
+			try {
+				await lifecycleService.cancelOrder(o.id, id, role, reasonText);
+			} catch (err) {
+				logger.warn(
+					{ err, orderId: o.id, accountId: id, role },
+					"[admin-dashboard] block: order cancel failed",
+				);
+			}
+		}
+		// In-flight orders (anything active that wasn't pending/accepted) defer the block.
+		return { fullyBlocked: active.length - toCancel.length === 0 };
+	}
+
 	async blockHomeowner(id: string, reason: string): Promise<AdminHomeowner> {
+		const { fullyBlocked } = await this.resolveBlock("user", id);
 		const row = await this.repo.setBlocked(id, {
-			blocked: true,
+			blocked: fullyBlocked,
+			blockPending: !fullyBlocked,
 			reason,
 			by: env.ADMIN_EMAIL,
 		});
@@ -764,7 +800,12 @@ export class AdminDashboardService {
 	}
 
 	async unblockHomeowner(id: string): Promise<AdminHomeowner> {
-		const row = await this.repo.setBlocked(id, { blocked: false, reason: null, by: null });
+		const row = await this.repo.setBlocked(id, {
+			blocked: false,
+			blockPending: false,
+			reason: null,
+			by: null,
+		});
 		if (!row) throw AppError.notFound("Homeowner not found");
 		return this.findHomeownerOrThrow(id);
 	}
@@ -785,9 +826,9 @@ export class AdminDashboardService {
 	private toAdminTechnician(s: TechnicianStatsRow): AdminTechnician {
 		const name = `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || "Unknown";
 		const documents: AdminTechnicianDocument[] = [
-			{ kind: "National ID", status: s.national_id ? "uploaded" : "missing" },
-			{ kind: "Criminal Record", status: s.criminal_record ? "uploaded" : "missing" },
-			{ kind: "Birth Certificate", status: s.birth_certificate ? "uploaded" : "missing" },
+			{ kind: "National ID", status: s.national_id ? "uploaded" : "missing", url: s.national_id ?? null },
+			{ kind: "Criminal Record", status: s.criminal_record ? "uploaded" : "missing", url: s.criminal_record ?? null },
+			{ kind: "Birth Certificate", status: s.birth_certificate ? "uploaded" : "missing", url: s.birth_certificate ?? null },
 		];
 		const joinedDate = new Date(s.created_at);
 		return {
@@ -814,6 +855,7 @@ export class AdminDashboardService {
 			documents,
 			status: s.status as TechnicianStatus,
 			blocked: s.status === "blocked",
+			blockPending: s.block_pending,
 			blockedReason: s.blocked_reason ?? undefined,
 			blockedAt: s.blocked_at
 				? new Date(s.blocked_at).toLocaleDateString("en-GB", {
@@ -895,11 +937,15 @@ export class AdminDashboardService {
 	}
 
 	async blockTechnician(id: string, reason: string): Promise<AdminTechnician> {
-		const row = await this.repo.setTechnicianStatus(id, {
-			status: "blocked",
-			reason,
-			by: env.ADMIN_EMAIL,
-		});
+		const { fullyBlocked } = await this.resolveBlock("technician", id);
+		// Deferred block keeps status='verified' (they can finish in-flight jobs)
+		// with block_pending=true; the finalize trigger flips status to 'blocked'.
+		const row = await this.repo.setTechnicianStatus(
+			id,
+			fullyBlocked
+				? { status: "blocked", reason, by: env.ADMIN_EMAIL }
+				: { status: "verified", reason, by: env.ADMIN_EMAIL, blockPending: true },
+		);
 		if (!row) throw AppError.notFound("Technician not found");
 		return this.findTechnicianOrThrow(id);
 	}
@@ -909,6 +955,7 @@ export class AdminDashboardService {
 			status: "verified",
 			reason: null,
 			by: null,
+			blockPending: false,
 		});
 		if (!row) throw AppError.notFound("Technician not found");
 		return this.findTechnicianOrThrow(id);

@@ -55,7 +55,11 @@ function HomeownersPage() {
 				</TabsContent>
 
 				<TabsContent value="blocked" className="mt-4">
-					<BlockedTab homeowners={blockedHomeowners} onUnblock={(id) => unblockMutation.mutate(id)} />
+					<BlockedTab
+						homeowners={blockedHomeowners}
+						onUnblock={(id) => unblockMutation.mutate(id)}
+						onView={(h) => openDetail(h.id)}
+					/>
 				</TabsContent>
 			</Tabs>
 		</div>

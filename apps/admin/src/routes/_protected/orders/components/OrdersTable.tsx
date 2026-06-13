@@ -1,5 +1,6 @@
 import { Eye, Inbox, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CancellationReasonModal } from "@/components/CancellationReasonModal";
 import { CategoryTag } from "@/components/CategoryTag";
 import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { StarRating } from "@/components/StarRating";
@@ -238,14 +239,11 @@ export function OrdersTable({ orders, isLoading }: OrdersTableProps) {
 				/>
 			</div>
 
-			<Dialog open={!!expandedReason} onOpenChange={() => setExpandedReason(null)}>
-				<DialogContent className="max-w-sm">
-					<DialogHeader>
-						<DialogTitle>Cancellation Reason</DialogTitle>
-					</DialogHeader>
-					<p className="text-sm text-muted-foreground leading-relaxed">{expandedReason}</p>
-				</DialogContent>
-			</Dialog>
+			<CancellationReasonModal
+				reason={expandedReason}
+				open={!!expandedReason}
+				onClose={() => setExpandedReason(null)}
+			/>
 
 			<Dialog open={!!reviewView} onOpenChange={() => setReviewView(null)}>
 				<DialogContent className="max-w-md">

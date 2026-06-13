@@ -1,16 +1,43 @@
+import { env } from "@FixIt/env/native";
+import axios, { type InternalAxiosRequestConfig } from "axios";
+import { router } from "expo-router";
+import { jwtDecode } from "jwt-decode";
 import { supabase } from "@/src/config/supabase";
 import { toAppError } from "@/src/lib/errors";
 import { logger } from "@/src/lib/logger";
+import { ROUTES } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { env } from "@FixIt/env/native";
-import axios, { type InternalAxiosRequestConfig } from "axios";
-import { jwtDecode } from "jwt-decode";
 
 const API_BASE_URL = env.EXPO_PUBLIC_SERVER_URL;
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 	_retry?: boolean;
 }
+
+// Mid-session block: the server returns 403 with `fields.accountStatus:'blocked'`
+// once an account is fully blocked. Wherever that surfaces (a normal request or
+// the refresh re-gate), log out and send the user to the shared Blocked screen.
+const handleBlocked = (error: unknown): boolean => {
+	const resp = (error as { response?: { status?: number; data?: unknown } })
+		?.response;
+	if (resp?.status !== 403) return false;
+	const data =
+		resp.data && typeof resp.data === "object"
+			? (resp.data as Record<string, unknown>)
+			: undefined;
+	const fields =
+		data?.fields && typeof data.fields === "object"
+			? (data.fields as Record<string, unknown>)
+			: undefined;
+	if (fields?.accountStatus !== "blocked") return false;
+
+	const reason =
+		typeof fields.blockReason === "string" ? fields.blockReason : undefined;
+	const role = useAuthStore.getState().userType ?? "user";
+	void useAuthStore.getState().clearSession();
+	router.replace(ROUTES.auth.blocked({ role, reason }));
+	return true;
+};
 
 const isTokenExpired = (token: string, bufferSeconds = 60): boolean => {
 	try {
@@ -68,7 +95,11 @@ const refreshAccessToken = async (): Promise<string> => {
 			return newAccessToken;
 		} catch (error) {
 			logger.error("apiClient", "Token refresh failed", error);
-			await useAuthStore.getState().clearSession();
+			// A blocked refresh re-gate routes to /blocked; otherwise just clear
+			// the session (the app will route to welcome).
+			if (!handleBlocked(error)) {
+				await useAuthStore.getState().clearSession();
+			}
 			throw error;
 		} finally {
 			refreshPromise = null;
@@ -138,6 +169,11 @@ apiClient.interceptors.response.use(
 	async (error) => {
 		const originalRequest = error.config as CustomAxiosRequestConfig;
 
+		// Mid-session block: log out + go to /blocked, then surface the error.
+		if (handleBlocked(error)) {
+			throw toAppError(error);
+		}
+
 		if (error.response?.status === 400 || error.response?.status === 422) {
 			const responseData =
 				error.response.data &&
@@ -177,7 +213,11 @@ apiClient.interceptors.response.use(
 			originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 			return apiClient(originalRequest);
 		} catch (refreshError) {
-			logger.error("apiClient", "Refresh failed, clearing session", refreshError);
+			logger.error(
+				"apiClient",
+				"Refresh failed, clearing session",
+				refreshError,
+			);
 			throw toAppError(refreshError);
 		}
 	},

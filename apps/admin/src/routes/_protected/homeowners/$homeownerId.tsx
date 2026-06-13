@@ -83,6 +83,8 @@ function HomeownerDetailPage() {
 						</Badge>
 						{h.blocked ? (
 							<StatusBadge variant="danger" label="Blocked" />
+						) : h.blockPending ? (
+							<StatusBadge variant="warn" label="Block scheduled" />
 						) : (
 							<Badge variant="outline" className="gap-1 border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
 								<ShieldCheck className="h-3 w-3" /> Active
@@ -91,7 +93,7 @@ function HomeownerDetailPage() {
 					</>
 				}
 				action={
-					h.blocked ? (
+					h.blocked || h.blockPending ? (
 						<Button variant="default" onClick={() => setUnblocking(true)}>Unblock homeowner</Button>
 					) : (
 						<Button variant="destructive" onClick={() => setBlocking(true)}>Block homeowner</Button>
@@ -111,6 +113,12 @@ function HomeownerDetailPage() {
 			<ContactCards phone={h.phone} email={h.email} />
 
 			{h.blocked && <BlockedNotice reason={h.blockedReason} at={h.blockedAt} by={h.blockedBy} />}
+
+			{!h.blocked && h.blockPending && (
+				<div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+					Block scheduled. This homeowner is finishing their active orders and will be blocked automatically once the last one completes. Unblock to cancel.
+				</div>
+			)}
 
 			{/* Order history */}
 			<div>

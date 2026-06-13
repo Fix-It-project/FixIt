@@ -90,7 +90,11 @@ function TechniciansPage() {
 				</TabsContent>
 
 				<TabsContent value="blocked" className="mt-4">
-					<BlockedTab techs={blockedTechs} onUnblock={(id) => unblockMutation.mutate(id)} />
+					<BlockedTab
+						techs={blockedTechs}
+						onUnblock={(id) => unblockMutation.mutate(id)}
+						onView={(tech) => openDetail(tech.id)}
+					/>
 				</TabsContent>
 
 				<TabsContent value="rejected" className="mt-4">

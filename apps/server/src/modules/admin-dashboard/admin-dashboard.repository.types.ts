@@ -50,6 +50,7 @@ export interface HomeownerUserRow {
 	email: string | null;
 	phone: string | null;
 	blocked: boolean;
+	block_pending: boolean;
 	blocked_reason: string | null;
 	blocked_at: string | null;
 	blocked_by: string | null;
@@ -65,6 +66,7 @@ export interface TechnicianStatsRow {
 	phone: string | null;
 	is_available: boolean | null;
 	status: string;
+	block_pending: boolean;
 	blocked_reason: string | null;
 	blocked_at: string | null;
 	blocked_by: string | null;

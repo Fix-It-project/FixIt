@@ -20,6 +20,7 @@ const {
     emailExists: vi.fn(),
     createTechnician: vi.fn(),
     getTechnicianByEmail: vi.fn(),
+    getTechnicianById: vi.fn(),
     deleteTechnician: vi.fn(),
   },
   mockStorageRepo: {
@@ -350,6 +351,32 @@ describe('TechnicianAuthService', () => {
       expect(mockAuthRepo.deleteAuthUser).toHaveBeenCalledWith('tech-1');
       expect(mockTechniciansRepo.deleteTechnician).toHaveBeenCalledWith('tech-1');
       expect(result).toEqual({ cancelled: true });
+    });
+  });
+
+  describe('refreshSession', () => {
+    it('should re-gate a blocked technician on refresh (403)', async () => {
+      mockAuthRepo.refreshToken.mockResolvedValue({
+        user: { id: 'tech-1' },
+        session: { access_token: 'at', refresh_token: 'rt', expires_at: 1 },
+      });
+      mockTechniciansRepo.getTechnicianById.mockResolvedValue({ id: 'tech-1', status: 'blocked' });
+
+      await expect(service.refreshSession('rt')).rejects.toMatchObject({
+        status: 403,
+        opts: { fields: { accountStatus: 'blocked' } },
+      });
+    });
+
+    it('should allow refresh for a verified technician', async () => {
+      mockAuthRepo.refreshToken.mockResolvedValue({
+        user: { id: 'tech-1' },
+        session: { access_token: 'at', refresh_token: 'rt', expires_at: 1 },
+      });
+      mockTechniciansRepo.getTechnicianById.mockResolvedValue({ id: 'tech-1', status: 'verified' });
+
+      const result = await service.refreshSession('rt');
+      expect(result.session.accessToken).toBe('at');
     });
   });
 

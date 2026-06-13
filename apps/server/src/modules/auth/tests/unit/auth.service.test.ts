@@ -15,6 +15,7 @@ const { mockAuthRepo, mockUsersRepo, mockAddressesRepo } = vi.hoisted(() => ({
   mockUsersRepo: {
     createUser: vi.fn(),
     getUserByEmail: vi.fn(),
+    getUserById: vi.fn(),
   },
   mockAddressesRepo: {
     createAddress: vi.fn(),
@@ -290,6 +291,30 @@ describe('AuthService', () => {
         refreshToken: undefined,
         expiresAt: undefined,
       });
+    });
+
+    it('should re-gate a blocked user on refresh (403)', async () => {
+      mockAuthRepo.refreshToken.mockResolvedValue({
+        user: { id: 'uuid-1' },
+        session: { access_token: 'at', refresh_token: 'rt', expires_at: 1 },
+      });
+      mockUsersRepo.getUserById.mockResolvedValue({ id: 'uuid-1', blocked: true });
+
+      await expect(service.refreshSession('rt')).rejects.toMatchObject({
+        status: 403,
+        opts: { fields: { accountStatus: 'blocked' } },
+      });
+    });
+
+    it('should allow refresh for a non-blocked user', async () => {
+      mockAuthRepo.refreshToken.mockResolvedValue({
+        user: { id: 'uuid-1' },
+        session: { access_token: 'at', refresh_token: 'rt', expires_at: 1 },
+      });
+      mockUsersRepo.getUserById.mockResolvedValue({ id: 'uuid-1', blocked: false });
+
+      const result = await service.refreshSession('rt');
+      expect(result.session.accessToken).toBe('at');
     });
   });
 

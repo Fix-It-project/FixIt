@@ -184,6 +184,7 @@ export interface AdminHomeowner {
 	lastOrder: string;
 	lastOrderAt: string | null;
 	blocked: boolean;
+	blockPending: boolean;
 	blockedReason?: string;
 	blockedAt?: string;
 	blockedBy?: string;
@@ -197,6 +198,8 @@ export type TechnicianStatus = "pending" | "verified" | "blocked" | "rejected";
 export interface AdminTechnicianDocument {
 	kind: string;
 	status: "uploaded" | "missing";
+	/** Public Supabase Storage URL of the uploaded document, or null if missing. */
+	url: string | null;
 }
 
 /** Tech order-history row (detail page). Mirrors the admin HistoryOrder shape. */
@@ -237,6 +240,7 @@ export interface AdminTechnician {
 	documents: AdminTechnicianDocument[];
 	status: TechnicianStatus;
 	blocked: boolean;
+	blockPending: boolean;
 	blockedReason?: string;
 	blockedAt?: string;
 	blockedBy?: string;

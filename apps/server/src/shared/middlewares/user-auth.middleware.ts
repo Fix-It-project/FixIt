@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
 import { authService } from '../../modules/auth/auth.service.js';
+import { usersRepository } from '../../modules/users/index.js';
 import { AppError } from '../errors/app-error.js';
 
 /**
@@ -21,6 +22,24 @@ export const requireUserAuth = (req: Request, _res: Response, next: NextFunction
 
       if (!user || !user.id) {
         throw AppError.unauthorized('Invalid or expired token', { token: 'expired' });
+      }
+
+      // Mid-session block enforcement: re-check the blocked flag (fail-open — a
+      // transient read error must not lock everyone out). block_pending accounts
+      // pass (they may finish their in-flight orders); only fully blocked are stopped.
+      let blocked = false;
+      let blockReason: string | null = null;
+      try {
+        const record = await usersRepository.getUserById(user.id);
+        blocked = !!(record as { blocked?: boolean } | null)?.blocked;
+        blockReason = (record as { blocked_reason?: string | null } | null)?.blocked_reason ?? null;
+      } catch (err) {
+        req.log?.warn({ err, userId: user.id }, '[auth] user blocked re-check failed (allowing)');
+      }
+      if (blocked) {
+        throw AppError.forbidden('Your account has been blocked. Contact support for assistance.', {
+          fields: { accountStatus: 'blocked', ...(blockReason ? { blockReason } : {}) },
+        });
       }
 
       // Set Sentry user context

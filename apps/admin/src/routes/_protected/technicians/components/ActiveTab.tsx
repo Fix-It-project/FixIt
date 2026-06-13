@@ -137,6 +137,11 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 										<div>
 											<p className="text-sm font-semibold text-foreground">{tech.name}</p>
 											<p className="text-xs text-muted-foreground">{tech.city}</p>
+											{tech.blockPending && (
+												<span className="mt-0.5 inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+													Block scheduled
+												</span>
+											)}
 										</div>
 									</div>
 								</TableCell>

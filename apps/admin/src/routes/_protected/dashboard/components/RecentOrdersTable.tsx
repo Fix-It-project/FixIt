@@ -1,10 +1,10 @@
 import { Eye } from "lucide-react";
 import { useState } from "react";
+import { CancellationReasonModal } from "@/components/CancellationReasonModal";
 import { CategoryTag } from "@/components/CategoryTag";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
 import { humanizeStatus, matchesRecentFilter, statusVariant } from "@/lib/order-status";
@@ -130,14 +130,11 @@ export function RecentOrdersTable() {
 				</CardContent>
 			</Card>
 
-			<Dialog open={!!expandedReason} onOpenChange={() => setExpandedReason(null)}>
-				<DialogContent className="max-w-sm">
-					<DialogHeader>
-						<DialogTitle>Cancellation Reason</DialogTitle>
-					</DialogHeader>
-					<p className="text-sm text-muted-foreground leading-relaxed">{expandedReason}</p>
-				</DialogContent>
-			</Dialog>
+			<CancellationReasonModal
+				reason={expandedReason}
+				open={!!expandedReason}
+				onClose={() => setExpandedReason(null)}
+			/>
 		</>
 	);
 }

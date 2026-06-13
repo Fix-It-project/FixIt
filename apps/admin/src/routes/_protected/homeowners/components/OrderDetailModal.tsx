@@ -1,4 +1,6 @@
-import { ExternalLink, Paperclip } from "lucide-react";
+import { Ban, ExternalLink, Paperclip } from "lucide-react";
+import { useState } from "react";
+import { CancellationReasonModal } from "@/components/CancellationReasonModal";
 import { CategoryTag } from "@/components/CategoryTag";
 import { StarRating } from "@/components/StarRating";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -48,6 +50,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalProps) {
 	const { data: o, isLoading } = useOrderDetail(open ? orderId : null);
+	const [reasonOpen, setReasonOpen] = useState(false);
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
@@ -169,14 +172,25 @@ export function OrderDetailModal({ orderId, open, onClose }: OrderDetailModalPro
 						{/* Cancellation */}
 						{o.cancellationReason && (
 							<Section title="Cancellation">
-								<div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
-									<p className="text-sm text-foreground">{o.cancellationReason}</p>
-								</div>
+								<button
+									type="button"
+									onClick={() => setReasonOpen(true)}
+									className="inline-flex items-center gap-2 rounded-lg border border-destructive/25 bg-destructive/[0.04] px-3.5 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+								>
+									<Ban className="h-4 w-4" strokeWidth={2.25} />
+									View cancellation reason
+								</button>
 							</Section>
 						)}
 					</div>
 				)}
 			</DialogContent>
+
+			<CancellationReasonModal
+				reason={o?.cancellationReason ?? null}
+				open={reasonOpen}
+				onClose={() => setReasonOpen(false)}
+			/>
 		</Dialog>
 	);
 }
