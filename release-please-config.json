@@ -1,14 +1,22 @@
 {
 	"$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
 	"release-type": "node",
-	"versioning": "always-bump-patch",
 	"initial-version": "0.0.1",
 	"separate-pull-requests": false,
+	"include-v-in-release-name": true,
+	"group-pull-request-title-pattern": "chore: release ${branch}",
 	"packages": {
+		"apps/admin": {
+			"component": "admin",
+			"package-name": "fixit-admin",
+			"changelog-path": "CHANGELOG.md",
+			"skip-github-release": true
+		},
 		"apps/native": {
 			"component": "native",
 			"package-name": "fixit-native",
 			"changelog-path": "CHANGELOG.md",
+			"skip-github-release": true,
 			"extra-files": [
 				{
 					"type": "json",
@@ -20,7 +28,15 @@
 		"apps/server": {
 			"component": "server",
 			"package-name": "fixit-server",
-			"changelog-path": "CHANGELOG.md"
+			"changelog-path": "CHANGELOG.md",
+			"skip-github-release": true
+		},
+		".": {
+			"component": "fixit",
+			"package-name": "FixIt",
+			"changelog-path": "CHANGELOG.md",
+			"include-component-in-tag": true,
+			"tag-separator": "-"
 		}
 	}
 }

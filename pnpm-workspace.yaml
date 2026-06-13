@@ -2,6 +2,9 @@ packages:
   - apps/*
   - packages/*
 
+onlyBuiltDependencies:
+  - '@shopify/react-native-skia'
+
 catalog:
   '@types/node': ^22.19.11
   dotenv: ^17.3.1
