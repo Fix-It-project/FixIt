@@ -17,53 +17,76 @@ export function KpiStrip() {
 
 	if (isLoading) {
 		return (
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				{[0, 1, 2, 3].map((i) => (
-					<div key={i} className="h-[148px] animate-pulse rounded-xl bg-muted/50" />
+					<div
+						key={i}
+						className="h-[148px] animate-pulse rounded-xl bg-muted/50"
+					/>
 				))}
 			</div>
 		);
 	}
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			{kpis.map((kpi) => {
-				const up = kpi.delta >= 0;
+				const up = (kpi.delta ?? 0) >= 0;
 				const sparkData = kpi.trend.map((v) => ({ v }));
 				return (
-					<Card key={kpi.label} className="p-0 overflow-hidden">
+					<Card key={kpi.label} className="overflow-hidden p-0">
 						<CardContent className="p-4 sm:p-5">
 							<div className="flex items-start justify-between gap-2">
-								<p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{kpi.label}</p>
-								<span className="h-8 w-8 rounded-[10px] bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+								<p className="font-semibold text-muted-foreground text-xs uppercase tracking-widest">
+									{kpi.label}
+								</p>
+								<span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[10px] bg-primary/10 text-primary">
 									{ICONS[kpi.icon] ?? <List className="h-4 w-4" />}
 								</span>
 							</div>
 
 							<div className="mt-2 flex items-end justify-between gap-2">
-								<p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{kpi.value}</p>
-								<span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold", up ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-destructive/10 text-destructive")}>
-									{up ? "+" : ""}{kpi.delta}%
-								</span>
+								<p className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">
+									{kpi.value}
+								</p>
+								{kpi.delta != null && (
+									<span
+										className={cn(
+											"inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold text-xs",
+											up
+												? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+												: "bg-destructive/10 text-destructive",
+										)}
+									>
+										{up ? "+" : ""}
+										{kpi.delta}%
+									</span>
+								)}
 							</div>
 
-							<div className="mt-3 h-8">
-								<ResponsiveContainer width="100%" height="100%">
-									<LineChart data={sparkData}>
-										<Line
-											type="monotone"
-											dataKey="v"
-											stroke={up ? "#10b981" : "#ef4444"}
-											strokeWidth={1.5}
-											dot={false}
-										/>
-									</LineChart>
-								</ResponsiveContainer>
-							</div>
+							{sparkData.length > 0 && (
+								<div className="mt-3 h-8">
+									<ResponsiveContainer width="100%" height="100%">
+										<LineChart data={sparkData}>
+											<Line
+												type="monotone"
+												dataKey="v"
+												stroke={up ? "#10b981" : "#ef4444"}
+												strokeWidth={1.5}
+												dot={false}
+											/>
+										</LineChart>
+									</ResponsiveContainer>
+								</div>
+							)}
 
-							<p className="mt-1 text-[11px] text-muted-foreground">
+							<p className="mt-3 text-[11px] text-muted-foreground">
 								{kpi.deltaLabel}
-								{kpi.previous != null && <span className="ml-1">· last mo: {kpi.previous}</span>}
+								{kpi.previous != null && (
+									<span className="ml-1">
+										· {kpi.previousLabel ?? "last mo"}: {kpi.previous}
+									</span>
+								)}
 							</p>
 						</CardContent>
 					</Card>
