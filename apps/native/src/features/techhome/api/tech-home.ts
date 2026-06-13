@@ -91,6 +91,23 @@ export async function declineOrder(
 	).data;
 }
 
+/**
+ * Begin tracking an accepted order (tech is on the way). Moves the order into
+ * `tracking`, so the home screen's primary slot morphs from "next job" into the
+ * active-job card. Endpoint mirrors booking-orders' techStartTracking — kept
+ * here to avoid a cross-feature import.
+ */
+export async function startTracking(orderId: string): Promise<TechHomeOrder> {
+	const response = await apiClient.post(
+		`/api/orders/technician/orders/${orderId}/start-tracking`,
+	);
+	return safeParseResponse(
+		techHomeOrderResponseSchema,
+		response.data,
+		"startTracking",
+	).data;
+}
+
 // ─── Notification unread badge (shared key with notifications feature) ──────
 
 const unreadCountResponseSchema = z.object({

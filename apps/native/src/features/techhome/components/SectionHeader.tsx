@@ -11,7 +11,7 @@ export function SectionHeader({ title, hint, action }: SectionHeaderProps) {
 	return (
 		<View className="mb-stack-sm flex-row items-end justify-between">
 			<View className="flex-1">
-				<Text variant="h4" className="font-bold text-content" numberOfLines={1}>
+				<Text variant="h3" className="font-bold text-content" numberOfLines={1}>
 					{title}
 				</Text>
 				{hint ? (

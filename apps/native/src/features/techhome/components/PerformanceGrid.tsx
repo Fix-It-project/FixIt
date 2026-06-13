@@ -1,5 +1,4 @@
 import { View } from "react-native";
-import { Card } from "@/src/components/ui/card";
 import { Text } from "@/src/components/ui/text";
 import { useTechHomeStatsQuery } from "../hooks/useTechHomeStatsQuery";
 import { SectionHeader } from "./SectionHeader";
@@ -8,37 +7,34 @@ function pct(rate: number | null | undefined): string {
 	return rate == null ? "—" : `${Math.round(rate * 100)}%`;
 }
 
-function StatCard({
+/** A single bare stat figure — no card surface, divided by hairlines only. */
+function StatCell({
 	label,
 	value,
 	sub,
-	accentClass,
+	className = "",
 }: {
 	label: string;
 	value: string;
 	sub: string;
-	accentClass: string;
+	className?: string;
 }) {
 	return (
-		<Card elevated className="flex-1 p-card-compact">
-			<View className={`h-2 w-2 rounded-full ${accentClass}`} />
-			<Text variant="h3" className="mt-stack-sm font-bold text-content">
+		<View className={`flex-1 py-stack-sm ${className}`}>
+			<Text variant="h2" className="font-bold text-content">
 				{value}
 			</Text>
-			<Text
-				variant="label"
-				className="mt-0.5 font-semibold text-content-secondary"
-			>
+			<Text variant="caption" className="mt-0.5 text-content-secondary">
 				{label}
 			</Text>
 			<Text variant="caption" className="text-content-muted">
 				{sub}
 			</Text>
-		</Card>
+		</View>
 	);
 }
 
-/** 2×2 performance grid — every figure computed server-side from real data. */
+/** 2×2 performance figures — bare numbers, no fills, every figure server-side. */
 export function PerformanceGrid() {
 	const { data: stats } = useTechHomeStatsQuery();
 
@@ -48,34 +44,35 @@ export function PerformanceGrid() {
 
 	return (
 		<View className="px-screen-x pt-stack-lg">
-			<SectionHeader title="Performance" hint="Better stats bring more jobs" />
-			<View className="gap-stack-sm">
-				<View className="flex-row gap-stack-sm">
-					<StatCard
+			<SectionHeader title="Performance" />
+			<View>
+				<View className="flex-row">
+					<StatCell
 						label="Acceptance rate"
 						value={pct(stats?.rates.acceptanceRate)}
 						sub="last 30 days"
-						accentClass="bg-success"
+						className="border-edge border-r pr-card-compact"
 					/>
-					<StatCard
+					<StatCell
 						label="Jobs this week"
 						value={String(stats?.jobs.thisWeek ?? 0)}
 						sub="completed"
-						accentClass="bg-app-primary"
+						className="pl-card-compact"
 					/>
 				</View>
-				<View className="flex-row gap-stack-sm">
-					<StatCard
+				<View className="h-px bg-edge" />
+				<View className="flex-row">
+					<StatCell
 						label="Rating"
 						value={rating}
 						sub={`${reviews} ${reviews === 1 ? "review" : "reviews"}`}
-						accentClass="bg-star"
+						className="border-edge border-r pr-card-compact"
 					/>
-					<StatCard
+					<StatCell
 						label="Cancellation rate"
 						value={pct(stats?.rates.cancellationRate)}
 						sub="last 30 days"
-						accentClass="bg-danger"
+						className="pl-card-compact"
 					/>
 				</View>
 			</View>

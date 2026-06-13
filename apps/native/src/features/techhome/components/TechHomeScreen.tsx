@@ -9,6 +9,7 @@ import {
 } from "../constants";
 import {
 	useActiveJob,
+	useNextTodayJob,
 	useTechHomeOrdersQuery,
 } from "../hooks/useTechHomeOrdersQuery";
 import { useTechHomeStatsQuery } from "../hooks/useTechHomeStatsQuery";
@@ -16,6 +17,7 @@ import { ActiveJobCard } from "./ActiveJobCard";
 import { EarningsCard } from "./EarningsCard";
 import { HeroHeader } from "./HeroHeader";
 import { IncomingRequestsSection } from "./IncomingRequestsSection";
+import { NextJobCard } from "./NextJobCard";
 import { PerformanceGrid } from "./PerformanceGrid";
 import { PromoCard } from "./PromoCard";
 import { ScheduleTimeline } from "./ScheduleTimeline";
@@ -48,6 +50,12 @@ export function TechHomeScreen() {
 	const ordersQuery = useTechHomeOrdersQuery();
 	const statsQuery = useTechHomeStatsQuery();
 	const activeJob = useActiveJob();
+	const nextTodayJob = useNextTodayJob();
+
+	// Primary slot: the live job, else the next job to start today, else nothing.
+	let primarySlot: React.ReactNode = null;
+	if (activeJob) primarySlot = <ActiveJobCard order={activeJob} />;
+	else if (nextTodayJob) primarySlot = <NextJobCard order={nextTodayJob} />;
 
 	const initialLoading =
 		(ordersQuery.isPending && !ordersQuery.data) ||
@@ -93,11 +101,8 @@ export function TechHomeScreen() {
 							</View>
 						</Enter>
 
-						{activeJob ? (
-							<Enter order={1}>
-								<ActiveJobCard order={activeJob} />
-							</Enter>
-						) : null}
+						{/* Primary slot: live job → else next job to start today → else collapse */}
+						{primarySlot ? <Enter order={1}>{primarySlot}</Enter> : null}
 
 						<Enter order={2}>
 							<IncomingRequestsSection />

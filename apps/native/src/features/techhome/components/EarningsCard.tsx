@@ -24,24 +24,17 @@ export function EarningsCard() {
 	const delta = earningsDeltaPct(today, yesterday);
 
 	return (
-		<Card elevated className="overflow-hidden">
-			<View className="flex-row items-start justify-between px-card pt-card">
+		<Card elevated className="p-card">
+			<View className="flex-row items-start justify-between">
 				<View className="flex-1">
-					<Text
-						variant="caption"
-						className="font-semibold text-content-muted uppercase tracking-widest"
-					>
+					<Text variant="caption" className="text-content-muted">
 						Today's earnings
 					</Text>
 					<Text variant="display" className="mt-1 font-bold text-content">
 						{formatEgp(animatedToday)}
 					</Text>
 					{delta === undefined ? null : (
-						<View
-							className={`mt-2 flex-row items-center gap-1 self-start rounded-md px-2 py-0.5 ${
-								delta >= 0 ? "bg-status-available" : "bg-danger-light"
-							}`}
-						>
+						<View className="mt-2 flex-row items-center gap-1 self-start">
 							<Icon
 								as={delta >= 0 ? TrendingUp : TrendingDown}
 								size={12}
@@ -49,7 +42,7 @@ export function EarningsCard() {
 							/>
 							<Text
 								variant="caption"
-								className={`font-bold ${delta >= 0 ? "text-success" : "text-danger"}`}
+								className={delta >= 0 ? "text-success" : "text-danger"}
 							>
 								{delta >= 0 ? "+" : ""}
 								{delta}% vs yesterday
@@ -71,13 +64,13 @@ export function EarningsCard() {
 			</View>
 
 			{/* 7-day chart */}
-			<View className="px-card pt-stack-sm pb-stack-sm">
+			<View className="pt-stack-sm">
 				<EarningsChart daily={stats?.earnings.daily ?? []} />
 			</View>
 
-			{/* weekly total footer */}
-			<View className="flex-row items-center justify-between border-edge border-t bg-surface-muted px-card py-3">
-				<Text variant="label" className="font-semibold text-content-secondary">
+			{/* weekly total — hairline divider, no second surface */}
+			<View className="mt-stack-sm flex-row items-center justify-between border-edge border-t pt-stack-sm">
+				<Text variant="caption" className="text-content-secondary">
 					This week
 				</Text>
 				<Text variant="body" className="font-bold text-content">

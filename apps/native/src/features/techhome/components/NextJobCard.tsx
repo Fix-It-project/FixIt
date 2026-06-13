@@ -6,35 +6,39 @@ import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
-import type { OrderStatus, TechHomeOrder } from "../schemas/orders.schema";
+import { useStartTrackingMutation } from "../hooks/useStartTrackingMutation";
+import type { TechHomeOrder } from "../schemas/orders.schema";
 import { formatEgp } from "../utils/money";
+import { formatSlotTime } from "../utils/format-time";
 import { SectionHeader } from "./SectionHeader";
 
-const STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
-	tracking: "ON THE WAY",
-	arrived_inspection: "INSPECTING",
-	awaiting_final_cost: "PRICING",
-	negotiating: "NEGOTIATING",
-	in_progress: "IN PROGRESS",
-	awaiting_payment: "AWAITING PAYMENT",
-};
-
-export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
+/**
+ * Primary slot when there's no active job but a job is scheduled to START today.
+ * "Start tracking" runs the mutation inline — the cache flips the order to
+ * `tracking`, so the slot re-derives into the ActiveJobCard.
+ */
+export function NextJobCard({ order }: { order: TechHomeOrder }) {
+	const colors = useThemeColors();
 	const router = useRouter();
+	const startTracking = useStartTrackingMutation();
+
 	const customerName = order.user_name ?? "Customer";
 	const initials = getPfpInitialsFallback(customerName);
+	const time = formatSlotTime(order.scheduled_start_at);
+	const hint = time === "—" ? "Scheduled today" : `Today · ${time}`;
 
 	return (
 		<View className="px-screen-x pt-stack-lg">
-			<SectionHeader title="Active job" />
+			<SectionHeader title="Next job" hint={hint} />
 			<Card elevated className="p-card">
-				{/* status strip — STATUS_LABEL is a compact functional status code */}
+				{/* status row */}
 				<View className="flex-row items-center gap-stack-xs border-edge border-b pb-stack-sm">
 					<View className="h-2 w-2 rounded-full bg-app-primary" />
-					<Text variant="caption" className="font-semibold text-app-primary">
-						{STATUS_LABEL[order.status] ?? "IN PROGRESS"}
+					<Text variant="caption" className="text-content-secondary">
+						Starts {time}
 					</Text>
 					<Text variant="caption" className="ml-auto text-content-muted">
 						#{order.id.slice(0, 8).toUpperCase()}
@@ -94,17 +98,39 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 					)}
 				</View>
 
-				<Button
-					variant="primary"
-					size="md"
-					fullWidth
-					onPress={() => router.push(ROUTES.technician.bookingDetail(order.id))}
-				>
-					<Text variant="buttonMd" className="text-surface-on-primary">
-						Open job
-					</Text>
-					<Icon as={ArrowRight} size={16} className="text-surface-on-primary" />
-				</Button>
+				{/* actions */}
+				<View className="flex-row gap-stack-sm">
+					<Button
+						variant="outline"
+						size="md"
+						className="flex-1"
+						onPress={() =>
+							router.push(ROUTES.technician.bookingDetail(order.id))
+						}
+						accessibilityLabel="View job details"
+					>
+						<Text variant="buttonMd" className="text-content">
+							View details
+						</Text>
+					</Button>
+					<Button
+						variant="primary"
+						size="md"
+						className="flex-1"
+						onPress={() => startTracking.mutate(order.id)}
+						disabled={startTracking.isPending}
+						accessibilityLabel="Start tracking this job"
+					>
+						<Text variant="buttonMd" className="text-surface-on-primary">
+							Start tracking
+						</Text>
+						<Icon
+							as={ArrowRight}
+							size={16}
+							color={colors.surfaceOnPrimary}
+						/>
+					</Button>
+				</View>
 			</Card>
 		</View>
 	);

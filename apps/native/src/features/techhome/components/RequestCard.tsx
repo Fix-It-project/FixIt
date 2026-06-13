@@ -1,4 +1,4 @@
-import { Check, Clock, MapPin, Wrench, X } from "lucide-react-native";
+import { Check, Clock, MapPin, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
@@ -9,6 +9,7 @@ import { formatRelativeTime } from "@/src/lib/date/relative-time";
 import { EXPIRY_TICK_MS } from "../constants";
 import type { TechHomeOrder } from "../schemas/orders.schema";
 import { pendingExpiryFor } from "../utils/expiry";
+import { formatSlotTime } from "../utils/format-time";
 
 interface RequestCardProps {
 	order: TechHomeOrder;
@@ -57,10 +58,7 @@ export function RequestCard({
 				{/* meta row */}
 				<View className="flex-row items-center gap-stack-xs">
 					{expiry ? (
-						<Text
-							variant="caption"
-							className="font-bold text-warning uppercase tracking-wide"
-						>
+						<Text variant="caption" className="font-semibold text-warning">
 							{expiry.remainingMs === 0
 								? "Expired"
 								: `Auto-declines in ${expiry.label}`}
@@ -74,26 +72,21 @@ export function RequestCard({
 				</View>
 
 				{/* request body */}
-				<View className="flex-row items-center gap-stack-md pt-stack-sm">
-					<View className="h-12 w-12 items-center justify-center rounded-2xl bg-warning-light">
-						<Icon as={Wrench} size={18} className="text-warning" />
-					</View>
-					<View className="flex-1">
-						<Text
-							variant="body"
-							className="font-bold text-content"
-							numberOfLines={1}
-						>
-							{order.service_name ?? "New request"}
-						</Text>
-						<Text
-							variant="bodySm"
-							className="text-content-muted"
-							numberOfLines={2}
-						>
-							{order.problem_description ?? "No description provided"}
-						</Text>
-					</View>
+				<View className="pt-stack-sm">
+					<Text
+						variant="body"
+						className="font-bold text-content"
+						numberOfLines={1}
+					>
+						{order.service_name ?? "New request"}
+					</Text>
+					<Text
+						variant="caption"
+						className="mt-0.5 text-content-muted"
+						numberOfLines={2}
+					>
+						{order.problem_description ?? "No description provided"}
+					</Text>
 				</View>
 
 				{/* schedule + location */}
@@ -103,7 +96,7 @@ export function RequestCard({
 						<Text variant="caption" className="text-content-secondary">
 							{order.scheduled_date}
 							{order.scheduled_start_at
-								? ` · ${order.scheduled_start_at.slice(11, 16)}`
+								? ` · ${formatSlotTime(order.scheduled_start_at)}`
 								: ""}
 						</Text>
 					</View>

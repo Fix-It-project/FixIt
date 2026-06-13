@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { acceptOrder, declineOrder } from "../api/tech-home";
 import { techHomeKeys } from "../schemas/query-keys";
 
-function useInvalidateOrderCaches() {
+export function useInvalidateOrderCaches() {
 	const queryClient = useQueryClient();
 	return () => {
 		void queryClient.invalidateQueries({ queryKey: techHomeKeys.orders });

@@ -31,19 +31,19 @@ export function PromoCard({ badgeLabel, title, body }: PromoCardProps) {
 						<Icon as={TrendingUp} size={14} color={colors.accentSky} />
 						<Text
 							variant="caption"
-							className="font-bold text-tint-on-hero uppercase tracking-wide opacity-85"
+							className="text-tint-on-hero opacity-85"
 						>
 							{badgeLabel}
 						</Text>
 					</View>
 					<Text
-						variant="h4"
+						variant="h3"
 						className="mt-stack-sm max-w-[85%] font-bold text-tint-on-hero"
 					>
 						{title}
 					</Text>
 					<Text
-						variant="bodySm"
+						variant="caption"
 						className="mt-1 max-w-[90%] text-tint-on-hero opacity-80"
 					>
 						{body}

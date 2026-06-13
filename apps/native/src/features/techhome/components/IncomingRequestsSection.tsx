@@ -14,7 +14,6 @@ import {
 } from "../hooks/useOrderActionMutations";
 import { usePendingRequests } from "../hooks/useTechHomeOrdersQuery";
 import { useTechHomeStatsQuery } from "../hooks/useTechHomeStatsQuery";
-import { EmptyState } from "./EmptyState";
 import { RequestCard } from "./RequestCard";
 import { SectionHeader } from "./SectionHeader";
 
@@ -40,49 +39,41 @@ export function IncomingRequestsSection() {
 		);
 	};
 
+	// Collapse when empty — no dead card at the top of the page.
+	if (pending.length === 0) return null;
+
 	return (
 		<View className="px-screen-x pt-stack-lg">
 			<SectionHeader
 				title="Incoming requests"
-				hint={
-					pending.length > 0
-						? `${pending.length} waiting for your decision`
-						: "New bookings land here"
-				}
+				hint={`${pending.length} waiting`}
 			/>
 
-			{pending.length === 0 ? (
-				<EmptyState
-					title="No new requests"
-					body="When a customer books you, the request shows up here to accept or decline."
-				/>
-			) : (
-				<View className="gap-stack-sm">
-					{pending.map((order) => (
-						<RequestCard
-							key={order.id}
-							order={order}
-							pendingExpiryHours={stats?.pendingExpiryHours}
-							onAccept={() => accept.mutate(order.id)}
-							onDecline={() => setDecliningId(order.id)}
-							actionPending={accept.isPending || decline.isPending}
-						/>
-					))}
-				</View>
-			)}
+			<View className="gap-stack-sm">
+				{pending.map((order) => (
+					<RequestCard
+						key={order.id}
+						order={order}
+						pendingExpiryHours={stats?.pendingExpiryHours}
+						onAccept={() => accept.mutate(order.id)}
+						onDecline={() => setDecliningId(order.id)}
+						actionPending={accept.isPending || decline.isPending}
+					/>
+				))}
+			</View>
 
 			{/* decline reason dialog */}
 			<AlertDialog visible={decliningId !== null} onClose={closeDeclineDialog}>
 				<AlertDialog.Header>
 					<AlertDialogTitle>
-						<Text variant="h4" className="font-bold text-content">
+						<Text variant="h3" className="font-bold text-content">
 							Decline this request?
 						</Text>
 					</AlertDialogTitle>
 				</AlertDialog.Header>
 				<AlertDialog.Body>
 					<AlertDialogDescription>
-						<Text variant="bodySm" className="text-content-muted">
+						<Text variant="caption" className="text-content-muted">
 							Optionally tell the customer why. Declining often hurts your
 							acceptance rate.
 						</Text>

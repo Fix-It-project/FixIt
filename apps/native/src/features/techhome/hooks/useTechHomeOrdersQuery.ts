@@ -8,6 +8,7 @@ import {
 	type TechHomeOrder,
 } from "../schemas/orders.schema";
 import { techHomeKeys } from "../schemas/query-keys";
+import { byStartTime } from "../utils/order-sort";
 
 function localToday(): string {
 	const d = new Date();
@@ -61,8 +62,40 @@ export function useTodaySchedule(): TechHomeOrder[] {
 				(o) => o.scheduled_date === today && SCHEDULED_STATUSES.has(o.status),
 			)
 			// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
-			.sort((a, b) =>
-				(a.scheduled_start_at ?? "").localeCompare(b.scheduled_start_at ?? ""),
-			);
+			.sort(byStartTime);
+	}, [data]);
+}
+
+/**
+ * The next job to START today: earliest `accepted` order scheduled today that
+ * the technician hasn't begun yet. Drives the home "Next job" card. Same-day
+ * only — future-day orders are surfaced by the hero status line, not here.
+ */
+export function useNextTodayJob(): TechHomeOrder | undefined {
+	const { data } = useTechHomeOrdersQuery();
+	return useMemo(() => {
+		const today = localToday();
+		return (data ?? [])
+			.filter((o) => o.scheduled_date === today && o.status === "accepted")
+			// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
+			.sort(byStartTime)[0];
+	}, [data]);
+}
+
+/**
+ * The next `accepted` order scheduled on a FUTURE day (after today). Used only
+ * for the quiet-state hero line ("Next job Sat 11:00"); never tracked from home.
+ */
+export function useNextFutureJob(): TechHomeOrder | undefined {
+	const { data } = useTechHomeOrdersQuery();
+	return useMemo(() => {
+		const today = localToday();
+		return (data ?? [])
+			.filter((o) => o.status === "accepted" && o.scheduled_date > today)
+			// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
+			.sort(
+				(a, b) =>
+					a.scheduled_date.localeCompare(b.scheduled_date) || byStartTime(a, b),
+			)[0];
 	}, [data]);
 }
