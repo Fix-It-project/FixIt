@@ -6,6 +6,7 @@ export * from "./admin-order.dto.js";
 export * from "./admin-technician.dto.js";
 export * from "./auth.dto.js";
 export * from "./calendar.dto.js";
+export * from "./custom-service.dto.js";
 export * from "./lifecycle.dto.js";
 export * from "./notifications.dto.js";
 export * from "./order.dto.js";

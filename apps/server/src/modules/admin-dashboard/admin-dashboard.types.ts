@@ -3,12 +3,15 @@
 export interface KpiMetric {
 	label: string;
 	value: string;
-	delta: number;
+	/** % change vs the comparison period, or null when there's no real baseline. */
+	delta: number | null;
 	deltaLabel: string;
 	icon: string;
 	trend: number[];
-	/** Prior-period figure (e.g. orders in the previous 30 days). Omitted for snapshot metrics. */
+	/** Secondary figure (e.g. the all-time total). Omitted when not applicable. */
 	previous?: string;
+	/** Label for `previous` (e.g. "all-time"); defaults to "last mo" in the UI. */
+	previousLabel?: string;
 }
 
 export interface CategoryShare {
