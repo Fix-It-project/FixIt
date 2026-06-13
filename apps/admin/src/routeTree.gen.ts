@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from "./routes/index";
 import { Route as LoginIndexRouteImport } from "./routes/login/index";
 import { Route as ProtectedTechniciansIndexRouteImport } from "./routes/_protected/technicians/index";
 import { Route as ProtectedSettingsIndexRouteImport } from "./routes/_protected/settings/index";
+import { Route as ProtectedServicesIndexRouteImport } from "./routes/_protected/services/index";
 import { Route as ProtectedReviewsIndexRouteImport } from "./routes/_protected/reviews/index";
 import { Route as ProtectedReportsIndexRouteImport } from "./routes/_protected/reports/index";
 import { Route as ProtectedPayoutsIndexRouteImport } from "./routes/_protected/payouts/index";
@@ -47,6 +48,11 @@ const ProtectedTechniciansIndexRoute =
 const ProtectedSettingsIndexRoute = ProtectedSettingsIndexRouteImport.update({
   id: "/settings/",
   path: "/settings/",
+  getParentRoute: () => ProtectedRoute,
+} as any);
+const ProtectedServicesIndexRoute = ProtectedServicesIndexRouteImport.update({
+  id: "/services/",
+  path: "/services/",
   getParentRoute: () => ProtectedRoute,
 } as any);
 const ProtectedReviewsIndexRoute = ProtectedReviewsIndexRouteImport.update({
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   "/payouts/": typeof ProtectedPayoutsIndexRoute;
   "/reports/": typeof ProtectedReportsIndexRoute;
   "/reviews/": typeof ProtectedReviewsIndexRoute;
+  "/services/": typeof ProtectedServicesIndexRoute;
   "/settings/": typeof ProtectedSettingsIndexRoute;
   "/technicians/": typeof ProtectedTechniciansIndexRoute;
 }
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   "/payouts": typeof ProtectedPayoutsIndexRoute;
   "/reports": typeof ProtectedReportsIndexRoute;
   "/reviews": typeof ProtectedReviewsIndexRoute;
+  "/services": typeof ProtectedServicesIndexRoute;
   "/settings": typeof ProtectedSettingsIndexRoute;
   "/technicians": typeof ProtectedTechniciansIndexRoute;
 }
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   "/_protected/payouts/": typeof ProtectedPayoutsIndexRoute;
   "/_protected/reports/": typeof ProtectedReportsIndexRoute;
   "/_protected/reviews/": typeof ProtectedReviewsIndexRoute;
+  "/_protected/services/": typeof ProtectedServicesIndexRoute;
   "/_protected/settings/": typeof ProtectedSettingsIndexRoute;
   "/_protected/technicians/": typeof ProtectedTechniciansIndexRoute;
 }
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | "/payouts/"
     | "/reports/"
     | "/reviews/"
+    | "/services/"
     | "/settings/"
     | "/technicians/";
   fileRoutesByTo: FileRoutesByTo;
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | "/payouts"
     | "/reports"
     | "/reviews"
+    | "/services"
     | "/settings"
     | "/technicians";
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | "/_protected/payouts/"
     | "/_protected/reports/"
     | "/_protected/reviews/"
+    | "/_protected/services/"
     | "/_protected/settings/"
     | "/_protected/technicians/";
   fileRoutesById: FileRoutesById;
@@ -236,6 +248,13 @@ declare module "@tanstack/react-router" {
       path: "/settings";
       fullPath: "/settings/";
       preLoaderRoute: typeof ProtectedSettingsIndexRouteImport;
+      parentRoute: typeof ProtectedRoute;
+    };
+    "/_protected/services/": {
+      id: "/_protected/services/";
+      path: "/services";
+      fullPath: "/services/";
+      preLoaderRoute: typeof ProtectedServicesIndexRouteImport;
       parentRoute: typeof ProtectedRoute;
     };
     "/_protected/reviews/": {
@@ -314,6 +333,7 @@ interface ProtectedRouteChildren {
   ProtectedPayoutsIndexRoute: typeof ProtectedPayoutsIndexRoute;
   ProtectedReportsIndexRoute: typeof ProtectedReportsIndexRoute;
   ProtectedReviewsIndexRoute: typeof ProtectedReviewsIndexRoute;
+  ProtectedServicesIndexRoute: typeof ProtectedServicesIndexRoute;
   ProtectedSettingsIndexRoute: typeof ProtectedSettingsIndexRoute;
   ProtectedTechniciansIndexRoute: typeof ProtectedTechniciansIndexRoute;
 }
@@ -328,6 +348,7 @@ const ProtectedRouteChildren: ProtectedRouteChildren = {
   ProtectedPayoutsIndexRoute: ProtectedPayoutsIndexRoute,
   ProtectedReportsIndexRoute: ProtectedReportsIndexRoute,
   ProtectedReviewsIndexRoute: ProtectedReviewsIndexRoute,
+  ProtectedServicesIndexRoute: ProtectedServicesIndexRoute,
   ProtectedSettingsIndexRoute: ProtectedSettingsIndexRoute,
   ProtectedTechniciansIndexRoute: ProtectedTechniciansIndexRoute,
 };

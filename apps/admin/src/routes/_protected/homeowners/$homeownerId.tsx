@@ -22,9 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
+import { OrderDetailModal } from "@/components/OrderDetailModal";
 import { humanizeStatus, statusVariant } from "@/lib/order-status";
 import { BlockReasonModal } from "./components/BlockReasonModal";
-import { OrderDetailModal } from "./components/OrderDetailModal";
 import {
 	useBlockHomeowner,
 	useHomeowners,

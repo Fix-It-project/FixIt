@@ -4,11 +4,15 @@ import type { TopTech } from "./technicians";
 export interface KpiMetric {
 	label: string;
 	value: string;
-	delta: number;
+	/** % change vs the comparison period, or null when there's no real baseline. */
+	delta: number | null;
 	deltaLabel: string;
 	icon: string;
 	trend: number[];
+	/** Secondary figure (e.g. the all-time total). */
 	previous?: string;
+	/** Label for `previous` (e.g. "all-time"); defaults to "last mo". */
+	previousLabel?: string;
 }
 
 export interface OrderSeries {
