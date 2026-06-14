@@ -11,8 +11,8 @@ import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
 import { useStartTrackingMutation } from "../hooks/useStartTrackingMutation";
 import type { TechHomeOrder } from "../schemas/orders.schema";
-import { formatEgp } from "../utils/money";
 import { formatSlotTime } from "../utils/format-time";
+import { formatEgp } from "../utils/money";
 import { SectionHeader } from "./SectionHeader";
 
 /**
@@ -39,9 +39,6 @@ export function NextJobCard({ order }: { order: TechHomeOrder }) {
 					<View className="h-2 w-2 rounded-full bg-app-primary" />
 					<Text variant="caption" className="text-content-secondary">
 						Starts {time}
-					</Text>
-					<Text variant="caption" className="ml-auto text-content-muted">
-						#{order.id.slice(0, 8).toUpperCase()}
 					</Text>
 				</View>
 

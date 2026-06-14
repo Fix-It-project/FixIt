@@ -36,9 +36,6 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 					<Text variant="caption" className="font-semibold text-app-primary">
 						{STATUS_LABEL[order.status] ?? "IN PROGRESS"}
 					</Text>
-					<Text variant="caption" className="ml-auto text-content-muted">
-						#{order.id.slice(0, 8).toUpperCase()}
-					</Text>
 				</View>
 
 				{/* customer + payout */}

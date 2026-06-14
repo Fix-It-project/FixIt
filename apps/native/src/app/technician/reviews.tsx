@@ -1,20 +1,16 @@
 import { router } from "expo-router";
 import { Star } from "lucide-react-native";
 import { useMemo } from "react";
-import {
-	ActivityIndicator,
-	FlatList,
-	RefreshControl,
-	View,
-} from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { ReviewRow, ReviewStatsHeader } from "@/src/components/reviews";
+import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import BackButton from "@/src/components/ui/back-button";
 import { Text } from "@/src/components/ui/text";
-import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
-import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/useTechnicianReviewsInfiniteQuery";
 import { getReviewDistribution } from "@/src/features/reviews/utils/review-distribution";
+import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 
 export default function TechnicianReviewsScreen() {
 	const themeColors = useThemeColors();
@@ -113,10 +109,9 @@ export default function TechnicianReviewsScreen() {
 						}}
 						onEndReachedThreshold={0.5}
 						refreshControl={
-							<RefreshControl
+							<AppRefreshControl
 								refreshing={isRefetching}
 								onRefresh={refetch}
-								tintColor={Colors.primary}
 							/>
 						}
 						showsVerticalScrollIndicator={false}

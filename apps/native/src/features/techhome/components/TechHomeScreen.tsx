@@ -1,6 +1,7 @@
-import { RefreshControl, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import {
 	PROMO_PLACEHOLDER,
@@ -73,12 +74,12 @@ export function TechHomeScreen() {
 				showsVerticalScrollIndicator={false}
 				contentContainerClassName="pb-screen-bottom-inset"
 				refreshControl={
-					<RefreshControl
+					<AppRefreshControl
 						refreshing={refreshing}
 						onRefresh={onRefresh}
 						colors={[colors.primary]}
 						tintColor={colors.tint.onHero}
-						progressViewOffset={insets.top}
+						useTopInset
 					/>
 				}
 			>

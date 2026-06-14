@@ -261,7 +261,10 @@ export default function BookingDetails() {
 
 				<KeyboardAwareScrollView
 					className="flex-1"
-					contentContainerStyle={{ padding: 20, paddingBottom: 20 }}
+					contentContainerStyle={{
+						padding: 20,
+						paddingBottom: spacing.screen.scrollBottomInset,
+					}}
 					keyboardShouldPersistTaps="handled"
 					keyboardDismissMode="interactive"
 					showsVerticalScrollIndicator={false}
@@ -349,20 +352,20 @@ export default function BookingDetails() {
 							onAttachmentChange={setAttachment}
 						/>
 					</Animated.View>
-				</KeyboardAwareScrollView>
 
-				<Animated.View entering={entering(3)} className="px-card pb-stack-lg">
-					<Button
-						disabled={!canConfirm}
-						onPress={handleConfirm}
-						className="w-full rounded-button"
-						testID="confirm-booking"
-					>
-						<Text variant="buttonLg" className="text-surface-on-primary">
-							{isPending ? t("confirming") : t("confirm")}
-						</Text>
-					</Button>
-				</Animated.View>
+					<Animated.View entering={entering(3)} className="mt-card">
+						<Button
+							disabled={!canConfirm}
+							onPress={handleConfirm}
+							className="w-full rounded-button"
+							testID="confirm-booking"
+						>
+							<Text variant="buttonLg" className="text-surface-on-primary">
+								{isPending ? t("confirming") : t("confirm")}
+							</Text>
+						</Button>
+					</Animated.View>
+				</KeyboardAwareScrollView>
 			</View>
 		</ScreenSafeAreaView>
 	);

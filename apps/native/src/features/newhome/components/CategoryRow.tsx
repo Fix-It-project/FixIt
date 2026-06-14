@@ -1,15 +1,3 @@
-import { PressableScale } from "@/src/components/animation/pressable-scale";
-import { Icon } from "@/src/components/ui/icon";
-import { Skeleton } from "@/src/components/ui/skeleton";
-import { Text } from "@/src/components/ui/text";
-import { DUR_SLIDE_UP, ENTRANCE_STAGGER } from "@/src/constants/animation";
-import { useThemeColors } from "@/src/constants/design-tokens";
-import {
-	getCategoryMeta,
-	translateCategoryLabel,
-} from "@/src/features/categories/constants/categories";
-import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
-import { ROUTES } from "@/src/lib/navigation/routes";
 import { router } from "expo-router";
 import {
 	AirVent,
@@ -35,7 +23,19 @@ import {
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { Icon } from "@/src/components/ui/icon";
+import { Skeleton } from "@/src/components/ui/skeleton";
+import { Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
+import {
+	getCategoryMeta,
+	translateCategoryLabel,
+} from "@/src/features/categories/constants/categories";
+import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
+import { ROUTES } from "@/src/lib/navigation/routes";
+
+const CATEGORY_RAIL_HEIGHT = 104;
 
 const ICON_MAP: Record<string, LucideIcon> = {
 	"air condition": AirVent,
@@ -158,66 +158,67 @@ export function CategoryRow() {
 				</Text>
 			)}
 
-			{/* Data state */}
 			{!isLoading && !isError && (categories?.length ?? 0) > 0 && (
 				<ScrollView
 					horizontal
 					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
+					style={{ height: CATEGORY_RAIL_HEIGHT }}
+					contentContainerStyle={{
+						paddingHorizontal: 20,
+						paddingBottom: 6,
+						gap: 8,
+					}}
 				>
-					{categories?.map((cat, index) => {
+					{categories?.map((cat) => {
 						const IconComponent = resolveIcon(cat.id, cat.name);
 						const categoryLabel = translateCategoryLabel(tc, cat.id, cat.name);
 						return (
-							<Animated.View
+							<PressableScale
 								key={cat.id}
-								entering={FadeInDown.delay(index * ENTRANCE_STAGGER).duration(
-									DUR_SLIDE_UP,
-								)}
+								pressedScale={0.93}
+								onPress={() =>
+									router.push({
+										pathname: ROUTES.user.technicians,
+										params: {
+											categoryId: cat.id,
+											categoryName: cat.name,
+										},
+									})
+								}
+								style={{
+									alignItems: "center",
+									gap: 6,
+									width: 64,
+								}}
 							>
-								<PressableScale
-									pressedScale={0.93}
-									onPress={() =>
-										router.push({
-											pathname: ROUTES.user.technicians,
-											params: {
-												categoryId: cat.id,
-												categoryName: cat.name,
-											},
-										})
-									}
+								<View
+									style={{
+										width: 56,
+										height: 56,
+										borderRadius: 14,
+										backgroundColor: t.surfaceElevated,
+										borderWidth: 1,
+										borderColor: t.borderChip,
+										alignItems: "center",
+										justifyContent: "center",
+									}}
 								>
-									<View style={{ alignItems: "center", gap: 6, width: 64 }}>
-										<View
-											style={{
-												width: 56,
-												height: 56,
-												borderRadius: 14,
-												backgroundColor: t.surfaceElevated,
-												borderWidth: 1,
-												borderColor: t.borderChip,
-												alignItems: "center",
-												justifyContent: "center",
-											}}
-										>
-											<Icon
-												as={IconComponent}
-												size={23}
-												color={t.primary}
-												strokeWidth={2.2}
-											/>
-										</View>
-										<Text
-											variant="caption"
-											className="text-center font-bold text-foreground"
-											numberOfLines={2}
-											style={{ maxWidth: 60 }}
-										>
-											{categoryLabel}
-										</Text>
-									</View>
-								</PressableScale>
-							</Animated.View>
+									<Icon
+										as={IconComponent}
+										size={23}
+										color={t.primary}
+										strokeWidth={2.2}
+									/>
+								</View>
+								<Text
+									variant="caption"
+									className="text-center font-bold text-foreground"
+									numberOfLines={2}
+									style={{ maxWidth: 60 }}
+								>
+									{categoryLabel}
+								</Text>
+							</PressableScale>
 						);
 					})}
 				</ScrollView>

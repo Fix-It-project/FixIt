@@ -1,8 +1,10 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { CircleHelp } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
+import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
@@ -15,12 +17,14 @@ import AddressBottomSheet, {
 	type AddressBottomSheetRef,
 } from "@/src/features/addresses/components/user/AddressBottomSheet";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
+import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
 import { ActiveOrderStrip } from "@/src/features/newhome/components/ActiveOrderStrip";
 import { CategoryRow } from "@/src/features/newhome/components/CategoryRow";
 import { HomeHeader } from "@/src/features/newhome/components/HomeHeader";
 import { OfferCard } from "@/src/features/newhome/components/OfferCard";
 import { PreviousOrdersSection } from "@/src/features/newhome/components/PreviousOrdersSection";
 import { TopRatedSection } from "@/src/features/newhome/components/TopRatedSection";
+import { technicianQueryKeys } from "@/src/features/technicians/query-keys";
 import { formatAddress } from "@/src/lib/helpers/format-address";
 import { ROUTES } from "@/src/lib/navigation/routes";
 
@@ -58,8 +62,10 @@ function NeedHelpShelf() {
 
 export function NewHome() {
 	const { t: tr } = useTranslation("home");
+	const queryClient = useQueryClient();
 	const addressSheetRef = useRef<AddressBottomSheetRef>(null);
 	const addNewAddressSheetRef = useRef<AddNewAddressSheetRef>(null);
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [isAddressAccordionOpen, setIsAddressAccordionOpen] = useState(false);
 	const [isAddressSheetOpen, setIsAddressSheetOpen] = useState(false);
 	const [isAddAddressSheetOpen, setIsAddAddressSheetOpen] = useState(false);
@@ -104,12 +110,34 @@ export function NewHome() {
 		},
 		[tr],
 	);
+	const handleRefresh = useCallback(async () => {
+		setIsRefreshing(true);
+		try {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ["user-addresses"] }),
+				queryClient.invalidateQueries({ queryKey: ["categories"] }),
+				queryClient.invalidateQueries({ queryKey: ["newhome"] }),
+				queryClient.invalidateQueries({ queryKey: ["technician-profile"] }),
+				queryClient.invalidateQueries({ queryKey: technicianQueryKeys.list() }),
+				queryClient.invalidateQueries({ queryKey: orderQueryKeys.userOrders }),
+			]);
+		} finally {
+			setIsRefreshing(false);
+		}
+	}, [queryClient]);
 
 	return (
 		<View testID="user-home" className="flex-1 bg-background">
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
+				refreshControl={
+					<AppRefreshControl
+						refreshing={isRefreshing}
+						onRefresh={handleRefresh}
+						useTopInset
+					/>
+				}
 				contentContainerStyle={{
 					paddingBottom: spacing.screen.scrollBottomInset,
 				}}
