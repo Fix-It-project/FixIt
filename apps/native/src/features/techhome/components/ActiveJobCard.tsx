@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
+import { Progress } from "@/src/components/ui/progress";
 import { Text } from "@/src/components/ui/text";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
@@ -21,10 +22,40 @@ const STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
 	awaiting_payment: "AWAITING PAYMENT",
 };
 
+// ── Job progress (mirrors the user home ActiveOrderStrip 5-step model) ──────────
+// on the way → inspecting → pricing → in progress → awaiting payment.
+const JOB_STEPS = [
+	"On the way",
+	"Inspecting",
+	"Pricing",
+	"In progress",
+	"Awaiting payment",
+] as const;
+const TOTAL_JOB_STEPS = JOB_STEPS.length;
+
+function getJobStep(status: OrderStatus): number {
+	switch (status) {
+		case "tracking":
+			return 1;
+		case "arrived_inspection":
+			return 2;
+		case "awaiting_final_cost":
+		case "negotiating":
+			return 3;
+		case "in_progress":
+			return 4;
+		case "awaiting_payment":
+			return 5;
+		default:
+			return 1;
+	}
+}
+
 export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 	const router = useRouter();
 	const customerName = order.user_name ?? "Customer";
 	const initials = getPfpInitialsFallback(customerName);
+	const jobStep = getJobStep(order.status);
 
 	return (
 		<View className="px-screen-x pt-stack-lg">
@@ -89,6 +120,27 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 							</Text>
 						</View>
 					)}
+				</View>
+
+				{/* progress — 5-step job lifecycle, matches user home tracking strip */}
+				<View className="pb-stack-sm">
+					<Progress
+						value={(jobStep / TOTAL_JOB_STEPS) * 100}
+						className="h-1.5 bg-surface-elevated"
+						indicatorClassName="bg-app-primary"
+					/>
+					<View className="mt-stack-xs flex-row items-center justify-between">
+						<Text
+							variant="caption"
+							className="font-semibold text-app-primary"
+							numberOfLines={1}
+						>
+							{JOB_STEPS[jobStep - 1]}
+						</Text>
+						<Text variant="caption" className="text-content-muted">
+							{`${jobStep}/${TOTAL_JOB_STEPS}`}
+						</Text>
+					</View>
 				</View>
 
 				<Button

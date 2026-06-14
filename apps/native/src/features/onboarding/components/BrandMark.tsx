@@ -1,12 +1,15 @@
-import { Image } from "expo-image";
-import * as React from "react";
 import Animated, {
 	interpolate,
 	type SharedValue,
 	useAnimatedStyle,
 } from "react-native-reanimated";
+import FixItWordmark from "@/src/assets/images/fixittext.svg";
 
-const fxtAsset = require("@/src/assets/onboarding/fxt.png");
+// The wordmark's text glyphs occupy this band of the 1536x1024 artboard; cropping
+// to it removes the surrounding whitespace so width/height frame the logo tightly.
+const WORDMARK_VIEWBOX = "360 405 800 220";
+// Cropped wordmark aspect (~800:220) — height follows width instead of being square.
+const WORDMARK_RATIO = 0.28;
 
 interface BrandMarkProps {
 	width: number;
@@ -35,16 +38,12 @@ export function BrandMark({
 		};
 	});
 
-	const height = width;
-
 	return (
 		<Animated.View style={animatedStyle}>
-			<Image
-				source={fxtAsset}
-				style={{ width, height }}
-				contentFit="contain"
-				transition={0}
-				accessible
+			<FixItWordmark
+				width={width}
+				height={width * WORDMARK_RATIO}
+				viewBox={WORDMARK_VIEWBOX}
 				accessibilityLabel="Fix It"
 			/>
 		</Animated.View>

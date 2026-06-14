@@ -17,6 +17,7 @@ import Animated, {
 import Toast from "react-native-toast-message";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import {
@@ -251,6 +252,7 @@ export default function BookingDetails() {
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
+			<ScreenStatusBar variant="blue" />
 			<View className="flex-1 bg-surface">
 				<PageHeader
 					title={t("detailsTitle")}

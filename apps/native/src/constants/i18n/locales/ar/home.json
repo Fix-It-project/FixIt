@@ -57,6 +57,7 @@
 		"cancel": "إلغاء",
 		"deleteErrorTitle": "تعذّر حذف العنوان",
 		"deleteLastError": "يجب الاحتفاظ بعنوان واحد على الأقل.",
+		"deleteError": "حدث خطأ ما. حاول مرة أخرى.",
 		"ok": "حسناً"
 	},
 	"offers": {

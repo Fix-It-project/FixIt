@@ -1,14 +1,16 @@
 import { router, Tabs, usePathname } from "expo-router";
 import {
 	Bell,
-	ClipboardList,
-	House,
 	type LucideProps,
 	MessageCircle,
 	User,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Platform, useWindowDimensions, View } from "react-native";
+import {
+	ClipboardListTabIcon,
+	HouseTabIcon,
+} from "@/src/components/icons/FilledTabIcons";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
 	getBaseTabScreenOptions,
@@ -37,36 +39,9 @@ interface ChatFabProps {
 }
 
 // Active tab icons fill with the active tint (blue); inactive stay outlined.
-function HomeTabIcon({
-	color,
-	size,
-	focused,
-}: Readonly<LucideProps & { focused?: boolean }>) {
-	return (
-		<House
-			size={size}
-			color={color}
-			strokeWidth={1.8}
-			fill={focused ? color : "transparent"}
-		/>
-	);
-}
-
-function OrdersTabIcon({
-	color,
-	size,
-	focused,
-}: Readonly<LucideProps & { focused?: boolean }>) {
-	return (
-		<ClipboardList
-			size={size}
-			color={color}
-			strokeWidth={1.8}
-			fill={focused ? color : "transparent"}
-		/>
-	);
-}
-
+// Home + Orders use custom split-path glyphs so the interior detail (house door,
+// list rows + dots) cuts out to the tab-bar background (surfaceBase) when focused
+// — see the inline tabBarIcon renders below, which supply detailColor.
 function ProfileTabIcon({
 	color,
 	size,
@@ -166,7 +141,14 @@ export default function UserTabsLayout() {
 						name="index"
 						options={{
 							title: t("tabs.home"),
-							tabBarIcon: HomeTabIcon,
+							tabBarIcon: ({ color, size, focused }) => (
+								<HouseTabIcon
+									color={color}
+									size={size}
+									focused={focused}
+									detailColor={themeColors.surfaceBase}
+								/>
+							),
 						}}
 					/>
 					<Tabs.Screen
@@ -187,7 +169,14 @@ export default function UserTabsLayout() {
 						name="orders/index"
 						options={{
 							title: t("tabs.orders"),
-							tabBarIcon: OrdersTabIcon,
+							tabBarIcon: ({ color, size, focused }) => (
+								<ClipboardListTabIcon
+									color={color}
+									size={size}
+									focused={focused}
+									detailColor={themeColors.surfaceBase}
+								/>
+							),
 						}}
 					/>
 					<Tabs.Screen

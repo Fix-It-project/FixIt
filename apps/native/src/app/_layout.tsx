@@ -8,7 +8,7 @@ import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useNavigationContainerRef } from "expo-router";
+import { Stack, useNavigationContainerRef, usePathname } from "expo-router";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,6 +19,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { LaunchSplashOverlay } from "@/src/components/launch/LaunchSplashOverlay";
 import { AppSafeAreaFrame } from "@/src/components/layout/AppSafeAreaFrame";
+import { LocationGate } from "@/src/components/location/LocationGate";
 import { DialogProvider } from "@/src/components/ui/dialog";
 import { CustomToast } from "@/src/components/ui/toast";
 import {
@@ -37,7 +38,10 @@ import { useNotificationRouting } from "@/src/features/notifications/hooks/useNo
 import { usePushRegistration } from "@/src/features/notifications/hooks/usePushRegistration";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
+import { useLocationGuard } from "@/src/hooks/useLocationGate";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
+import { ROUTES } from "@/src/lib/navigation";
+import { useLocationStore } from "@/src/stores/location-store";
 
 configureLaunchSplashScreen();
 
@@ -53,6 +57,9 @@ function RootLayout() {
 	useNotificationRouting(isReady);
 	const tokens = useThemeTokens();
 	const navigationRef = useNavigationContainerRef();
+	const pathname = usePathname();
+	const { shouldGate } = useLocationGuard();
+	const gateArmed = useLocationStore((s) => s.gateArmed);
 	const dismissLaunchOverlay = useCallback(() => {
 		setShowLaunchOverlay(false);
 	}, []);
@@ -115,6 +122,15 @@ function RootLayout() {
 									backgroundColor={tokens.primary}
 									onFinish={dismissLaunchOverlay}
 								/>
+							) : null}
+							{/* Mandatory location gate: blocks the whole app until device
+							    location is enabled + granted. Suppressed on welcome until the
+							    user taps Get Started (gateArmed) so we never request at launch
+							    nor mount role-selection underneath the gate. */}
+							{!showLaunchOverlay &&
+							shouldGate &&
+							(gateArmed || pathname !== ROUTES.auth.welcome) ? (
+								<LocationGate />
 							) : null}
 						</View>
 					</ThemeProvider>

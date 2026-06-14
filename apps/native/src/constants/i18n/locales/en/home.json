@@ -57,6 +57,7 @@
 		"cancel": "Cancel",
 		"deleteErrorTitle": "Can't delete address",
 		"deleteLastError": "You must keep at least one address.",
+		"deleteError": "Something went wrong. Please try again.",
 		"ok": "OK"
 	},
 	"offers": {

@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
 	ChevronDown,
@@ -16,6 +15,7 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
+import FixItWordmark from "@/src/assets/images/fixittext.svg";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import {
 	Accordion,
@@ -38,8 +38,9 @@ import { ROUTES } from "@/src/lib/navigation/routes";
 import { confirm } from "@/src/stores/dialog-store";
 import { useLanguageStore } from "@/src/stores/language-store";
 
-const fixitTextLogo = require("@/src/assets/images/fixittext.png");
 const CHEVRON_ROTATE_MS = 160;
+// Crop the 1536x1024 wordmark artboard to its text band so the header frames it tightly.
+const WORDMARK_VIEWBOX = "360 405 800 220";
 
 interface HomeHeaderProps {
 	readonly address?: string;
@@ -130,17 +131,19 @@ export function HomeHeader({
 					paddingTop: spacing.stack.md,
 				}}
 			>
-				<Image
-					source={fixitTextLogo}
+				<View
 					style={{
-						width: 138,
-						height: 38,
-						marginLeft: isRTL ? 0 : -28,
-						marginRight: isRTL ? -28 : 0,
+						marginLeft: isRTL ? 0 : -6,
+						marginRight: isRTL ? -6 : 0,
 					}}
-					contentFit="cover"
-					accessibilityLabel="FixIt"
-				/>
+				>
+					<FixItWordmark
+						width={86}
+						height={24}
+						viewBox={WORDMARK_VIEWBOX}
+						accessibilityLabel="FixIt"
+					/>
+				</View>
 
 				<View
 					style={{

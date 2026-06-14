@@ -3,7 +3,7 @@ import {
 	cancelAnimation,
 	Easing,
 	runOnJS,
-	useDerivedValue,
+	useAnimatedReaction,
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
@@ -25,9 +25,17 @@ export function useCountUp(target: number, durationMs = 800): number {
 		});
 	}, [target, durationMs, progress]);
 
-	useDerivedValue(() => {
-		runOnJS(setDisplay)(Math.round(progress.value));
-	});
+	// Reacts to the shared value AFTER mount (unlike useDerivedValue, whose worklet
+	// runs synchronously during the first render — calling setState there triggers
+	// "state update on a component that hasn't mounted yet"). Only fires on change.
+	useAnimatedReaction(
+		() => Math.round(progress.value),
+		(current, previous) => {
+			if (current !== previous) {
+				runOnJS(setDisplay)(current);
+			}
+		},
+	);
 
 	return display;
 }

@@ -8,6 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { AvailabilityCalendar } from "@/src/components/ui/availability-calendar";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
@@ -88,6 +89,7 @@ export default function NewBooking() {
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
+			<ScreenStatusBar variant="blue" />
 			<View className="flex-1 bg-surface">
 				<PageHeader
 					title={t("title")}

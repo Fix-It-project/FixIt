@@ -108,6 +108,7 @@ export const ROUTES = {
 		profileBookingHistory: "/technician/profile/bookings/history" as const,
 		settings: "/technician/settings" as const,
 		settingsAddress: "/technician/settings/address" as const,
+		settingsServices: "/technician/settings/services" as const,
 		settingsNotifications: "/technician/settings/notifications" as const,
 		settingsPrivacy: "/technician/settings/privacy-security" as const,
 		settingsHelp: "/technician/settings/help-support" as const,

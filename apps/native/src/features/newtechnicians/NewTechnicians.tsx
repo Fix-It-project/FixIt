@@ -15,6 +15,7 @@ import TechnicianProfileSheet, {
 } from "@/src/components/identity/TechnicianProfileSheet";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
@@ -359,6 +360,7 @@ export default function NewTechnicians() {
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
+			<ScreenStatusBar variant="blue" />
 			<View className="flex-1 bg-background">
 				<PageHeader
 					title={headerTitle}

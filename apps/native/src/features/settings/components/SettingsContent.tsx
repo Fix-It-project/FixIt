@@ -1,4 +1,4 @@
-import { Bell, CircleHelp, MapPin, Shield } from "lucide-react-native";
+import { Bell, CircleHelp, MapPin, Shield, Wrench } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
@@ -14,6 +14,8 @@ interface SettingsContentProps {
 	readonly onHelpPress: () => void;
 	/** Optional tech-only entry: edit the technician's service location. */
 	readonly onAddressPress?: () => void;
+	/** Optional tech-only entry: manage / request the services the technician offers. */
+	readonly onServicesPress?: () => void;
 }
 
 export default function SettingsContent({
@@ -21,6 +23,7 @@ export default function SettingsContent({
 	onPrivacyPress,
 	onHelpPress,
 	onAddressPress,
+	onServicesPress,
 }: SettingsContentProps) {
 	const { t } = useTranslation("common");
 	const { t: ts } = useTranslation("settings");
@@ -66,6 +69,16 @@ export default function SettingsContent({
 							icon={MapPin}
 							label={ts("menu.address")}
 							onPress={onAddressPress}
+						/>
+						<Separator />
+					</>
+				) : null}
+				{onServicesPress ? (
+					<>
+						<SettingsItem
+							icon={Wrench}
+							label={ts("menu.services")}
+							onPress={onServicesPress}
 						/>
 						<Separator />
 					</>
