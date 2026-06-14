@@ -1,24 +1,47 @@
-export type ReportSource = "customer" | "technician";
+export type ReportRole = "user" | "technician";
+
+export type ReportLabel =
+	| "no_show"
+	| "unprofessional"
+	| "overcharged"
+	| "poor_quality"
+	| "safety_concern"
+	| "abusive"
+	| "refused_payment"
+	| "unsafe_dishonest"
+	| "other";
+
 export type ReportStatus = "open" | "closed";
 export type ReportResolution = "resolved" | "dismissed";
 
-export interface Report {
+/** A report as returned by GET /api/admin/reports (the `admin_reports` view,
+ *  mapped server-side with both parties' display fields + order context). */
+export interface AdminReport {
 	id: string;
-	orderId: string;
+	reporterId: string;
+	reporterRole: ReportRole;
 	reporterName: string;
 	reporterInitials: string;
 	reporterColor: string;
-	reporterRole: ReportSource;
-	against: string;
-	category: string;
-	filedAt: string;
+	reportedId: string;
+	reportedRole: ReportRole;
+	reportedName: string;
+	reportedInitials: string;
+	reportedColor: string;
+	orderId: string;
+	orderServiceName: string | null;
+	orderCategoryId: string | null;
+	orderCategoryName: string | null;
+	orderCreatedAt: string | null;
+	label: ReportLabel;
+	labelText: string;
 	summary: string;
-	description: string;
 	status: ReportStatus;
-	resolution?: ReportResolution;
-	closedAt?: string;
-	closedBy?: string;
+	resolution: ReportResolution | null;
+	resolvedBy: string | null;
+	resolvedAt: string | null;
+	warnedAt: string | null;
+	createdAt: string;
 }
 
-export type ReportSourceFilter = "all" | ReportSource;
-export type ReportResolutionFilter = "all" | ReportResolution;
+export type ReportSourceFilter = "all" | ReportRole;
