@@ -1,4 +1,5 @@
 import { addressesRepository, type AddressFields, type UpdateAddressData } from './addresses.repository.js';
+import { AppError } from '../../shared/errors/index.js';
 
 type OwnerRole = 'user' | 'technician';
 
@@ -59,7 +60,7 @@ export class AddressesService {
         : await addressesRepository.getAddressCountByTechnicianId(ownerId);
 
     if (count <= 1) {
-      throw new Error('You must have at least one address');
+      throw AppError.conflict('You must keep at least one address.');
     }
 
     await addressesRepository.deleteAddress(addressId, ownerId, role);

@@ -114,17 +114,7 @@ export function NewHome() {
 			});
 			if (!confirmed) return;
 
-			deleteAddressMutation.mutate(addressId, {
-				onError: () => {
-					// The sheet only offers delete when >1 address exists, so the last-address
-					// rule is already enforced client-side — any error here is a real failure.
-					void confirm({
-						title: tr("address.deleteErrorTitle"),
-						description: tr("address.deleteError"),
-						primary: { label: tr("address.ok") },
-					});
-				},
-			});
+			deleteAddressMutation.mutate(addressId);
 		},
 		[tr, deleteAddressMutation],
 	);
