@@ -1,5 +1,6 @@
 {
 	"menu": {
+		"address": "Service location",
 		"notifications": "Notifications",
 		"privacy": "Privacy & Security",
 		"help": "Help & Support"
@@ -7,6 +8,12 @@
 	"layout": {
 		"settings": "Settings",
 		"back": "Back"
+	},
+	"language": {
+		"restartTitle": "Restart required",
+		"restartMessage": "Changing the language restarts the app to apply the new text direction.",
+		"restartConfirm": "Restart now",
+		"cancel": "Cancel"
 	},
 	"help": {
 		"title": "Help & Support",

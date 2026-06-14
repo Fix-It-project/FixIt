@@ -117,20 +117,20 @@ export function RequestCard({
 				{/* actions */}
 				<View className="flex-row gap-stack-sm pt-stack-md">
 					<Button
-						variant="outline"
+						variant="secondary"
 						size="md"
-						className="flex-1 border-danger-soft"
+						className="flex-1"
 						onPress={onDecline}
 						disabled={actionPending}
 						accessibilityLabel="Decline request"
 					>
-						<Icon as={X} size={16} className="text-danger" />
-						<Text variant="buttonMd" className="text-danger">
+						<Icon as={X} size={16} className="text-foreground" />
+						<Text variant="buttonMd" className="text-foreground">
 							Decline
 						</Text>
 					</Button>
 					<Button
-						variant="success"
+						variant="primary"
 						size="md"
 						className="flex-1"
 						onPress={onAccept}

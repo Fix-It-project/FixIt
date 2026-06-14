@@ -35,6 +35,7 @@ import {
 } from "@/src/constants/design-tokens";
 import type { Language } from "@/src/constants/i18n";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { confirm } from "@/src/stores/dialog-store";
 import { useLanguageStore } from "@/src/stores/language-store";
 
 const fixitTextLogo = require("@/src/assets/images/fixittext.png");
@@ -57,6 +58,7 @@ export function HomeHeader({
 }: HomeHeaderProps) {
 	const t = useThemeColors();
 	const { t: tr } = useTranslation("home");
+	const { t: ts } = useTranslation("settings");
 	const router = useRouter();
 	const { width } = useWindowDimensions();
 	const language = useLanguageStore((state) => state.language);
@@ -101,6 +103,18 @@ export function HomeHeader({
 		onAddAddressPress();
 	}
 
+	// Switching language flips text direction (LTR<->RTL) and reloads the app.
+	async function handleLanguageToggle() {
+		const confirmed = await confirm({
+			title: ts("language.restartTitle"),
+			description: ts("language.restartMessage"),
+			primary: { label: ts("language.restartConfirm") },
+			secondary: { label: ts("language.cancel") },
+		});
+		if (!confirmed) return;
+		void setLanguage(nextLanguage);
+	}
+
 	return (
 		<View
 			style={{
@@ -138,7 +152,7 @@ export function HomeHeader({
 					<PressableScale
 						pressedScale={0.94}
 						onPress={() => {
-							void setLanguage(nextLanguage);
+							void handleLanguageToggle();
 						}}
 						style={{
 							minWidth: 48,

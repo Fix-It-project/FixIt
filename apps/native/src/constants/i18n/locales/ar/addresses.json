@@ -18,6 +18,12 @@
 		"location": "موقعك",
 		"select": "اختر الموقع"
 	},
+	"techAddress": {
+		"description": "عيّن الموقع الأساسي الذي يراه العملاء وتُطابَق منه الطلبات الجديدة.",
+		"captureCta": "استخدام الموقع الحالي",
+		"locationRequired": "التقط موقعك الحالي للحفظ.",
+		"save": "حفظ"
+	},
 	"form": {
 		"title": "تفاصيل العنوان",
 		"location": "الموقع: {{latitude}}, {{longitude}}",

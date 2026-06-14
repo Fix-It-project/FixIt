@@ -29,10 +29,7 @@ export function PromoCard({ badgeLabel, title, body }: PromoCardProps) {
 				<View className="p-card">
 					<View className="flex-row items-center gap-stack-xs">
 						<Icon as={TrendingUp} size={14} color={colors.accentSky} />
-						<Text
-							variant="caption"
-							className="text-tint-on-hero opacity-85"
-						>
+						<Text variant="caption" className="text-tint-on-hero opacity-85">
 							{badgeLabel}
 						</Text>
 					</View>

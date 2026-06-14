@@ -33,3 +33,44 @@ export async function setActiveUserAddress(
 	return safeParseResponse(addressResponseSchema, data, "setActiveUserAddress")
 		.address;
 }
+
+export async function deleteUserAddress(addressId: string): Promise<void> {
+	await apiClient.delete(`/api/addresses/user/addresses/${addressId}`);
+}
+
+// ── Technician addresses (single work/service location) ──────────────────────
+
+export async function getTechnicianAddresses(): Promise<Address[]> {
+	const { data } = await apiClient.get("/api/addresses/technician/addresses");
+	return safeParseResponse(
+		addressesResponseSchema,
+		data,
+		"getTechnicianAddresses",
+	).addresses;
+}
+
+export async function addTechnicianAddress(
+	payload: CreateAddressRequest,
+): Promise<Address> {
+	const { data } = await apiClient.post(
+		"/api/addresses/technician/addresses",
+		payload,
+	);
+	return safeParseResponse(addressResponseSchema, data, "addTechnicianAddress")
+		.address;
+}
+
+export async function updateTechnicianAddress(
+	addressId: string,
+	payload: Partial<CreateAddressRequest>,
+): Promise<Address> {
+	const { data } = await apiClient.put(
+		`/api/addresses/technician/addresses/${addressId}`,
+		payload,
+	);
+	return safeParseResponse(
+		addressResponseSchema,
+		data,
+		"updateTechnicianAddress",
+	).address;
+}

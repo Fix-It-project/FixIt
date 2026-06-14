@@ -1,9 +1,9 @@
+import { Bell, CircleHelp, MapPin, Shield } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { ScrollView, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
 import { Colors, elevation, shadowStyle } from "@/src/constants/design-tokens";
-import { Bell, CircleHelp, Shield } from "lucide-react-native";
-import { useTranslation } from "react-i18next";
-import { ScrollView, View } from "react-native";
 import { LanguageSegmentedControl } from "./LanguageSegmentedControl";
 import { SettingsItem } from "./SettingsItem";
 import { ThemeSegmentedControl } from "./ThemeSegmentedControl";
@@ -12,12 +12,15 @@ interface SettingsContentProps {
 	readonly onNotificationsPress: () => void;
 	readonly onPrivacyPress: () => void;
 	readonly onHelpPress: () => void;
+	/** Optional tech-only entry: edit the technician's service location. */
+	readonly onAddressPress?: () => void;
 }
 
 export default function SettingsContent({
 	onNotificationsPress,
 	onPrivacyPress,
 	onHelpPress,
+	onAddressPress,
 }: SettingsContentProps) {
 	const { t } = useTranslation("common");
 	const { t: ts } = useTranslation("settings");
@@ -31,7 +34,10 @@ export default function SettingsContent({
 				className="rounded-card bg-card px-card-roomy py-card"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
-				<Text variant="bodySm" className="mb-stack-md font-semibold text-content-secondary text-sm">
+				<Text
+					variant="bodySm"
+					className="mb-stack-md font-semibold text-content-secondary text-sm"
+				>
 					{t("appearance")}
 				</Text>
 				<ThemeSegmentedControl />
@@ -41,7 +47,10 @@ export default function SettingsContent({
 				className="rounded-card bg-card px-card-roomy py-card"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
-				<Text variant="bodySm" className="mb-stack-md font-semibold text-content-secondary text-sm">
+				<Text
+					variant="bodySm"
+					className="mb-stack-md font-semibold text-content-secondary text-sm"
+				>
 					{t("language")}
 				</Text>
 				<LanguageSegmentedControl />
@@ -51,6 +60,16 @@ export default function SettingsContent({
 				className="rounded-card bg-card px-card-roomy"
 				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
 			>
+				{onAddressPress ? (
+					<>
+						<SettingsItem
+							icon={MapPin}
+							label={ts("menu.address")}
+							onPress={onAddressPress}
+						/>
+						<Separator />
+					</>
+				) : null}
 				<SettingsItem
 					icon={Bell}
 					label={ts("menu.notifications")}

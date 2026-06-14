@@ -1,4 +1,5 @@
 import "../../global.css";
+import "@/src/config/reanimated";
 import "@/src/config/intl-polyfills";
 import "@/src/config/monitoring";
 import "@/src/config/i18n";

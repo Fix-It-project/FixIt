@@ -121,11 +121,7 @@ export function NextJobCard({ order }: { order: TechHomeOrder }) {
 						<Text variant="buttonMd" className="text-surface-on-primary">
 							Start tracking
 						</Text>
-						<Icon
-							as={ArrowRight}
-							size={16}
-							color={colors.surfaceOnPrimary}
-						/>
+						<Icon as={ArrowRight} size={16} color={colors.surfaceOnPrimary} />
 					</Button>
 				</View>
 			</Card>

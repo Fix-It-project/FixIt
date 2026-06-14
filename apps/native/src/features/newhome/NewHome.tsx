@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { CircleHelp } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
@@ -17,6 +17,7 @@ import AddressBottomSheet, {
 	type AddressBottomSheetRef,
 } from "@/src/features/addresses/components/user/AddressBottomSheet";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
+import { useDeleteAddressMutation } from "@/src/features/addresses/hooks/useDeleteAddressMutation";
 import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
 import { ActiveOrderStrip } from "@/src/features/newhome/components/ActiveOrderStrip";
 import { CategoryRow } from "@/src/features/newhome/components/CategoryRow";
@@ -27,6 +28,7 @@ import { TopRatedSection } from "@/src/features/newhome/components/TopRatedSecti
 import { technicianQueryKeys } from "@/src/features/technicians/query-keys";
 import { formatAddress } from "@/src/lib/helpers/format-address";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { confirm } from "@/src/stores/dialog-store";
 
 function NeedHelpShelf() {
 	const { t: tr } = useTranslation("home");
@@ -74,6 +76,7 @@ export function NewHome() {
 	const isAnyAddressSheetOpen =
 		isAddressSheetOpen || isAddAddressSheetOpen || isAddressSheetTransitioning;
 	const { data: addresses } = useAddressesQuery();
+	const deleteAddressMutation = useDeleteAddressMutation();
 	const activeAddress =
 		addresses?.find((address) => address.is_active) ?? addresses?.[0];
 	const addressLabel = activeAddress ? formatAddress(activeAddress) : undefined;
@@ -102,13 +105,26 @@ export function NewHome() {
 	);
 
 	const handleDeleteAddress = useCallback(
-		(_addressId: string) => {
-			Alert.alert(
-				tr("address.deleteUnavailableTitle"),
-				tr("address.deleteUnavailableMessage"),
-			);
+		async (addressId: string) => {
+			const confirmed = await confirm({
+				title: tr("address.deleteConfirmTitle"),
+				description: tr("address.deleteConfirmMessage"),
+				primary: { label: tr("address.deleteConfirm"), destructive: true },
+				secondary: { label: tr("address.cancel") },
+			});
+			if (!confirmed) return;
+
+			deleteAddressMutation.mutate(addressId, {
+				onError: () => {
+					void confirm({
+						title: tr("address.deleteErrorTitle"),
+						description: tr("address.deleteLastError"),
+						primary: { label: tr("address.ok") },
+					});
+				},
+			});
 		},
-		[tr],
+		[tr, deleteAddressMutation],
 	);
 	const handleRefresh = useCallback(async () => {
 		setIsRefreshing(true);

@@ -18,6 +18,12 @@
 		"location": "Your Location",
 		"select": "Select Location"
 	},
+	"techAddress": {
+		"description": "Set the base location customers see and where new jobs are matched from.",
+		"captureCta": "Use current location",
+		"locationRequired": "Capture your current location to save.",
+		"save": "Save"
+	},
 	"form": {
 		"title": "Address Details",
 		"location": "Location: {{latitude}}, {{longitude}}",

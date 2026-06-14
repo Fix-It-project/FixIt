@@ -9,8 +9,8 @@ import {
 	type PressableAndroidRippleConfig,
 	type PressableProps,
 	type PressableStateCallbackType,
-	StyleSheet,
 	type StyleProp,
+	StyleSheet,
 	View,
 	type ViewStyle,
 } from "react-native";
@@ -113,7 +113,9 @@ const buttonTextVariants = cva("font-semibold", {
 });
 
 // ─── Variant classification sets ─────────────────────────────────────────
-type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>["variant"]>;
+type ButtonVariant = NonNullable<
+	VariantProps<typeof buttonVariants>["variant"]
+>;
 const FILLED_VARIANTS = new Set<ButtonVariant>([
 	"primary",
 	"destructive",
@@ -291,7 +293,8 @@ function renderButtonChild(
 		if (looksLikeIcon) {
 			const iconProps: Partial<IconLikeChildProps> = {};
 			if (child.props.color === undefined) iconProps.color = color;
-			if (child.props.size === undefined) iconProps.size = ICON_SIZE[size] ?? 18;
+			if (child.props.size === undefined)
+				iconProps.size = ICON_SIZE[size] ?? 18;
 
 			if (Object.keys(iconProps).length > 0) {
 				return React.cloneElement(child, iconProps);

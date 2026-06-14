@@ -1,4 +1,5 @@
 import { Languages } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import {
@@ -11,6 +12,7 @@ import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import type { Language } from "@/src/constants/i18n";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { confirm } from "@/src/stores/dialog-store";
 import { useLanguageStore } from "@/src/stores/language-store";
 import {
 	useActiveJob,
@@ -32,14 +34,27 @@ interface HeroHeaderProps {
 /** Language toggle — flips the global app language (no techhome translation yet). */
 function LanguageToggle() {
 	const colors = useThemeColors();
+	const { t: ts } = useTranslation("settings");
 	const language = useLanguageStore((state) => state.language);
 	const setLanguage = useLanguageStore((state) => state.setLanguage);
 	const nextLanguage: Language = language === "ar" ? "en" : "ar";
 
+	// Switching language flips text direction (LTR<->RTL) and reloads the app.
+	const handlePress = async () => {
+		const confirmed = await confirm({
+			title: ts("language.restartTitle"),
+			description: ts("language.restartMessage"),
+			primary: { label: ts("language.restartConfirm") },
+			secondary: { label: ts("language.cancel") },
+		});
+		if (!confirmed) return;
+		void setLanguage(nextLanguage);
+	};
+
 	return (
 		<PressableScale
 			pressedScale={0.94}
-			onPress={() => void setLanguage(nextLanguage)}
+			onPress={() => void handlePress()}
 			accessibilityRole="button"
 			accessibilityLabel={`Switch to ${nextLanguage.toUpperCase()}`}
 			className="h-9 flex-row items-center gap-1 rounded-xl bg-overlay-white px-2.5"

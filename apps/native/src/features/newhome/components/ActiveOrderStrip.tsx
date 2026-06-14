@@ -13,6 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
+import { Progress } from "@/src/components/ui/progress";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_PULSE_IN,
@@ -49,28 +50,32 @@ function getPillColors(
 }
 
 // ── Progress step mapping ──────────────────────────────────────────────────────
+// Five user-facing states: on-the-way → inspection → negotiation → fixing →
+// awaiting-payment. `accepted` (and reschedule/legacy) sit at 0 = confirmed but not
+// yet en route. `pending` never reaches here (excluded by active-order derivation).
+const TOTAL_STEPS = 5;
+
 function getFilledSteps(status: OrderStatus): number {
 	switch (status) {
-		case "pending":
-			return 1;
-		case "accepted":
-			return 2;
 		case "tracking":
-			return 2;
-		case "in_progress":
-			return 3;
+			return 1; // on the way
 		case "arrived_inspection":
-			return 4;
+			return 2; // inspection
 		case "awaiting_final_cost":
-			return 4;
 		case "negotiating":
-			return 4;
+			return 3; // negotiation
+		case "in_progress":
+			return 4; // fixing
 		case "awaiting_payment":
-			return 4;
+			return 5; // awaiting payment
 		case "completed":
-			return 4;
+			return 5;
+		case "accepted":
+		case "reschedule_requested_by_user":
+		case "reschedule_requested_by_technician":
+			return 0; // confirmed, not yet en route
 		default:
-			return 1;
+			return 0;
 	}
 }
 
@@ -113,10 +118,11 @@ function PulseDot({ color }: { color: string }) {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 const STEP_KEYS = [
-	"steps.booked",
-	"steps.assigned",
-	"steps.enRoute",
-	"steps.arrived",
+	"steps.onTheWay",
+	"steps.inspection",
+	"steps.negotiation",
+	"steps.fixing",
+	"steps.awaitingPayment",
 ] as const;
 
 export function ActiveOrderStrip() {
@@ -133,7 +139,9 @@ export function ActiveOrderStrip() {
 	const pillColors = getPillColors(activeOrder.status, t);
 	const statusLabel = getOrderStatusLabel(activeOrder.status, "user");
 	const filledSteps = getFilledSteps(activeOrder.status);
-	const progressWidth = `${(filledSteps / 4) * 100}%` as const;
+	const progressValue = (filledSteps / TOTAL_STEPS) * 100;
+	const currentStepLabel =
+		filledSteps === 0 ? tr("steps.preparing") : tr(STEP_KEYS[filledSteps - 1]);
 
 	// Format the scheduled time
 	const rawTime = activeOrder.scheduled_start_at ?? activeOrder.scheduled_date;
@@ -235,48 +243,28 @@ export function ActiveOrderStrip() {
 					</View>
 				</View>
 
-				{/* Row 3 — progress bar + step labels */}
+				{/* Row 3 — progress bar + current step */}
 				<View style={{ paddingHorizontal: 14, paddingBottom: 8 }}>
-					{/* Progress track */}
-					<View
-						style={{
-							height: 4,
-							backgroundColor: t.tint.surfaceFaint,
-							borderRadius: 2,
-							overflow: "hidden",
-						}}
-					>
-						<View
-							style={{
-								height: 4,
-								backgroundColor: t.primary,
-								width: progressWidth,
-							}}
-						/>
-					</View>
+					<Progress value={progressValue} className="h-1.5" />
 
-					{/* Step labels */}
 					<View
 						style={{
 							flexDirection: "row",
+							alignItems: "center",
 							justifyContent: "space-between",
-							marginTop: 6,
+							marginTop: 8,
 						}}
 					>
-						{STEP_KEYS.map((stepKey, index) => (
-							<Text
-								key={stepKey}
-								variant="caption"
-								style={{
-									color: index < filledSteps ? t.primary : undefined,
-								}}
-								className={
-									index < filledSteps ? undefined : "text-muted-foreground"
-								}
-							>
-								{tr(stepKey)}
-							</Text>
-						))}
+						<Text
+							variant="caption"
+							style={{ color: t.primary, fontWeight: "600" }}
+							numberOfLines={1}
+						>
+							{currentStepLabel}
+						</Text>
+						<Text variant="caption" className="text-muted-foreground">
+							{`${filledSteps}/${TOTAL_STEPS}`}
+						</Text>
 					</View>
 				</View>
 

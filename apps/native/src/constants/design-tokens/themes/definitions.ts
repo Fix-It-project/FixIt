@@ -333,7 +333,9 @@ const darkPrimitives: ThemePrimitiveTokens = {
 	cardForeground: tok(neutral[50]),
 	popover: tok(neutral[800]),
 	popoverForeground: tok(neutral[50]),
-	primary: tok(blue[500]),
+	// Dark primary = deep hero blue (blue[700]) for crisp white-on-blue on buttons/
+	// headers/active tabs. Was blue[500]. Revert: themes/DARK-PRIMARY.md.
+	primary: tok(blue[700]),
 	primaryForeground: tok([0, 0, 100]),
 	secondary: tok(neutral[800]),
 	secondaryForeground: tok(neutral[50]),
@@ -465,7 +467,8 @@ export const themeRegistry: Record<ThemeId, ThemeTokens> = {
 	dark: {
 		id: "dark",
 		appearance: "dark",
-		primary: hex(blue[500]),
+		// Deep hero blue (blue[700]); was blue[500]. Revert: themes/DARK-PRIMARY.md.
+		primary: hex(blue[700]),
 		primaryLight: hex(blue[950]),
 		primaryDark: hex(blue[700]),
 		onPrimaryHeader: white,

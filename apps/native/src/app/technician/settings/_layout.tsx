@@ -12,6 +12,14 @@ export default function TechnicianSettingsLayout() {
 				}}
 			/>
 			<Stack.Screen
+				name="address"
+				options={{
+					title: "Service location",
+					headerShown: true,
+					headerBackTitle: "Settings",
+				}}
+			/>
+			<Stack.Screen
 				name="privacy-security"
 				options={{
 					title: "Privacy & Security",

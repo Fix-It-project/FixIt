@@ -35,9 +35,7 @@ export function usePendingRequests() {
 			(query.data ?? [])
 				.filter((order) => order.status === "pending")
 				// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
-				.sort((a, b) =>
-					(b.created_at ?? "").localeCompare(a.created_at ?? ""),
-				),
+				.sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? "")),
 		[query.data],
 	);
 	return { ...query, data };
@@ -57,12 +55,14 @@ export function useTodaySchedule(): TechHomeOrder[] {
 	const { data } = useTechHomeOrdersQuery();
 	return useMemo(() => {
 		const today = localToday();
-		return (data ?? [])
-			.filter(
-				(o) => o.scheduled_date === today && SCHEDULED_STATUSES.has(o.status),
-			)
-			// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
-			.sort(byStartTime);
+		return (
+			(data ?? [])
+				.filter(
+					(o) => o.scheduled_date === today && SCHEDULED_STATUSES.has(o.status),
+				)
+				// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
+				.sort(byStartTime)
+		);
 	}, [data]);
 }
 
@@ -75,10 +75,12 @@ export function useNextTodayJob(): TechHomeOrder | undefined {
 	const { data } = useTechHomeOrdersQuery();
 	return useMemo(() => {
 		const today = localToday();
-		return (data ?? [])
-			.filter((o) => o.scheduled_date === today && o.status === "accepted")
-			// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
-			.sort(byStartTime)[0];
+		return (
+			(data ?? [])
+				.filter((o) => o.scheduled_date === today && o.status === "accepted")
+				// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
+				.sort(byStartTime)[0]
+		);
 	}, [data]);
 }
 
@@ -90,12 +92,15 @@ export function useNextFutureJob(): TechHomeOrder | undefined {
 	const { data } = useTechHomeOrdersQuery();
 	return useMemo(() => {
 		const today = localToday();
-		return (data ?? [])
-			.filter((o) => o.status === "accepted" && o.scheduled_date > today)
-			// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
-			.sort(
-				(a, b) =>
-					a.scheduled_date.localeCompare(b.scheduled_date) || byStartTime(a, b),
-			)[0];
+		return (
+			(data ?? [])
+				.filter((o) => o.status === "accepted" && o.scheduled_date > today)
+				// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
+				.sort(
+					(a, b) =>
+						a.scheduled_date.localeCompare(b.scheduled_date) ||
+						byStartTime(a, b),
+				)[0]
+		);
 	}, [data]);
 }
