@@ -1,5 +1,5 @@
 import { Mail, Phone, User } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ActivityIndicator } from "react-native";
 import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
@@ -35,13 +35,9 @@ export default function SignUp() {
 	const { fieldErrors, clearFieldError, validate } =
 		useFormValidation(signUpSchema);
 
-	// Ask for device location on mount so coordinates are ready by the time the
-	// user submits. Without this the location store stays empty and signup
-	// persists null lat/long for the new user's address.
-	useEffect(() => {
-		void requestLocationPermission();
-	}, [requestLocationPermission]);
-
+	// Location is requested earlier by the app-wide location gate (the user can't
+	// reach signup without it), so coordinates are already in the store; the
+	// fallback in handleSignUp covers the rare case they aren't.
 	const handleSignUp = async () => {
 		const result = validate({
 			fullName,

@@ -244,6 +244,7 @@ function TechnicianCardComponent({
 							label={t("card.inspectionFee")}
 							value={inspectionFeeLabel}
 							tone={themeColors.success}
+							trailingSpace={TRAILING_BUTTON_RESERVED_WIDTH}
 						/>
 					) : null}
 					<DetailRow

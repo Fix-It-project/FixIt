@@ -1,21 +1,17 @@
 import { router } from "expo-router";
 import { Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import {
-	ActivityIndicator,
-	RefreshControl,
-	ScrollView,
-	View,
-} from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import UserOrderCard from "@/src/features/booking-orders/components/user/UserOrderCard";
 import { useUserOrdersQuery } from "@/src/features/booking-orders/hooks/useUserOrders";
 import { reviewSheetRef } from "@/src/features/reviews/components/user/ReviewPromptHost";
 import { useReviewPromptStore } from "@/src/features/reviews/stores/review-prompt-store";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
-import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 export default function MyOrdersScreen() {
 	const { t } = useTranslation("orders");
@@ -57,11 +53,7 @@ export default function MyOrdersScreen() {
 						flexGrow: orders.length === 0 ? 1 : undefined,
 					}}
 					refreshControl={
-						<RefreshControl
-							refreshing={isRefreshing}
-							onRefresh={refetch}
-							tintColor={Colors.primary}
-						/>
+						<AppRefreshControl refreshing={isRefreshing} onRefresh={refetch} />
 					}
 				>
 					{orders.length === 0 ? (
@@ -111,12 +103,14 @@ export default function MyOrdersScreen() {
 													reviewSheetRef.current?.open(
 														order.id,
 														order.technician_id,
-														order.technician_name ?? t("card.technicianFallback"),
+														order.technician_name ??
+															t("card.technicianFallback"),
 													)
 												}
 												accessibilityLabel={t("list.leaveReviewA11y", {
 													name:
-														order.technician_name ?? t("card.technicianFallback"),
+														order.technician_name ??
+														t("card.technicianFallback"),
 												})}
 											>
 												{t("list.leaveReview")}

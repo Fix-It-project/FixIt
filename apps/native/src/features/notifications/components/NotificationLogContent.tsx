@@ -2,13 +2,9 @@ import { router } from "expo-router";
 import { BellRing } from "lucide-react-native";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	ActivityIndicator,
-	FlatList,
-	RefreshControl,
-	View,
-} from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import {
 	Avatar,
 	AvatarFallback,
@@ -145,10 +141,7 @@ export default function NotificationLogContent({
 								}}
 							>
 								<View className="flex-row items-start gap-stack-md">
-									<Avatar
-										alt={avatarLabel}
-										className="h-avatar-lg w-avatar-lg"
-									>
+									<Avatar alt={avatarLabel} className="h-avatar-lg w-avatar-lg">
 										{item.senderImageUrl ? (
 											<AvatarImage source={{ uri: item.senderImageUrl }} />
 										) : null}
@@ -230,11 +223,7 @@ export default function NotificationLogContent({
 						</View>
 					}
 					refreshControl={
-						<RefreshControl
-							refreshing={isRefetching}
-							onRefresh={refetch}
-							tintColor={Colors.primary}
-						/>
+						<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />
 					}
 					showsVerticalScrollIndicator={false}
 				/>

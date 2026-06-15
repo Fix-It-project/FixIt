@@ -1,26 +1,12 @@
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import Animated, {
-	FadeInDown,
-	useAnimatedStyle,
-	useReducedMotion,
-	useSharedValue,
-	withRepeat,
-	withSequence,
-	withTiming,
-} from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
+import { Progress } from "@/src/components/ui/progress";
 import { Text } from "@/src/components/ui/text";
-import {
-	DUR_PULSE_IN,
-	DUR_PULSE_OUT,
-	DUR_REVEAL,
-	EASE_OUT_EXPO,
-	PULSE_SCALE_MAX,
-} from "@/src/constants/animation";
+import { DUR_REVEAL, EASE_OUT_EXPO } from "@/src/constants/animation";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { useUserActiveOrder } from "@/src/features/booking-orders/hooks/useUserActiveOrder";
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
@@ -49,97 +35,71 @@ function getPillColors(
 }
 
 // ── Progress step mapping ──────────────────────────────────────────────────────
+// Five user-facing states: on-the-way → inspection → negotiation → fixing →
+// awaiting-payment. `accepted` (and reschedule/legacy) sit at 0 = confirmed but not
+// yet en route. `pending` never reaches here (excluded by active-order derivation).
+const TOTAL_STEPS = 5;
+
 function getFilledSteps(status: OrderStatus): number {
 	switch (status) {
-		case "pending":
-			return 1;
-		case "accepted":
-			return 2;
 		case "tracking":
-			return 2;
-		case "in_progress":
-			return 3;
+			return 1; // on the way
 		case "arrived_inspection":
-			return 4;
+			return 2; // inspection
 		case "awaiting_final_cost":
-			return 4;
 		case "negotiating":
-			return 4;
+			return 3; // negotiation
+		case "in_progress":
+			return 4; // fixing
 		case "awaiting_payment":
-			return 4;
+			return 5; // awaiting payment
 		case "completed":
-			return 4;
+			return 5;
+		case "accepted":
+		case "reschedule_requested_by_user":
+		case "reschedule_requested_by_technician":
+			return 0; // confirmed, not yet en route
 		default:
-			return 1;
+			return 0;
 	}
-}
-
-// ── Progress dot pulse ─────────────────────────────────────────────────────────
-function PulseDot({ color }: { color: string }) {
-	const reducedMotion = useReducedMotion();
-	const scale = useSharedValue(1);
-
-	useEffect(() => {
-		if (!reducedMotion) {
-			scale.value = withRepeat(
-				withSequence(
-					withTiming(PULSE_SCALE_MAX, { duration: DUR_PULSE_IN }),
-					withTiming(1, { duration: DUR_PULSE_OUT }),
-				),
-				-1,
-				false,
-			);
-		}
-	}, [reducedMotion, scale]);
-
-	const animatedStyle = useAnimatedStyle(() => ({
-		transform: [{ scale: scale.value }],
-	}));
-
-	return (
-		<Animated.View
-			style={[
-				animatedStyle,
-				{
-					width: 8,
-					height: 8,
-					borderRadius: 4,
-					backgroundColor: color,
-				},
-			]}
-		/>
-	);
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
 const STEP_KEYS = [
-	"steps.booked",
-	"steps.assigned",
-	"steps.enRoute",
-	"steps.arrived",
+	"steps.onTheWay",
+	"steps.inspection",
+	"steps.negotiation",
+	"steps.fixing",
+	"steps.awaitingPayment",
 ] as const;
 
 export function ActiveOrderStrip() {
 	const t = useThemeColors();
 	const { t: tr, i18n } = useTranslation("home");
 	const router = useRouter();
-	const { activeOrder, isLoading } = useUserActiveOrder();
+	const { bubbleOrder, isLoading } = useUserActiveOrder();
 
-	// Hidden while loading or when no active order
-	if (isLoading || !activeOrder) {
+	// Hidden until the technician has started tracking, matching the floating bubble.
+	if (isLoading || !bubbleOrder) {
 		return null;
 	}
 
-	const pillColors = getPillColors(activeOrder.status, t);
-	const statusLabel = getOrderStatusLabel(activeOrder.status, "user");
-	const filledSteps = getFilledSteps(activeOrder.status);
-	const progressWidth = `${(filledSteps / 4) * 100}%` as const;
+	const pillColors = getPillColors(bubbleOrder.status, t);
+	const statusLabel = getOrderStatusLabel(bubbleOrder.status, "user");
+	const filledSteps = getFilledSteps(bubbleOrder.status);
+	const progressValue = (filledSteps / TOTAL_STEPS) * 100;
+	const stepIndex = (Math.min(TOTAL_STEPS, Math.max(1, filledSteps)) - 1) as
+		| 0
+		| 1
+		| 2
+		| 3
+		| 4;
+	const stepKey = STEP_KEYS[stepIndex];
+	const currentStepLabel = tr(stepKey);
 
 	// Format the scheduled time
-	const rawTime = activeOrder.scheduled_start_at ?? activeOrder.scheduled_date;
+	const rawTime = bubbleOrder.scheduled_start_at ?? bubbleOrder.scheduled_date;
 	const formattedTime = rawTime ? formatTime(rawTime, i18n.language) : "—";
-
-	const orderRef = `#${activeOrder.id.slice(0, 8)}`;
 
 	return (
 		<Animated.View
@@ -147,12 +107,12 @@ export function ActiveOrderStrip() {
 			className="px-5"
 		>
 			<View className="overflow-hidden rounded-[14px] bg-card">
-				{/* Row 1 — status pill + order ref */}
+				{/* Row 1 — status pill */}
 				<View
 					style={{
 						flexDirection: "row",
 						alignItems: "center",
-						justifyContent: "space-between",
+						justifyContent: "flex-start",
 						paddingHorizontal: 14,
 						paddingVertical: 10,
 					}}
@@ -171,9 +131,6 @@ export function ActiveOrderStrip() {
 							{statusLabel}
 						</Text>
 					</Badge>
-					<Text variant="caption" className="text-muted-foreground">
-						{orderRef}
-					</Text>
 				</View>
 
 				{/* Row 2 — tech avatar + name + scheduled time */}
@@ -186,35 +143,23 @@ export function ActiveOrderStrip() {
 						gap: 10,
 					}}
 				>
-					{/* Avatar with pulse dot */}
-					<View style={{ position: "relative" }}>
-						<InitialsAvatar
-							name={activeOrder.technician_name ?? "T"}
-							imageUrl={activeOrder.technician_image}
-							className="size-10"
-						/>
-						<View
-							style={{
-								position: "absolute",
-								bottom: 0,
-								right: 0,
-							}}
-						>
-							<PulseDot color={t.statusOnline} />
-						</View>
-					</View>
+					<InitialsAvatar
+						name={bubbleOrder.technician_name ?? "T"}
+						imageUrl={bubbleOrder.technician_image}
+						className="size-10"
+					/>
 
 					{/* Tech name + status descriptor */}
 					<View style={{ flex: 1 }}>
 						<Text variant="label" className="text-foreground" numberOfLines={1}>
-							{activeOrder.technician_name ?? tr("technicianFallback")}
+							{bubbleOrder.technician_name ?? tr("technicianFallback")}
 						</Text>
 						<Text
 							variant="caption"
 							className="text-muted-foreground"
 							numberOfLines={1}
 						>
-							{activeOrder.status === "tracking"
+							{bubbleOrder.status === "tracking"
 								? tr("onTheWay")
 								: tr("scheduled")}
 						</Text>
@@ -235,48 +180,28 @@ export function ActiveOrderStrip() {
 					</View>
 				</View>
 
-				{/* Row 3 — progress bar + step labels */}
+				{/* Row 3 — progress bar + current step */}
 				<View style={{ paddingHorizontal: 14, paddingBottom: 8 }}>
-					{/* Progress track */}
-					<View
-						style={{
-							height: 4,
-							backgroundColor: t.tint.surfaceFaint,
-							borderRadius: 2,
-							overflow: "hidden",
-						}}
-					>
-						<View
-							style={{
-								height: 4,
-								backgroundColor: t.primary,
-								width: progressWidth,
-							}}
-						/>
-					</View>
+					<Progress value={progressValue} className="h-1.5" />
 
-					{/* Step labels */}
 					<View
 						style={{
 							flexDirection: "row",
+							alignItems: "center",
 							justifyContent: "space-between",
-							marginTop: 6,
+							marginTop: 8,
 						}}
 					>
-						{STEP_KEYS.map((stepKey, index) => (
-							<Text
-								key={stepKey}
-								variant="caption"
-								style={{
-									color: index < filledSteps ? t.primary : undefined,
-								}}
-								className={
-									index < filledSteps ? undefined : "text-muted-foreground"
-								}
-							>
-								{tr(stepKey)}
-							</Text>
-						))}
+						<Text
+							variant="caption"
+							style={{ color: t.primary, fontWeight: "600" }}
+							numberOfLines={1}
+						>
+							{currentStepLabel}
+						</Text>
+						<Text variant="caption" className="text-muted-foreground">
+							{`${filledSteps}/${TOTAL_STEPS}`}
+						</Text>
 					</View>
 				</View>
 
@@ -288,7 +213,7 @@ export function ActiveOrderStrip() {
 						size="md"
 						variant="primary"
 						fullWidth
-						onPress={() => router.push(ROUTES.user.orderDetail(activeOrder.id))}
+						onPress={() => router.push(ROUTES.user.orderDetail(bubbleOrder.id))}
 					>
 						{tr("viewOrder")}
 					</Button>

@@ -1,10 +1,10 @@
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { MapPin } from "lucide-react-native";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { spacing } from "@/src/constants/design-tokens";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Technician } from "@/src/constants/mock-data/user";
-import { useThemeColors } from "@/src/constants/design-tokens";
 import RatingRow from "./RatingRow";
 
 export const CARD_WIDTH_RATIO = 0.75;
@@ -32,16 +32,28 @@ export default function TechnicianCard({
 				marginHorizontal: CARD_SPACING / 2,
 			}}
 		>
-			{/* Cover Image */}
-			<Image
-				source={item.coverImage}
-				className="rounded-card"
-				style={{
-					width: "100%",
-					height: cardWidth * 0.6,
-				}}
-				contentFit="cover"
-			/>
+			{item.coverImage ? (
+				<Image
+					source={item.coverImage}
+					className="rounded-card"
+					style={{
+						width: "100%",
+						height: cardWidth * 0.6,
+					}}
+					contentFit="cover"
+				/>
+			) : (
+				<LinearGradient
+					colors={[themeColors.tint.surfaceSoft, themeColors.tint.surfaceFaint]}
+					start={{ x: 0, y: 0 }}
+					end={{ x: 1, y: 1 }}
+					className="rounded-card"
+					style={{
+						width: "100%",
+						height: cardWidth * 0.6,
+					}}
+				/>
+			)}
 
 			{/* Avatar overlapping bottom of cover */}
 			<View
@@ -80,11 +92,7 @@ export default function TechnicianCard({
 					</Text>
 					{showDistance && item.distance && (
 						<View className="flex-row items-center gap-stack-xs">
-							<MapPin
-								size={11}
-								color={themeColors.textMuted}
-								strokeWidth={2}
-							/>
+							<MapPin size={11} color={themeColors.textMuted} strokeWidth={2} />
 							<Text variant="caption" className="text-content-muted">
 								{item.distance}
 							</Text>

@@ -1,6 +1,7 @@
 import { createMaterialTopTabNavigator } from "expo-router/js-top-tabs";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import BookingsTabContent from "@/src/features/booking-orders/components/tech/BookingsTabContent";
 import ScheduleTabContent from "@/src/features/schedule/components/tech/ScheduleTabContent";
 import {
@@ -29,6 +30,7 @@ export default function UnifiedSchedulePage() {
 
 	return (
 		<View className="flex-1 bg-surface">
+			<ScreenStatusBar variant="blue" />
 			<TopTabs.Navigator
 				key={requestedView}
 				initialRouteName={requestedView}

@@ -12,7 +12,7 @@ export interface Technician {
 	avatarColor: string;
 	category: string;
 	distance?: string;
-	coverImage: ImageSourcePropType;
+	coverImage?: ImageSourcePropType;
 	tagline: string;
 	avg_rating?: number | null;
 	review_count?: number;
@@ -70,7 +70,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		avatarColor: "#2196F3",
 		category: "Plumbing",
 		tagline: "Expert pipe & leak repair",
-		coverImage: require("@/src/assets/covers/cover_plumbing.png"),
 	},
 	{
 		id: "tech-2",
@@ -79,7 +78,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		avatarColor: "#4CAF50",
 		category: "Carpenter",
 		tagline: "Custom woodwork & furniture",
-		coverImage: require("@/src/assets/covers/cover_carpentry.png"),
 	},
 	{
 		id: "tech-3",
@@ -88,7 +86,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		avatarColor: "#FF9800",
 		category: "Electrician",
 		tagline: "Wiring, panels & smart home",
-		coverImage: require("@/src/assets/covers/cover_electrical.png"),
 	},
 	{
 		id: "tech-4",
@@ -97,7 +94,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		avatarColor: "#9C27B0",
 		category: "Painter",
 		tagline: "Interior & exterior painting",
-		coverImage: require("@/src/assets/covers/cover_painting.png"),
 	},
 	{
 		id: "tech-5",
@@ -106,7 +102,6 @@ export const RECOMMENDED_TECHNICIANS: Technician[] = [
 		avatarColor: "#F44336",
 		category: "Oven/Cooker",
 		tagline: "Appliance repair specialist",
-		coverImage: require("@/src/assets/covers/cover_oven.png"),
 	},
 ];
 
@@ -121,7 +116,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		category: "Air Condition",
 		distance: "0.5 km",
 		tagline: "AC install & maintenance",
-		coverImage: require("@/src/assets/covers/cover_ac.png"),
 	},
 	{
 		id: "near-2",
@@ -131,7 +125,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		category: "Plumbing",
 		distance: "1.2 km",
 		tagline: "Fast fix for any leak",
-		coverImage: require("@/src/assets/covers/cover_plumbing.png"),
 	},
 	{
 		id: "near-3",
@@ -141,7 +134,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		category: "Electrician",
 		distance: "1.8 km",
 		tagline: "Safe & reliable wiring",
-		coverImage: require("@/src/assets/covers/cover_electrical.png"),
 	},
 	{
 		id: "near-4",
@@ -151,7 +143,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		category: "Carpenter",
 		distance: "2.3 km",
 		tagline: "Quality craftsmanship",
-		coverImage: require("@/src/assets/covers/cover_carpentry.png"),
 	},
 	{
 		id: "near-5",
@@ -161,7 +152,6 @@ export const NEARBY_TECHNICIANS: Technician[] = [
 		category: "Home Cleaning",
 		distance: "3.1 km",
 		tagline: "Deep clean & sanitizing",
-		coverImage: require("@/src/assets/covers/cover_cleaning.png"),
 	},
 ];
 

@@ -13,9 +13,17 @@ export default function TechnicianSettingsScreen() {
 	const goToHelp = useDebounce(() =>
 		router.push(ROUTES.technician.settingsHelp),
 	);
+	const goToAddress = useDebounce(() =>
+		router.push(ROUTES.technician.settingsAddress as never),
+	);
+	const goToServices = useDebounce(() =>
+		router.push(ROUTES.technician.settingsServices as never),
+	);
 
 	return (
 		<SettingsContent
+			onAddressPress={goToAddress}
+			onServicesPress={goToServices}
 			onNotificationsPress={goToNotifications}
 			onPrivacyPress={goToPrivacy}
 			onHelpPress={goToHelp}

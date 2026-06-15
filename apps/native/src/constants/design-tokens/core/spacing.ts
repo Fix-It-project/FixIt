@@ -142,13 +142,13 @@ export const spacing = {
 	},
 	button: {
 		height: {
-			sm: 36,
-			md: 48,
-			lg: 48,
-			xl: 48,
+			sm: 34,
+			md: 44,
+			lg: 50,
+			xl: 56,
 		},
-		paddingX: 24,
-		paddingXSm: 12,
+		paddingX: 18,
+		paddingXSm: 14,
 		paddingXLg: 24,
 	},
 	input: {

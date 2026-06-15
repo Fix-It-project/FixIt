@@ -30,6 +30,14 @@ const makeStorageRepo = () =>
 		uploadFile: vi.fn(),
 	}) as any;
 
+const makeStatsRepo = () =>
+	({
+		getPaidPaymentsSince: vi.fn(),
+		getOrdersSince: vi.fn(),
+		getAcceptDeclineEvents: vi.fn(),
+		getRatingStats: vi.fn(),
+	}) as any;
+
 // ── Shared fixtures ───────────────────────────────────────────────────────────
 const categoryId = "cat-1";
 
@@ -89,6 +97,7 @@ describe("TechniciansService.getTechniciansByCategory", () => {
 			repo as any,
 			categoriesRepo as any,
 			storageRepo as any,
+			makeStatsRepo(),
 		);
 	});
 
@@ -350,6 +359,7 @@ describe("TechniciansService.searchTechniciansByCategory", () => {
 			repo as any,
 			categoriesRepo as any,
 			storageRepo as any,
+			makeStatsRepo(),
 		);
 	});
 

@@ -45,3 +45,13 @@ export const TechnicianIdParamsSchema = z.object({
 export type UpdateTechnicianSelfBody = z.infer<
 	typeof UpdateTechnicianSelfBodySchema
 >;
+
+// Dedicated single-field schema — kept apart from UpdateTechnicianSelfBodySchema
+// so the profile-edit refine ("at least one field") stays untouched.
+export const UpdateTechnicianAvailabilityBodySchema = z.object({
+	is_available: z.boolean(),
+});
+
+export type UpdateTechnicianAvailabilityBody = z.infer<
+	typeof UpdateTechnicianAvailabilityBodySchema
+>;

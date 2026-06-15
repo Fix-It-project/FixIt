@@ -11,13 +11,29 @@ import {
 	useThemeColors,
 } from "@/src/constants/design-tokens";
 import { type Language, SUPPORTED_LANGUAGES } from "@/src/constants/i18n";
+import { confirm } from "@/src/stores/dialog-store";
 import { useLanguageStore } from "@/src/stores/language-store";
 
 export function LanguageSegmentedControl() {
 	const { t } = useTranslation("common");
+	const { t: ts } = useTranslation("settings");
 	const language = useLanguageStore((state) => state.language);
 	const setLanguage = useLanguageStore((state) => state.setLanguage);
 	const themeColors = useThemeColors();
+
+	// Switching language flips text direction (LTR<->RTL), which forces an app
+	// reload (see lib/i18n/direction). Warn before that happens.
+	const handleSelect = async (value: Language) => {
+		if (value === language) return;
+		const confirmed = await confirm({
+			title: ts("language.restartTitle"),
+			description: ts("language.restartMessage"),
+			primary: { label: ts("language.restartConfirm") },
+			secondary: { label: ts("language.cancel") },
+		});
+		if (!confirmed) return;
+		void setLanguage(value);
+	};
 
 	// Autonyms (each language in its own script), shown regardless of the
 	// currently active language.
@@ -38,7 +54,7 @@ export function LanguageSegmentedControl() {
 					<SegmentedControlItem
 						key={value}
 						onPress={() => {
-							void setLanguage(value);
+							void handleSelect(value);
 						}}
 						style={{
 							backgroundColor: isActive

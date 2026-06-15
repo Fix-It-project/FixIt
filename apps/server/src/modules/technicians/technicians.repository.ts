@@ -41,6 +41,7 @@ export interface TechnicianSelfProfile {
 	profile_image: string | null;
 	description: string | null;
 	category_name: string | null;
+	is_available: boolean;
 	total_orders: number;
 	completed_orders: number;
 	avg_rating: number | null;
@@ -52,6 +53,7 @@ export interface UpdateTechnicianSelfData {
 	last_name?: string;
 	phone?: string;
 	description?: string;
+	is_available?: boolean;
 }
 
 /** API DTO shape returned by technician profile endpoint. */
@@ -622,7 +624,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, profile_image, description, categories(name)",
+				"id, first_name, last_name, email, phone, profile_image, description, is_available, categories(name)",
 			)
 			.eq("id", id)
 			.maybeSingle();
@@ -665,6 +667,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 			profile_image: data.profile_image ?? null,
 			description: data.description ?? null,
 			category_name: categories?.name ?? null,
+			is_available: data.is_available ?? false,
 			total_orders: totalOrders ?? 0,
 			completed_orders: completedOrders ?? 0,
 			avg_rating: reviewAggregate.avg_rating,
@@ -678,6 +681,8 @@ export class TechniciansRepository implements ITechniciansRepository {
 		if (data.last_name !== undefined) payload.last_name = data.last_name;
 		if (data.phone !== undefined) payload.phone = data.phone;
 		if (data.description !== undefined) payload.description = data.description;
+		if (data.is_available !== undefined)
+			payload.is_available = data.is_available;
 
 		const { data: technician, error } = await supabaseAdmin
 			.from("technicians")

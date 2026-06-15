@@ -159,7 +159,11 @@ describe('AddressesService', () => {
       mockRepo.getAddressCountByUserId.mockResolvedValue(1);
 
       await expect(service.deleteAddress('u-1', 'user', 'addr-1'))
-        .rejects.toThrow('You must have at least one address');
+        .rejects.toMatchObject({
+          code: 'CONFLICT',
+          status: 409,
+          message: 'You must keep at least one address.',
+        });
 
       expect(mockRepo.deleteAddress).not.toHaveBeenCalled();
     });
@@ -168,7 +172,11 @@ describe('AddressesService', () => {
       mockRepo.getAddressCountByTechnicianId.mockResolvedValue(0);
 
       await expect(service.deleteAddress('t-1', 'technician', 'addr-1'))
-        .rejects.toThrow('You must have at least one address');
+        .rejects.toMatchObject({
+          code: 'CONFLICT',
+          status: 409,
+          message: 'You must keep at least one address.',
+        });
     });
   });
 });

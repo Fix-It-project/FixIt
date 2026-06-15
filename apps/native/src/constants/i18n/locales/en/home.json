@@ -51,8 +51,14 @@
 		"loading": "Loading addresses...",
 		"loadErrorTitle": "Unable to load addresses",
 		"loadErrorMessage": "Please try again later.",
-		"deleteUnavailableTitle": "Delete address",
-		"deleteUnavailableMessage": "Address deletion is not available yet. The action is ready for the upcoming backend endpoint."
+		"deleteConfirmTitle": "Delete address?",
+		"deleteConfirmMessage": "This address will be permanently removed.",
+		"deleteConfirm": "Delete",
+		"cancel": "Cancel",
+		"deleteErrorTitle": "Can't delete address",
+		"deleteLastError": "You must keep at least one address.",
+		"deleteError": "Something went wrong. Please try again.",
+		"ok": "OK"
 	},
 	"offers": {
 		"cleaning": {
@@ -75,9 +81,11 @@
 		}
 	},
 	"steps": {
-		"booked": "Booked",
-		"assigned": "Assigned",
-		"enRoute": "En route",
-		"arrived": "Arrived"
+		"preparing": "Preparing",
+		"onTheWay": "On the way",
+		"inspection": "Inspection",
+		"negotiation": "Negotiation",
+		"fixing": "Fixing",
+		"awaitingPayment": "Awaiting payment"
 	}
 }

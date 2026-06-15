@@ -94,7 +94,7 @@ export function useTechniciansInfiniteQuery(
 		},
 		initialPageParam: 0,
 		getNextPageParam: (lastPage, allPages) =>
-			lastPage.length < pageSize ? undefined : allPages.length * pageSize,
+			lastPage.length === 0 ? undefined : allPages.length * pageSize,
 		enabled: trimmedCategoryId.length > 0,
 		staleTime: 0,
 		retry: 1,

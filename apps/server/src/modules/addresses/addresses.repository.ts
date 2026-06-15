@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../../shared/db/supabase.js';
+import { AppError } from '../../shared/errors/index.js';
 import { logger } from '../../shared/logger.js';
 
 const supabase = supabaseAdmin;
@@ -82,6 +83,7 @@ export class AddressesRepository implements IAddressesRepository {
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
+      .is('deleted_at', null)
       .eq('user_id', userId)
       .order('created_at', { ascending: true });
 
@@ -93,6 +95,7 @@ export class AddressesRepository implements IAddressesRepository {
     const { count, error } = await supabase
       .from('addresses')
       .select('*', { count: 'exact', head: true })
+      .is('deleted_at', null)
       .eq('user_id', userId);
 
     if (error) throw error;
@@ -103,6 +106,7 @@ export class AddressesRepository implements IAddressesRepository {
     const { data, error } = await supabase
       .from('addresses')
       .select('*')
+      .is('deleted_at', null)
       .eq('technician_id', technicianId)
       .order('created_at', { ascending: true });
 
@@ -114,6 +118,7 @@ export class AddressesRepository implements IAddressesRepository {
     const { count, error } = await supabase
       .from('addresses')
       .select('*', { count: 'exact', head: true })
+      .is('deleted_at', null)
       .eq('technician_id', technicianId);
 
     if (error) throw error;
@@ -128,8 +133,9 @@ export class AddressesRepository implements IAddressesRepository {
       .select('id')
       .eq('id', id)
       .eq(ownerColumn, ownerId)
+      .is('deleted_at', null)
       .maybeSingle();
-      
+
     if (checkError) throw checkError;
     if (!existing) throw new Error('Address not found or unauthorized to update');
 
@@ -156,17 +162,23 @@ export class AddressesRepository implements IAddressesRepository {
 
     const { data: existing, error: checkError } = await supabase
       .from('addresses')
-      .select('id')
+      .select('id, is_active')
       .eq('id', id)
       .eq(ownerColumn, ownerId)
+      .is('deleted_at', null)
       .maybeSingle();
 
     if (checkError) throw checkError;
     if (!existing) throw new Error('Address not found or unauthorized to delete');
+    if (existing.is_active === true) {
+      throw AppError.conflict('Switch to another saved address before deleting this one.');
+    }
 
+    // Soft delete: addresses referenced by orders.destination_address_id cannot be
+    // hard-deleted (FK ON DELETE NO ACTION), and order history must be preserved.
     const { error } = await supabase
       .from('addresses')
-      .delete()
+      .update({ deleted_at: new Date().toISOString(), is_active: false })
       .eq('id', id);
 
     if (error) throw error;
@@ -203,6 +215,7 @@ export class AddressesRepository implements IAddressesRepository {
       .select('id')
       .eq('id', id)
       .eq(ownerColumn, ownerId)
+      .is('deleted_at', null)
       .maybeSingle();
 
     if (checkError) throw checkError;

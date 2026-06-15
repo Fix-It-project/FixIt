@@ -11,16 +11,25 @@
 	"addSheet": {
 		"title": "Add New Location",
 		"heading": "Capture Your Location",
-		"description": "Tap the button below to capture your current GPS coordinates, then fill in your address details.",
-		"useCurrentLocation": "Use current location"
+		"description": "Use your current GPS location or set it on the map, then fill in your address details.",
+		"useCurrentLocation": "Use current location",
+		"setOnMap": "Set on map"
 	},
 	"header": {
 		"location": "Your Location",
 		"select": "Select Location"
 	},
+	"techAddress": {
+		"description": "Set the base location customers see and where new jobs are matched from.",
+		"captureCta": "Use current location",
+		"locationRequired": "Capture your current location to save.",
+		"save": "Save",
+		"setOnMap": "Set on map"
+	},
 	"form": {
 		"title": "Address Details",
 		"location": "Location: {{latitude}}, {{longitude}}",
+		"setOnMap": "Set location on map",
 		"city": "City",
 		"cityPlaceholder": "e.g. Cairo",
 		"street": "Street",
@@ -36,5 +45,12 @@
 			"streetMin": "Street address must be at least 5 characters",
 			"streetMax": "Street address must be less than 200 characters"
 		}
+	},
+	"picker": {
+		"title": "Set location",
+		"confirm": "Confirm location",
+		"cancel": "Cancel",
+		"recenter": "My location",
+		"permissionDenied": "Location permission denied. Enable it in Settings."
 	}
 }

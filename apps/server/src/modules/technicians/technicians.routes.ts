@@ -4,6 +4,7 @@ import {
 	TechnicianIdParamsSchema,
 	TechnicianListQuerySchema,
 	TechnicianSearchQuerySchema,
+	UpdateTechnicianAvailabilityBodySchema,
 	UpdateTechnicianSelfBodySchema,
 } from "../../shared/dtos/index.js";
 import { requireTechnicianAuth } from "../../shared/middlewares/technician-auth.middleware.js";
@@ -53,6 +54,17 @@ technicianSelfRoutes.put(
 	requireTechnicianAuth,
 	validate({ body: UpdateTechnicianSelfBodySchema }),
 	techniciansController.updateSelf,
+);
+technicianSelfRoutes.patch(
+	"/me/availability",
+	requireTechnicianAuth,
+	validate({ body: UpdateTechnicianAvailabilityBodySchema }),
+	techniciansController.updateAvailability,
+);
+technicianSelfRoutes.get(
+	"/me/stats",
+	requireTechnicianAuth,
+	techniciansController.getStats,
 );
 technicianSelfRoutes.post(
 	"/me/profile-image",
