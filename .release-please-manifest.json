@@ -1,6 +1,6 @@
 {
-	"apps/admin": "0.0.1",
-	"apps/native": "0.0.1",
-	"apps/server": "0.0.1",
-	".": "0.0.1"
+	"apps/admin": "0.1.0",
+	"apps/native": "0.1.0",
+	"apps/server": "0.1.0",
+	".": "0.1.0"
 }
