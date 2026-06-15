@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/Fix-It-project/FixIt/compare/native-v0.0.1...native-v0.0.2) (2026-06-15)
+
+
+### Features
+
+* **admin:** account blocking finalized +admin enhancements ([#178](https://github.com/Fix-It-project/FixIt/issues/178)) ([c003867](https://github.com/Fix-It-project/FixIt/commit/c00386758cfe75dc1432e7bf40fd2b723f709e75))
+
 ## 0.0.1 (2026-06-12)
 
 
