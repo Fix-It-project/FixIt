@@ -68,6 +68,8 @@ export interface Order {
 	user_completed_at?: string | null;
 	technician_completed_at?: string | null;
 	user_address?: string | null;
+	user_latitude?: number | null;
+	user_longitude?: number | null;
 	service_name?: string | null;
 	category_id?: string | null;
 	user_name?: string | null;
@@ -95,6 +97,8 @@ function mapOrderWithJoins(row: any): Order {
 		users: undefined,
 		services: undefined,
 		user_address: parts.length > 0 ? parts.join(", ") : row.user_address ?? null,
+		user_latitude: addr?.latitude ?? row.user_latitude ?? null,
+		user_longitude: addr?.longitude ?? row.user_longitude ?? null,
 		service_name: svc?.name ?? row.service_name ?? null,
 		category_id: svc?.category_id ?? row.category_id ?? null,
 		user_name: usr?.full_name ?? row.user_name ?? null,
@@ -198,7 +202,7 @@ export class OrdersRepository {
 		const { data, error } = await supabase
 			.from("orders")
 			.select(
-				"*, users(full_name, phone, addresses(city, street, building_no)), services(name, category_id)",
+				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), services(name, category_id)",
 			)
 			.eq("technician_id", technicianId)
 			.order("created_at", { ascending: false });
@@ -220,7 +224,7 @@ export class OrdersRepository {
 		const { data, error } = await supabase
 			.from("orders")
 			.select(
-				"*, users(full_name, phone, addresses(city, street, building_no)), technicians(first_name, last_name, profile_image, phone), services(name, category_id)",
+				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), technicians(first_name, last_name, profile_image, phone), services(name, category_id)",
 			)
 			.eq("id", id)
 			.single();

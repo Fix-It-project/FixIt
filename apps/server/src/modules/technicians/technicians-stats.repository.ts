@@ -41,6 +41,10 @@ export interface ITechniciansStatsRepository {
 		sinceIso: string,
 	): Promise<AcceptDeclineEventRow[]>;
 	getRatingStats(technicianId: string): Promise<TechnicianRatingStats>;
+	getWeeklyRatingStats(
+		technicianId: string,
+		sinceIso: string,
+	): Promise<TechnicianRatingStats>;
 }
 
 export class TechniciansStatsRepository implements ITechniciansStatsRepository {
@@ -112,6 +116,38 @@ export class TechniciansStatsRepository implements ITechniciansStatsRepository {
 		return {
 			rating: data.rating == null ? null : Number(data.rating),
 			review_count: Number(data.review_count ?? 0),
+		};
+	}
+
+	/**
+	 * This-week rating, computed live from the `reviews` table (not the lifetime
+	 * `technician_rating_stats` view). `rating` is nullable for comment-only
+	 * reviews — the average ignores nulls and `review_count` counts rated reviews
+	 * only. `sinceIso` should be the Cairo start-of-week boundary.
+	 */
+	async getWeeklyRatingStats(
+		technicianId: string,
+		sinceIso: string,
+	): Promise<TechnicianRatingStats> {
+		const { data, error } = await supabaseAdmin
+			.from("reviews")
+			.select("rating")
+			.eq("technician_id", technicianId)
+			.gte("created_at", sinceIso);
+		if (error) throw new Error(error.message);
+
+		const rows = (data ?? []) as Array<{ rating: number | null }>;
+		let sum = 0;
+		let rated = 0;
+		for (const row of rows) {
+			if (row.rating != null) {
+				sum += Number(row.rating);
+				rated += 1;
+			}
+		}
+		return {
+			rating: rated > 0 ? Math.round((sum / rated) * 10) / 10 : null,
+			review_count: rated,
 		};
 	}
 }

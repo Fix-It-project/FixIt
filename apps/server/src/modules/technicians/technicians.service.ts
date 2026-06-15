@@ -53,8 +53,13 @@ export interface TechnicianDashboardStats {
 		acceptanceRate: number | null;
 		/** cancelled_by_technician / (cancelled_by_technician + completed), last 30 days. Null when no resolved orders. */
 		cancellationRate: number | null;
+		/** Lifetime rating from the technician_rating_stats view. */
 		rating: number | null;
 		reviewCount: number;
+		/** This-week rating computed live from reviews (Cairo week, nulls ignored). */
+		weeklyRating: number | null;
+		/** Count of rated reviews this week. */
+		weeklyReviewCount: number;
 	};
 	/** Hours before a pending order is auto-rejected (see shared/time/order-expiry). */
 	pendingExpiryHours: number;
@@ -289,12 +294,17 @@ export class TechniciansService implements ITechniciansService {
 		// series, yesterday, and the week).
 		const sinceIso = thirtyDaysAgo.toISOString();
 
-		const [payments, orders, decisions, ratingStats] = await Promise.all([
-			this.statsRepo.getPaidPaymentsSince(technicianId, sinceIso),
-			this.statsRepo.getOrdersSince(technicianId, sinceIso, weekStartDate),
-			this.statsRepo.getAcceptDeclineEvents(technicianId, sinceIso),
-			this.statsRepo.getRatingStats(technicianId),
-		]);
+		const [payments, orders, decisions, ratingStats, weeklyRatingStats] =
+			await Promise.all([
+				this.statsRepo.getPaidPaymentsSince(technicianId, sinceIso),
+				this.statsRepo.getOrdersSince(technicianId, sinceIso, weekStartDate),
+				this.statsRepo.getAcceptDeclineEvents(technicianId, sinceIso),
+				this.statsRepo.getRatingStats(technicianId),
+				this.statsRepo.getWeeklyRatingStats(
+					technicianId,
+					startOfWeek.toISOString(),
+				),
+			]);
 
 		const dailyMap = new Map<string, number>(last7Days.map((d) => [d, 0]));
 		let today = 0;
@@ -352,6 +362,8 @@ export class TechniciansService implements ITechniciansService {
 				cancellationRate,
 				rating: ratingStats.rating,
 				reviewCount: ratingStats.review_count,
+				weeklyRating: weeklyRatingStats.rating,
+				weeklyReviewCount: weeklyRatingStats.review_count,
 			},
 			pendingExpiryHours: PENDING_ORDER_EXPIRY_HOURS,
 		};

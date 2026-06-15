@@ -33,6 +33,9 @@ const makeStatsRepo = () =>
 		getOrdersSince: vi.fn(),
 		getAcceptDeclineEvents: vi.fn(),
 		getRatingStats: vi.fn(),
+		getWeeklyRatingStats: vi
+			.fn()
+			.mockResolvedValue({ rating: null, review_count: 0 }),
 	}) as any;
 
 const technicianId = "tech-1";
@@ -213,6 +216,33 @@ describe("TechniciansService.getStats", () => {
 			technicianId,
 			sinceIso,
 			"2026-01-11", // Sunday week start
+		);
+	});
+
+	it("passes through this-week rating, queried from the Cairo week start, independent of lifetime", async () => {
+		statsRepo.getPaidPaymentsSince.mockResolvedValue([]);
+		statsRepo.getOrdersSince.mockResolvedValue([]);
+		statsRepo.getAcceptDeclineEvents.mockResolvedValue([]);
+		statsRepo.getRatingStats.mockResolvedValue({
+			rating: 4.9,
+			review_count: 30,
+		});
+		statsRepo.getWeeklyRatingStats.mockResolvedValue({
+			rating: 4.5,
+			review_count: 2,
+		});
+
+		const stats = await service.getStats(technicianId);
+
+		expect(stats.rates.weeklyRating).toBe(4.5);
+		expect(stats.rates.weeklyReviewCount).toBe(2);
+		// lifetime rating stays independent of the weekly figure
+		expect(stats.rates.rating).toBe(4.9);
+		expect(stats.rates.reviewCount).toBe(30);
+		// queried from Cairo Sunday week start: 2026-01-11 00:00 EET = 2026-01-10T22:00Z
+		expect(statsRepo.getWeeklyRatingStats).toHaveBeenCalledWith(
+			technicianId,
+			"2026-01-10T22:00:00.000Z",
 		);
 	});
 });
