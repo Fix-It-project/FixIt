@@ -18,6 +18,7 @@ from typing import Optional
 
 import pandas as pd
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Column,
     Date,
@@ -25,6 +26,7 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Integer,
+    SmallInteger,
     Text,
     create_engine,
 )
@@ -90,6 +92,7 @@ class UserModel(Base):
         viewonly=True,
     )
     orders = relationship("OrderModel", back_populates="user")
+    reviews = relationship("ReviewModel", back_populates="user")
 
 
 class TechnicianModel(Base):
@@ -106,15 +109,20 @@ class TechnicianModel(Base):
     birth_certificate = Column(Text, nullable=True)
     profile_image = Column(Text, nullable=True)
     national_id = Column(Text, nullable=True)
-    base_hourly_rate = Column(Integer, nullable=True)
+    base_hourly_rate = Column(BigInteger, nullable=True)
     rating = Column(Float, nullable=True)
-    years_experience = Column(Integer, nullable=True)
+    years_experience = Column(BigInteger, nullable=True)
     category_id = Column(
         UUID(as_uuid=True),
         ForeignKey("categories.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
     )
     description = Column(Text, nullable=True)
+    status = Column(Text, nullable=False, default="pending")
+    blocked_reason = Column(Text, nullable=True)
+    blocked_at = Column(DateTime(timezone=True), nullable=True)
+    blocked_by = Column(Text, nullable=True)
+    block_pending = Column(Boolean, nullable=False, default=False)
 
     category_rel = relationship("CategoryModel", back_populates="technicians")
     # Resolves to the single active address for this technician
@@ -126,6 +134,7 @@ class TechnicianModel(Base):
         viewonly=True,
     )
     orders = relationship("OrderModel", back_populates="technician")
+    reviews = relationship("ReviewModel", back_populates="technician")
 
 
 class AddressModel(Base):
@@ -151,19 +160,50 @@ class OrderModel(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     problem_description = Column(Text, nullable=True)
-    status = Column(Text, nullable=True)
+    status = Column(Text, nullable=False, default="pending")
     attachment = Column(Text, nullable=True)
-    rating = Column(Float, nullable=True) 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     service_id = Column(UUID(as_uuid=True), ForeignKey("services.id"), nullable=True)
     technician_id = Column(UUID(as_uuid=True), ForeignKey("technicians.id"), nullable=True)
     scheduled_date = Column(Date, nullable=False)
     active = Column(Boolean, nullable=False, default=False)
     cancellation_reason = Column(Text, nullable=True)
+    final_price = Column(Integer, nullable=True)
+    payment_method = Column(Text, nullable=True)
+    destination_address_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("addresses.id"),
+        nullable=True,
+    )
+    scheduled_start_at = Column(DateTime(timezone=True), nullable=True)
+    arrived_at = Column(DateTime(timezone=True), nullable=True)
+    user_completed_at = Column(DateTime(timezone=True), nullable=True)
+    technician_completed_at = Column(DateTime(timezone=True), nullable=True)
+    inspection_fee = Column(Integer, nullable=False, default=0)
+    inspection_distance_km = Column(Float, nullable=True)
+    work_price = Column(Integer, nullable=True)
 
     user = relationship("UserModel", back_populates="orders")
     technician = relationship("TechnicianModel", back_populates="orders")
     service = relationship("ServiceModel")
+    review = relationship("ReviewModel", back_populates="order", uselist=False)
+    destination_address = relationship("AddressModel")
+
+
+class ReviewModel(Base):
+    __tablename__ = "reviews"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    rating = Column(SmallInteger, nullable=False)
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, unique=True)
+    technician_id = Column(UUID(as_uuid=True), ForeignKey("technicians.id", ondelete="CASCADE"), nullable=False)
+
+    user = relationship("UserModel", back_populates="reviews")
+    order = relationship("OrderModel", back_populates="review")
+    technician = relationship("TechnicianModel", back_populates="reviews")
 
 
 # ════════════════════════════════════════════════
@@ -210,17 +250,23 @@ class DatabaseManager:
 
         All joins use SQLAlchemy ORM relationships — no raw SQL.
 
-        Output column contracts (unchanged from original pipeline expectations):
+        Output column contracts:
           users_df    : user_id, full_name, phone, join_date, latitude, longitude
           techs_df    : technician_id, name, phone, category, is_available,
-                     latitude, longitude
+                        base_hourly_rate, rating, years_experience, description,
+                        status, latitude, longitude
           bookings_df : booking_id, user_id, technician_id, problem_description,
-                        service_category, booking_date, status
+                        service_category, booking_date, status, rating
+
+        Note: Only technicians with status='verified' are included.
         """
         session = self.get_session()
         try:
-            # ── Users ──────────────────────────────────────
-            all_users: list[UserModel] = session.query(UserModel).all()
+            from sqlalchemy.orm import joinedload
+            # ── Users ───────────────────────────────────────────────
+            all_users: list[UserModel] = session.query(UserModel).options(
+                joinedload(UserModel.addresses)
+            ).all()
             users_rows = []
             for u in all_users:
                 addr = u.addresses  # single active address via relationship
@@ -234,8 +280,16 @@ class DatabaseManager:
                 })
             users_df = pd.DataFrame(users_rows)
 
-            # ── Technicians ────────────────────────────────
-            all_techs: list[TechnicianModel] = session.query(TechnicianModel).all()
+            # ── Technicians (only verified) ─────────────────
+            all_techs: list[TechnicianModel] = (
+                session.query(TechnicianModel)
+                .options(
+                    joinedload(TechnicianModel.addresses),
+                    joinedload(TechnicianModel.category_rel)
+                )
+                .filter(TechnicianModel.status == "verified")
+                .all()
+            )
             tech_rows = []
             for t in all_techs:
                 addr = t.addresses  # single active address via relationship
@@ -247,15 +301,21 @@ class DatabaseManager:
                     "category": category_name,
                     "is_available": t.is_available,
                     "base_hourly_rate": t.base_hourly_rate,
-                    "rating": t.rating,                        
+                    "rating": t.rating,
                     "years_experience": t.years_experience,
+                    "description": t.description,
+                    "status": t.status,
                     "latitude": addr.latitude if addr else None,
                     "longitude": addr.longitude if addr else None,
                 })
             techs_df = pd.DataFrame(tech_rows)
 
+            from sqlalchemy.orm import joinedload
             # ── Orders → bookings shape ────────────────────
-            all_orders: list[OrderModel] = session.query(OrderModel).all()
+            all_orders: list[OrderModel] = session.query(OrderModel).options(
+                joinedload(OrderModel.technician).joinedload(TechnicianModel.category_rel),
+                joinedload(OrderModel.review)
+            ).all()
             order_rows = []
             for o in all_orders:
                 category_name = (
@@ -270,8 +330,8 @@ class DatabaseManager:
                     "problem_description": o.problem_description,
                     "service_category": category_name,
                     "booking_date": o.scheduled_date,
-                    "status": o.status,
-                    "rating": o.rating,
+                    "status": str(o.status),
+                    "rating": o.review.rating if o.review else None,
                 })
             bookings_df = pd.DataFrame(order_rows)
 

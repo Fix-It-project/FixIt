@@ -62,7 +62,7 @@ class ContentEngine:
     ) -> None:
         """Fit TF-IDF and build the FAISS index."""
 
-        completed = bookings_df[bookings_df["status"] == "Completed"].copy()
+        completed = bookings_df[bookings_df["status"] == "completed"].copy()
 
         # --- 1. Build per-technician text profiles ---
         # Combine all problem descriptions a technician has handled,
@@ -78,12 +78,18 @@ class ContentEngine:
                 ].iloc[0]
                 tech_docs[tid] = f"{cat} maintenance repair service"
             else:
-                # Repeat high-rated descriptions more often (implicit boost)
-                parts: List[str] = []
+                cat = technicians_df.loc[
+                    technicians_df["technician_id"] == tid, "category"
+                ].iloc[0]
+                # Always prepend the category to guarantee a baseline content match
+                # Replace '/' with space so 'oven/cooker' becomes 'oven cooker'
+                parts = [str(cat).replace("/", " ") + " maintenance repair service"]
                 for _, row in rows.iterrows():
                     rating = row["rating"] if pd.notna(row["rating"]) else 3.0
                     repeat = max(1, int(rating))
-                    parts.extend([row["problem_description"]] * repeat)
+                    desc = str(row["problem_description"]) if pd.notna(row["problem_description"]) else ""
+                    if desc.strip():
+                        parts.extend([desc] * repeat)
                 tech_docs[tid] = " . ".join(parts)
 
         # Ordered list so we can map FAISS indices ↔ technician_ids

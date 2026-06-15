@@ -103,7 +103,7 @@ class OfflineEvaluator:
 
         This tests: can the engine predict who the user will actually book?
         """
-        completed_test = test_df[test_df["status"] == "Completed"].copy()
+        completed_test = test_df[test_df["status"] == "completed"].copy()
 
         if completed_test.empty:
             logger.warning("No completed test bookings — evaluation skipped")

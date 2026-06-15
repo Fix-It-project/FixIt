@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as Crypto from "expo-crypto";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -13,6 +14,9 @@ import { useLocationStore } from "@/src/stores/location-store";
 import type { ChatEntry, ChatFlow, SelectedImage } from "../types";
 import { createChatEntryId, getErrorMessage } from "../utils";
 import { useAudioRecorder } from "./useAudioRecorder";
+
+const AI_IMAGE_PICK_QUALITY = 0.25;
+const MAX_AGENT_IMAGE_BASE64_LENGTH = 600_000;
 
 export function useChatbotController() {
 	const router = useRouter();
@@ -58,14 +62,26 @@ export function useChatbotController() {
 		setMode((prev) => (prev === "recommend" ? "agent" : "recommend"));
 	}, []);
 
+	const resetChatState = useCallback(() => {
+		setMessage("");
+		setActiveFlow(null);
+		setMode("recommend");
+		setError(null);
+		setSelectedImage(null);
+		setChatEntries([]);
+		void clearAudio();
+	}, [clearAudio]);
+
 	useFocusEffect(
 		useCallback(() => {
+			resetChatState();
 			setAgentSessionId(Crypto.randomUUID());
 
 			return () => {
+				resetChatState();
 				setAgentSessionId(null);
 			};
-		}, []),
+		}, [resetChatState]),
 	);
 
 	const pickImage = useCallback(async () => {
@@ -84,7 +100,7 @@ export function useChatbotController() {
 
 			const result = await ImagePicker.launchImageLibraryAsync({
 				mediaTypes: ["images"],
-				quality: 0.8,
+				quality: AI_IMAGE_PICK_QUALITY,
 				allowsEditing: false,
 				base64: true,
 			});
@@ -120,7 +136,7 @@ export function useChatbotController() {
 			}
 
 			const result = await ImagePicker.launchCameraAsync({
-				quality: 0.8,
+				quality: AI_IMAGE_PICK_QUALITY,
 				allowsEditing: false,
 				base64: true,
 			});
@@ -276,6 +292,16 @@ export function useChatbotController() {
 		const audioBase64 = recordedAudio?.base64 ?? undefined;
 		const userText = promptText || (hasAudio ? "Voice message" : "");
 
+		if (
+			promptImage?.base64 &&
+			promptImage.base64.length > MAX_AGENT_IMAGE_BASE64_LENGTH
+		) {
+			setError(
+				"Selected image is too large for the AI agent. Choose a smaller image or use Recommend mode.",
+			);
+			return;
+		}
+
 		setChatEntries((entries) => [
 			...entries,
 			{
@@ -343,7 +369,18 @@ export function useChatbotController() {
 				hasAssistantMessage: !!nextAssistantMessage,
 			});
 		} catch (err: unknown) {
-			logger.error("ai.chat", "agent_order_request_failed", err);
+			if (axios.isAxiosError(err)) {
+				logger.error("ai.chat", "agent_order_request_failed", {
+					message: err.message,
+					code: err.code,
+					status: err.response?.status,
+					method: err.config?.method,
+					url: err.config?.url,
+					data: err.response?.data,
+				});
+			} else {
+				logger.error("ai.chat", "agent_order_request_failed", err);
+			}
 			setError(getErrorMessage(err));
 		} finally {
 			setActiveFlow(null);

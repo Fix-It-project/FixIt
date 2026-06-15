@@ -82,50 +82,63 @@ Be prepared to catch these and show UI alerts:
 
 ---
 
-## 🤖 Flow 2: ZeroClaw Orchestrator (Stateful Agent)
+## 🤖 Flow 2: Concierge Agent (Stateful Conversational UI)
 
-When the user chooses "Let the AI handle the booking", you are interacting with a stateful conversational agent. The API mimics standard chat platform standards.
+When the user chooses "Let the AI handle the booking", they interact with a stateful conversational agent. The AI will chat with the user until it understands their problem and location, and then it will automatically recommend technicians and return the booking cards.
 
-**Endpoint:** `POST {ZEROCLAW_URL}:3000/webhook`  
-*(Note: Expose port 3000 via ngrok for physical devices)*
+**Endpoint:** `POST {AI_FALLBACK_URL}:3001/api/ai/agent`  
+*(Note: Expose port 3001 via ngrok for physical devices)*
 
-### The Simple Webhook Approach
-For the easiest integration (especially if you just dump all user input in one shot):
+### Request Payload (`application/json`)
+This endpoint accepts **EXACTLY the same keys as Flow 1**, with the addition of a `session_id` to maintain chat history.
 
-#### Request Payload (`application/json`)
 ```json
 {
-  "message": "My air conditioner is blowing warm air! \n\n[User Location: lat=30.06, lon=31.32]\n[User ID: 12]",
-  "audioBuffer": "base64_encoded_audio_optional" 
+  "text": "My air conditioner is blowing warm air!", // Or "message"
+  "audio": "base64_encoded_audio_optional",
+  "image": "base64_encoded_image_optional",
+  "latitude": 30.06,
+  "longitude": 31.32,
+  "userId": 123,
+  "session_id": "user_123_session_1"
 }
 ```
-*Note: Because this is a simple webhook, you'll need to manually encode the GPS coordinates into the text string as shown above before sending, but any audio provided will automatically be intercepted and transcribed!*
+*Note: Any base64 audio provided will be automatically transcribed by the Whisper AI and fed into the conversation context!*
 
-#### Response Payload
+### Response Payload
+The response structure is **EXACTLY the same as Flow 1**, with the single addition of a `data.message` field containing the AI's natural language chat response.
+
 ```json
 {
-  "response": "Got it! I've diagnosed an AC compressor issue. I've found Ahmed, who is 2.1km away. Here is your service order summary...",
-  "service_order": { ... } // Same JSON structure as Flow 1
-}
-```
-
-### The OpenAI-Compatible Approach (For Multimodal & Chat UI)
-If you are building a ChatGPT-style conversational UI within the app:
-
-**Endpoint:** `POST {ZEROCLAW_URL}:3000/v1/chat/completions`
-
-#### Request Payload
-```json
-{
-  "model": "gemma3:4b",
-  "messages": [
-    {
-      "role": "user",
-      "content": "What's wrong with this ceiling fan?"
+  "success": true,
+  "data": {
+    "message": "Got it! I've diagnosed an AC compressor issue. I've found Ahmed, who is 2.1km away. Here are the top technicians for you:",
+    "service_order": {
+      "diagnosed_category": "air condition",
+      "problem_summary": "AC compressor blowing warm air.",
+      "severity_estimate": "medium",
+      "assigned_technician": {
+        "id": 14,
+        "name": "Ahmed",
+        "category": "air condition",
+        "distance_km": 2.1,
+        "match_score": 0.98,
+        "trust_score": 0.88,
+        "hourly_rate_egp": 400
+      },
+      "all_recommendations": [ ... ], // Your standard technician cards!
+      "estimated_cost_range_egp": "300 - 800",
+      "user_id": 123,
+      "engine_used": "hybrid"
     }
-  ]
+  },
+  "meta": {
+    "engine": "ollama-agent",
+    "iterations": 2
+  }
 }
 ```
+*UI Logic Tip: Render the chat bubble using `data.message`. If `data.service_order` is not null, render the technician cards using `data.service_order.all_recommendations`!*
 
 ---
 
@@ -216,14 +229,24 @@ If you prefer to run services individually (e.g., for debugging), follow this st
 
 ---
 
-## 🌐 Local Network Tunnels (ngrok)
+## 🌐 Working Remotely (ngrok)
 
-If testing the mobile app on a physical device, `localhost` will not resolve to your laptop.
+Because Docker Compose wires all your internal services together on a private virtual network (`fixit-net`), the software team **does not** need direct access to Ollama (port 11434) or the Python Recommendation API (port 8000). They only need access to the "front doors".
 
-Tunnel the orchestrators to public URLs using ngrok:
-* `ngrok http 3000` → ZeroClaw Gateway (Flow 2)
-* `ngrok http 3001` → Fallback Server (Flow 1)
+If you need to make your local laptop accessible to a software team working remotely (or testing on a physical mobile device), use ngrok to tunnel only the entry points.
 
-*(If working remotely: Request the corresponding `ngrok` URLs from the AI team.)*
+### How it works:
+1. You run `docker compose up` on your laptop (which boots all 4 services).
+2. In a separate terminal, you open a public tunnel to the specific flow the software team is building.
+
+**Testing Flow 1 (The AI Diagnoser):**
+Run: `ngrok http 3001`
+*Ngrok gives you a public URL (e.g., `https://abc-123.ngrok-free.app`). The mobile app sends payloads to `https://abc-123.ngrok-free.app/api/ai/diagnose`. Docker routes it to the Node Fallback, which internally calls Ollama and Python over the private `fixit-net`.*
+
+**Testing Flow 2 (The ZeroClaw Orchestrator):**
+Run: `ngrok http 3000`
+*Ngrok gives you a public URL. The mobile app sends payloads to `https://xyz-987.ngrok-free.app/webhook`. Docker routes it to ZeroClaw, which internally chats with Gemma and the Python API over the private `fixit-net`.*
+
+*(You can run both ngrok commands in separate terminals if the team needs to test both flows simultaneously).*
 
 Happy building! 🛠️

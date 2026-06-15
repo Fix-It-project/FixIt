@@ -8,11 +8,10 @@ import {
 } from "./schemas/response.schema";
 import type { AgentOrderRequest, DiagnoseRequest } from "./types";
 
-const FLOW_1_BASE_URL = process.env.EXPO_PUBLIC_AI_DIAGNOSE_BASE_URL;
-const FLOW_2_BASE_URL = process.env.EXPO_PUBLIC_AI_AGENT_BASE_URL;
+const AI_BASE_URL = process.env.EXPO_PUBLIC_AI_BASE_URL;
 
 const diagnoseClient = axios.create({
-	baseURL: FLOW_1_BASE_URL,
+	baseURL: AI_BASE_URL,
 	timeout: 100000,
 	headers: {
 		"Content-Type": "application/json",
@@ -21,7 +20,7 @@ const diagnoseClient = axios.create({
 });
 
 const agentClient = axios.create({
-	baseURL: FLOW_2_BASE_URL,
+	baseURL: AI_BASE_URL,
 	timeout: 100000,
 	headers: {
 		"Content-Type": "application/json",
@@ -45,6 +44,7 @@ type RawAiResponse = {
 		service_order?: unknown;
 		raw_response?: unknown;
 		assistant_message?: unknown;
+		message?: unknown;
 	};
 	service_order?: unknown;
 	serviceOrder?: unknown;
@@ -127,6 +127,7 @@ export async function diagnoseIssue(
 		raw?.data?.service_order ?? raw?.service_order ?? raw?.serviceOrder;
 	const assistantMessage = optionalString(
 		raw?.data?.assistant_message ??
+			raw?.data?.message ??
 			raw?.data?.raw_response ??
 			raw?.assistant_message ??
 			raw?.message,
@@ -148,7 +149,7 @@ export async function placeOrderWithAgent(
 	payload: AgentOrderRequest,
 ): Promise<DiagnoseResponse> {
 	const { session_id, ...body } = payload;
-	const { data } = await agentClient.post("/webhook", body, {
+	const { data } = await agentClient.post("/api/ai/agent", body, {
 		headers: {
 			"X-Session-Id": session_id,
 		},
@@ -165,6 +166,7 @@ export async function placeOrderWithAgent(
 		embedded.serviceOrder;
 	const assistantMessage = firstVisibleText(
 		raw?.data?.assistant_message,
+		raw?.data?.message,
 		raw?.data?.raw_response,
 		embedded.assistant_message,
 		embedded.markdown,
