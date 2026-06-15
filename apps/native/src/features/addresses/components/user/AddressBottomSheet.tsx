@@ -179,7 +179,7 @@ const AddressBottomSheet = forwardRef<
 									onPress={() => handleActivate(item.id)}
 									disabled={setActiveMutation.isPending}
 									onDelete={
-										showDeleteActions && onDeleteAddress
+										showDeleteActions && onDeleteAddress && addresses.length > 1
 											? () => onDeleteAddress(item.id)
 											: undefined
 									}

@@ -4,6 +4,7 @@ import arCategories from "./locales/ar/categories.json";
 import arChat from "./locales/ar/chat.json";
 import arCommon from "./locales/ar/common.json";
 import arHome from "./locales/ar/home.json";
+import arLocation from "./locales/ar/location.json";
 import arNotifications from "./locales/ar/notifications.json";
 import arOrders from "./locales/ar/orders.json";
 import arProfile from "./locales/ar/profile.json";
@@ -16,6 +17,7 @@ import enCategories from "./locales/en/categories.json";
 import enChat from "./locales/en/chat.json";
 import enCommon from "./locales/en/common.json";
 import enHome from "./locales/en/home.json";
+import enLocation from "./locales/en/location.json";
 import enNotifications from "./locales/en/notifications.json";
 import enOrders from "./locales/en/orders.json";
 import enProfile from "./locales/en/profile.json";
@@ -47,6 +49,7 @@ export const namespaces = [
 	"reviews",
 	"chat",
 	"addresses",
+	"location",
 ] as const;
 
 export const resources = {
@@ -63,6 +66,7 @@ export const resources = {
 		reviews: enReviews,
 		chat: enChat,
 		addresses: enAddresses,
+		location: enLocation,
 	},
 	ar: {
 		common: arCommon,
@@ -77,6 +81,7 @@ export const resources = {
 		reviews: arReviews,
 		chat: arChat,
 		addresses: arAddresses,
+		location: arLocation,
 	},
 } as const;
 

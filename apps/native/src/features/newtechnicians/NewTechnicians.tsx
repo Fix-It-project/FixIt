@@ -1,8 +1,21 @@
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { router, useLocalSearchParams } from "expo-router";
+import { Search, X } from "lucide-react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+	FlatList,
+	type NativeScrollEvent,
+	type NativeSyntheticEvent,
+	View,
+} from "react-native";
+import Toast from "react-native-toast-message";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { LoadingSpinner } from "@/src/components/ui/loading-spinner";
@@ -12,7 +25,6 @@ import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQu
 import { getInspectionFeePreview } from "@/src/features/booking-orders/api/orders";
 import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys";
 import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import { getCategorySlug } from "@/src/features/categories/constants/categories";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
 import { useTechniciansInfiniteQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
@@ -25,13 +37,6 @@ import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { Search, X } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { FlatList, View } from "react-native";
-import Toast from "react-native-toast-message";
 import { SortBar } from "./components/SortBar";
 import { TechnicianCard } from "./components/TechnicianCard";
 import { TechnicianListSkeleton } from "./components/TechnicianCardSkeleton";
@@ -65,9 +70,9 @@ function EmptyState({
 			>
 				{isError
 					? t("list.empty.errorBody")
-					: (hasSearch
+					: hasSearch
 						? t("list.empty.searchBody")
-						: t("list.empty.categoryBody"))}
+						: t("list.empty.categoryBody")}
 			</Text>
 			{isError ? (
 				<Button
@@ -110,11 +115,11 @@ export default function NewTechnicians() {
 			addresses?.find(
 				(address) =>
 					address.is_active &&
-					address.latitude != undefined &&
-					address.longitude != undefined,
+					address.latitude != null &&
+					address.longitude != null,
 			) ??
 			addresses?.find(
-				(address) => address.latitude != undefined && address.longitude != undefined,
+				(address) => address.latitude != null && address.longitude != null,
 			) ??
 			null
 		);
@@ -248,7 +253,7 @@ export default function NewTechnicians() {
 				categoryId,
 				categoryName,
 				distanceKm:
-					item.distance_km == undefined ? undefined : item.distance_km.toFixed(1),
+					item.distance_km == null ? undefined : item.distance_km.toFixed(1),
 			},
 		});
 	}, 600);
@@ -294,7 +299,7 @@ export default function NewTechnicians() {
 					return [technician.id, "Calculating fee..."] as const;
 				}
 				if (query.isError) {
-					return [technician.id, translateOrderError(query.error)] as const;
+					return [technician.id, t("card.inspectionFeeUnavailable")] as const;
 				}
 				if (!query.data) {
 					return [technician.id, "Calculated from distance"] as const;
@@ -305,7 +310,7 @@ export default function NewTechnicians() {
 				] as const;
 			}),
 		);
-	}, [activePricingAddress?.id, displayedTechnicians, inspectionFeeQueries]);
+	}, [activePricingAddress?.id, displayedTechnicians, inspectionFeeQueries, t]);
 
 	const renderItem = useCallback(
 		({ item, index }: { item: TechnicianListItem; index: number }) => (
@@ -336,16 +341,31 @@ export default function NewTechnicians() {
 		if (!isFetchingNextPage) return null;
 		return <LoadingSpinner className="py-stack-lg" size="small" />;
 	}, [isFetchingNextPage]);
+	const loadNextPage = useCallback(() => {
+		if (!hasNextPage || isFetching || isFetchingNextPage) return;
+		void fetchNextPage();
+	}, [fetchNextPage, hasNextPage, isFetching, isFetchingNextPage]);
+	const handleListScroll = useCallback(
+		(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+			const { contentOffset, contentSize, layoutMeasurement } =
+				event.nativeEvent;
+			const distanceFromBottom =
+				contentSize.height - (contentOffset.y + layoutMeasurement.height);
+			if (distanceFromBottom <= 160) {
+				loadNextPage();
+			}
+		},
+		[loadNextPage],
+	);
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
+			<ScreenStatusBar variant="blue" />
 			<View className="flex-1 bg-background">
 				<PageHeader
 					title={headerTitle}
 					subtitle={
-						showSkeleton
-							? t("list.updatingResults")
-							: `${count} ${countLabel}`
+						showSkeleton ? t("list.updatingResults") : `${count} ${countLabel}`
 					}
 					variant="app-primary"
 					onBackPress={goBack}
@@ -390,7 +410,7 @@ export default function NewTechnicians() {
 
 				{showSkeleton ? (
 					<TechnicianListSkeleton />
-				) : (displayedTechnicians.length === 0 ? (
+				) : displayedTechnicians.length === 0 ? (
 					<EmptyState
 						isError={isError}
 						hasSearch={hasSearch}
@@ -404,12 +424,10 @@ export default function NewTechnicians() {
 						keyExtractor={keyExtractor}
 						renderItem={renderItem}
 						ListFooterComponent={listFooter}
-						onEndReached={() => {
-							if (hasNextPage && !isFetchingNextPage) {
-								void fetchNextPage();
-							}
-						}}
+						onEndReached={loadNextPage}
 						onEndReachedThreshold={0.4}
+						onScroll={handleListScroll}
+						scrollEventThrottle={120}
 						contentContainerStyle={{
 							paddingTop: spacing.stack.xs,
 							paddingBottom: spacing.screen.scrollBottomInset,
@@ -420,7 +438,7 @@ export default function NewTechnicians() {
 						windowSize={9}
 						removeClippedSubviews
 					/>
-				))}
+				)}
 			</View>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />

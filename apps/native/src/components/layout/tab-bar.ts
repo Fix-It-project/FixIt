@@ -41,6 +41,9 @@ export function useBottomTabMetrics(): BottomTabMetrics {
 }
 
 export const NARROW_TAB_BAR_WIDTH = 360;
+// Below this viewport height (e.g. vertical split-screen) labels are hidden too, so
+// they never reflow beside the icons on a short bar.
+export const NARROW_TAB_BAR_HEIGHT = 480;
 
 export function getBaseTabScreenOptions(
 	themeColors: ThemePalette,
@@ -55,6 +58,9 @@ export function getBaseTabScreenOptions(
 		tabBarActiveTintColor: themeColors.primary,
 		tabBarInactiveTintColor: themeColors.textPrimary,
 		tabBarShowLabel: showLabels,
+		// Force labels under the icon — never beside it (RN defaults to beside-icon on
+		// short/wide bars, which is what mangled the layout in split-screen).
+		tabBarLabelPosition: "below-icon",
 		tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
 		tabBarStyle: {
 			backgroundColor: themeColors.surfaceBase,

@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
@@ -14,7 +15,6 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -59,6 +59,8 @@ export default function ArrivedInspectingBody({ order }: Props) {
 						name: booking.user_name ?? "Customer",
 						phone: booking.user_phone ?? null,
 						address: booking.user_address ?? null,
+						latitude: booking.user_latitude ?? null,
+						longitude: booking.user_longitude ?? null,
 						problem: order.problem_description ?? null,
 					})
 				}

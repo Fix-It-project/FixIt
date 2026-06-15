@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
 	ChevronDown,
@@ -16,6 +15,7 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
+import FixItWordmark from "@/src/assets/images/fixittext.svg";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import {
 	Accordion,
@@ -35,10 +35,12 @@ import {
 } from "@/src/constants/design-tokens";
 import type { Language } from "@/src/constants/i18n";
 import { ROUTES } from "@/src/lib/navigation/routes";
+import { confirm } from "@/src/stores/dialog-store";
 import { useLanguageStore } from "@/src/stores/language-store";
 
-const fixitTextLogo = require("@/src/assets/images/fixittext.png");
 const CHEVRON_ROTATE_MS = 160;
+// Crop the 1536x1024 wordmark artboard to its text band so the header frames it tightly.
+const WORDMARK_VIEWBOX = "360 405 800 220";
 
 interface HomeHeaderProps {
 	readonly address?: string;
@@ -57,6 +59,7 @@ export function HomeHeader({
 }: HomeHeaderProps) {
 	const t = useThemeColors();
 	const { t: tr } = useTranslation("home");
+	const { t: ts } = useTranslation("settings");
 	const router = useRouter();
 	const { width } = useWindowDimensions();
 	const language = useLanguageStore((state) => state.language);
@@ -101,6 +104,18 @@ export function HomeHeader({
 		onAddAddressPress();
 	}
 
+	// Switching language flips text direction (LTR<->RTL) and reloads the app.
+	async function handleLanguageToggle() {
+		const confirmed = await confirm({
+			title: ts("language.restartTitle"),
+			description: ts("language.restartMessage"),
+			primary: { label: ts("language.restartConfirm") },
+			secondary: { label: ts("language.cancel") },
+		});
+		if (!confirmed) return;
+		void setLanguage(nextLanguage);
+	}
+
 	return (
 		<View
 			style={{
@@ -116,17 +131,19 @@ export function HomeHeader({
 					paddingTop: spacing.stack.md,
 				}}
 			>
-				<Image
-					source={fixitTextLogo}
+				<View
 					style={{
-						width: 138,
-						height: 38,
-						marginLeft: isRTL ? 0 : -28,
-						marginRight: isRTL ? -28 : 0,
+						marginLeft: isRTL ? 0 : -6,
+						marginRight: isRTL ? -6 : 0,
 					}}
-					contentFit="cover"
-					accessibilityLabel="FixIt"
-				/>
+				>
+					<FixItWordmark
+						width={86}
+						height={24}
+						viewBox={WORDMARK_VIEWBOX}
+						accessibilityLabel="FixIt"
+					/>
+				</View>
 
 				<View
 					style={{
@@ -138,7 +155,7 @@ export function HomeHeader({
 					<PressableScale
 						pressedScale={0.94}
 						onPress={() => {
-							void setLanguage(nextLanguage);
+							void handleLanguageToggle();
 						}}
 						style={{
 							minWidth: 48,

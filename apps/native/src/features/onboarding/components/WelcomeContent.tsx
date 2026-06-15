@@ -23,6 +23,7 @@ export function WelcomeContent({
 }: WelcomeContentProps) {
 	const insets = useSafeAreaInsets();
 	const reducedMotion = useReducedMotion();
+	const bottomInset = Math.min(insets.bottom, space[8]);
 
 	const enterDelay = (index: number): number =>
 		reducedMotion ? 0 : index * STAGGER_GAP;
@@ -36,7 +37,8 @@ export function WelcomeContent({
 			style={{
 				flex: 1,
 				paddingHorizontal: space[6],
-				paddingBottom: insets.bottom + space[4],
+				paddingTop: space[8],
+				paddingBottom: bottomInset + space[2],
 				justifyContent: "flex-end",
 			}}
 		>

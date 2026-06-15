@@ -51,8 +51,14 @@
 		"loading": "جارٍ تحميل العناوين...",
 		"loadErrorTitle": "تعذّر تحميل العناوين",
 		"loadErrorMessage": "يرجى المحاولة مرة أخرى لاحقاً.",
-		"deleteUnavailableTitle": "حذف العنوان",
-		"deleteUnavailableMessage": "حذف العنوان غير متاح حالياً. الزر جاهز لربطه بنقطة النهاية القادمة."
+		"deleteConfirmTitle": "حذف العنوان؟",
+		"deleteConfirmMessage": "سيتم حذف هذا العنوان نهائياً.",
+		"deleteConfirm": "حذف",
+		"cancel": "إلغاء",
+		"deleteErrorTitle": "تعذّر حذف العنوان",
+		"deleteLastError": "يجب الاحتفاظ بعنوان واحد على الأقل.",
+		"deleteError": "حدث خطأ ما. حاول مرة أخرى.",
+		"ok": "حسناً"
 	},
 	"offers": {
 		"cleaning": {
@@ -75,9 +81,11 @@
 		}
 	},
 	"steps": {
-		"booked": "تم الحجز",
-		"assigned": "تم التعيين",
-		"enRoute": "في الطريق",
-		"arrived": "وصل"
+		"preparing": "قيد التحضير",
+		"onTheWay": "في الطريق",
+		"inspection": "المعاينة",
+		"negotiation": "التفاوض",
+		"fixing": "الإصلاح",
+		"awaitingPayment": "بانتظار الدفع"
 	}
 }

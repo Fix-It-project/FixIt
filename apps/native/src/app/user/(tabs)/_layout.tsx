@@ -1,17 +1,20 @@
 import { router, Tabs, usePathname } from "expo-router";
 import {
 	Bell,
-	ClipboardList,
-	House,
 	type LucideProps,
 	MessageCircle,
 	User,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Platform, useWindowDimensions, View } from "react-native";
+import {
+	ClipboardListTabIcon,
+	HouseTabIcon,
+} from "@/src/components/icons/FilledTabIcons";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
 	getBaseTabScreenOptions,
+	NARROW_TAB_BAR_HEIGHT,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/components/layout/tab-bar";
@@ -35,26 +38,39 @@ interface ChatFabProps {
 	readonly accessibilityLabel: string;
 }
 
-function HomeTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <House size={size} color={color} strokeWidth={1.8} />;
-}
-
-function OrdersTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <ClipboardList size={size} color={color} strokeWidth={1.8} />;
-}
-
-function ProfileTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <User size={size} color={color} strokeWidth={1.8} />;
+// Active tab icons fill with the active tint (blue); inactive stay outlined.
+// Home + Orders use custom split-path glyphs so the interior detail (house door,
+// list rows + dots) cuts out to the tab-bar background (surfaceBase) when focused
+// — see the inline tabBarIcon renders below, which supply detailColor.
+function ProfileTabIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideProps & { focused?: boolean }>) {
+	return (
+		<User
+			size={size}
+			color={color}
+			strokeWidth={1.8}
+			fill={focused ? color : "transparent"}
+		/>
+	);
 }
 
 function NotificationTabIcon({
 	color,
 	size,
+	focused,
 	hasUnread,
-}: Readonly<LucideProps & { hasUnread: boolean }>) {
+}: Readonly<LucideProps & { focused?: boolean; hasUnread: boolean }>) {
 	return (
 		<View>
-			<Bell size={size} color={color} strokeWidth={1.8} />
+			<Bell
+				size={size}
+				color={color}
+				strokeWidth={1.8}
+				fill={focused ? color : "transparent"}
+			/>
 			{hasUnread ? (
 				<View
 					className="absolute -top-1 -right-1 h-status-dot-sm w-status-dot-sm rounded-pill"
@@ -99,13 +115,14 @@ export default function UserTabsLayout() {
 	const { t } = useTranslation("common");
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
-	const { width } = useWindowDimensions();
+	const { width, height } = useWindowDimensions();
 	const pathname = usePathname();
 	const goToChatbot = useDebounce(() => router.push(ROUTES.user.chat));
 	const { data: unreadCount } = useNotificationUnreadCountQuery("user");
 	const hasUnread = (unreadCount ?? 0) > 0;
 	const screenOptions = getBaseTabScreenOptions(themeColors, metrics, {
-		showLabels: width >= NARROW_TAB_BAR_WIDTH,
+		showLabels:
+			width >= NARROW_TAB_BAR_WIDTH && height >= NARROW_TAB_BAR_HEIGHT,
 	});
 	const topSafeAreaBackground =
 		pathname === ROUTES.user.home
@@ -124,17 +141,25 @@ export default function UserTabsLayout() {
 						name="index"
 						options={{
 							title: t("tabs.home"),
-							tabBarIcon: HomeTabIcon,
+							tabBarIcon: ({ color, size, focused }) => (
+								<HouseTabIcon
+									color={color}
+									size={size}
+									focused={focused}
+									detailColor={themeColors.surfaceBase}
+								/>
+							),
 						}}
 					/>
 					<Tabs.Screen
 						name="notifications/index"
 						options={{
 							title: t("tabs.notifications"),
-							tabBarIcon: ({ color, size }) => (
+							tabBarIcon: ({ color, size, focused }) => (
 								<NotificationTabIcon
 									color={color}
 									size={size}
+									focused={focused}
 									hasUnread={hasUnread}
 								/>
 							),
@@ -144,7 +169,14 @@ export default function UserTabsLayout() {
 						name="orders/index"
 						options={{
 							title: t("tabs.orders"),
-							tabBarIcon: OrdersTabIcon,
+							tabBarIcon: ({ color, size, focused }) => (
+								<ClipboardListTabIcon
+									color={color}
+									size={size}
+									focused={focused}
+									detailColor={themeColors.surfaceBase}
+								/>
+							),
 						}}
 					/>
 					<Tabs.Screen

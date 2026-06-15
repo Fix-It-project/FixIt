@@ -10,7 +10,7 @@ export const radius = {
 	card: 16,
 	hero: 24,
 	input: 12,
-	button: 12,
+	button: 10,
 	sheet: 20,
 	chip: 9999,
 	pill: 9999,

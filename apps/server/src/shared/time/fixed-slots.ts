@@ -36,9 +36,7 @@ function cairoDate(instant: Date): string {
 function cairoHourMinute(instant: Date): { hour: number; minute: number } {
 	const parts = CAIRO_TIME_FMT.formatToParts(instant);
 	const hour = Number(parts.find((p) => p.type === "hour")?.value ?? "NaN");
-	const minute = Number(
-		parts.find((p) => p.type === "minute")?.value ?? "NaN",
-	);
+	const minute = Number(parts.find((p) => p.type === "minute")?.value ?? "NaN");
 	return { hour, minute };
 }
 

@@ -7,6 +7,7 @@ const { createChain, mockFrom } = vi.hoisted(() => {
     insert: Mock;
     select: Mock;
     eq: Mock;
+    is: Mock;
     update: Mock;
     delete: Mock;
     order: Mock;
@@ -19,6 +20,7 @@ const { createChain, mockFrom } = vi.hoisted(() => {
     chain.insert = vi.fn(() => chain);
     chain.select = vi.fn(() => chain);
     chain.eq = vi.fn(() => chain);
+    chain.is = vi.fn(() => chain);
     chain.update = vi.fn(() => chain);
     chain.delete = vi.fn(() => chain);
     chain.order = vi.fn(() => chain);
@@ -288,15 +290,33 @@ describe('AddressesRepository', () => {
   // ─── deleteAddress ────────────────────────────────────────────────────
 
   describe('deleteAddress', () => {
-    it('should delete address after ownership check', async () => {
+    it('should soft-delete address after ownership check', async () => {
       const { checkChain, writeChain } = useDoubleChain();
-      checkChain.maybeSingle.mockResolvedValue({ data: { id: 'addr-1' }, error: null });
+      checkChain.maybeSingle.mockResolvedValue({ data: { id: 'addr-1', is_active: false }, error: null });
       writeChain.eq.mockResolvedValue({ error: null });
 
       await repo.deleteAddress('addr-1', 'u-1', 'user');
 
       expect(checkChain.eq).toHaveBeenCalledWith('user_id', 'u-1');
-      expect(writeChain.delete).toHaveBeenCalled();
+      expect(writeChain.update).toHaveBeenCalledWith(
+        expect.objectContaining({ deleted_at: expect.any(String), is_active: false }),
+      );
+      expect(writeChain.delete).not.toHaveBeenCalled();
+    });
+
+    it('should reject deleting the active address', async () => {
+      const { checkChain, writeChain } = useDoubleChain();
+      checkChain.maybeSingle.mockResolvedValue({ data: { id: 'addr-1', is_active: true }, error: null });
+
+      await expect(repo.deleteAddress('addr-1', 'u-1', 'user'))
+        .rejects.toMatchObject({
+          code: 'CONFLICT',
+          status: 409,
+          message: 'Switch to another saved address before deleting this one.',
+        });
+
+      expect(writeChain.update).not.toHaveBeenCalled();
+      expect(writeChain.delete).not.toHaveBeenCalled();
     });
 
     it('should throw when ownership check fails', async () => {

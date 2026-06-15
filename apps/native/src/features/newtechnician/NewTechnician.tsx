@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -201,6 +202,7 @@ export default function NewTechnician() {
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
+			<ScreenStatusBar variant="blue" />
 			<View className="flex-1 bg-surface">
 				<PageHeader
 					title={t("detail.title")}

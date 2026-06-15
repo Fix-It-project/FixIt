@@ -5,6 +5,7 @@ import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	CustomerInfoSheet,
@@ -30,7 +31,6 @@ import {
 	translateOrderError,
 } from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
-import { space, useThemeColors } from "@/src/constants/design-tokens";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 interface Props {
@@ -59,6 +59,8 @@ export default function AcceptedBody({ order }: Props) {
 						name: booking.user_name ?? "Customer",
 						phone: booking.user_phone ?? null,
 						address: booking.user_address ?? null,
+						latitude: booking.user_latitude ?? null,
+						longitude: booking.user_longitude ?? null,
 						problem: order.problem_description ?? null,
 					})
 				}

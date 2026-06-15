@@ -1,47 +1,66 @@
 import { Tabs, usePathname } from "expo-router";
-import {
-	Bell,
-	CalendarDays,
-	House,
-	type LucideProps,
-	User,
-	Wallet,
-} from "lucide-react-native";
+import { Bell, type LucideProps, User, Wallet } from "lucide-react-native";
 import { View } from "react-native";
+import {
+	CalendarDaysTabIcon,
+	HouseTabIcon,
+} from "@/src/components/icons/FilledTabIcons";
 import { ProtectedTabsLayout } from "@/src/components/navigation/ProtectedTabsLayout";
-import { Colors } from "@/src/constants/design-tokens";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
 import { ROUTES } from "@/src/lib/navigation";
-import { useThemeColors } from "@/src/constants/design-tokens";
 
-type NotificationTabIconProps = LucideProps & { hasUnread: boolean };
+type LucideTabIconProps = LucideProps & { focused?: boolean };
+type NotificationTabIconProps = LucideTabIconProps & { hasUnread: boolean };
 
-function TechHomeTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <House size={size} color={color} strokeWidth={1.8} />;
+// Active tab icons fill with the active tint (blue); inactive stay outlined.
+// Home + Schedule use custom split-path glyphs so the interior detail (house door,
+// calendar day dots) cuts out to the tab-bar background (surfaceBase) when focused
+// — see the inline tabBarIcon renders below, which supply detailColor.
+function TechWalletTabIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideTabIconProps>) {
+	return (
+		<Wallet
+			size={size}
+			color={color}
+			strokeWidth={1.8}
+			fill={focused ? color : "transparent"}
+		/>
+	);
 }
 
-function TechScheduleTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <CalendarDays size={size} color={color} strokeWidth={1.8} />;
-}
-
-function TechWalletTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <Wallet size={size} color={color} strokeWidth={1.8} />;
-}
-
-function TechProfileTabIcon({ color, size }: Readonly<LucideProps>) {
-	return <User size={size} color={color} strokeWidth={1.8} />;
+function TechProfileTabIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideTabIconProps>) {
+	return (
+		<User
+			size={size}
+			color={color}
+			strokeWidth={1.8}
+			fill={focused ? color : "transparent"}
+		/>
+	);
 }
 
 function TechNotificationTabIcon({
 	color,
 	size,
+	focused,
 	hasUnread,
 }: Readonly<NotificationTabIconProps>) {
 	return (
-		<View
-			className="items-center justify-center"
-		>
-			<Bell size={size} color={color} strokeWidth={1.8} />
+		<View className="items-center justify-center">
+			<Bell
+				size={size}
+				color={color}
+				strokeWidth={1.8}
+				fill={focused ? color : "transparent"}
+			/>
 			{hasUnread ? (
 				<View
 					className="absolute -top-1 -right-1 h-status-dot-sm w-status-dot-sm rounded-pill"
@@ -74,24 +93,39 @@ export default function TechAppTabsLayout() {
 				name="index"
 				options={{
 					title: "Home",
-					tabBarIcon: TechHomeTabIcon,
+					tabBarIcon: ({ color, size, focused }) => (
+						<HouseTabIcon
+							color={color}
+							size={size}
+							focused={focused}
+							detailColor={themeColors.surfaceBase}
+						/>
+					),
 				}}
 			/>
 			<Tabs.Screen
 				name="schedule/index"
 				options={{
 					title: "Schedule",
-					tabBarIcon: TechScheduleTabIcon,
+					tabBarIcon: ({ color, size, focused }) => (
+						<CalendarDaysTabIcon
+							color={color}
+							size={size}
+							focused={focused}
+							detailColor={themeColors.surfaceBase}
+						/>
+					),
 				}}
 			/>
 			<Tabs.Screen
 				name="notifications/index"
 				options={{
 					title: "Notifications",
-					tabBarIcon: ({ color, size }) => (
+					tabBarIcon: ({ color, size, focused }) => (
 						<TechNotificationTabIcon
 							color={color}
 							size={size}
+							focused={focused}
 							hasUnread={hasUnread}
 						/>
 					),

@@ -1,0 +1,13 @@
+{
+	"gate": {
+		"title": "Turn on location",
+		"body": "FixIt uses your location to connect you with nearby technicians. The app can't be used until location is enabled.",
+		"cta": {
+			"request": "Enable location",
+			"openSettings": "Open settings",
+			"enableServices": "Turn on location"
+		},
+		"deniedHint": "Location permission is off. Turn it on in Settings to continue.",
+		"servicesHint": "Your device's location is turned off. Turn it on to continue."
+	}
+}

@@ -1,12 +1,13 @@
-import { RefreshControl, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { Text } from "@/src/components/ui/text";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useBookingsDateStore } from "@/src/features/booking-orders/stores/bookings-date-store";
 import {
 	formatDateLabel,
 	formatHeading,
 	toIso,
 } from "@/src/features/booking-orders/utils/date-helpers";
-import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useVisibleTechnicianBookings } from "../../hooks/useTechnicianBookingsQuery";
 import BookingCard from "./BookingCard";
 import BookingsEmptyState from "./BookingsEmptyState";
@@ -27,14 +28,11 @@ export default function BookingListContent() {
 		<ScrollView
 			className="flex-1"
 			showsVerticalScrollIndicator={false}
-			contentContainerStyle={{ paddingBottom: spacing.screen.scrollBottomInset }}
+			contentContainerStyle={{
+				paddingBottom: spacing.screen.scrollBottomInset,
+			}}
 			refreshControl={
-				<RefreshControl
-					refreshing={isRefetching}
-					onRefresh={refetch}
-					colors={[themeColors.primary]}
-					tintColor={themeColors.primary}
-				/>
+				<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />
 			}
 		>
 			{/* Date heading */}

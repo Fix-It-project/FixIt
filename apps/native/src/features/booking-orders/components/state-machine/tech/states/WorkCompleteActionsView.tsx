@@ -2,15 +2,16 @@ import { Ban, CheckCircle2, Hammer } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
-import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
 import { Button } from "@/src/components/ui/button";
+import { space } from "@/src/constants/design-tokens";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	CustomerInfoSheet,
 	type CustomerInfoSheetHandle,
 	OrderInfoCompact,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
-import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
+import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
 import {
 	useTechCancel,
 	useTechConfirmCompletion,
@@ -20,7 +21,6 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { space } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -66,6 +66,8 @@ export default function WorkCompleteBody({ order }: Props) {
 						name: booking.user_name ?? "Customer",
 						phone: booking.user_phone ?? null,
 						address: booking.user_address ?? null,
+						latitude: booking.user_latitude ?? null,
+						longitude: booking.user_longitude ?? null,
 						problem: order.problem_description ?? null,
 					})
 				}

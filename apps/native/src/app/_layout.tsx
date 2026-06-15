@@ -1,4 +1,5 @@
 import "../../global.css";
+import "@/src/config/reanimated";
 import "@/src/config/intl-polyfills";
 import "@/src/config/monitoring";
 import "@/src/config/i18n";
@@ -7,19 +8,24 @@ import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useNavigationContainerRef } from "expo-router";
+import { Stack, useNavigationContainerRef, usePathname } from "expo-router";
 import { ThemeProvider } from "expo-router/react-navigation";
-import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { vars } from "react-native-css-interop";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { LaunchSplashOverlay } from "@/src/components/launch/LaunchSplashOverlay";
 import { AppSafeAreaFrame } from "@/src/components/layout/AppSafeAreaFrame";
+import { LocationGate } from "@/src/components/location/LocationGate";
 import { DialogProvider } from "@/src/components/ui/dialog";
 import { CustomToast } from "@/src/components/ui/toast";
+import {
+	configureLaunchSplashScreen,
+	hideLaunchSplashScreen,
+} from "@/src/config/launch-splash";
 import { registerNavigationContainer, Sentry } from "@/src/config/monitoring";
 import queryClient from "@/src/config/query-client";
 import {
@@ -32,9 +38,12 @@ import { useNotificationRouting } from "@/src/features/notifications/hooks/useNo
 import { usePushRegistration } from "@/src/features/notifications/hooks/usePushRegistration";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
+import { useLocationGuard } from "@/src/hooks/useLocationGate";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
+import { ROUTES } from "@/src/lib/navigation";
+import { useLocationStore } from "@/src/stores/location-store";
 
-SplashScreen.preventAutoHideAsync();
+configureLaunchSplashScreen();
 
 const styles = StyleSheet.create({
 	container: { flex: 1 },
@@ -43,10 +52,17 @@ const styles = StyleSheet.create({
 function RootLayout() {
 	const [fontsLoaded] = useFonts(fontAssets);
 	const { isReady } = useAppBootstrap(fontsLoaded);
+	const [showLaunchOverlay, setShowLaunchOverlay] = useState(true);
 	usePushRegistration(isReady);
 	useNotificationRouting(isReady);
 	const tokens = useThemeTokens();
 	const navigationRef = useNavigationContainerRef();
+	const pathname = usePathname();
+	const { shouldGate } = useLocationGuard();
+	const gateArmed = useLocationStore((s) => s.gateArmed);
+	const dismissLaunchOverlay = useCallback(() => {
+		setShowLaunchOverlay(false);
+	}, []);
 
 	useEffect(() => {
 		if (navigationRef?.current) {
@@ -66,7 +82,7 @@ function RootLayout() {
 
 	useEffect(() => {
 		if (isReady) {
-			void SplashScreen.hideAsync();
+			void hideLaunchSplashScreen();
 		}
 	}, [isReady]);
 
@@ -101,6 +117,21 @@ function RootLayout() {
 									</BottomSheetModalProvider>
 								</KeyboardProvider>
 							</AppSafeAreaFrame>
+							{showLaunchOverlay ? (
+								<LaunchSplashOverlay
+									backgroundColor={tokens.primary}
+									onFinish={dismissLaunchOverlay}
+								/>
+							) : null}
+							{/* Mandatory location gate: blocks the whole app until device
+							    location is enabled + granted. Suppressed on welcome until the
+							    user taps Get Started (gateArmed) so we never request at launch
+							    nor mount role-selection underneath the gate. */}
+							{!showLaunchOverlay &&
+							shouldGate &&
+							(gateArmed || pathname !== ROUTES.auth.welcome) ? (
+								<LocationGate />
+							) : null}
 						</View>
 					</ThemeProvider>
 				</GestureHandlerRootView>

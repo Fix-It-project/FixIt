@@ -6,6 +6,9 @@ import Animated, {
 	FadeInDown,
 	useReducedMotion,
 } from "react-native-reanimated";
+import CustomerInfoSheet, {
+	type CustomerActionsSheetHandle as CustomerInfoSheetHandle,
+} from "@/src/components/identity/CustomerActionsSheet";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
@@ -29,9 +32,6 @@ import type {
 import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpers";
 import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import CustomerInfoSheet, {
-	type CustomerInfoSheetHandle,
-} from "./CustomerInfoSheet";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
 
@@ -134,6 +134,8 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				name: booking.user_name ?? t("card.customerFallback"),
 				phone: booking.user_phone ?? null,
 				address: booking.user_address ?? null,
+				latitude: booking.user_latitude ?? null,
+				longitude: booking.user_longitude ?? null,
 				problem: order.problem_description ?? null,
 			});
 		}

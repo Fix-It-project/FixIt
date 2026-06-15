@@ -46,6 +46,8 @@ export const technicianBookingSchema = z.object({
 	user_name: z.string().nullable().optional(),
 	user_phone: z.string().nullable().optional(),
 	user_address: z.string().nullable().optional(),
+	user_latitude: z.number().nullable().optional(),
+	user_longitude: z.number().nullable().optional(),
 	service_name: z.string().nullable().optional(),
 	category_id: z.string().nullable().optional(),
 	has_pending_reschedule: z.boolean().optional(),

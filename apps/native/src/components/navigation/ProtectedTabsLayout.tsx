@@ -4,6 +4,7 @@ import { useWindowDimensions, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
 	getBaseTabScreenOptions,
+	NARROW_TAB_BAR_HEIGHT,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/components/layout/tab-bar";
@@ -31,8 +32,9 @@ export function ProtectedTabsLayout({
 	const userType = useAuthStore((state) => state.userType);
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
-	const { width } = useWindowDimensions();
-	const showLabels = width >= NARROW_TAB_BAR_WIDTH;
+	const { width, height } = useWindowDimensions();
+	const showLabels =
+		width >= NARROW_TAB_BAR_WIDTH && height >= NARROW_TAB_BAR_HEIGHT;
 
 	const screenOptions = useMemo(
 		() => getBaseTabScreenOptions(themeColors, metrics, { showLabels }),

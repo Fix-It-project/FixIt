@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { MapPin, Navigation, X } from "lucide-react-native";
+import { Map as MapIcon, MapPin, Navigation, X } from "lucide-react-native";
 import {
 	forwardRef,
 	useCallback,
@@ -87,6 +87,18 @@ const AddNewAddressSheet = forwardRef<
 		}
 	}, [requestLocationPermission]);
 
+	// Open the map picker FIRST; it forwards to the form (with the chosen
+	// coords) only once a location is confirmed.
+	const handleSetOnMap = useCallback(() => {
+		bottomSheetRef.current?.close();
+		router.push(
+			ROUTES.user.profileAddressPickLocation(
+				undefined,
+				ROUTES.user.profileAddressNew,
+			),
+		);
+	}, []);
+
 	return (
 		<BottomSheet
 			ref={bottomSheetRef}
@@ -127,17 +139,29 @@ const AddNewAddressSheet = forwardRef<
 						{t("addSheet.description")}
 					</Text>
 
-					<Button
-						variant="primary"
-						fullWidth
-						iconLeft={MapPin}
-						onPress={handleCaptureLocation}
-						disabled={isLocating}
-						loading={isLocating}
-						accessibilityLabel={t("addSheet.useCurrentLocation")}
-					>
-						{t("addSheet.useCurrentLocation")}
-					</Button>
+					<View className="w-full gap-stack-sm">
+						<Button
+							variant="primary"
+							fullWidth
+							iconLeft={MapPin}
+							onPress={handleCaptureLocation}
+							disabled={isLocating}
+							loading={isLocating}
+							accessibilityLabel={t("addSheet.useCurrentLocation")}
+						>
+							{t("addSheet.useCurrentLocation")}
+						</Button>
+						<Button
+							variant="secondary"
+							fullWidth
+							iconLeft={MapIcon}
+							onPress={handleSetOnMap}
+							disabled={isLocating}
+							accessibilityLabel={t("addSheet.setOnMap")}
+						>
+							{t("addSheet.setOnMap")}
+						</Button>
+					</View>
 				</View>
 			</BottomSheet.View>
 		</BottomSheet>
