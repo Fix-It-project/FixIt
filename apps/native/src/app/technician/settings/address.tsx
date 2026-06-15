@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { MapPin, Navigation } from "lucide-react-native";
+import { Map as MapIcon, MapPin, Navigation } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
@@ -12,8 +12,11 @@ import AddressFormSection from "@/src/features/address-entry/components/AddressF
 import { useTechnicianAddressQuery } from "@/src/features/addresses/hooks/useTechnicianAddressQuery";
 import { useUpsertTechnicianAddressMutation } from "@/src/features/addresses/hooks/useUpsertTechnicianAddressMutation";
 import { addAddressSchema } from "@/src/features/addresses/schemas/form.schema";
+import { LocationSnapshot } from "@/src/features/location-picker/components/LocationSnapshot";
+import { usePickedLocationStore } from "@/src/features/location-picker/stores/picked-location-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/errors";
+import { ROUTES } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
 
 /**
@@ -66,6 +69,21 @@ export default function TechnicianServiceLocationScreen() {
 	useEffect(() => {
 		if (storeLocation) setCoords(storeLocation);
 	}, [storeLocation]);
+
+	// Adopt a point chosen on the map picker (preserves typed fields), then clear.
+	const picked = usePickedLocationStore((state) => state.coords);
+	const clearPicked = usePickedLocationStore((state) => state.clear);
+	useEffect(() => {
+		if (picked) {
+			setCoords(picked);
+			clearPicked();
+		}
+	}, [picked, clearPicked]);
+
+	const openPicker = () =>
+		router.push(
+			ROUTES.technician.settingsAddressPickLocation(coords ?? undefined),
+		);
 
 	const handleSave = () => {
 		const result = validate({ city, street, buildingNumber, apartmentNumber });
@@ -121,38 +139,51 @@ export default function TechnicianServiceLocationScreen() {
 					{t("techAddress.description")}
 				</Text>
 
-				{/* Captured-coordinates badge */}
-				<View
-					className="flex-row items-center rounded-input px-stack-md py-control-trigger-y"
-					style={{ backgroundColor: themeColors.primaryLight }}
-				>
-					<MapPin size={16} color={themeColors.primary} strokeWidth={2} />
-					<Text
-						variant="bodySm"
-						className="ml-stack-sm flex-1"
-						numberOfLines={1}
-						style={{ color: themeColors.primary }}
+				{/* Location: snapshot when set (tap to adjust), else a prompt. */}
+				{coords ? (
+					<LocationSnapshot
+						latitude={coords.latitude}
+						longitude={coords.longitude}
+						onPress={openPicker}
+					/>
+				) : (
+					<View
+						className="flex-row items-center rounded-input px-stack-md py-control-trigger-y"
+						style={{ backgroundColor: themeColors.primaryLight }}
 					>
-						{coords
-							? t("form.location", {
-									latitude: coords.latitude.toFixed(4),
-									longitude: coords.longitude.toFixed(4),
-								})
-							: t("techAddress.locationRequired")}
-					</Text>
-				</View>
+						<MapPin size={16} color={themeColors.primary} strokeWidth={2} />
+						<Text
+							variant="bodySm"
+							className="ml-stack-sm flex-1"
+							numberOfLines={1}
+							style={{ color: themeColors.primary }}
+						>
+							{t("techAddress.locationRequired")}
+						</Text>
+					</View>
+				)}
 
-				<Button
-					variant="secondary"
-					iconLeft={Navigation}
-					onPress={() => {
-						void requestLocation();
-					}}
-					loading={isLocating}
-					fullWidth
-				>
-					{t("techAddress.captureCta")}
-				</Button>
+				<View className="gap-stack-sm">
+					<Button
+						variant="secondary"
+						iconLeft={Navigation}
+						onPress={() => {
+							void requestLocation();
+						}}
+						loading={isLocating}
+						fullWidth
+					>
+						{t("techAddress.captureCta")}
+					</Button>
+					<Button
+						variant="outline"
+						iconLeft={MapIcon}
+						onPress={openPicker}
+						fullWidth
+					>
+						{t("techAddress.setOnMap")}
+					</Button>
+				</View>
 
 				<AddressFormSection
 					city={city}

@@ -18,6 +18,8 @@ export const techHomeStatsSchema = z.object({
 		cancellationRate: z.number().nullable(),
 		rating: z.number().nullable(),
 		reviewCount: z.number(),
+		weeklyRating: z.number().nullable().optional(),
+		weeklyReviewCount: z.number().optional(),
 	}),
 	pendingExpiryHours: z.number(),
 });

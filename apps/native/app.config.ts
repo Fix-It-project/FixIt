@@ -112,6 +112,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 					"FixIt needs your location to connect you with nearby technicians.",
 			},
 		],
+		[
+			"react-native-maps",
+			{
+				androidGoogleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+				iosGoogleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+			},
+		],
 		"expo-font",
 		"expo-audio",
 		"expo-web-browser",

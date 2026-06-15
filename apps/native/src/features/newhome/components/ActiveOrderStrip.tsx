@@ -1,27 +1,12 @@
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import Animated, {
-	FadeInDown,
-	useAnimatedStyle,
-	useReducedMotion,
-	useSharedValue,
-	withRepeat,
-	withSequence,
-	withTiming,
-} from "react-native-reanimated";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import { Progress } from "@/src/components/ui/progress";
 import { Text } from "@/src/components/ui/text";
-import {
-	DUR_PULSE_IN,
-	DUR_PULSE_OUT,
-	DUR_REVEAL,
-	EASE_OUT_EXPO,
-	PULSE_SCALE_MAX,
-} from "@/src/constants/animation";
+import { DUR_REVEAL, EASE_OUT_EXPO } from "@/src/constants/animation";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { useUserActiveOrder } from "@/src/features/booking-orders/hooks/useUserActiveOrder";
 import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
@@ -77,43 +62,6 @@ function getFilledSteps(status: OrderStatus): number {
 		default:
 			return 0;
 	}
-}
-
-// ── Progress dot pulse ─────────────────────────────────────────────────────────
-function PulseDot({ color }: { color: string }) {
-	const reducedMotion = useReducedMotion();
-	const scale = useSharedValue(1);
-
-	useEffect(() => {
-		if (!reducedMotion) {
-			scale.value = withRepeat(
-				withSequence(
-					withTiming(PULSE_SCALE_MAX, { duration: DUR_PULSE_IN }),
-					withTiming(1, { duration: DUR_PULSE_OUT }),
-				),
-				-1,
-				false,
-			);
-		}
-	}, [reducedMotion, scale]);
-
-	const animatedStyle = useAnimatedStyle(() => ({
-		transform: [{ scale: scale.value }],
-	}));
-
-	return (
-		<Animated.View
-			style={[
-				animatedStyle,
-				{
-					width: 8,
-					height: 8,
-					borderRadius: 4,
-					backgroundColor: color,
-				},
-			]}
-		/>
-	);
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
@@ -195,23 +143,11 @@ export function ActiveOrderStrip() {
 						gap: 10,
 					}}
 				>
-					{/* Avatar with pulse dot */}
-					<View style={{ position: "relative" }}>
-						<InitialsAvatar
-							name={bubbleOrder.technician_name ?? "T"}
-							imageUrl={bubbleOrder.technician_image}
-							className="size-10"
-						/>
-						<View
-							style={{
-								position: "absolute",
-								bottom: 0,
-								right: 0,
-							}}
-						>
-							<PulseDot color={t.statusOnline} />
-						</View>
-					</View>
+					<InitialsAvatar
+						name={bubbleOrder.technician_name ?? "T"}
+						imageUrl={bubbleOrder.technician_image}
+						className="size-10"
+					/>
 
 					{/* Tech name + status descriptor */}
 					<View style={{ flex: 1 }}>

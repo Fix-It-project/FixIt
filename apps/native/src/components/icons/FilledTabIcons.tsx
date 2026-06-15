@@ -71,10 +71,12 @@ export function HouseTabIcon({
 				d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
 				fill={fill}
 			/>
-			{/* Interior: door entrance — cut out to the tab-bar background when focused */}
+			{/* Interior: door entrance — thin stroked cut-out (never a wide fill, so the
+			    focused glyph reads the same width as the idle one). Mirrors the
+			    stroke-only interior detail of the calendar/clipboard glyphs. */}
 			<Path
 				d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"
-				fill={focused ? detail : "none"}
+				fill="none"
 				stroke={detail}
 			/>
 		</Svg>

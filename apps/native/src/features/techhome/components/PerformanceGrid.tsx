@@ -38,20 +38,23 @@ function StatCell({
 export function PerformanceGrid() {
 	const { data: stats } = useTechHomeStatsQuery();
 
+	// Weekly rating — this week's reviews only, separate from the lifetime figure.
 	const rating =
-		stats?.rates.rating == undefined ? "—" : stats.rates.rating.toFixed(2);
-	const reviews = stats?.rates.reviewCount ?? 0;
+		stats?.rates.weeklyRating == null
+			? "—"
+			: stats.rates.weeklyRating.toFixed(2);
+	const reviews = stats?.rates.weeklyReviewCount ?? 0;
 
 	return (
 		<View className="px-screen-x pt-stack-lg">
 			<SectionHeader title="Performance" />
-			<View>
+			<View className="gap-stack-md">
 				<View className="flex-row">
 					<StatCell
 						label="Acceptance rate"
 						value={pct(stats?.rates.acceptanceRate)}
 						sub="last 30 days"
-						className="border-edge border-r pr-card-compact"
+						className="pr-card-compact"
 					/>
 					<StatCell
 						label="Jobs this week"
@@ -60,13 +63,12 @@ export function PerformanceGrid() {
 						className="pl-card-compact"
 					/>
 				</View>
-				<View className="h-px bg-edge" />
 				<View className="flex-row">
 					<StatCell
 						label="Rating"
 						value={rating}
-						sub={`${reviews} ${reviews === 1 ? "review" : "reviews"}`}
-						className="border-edge border-r pr-card-compact"
+						sub={`${reviews} ${reviews === 1 ? "review" : "reviews"} this week`}
+						className="pr-card-compact"
 					/>
 					<StatCell
 						label="Cancellation rate"

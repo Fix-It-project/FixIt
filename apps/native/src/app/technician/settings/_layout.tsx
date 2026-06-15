@@ -43,6 +43,7 @@ export default function TechnicianSettingsLayout() {
 					headerBackTitle: "Settings",
 				}}
 			/>
+			<Stack.Screen name="pick-location" options={{ headerShown: false }} />
 		</Stack>
 	);
 }

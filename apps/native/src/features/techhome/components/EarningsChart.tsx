@@ -1,6 +1,13 @@
-import { useMemo } from "react";
+import { useEffect } from "react";
 import { View } from "react-native";
-import { Bar, CartesianChart } from "victory-native";
+import Animated, {
+	Easing,
+	useAnimatedStyle,
+	useReducedMotion,
+	useSharedValue,
+	withDelay,
+	withTiming,
+} from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { EARNINGS_CHART_HEIGHT } from "../constants";
@@ -15,21 +22,75 @@ function weekdayLetter(dateStr: string): string {
 	return ["S", "M", "T", "W", "T", "F", "S"][d.getDay()] ?? "";
 }
 
+const BAR_WIDTH = 22;
+
 /**
- * 7-day earnings bars. Victory-native (skia) renders the bars; weekday labels
- * are plain <Text> below so typography stays on app fonts. Isolated component:
- * if victory/skia misbehaves on this RN version, swap internals for plain
- * reanimated bars without touching callers.
+ * One animated bar. Bars live in the SAME 7-column flex-row as the weekday
+ * labels below, each column `flex-1 items-center`, so every bar is centered
+ * under its letter by construction (no chart-library domain padding to drift).
+ */
+function Bar({
+	amount,
+	max,
+	index,
+	isToday,
+}: {
+	amount: number;
+	max: number;
+	index: number;
+	isToday: boolean;
+}) {
+	const colors = useThemeColors();
+	const reducedMotion = useReducedMotion();
+	const height = useSharedValue(0);
+
+	const target =
+		max > 0 && amount > 0
+			? Math.max(6, (amount / max) * EARNINGS_CHART_HEIGHT)
+			: 0;
+
+	useEffect(() => {
+		if (reducedMotion) {
+			height.value = target;
+			return;
+		}
+		height.value = withDelay(
+			index * 70,
+			withTiming(target, { duration: 650, easing: Easing.out(Easing.cubic) }),
+		);
+	}, [target, index, reducedMotion, height]);
+
+	const barStyle = useAnimatedStyle(() => ({ height: height.value }));
+
+	return (
+		<View
+			className="flex-1 items-center justify-end"
+			style={{ height: EARNINGS_CHART_HEIGHT }}
+		>
+			<Animated.View
+				style={[
+					{
+						width: BAR_WIDTH,
+						borderTopLeftRadius: 5,
+						borderTopRightRadius: 5,
+						backgroundColor: colors.primary,
+						opacity: isToday ? 1 : 0.5,
+					},
+					barStyle,
+				]}
+			/>
+		</View>
+	);
+}
+
+/**
+ * 7-day earnings bars. Plain reanimated bars (no victory/skia) so the bars and
+ * the weekday labels share one flex grid and stay aligned on every RN version.
  */
 export function EarningsChart({ daily }: EarningsChartProps) {
-	const colors = useThemeColors();
-
-	const data = useMemo(
-		() => daily.map((d, index) => ({ index, amount: d.amount })),
-		[daily],
-	);
 	const allZero = daily.every((d) => d.amount === 0);
 	const todayIndex = daily.length - 1;
+	const max = Math.max(1, ...daily.map((d) => d.amount));
 
 	if (daily.length === 0) return null;
 
@@ -45,28 +106,20 @@ export function EarningsChart({ daily }: EarningsChartProps) {
 					</Text>
 				</View>
 			) : (
-				<View style={{ height: EARNINGS_CHART_HEIGHT }}>
-					<CartesianChart
-						data={data}
-						xKey="index"
-						yKeys={["amount"]}
-						domainPadding={{ left: 16, right: 16, top: 8 }}
-					>
-						{({ points, chartBounds }) => (
-							<Bar
-								points={points.amount}
-								chartBounds={chartBounds}
-								color={colors.primary}
-								barWidth={22}
-								roundedCorners={{ topLeft: 5, topRight: 5 }}
-								animate={{ type: "timing", duration: 700 }}
-							/>
-						)}
-					</CartesianChart>
+				<View className="flex-row items-end">
+					{daily.map((d, i) => (
+						<Bar
+							key={d.date}
+							amount={d.amount}
+							max={max}
+							index={i}
+							isToday={i === todayIndex}
+						/>
+					))}
 				</View>
 			)}
 
-			{/* weekday labels — app fonts, today emphasized */}
+			{/* weekday labels — app fonts, today emphasized. Same 7-col grid as bars. */}
 			<View className="mt-1 flex-row">
 				{daily.map((d, i) => (
 					<View key={d.date} className="flex-1 items-center">

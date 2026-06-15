@@ -10,12 +10,15 @@ export const env = createEnv({
     // DEV/CI ONLY (saveMissing + locize-cli) — never set it in a production build.
     EXPO_PUBLIC_LOCIZE_PROJECT_ID: z.string().optional(),
     EXPO_PUBLIC_LOCIZE_API_KEY: z.string().optional(),
+    // Public Google Maps key (ships in the app — restrict it in Cloud Console).
+    EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
   },
   runtimeEnv: {
     EXPO_PUBLIC_SERVER_URL: process.env.EXPO_PUBLIC_SERVER_URL,
     EXPO_PUBLIC_SENTRY_DSN: process.env.EXPO_PUBLIC_SENTRY_DSN,
     EXPO_PUBLIC_LOCIZE_PROJECT_ID: process.env.EXPO_PUBLIC_LOCIZE_PROJECT_ID,
     EXPO_PUBLIC_LOCIZE_API_KEY: process.env.EXPO_PUBLIC_LOCIZE_API_KEY,
+    EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
   },
   emptyStringAsUndefined: true,
 });

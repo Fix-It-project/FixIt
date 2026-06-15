@@ -14,15 +14,7 @@ import type { Language } from "@/src/constants/i18n";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { confirm } from "@/src/stores/dialog-store";
 import { useLanguageStore } from "@/src/stores/language-store";
-import {
-	useActiveJob,
-	useNextFutureJob,
-	useNextTodayJob,
-	usePendingRequests,
-} from "../hooks/useTechHomeOrdersQuery";
 import { useTechSelfQuery } from "../hooks/useTechSelfQuery";
-import { formatSlotTime, formatSlotWeekday } from "../utils/format-time";
-import { greetingForHour } from "../utils/greeting";
 import { OnlineSwitch } from "./OnlineSwitch";
 
 interface HeroHeaderProps {
@@ -67,28 +59,9 @@ function LanguageToggle() {
 	);
 }
 
-/** Quiet-day status line: surfaces the next upcoming job when nothing is live. */
-function useQuietLine(): string | null {
-	const activeJob = useActiveJob();
-	const nextToday = useNextTodayJob();
-	const { data: pending } = usePendingRequests();
-	const nextFuture = useNextFutureJob();
-
-	const isQuiet = !activeJob && !nextToday && pending.length === 0;
-	if (!isQuiet) return null;
-
-	if (nextFuture) {
-		const day = formatSlotWeekday(nextFuture.scheduled_date);
-		const time = formatSlotTime(nextFuture.scheduled_start_at);
-		return time === "—" ? `Next job ${day}` : `Next job ${day} ${time}`;
-	}
-	return "No jobs today — you're all caught up";
-}
-
 export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
 	const colors = useThemeColors();
 	const { data: profile } = useTechSelfQuery();
-	const quietLine = useQuietLine();
 
 	const fullName = profile
 		? `${profile.first_name} ${profile.last_name}`.trim()
@@ -118,13 +91,6 @@ export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
 					</Avatar>
 					<View className="flex-1">
 						<Text
-							variant="caption"
-							className="text-tint-on-hero opacity-70"
-							numberOfLines={1}
-						>
-							{greetingForHour()}
-						</Text>
-						<Text
 							variant="body"
 							className="font-bold text-tint-on-hero"
 							numberOfLines={1}
@@ -139,14 +105,6 @@ export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
 					<OnlineSwitch online={online} />
 				</View>
 			</View>
-
-			{quietLine ? (
-				<View className="px-screen-x pt-stack-sm">
-					<Text variant="caption" className="text-tint-on-hero opacity-80">
-						{quietLine}
-					</Text>
-				</View>
-			) : null}
 		</View>
 	);
 }

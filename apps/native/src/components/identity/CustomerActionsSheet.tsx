@@ -1,27 +1,37 @@
+import { MapPin, Phone } from "lucide-react-native";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { Linking, useWindowDimensions, View } from "react-native";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import {
 	BottomSheet,
 	type BottomSheetModalRef,
 } from "@/src/components/ui/bottom-sheet";
-import { MapPin, Phone } from "lucide-react-native";
-import {
-	forwardRef,
-	useCallback,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from "react";
-import { Linking, useWindowDimensions, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
-import { PressableScale } from "@/src/components/animation/pressable-scale";
-import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import {
+	radius,
+	space,
+	spacing,
+	useThemeColors,
+} from "@/src/constants/design-tokens";
+import { getAvatarColor } from "@/src/lib/avatar";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
-export interface CustomerInfoSheetHandle {
+/**
+ * Shared customer-actions bottom sheet (View in maps + Call). Lives in
+ * `components/identity` so BOTH `booking-orders` and `techhome` can use it
+ * without a cross-feature import. Avatar colour comes from `lib/avatar` (the
+ * canonical shared helper), never from a feature.
+ *
+ * "View in maps" prefers the customer's coordinates (`latitude`/`longitude`)
+ * and falls back to the address string when coords are absent.
+ */
+export interface CustomerActionsSheetHandle {
 	open: (args: {
 		name: string;
 		phone: string | null;
 		address: string | null;
+		latitude?: number | null;
+		longitude?: number | null;
 		problem: string | null;
 	}) => void;
 	close: () => void;
@@ -31,11 +41,13 @@ interface SheetState {
 	name: string;
 	phone: string | null;
 	address: string | null;
+	latitude: number | null;
+	longitude: number | null;
 	problem: string | null;
 }
 
-const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
-	function CustomerInfoSheet(_, ref) {
+const CustomerActionsSheet = forwardRef<CustomerActionsSheetHandle, object>(
+	function CustomerActionsSheet(_, ref) {
 		const themeColors = useThemeColors();
 		const sheetRef = useRef<BottomSheetModalRef>(null);
 		const { height } = useWindowDimensions();
@@ -45,7 +57,14 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 			ref,
 			() => ({
 				open(args) {
-					setState(args);
+					setState({
+						name: args.name,
+						phone: args.phone,
+						address: args.address,
+						latitude: args.latitude ?? null,
+						longitude: args.longitude ?? null,
+						problem: args.problem,
+					});
 					sheetRef.current?.present();
 				},
 				close() {
@@ -60,10 +79,21 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 			void Linking.openURL(`tel:${state.phone}`);
 		};
 
+		const hasCoords = state?.latitude != null && state?.longitude != null;
+		const canOpenMaps = hasCoords || Boolean(state?.address);
+
 		const handleMaps = () => {
-			if (!state?.address) return;
-			const q = encodeURIComponent(state.address);
-			void Linking.openURL(`geo:0,0?q=${q}`);
+			if (!state) return;
+			// Prefer exact coordinates — opens Google Maps to the pin, not a street guess.
+			if (state.latitude != null && state.longitude != null) {
+				void Linking.openURL(
+					`https://www.google.com/maps/search/?api=1&query=${state.latitude},${state.longitude}`,
+				);
+				return;
+			}
+			if (state.address) {
+				void Linking.openURL(`geo:0,0?q=${encodeURIComponent(state.address)}`);
+			}
 		};
 
 		const initials = getPfpInitialsFallback(state?.name);
@@ -137,10 +167,7 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 							<Text variant="caption" style={{ color: themeColors.textMuted }}>
 								Address
 							</Text>
-							<Text
-								variant="bodySm"
-								style={{ color: themeColors.textPrimary }}
-							>
+							<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
 								{state.address}
 							</Text>
 						</View>
@@ -158,10 +185,7 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 							<Text variant="caption" style={{ color: themeColors.textMuted }}>
 								Problem
 							</Text>
-							<Text
-								variant="bodySm"
-								style={{ color: themeColors.textPrimary }}
-							>
+							<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
 								{state.problem}
 							</Text>
 						</View>
@@ -209,7 +233,7 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 						</PressableScale>
 						<PressableScale
 							onPress={handleMaps}
-							disabled={!state?.address}
+							disabled={!canOpenMaps}
 							accessibilityRole="button"
 							accessibilityLabel="Open in maps"
 							style={{ flex: 1 }}
@@ -246,4 +270,4 @@ const CustomerInfoSheet = forwardRef<CustomerInfoSheetHandle, object>(
 	},
 );
 
-export default CustomerInfoSheet;
+export default CustomerActionsSheet;

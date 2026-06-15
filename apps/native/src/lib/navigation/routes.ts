@@ -69,6 +69,24 @@ export const ROUTES = {
 		profile: "/user/profile" as const,
 		profileEdit: "/user/profile/edit" as const,
 		profileAddressNew: "/user/profile/addresses/new" as const,
+		profileAddressPickLocation: (
+			coords?: {
+				latitude: number;
+				longitude: number;
+			},
+			// When set, the picker forwards here (with the chosen coords) on confirm
+			// instead of popping back — lets "Set on map" open the map FIRST, then
+			// land on the form already filled with a location.
+			next?: "/user/profile/addresses/new",
+		) => ({
+			pathname: "/user/profile/addresses/pick-location" as const,
+			params: {
+				...(coords
+					? { lat: String(coords.latitude), lng: String(coords.longitude) }
+					: {}),
+				...(next ? { next } : {}),
+			},
+		}),
 		profileOrderHistory: "/user/profile/orders/history" as const,
 		technicians: "/user/technicians" as const,
 		technicianDetail: (id: string) => ({
@@ -108,6 +126,15 @@ export const ROUTES = {
 		profileBookingHistory: "/technician/profile/bookings/history" as const,
 		settings: "/technician/settings" as const,
 		settingsAddress: "/technician/settings/address" as const,
+		settingsAddressPickLocation: (coords?: {
+			latitude: number;
+			longitude: number;
+		}) => ({
+			pathname: "/technician/settings/pick-location" as const,
+			params: coords
+				? { lat: String(coords.latitude), lng: String(coords.longitude) }
+				: {},
+		}),
 		settingsServices: "/technician/settings/services" as const,
 		settingsNotifications: "/technician/settings/notifications" as const,
 		settingsPrivacy: "/technician/settings/privacy-security" as const,

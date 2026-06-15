@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { getTechHomeOrders } from "../api/tech-home";
 import {
@@ -15,6 +15,42 @@ function localToday(): string {
 	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
 		d.getDate(),
 	).padStart(2, "0")}`;
+}
+
+function msUntilNextLocalMidnight(): number {
+	const now = new Date();
+	// 50ms past midnight to make sure the date has actually rolled over.
+	const next = new Date(
+		now.getFullYear(),
+		now.getMonth(),
+		now.getDate() + 1,
+		0,
+		0,
+		0,
+		50,
+	);
+	return next.getTime() - now.getTime();
+}
+
+/**
+ * Local calendar date (`YYYY-MM-DD`) that re-renders consumers at local
+ * midnight. Date-derived schedule hooks thread this into their memo deps so
+ * "today" rolls over at 12am even when the cached order data is unchanged.
+ */
+export function useToday(): string {
+	const [today, setToday] = useState(localToday);
+	useEffect(() => {
+		let timer: ReturnType<typeof setTimeout>;
+		const scheduleNext = () => {
+			timer = setTimeout(() => {
+				setToday(localToday());
+				scheduleNext();
+			}, msUntilNextLocalMidnight());
+		};
+		scheduleNext();
+		return () => clearTimeout(timer);
+	}, []);
+	return today;
 }
 
 export function useTechHomeOrdersQuery() {
@@ -53,8 +89,8 @@ export function useActiveJob(): TechHomeOrder | undefined {
 /** Today's scheduled orders (accepted → completed), sorted by start time. */
 export function useTodaySchedule(): TechHomeOrder[] {
 	const { data } = useTechHomeOrdersQuery();
+	const today = useToday();
 	return useMemo(() => {
-		const today = localToday();
 		return (
 			(data ?? [])
 				.filter(
@@ -63,7 +99,7 @@ export function useTodaySchedule(): TechHomeOrder[] {
 				// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
 				.sort(byStartTime)
 		);
-	}, [data]);
+	}, [data, today]);
 }
 
 /**
@@ -73,15 +109,15 @@ export function useTodaySchedule(): TechHomeOrder[] {
  */
 export function useNextTodayJob(): TechHomeOrder | undefined {
 	const { data } = useTechHomeOrdersQuery();
+	const today = useToday();
 	return useMemo(() => {
-		const today = localToday();
 		return (
 			(data ?? [])
 				.filter((o) => o.scheduled_date === today && o.status === "accepted")
 				// eslint-disable-next-line unicorn/no-array-sort -- Hermes has no Array.prototype.toSorted; filter() already copied
 				.sort(byStartTime)[0]
 		);
-	}, [data]);
+	}, [data, today]);
 }
 
 /**
@@ -90,8 +126,8 @@ export function useNextTodayJob(): TechHomeOrder | undefined {
  */
 export function useNextFutureJob(): TechHomeOrder | undefined {
 	const { data } = useTechHomeOrdersQuery();
+	const today = useToday();
 	return useMemo(() => {
-		const today = localToday();
 		return (
 			(data ?? [])
 				.filter((o) => o.status === "accepted" && o.scheduled_date > today)
@@ -102,5 +138,5 @@ export function useNextFutureJob(): TechHomeOrder | undefined {
 						byStartTime(a, b),
 				)[0]
 		);
-	}, [data]);
+	}, [data, today]);
 }
