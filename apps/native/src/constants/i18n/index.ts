@@ -8,6 +8,7 @@ import arLocation from "./locales/ar/location.json";
 import arNotifications from "./locales/ar/notifications.json";
 import arOrders from "./locales/ar/orders.json";
 import arProfile from "./locales/ar/profile.json";
+import arReports from "./locales/ar/reports.json";
 import arReviews from "./locales/ar/reviews.json";
 import arSettings from "./locales/ar/settings.json";
 import arTechnicians from "./locales/ar/technicians.json";
@@ -21,6 +22,7 @@ import enLocation from "./locales/en/location.json";
 import enNotifications from "./locales/en/notifications.json";
 import enOrders from "./locales/en/orders.json";
 import enProfile from "./locales/en/profile.json";
+import enReports from "./locales/en/reports.json";
 import enReviews from "./locales/en/reviews.json";
 import enSettings from "./locales/en/settings.json";
 import enTechnicians from "./locales/en/technicians.json";
@@ -47,6 +49,7 @@ export const namespaces = [
 	"settings",
 	"notifications",
 	"reviews",
+	"reports",
 	"chat",
 	"addresses",
 	"location",
@@ -64,6 +67,7 @@ export const resources = {
 		settings: enSettings,
 		notifications: enNotifications,
 		reviews: enReviews,
+		reports: enReports,
 		chat: enChat,
 		addresses: enAddresses,
 		location: enLocation,
@@ -79,6 +83,7 @@ export const resources = {
 		settings: arSettings,
 		notifications: arNotifications,
 		reviews: arReviews,
+		reports: arReports,
 		chat: arChat,
 		addresses: arAddresses,
 		location: arLocation,
