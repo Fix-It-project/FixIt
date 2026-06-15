@@ -164,19 +164,25 @@ export class AdminDashboardRepository {
 			is_active: boolean;
 		}>) {
 			if (!row.user_id || !row.city) continue;
-			if (row.is_active || !map.has(row.user_id)) map.set(row.user_id, row.city);
+			if (row.is_active || !map.has(row.user_id))
+				map.set(row.user_id, row.city);
 		}
 		return map;
 	}
 
 	/** user_id -> { sum, count } of review ratings given. */
-	async getReviewAggByUser(): Promise<Map<string, { sum: number; count: number }>> {
+	async getReviewAggByUser(): Promise<
+		Map<string, { sum: number; count: number }>
+	> {
 		const { data, error } = await supabaseAdmin
 			.from("reviews")
 			.select("user_id, rating");
 		if (error) throw new Error(error.message);
 		const map = new Map<string, { sum: number; count: number }>();
-		for (const row of (data ?? []) as Array<{ user_id: string; rating: number }>) {
+		for (const row of (data ?? []) as Array<{
+			user_id: string;
+			rating: number;
+		}>) {
 			const cur = map.get(row.user_id) ?? { sum: 0, count: 0 };
 			cur.sum += row.rating;
 			cur.count += 1;
@@ -240,37 +246,42 @@ export class AdminDashboardRepository {
 			.from("admin_technician_stats")
 			.select("*");
 		if (error) throw new Error(error.message);
-		return (data ?? []).map((r: any): TechnicianStatsRow => ({
-			id: r.id,
-			created_at: r.created_at,
-			first_name: r.first_name,
-			last_name: r.last_name,
-			email: r.email,
-			phone: r.phone,
-			is_available: r.is_available,
-			status: r.status,
-			block_pending: !!r.block_pending,
-			blocked_reason: r.blocked_reason,
-			blocked_at: r.blocked_at,
-			blocked_by: r.blocked_by,
-			category_id: r.category_id,
-			years_experience: r.years_experience == null ? null : Number(r.years_experience),
-			criminal_record: r.criminal_record,
-			birth_certificate: r.birth_certificate,
-			national_id: r.national_id,
-			category_name: r.category_name,
-			city: r.city,
-			rating: r.rating == null ? null : Number(r.rating),
-			review_count: Number(r.review_count ?? 0),
-			total_orders: Number(r.total_orders ?? 0),
-			completed: Number(r.completed ?? 0),
-			cancelled: Number(r.cancelled ?? 0),
-			revenue: Number(r.revenue ?? 0),
-		}));
+		return (data ?? []).map(
+			(r: any): TechnicianStatsRow => ({
+				id: r.id,
+				created_at: r.created_at,
+				first_name: r.first_name,
+				last_name: r.last_name,
+				email: r.email,
+				phone: r.phone,
+				is_available: r.is_available,
+				status: r.status,
+				block_pending: !!r.block_pending,
+				blocked_reason: r.blocked_reason,
+				blocked_at: r.blocked_at,
+				blocked_by: r.blocked_by,
+				category_id: r.category_id,
+				years_experience:
+					r.years_experience == null ? null : Number(r.years_experience),
+				criminal_record: r.criminal_record,
+				birth_certificate: r.birth_certificate,
+				national_id: r.national_id,
+				category_name: r.category_name,
+				city: r.city,
+				rating: r.rating == null ? null : Number(r.rating),
+				review_count: Number(r.review_count ?? 0),
+				total_orders: Number(r.total_orders ?? 0),
+				completed: Number(r.completed ?? 0),
+				cancelled: Number(r.cancelled ?? 0),
+				revenue: Number(r.revenue ?? 0),
+			}),
+		);
 	}
 
 	/** One technician's orders (newest first) — powers the detail-page history. */
-	async getOrdersByTechnician(technicianId: string): Promise<DashboardOrderRow[]> {
+	async getOrdersByTechnician(
+		technicianId: string,
+	): Promise<DashboardOrderRow[]> {
 		const { data, error } = await supabaseAdmin
 			.from("orders")
 			.select(ORDER_FIELDS)
@@ -334,6 +345,15 @@ export class AdminDashboardRepository {
 		return map;
 	}
 
+	/** All review ratings with their timestamps (for the rolling rating delta). */
+	async getReviewRatings(): Promise<{ created_at: string; rating: number }[]> {
+		const { data, error } = await supabaseAdmin
+			.from("reviews")
+			.select("created_at, rating");
+		if (error) throw new Error(error.message);
+		return (data ?? []) as { created_at: string; rating: number }[];
+	}
+
 	/** Fully-joined orders for the admin orders list (newest first). */
 	async getDetailedOrders(): Promise<DetailedOrderRow[]> {
 		const { data, error } = await supabaseAdmin
@@ -351,7 +371,9 @@ export class AdminDashboardRepository {
 				name: string | null;
 				categories: { name: string | null } | { name: string | null }[] | null;
 			}>(row.services);
-			const category = service ? one<{ name: string | null }>(service.categories) : null;
+			const category = service
+				? one<{ name: string | null }>(service.categories)
+				: null;
 			const review = one<{
 				rating: number;
 				comment: string | null;
@@ -395,12 +417,16 @@ export class AdminDashboardRepository {
 
 		const r = row as any;
 		const user = one<{ full_name: string | null }>(r.users);
-		const tech = one<{ first_name: string | null; last_name: string | null }>(r.technicians);
+		const tech = one<{ first_name: string | null; last_name: string | null }>(
+			r.technicians,
+		);
 		const service = one<{
 			name: string | null;
 			categories: { name: string | null } | { name: string | null }[] | null;
 		}>(r.services);
-		const category = service ? one<{ name: string | null }>(service.categories) : null;
+		const category = service
+			? one<{ name: string | null }>(service.categories)
+			: null;
 		const review = one<OrderDetailRow["review"]>(r.reviews);
 
 		const quotes = ((r.order_quotes ?? []) as OrderDetailRow["quotes"]).sort(

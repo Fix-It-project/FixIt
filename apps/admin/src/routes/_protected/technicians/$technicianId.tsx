@@ -28,8 +28,8 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
+import { OrderDetailModal } from "@/components/OrderDetailModal";
 import { humanizeStatus, statusVariant } from "@/lib/order-status";
-import { OrderDetailModal } from "../homeowners/components/OrderDetailModal";
 import { BlockReasonModal } from "./components/BlockReasonModal";
 import {
 	useBlockTechnician,
