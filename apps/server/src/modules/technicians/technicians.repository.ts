@@ -459,7 +459,11 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("services")
 			.select("id, name, description, min_price, max_price")
-			.eq("category_id", (technician as { category_id: string }).category_id);
+			.eq("category_id", (technician as { category_id: string }).category_id)
+			// Only the shared catalog. A technician's published custom service
+			// (owner_technician_id set) must never leak into another technician's
+			// category fallback — it reaches users solely via technician_services.
+			.is("owner_technician_id", null);
 
 		if (error) throw new Error(error.message);
 

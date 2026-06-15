@@ -131,12 +131,19 @@ export class CustomServicesService {
 		return rows.map(toAdminDTO);
 	}
 
+	/** Approve publishes the request as a bookable catalog service + technician
+	 *  link (atomic, in the DB function), then notifies the technician. */
 	async approve(id: string): Promise<CustomService> {
-		const row = await this.repo.setStatus(id, {
-			status: "approved",
-			reviewedBy: env.ADMIN_EMAIL,
-		});
-		if (!row) throw AppError.notFound("Service request not found");
+		let row: CustomService;
+		try {
+			row = await this.repo.approveAndPublish(id, env.ADMIN_EMAIL);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			if (/request_not_found/.test(message)) {
+				throw AppError.notFound("Service request not found");
+			}
+			throw err;
+		}
 		this.notify(row.technician_id, "approved");
 		return row;
 	}
