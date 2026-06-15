@@ -42,24 +42,33 @@
 		"vibrationDesc": "اهتزاز هذا الجهاز عند وصول إشعارات FixIt."
 	},
 	"services": {
-		"title": "خدماتي",
-		"subtitle": "الخدمات التي تقدّمها حالياً للعملاء.",
+		"title": "الخدمات",
+		"subtitle": "أدر ما تقدّمه واطلب خدمات جديدة.",
+		"liveHeader": "الخدمات التي تقدّمها",
 		"empty": "لا تقدّم أي خدمات بعد. اطلب إضافة خدمة من الأسفل للبدء.",
 		"loadError": "تعذّر تحميل خدماتك.",
-		"requestTitle": "طلب خدمة جديدة",
-		"requestSubtitle": "أخبرنا عن خدمة ترغب بتقديمها. يراجع فريقنا كل طلب.",
 		"priceOnRequest": "السعر عند الطلب",
+		"requestsHeader": "طلباتي",
+		"status": {
+			"inReview": "قيد المراجعة",
+			"approved": "تمت الموافقة",
+			"rejected": "غير مقبول"
+		},
+		"rejectReasonLabel": "السبب",
+		"requestTitle": "طلب خدمة جديدة",
+		"requestSubtitle": "تُدرَج ضمن فئتك. يراجع فريقنا كل طلب.",
 		"form": {
 			"name": "اسم الخدمة",
 			"namePlaceholder": "مثال: تركيب مكيّف",
-			"category": "الفئة",
-			"categoryPlaceholder": "مثال: التبريد والتدفئة",
 			"description": "الوصف",
 			"descriptionPlaceholder": "اشرح ما تتضمنه هذه الخدمة",
 			"minPrice": "أقل سعر (ج.م)",
-			"maxPrice": "أعلى سعر (ج.م)"
+			"maxPrice": "أعلى سعر (ج.م)",
+			"priceInvalid": "أدخل رقماً صحيحاً أكبر من 0",
+			"priceOrder": "يجب ألا يقل الأعلى عن الأدنى"
 		},
 		"submit": "إرسال الطلب",
-		"submitSuccess": "تم إرسال الطلب — سنراجعه ونعود إليك."
+		"submitSuccess": "تم إرسال الطلب. سنراجعه ونعود إليك.",
+		"verifiedOnly": "يمكن للفنيين الموثّقين فقط طلب الخدمات."
 	}
 }

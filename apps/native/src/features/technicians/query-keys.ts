@@ -30,4 +30,5 @@ export const technicianQueryKeys = {
 		["technician-profile", technicianId] as const,
 	services: (technicianId: string) =>
 		["technicians", "services", technicianId] as const,
+	myServiceRequests: () => ["technicians", "my-service-requests"] as const,
 };
