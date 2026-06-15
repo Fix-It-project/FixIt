@@ -10,6 +10,7 @@ export * from "./custom-service.dto.js";
 export * from "./lifecycle.dto.js";
 export * from "./notifications.dto.js";
 export * from "./order.dto.js";
+export * from "./report.dto.js";
 export * from "./reschedule.dto.js";
 export * from "./review.dto.js";
 export * from "./technician.dto.js";
