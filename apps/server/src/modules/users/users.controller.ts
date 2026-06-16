@@ -32,6 +32,17 @@ export class UsersController {
 		req.log.info({ action: 'user_profile_updated', userId });
 		res.status(200).json({ profile: updated });
 	});
+
+	getStats: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+		const userId = (req as any).user?.id;
+		if (!userId) {
+			throw AppError.unauthorized('User not authenticated', { token: 'no_user' });
+		}
+
+		const stats = await usersService.getStats(userId);
+		req.log.info({ action: 'user_stats_retrieved', userId });
+		res.status(200).json({ stats });
+	});
 }
 
 export const usersController = new UsersController();
