@@ -10,6 +10,7 @@ import arOrders from "./locales/ar/orders.json";
 import arProfile from "./locales/ar/profile.json";
 import arReviews from "./locales/ar/reviews.json";
 import arSettings from "./locales/ar/settings.json";
+import arTechnician from "./locales/ar/technician.json";
 import arTechnicians from "./locales/ar/technicians.json";
 import enAddresses from "./locales/en/addresses.json";
 import enBooking from "./locales/en/booking.json";
@@ -23,6 +24,7 @@ import enOrders from "./locales/en/orders.json";
 import enProfile from "./locales/en/profile.json";
 import enReviews from "./locales/en/reviews.json";
 import enSettings from "./locales/en/settings.json";
+import enTechnician from "./locales/en/technician.json";
 import enTechnicians from "./locales/en/technicians.json";
 
 /**
@@ -41,6 +43,7 @@ export const namespaces = [
 	"home",
 	"booking",
 	"technicians",
+	"technician",
 	"categories",
 	"orders",
 	"profile",
@@ -58,6 +61,7 @@ export const resources = {
 		home: enHome,
 		booking: enBooking,
 		technicians: enTechnicians,
+		technician: enTechnician,
 		categories: enCategories,
 		orders: enOrders,
 		profile: enProfile,
@@ -73,6 +77,7 @@ export const resources = {
 		home: arHome,
 		booking: arBooking,
 		technicians: arTechnicians,
+		technician: arTechnician,
 		categories: arCategories,
 		orders: arOrders,
 		profile: arProfile,
