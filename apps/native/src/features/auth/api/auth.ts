@@ -5,6 +5,10 @@ import {
 	forgotPasswordResponseSchema,
 	type GetCurrentUserResponse,
 	getCurrentUserResponseSchema,
+	type OAuthCompleteResponse,
+	oauthCompleteResponseSchema,
+	type OAuthStatusResponse,
+	oauthStatusResponseSchema,
 	type RefreshTokenResponse,
 	type ResetPasswordResponse,
 	refreshTokenResponseSchema,
@@ -18,6 +22,7 @@ import {
 } from "../schemas/response.schema";
 import type {
 	ForgotPasswordRequest,
+	OAuthCompleteRequest,
 	ResetPasswordRequest,
 	SignInRequest,
 	SignUpRequest,
@@ -31,6 +36,31 @@ export async function signUp(data: SignUpRequest): Promise<SignUpResponse> {
 export async function signIn(data: SignInRequest): Promise<SignInResponse> {
 	const response = await apiClient.post("/api/auth/signin", data);
 	return safeParseResponse(signInResponseSchema, response.data, "signIn");
+}
+
+/**
+ * Whether the OAuth-authenticated user still needs to finish their profile
+ * (domain user row + active address). Bearer is auto-attached by the api-client
+ * interceptor from the in-memory supabase session.
+ */
+export async function oauthStatus(): Promise<OAuthStatusResponse> {
+	const response = await apiClient.get("/api/auth/oauth/status");
+	return safeParseResponse(
+		oauthStatusResponseSchema,
+		response.data,
+		"oauthStatus",
+	);
+}
+
+export async function oauthComplete(
+	data: OAuthCompleteRequest,
+): Promise<OAuthCompleteResponse> {
+	const response = await apiClient.post("/api/auth/oauth/complete", data);
+	return safeParseResponse(
+		oauthCompleteResponseSchema,
+		response.data,
+		"oauthComplete",
+	);
 }
 
 export async function signOut(): Promise<SignOutResponse> {

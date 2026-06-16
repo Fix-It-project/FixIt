@@ -10,6 +10,7 @@ import { EXPIRY_TICK_MS } from "../constants";
 import type { TechHomeOrder } from "../schemas/orders.schema";
 import { pendingExpiryFor } from "../utils/expiry";
 import { formatSlotTime } from "../utils/format-time";
+import { JobInspectionMeta } from "./JobInspectionMeta";
 
 interface RequestCardProps {
 	order: TechHomeOrder;
@@ -113,6 +114,13 @@ export function RequestCard({
 						</View>
 					) : null}
 				</View>
+
+				{/* inspection fee + distance it was priced from */}
+				<JobInspectionMeta
+					inspectionFee={order.inspection_fee}
+					inspectionDistanceKm={order.inspection_distance_km}
+					className="pt-stack-sm"
+				/>
 
 				{/* actions */}
 				<View className="flex-row gap-stack-sm pt-stack-md">

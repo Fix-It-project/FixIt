@@ -31,7 +31,10 @@ export function SplashIntroPanel({
 	// collapsed. Lay it out as a flex column so the brand block self-centers across
 	// every device height instead of relying on hand-tuned absolute offsets.
 	const panelHeight = screenH * collapsedRatio;
-	const topPad = insets.top + space[6];
+	// Push the wordmark down so it clears the status bar / notch and reads as a
+	// deliberate logo rather than a clipped sliver. Folded into topPad (not a
+	// marginTop) so illustrationSizeFor() reserves the right room below.
+	const topPad = insets.top + space[12];
 	const brandMarkWidth = brandMarkWidthFor(screenW);
 	const illustrationSize = illustrationSizeFor(screenW, panelHeight, topPad);
 

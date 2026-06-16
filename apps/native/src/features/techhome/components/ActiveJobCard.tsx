@@ -16,6 +16,7 @@ import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
 import type { OrderStatus, TechHomeOrder } from "../schemas/orders.schema";
 import { formatEgp } from "../utils/money";
+import { JobInspectionMeta } from "./JobInspectionMeta";
 import { SectionHeader } from "./SectionHeader";
 
 const STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
@@ -151,6 +152,13 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 							</View>
 						)}
 					</View>
+
+					{/* inspection fee + distance it was priced from */}
+					<JobInspectionMeta
+						inspectionFee={order.inspection_fee}
+						inspectionDistanceKm={order.inspection_distance_km}
+						className="pb-stack-sm"
+					/>
 
 					{/* progress — 5-step job lifecycle, matches user home tracking strip */}
 					<View className="pb-stack-sm">

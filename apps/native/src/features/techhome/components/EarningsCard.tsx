@@ -70,10 +70,13 @@ export function EarningsCard() {
 
 			{/* weekly total — hairline divider, no second surface */}
 			<View className="mt-stack-sm flex-row items-center justify-between border-edge border-t pt-stack-sm">
-				<Text variant="caption" className="text-content-secondary">
+				<Text variant="caption" className="shrink-0 text-content-secondary">
 					This week
 				</Text>
-				<Text variant="body" className="font-bold text-content">
+				<Text
+					variant="body"
+					className="flex-1 text-right font-bold text-content"
+				>
 					{formatEgp(week)}
 				</Text>
 			</View>

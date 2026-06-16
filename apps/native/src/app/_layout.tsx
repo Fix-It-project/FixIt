@@ -8,6 +8,7 @@ import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { Observe, ObserveRoot, useObserve } from "expo-observe";
 import { Stack, useNavigationContainerRef, usePathname } from "expo-router";
 import { ThemeProvider } from "expo-router/react-navigation";
 import { StatusBar } from "expo-status-bar";
@@ -40,10 +41,19 @@ import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
 import { useLocationGuard } from "@/src/hooks/useLocationGate";
 import { RouteErrorBoundary } from "@/src/lib/errors/error-boundary";
+import { countMetric, METRICS } from "@/src/lib/metrics";
 import { ROUTES } from "@/src/lib/navigation";
 import { useLocationStore } from "@/src/stores/location-store";
 
 configureLaunchSplashScreen();
+
+// EAS Observe — per-route startup/navigation metrics. Must be configured at
+// module scope before any screen mounts. `dispatchInDebug` lets dev-client /
+// debug builds dispatch metrics (no-op on release builds).
+Observe.configure({
+	integrations: { "expo-router": true },
+	dispatchInDebug: true,
+});
 
 const styles = StyleSheet.create({
 	container: { flex: 1 },
@@ -60,8 +70,14 @@ function RootLayout() {
 	const pathname = usePathname();
 	const { shouldGate } = useLocationGuard();
 	const gateArmed = useLocationStore((s) => s.gateArmed);
+	const { markInteractive } = useObserve();
 	const dismissLaunchOverlay = useCallback(() => {
 		setShowLaunchOverlay(false);
+	}, []);
+
+	// Cold-start counter (one per session).
+	useEffect(() => {
+		countMetric(METRICS.appLaunch);
 	}, []);
 
 	useEffect(() => {
@@ -83,8 +99,10 @@ function RootLayout() {
 	useEffect(() => {
 		if (isReady) {
 			void hideLaunchSplashScreen();
+			// TTI: signal the app is genuinely interactive (bootstrap/auth resolved).
+			markInteractive();
 		}
-	}, [isReady]);
+	}, [isReady, markInteractive]);
 
 	if (!isReady) {
 		return null;
@@ -140,4 +158,4 @@ function RootLayout() {
 	);
 }
 
-export default Sentry.wrap(RootLayout);
+export default Sentry.wrap(ObserveRoot.wrap(RootLayout));

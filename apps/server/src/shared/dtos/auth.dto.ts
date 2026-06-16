@@ -31,8 +31,20 @@ export const ResetPasswordBodySchema = z.object({
   newPassword: z.string().min(6, 'New password must be at least 6 characters'),
 });
 
+export const OAuthCompleteBodySchema = z.object({
+  fullName: z.string().optional(),
+  phone: z.string().optional(),
+  city: z.string().min(1, 'City is required'),
+  street: z.string().min(1, 'Street is required'),
+  building_no: z.string().optional(),
+  apartment_no: z.string().optional(),
+  latitude: z.number().optional().nullable(),
+  longitude: z.number().optional().nullable(),
+});
+
 export type SignUpBody = z.infer<typeof SignUpBodySchema>;
 export type SignInBody = z.infer<typeof SignInBodySchema>;
 export type RefreshTokenBody = z.infer<typeof RefreshTokenBodySchema>;
 export type ForgotPasswordBody = z.infer<typeof ForgotPasswordBodySchema>;
 export type ResetPasswordBody = z.infer<typeof ResetPasswordBodySchema>;
+export type OAuthCompleteBody = z.infer<typeof OAuthCompleteBodySchema>;

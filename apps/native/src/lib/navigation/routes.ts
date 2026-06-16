@@ -14,6 +14,7 @@ export const ROUTES = {
 		roleSelection: "/role-selection" as const,
 		login: "/login" as const,
 		signup: "/signup" as const,
+		signupStep2: "/signup/step-2" as const,
 		forgotPassword: "/forgot-password" as const,
 		resetPassword: "/reset-password" as const,
 		techLogin: "/tech-login" as const,

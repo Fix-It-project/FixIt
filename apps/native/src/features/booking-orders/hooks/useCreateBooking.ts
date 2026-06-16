@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createOrder } from "@/src/features/booking-orders/api/orders";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
+import { countMetric, METRICS } from "@/src/lib/metrics";
 import { USER_ORDERS_KEY } from "./useUserOrders";
 
 export function useCreateBookingMutation() {
@@ -17,6 +18,7 @@ export function useCreateBookingMutation() {
 				return [createdOrder, ...withoutExisting];
 			});
 			queryClient.invalidateQueries({ queryKey: USER_ORDERS_KEY });
+			countMetric(METRICS.orderBooked);
 		},
 	});
 }

@@ -12,6 +12,10 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 		persistSession: false,
 		detectSessionInUrl: false,
 		storage: undefined,
+		// PKCE for the native Google OAuth flow. The code verifier lives in the
+		// in-memory storage fallback — fine because the in-app web session
+		// (openAuthSessionAsync) keeps the JS context alive through the redirect.
+		flowType: "pkce",
 	},
 });
 

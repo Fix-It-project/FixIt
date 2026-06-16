@@ -27,6 +27,19 @@ export const signOutResponseSchema = z.object({
 });
 export type SignOutResponse = z.infer<typeof signOutResponseSchema>;
 
+// ─── OAuth Completion (user side) ────────────────────────────────────────────
+
+export const oauthStatusResponseSchema = z.object({
+	needsProfile: z.boolean(),
+});
+export type OAuthStatusResponse = z.infer<typeof oauthStatusResponseSchema>;
+
+export const oauthCompleteResponseSchema = z.object({
+	user: authUserSchema,
+	message: z.string(),
+});
+export type OAuthCompleteResponse = z.infer<typeof oauthCompleteResponseSchema>;
+
 export const getCurrentUserResponseSchema = z.object({
 	user: z.object({
 		id: z.string(),

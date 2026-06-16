@@ -18,6 +18,7 @@ import { useStartTrackingMutation } from "../hooks/useStartTrackingMutation";
 import type { TechHomeOrder } from "../schemas/orders.schema";
 import { formatSlotTime } from "../utils/format-time";
 import { formatEgp } from "../utils/money";
+import { JobInspectionMeta } from "./JobInspectionMeta";
 import { SectionHeader } from "./SectionHeader";
 
 /**
@@ -123,6 +124,13 @@ export function NextJobCard({ order }: { order: TechHomeOrder }) {
 							</View>
 						)}
 					</View>
+
+					{/* inspection fee + distance it was priced from */}
+					<JobInspectionMeta
+						inspectionFee={order.inspection_fee}
+						inspectionDistanceKm={order.inspection_distance_km}
+						className="pb-stack-sm"
+					/>
 
 					{/* actions */}
 					<View className="flex-row gap-stack-sm">

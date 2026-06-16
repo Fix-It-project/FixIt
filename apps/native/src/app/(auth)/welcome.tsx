@@ -131,7 +131,7 @@ export default function WelcomeScreen() {
 					<View
 						className="items-center justify-center bg-app-primary px-6"
 						style={{
-							paddingTop: insets.top + space[8],
+							paddingTop: insets.top + space[12],
 							paddingBottom: space[10],
 							overflow: "hidden",
 							borderBottomLeftRadius: 24,
