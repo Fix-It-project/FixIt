@@ -1,12 +1,21 @@
+import { env } from "@FixIt/env/native";
 import * as SecureStore from "expo-secure-store";
 import apiClient from "@/src/config/api-client";
+import { supabase } from "@/src/config/supabase";
 import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import { logger } from "@/src/lib/logger";
-import { supabase } from "@/src/config/supabase";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { recommendationsResponseSchema } from "./schemas/response.schema";
 
-const RECOMMENDER_BASE_URL = process.env.EXPO_PUBLIC_RECOMMENDATION_API_URL;
+const RECOMMENDER_BASE_URL = env.EXPO_PUBLIC_RECOMMENDATION_API_URL;
+
+function requireRecommendationBaseUrl() {
+	if (!RECOMMENDER_BASE_URL) {
+		throw new Error("EXPO_PUBLIC_RECOMMENDATION_API_URL is not configured");
+	}
+
+	return RECOMMENDER_BASE_URL;
+}
 
 async function readSecureStoreAuthFallback(): Promise<{
 	userUuid: string | null;
@@ -90,10 +99,11 @@ export async function getRecommendedTechnicians(payload: {
 		top_k: payload.topK ?? 10,
 	};
 
-	const res = await fetch(`${RECOMMENDER_BASE_URL}/api/recommend`, {
+	const res = await fetch(`${requireRecommendationBaseUrl()}/api/recommend`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
+			"ngrok-skip-browser-warning": "true",
 			...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
 		},
 		body: JSON.stringify(body),

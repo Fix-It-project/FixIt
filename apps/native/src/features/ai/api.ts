@@ -1,3 +1,4 @@
+import { env } from "@FixIt/env/native";
 import axios from "axios";
 import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import { logger } from "@/src/lib/logger";
@@ -8,10 +9,18 @@ import {
 } from "./schemas/response.schema";
 import type { AgentOrderRequest, DiagnoseRequest } from "./types";
 
-const AI_BASE_URL = process.env.EXPO_PUBLIC_AI_BASE_URL;
+const AI_BASE_URL = env.EXPO_PUBLIC_AI_BASE_URL;
+
+function requireAiBaseUrl() {
+	if (!AI_BASE_URL) {
+		throw new Error("EXPO_PUBLIC_AI_BASE_URL is not configured");
+	}
+
+	return AI_BASE_URL;
+}
 
 const diagnoseClient = axios.create({
-	baseURL: AI_BASE_URL,
+	baseURL: requireAiBaseUrl(),
 	timeout: 100000,
 	headers: {
 		"Content-Type": "application/json",
@@ -20,7 +29,7 @@ const diagnoseClient = axios.create({
 });
 
 const agentClient = axios.create({
-	baseURL: AI_BASE_URL,
+	baseURL: requireAiBaseUrl(),
 	timeout: 100000,
 	headers: {
 		"Content-Type": "application/json",
