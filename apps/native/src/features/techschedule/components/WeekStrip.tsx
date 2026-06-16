@@ -1,27 +1,30 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
+	FlatList,
 	type LayoutChangeEvent,
+	type NativeScrollEvent,
+	type NativeSyntheticEvent,
 	Pressable,
 	StyleSheet,
 	View,
 } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, {
-	runOnJS,
-	useAnimatedStyle,
-	useSharedValue,
-	withTiming,
-	ZoomIn,
-} from "react-native-reanimated";
+import Animated, { ZoomIn } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import {
-	DUR_CALENDAR_SELECT,
-	EASE_OUT_EXPO,
-	EASE_OUT_QUART,
-} from "@/src/constants/animation";
+import { DUR_CALENDAR_SELECT, EASE_OUT_QUART } from "@/src/constants/animation";
 import { useThemeColors } from "@/src/constants/design-tokens";
-import { SHORT_DAY_NAMES } from "../constants";
-import { addDaysYmd, dayNumber, dayOfWeek, weekDays } from "../utils/date";
+import {
+	addDaysYmd,
+	dayNumber,
+	dayOfWeek,
+	startOfWeekYmd,
+	weekDays,
+} from "../utils/date";
+
+/** How many weeks forward the strip can browse. The past is never reachable — the
+ *  list starts on the week that contains today, so there is no page before it. */
+const HORIZON_WEEKS = 104;
+const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 interface WeekStripProps {
 	/** Any date inside the week to display. Swiping commits a new anchor. */
@@ -32,7 +35,7 @@ interface WeekStripProps {
 	readonly exceptionDates: ReadonlySet<string>;
 	readonly availableDayOfWeek: ReadonlySet<number>;
 	readonly onSelect: (date: string) => void;
-	/** Commit the adjacent week after a finger swipe settles. */
+	/** Commit the week scrolled into view. */
 	readonly onWeekChange: (anchor: string) => void;
 }
 
@@ -57,6 +60,10 @@ function DayCell({
 	onSelect,
 }: DayCellProps) {
 	const themeColors = useThemeColors();
+	const { t } = useTranslation("technician");
+	const shortDays = t("calendar.weekdaysShort", {
+		returnObjects: true,
+	}) as string[];
 	const dow = dayOfWeek(ymd);
 	const isSelected = ymd === selectedDate;
 	const isToday = ymd === today;
@@ -78,7 +85,7 @@ function DayCell({
 			accessibilityState={{ selected: isSelected }}
 		>
 			<Text variant="caption" style={{ color: themeColors.textMuted }}>
-				{SHORT_DAY_NAMES[dow]}
+				{shortDays[dow]}
 			</Text>
 			<View
 				className="h-9 w-9 items-center justify-center rounded-pill"
@@ -153,12 +160,25 @@ function WeekPanel({
 	);
 }
 
+/** Week index (0-based) of `ymd` relative to `firstWeekStart`, clamped to range. */
+function weekIndexOf(ymd: string, firstWeekStart: string): number {
+	const toUtc = (s: string) => {
+		const [y, m, d] = s.split("-").map(Number);
+		return Date.UTC(y, m - 1, d);
+	};
+	const raw = Math.round(
+		(toUtc(startOfWeekYmd(ymd)) - toUtc(firstWeekStart)) / MS_PER_WEEK,
+	);
+	return Math.max(0, Math.min(HORIZON_WEEKS - 1, raw));
+}
+
 /**
- * Horizontal Sun→Sat strip that the finger drags live (UI-thread `onUpdate`),
- * snapping to the previous/next week on release. Three panels render side by
- * side; the middle one is the active week, so a swipe reveals the neighbour
- * already in place — no blank frame. Tapping a day selects it, identical to
- * tapping a day in the month calendar.
+ * Horizontal Sun→Sat week strip backed by a paged `FlatList`. Native scrolling
+ * keeps the position on the UI thread, so a swipe never desyncs from its content
+ * — no recentre, no flicker. The first page is the week containing today, so the
+ * list cannot scroll into the past; only the current week and beyond are
+ * reachable. Tapping a day selects it, identical to tapping in the month
+ * calendar.
  */
 export function WeekStrip({
 	weekAnchor,
@@ -171,101 +191,118 @@ export function WeekStrip({
 	onWeekChange,
 }: WeekStripProps) {
 	const [width, setWidth] = useState(0);
-	const widthSv = useSharedValue(0);
-	const tx = useSharedValue(0);
+	const listRef = useRef<FlatList<string>>(null);
+	// Tracks the page currently centred so external anchor changes (e.g. tapping a
+	// future day in the month calendar) scroll the strip, while our own swipes —
+	// which already moved the list natively — do not trigger a redundant scroll.
+	const currentIndexRef = useRef(0);
+
+	const firstWeekStart = useMemo(() => startOfWeekYmd(today), [today]);
+
+	const weeks = useMemo(
+		() =>
+			Array.from({ length: HORIZON_WEEKS }, (_, i) =>
+				addDaysYmd(firstWeekStart, i * 7),
+			),
+		[firstWeekStart],
+	);
 
 	const onLayout = useCallback(
 		(e: LayoutChangeEvent) => {
 			const next = e.nativeEvent.layout.width;
-			if (next === width) return;
-			setWidth(next);
-			widthSv.value = next;
-			tx.value = -next; // rest centred on the middle (active) panel
+			if (next !== width) setWidth(next);
 		},
-		[width, widthSv, tx],
+		[width],
 	);
 
-	// Only advance the anchor here. The recentre is deferred to the effect below
-	// so it lands *after* the three panels re-render around the new anchor —
-	// resetting tx in the same call would snap the middle panel back while it
-	// still held the OLD week, flashing the previous week for a frame.
-	const commit = useCallback(
-		(delta: number) => {
-			onWeekChange(addDaysYmd(weekAnchor, delta));
-		},
-		[onWeekChange, weekAnchor],
+	const getItemLayout = useCallback(
+		(_: ArrayLike<string> | null | undefined, index: number) => ({
+			length: width,
+			offset: width * index,
+			index,
+		}),
+		[width],
 	);
 
-	// Recentre onto the (now-active) middle panel once the new anchor has
-	// rendered. Instant set, no timing — the content is already the target week,
-	// so the position change is invisible.
-	useEffect(() => {
-		// `weekAnchor` is the trigger (always a truthy ymd); recentre is always to
-		// the middle panel, so reading it in the guard is behaviour-neutral.
-		if (width > 0 && weekAnchor) tx.value = -widthSv.value;
-	}, [weekAnchor, width, tx, widthSv]);
-
-	const pan = Gesture.Pan()
-		.activeOffsetX([-12, 12])
-		.failOffsetY([-14, 14])
-		.onUpdate((e) => {
-			tx.value = -widthSv.value + e.translationX;
-		})
-		.onEnd((e) => {
-			const threshold = widthSv.value * 0.22;
-			const next = e.translationX <= -threshold || e.velocityX < -600;
-			const prev = e.translationX >= threshold || e.velocityX > 600;
-			if (next) {
-				tx.value = withTiming(
-					-2 * widthSv.value,
-					{ duration: 200, easing: EASE_OUT_EXPO },
-					(done) => done && runOnJS(commit)(7),
-				);
-			} else if (prev) {
-				tx.value = withTiming(
-					0,
-					{ duration: 200, easing: EASE_OUT_EXPO },
-					(done) => done && runOnJS(commit)(-7),
-				);
-			} else {
-				tx.value = withTiming(-widthSv.value, {
-					duration: DUR_CALENDAR_SELECT,
-					easing: EASE_OUT_EXPO,
-				});
+	const onMomentumEnd = useCallback(
+		(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+			if (width <= 0) return;
+			const i = Math.max(
+				0,
+				Math.min(
+					weeks.length - 1,
+					Math.round(e.nativeEvent.contentOffset.x / width),
+				),
+			);
+			currentIndexRef.current = i;
+			const anchor = weeks[i];
+			if (startOfWeekYmd(anchor) !== startOfWeekYmd(weekAnchor)) {
+				onWeekChange(anchor);
 			}
-		});
+		},
+		[width, weeks, weekAnchor, onWeekChange],
+	);
 
-	const rowStyle = useAnimatedStyle(() => ({
-		transform: [{ translateX: tx.value }],
-	}));
+	// Mirror an externally driven anchor (a calendar tap in another week) onto the
+	// scroll position. Skipped when the target is already centred so our own
+	// swipes don't fight the native scroll.
+	useEffect(() => {
+		if (width <= 0) return;
+		const i = weekIndexOf(weekAnchor, firstWeekStart);
+		if (i === currentIndexRef.current) return;
+		currentIndexRef.current = i;
+		listRef.current?.scrollToIndex({ index: i, animated: true });
+	}, [weekAnchor, width, firstWeekStart]);
 
-	const cell = {
-		selectedDate,
-		today,
-		orderDates,
-		exceptionDates,
-		availableDayOfWeek,
-		onSelect,
-	};
+	const cell = useMemo(
+		() => ({
+			selectedDate,
+			today,
+			orderDates,
+			exceptionDates,
+			availableDayOfWeek,
+			onSelect,
+		}),
+		[
+			selectedDate,
+			today,
+			orderDates,
+			exceptionDates,
+			availableDayOfWeek,
+			onSelect,
+		],
+	);
+
+	const renderItem = useCallback(
+		({ item }: { item: string }) => (
+			<WeekPanel anchor={item} width={width} {...cell} />
+		),
+		[width, cell],
+	);
 
 	return (
 		<View onLayout={onLayout} className="overflow-hidden">
 			{width > 0 ? (
-				<GestureDetector gesture={pan}>
-					<Animated.View className="flex-row" style={rowStyle}>
-						<WeekPanel
-							anchor={addDaysYmd(weekAnchor, -7)}
-							width={width}
-							{...cell}
-						/>
-						<WeekPanel anchor={weekAnchor} width={width} {...cell} />
-						<WeekPanel
-							anchor={addDaysYmd(weekAnchor, 7)}
-							width={width}
-							{...cell}
-						/>
-					</Animated.View>
-				</GestureDetector>
+				<FlatList
+					ref={listRef}
+					data={weeks}
+					keyExtractor={(item) => item}
+					renderItem={renderItem}
+					getItemLayout={getItemLayout}
+					initialScrollIndex={weekIndexOf(weekAnchor, firstWeekStart)}
+					horizontal
+					pagingEnabled
+					bounces={false}
+					showsHorizontalScrollIndicator={false}
+					onMomentumScrollEnd={onMomentumEnd}
+					onScrollToIndexFailed={(info) => {
+						listRef.current?.scrollToOffset({
+							offset: info.index * width,
+							animated: false,
+						});
+					}}
+					style={{ width }}
+				/>
 			) : null}
 		</View>
 	);

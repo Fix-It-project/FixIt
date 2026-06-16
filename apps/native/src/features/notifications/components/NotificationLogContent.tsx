@@ -135,20 +135,20 @@ function groupByDay(
 }
 
 export default function NotificationLogContent({
-	role,
+	notificationRole,
 	title,
 	showBackButton = true,
 }: Readonly<{
-	role: NotificationPreferencesRole;
+	notificationRole: NotificationPreferencesRole;
 	title: string;
 	showBackButton?: boolean;
 }>) {
 	const { t, i18n } = useTranslation("notifications");
 	const themeColors = useThemeColors();
 	const { data, isLoading, isRefetching, refetch } =
-		useNotificationLogsQuery(role);
+		useNotificationLogsQuery(notificationRole);
 	const { mutate: markAllRead, isPending: isMarkingRead } =
-		useMarkAllNotificationsReadMutation(role);
+		useMarkAllNotificationsReadMutation(notificationRole);
 
 	useEffect(() => {
 		if (data?.some((item) => !item.isRead) && !isMarkingRead) {
@@ -222,7 +222,7 @@ export default function NotificationLogContent({
 						</Text>
 					)}
 					renderItem={({ item }) => {
-						const target = notificationTarget(item, role);
+						const target = notificationTarget(item, notificationRole);
 						const avatarLabel = senderLabel(item);
 						return (
 							<PressableScale

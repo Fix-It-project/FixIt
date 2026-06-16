@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -13,7 +14,7 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
 import { spacing } from "@/src/constants/design-tokens";
-import { DAY_NAMES, formatSlotHour, SLOT_HOURS } from "../constants";
+import { formatSlotHour, SLOT_HOURS } from "../constants";
 import { useCompleteScheduleSetup } from "../hooks/useCompleteScheduleSetup";
 import {
 	type SaveTemplateRow,
@@ -96,6 +97,8 @@ function DayCard({
 	readonly onToggleDay: () => void;
 	readonly onToggleSlot: (hour: number) => void;
 }) {
+	const { t } = useTranslation("technician");
+	const days = t("calendar.daysLong", { returnObjects: true }) as string[];
 	const enabled = hours.length > 0;
 	return (
 		<Animated.View layout={LinearTransition.duration(200)}>
@@ -103,12 +106,12 @@ function DayCard({
 				<View className="flex-row items-center justify-between">
 					<View>
 						<Text variant="label" className="font-bold text-content">
-							{DAY_NAMES[dow]}
+							{days[dow]}
 						</Text>
 						<Text variant="caption" className="text-content-muted">
 							{enabled
-								? `${hours.length} slot${hours.length === 1 ? "" : "s"}`
-								: "Day off"}
+								? t("schedule.setup.slotCount", { count: hours.length })
+								: t("schedule.setup.dayOff")}
 						</Text>
 					</View>
 					<Switch checked={enabled} onCheckedChange={onToggleDay} />
@@ -140,6 +143,7 @@ function DayCard({
  * complete, so onboarding never returns — even with zero working days.
  */
 export function ScheduleSetup() {
+	const { t } = useTranslation("technician");
 	const templatesQuery = useScheduleTemplatesQuery();
 	const save = useSaveScheduleTemplatesMutation();
 	const complete = useCompleteScheduleSetup();
@@ -190,7 +194,7 @@ export function ScheduleSetup() {
 		try {
 			await save.mutateAsync(rows);
 			await complete.mutateAsync();
-			Toast.show({ type: "success", text1: "Schedule saved" });
+			Toast.show({ type: "success", text1: t("schedule.setup.saved") });
 			router.back();
 		} catch {
 			// Failure toast handled globally via MutationCache.onError.
@@ -201,7 +205,7 @@ export function ScheduleSetup() {
 		<View className="flex-1 bg-surface">
 			<ScreenStatusBar variant="surface" />
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
-				<PageHeader title="Set up schedule" />
+				<PageHeader title={t("schedule.setup.title")} />
 
 				{slots === null ? (
 					<SetupLoading />
@@ -216,12 +220,11 @@ export function ScheduleSetup() {
 							}}
 						>
 							<Text variant="body" className="text-content-secondary">
-								Turn on the days you take jobs, then choose the visit times you
-								offer. You can change this anytime.
+								{t("schedule.setup.intro")}
 							</Text>
-							{DAY_NAMES.map((dayName, dow) => (
+							{[0, 1, 2, 3, 4, 5, 6].map((dow) => (
 								<DayCard
-									key={dayName}
+									key={dow}
 									dow={dow}
 									hours={slots[dow]}
 									onToggleDay={() => toggleDay(dow)}
@@ -231,13 +234,18 @@ export function ScheduleSetup() {
 						</ScrollView>
 
 						<View
-							className="border-border border-t bg-surface px-screen-x pt-stack-md"
+							className="bg-surface px-screen-x pt-stack-md"
 							style={{ paddingBottom: spacing.screen.paddingBottom }}
 						>
-							<Button size="lg" fullWidth loading={isSaving} onPress={handleSave}>
+							<Button
+								size="lg"
+								fullWidth
+								loading={isSaving}
+								onPress={handleSave}
+							>
 								{workingDays > 0
-									? `Save schedule · ${workingDays} day${workingDays === 1 ? "" : "s"}`
-									: "Save schedule"}
+									? t("schedule.setup.saveWithDays", { count: workingDays })
+									: t("schedule.setup.save")}
 							</Button>
 						</View>
 					</>

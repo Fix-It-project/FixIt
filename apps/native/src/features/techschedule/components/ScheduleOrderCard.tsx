@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { ChevronRight, Clock, Navigation, Receipt } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Icon } from "@/src/components/ui/icon";
@@ -23,6 +24,7 @@ export function ScheduleOrderCard({
 	readonly booking: TechnicianBooking;
 }) {
 	const themeColors = useThemeColors();
+	const { t } = useTranslation("technician");
 	const openDetail = useDebounce(() =>
 		router.push(ROUTES.technician.bookingDetail(booking.id)),
 	);
@@ -41,7 +43,7 @@ export function ScheduleOrderCard({
 					openCoordinatesInMaps(booking.user_latitude, booking.user_longitude)
 				}
 				disabled={!hasCoords}
-				accessibilityLabel="Open customer location in maps"
+				accessibilityLabel={t("schedule.orderCard.openLocationAria")}
 				className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
 				style={{ backgroundColor: avatarColor }}
 			>
@@ -58,7 +60,9 @@ export function ScheduleOrderCard({
 				pressedScale={0.99}
 				onPress={openDetail}
 				className="flex-1 flex-row items-center gap-stack-sm"
-				accessibilityLabel={`Open booking with ${booking.user_name ?? "customer"}`}
+				accessibilityLabel={t("schedule.orderCard.openBookingAria", {
+					name: booking.user_name ?? t("schedule.orderCard.customerFallback"),
+				})}
 			>
 				<View className="flex-1">
 					<Text
@@ -66,14 +70,14 @@ export function ScheduleOrderCard({
 						className="font-bold text-content"
 						numberOfLines={1}
 					>
-						{booking.user_name ?? "Customer"}
+						{booking.user_name ?? t("schedule.orderCard.customerFallback")}
 					</Text>
 					<Text
 						variant="caption"
 						className="text-content-secondary"
 						numberOfLines={1}
 					>
-						{booking.service_name ?? "Service"}
+						{booking.service_name ?? t("schedule.orderCard.serviceFallback")}
 					</Text>
 					<View className="mt-stack-xs flex-row flex-wrap items-center gap-x-stack-md gap-y-0.5">
 						{time ? (
@@ -94,7 +98,11 @@ export function ScheduleOrderCard({
 						) : null}
 						{distance ? (
 							<View className="flex-row items-center gap-1">
-								<Icon as={Navigation} size={12} className="text-content-muted" />
+								<Icon
+									as={Navigation}
+									size={12}
+									className="text-content-muted"
+								/>
 								<Text variant="caption" className="text-content-muted">
 									{distance}
 								</Text>

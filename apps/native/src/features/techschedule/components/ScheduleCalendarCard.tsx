@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react-native";
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -47,6 +48,7 @@ export function ScheduleCalendarCard({
 	onSelectDate,
 	onWeekChange,
 }: ScheduleCalendarCardProps) {
+	const { t } = useTranslation("technician");
 	const calendarOpen = useScheduleAccordionStore((s) => s.calendarOpen);
 	const setCalendarOpen = useScheduleAccordionStore((s) => s.setCalendarOpen);
 
@@ -85,7 +87,9 @@ export function ScheduleCalendarCard({
 				>
 					<AccordionTrigger className="flex-row items-center justify-center gap-1 pt-stack-sm">
 						<Text variant="caption" className="font-semibold text-app-primary">
-							{calendarOpen ? "Hide calendar" : "Open calendar"}
+							{calendarOpen
+								? t("schedule.hideCalendar")
+								: t("schedule.openCalendar")}
 						</Text>
 						<Animated.View style={chevronStyle}>
 							<Icon as={ChevronDown} size={16} className="text-app-primary" />

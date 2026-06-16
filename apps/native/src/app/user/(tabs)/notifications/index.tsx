@@ -5,7 +5,7 @@ export default function UserNotificationsTabScreen() {
 	const { t } = useTranslation("notifications");
 	return (
 		<NotificationLogContent
-			role="user"
+			notificationRole="user"
 			title={t("title")}
 			showBackButton={false}
 		/>

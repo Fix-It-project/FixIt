@@ -1,4 +1,5 @@
 import { Navigation, Receipt } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
@@ -18,7 +19,11 @@ export function JobMetaRow({
 	readonly inspectionDistanceKm?: number | null;
 	readonly className?: string;
 }) {
-	const distance = formatJobDistanceKm(inspectionDistanceKm);
+	const { t } = useTranslation("technician");
+	const distance = formatJobDistanceKm(
+		inspectionDistanceKm,
+		t("calendar.units.km"),
+	);
 	const hasFee = inspectionFee != null && inspectionFee > 0;
 
 	if (!hasFee && !distance) return null;
@@ -31,7 +36,12 @@ export function JobMetaRow({
 				<View className="flex-row items-center gap-1">
 					<Icon as={Receipt} size={13} className="text-content-secondary" />
 					<Text variant="caption" className="text-content-secondary">
-						Inspection {formatCurrency(inspectionFee as number)}
+						{t("jobs.inspection.fee", {
+							amount: formatCurrency(
+								inspectionFee as number,
+								t("calendar.units.egp"),
+							),
+						})}
 					</Text>
 				</View>
 			) : null}

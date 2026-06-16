@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	Easing,
@@ -17,9 +18,9 @@ interface EarningsChartProps {
 	daily: Array<{ date: string; amount: number }>;
 }
 
-function weekdayLetter(dateStr: string): string {
+function weekdayLetter(dateStr: string, labels: readonly string[]): string {
 	const d = new Date(`${dateStr}T12:00:00`);
-	return ["S", "M", "T", "W", "T", "F", "S"][d.getDay()] ?? "";
+	return labels[d.getDay()] ?? "";
 }
 
 const BAR_WIDTH = 22;
@@ -88,6 +89,10 @@ function Bar({
  * the weekday labels share one flex grid and stay aligned on every RN version.
  */
 export function EarningsChart({ daily }: EarningsChartProps) {
+	const { t } = useTranslation("technician");
+	const weekdayLabels = t("home.chart.weekdayLetters", {
+		returnObjects: true,
+	}) as string[];
 	const allZero = daily.every((d) => d.amount === 0);
 	const todayIndex = daily.length - 1;
 	const max = Math.max(1, ...daily.map((d) => d.amount));
@@ -102,7 +107,7 @@ export function EarningsChart({ daily }: EarningsChartProps) {
 					style={{ height: EARNINGS_CHART_HEIGHT }}
 				>
 					<Text variant="caption" className="text-content-muted">
-						Earnings from completed jobs will chart here
+						{t("home.earnings.emptyChart")}
 					</Text>
 				</View>
 			) : (
@@ -131,7 +136,7 @@ export function EarningsChart({ daily }: EarningsChartProps) {
 									: "text-content-muted"
 							}
 						>
-							{weekdayLetter(d.date)}
+							{weekdayLetter(d.date, weekdayLabels)}
 						</Text>
 					</View>
 				))}

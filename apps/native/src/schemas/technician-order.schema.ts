@@ -37,6 +37,7 @@ export const technicianBookingSchema = z.object({
 	payment_method: z.enum(["cash", "card"]).nullable().optional(),
 	user_completed_at: z.string().nullable().optional(),
 	technician_completed_at: z.string().nullable().optional(),
+	has_open_report: z.boolean().optional(),
 });
 
 export const technicianBookingResponseSchema = z.object({

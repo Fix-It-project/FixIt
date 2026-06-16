@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
@@ -21,6 +22,7 @@ export function RescheduleJobItem({
 	booking,
 	direction,
 }: RescheduleJobItemProps) {
+	const { t } = useTranslation("technician");
 	const themeColors = useThemeColors();
 	const initials = getPfpInitialsFallback(booking.user_name);
 	const avatarColor = getAvatarColor(booking.user_name);
@@ -47,14 +49,14 @@ export function RescheduleJobItem({
 						className="font-bold text-content"
 						numberOfLines={1}
 					>
-						{booking.user_name ?? "Customer"}
+						{booking.user_name ?? t("jobs.common.customer")}
 					</Text>
 					<Text
 						variant="caption"
 						className="text-content-muted"
 						numberOfLines={1}
 					>
-						{booking.service_name ?? "Service"}
+						{booking.service_name ?? t("jobs.common.service")}
 					</Text>
 				</View>
 				<View
@@ -68,7 +70,9 @@ export function RescheduleJobItem({
 							incoming ? "text-warning" : "text-app-primary"
 						}`}
 					>
-						{incoming ? "Needs response" : "Awaiting customer"}
+						{incoming
+							? t("jobs.reschedules.needsResponse")
+							: t("jobs.reschedules.awaitingCustomer")}
 					</Text>
 				</View>
 			</View>

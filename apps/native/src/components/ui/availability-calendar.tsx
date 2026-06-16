@@ -7,8 +7,9 @@
 // the UTC-midnight boundary.
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
-import { Calendar, type DateData } from "react-native-calendars";
+import { Calendar, type DateData, LocaleConfig } from "react-native-calendars";
 import Animated, {
 	useAnimatedStyle,
 	useReducedMotion,
@@ -29,6 +30,92 @@ import {
 	useThemeColors,
 	useThemeTokens,
 } from "@/src/constants/design-tokens";
+
+// Localize the month header + weekday row (react-native-calendars reads these
+// from its global LocaleConfig). Registered once; the component points
+// `defaultLocale` at the active language on each render.
+LocaleConfig.locales.en = {
+	monthNames: [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December",
+	],
+	monthNamesShort: [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec",
+	],
+	dayNames: [
+		"Sunday",
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday",
+	],
+	dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+	today: "Today",
+};
+LocaleConfig.locales.ar = {
+	monthNames: [
+		"يناير",
+		"فبراير",
+		"مارس",
+		"أبريل",
+		"مايو",
+		"يونيو",
+		"يوليو",
+		"أغسطس",
+		"سبتمبر",
+		"أكتوبر",
+		"نوفمبر",
+		"ديسمبر",
+	],
+	monthNamesShort: [
+		"يناير",
+		"فبراير",
+		"مارس",
+		"أبريل",
+		"مايو",
+		"يونيو",
+		"يوليو",
+		"أغسطس",
+		"سبتمبر",
+		"أكتوبر",
+		"نوفمبر",
+		"ديسمبر",
+	],
+	dayNames: [
+		"الأحد",
+		"الإثنين",
+		"الثلاثاء",
+		"الأربعاء",
+		"الخميس",
+		"الجمعة",
+		"السبت",
+	],
+	dayNamesShort: ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"],
+	today: "اليوم",
+};
 
 const CAIRO_TZ = "Africa/Cairo";
 
@@ -121,6 +208,9 @@ export function AvailabilityCalendar({
 		[tokens, backgroundColor],
 	);
 
+	const { i18n } = useTranslation();
+	LocaleConfig.defaultLocale = i18n.language === "ar" ? "ar" : "en";
+
 	const today = useMemo(() => cairoTodayYmd(), []);
 	const [visibleMonth, setVisibleMonth] = useState(selectedDate ?? today);
 	const maxDate = useMemo(
@@ -139,10 +229,7 @@ export function AvailabilityCalendar({
 		[exceptions],
 	);
 
-	const orderDateSet = useMemo(
-		() => new Set(orderDates ?? []),
-		[orderDates],
-	);
+	const orderDateSet = useMemo(() => new Set(orderDates ?? []), [orderDates]);
 
 	const orderDotStyle = useMemo(
 		() =>
@@ -276,7 +363,9 @@ export function AvailabilityCalendar({
 					);
 				}
 				return (
-					<View className="h-9 w-9 items-center justify-center">{slashCell}</View>
+					<View className="h-9 w-9 items-center justify-center">
+						{slashCell}
+					</View>
 				);
 			}
 
@@ -291,7 +380,9 @@ export function AvailabilityCalendar({
 					<Text variant="bodySm" style={{ color: themeColors.textCalendar }}>
 						{date.day}
 					</Text>
-					{hasOrder ? <View pointerEvents="none" style={orderDotStyle} /> : null}
+					{hasOrder ? (
+						<View pointerEvents="none" style={orderDotStyle} />
+					) : null}
 				</TouchableOpacity>
 			);
 		},

@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { CalendarClock, ChevronRight } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Icon } from "@/src/components/ui/icon";
@@ -14,6 +15,7 @@ import { useIncomingReschedules } from "../hooks/useTechHomeOrdersQuery";
  * accept/deny lives (no duplicated action logic on the home screen).
  */
 export function RescheduleTeaserCard() {
+	const { t } = useTranslation("technician");
 	const incoming = useIncomingReschedules();
 	const open = useDebounce(() =>
 		router.push(ROUTES.technician.jobsTab("reschedules")),
@@ -28,19 +30,17 @@ export function RescheduleTeaserCard() {
 				pressedScale={0.985}
 				onPress={open}
 				className="flex-row items-center gap-stack-md rounded-card bg-card p-card"
-				accessibilityLabel="Review reschedule requests"
+				accessibilityLabel={t("home.reschedules.reviewAria")}
 			>
 				<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill bg-app-primary/10">
 					<Icon as={CalendarClock} size={20} className="text-app-primary" />
 				</View>
 				<View className="flex-1">
 					<Text variant="label" className="font-bold text-content">
-						{count === 1
-							? "1 reschedule request"
-							: `${count} reschedule requests`}
+						{t("home.reschedules.title", { count })}
 					</Text>
 					<Text variant="caption" className="text-content-muted">
-						Tap to review and respond.
+						{t("home.reschedules.body")}
 					</Text>
 				</View>
 				<Icon as={ChevronRight} size={18} className="text-content-muted" />

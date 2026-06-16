@@ -1,10 +1,15 @@
 import { router } from "expo-router";
 import { Pencil } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import Animated, {
+	FadeInDown,
+	useAnimatedStyle,
+	useSharedValue,
+	withTiming,
+} from "react-native-reanimated";
 import Toast from "react-native-toast-message";
-import { PressableScale } from "@/src/components/animation/pressable-scale";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Icon } from "@/src/components/ui/icon";
@@ -47,6 +52,7 @@ function ScheduleLoading() {
  */
 export function SchedulePage({ initialDate }: SchedulePageProps) {
 	const themeColors = useThemeColors();
+	const { t } = useTranslation("technician");
 	const today = useMemo(() => cairoTodayYmd(), []);
 	const [selectedDate, setSelectedDate] = useState(initialDate ?? today);
 	// The strip's week moves with finger swipes independently of the selection,
@@ -104,11 +110,18 @@ export function SchedulePage({ initialDate }: SchedulePageProps) {
 	const isWorkingDay = availableDayOfWeek.has(dayOfWeek(selectedDate));
 	const isLoading = templatesQuery.isPending || exceptionsQuery.isPending;
 
+	// The edit FAB darkens (rather than shrinks) while held — a deeper shade of
+	// primary fades in over it, so it reads as pressed/inset, not pushed away.
+	const fabPressed = useSharedValue(0);
+	const fabOverlayStyle = useAnimatedStyle(() => ({
+		opacity: fabPressed.value,
+	}));
+
 	return (
 		<View className="flex-1 bg-surface">
 			<ScreenStatusBar variant="surface" />
 			<PageHeader
-				title="Schedule"
+				title={t("schedule.title")}
 				showBackButton={false}
 				className="border-b-0"
 			/>
@@ -155,9 +168,14 @@ export function SchedulePage({ initialDate }: SchedulePageProps) {
 				</ScrollView>
 			)}
 
-			<PressableScale
-				pressedScale={0.92}
+			<Pressable
 				onPress={() => router.push(ROUTES.technician.scheduleSetup)}
+				onPressIn={() => {
+					fabPressed.value = withTiming(1, { duration: 80 });
+				}}
+				onPressOut={() => {
+					fabPressed.value = withTiming(0, { duration: 180 });
+				}}
 				className="absolute h-14 w-14 items-center justify-center rounded-full bg-app-primary"
 				style={{
 					right: spacing.screen.paddingX,
@@ -169,10 +187,20 @@ export function SchedulePage({ initialDate }: SchedulePageProps) {
 					elevation: 6,
 				}}
 				accessibilityRole="button"
-				accessibilityLabel="Edit schedule"
+				accessibilityLabel={t("schedule.editAria")}
 			>
+				{/* Darken-on-press scrim — circular (own radius) so the parent needs no
+				    overflow-hidden, which would otherwise clip the shadow on iOS. */}
+				<Animated.View
+					pointerEvents="none"
+					style={[
+						StyleSheet.absoluteFill,
+						fabOverlayStyle,
+						{ borderRadius: 999, backgroundColor: themeColors.primaryDark },
+					]}
+				/>
 				<Icon as={Pencil} size={22} className="text-surface-on-primary" />
-			</PressableScale>
+			</Pressable>
 		</View>
 	);
 }

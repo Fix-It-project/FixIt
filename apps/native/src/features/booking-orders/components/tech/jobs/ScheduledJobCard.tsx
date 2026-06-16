@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { CalendarClock, ChevronRight, Clock } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Icon } from "@/src/components/ui/icon";
@@ -30,14 +31,16 @@ function isLive(status: string): boolean {
 
 /** One committed job in the Jobs → Scheduled tab. Whole card opens detail. */
 export function ScheduledJobCard({ booking }: ScheduledJobCardProps) {
+	const { t, i18n } = useTranslation("technician");
 	const themeColors = useThemeColors();
 	const open = useDebounce(() =>
 		router.push(ROUTES.technician.bookingDetail(booking.id)),
 	);
 	const initials = getPfpInitialsFallback(booking.user_name);
 	const avatarColor = getAvatarColor(booking.user_name);
-	const scheduledTime = formatTime(booking.scheduled_start_at);
+	const scheduledTime = formatTime(booking.scheduled_start_at, i18n.language);
 	const live = isLive(booking.status);
+	const customerName = booking.user_name ?? t("jobs.common.customer");
 	const reschedulePending =
 		booking.has_pending_reschedule === true ||
 		RESCHEDULE_PENDING_STATUSES.has(booking.status as never);
@@ -47,7 +50,9 @@ export function ScheduledJobCard({ booking }: ScheduledJobCardProps) {
 			pressedScale={0.985}
 			onPress={open}
 			className="rounded-card bg-card p-card"
-			accessibilityLabel={`Open booking with ${booking.user_name ?? "customer"}`}
+			accessibilityLabel={t("jobs.scheduled.openBookingAria", {
+				name: customerName,
+			})}
 		>
 			<View className="flex-row items-center gap-stack-md">
 				<View
@@ -70,7 +75,7 @@ export function ScheduledJobCard({ booking }: ScheduledJobCardProps) {
 							className="flex-1 font-bold text-content"
 							numberOfLines={1}
 						>
-							{booking.user_name ?? "Customer"}
+							{customerName}
 						</Text>
 						{live ? (
 							<View className="rounded-pill bg-status-online/15 px-stack-sm py-0.5">
@@ -78,7 +83,7 @@ export function ScheduledJobCard({ booking }: ScheduledJobCardProps) {
 									variant="caption"
 									className="font-semibold text-status-online"
 								>
-									Live
+									{t("jobs.scheduled.live")}
 								</Text>
 							</View>
 						) : null}
@@ -89,13 +94,13 @@ export function ScheduledJobCard({ booking }: ScheduledJobCardProps) {
 						className="mt-0.5 text-content-secondary"
 						numberOfLines={1}
 					>
-						{booking.service_name ?? "Service"}
+						{booking.service_name ?? t("jobs.common.service")}
 					</Text>
 
 					<View className="mt-stack-xs flex-row items-center gap-1">
 						<Icon as={Clock} size={13} className="text-content-muted" />
 						<Text variant="caption" className="text-content-muted">
-							{scheduledTime ?? "Time TBD"}
+							{scheduledTime ?? t("jobs.common.timeTbd")}
 						</Text>
 					</View>
 
@@ -112,7 +117,7 @@ export function ScheduledJobCard({ booking }: ScheduledJobCardProps) {
 								variant="caption"
 								className="font-semibold text-app-primary"
 							>
-								Reschedule pending
+								{t("jobs.scheduled.reschedulePending")}
 							</Text>
 						</View>
 					) : null}

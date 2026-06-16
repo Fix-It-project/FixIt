@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
 	AlertDialog,
@@ -18,6 +19,7 @@ import { RequestCard } from "./RequestCard";
 import { SectionHeader } from "./SectionHeader";
 
 export function IncomingRequestsSection() {
+	const { t } = useTranslation("technician");
 	const { data: pending } = usePendingRequests();
 	const { data: stats } = useTechHomeStatsQuery();
 	const accept = useAcceptOrderMutation();
@@ -45,8 +47,8 @@ export function IncomingRequestsSection() {
 	return (
 		<View className="px-screen-x pt-stack-lg">
 			<SectionHeader
-				title="Incoming requests"
-				hint={`${pending.length} waiting`}
+				title={t("home.sections.incomingRequests")}
+				hint={t("home.requests.waiting", { count: pending.length })}
 			/>
 
 			<View className="gap-stack-sm">
@@ -67,21 +69,20 @@ export function IncomingRequestsSection() {
 				<AlertDialog.Header>
 					<AlertDialogTitle>
 						<Text variant="h3" className="font-bold text-content">
-							Decline this request?
+							{t("home.requests.dialogTitle")}
 						</Text>
 					</AlertDialogTitle>
 				</AlertDialog.Header>
 				<AlertDialog.Body>
 					<AlertDialogDescription>
 						<Text variant="caption" className="text-content-muted">
-							Optionally tell the customer why. Declining often hurts your
-							acceptance rate.
+							{t("home.requests.dialogBody")}
 						</Text>
 					</AlertDialogDescription>
 					<Textarea
 						value={reason}
 						onChangeText={setReason}
-						placeholder="Reason (optional)"
+						placeholder={t("home.requests.reasonPlaceholder")}
 						maxLength={500}
 						className="mt-stack-sm"
 					/>
@@ -89,7 +90,7 @@ export function IncomingRequestsSection() {
 				<AlertDialog.Footer>
 					<Button variant="secondary" size="md" onPress={closeDeclineDialog}>
 						<Text variant="buttonMd" className="text-content">
-							Keep request
+							{t("home.requests.keepRequest")}
 						</Text>
 					</Button>
 					<Button
@@ -99,7 +100,7 @@ export function IncomingRequestsSection() {
 						disabled={decline.isPending}
 					>
 						<Text variant="buttonMd" className="text-surface-on-primary">
-							Decline
+							{t("home.requests.decline")}
 						</Text>
 					</Button>
 				</AlertDialog.Footer>

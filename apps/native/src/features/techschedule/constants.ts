@@ -1,5 +1,7 @@
 // Fixed booking slot hours (Cairo local) — the user booking flow depends on this
 // exact set, so the technician setup screen offers the same five.
+import i18n from "@/src/config/i18n";
+
 export const SLOT_HOURS = [8, 11, 14, 17, 20] as const;
 export type SlotHour = (typeof SLOT_HOURS)[number];
 
@@ -41,9 +43,12 @@ export const SCHEDULE_VISIBLE_STATUSES: ReadonlySet<string> = new Set([
 	"reschedule_requested_by_technician",
 ]);
 
-/** Friendly label for a slot hour, e.g. 8 → "8:00 AM", 14 → "2:00 PM". */
+/** Friendly label for a slot hour in the active language, e.g. 8 → "8:00 AM",
+ *  14 → "2:00 PM" (en) or "٨:٠٠ ص" / "٢:٠٠ م" (ar). */
 export function formatSlotHour(hour: number): string {
-	const period = hour >= 12 ? "PM" : "AM";
-	const display = hour % 12 === 0 ? 12 : hour % 12;
-	return `${display}:00 ${period}`;
+	return new Intl.DateTimeFormat(i18n.language || "en", {
+		hour: "numeric",
+		minute: "2-digit",
+		hour12: true,
+	}).format(new Date(2000, 0, 1, hour));
 }

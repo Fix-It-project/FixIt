@@ -6,6 +6,7 @@ import {
 	MapPin,
 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, SectionList, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import { useSharedValue } from "react-native-reanimated";
@@ -77,6 +78,7 @@ function JobsLoading() {
 }
 
 export function JobsScreen() {
+	const { t } = useTranslation("technician");
 	const themeColors = useThemeColors();
 	const params = useLocalSearchParams<{ tab?: string }>();
 	const pagerRef = useRef<PagerView>(null);
@@ -108,7 +110,7 @@ export function JobsScreen() {
 				{ orderId: id },
 				{
 					onSuccess: () =>
-						Toast.show({ type: "success", text1: "Job accepted" }),
+						Toast.show({ type: "success", text1: t("jobs.toast.accepted") }),
 					onError: (err) => {
 						logger.warn("jobs.request", "accept_failed", {
 							orderId: id,
@@ -116,7 +118,7 @@ export function JobsScreen() {
 						});
 						Toast.show({
 							type: "info",
-							text1: "Couldn't accept",
+							text1: t("jobs.toast.acceptFailed"),
 							text2: translateOrderError(err),
 						});
 					},
@@ -124,16 +126,16 @@ export function JobsScreen() {
 				},
 			);
 		},
-		[accept],
+		[accept, t],
 	);
 
 	const handleDecline = useCallback(
 		async (id: string) => {
 			const ok = await confirm({
-				title: "Decline this request?",
-				description: "The job goes back to the pool for other technicians.",
-				primary: { label: "Decline", destructive: true },
-				secondary: { label: "Keep" },
+				title: t("jobs.dialog.declineTitle"),
+				description: t("jobs.dialog.declineBody"),
+				primary: { label: t("jobs.dialog.decline"), destructive: true },
+				secondary: { label: t("jobs.dialog.keep") },
 			});
 			if (!ok) return;
 			setPendingId(id);
@@ -141,7 +143,7 @@ export function JobsScreen() {
 				{ orderId: id },
 				{
 					onSuccess: () =>
-						Toast.show({ type: "success", text1: "Request declined" }),
+						Toast.show({ type: "success", text1: t("jobs.toast.declined") }),
 					onError: (err) => {
 						logger.warn("jobs.request", "decline_failed", {
 							orderId: id,
@@ -149,7 +151,7 @@ export function JobsScreen() {
 						});
 						Toast.show({
 							type: "info",
-							text1: "Couldn't decline",
+							text1: t("jobs.toast.declineFailed"),
 							text2: translateOrderError(err),
 						});
 					},
@@ -157,24 +159,24 @@ export function JobsScreen() {
 				},
 			);
 		},
-		[decline],
+		[decline, t],
 	);
 
 	const tabs = useMemo(
 		() => [
 			{
 				key: "requests" as const,
-				label: "Requests",
+				label: t("jobs.tabs.requests"),
 				count: requests.data.length,
 			},
-			{ key: "scheduled" as const, label: "Scheduled" },
+			{ key: "scheduled" as const, label: t("jobs.tabs.scheduled") },
 			{
 				key: "reschedules" as const,
-				label: "Reschedules",
+				label: t("jobs.tabs.reschedules"),
 				count: reschedules.total,
 			},
 		],
-		[requests.data.length, reschedules.total],
+		[requests.data.length, reschedules.total, t],
 	);
 
 	const handleTabPress = useCallback((key: JobsTabKey, index: number) => {
@@ -187,7 +189,11 @@ export function JobsScreen() {
 	return (
 		<View className="flex-1 bg-surface">
 			<ScreenStatusBar variant="surface" />
-			<PageHeader title="Jobs" showBackButton={false} className="border-b-0" />
+			<PageHeader
+				title={t("jobs.title")}
+				showBackButton={false}
+				className="border-b-0"
+			/>
 			{/* Full-bleed: the track + sliding blue indicator reach both screen
 			    edges; labels stay centered in equal segments inside JobsTabBar. */}
 			<View style={{ backgroundColor: themeColors.surfaceBase }}>
@@ -259,6 +265,7 @@ function RequestsList({
 	readonly refreshing: boolean;
 	readonly onRefresh: () => void;
 }) {
+	const { t } = useTranslation("technician");
 	return (
 		<FlatList
 			data={data}
@@ -279,8 +286,8 @@ function RequestsList({
 			ListEmptyComponent={
 				<JobsEmptyState
 					icon={Inbox}
-					title="No new requests"
-					subtitle="Incoming jobs will appear here as customers book you."
+					title={t("jobs.empty.requestsTitle")}
+					subtitle={t("jobs.empty.requestsBody")}
 				/>
 			}
 		/>
@@ -296,6 +303,7 @@ function ScheduledList({
 	readonly refreshing: boolean;
 	readonly onRefresh: () => void;
 }) {
+	const { t } = useTranslation("technician");
 	const sections = useMemo(
 		() =>
 			groups.map((g) => ({
@@ -321,8 +329,8 @@ function ScheduledList({
 			ListEmptyComponent={
 				<JobsEmptyState
 					icon={CalendarDays}
-					title="Nothing scheduled"
-					subtitle="Accepted jobs show up here grouped by their date."
+					title={t("jobs.empty.scheduledTitle")}
+					subtitle={t("jobs.empty.scheduledBody")}
 				/>
 			}
 		/>
@@ -330,23 +338,28 @@ function ScheduledList({
 }
 
 function ScheduledSectionHeader({ date }: { readonly date: string }) {
+	const { t, i18n } = useTranslation("technician");
 	const viewInSchedule = useDebounce(() =>
 		router.push(ROUTES.technician.scheduleDay(date)),
 	);
 	return (
 		<View className="flex-row items-center justify-between pt-stack-sm pb-stack-xs">
 			<Text variant="label" className="font-bold text-content">
-				{formatJobDateLabel(date)}
+				{formatJobDateLabel(date, i18n.language, {
+					today: t("jobs.dates.today"),
+					tomorrow: t("jobs.dates.tomorrow"),
+					yesterday: t("jobs.dates.yesterday"),
+				})}
 			</Text>
 			<PressableScale
 				pressedScale={0.96}
 				onPress={viewInSchedule}
 				className="flex-row items-center gap-1 rounded-pill bg-app-primary/10 px-stack-md py-stack-xs"
-				accessibilityLabel="View this day in schedule"
+				accessibilityLabel={t("jobs.scheduled.viewInScheduleAria")}
 			>
 				<Icon as={MapPin} size={12} className="text-app-primary" />
 				<Text variant="caption" className="font-semibold text-app-primary">
-					View in schedule
+					{t("jobs.scheduled.viewInSchedule")}
 				</Text>
 			</PressableScale>
 		</View>
@@ -364,19 +377,23 @@ function ReschedulesList({
 	readonly refreshing: boolean;
 	readonly onRefresh: () => void;
 }) {
+	const { t } = useTranslation("technician");
 	const sections = useMemo(() => {
 		const out: { title: string; data: RescheduleJob[] }[] = [];
 		if (incoming.length) {
 			out.push({
-				title: "Needs your response",
+				title: t("jobs.reschedules.incomingSection"),
 				data: incoming as RescheduleJob[],
 			});
 		}
 		if (sent.length) {
-			out.push({ title: "Sent by you", data: sent as RescheduleJob[] });
+			out.push({
+				title: t("jobs.reschedules.sentSection"),
+				data: sent as RescheduleJob[],
+			});
 		}
 		return out;
-	}, [incoming, sent]);
+	}, [incoming, sent, t]);
 
 	return (
 		<SectionList
@@ -402,8 +419,8 @@ function ReschedulesList({
 			ListEmptyComponent={
 				<JobsEmptyState
 					icon={CalendarClock}
-					title="No reschedule requests"
-					subtitle="Reschedules you receive or send will show up here."
+					title={t("jobs.empty.reschedulesTitle")}
+					subtitle={t("jobs.empty.reschedulesBody")}
 				/>
 			}
 		/>

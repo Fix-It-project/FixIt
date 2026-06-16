@@ -1,10 +1,14 @@
 import { Check, Clock, MapPin, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
-import { formatTime } from "@/src/features/booking-orders/utils/booking-helpers";
+import {
+	formatDate,
+	formatTime,
+} from "@/src/features/booking-orders/utils/booking-helpers";
 import { formatRelativeTime } from "@/src/lib/date/relative-time";
 import type { TechnicianBooking } from "../../../schemas/response.schema";
 import { JobMetaRow } from "./JobMetaRow";
@@ -23,7 +27,9 @@ export function RequestJobCard({
 	onDecline,
 	actionPending,
 }: RequestJobCardProps) {
-	const scheduledTime = formatTime(booking.scheduled_start_at);
+	const { t, i18n } = useTranslation("technician");
+	const scheduledDate = formatDate(booking.scheduled_date, i18n.language);
+	const scheduledTime = formatTime(booking.scheduled_start_at, i18n.language);
 
 	return (
 		<Card elevated className="overflow-hidden p-card">
@@ -31,12 +37,12 @@ export function RequestJobCard({
 			<View className="flex-row items-center gap-stack-xs">
 				<View className="rounded-pill bg-app-primary/10 px-stack-sm py-0.5">
 					<Text variant="caption" className="font-semibold text-app-primary">
-						New request
+						{t("jobs.common.newRequest")}
 					</Text>
 				</View>
 				{booking.created_at ? (
 					<Text variant="caption" className="ml-auto text-content-muted">
-						{formatRelativeTime(booking.created_at)}
+						{formatRelativeTime(booking.created_at, new Date(), i18n.language)}
 					</Text>
 				) : null}
 			</View>
@@ -48,14 +54,14 @@ export function RequestJobCard({
 					className="font-bold text-content"
 					numberOfLines={1}
 				>
-					{booking.service_name ?? "New request"}
+					{booking.service_name ?? t("jobs.common.newRequest")}
 				</Text>
 				<Text
 					variant="caption"
 					className="mt-0.5 text-content-muted"
 					numberOfLines={2}
 				>
-					{booking.problem_description ?? "No description provided"}
+					{booking.problem_description ?? t("jobs.common.noDescription")}
 				</Text>
 			</View>
 
@@ -64,7 +70,7 @@ export function RequestJobCard({
 				<View className="flex-row items-center gap-1">
 					<Icon as={Clock} size={13} className="text-content-secondary" />
 					<Text variant="caption" className="text-content-secondary">
-						{booking.scheduled_date}
+						{scheduledDate}
 						{scheduledTime ? ` · ${scheduledTime}` : ""}
 					</Text>
 				</View>
@@ -96,11 +102,11 @@ export function RequestJobCard({
 					className="flex-1"
 					onPress={onDecline}
 					disabled={actionPending}
-					accessibilityLabel="Decline request"
+					accessibilityLabel={t("jobs.requests.declineAria")}
 				>
 					<Icon as={X} size={16} className="text-foreground" />
 					<Text variant="buttonMd" className="text-foreground">
-						Decline
+						{t("jobs.requests.decline")}
 					</Text>
 				</Button>
 				<Button
@@ -109,11 +115,11 @@ export function RequestJobCard({
 					className="flex-1"
 					onPress={onAccept}
 					disabled={actionPending}
-					accessibilityLabel="Accept request"
+					accessibilityLabel={t("jobs.requests.acceptAria")}
 				>
 					<Icon as={Check} size={16} className="text-surface-on-primary" />
 					<Text variant="buttonMd" className="text-surface-on-primary">
-						Accept job
+						{t("jobs.requests.acceptJob")}
 					</Text>
 				</Button>
 			</View>

@@ -1,5 +1,6 @@
 import { Check, Clock, MapPin, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
@@ -37,6 +38,7 @@ export function RequestCard({
 	onDecline,
 	actionPending,
 }: RequestCardProps) {
+	const { t, i18n } = useTranslation("technician");
 	const now = useNowTick();
 	const expiry =
 		pendingExpiryHours === undefined
@@ -61,13 +63,13 @@ export function RequestCard({
 					{expiry ? (
 						<Text variant="caption" className="font-semibold text-warning">
 							{expiry.remainingMs === 0
-								? "Expired"
-								: `Auto-declines in ${expiry.label}`}
+								? t("home.requests.expired")
+								: t("home.requests.autoDeclinesIn", { time: expiry.label })}
 						</Text>
 					) : null}
 					{order.created_at ? (
 						<Text variant="caption" className="ml-auto text-content-muted">
-							{formatRelativeTime(order.created_at)}
+							{formatRelativeTime(order.created_at, undefined, i18n.language)}
 						</Text>
 					) : null}
 				</View>
@@ -79,14 +81,14 @@ export function RequestCard({
 						className="font-bold text-content"
 						numberOfLines={1}
 					>
-						{order.service_name ?? "New request"}
+						{order.service_name ?? t("home.common.newRequest")}
 					</Text>
 					<Text
 						variant="caption"
 						className="mt-0.5 text-content-muted"
 						numberOfLines={2}
 					>
-						{order.problem_description ?? "No description provided"}
+						{order.problem_description ?? t("home.common.noDescription")}
 					</Text>
 				</View>
 
@@ -130,11 +132,11 @@ export function RequestCard({
 						className="flex-1"
 						onPress={onDecline}
 						disabled={actionPending}
-						accessibilityLabel="Decline request"
+						accessibilityLabel={t("home.requests.declineRequestAria")}
 					>
 						<Icon as={X} size={16} className="text-foreground" />
 						<Text variant="buttonMd" className="text-foreground">
-							Decline
+							{t("home.requests.decline")}
 						</Text>
 					</Button>
 					<Button
@@ -143,11 +145,11 @@ export function RequestCard({
 						className="flex-1"
 						onPress={onAccept}
 						disabled={actionPending}
-						accessibilityLabel="Accept request"
+						accessibilityLabel={t("home.requests.acceptRequestAria")}
 					>
 						<Icon as={Check} size={16} className="text-surface-on-primary" />
 						<Text variant="buttonMd" className="text-surface-on-primary">
-							Accept job
+							{t("home.requests.acceptJob")}
 						</Text>
 					</Button>
 				</View>

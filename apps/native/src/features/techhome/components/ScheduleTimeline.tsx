@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { CalendarDays, Check } from "lucide-react-native";
 import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	Easing,
@@ -193,12 +194,14 @@ function SlotRow({
 	index: number;
 	onPress: () => void;
 }) {
+	const { t } = useTranslation("technician");
 	const { order, state } = slot;
 	const time = formatSlotTime(order.scheduled_start_at);
 	const isDone = state === "done";
 	const emphasized = state === "active" || state === "next";
 
-	const label = order.service_name ?? order.problem_description ?? "Job";
+	const label =
+		order.service_name ?? order.problem_description ?? t("home.common.job");
 	const who = order.user_name ? ` · ${order.user_name}` : "";
 
 	return (
@@ -214,7 +217,9 @@ function SlotRow({
 			<PressableScale
 				onPress={onPress}
 				accessibilityRole="button"
-				accessibilityLabel={`Open ${label} details`}
+				accessibilityLabel={t("home.common.openNamedDetails", {
+					name: label,
+				})}
 				className="ml-1 flex-1"
 			>
 				<View
@@ -241,13 +246,13 @@ function SlotRow({
 									variant="caption"
 									className="font-bold text-surface-on-primary"
 								>
-									NEXT
+									{t("home.timeline.next")}
 								</Text>
 							</View>
 						) : state === "active" ? (
 							<View className="rounded-pill bg-app-primary-light px-2 py-0.5">
 								<Text variant="caption" className="font-bold text-app-primary">
-									ON NOW
+									{t("home.timeline.onNow")}
 								</Text>
 							</View>
 						) : order.final_price == null ? null : (
@@ -331,6 +336,7 @@ function Rail({ focusIndex, count }: { focusIndex: number; count: number }) {
 }
 
 export function ScheduleTimeline() {
+	const { t } = useTranslation("technician");
 	const router = useRouter();
 	const schedule = useTodaySchedule();
 	const { slots, focusIndex } = useTimeline(schedule);
@@ -341,7 +347,7 @@ export function ScheduleTimeline() {
 	return (
 		<View className="px-screen-x pt-stack-lg">
 			<SectionHeader
-				title="Today's schedule"
+				title={t("home.sections.todaySchedule")}
 				action={
 					<Button
 						variant="ghost"
@@ -350,7 +356,7 @@ export function ScheduleTimeline() {
 					>
 						<Icon as={CalendarDays} size={15} className="text-app-primary" />
 						<Text variant="buttonMd" className="text-app-primary">
-							Calendar
+							{t("home.timeline.calendar")}
 						</Text>
 					</Button>
 				}

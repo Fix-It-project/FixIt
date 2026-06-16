@@ -1,4 +1,5 @@
 import { CalendarOff, CalendarX2, CheckCircle2 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Button } from "@/src/components/ui/button";
@@ -64,6 +65,7 @@ export function ScheduleDayPanel({
 	isMutating,
 }: ScheduleDayPanelProps) {
 	const themeColors = useThemeColors();
+	const { t } = useTranslation("technician");
 	const isPast = selectedDate < today;
 	const isException = exceptionId != null;
 	const hasOrders = orders.length > 0;
@@ -91,8 +93,8 @@ export function ScheduleDayPanel({
 				<EmptyState
 					icon={CalendarOff}
 					tint={themeColors.statusUnavailable}
-					title="Marked unavailable"
-					subtitle="You won't receive bookings on this day."
+					title={t("schedule.day.markedUnavailableTitle")}
+					subtitle={t("schedule.day.markedUnavailableBody")}
 					action={
 						<Button
 							variant="secondary"
@@ -101,7 +103,7 @@ export function ScheduleDayPanel({
 							onPress={onRemoveException}
 						>
 							<Text variant="buttonMd" className="text-foreground">
-								Make available
+								{t("schedule.day.makeAvailable")}
 							</Text>
 						</Button>
 					}
@@ -110,22 +112,22 @@ export function ScheduleDayPanel({
 				<EmptyState
 					icon={CalendarX2}
 					tint={themeColors.textMuted}
-					title="Past day"
-					subtitle="No bookings were scheduled."
+					title={t("schedule.day.pastTitle")}
+					subtitle={t("schedule.day.pastBody")}
 				/>
 			) : !isWorkingDay ? (
 				<EmptyState
 					icon={CalendarOff}
 					tint={themeColors.textMuted}
-					title="Not a working day"
-					subtitle="Add this weekday from Edit schedule to take bookings."
+					title={t("schedule.day.notWorkingTitle")}
+					subtitle={t("schedule.day.notWorkingBody")}
 				/>
 			) : (
 				<EmptyState
 					icon={CheckCircle2}
 					tint={themeColors.success}
-					title="No bookings"
-					subtitle="This day is open. Mark it unavailable if you're off."
+					title={t("schedule.day.noBookingsTitle")}
+					subtitle={t("schedule.day.noBookingsBody")}
 					action={
 						<Button
 							variant="secondary"
@@ -134,7 +136,7 @@ export function ScheduleDayPanel({
 							onPress={onMarkUnavailable}
 						>
 							<Text variant="buttonMd" className="text-foreground">
-								Mark as unavailable
+								{t("schedule.day.markUnavailable")}
 							</Text>
 						</Button>
 					}

@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import LottieView, { type LottieViewProps } from "lottie-react-native";
 import { ArrowRight } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
 import Animated, { FadeIn, FadeInDown, FadeOut } from "react-native-reanimated";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
@@ -19,26 +20,22 @@ interface OnboardingStep {
 	readonly body: string;
 }
 
-const STEPS: readonly OnboardingStep[] = [
+// Art stays here (static requires); the copy is resolved from translations at
+// render so it follows the active language.
+const STEP_ART = [
 	{
 		key: "availability",
 		lottie: require("@/src/assets/lottie/schedule-availability.json"),
-		title: "Set your weekly availability",
-		body: "Choose the days you take jobs. Customers can only book you on the days you turn on.",
 	},
 	{
 		key: "slots",
 		lottie: require("@/src/assets/lottie/schedule-slots.json"),
-		title: "Pick your visit times",
-		body: "Offer up to five time slots a day, so every booking lands at an hour that works for you.",
 	},
 	{
 		key: "ready",
 		lottie: require("@/src/assets/lottie/schedule-ready.json"),
-		title: "Stay in control",
-		body: "Block a single day whenever you're off, and watch new bookings fill your calendar.",
 	},
-];
+] as const;
 
 /**
  * First-run schedule onboarding — a Lottie multi-step intro shown only while the
@@ -47,8 +44,29 @@ const STEPS: readonly OnboardingStep[] = [
  */
 export function ScheduleOnboarding() {
 	const themeColors = useThemeColors();
+	const { t } = useTranslation("technician");
 	const { width } = useWindowDimensions();
 	const [index, setIndex] = useState(0);
+
+	const stepCopy: Record<string, { title: string; body: string }> = {
+		availability: {
+			title: t("schedule.onboarding.steps.availabilityTitle"),
+			body: t("schedule.onboarding.steps.availabilityBody"),
+		},
+		slots: {
+			title: t("schedule.onboarding.steps.slotsTitle"),
+			body: t("schedule.onboarding.steps.slotsBody"),
+		},
+		ready: {
+			title: t("schedule.onboarding.steps.readyTitle"),
+			body: t("schedule.onboarding.steps.readyBody"),
+		},
+	};
+	const STEPS: OnboardingStep[] = STEP_ART.map((art) => ({
+		...art,
+		...stepCopy[art.key],
+	}));
+
 	const step = STEPS[index];
 	const isLast = index === STEPS.length - 1;
 
@@ -72,13 +90,13 @@ export function ScheduleOnboarding() {
 						pressedScale={0.96}
 						onPress={goSetup}
 						className="px-stack-md py-stack-xs"
-						accessibilityLabel="Skip intro and set up schedule"
+						accessibilityLabel={t("schedule.onboarding.skipAria")}
 					>
 						<Text
 							variant="buttonMd"
 							className="font-semibold text-content-muted"
 						>
-							Skip
+							{t("schedule.onboarding.skip")}
 						</Text>
 					</PressableScale>
 				</View>
@@ -143,7 +161,9 @@ export function ScheduleOnboarding() {
 						iconRight={ArrowRight}
 						onPress={onPrimary}
 					>
-						{isLast ? "Set up schedule" : "Next"}
+						{isLast
+							? t("schedule.onboarding.setup")
+							: t("schedule.onboarding.next")}
 					</Button>
 				</View>
 			</View>

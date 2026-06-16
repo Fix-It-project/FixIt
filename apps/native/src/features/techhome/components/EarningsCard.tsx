@@ -1,4 +1,5 @@
 import { TrendingDown, TrendingUp } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
@@ -15,6 +16,7 @@ import { EarningsChart } from "./EarningsChart";
  * is integrated; everything else is live data.
  */
 export function EarningsCard() {
+	const { t } = useTranslation("technician");
 	const { data: stats } = useTechHomeStatsQuery();
 
 	const today = stats?.earnings.today ?? 0;
@@ -28,7 +30,7 @@ export function EarningsCard() {
 			<View className="flex-row items-start justify-between">
 				<View className="flex-1">
 					<Text variant="caption" className="text-content-muted">
-						Today's earnings
+						{t("home.earnings.today")}
 					</Text>
 					<Text variant="display" className="mt-1 font-bold text-content">
 						{formatEgp(animatedToday)}
@@ -44,8 +46,10 @@ export function EarningsCard() {
 								variant="caption"
 								className={delta >= 0 ? "text-success" : "text-danger"}
 							>
-								{delta >= 0 ? "+" : ""}
-								{delta}% vs yesterday
+								{t("home.earnings.vsYesterday", {
+									sign: delta >= 0 ? "+" : "",
+									value: delta,
+								})}
 							</Text>
 						</View>
 					)}
@@ -55,10 +59,10 @@ export function EarningsCard() {
 					variant="tonal"
 					size="sm"
 					disabled
-					accessibilityLabel="Cash out — coming soon"
+					accessibilityLabel={t("home.earnings.cashOutSoonAria")}
 				>
 					<Text variant="buttonMd" className="text-app-primary">
-						Cash out
+						{t("home.earnings.cashOut")}
 					</Text>
 				</Button>
 			</View>
@@ -71,7 +75,7 @@ export function EarningsCard() {
 			{/* weekly total — hairline divider, no second surface */}
 			<View className="mt-stack-sm flex-row items-center justify-between border-edge border-t pt-stack-sm">
 				<Text variant="caption" className="shrink-0 text-content-secondary">
-					This week
+					{t("home.earnings.thisWeek")}
 				</Text>
 				<Text
 					variant="body"

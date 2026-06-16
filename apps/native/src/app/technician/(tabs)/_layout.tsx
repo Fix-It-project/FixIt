@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { Bell, Briefcase, type LucideProps, User } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
 	CalendarDaysTabIcon,
@@ -72,6 +73,7 @@ function TechNotificationTabIcon({
 }
 
 export default function TechAppTabsLayout() {
+	const { t } = useTranslation("technician");
 	const themeColors = useThemeColors();
 	const { data: unreadCount } = useNotificationUnreadCountQuery("technician");
 	const hasUnread = (unreadCount ?? 0) > 0;
@@ -87,7 +89,7 @@ export default function TechAppTabsLayout() {
 			<Tabs.Screen
 				name="index"
 				options={{
-					title: "Home",
+					title: t("tabs.home"),
 					tabBarIcon: ({ color, size, focused }) => (
 						<HouseTabIcon
 							color={color}
@@ -101,14 +103,14 @@ export default function TechAppTabsLayout() {
 			<Tabs.Screen
 				name="jobs/index"
 				options={{
-					title: "Jobs",
+					title: t("tabs.jobs"),
 					tabBarIcon: TechJobsTabIcon,
 				}}
 			/>
 			<Tabs.Screen
 				name="schedule/index"
 				options={{
-					title: "Schedule",
+					title: t("tabs.schedule"),
 					tabBarIcon: ({ color, size, focused }) => (
 						<CalendarDaysTabIcon
 							color={color}
@@ -122,7 +124,7 @@ export default function TechAppTabsLayout() {
 			<Tabs.Screen
 				name="notifications/index"
 				options={{
-					title: "Notifications",
+					title: t("tabs.notifications"),
 					tabBarIcon: ({ color, size, focused }) => (
 						<TechNotificationTabIcon
 							color={color}
@@ -143,7 +145,7 @@ export default function TechAppTabsLayout() {
 			<Tabs.Screen
 				name="profile/index"
 				options={{
-					title: "My Profile",
+					title: t("tabs.profile"),
 					tabBarIcon: TechProfileTabIcon,
 				}}
 			/>

@@ -1,4 +1,5 @@
 import { Navigation, Receipt } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
@@ -19,6 +20,7 @@ export function JobInspectionMeta({
 	inspectionDistanceKm?: number | null;
 	className?: string;
 }) {
+	const { t } = useTranslation("technician");
 	const distance = formatDistanceKm(inspectionDistanceKm);
 	const hasFee = inspectionFee != null && inspectionFee > 0;
 
@@ -32,7 +34,9 @@ export function JobInspectionMeta({
 				<View className="flex-row items-center gap-1">
 					<Icon as={Receipt} size={13} className="text-content-secondary" />
 					<Text variant="caption" className="text-content-secondary">
-						Inspection {formatEgp(inspectionFee as number)}
+						{t("home.inspection.fee", {
+							amount: formatEgp(inspectionFee as number),
+						})}
 					</Text>
 				</View>
 			) : null}

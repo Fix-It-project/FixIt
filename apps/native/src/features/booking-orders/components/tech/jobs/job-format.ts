@@ -7,9 +7,12 @@ import {
 } from "@/src/features/booking-orders/utils/booking-helpers";
 
 /** "3.4 km" or null when no distance was recorded. */
-export function formatJobDistanceKm(km?: number | null): string | null {
+export function formatJobDistanceKm(
+	km?: number | null,
+	unit?: string,
+): string | null {
 	if (km == null) return null;
-	return `${km.toFixed(1)} km`;
+	return unit ? `${km.toFixed(1)} ${unit}` : km.toFixed(1);
 }
 
 function ymd(date: Date): string {
@@ -19,18 +22,23 @@ function ymd(date: Date): string {
 	return `${y}-${m}-${d}`;
 }
 
-/**
- * Human date-group label: "Today" / "Tomorrow" / "Yesterday" else a formatted
- * date ("Mar 27, 2026"). Relative to the device's local day.
- */
-export function formatJobDateLabel(dateStr: string, language?: string): string {
+/** Human date-group label, relative to the device's local day. */
+export function formatJobDateLabel(
+	dateStr: string,
+	language: string | undefined,
+	labels: {
+		readonly today: string;
+		readonly tomorrow: string;
+		readonly yesterday: string;
+	},
+): string {
 	const now = new Date();
 	const today = ymd(now);
 	const tomorrow = ymd(new Date(now.getTime() + 86_400_000));
 	const yesterday = ymd(new Date(now.getTime() - 86_400_000));
-	if (dateStr === today) return "Today";
-	if (dateStr === tomorrow) return "Tomorrow";
-	if (dateStr === yesterday) return "Yesterday";
+	if (dateStr === today) return labels.today;
+	if (dateStr === tomorrow) return labels.tomorrow;
+	if (dateStr === yesterday) return labels.yesterday;
 	return formatDate(dateStr, language);
 }
 
