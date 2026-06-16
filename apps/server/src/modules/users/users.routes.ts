@@ -8,5 +8,6 @@ const router: RouterType = Router();
 
 router.get('/profile', requireUserAuth, usersController.getProfile);
 router.put('/profile', requireUserAuth, validate({ body: UpdateUserProfileBodySchema }), usersController.updateProfile);
+router.get('/me/stats', requireUserAuth, usersController.getStats);
 
 export default router;

@@ -65,6 +65,18 @@ export interface TechnicianDashboardStats {
 	pendingExpiryHours: number;
 }
 
+/**
+ * Technician wallet for the profile screen. There is no payout/settlement
+ * ledger, so `lifetimeEarnings` is the sum of all paid payments (NOT a
+ * withdrawable balance). `last30` powers the profile earnings area chart.
+ */
+export interface TechnicianWallet {
+	lifetimeEarnings: number;
+	currency: string;
+	/** Last 30 Cairo calendar days, oldest first, today last. */
+	last30: Array<{ date: string; amount: number }>;
+}
+
 export interface ITechniciansService {
 	getTechniciansByCategory(
 		categoryId: string,
@@ -88,6 +100,7 @@ export interface ITechniciansService {
 	): Promise<TechnicianSelfProfile>;
 	completeScheduleSetup(technicianId: string): Promise<TechnicianSelfProfile>;
 	getStats(technicianId: string): Promise<TechnicianDashboardStats>;
+	getWallet(technicianId: string): Promise<TechnicianWallet>;
 	uploadProfileImage(
 		technicianId: string,
 		file: Express.Multer.File,
@@ -377,6 +390,37 @@ export class TechniciansService implements ITechniciansService {
 				weeklyReviewCount: weeklyRatingStats.review_count,
 			},
 			pendingExpiryHours: PENDING_ORDER_EXPIRY_HOURS,
+		};
+	}
+
+	async getWallet(technicianId: string): Promise<TechnicianWallet> {
+		const now = new Date();
+		const last30Days = cairoLastNDays(30, now);
+		const todayStr = cairoDateString(now);
+		const thirtyDaysAgoIso = cairoMidnightUtc(
+			shiftDateString(todayStr, -30),
+		).toISOString();
+
+		const [lifetimeEarnings, recentPayments] = await Promise.all([
+			this.statsRepo.getLifetimePaidTotal(technicianId),
+			this.statsRepo.getPaidPaymentsSince(technicianId, thirtyDaysAgoIso),
+		]);
+
+		const last30Map = new Map<string, number>(last30Days.map((d) => [d, 0]));
+		for (const p of recentPayments) {
+			const day = cairoDateString(new Date(p.paid_at));
+			if (last30Map.has(day))
+				last30Map.set(day, (last30Map.get(day) ?? 0) + p.amount);
+		}
+
+		// EGP is the app's only currency (amounts are whole EGP integers).
+		return {
+			lifetimeEarnings,
+			currency: "EGP",
+			last30: last30Days.map((date) => ({
+				date,
+				amount: last30Map.get(date) ?? 0,
+			})),
 		};
 	}
 

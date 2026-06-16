@@ -179,6 +179,20 @@ export class TechniciansController {
 		},
 	);
 
+	getWallet: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const technicianId = (req as any).technician?.id;
+			if (!technicianId) {
+				throw AppError.unauthorized("Technician not authenticated", {
+					token: "no_technician",
+				});
+			}
+			const wallet = await service.getWallet(technicianId);
+			req.log.info({ action: "technician_wallet_retrieved", technicianId });
+			res.json({ wallet });
+		},
+	);
+
 	uploadProfileImage: RequestHandler = asyncHandler(
 		async (req: Request, res: Response) => {
 			const technicianId = (req as any).technician?.id;
