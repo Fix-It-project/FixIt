@@ -1,5 +1,6 @@
 import "../../global.css";
 import "@/src/config/reanimated";
+import "@/src/config/google-signin";
 import "@/src/config/intl-polyfills";
 import "@/src/config/monitoring";
 import "@/src/config/i18n";
@@ -37,6 +38,7 @@ import {
 } from "@/src/constants/design-tokens";
 import { useNotificationRouting } from "@/src/features/notifications/hooks/useNotificationRouting";
 import { usePushRegistration } from "@/src/features/notifications/hooks/usePushRegistration";
+import { OtaUpdateObserver } from "@/src/features/updates/components/OtaUpdateObserver";
 import { useAndroidSystemUi } from "@/src/hooks/useAndroidSystemUi";
 import { useAppBootstrap } from "@/src/hooks/useAppBootstrap";
 import { useLocationGuard } from "@/src/hooks/useLocationGate";
@@ -128,6 +130,7 @@ function RootLayout() {
 											</Stack>
 										</RouteErrorBoundary>
 
+										<OtaUpdateObserver />
 										<PortalHost />
 										<DialogProvider />
 										<PortalHost name="dialog-root" />

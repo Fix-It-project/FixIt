@@ -1,65 +1,55 @@
+import {
+	GoogleSignin,
+	isErrorWithCode,
+	isSuccessResponse,
+	statusCodes,
+} from "@react-native-google-signin/google-signin";
 import type { Session } from "@supabase/supabase-js";
-import * as Linking from "expo-linking";
-import * as WebBrowser from "expo-web-browser";
 import { supabase } from "@/src/config/supabase";
 import { toAppError } from "@/src/lib/errors";
-
-WebBrowser.maybeCompleteAuthSession();
 
 export type GoogleOAuthResult =
 	| { type: "success"; session: Session }
 	| { type: "cancel" }
 	| { type: "error"; error: ReturnType<typeof toAppError> };
 
-/**
- * Runs Google sign-in entirely inside the app (ASWebAuthenticationSession /
- * Chrome Custom Tab) and finishes the PKCE handshake. The previous version
- * opened the browser but ignored its result, so no code was ever exchanged and
- * no session was created — that was the bug.
- */
 export function useGoogleOAuth() {
 	const signInWithGoogle = async (): Promise<GoogleOAuthResult> => {
 		try {
-			const redirectUrl = Linking.createURL("/");
-
-			const { data, error } = await supabase.auth.signInWithOAuth({
-				provider: "google",
-				options: { redirectTo: redirectUrl, skipBrowserRedirect: true },
+			await GoogleSignin.hasPlayServices({
+				showPlayServicesUpdateDialog: true,
 			});
-			if (error || !data.url) {
-				return {
-					type: "error",
-					error: toAppError(error ?? new Error("oauth_init_failed")),
-				};
-			}
+			await GoogleSignin.signOut();
 
-			const result = await WebBrowser.openAuthSessionAsync(
-				data.url,
-				redirectUrl,
-			);
-			if (result.type !== "success") {
+			const response = await GoogleSignin.signIn();
+			if (!isSuccessResponse(response)) {
 				return { type: "cancel" };
 			}
 
-			// PKCE: the redirect carries `?code=...`; exchange it for a session.
-			const { queryParams } = Linking.parse(result.url);
-			const code =
-				typeof queryParams?.code === "string" ? queryParams.code : null;
-			if (!code) {
-				return { type: "error", error: toAppError(new Error("oauth_no_code")) };
-			}
-
-			const { data: sessionData, error: exchangeError } =
-				await supabase.auth.exchangeCodeForSession(code);
-			if (exchangeError || !sessionData.session) {
+			const idToken = response.data.idToken;
+			if (!idToken) {
 				return {
 					type: "error",
-					error: toAppError(exchangeError ?? new Error("oauth_exchange_failed")),
+					error: toAppError(new Error("oauth_no_id_token")),
 				};
 			}
 
-			return { type: "success", session: sessionData.session };
+			const { data, error } = await supabase.auth.signInWithIdToken({
+				provider: "google",
+				token: idToken,
+			});
+			if (error || !data.session) {
+				return {
+					type: "error",
+					error: toAppError(error ?? new Error("oauth_exchange_failed")),
+				};
+			}
+
+			return { type: "success", session: data.session };
 		} catch (err) {
+			if (isErrorWithCode(err) && err.code === statusCodes.SIGN_IN_CANCELLED) {
+				return { type: "cancel" };
+			}
 			return { type: "error", error: toAppError(err) };
 		}
 	};

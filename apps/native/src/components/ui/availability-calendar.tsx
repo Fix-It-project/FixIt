@@ -81,6 +81,20 @@ interface AvailabilityCalendarProps {
 	 * of unavailable. Used by reschedule when technician availability is unknown.
 	 */
 	readonly permissiveWhenEmpty?: boolean;
+	/** Dates (YYYY-MM-DD) that have orders — painted with a small dot. */
+	readonly orderDates?: readonly string[];
+	/**
+	 * Technician-only: makes future UNAVAILABLE days tappable (so the tech can
+	 * select one to view it / un-mark it). Default `false` keeps the user +
+	 * reschedule behaviour of blocking unavailable days untouched.
+	 */
+	readonly allowUnavailableSelection?: boolean;
+	/**
+	 * Override the calendar surface color (default = theme surface). Pass
+	 * `"transparent"` to blend the calendar seamlessly into a parent card instead
+	 * of painting its own panel.
+	 */
+	readonly backgroundColor?: string;
 }
 
 export function AvailabilityCalendar({
@@ -90,13 +104,22 @@ export function AvailabilityCalendar({
 	onDateSelect,
 	monthsAhead = 3,
 	permissiveWhenEmpty = false,
+	orderDates,
+	allowUnavailableSelection = false,
+	backgroundColor,
 }: AvailabilityCalendarProps) {
 	const themeColors = useThemeColors();
 	const tokens = useThemeTokens();
 	const reducedMotion = useReducedMotion();
 	const monthProgress = useSharedValue(1);
 	const monthDirection = useSharedValue(1);
-	const calendarTheme = useMemo(() => getCalendarTheme(tokens), [tokens]);
+	const calendarTheme = useMemo(
+		() =>
+			backgroundColor
+				? { ...getCalendarTheme(tokens), calendarBackground: backgroundColor }
+				: getCalendarTheme(tokens),
+		[tokens, backgroundColor],
+	);
 
 	const today = useMemo(() => cairoTodayYmd(), []);
 	const [visibleMonth, setVisibleMonth] = useState(selectedDate ?? today);
@@ -114,6 +137,24 @@ export function AvailabilityCalendar({
 	const exceptionDates = useMemo(
 		() => new Set(exceptions.map((e) => e.date)),
 		[exceptions],
+	);
+
+	const orderDateSet = useMemo(
+		() => new Set(orderDates ?? []),
+		[orderDates],
+	);
+
+	const orderDotStyle = useMemo(
+		() =>
+			({
+				position: "absolute",
+				bottom: 3,
+				width: 5,
+				height: 5,
+				borderRadius: 999,
+				backgroundColor: themeColors.success,
+			}) as const,
+		[themeColors.success],
 	);
 
 	const calendarAnimatedStyle = useAnimatedStyle(() => ({
@@ -161,6 +202,7 @@ export function AvailabilityCalendar({
 					: true;
 			const isSelected = ymd === selectedDate;
 			const isBlocked = isPast || isUnavailable;
+			const hasOrder = orderDateSet.has(ymd);
 
 			// Selected (available) day → filled primary circle.
 			if (isSelected && !isBlocked) {
@@ -198,8 +240,8 @@ export function AvailabilityCalendar({
 
 			// Future-but-unavailable day → SLASHED (diagonal strike over a muted number).
 			if (isUnavailable) {
-				return (
-					<View className="h-9 w-9 items-center justify-center">
+				const slashCell = (
+					<>
 						<Text variant="bodySm" style={{ color: themeColors.textMuted }}>
 							{date.day}
 						</Text>
@@ -213,11 +255,32 @@ export function AvailabilityCalendar({
 								transform: [{ rotate: "-45deg" }],
 							}}
 						/>
-					</View>
+					</>
+				);
+				// Technician mode: let the tech tap an unavailable day to view / un-mark
+				// it. Default keeps unavailable days inert for user + reschedule flows.
+				if (allowUnavailableSelection) {
+					return (
+						<TouchableOpacity
+							onPress={() => onDateSelect(ymd)}
+							activeOpacity={0.7}
+							className="h-9 w-9 items-center justify-center rounded-pill"
+							style={
+								isSelected
+									? { borderWidth: 1.5, borderColor: themeColors.primary }
+									: undefined
+							}
+						>
+							{slashCell}
+						</TouchableOpacity>
+					);
+				}
+				return (
+					<View className="h-9 w-9 items-center justify-center">{slashCell}</View>
 				);
 			}
 
-			// Available day → tappable.
+			// Available day → tappable (order days get a dot).
 			return (
 				<TouchableOpacity
 					onPress={() => onDateSelect(ymd)}
@@ -228,6 +291,7 @@ export function AvailabilityCalendar({
 					<Text variant="bodySm" style={{ color: themeColors.textCalendar }}>
 						{date.day}
 					</Text>
+					{hasOrder ? <View pointerEvents="none" style={orderDotStyle} /> : null}
 				</TouchableOpacity>
 			);
 		},
@@ -237,6 +301,9 @@ export function AvailabilityCalendar({
 			permissiveWhenEmpty,
 			availableDays,
 			exceptionDates,
+			orderDateSet,
+			orderDotStyle,
+			allowUnavailableSelection,
 			selectedDate,
 			onDateSelect,
 			reducedMotion,

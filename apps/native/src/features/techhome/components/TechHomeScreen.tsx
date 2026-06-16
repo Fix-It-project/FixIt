@@ -21,6 +21,7 @@ import { IncomingRequestsSection } from "./IncomingRequestsSection";
 import { NextJobCard } from "./NextJobCard";
 import { PerformanceGrid } from "./PerformanceGrid";
 import { PromoCard } from "./PromoCard";
+import { RescheduleTeaserCard } from "./RescheduleTeaserCard";
 import { ScheduleTimeline } from "./ScheduleTimeline";
 import { TechHomeSkeleton } from "./skeletons";
 
@@ -109,15 +110,20 @@ export function TechHomeScreen() {
 							<IncomingRequestsSection />
 						</Enter>
 
+						{/* Appears only when a customer sent a reschedule request. */}
 						<Enter order={3}>
-							<ScheduleTimeline />
+							<RescheduleTeaserCard />
 						</Enter>
 
 						<Enter order={4}>
-							<PerformanceGrid />
+							<ScheduleTimeline />
 						</Enter>
 
 						<Enter order={5}>
+							<PerformanceGrid />
+						</Enter>
+
+						<Enter order={6}>
 							<PromoCard {...PROMO_PLACEHOLDER} />
 						</Enter>
 					</>

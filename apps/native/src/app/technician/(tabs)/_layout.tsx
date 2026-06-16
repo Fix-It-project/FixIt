@@ -1,5 +1,5 @@
-import { Tabs, usePathname } from "expo-router";
-import { Bell, type LucideProps, User, Wallet } from "lucide-react-native";
+import { Tabs } from "expo-router";
+import { Bell, Briefcase, type LucideProps, User } from "lucide-react-native";
 import { View } from "react-native";
 import {
 	CalendarDaysTabIcon,
@@ -17,13 +17,13 @@ type NotificationTabIconProps = LucideTabIconProps & { hasUnread: boolean };
 // Home + Schedule use custom split-path glyphs so the interior detail (house door,
 // calendar day dots) cuts out to the tab-bar background (surfaceBase) when focused
 // — see the inline tabBarIcon renders below, which supply detailColor.
-function TechWalletTabIcon({
+function TechJobsTabIcon({
 	color,
 	size,
 	focused,
 }: Readonly<LucideTabIconProps>) {
 	return (
-		<Wallet
+		<Briefcase
 			size={size}
 			color={color}
 			strokeWidth={1.8}
@@ -73,21 +73,16 @@ function TechNotificationTabIcon({
 
 export default function TechAppTabsLayout() {
 	const themeColors = useThemeColors();
-	const pathname = usePathname();
 	const { data: unreadCount } = useNotificationUnreadCountQuery("technician");
 	const hasUnread = (unreadCount ?? 0) > 0;
-	const topSafeAreaBackground =
-		pathname === ROUTES.technician.home ||
-		pathname === ROUTES.technician.schedule
-			? themeColors.primaryDark
-			: themeColors.surfaceElevated;
 
+	// Top-inset color is driven per-screen via the chrome store (ScreenStatusBar),
+	// so it always blends with the focused page — no pathname mapping here.
 	return (
 		<ProtectedTabsLayout
 			allowedUserType="technician"
 			unauthenticatedRedirect={ROUTES.auth.welcome}
 			wrongRoleRedirect={ROUTES.user.home}
-			topSafeAreaBackgroundColor={topSafeAreaBackground}
 		>
 			<Tabs.Screen
 				name="index"
@@ -101,6 +96,13 @@ export default function TechAppTabsLayout() {
 							detailColor={themeColors.surfaceBase}
 						/>
 					),
+				}}
+			/>
+			<Tabs.Screen
+				name="jobs/index"
+				options={{
+					title: "Jobs",
+					tabBarIcon: TechJobsTabIcon,
 				}}
 			/>
 			<Tabs.Screen
@@ -131,11 +133,11 @@ export default function TechAppTabsLayout() {
 					),
 				}}
 			/>
+			{/* Wallet is parked off the footer until the Profile revamp folds it in. */}
 			<Tabs.Screen
 				name="wallet/index"
 				options={{
-					title: "Wallet",
-					tabBarIcon: TechWalletTabIcon,
+					href: null,
 				}}
 			/>
 			<Tabs.Screen

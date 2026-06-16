@@ -3,7 +3,9 @@ import { CheckCircle2, XCircle } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import {
 	OrderInfoCompact,
@@ -16,6 +18,8 @@ import {
 	ArrivedInspectingActionsView,
 	ArrivedInspectingCta,
 	CashReceivedActionsView,
+	PendingActionsView,
+	PendingCta,
 	QuoteActionsView,
 	QuoteCta,
 	TrackingActionsView,
@@ -31,14 +35,12 @@ import {
 	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { Button } from "@/src/components/ui/button";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/navigation";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 function isWizardStatus(status: LifecycleOrderStatus): boolean {
 	return (
+		status === "pending" ||
 		status === "accepted" ||
 		status === "reschedule_requested_by_user" ||
 		status === "reschedule_requested_by_technician" ||
@@ -50,7 +52,7 @@ export default function BookingDetailScreen() {
 	const themeColors = useThemeColors();
 	const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
 	const booking = useTechnicianBookingById(bookingId);
-	const goBack = useSafeBack(ROUTES.technician.bookings);
+	const goBack = useSafeBack(ROUTES.technician.jobs);
 
 	useOrderRealtimeInvalidate(
 		bookingId,
@@ -78,6 +80,10 @@ export default function BookingDetailScreen() {
 		let body: ReactNode = null;
 		let cta: ReactNode = null;
 		switch (lifecycleStatus) {
+			case "pending":
+				body = <PendingActionsView order={bookingAsOrder} />;
+				cta = <PendingCta order={bookingAsOrder} />;
+				break;
 			case "accepted":
 				body = <AcceptedActionsView order={bookingAsOrder} />;
 				cta = <AcceptedCta order={bookingAsOrder} />;
@@ -135,7 +141,7 @@ export default function BookingDetailScreen() {
 	const icon = isCompleted ? CheckCircle2 : XCircle;
 	const eyebrow = isCompleted ? "Done" : "Closed";
 	const handleDone = () => {
-		router.replace(ROUTES.technician.bookings);
+		router.replace(ROUTES.technician.jobs);
 	};
 
 	return (

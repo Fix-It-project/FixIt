@@ -17,6 +17,8 @@ interface PageHeaderProps extends ViewProps {
 	readonly rightContent?: ReactNode;
 	/** Override default back behaviour */
 	readonly onBackPress?: () => void;
+	/** Hide the back button (e.g. for tab-root screens with no parent to pop). */
+	readonly showBackButton?: boolean;
 }
 
 export default function PageHeader({
@@ -25,6 +27,7 @@ export default function PageHeader({
 	variant = "surface",
 	rightContent,
 	onBackPress,
+	showBackButton = true,
 	className,
 	style,
 	...props
@@ -55,11 +58,13 @@ export default function PageHeader({
 			]}
 			{...props}
 		>
-			<BackButton
-				variant={isBrand ? "header-inverse" : "header"}
-				onPress={onBackPress}
-				className="mr-stack-md"
-			/>
+			{showBackButton ? (
+				<BackButton
+					variant={isBrand ? "header-inverse" : "header"}
+					onPress={onBackPress}
+					className="mr-stack-md"
+				/>
+			) : null}
 
 			<View className="flex-1">
 				<Text variant="h3" style={{ color: titleColor }} numberOfLines={1}>

@@ -5,16 +5,22 @@
 	},
 	"build": {
 		"development": {
+			"channel": "development",
 			"developmentClient": true,
 			"distribution": "internal"
 		},
 		"preview": {
+			"channel": "preview",
 			"distribution": "internal",
+			"android": {
+				"buildType": "apk"
+			},
 			"env": {
 				"SENTRY_AUTH_TOKEN": "$SENTRY_AUTH_TOKEN"
 			}
 		},
 		"production": {
+			"channel": "production",
 			"autoIncrement": true,
 			"env": {
 				"SENTRY_AUTH_TOKEN": "$SENTRY_AUTH_TOKEN"

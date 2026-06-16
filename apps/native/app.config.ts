@@ -2,6 +2,7 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 import primitiveColors from "./src/constants/design-tokens/themes/primitive-colors.json";
 
 type Hsl = readonly [number, number, number];
+type ExpoPlugin = NonNullable<ExpoConfig["plugins"]>[number];
 
 function hslToRgb([h, s, l]: Hsl): [number, number, number] {
 	const sN = s / 100;
@@ -34,6 +35,30 @@ function hex(t: Hsl): string {
 const blue = primitiveColors.blue as unknown as Record<number, Hsl>;
 const NATIVE_LIGHT_PRIMARY = hex(blue[600]);
 const NATIVE_DARK_PRIMARY = hex(blue[500]);
+const EAS_PROJECT_ID = "bac43c87-2b51-4268-8876-87395dd3dbca";
+const GOOGLE_IOS_CLIENT_ID_SUFFIX = ".apps.googleusercontent.com";
+
+function googleIosUrlScheme(clientId: string | undefined): string | undefined {
+	if (!clientId) return undefined;
+	if (!clientId.endsWith(GOOGLE_IOS_CLIENT_ID_SUFFIX)) return clientId;
+
+	return `com.googleusercontent.apps.${clientId.slice(
+		0,
+		-GOOGLE_IOS_CLIENT_ID_SUFFIX.length,
+	)}`;
+}
+
+const googleIosScheme = googleIosUrlScheme(
+	process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+);
+const googleSignInPlugin: ExpoPlugin = googleIosScheme
+	? [
+			"@react-native-google-signin/google-signin",
+			{
+				iosUrlScheme: googleIosScheme,
+			},
+		]
+	: "@react-native-google-signin/google-signin";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
@@ -44,6 +69,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	icon: "./src/assets/images/fixit.png",
 	scheme: "fixitapp",
 	userInterfaceStyle: "automatic",
+	updates: {
+		url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
+	},
+	runtimeVersion: {
+		policy: "fingerprint",
+	},
 	ios: {
 		supportsTablet: true,
 		bundleIdentifier: "com.anonymous.fixitapp",
@@ -121,6 +152,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		],
 		"expo-font",
 		"expo-audio",
+		googleSignInPlugin,
 		"expo-web-browser",
 		"expo-asset",
 		"expo-image",
@@ -135,7 +167,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	extra: {
 		router: {},
 		eas: {
-			projectId: "bac43c87-2b51-4268-8876-87395dd3dbca",
+			projectId: EAS_PROJECT_ID,
 		},
 	},
 	owner: "meryamrs-organization",
