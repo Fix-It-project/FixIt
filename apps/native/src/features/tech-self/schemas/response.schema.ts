@@ -16,6 +16,10 @@ export const technicianSelfProfileSchema = z.object({
 	completed_orders: z.number(),
 	avg_rating: z.number().nullable().optional(),
 	review_count: z.number().optional().default(0),
+
+	// Null until the technician finishes first-time schedule setup; the route
+	// gates onboarding-vs-SchedulePage on this (NOT on template count).
+	schedule_setup_completed_at: z.string().nullable().optional(),
 });
 
 export const technicianSelfResponseSchema = z.object({

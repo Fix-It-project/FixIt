@@ -1,7 +1,6 @@
 // Booking-orders hooks barrel.
 //
 // Existing hooks (pre-Phase-4a):
-export * from "./useAvailabilityMarks";
 export * from "./useCreateBooking";
 export * from "./useInspectionFeePreview";
 export * from "./useOrderDistance";

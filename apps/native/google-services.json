@@ -1,26 +1,51 @@
 {
   "project_info": {
-    "project_number": "1015634037682",
-    "project_id": "fixit-9e49a",
-    "storage_bucket": "fixit-9e49a.firebasestorage.app"
+    "project_number": "866505803556",
+    "project_id": "project-56b27f48-1137-4a86-ad1",
+    "storage_bucket": "project-56b27f48-1137-4a86-ad1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1015634037682:android:557db24268ac941ee632ab",
+        "mobilesdk_app_id": "1:866505803556:android:6d7600f3058072734a55b1",
         "android_client_info": {
           "package_name": "com.anonymous.fixitapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "866505803556-76s5449s690i7j6d65nilnoumu1h5qbb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.fixitapp",
+            "certificate_hash": "119a0537302ffbffe3f7e101be8c55f6e1102ff3"
+          }
+        },
+        {
+          "client_id": "866505803556-gscvgi0pavffdlqcv5p502ie3fbnbhcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyADg7w2-pPrbVCTNayxLj8qGZPhb8MRdTw"
+          "current_key": "AIzaSyBje7sHkWYIpyrUDi17Zkj3zzXPU85nVAo"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866505803556-gscvgi0pavffdlqcv5p502ie3fbnbhcl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "866505803556-aqb153idv0acsmgqfj3g8nv16foel1ho.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anonymous.fixitapp"
+              }
+            }
+          ]
         }
       }
     }

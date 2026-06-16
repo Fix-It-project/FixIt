@@ -7,7 +7,9 @@
 import { router } from "expo-router";
 import { useCallback } from "react";
 import { View } from "react-native";
+import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { Text } from "@/src/components/ui/text";
+import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	BookingClientCard,
 	BookingInfoSection,
@@ -17,9 +19,7 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
-import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { ROUTES } from "@/src/lib/navigation";
-import { spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -30,7 +30,7 @@ export default function CompletedView({ order }: Props) {
 	const booking = order as unknown as TechnicianBooking;
 
 	const handleDone = useCallback(() => {
-		router.replace(ROUTES.technician.bookings);
+		router.replace(ROUTES.technician.jobs);
 	}, []);
 
 	return (

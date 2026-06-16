@@ -1,9 +1,4 @@
-export { default as BookingCard } from "./BookingCard";
+// Tech booking cards still used by the terminal state views (Cancelled/Completed).
+// The old bookings-tab component set was removed in the technician footer revamp.
 export { default as BookingClientCard } from "./BookingClientCard";
 export { default as BookingInfoSection } from "./BookingInfoSection";
-export { default as BookingListContent } from "./BookingListContent";
-export { default as BookingsCalendarSheet } from "./BookingsCalendarSheet";
-export { default as BookingsEmptyState } from "./BookingsEmptyState";
-export { default as BookingsTabContent } from "./BookingsTabContent";
-export { default as BookingsViewToggle } from "./BookingsViewToggle";
-export { default as BookingsWeekStrip } from "./BookingsWeekStrip";

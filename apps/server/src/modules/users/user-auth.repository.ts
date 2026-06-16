@@ -26,6 +26,7 @@ export interface UpdateProfileData {
 export interface IUsersRepository {
   createUser(data: CreateUserData): Promise<any>;
   getUserById(id: string): Promise<any>;
+  getUserByIdOrNull(id: string): Promise<any>;
   getUserByEmail(email: string): Promise<any>;
   updateUser(id: string, data: UpdateUserData): Promise<any>;
   updateUserProfile(id: string, data: UpdateProfileData): Promise<any>;
@@ -68,6 +69,18 @@ export class UsersRepository implements IUsersRepository {
 
     if (error) throw error;
     return data;
+  }
+
+  /** Like getUserById but returns null instead of throwing when the row is absent. */
+  async getUserByIdOrNull(id: string) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data; // null when not found
   }
 
   async getUserByEmail(email: string) {

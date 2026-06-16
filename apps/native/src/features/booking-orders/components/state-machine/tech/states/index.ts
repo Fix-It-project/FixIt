@@ -13,6 +13,10 @@ export {
 	default as CashReceivedActionsView,
 } from "./CashReceivedActionsView";
 export { default as CompletedView } from "./CompletedView";
+export {
+	default as PendingActionsView,
+	PendingCta,
+} from "./PendingActionsView";
 export { default as QuoteActionsView, QuoteCta } from "./QuoteActionsView";
 export {
 	default as TrackingActionsView,

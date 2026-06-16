@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Switch } from "@/src/components/ui/switch";
 import { Text } from "@/src/components/ui/text";
@@ -10,6 +11,7 @@ import { useAvailabilityMutation } from "../hooks/useAvailabilityMutation";
  * to match the dot; lives on the tinted hero, so text uses the on-hero color.
  */
 export function OnlineSwitch({ online }: { online: boolean }) {
+	const { t } = useTranslation("technician");
 	const colors = useThemeColors();
 	const { mutate, isPending } = useAvailabilityMutation();
 
@@ -22,7 +24,7 @@ export function OnlineSwitch({ online }: { online: boolean }) {
 				}}
 			/>
 			<Text variant="caption" className="text-tint-on-hero">
-				{online ? "Online" : "Offline"}
+				{online ? t("home.hero.online") : t("home.hero.offline")}
 			</Text>
 			<Switch
 				checked={online}

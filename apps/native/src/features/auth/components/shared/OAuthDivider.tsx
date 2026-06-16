@@ -2,10 +2,10 @@ import { View } from "react-native";
 import { GoogleIcon } from "@/src/components/icons/GoogleIcon";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { useGoogleOAuth } from "@/src/features/auth/hooks/useGoogleOAuth";
+import { useGoogleAuthFlow } from "@/src/features/auth/hooks/useGoogleAuthFlow";
 
 export default function OAuthDivider() {
-	const { signInWithGoogle } = useGoogleOAuth();
+	const { startGoogleSignIn, isPending } = useGoogleAuthFlow();
 
 	return (
 		<>
@@ -21,7 +21,8 @@ export default function OAuthDivider() {
 				size="lg"
 				fullWidth
 				iconLeft={<GoogleIcon />}
-				onPress={signInWithGoogle}
+				onPress={startGoogleSignIn}
+				disabled={isPending}
 			>
 				Continue with Google
 			</Button>

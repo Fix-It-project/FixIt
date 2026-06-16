@@ -77,6 +77,19 @@ export function usePendingRequests() {
 	return { ...query, data };
 }
 
+/**
+ * Reschedule requests the CUSTOMER sent that the technician must respond to.
+ * Drives the conditional dashboard teaser → Jobs → Reschedules.
+ */
+export function useIncomingReschedules(): TechHomeOrder[] {
+	const { data } = useTechHomeOrdersQuery();
+	return useMemo(
+		() =>
+			(data ?? []).filter((o) => o.status === "reschedule_requested_by_user"),
+		[data],
+	);
+}
+
 /** The order the technician is physically working right now (if any). */
 export function useActiveJob(): TechHomeOrder | undefined {
 	const { data } = useTechHomeOrdersQuery();

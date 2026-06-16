@@ -1,0 +1,132 @@
+import apiClient from "@/src/config/api-client";
+import { safeParseResponse } from "@/src/lib/api/safe-parse";
+import {
+	type AvailabilityTemplate,
+	type BookedSlot,
+	bookedSlotsResponseSchema,
+	type CalendarException,
+	exceptionResponseSchema,
+	getExceptionsResponseSchema,
+	getTemplatesResponseSchema,
+	publicScheduleResponseSchema,
+	templateResponseSchema,
+} from "./schemas";
+import type {
+	CreateExceptionPayload,
+	CreateTemplatePayload,
+	UpdateTemplatePayload,
+} from "./types";
+
+// ─── Availability templates ───────────────────────────────────────────────────
+
+export async function getTemplates(
+	technicianId: string,
+): Promise<AvailabilityTemplate[]> {
+	const response = await apiClient.get(
+		`/api/technician-calendar/${technicianId}/templates`,
+	);
+	return safeParseResponse(
+		getTemplatesResponseSchema,
+		response.data,
+		"getTemplates",
+	).data;
+}
+
+export async function createTemplate(
+	technicianId: string,
+	payload: CreateTemplatePayload,
+): Promise<AvailabilityTemplate> {
+	const response = await apiClient.post(
+		`/api/technician-calendar/${technicianId}/templates`,
+		payload,
+	);
+	return safeParseResponse(
+		templateResponseSchema,
+		response.data,
+		"createTemplate",
+	).data;
+}
+
+export async function updateTemplate(
+	technicianId: string,
+	templateId: string,
+	payload: UpdateTemplatePayload,
+): Promise<AvailabilityTemplate> {
+	const response = await apiClient.patch(
+		`/api/technician-calendar/${technicianId}/templates/${templateId}`,
+		payload,
+	);
+	return safeParseResponse(
+		templateResponseSchema,
+		response.data,
+		"updateTemplate",
+	).data;
+}
+
+// ─── Calendar exceptions (single-day overrides) ───────────────────────────────
+
+export async function getExceptions(
+	technicianId: string,
+): Promise<CalendarException[]> {
+	const response = await apiClient.get(
+		`/api/technician-calendar/${technicianId}`,
+	);
+	return safeParseResponse(
+		getExceptionsResponseSchema,
+		response.data,
+		"getExceptions",
+	).data;
+}
+
+export async function createException(
+	technicianId: string,
+	payload: CreateExceptionPayload,
+): Promise<CalendarException> {
+	const response = await apiClient.post(
+		`/api/technician-calendar/${technicianId}`,
+		payload,
+	);
+	return safeParseResponse(
+		exceptionResponseSchema,
+		response.data,
+		"createException",
+	).data;
+}
+
+export async function deleteException(
+	technicianId: string,
+	exceptionId: string,
+): Promise<void> {
+	await apiClient.delete(
+		`/api/technician-calendar/${technicianId}/${exceptionId}`,
+	);
+}
+
+export async function getPublicSchedule(technicianId: string) {
+	const response = await apiClient.get(
+		`/api/technician-calendar/public/${technicianId}`,
+	);
+	return safeParseResponse(
+		publicScheduleResponseSchema,
+		response.data,
+		"getPublicSchedule",
+	).data;
+}
+
+export async function getBookedSlots(
+	technicianId: string,
+	range?: { from?: string; to?: string },
+): Promise<BookedSlot[]> {
+	const params: Record<string, string> = {};
+	if (range?.from) params.from = range.from;
+	if (range?.to) params.to = range.to;
+	const response = await apiClient.get(
+		`/api/technician-calendar/booked/${technicianId}`,
+		{ params },
+	);
+	return safeParseResponse(
+		bookedSlotsResponseSchema,
+		response.data,
+		"getBookedSlots",
+	).data.slots;
+}

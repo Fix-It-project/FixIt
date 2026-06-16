@@ -2,6 +2,7 @@ import { type Href, Redirect, Tabs } from "expo-router";
 import { type PropsWithChildren, type ReactNode, useMemo } from "react";
 import { useWindowDimensions, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { useScreenChromeStore } from "@/src/components/layout/screen-chrome-store";
 import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_HEIGHT,
@@ -32,6 +33,7 @@ export function ProtectedTabsLayout({
 	const userType = useAuthStore((state) => state.userType);
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
+	const topVariant = useScreenChromeStore((s) => s.topVariant);
 	const { width, height } = useWindowDimensions();
 	const showLabels =
 		width >= NARROW_TAB_BAR_WIDTH && height >= NARROW_TAB_BAR_HEIGHT;
@@ -49,13 +51,20 @@ export function ProtectedTabsLayout({
 		return <Redirect href={wrongRoleRedirect} />;
 	}
 
+	// The top inset blends with the focused screen: each screen publishes a
+	// chrome variant (via ScreenStatusBar) which we resolve to a live theme color
+	// here, so it re-renders correctly across light/dark. An explicit prop still
+	// wins, for any caller that wants to pin the color.
+	const topInsetColor =
+		topSafeAreaBackgroundColor ??
+		(topVariant === "blue" ? themeColors.primaryDark : themeColors.surfaceBase);
+
 	return (
 		<ScreenSafeAreaView
 			edges={["top"]}
 			style={{
 				flex: 1,
-				backgroundColor:
-					topSafeAreaBackgroundColor ?? themeColors.surfaceElevated,
+				backgroundColor: topInsetColor,
 			}}
 		>
 			<View style={{ flex: 1 }}>

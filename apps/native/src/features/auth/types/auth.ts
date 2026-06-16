@@ -18,6 +18,17 @@ export interface SignInRequest {
 	password: string;
 }
 
+export interface OAuthCompleteRequest {
+	fullName?: string;
+	phone?: string;
+	city: string;
+	street: string;
+	building_no: string;
+	apartment_no: string;
+	latitude?: number | null;
+	longitude?: number | null;
+}
+
 export interface RefreshTokenRequest {
 	refreshToken: string;
 }

@@ -1,0 +1,258 @@
+{
+	"tabs": {
+		"home": "الرئيسية",
+		"schedule": "الجدول",
+		"jobs": "المهام",
+		"notifications": "الإشعارات",
+		"profile": "الملف"
+	},
+	"schedule": {
+		"title": "الجدول",
+		"editAria": "تعديل الجدول",
+		"openCalendar": "فتح التقويم",
+		"hideCalendar": "إخفاء التقويم",
+		"legend": {
+			"bookings": "الحجوزات",
+			"selected": "المحدّد",
+			"unavailable": "غير متاح"
+		},
+		"day": {
+			"markedUnavailableTitle": "مُعلَّم كغير متاح",
+			"markedUnavailableBody": "لن تتلقى حجوزات في هذا اليوم.",
+			"makeAvailable": "إتاحة اليوم",
+			"pastTitle": "يوم مضى",
+			"pastBody": "لم تُجدوَل أي حجوزات.",
+			"notWorkingTitle": "ليس يوم عمل",
+			"notWorkingBody": "أضِف هذا اليوم من تعديل الجدول لاستقبال الحجوزات.",
+			"noBookingsTitle": "لا توجد حجوزات",
+			"noBookingsBody": "هذا اليوم متاح. علّمه كغير متاح إن كنت في إجازة.",
+			"markUnavailable": "تعليم كغير متاح"
+		},
+		"orderCard": {
+			"customerFallback": "عميل",
+			"serviceFallback": "خدمة",
+			"openLocationAria": "فتح موقع العميل في الخرائط",
+			"openBookingAria": "فتح حجز {{name}}"
+		},
+		"onboarding": {
+			"skip": "تخطّي",
+			"skipAria": "تخطّي المقدمة وإعداد الجدول",
+			"next": "التالي",
+			"setup": "إعداد الجدول",
+			"steps": {
+				"availabilityTitle": "حدّد أوقات عملك الأسبوعية",
+				"availabilityBody": "اختر الأيام التي تعمل فيها. لا يمكن للعملاء حجزك إلا في الأيام التي تفعّلها.",
+				"slotsTitle": "اختر مواعيد الزيارة",
+				"slotsBody": "أتِح حتى خمسة مواعيد في اليوم، ليأتي كل حجز في وقت يناسبك.",
+				"readyTitle": "تحكَّم بجدولك",
+				"readyBody": "احجب أي يوم تأخذ فيه إجازة، وشاهد الحجوزات الجديدة تملأ تقويمك."
+			}
+		},
+		"setup": {
+			"title": "إعداد الجدول",
+			"intro": "فعّل الأيام التي تعمل فيها، ثم اختر مواعيد الزيارة التي تتيحها. يمكنك تغيير ذلك في أي وقت.",
+			"dayOff": "يوم إجازة",
+			"slotCount_one": "موعد واحد",
+			"slotCount_other": "{{count}} مواعيد",
+			"save": "حفظ الجدول",
+			"saveWithDays_one": "حفظ الجدول · يوم واحد",
+			"saveWithDays_other": "حفظ الجدول · {{count}} أيام",
+			"saved": "تم حفظ الجدول"
+		}
+	},
+	"home": {
+		"hero": {
+			"technicianFallback": "فني",
+			"switchLanguageAria": "التبديل إلى {{language}}",
+			"online": "متصل",
+			"offline": "غير متصل"
+		},
+		"sections": {
+			"activeJob": "المهمة الحالية",
+			"nextJob": "المهمة التالية",
+			"incomingRequests": "طلبات واردة",
+			"performance": "الأداء",
+			"todaySchedule": "جدول اليوم"
+		},
+		"common": {
+			"customer": "عميل",
+			"service": "خدمة",
+			"job": "مهمة",
+			"newRequest": "طلب جديد",
+			"noDescription": "لا يوجد وصف",
+			"payout": "العائد",
+			"openJobDetails": "فتح تفاصيل المهمة",
+			"contactCustomer": "التواصل مع {{name}}",
+			"openNamedDetails": "فتح تفاصيل {{name}}"
+		},
+		"activeJob": {
+			"status": {
+				"tracking": "في الطريق",
+				"arrivedInspection": "قيد الفحص",
+				"awaitingFinalCost": "تسعير",
+				"negotiating": "تفاوض",
+				"inProgress": "قيد التنفيذ",
+				"awaitingPayment": "بانتظار الدفع"
+			},
+			"steps": {
+				"onTheWay": "في الطريق",
+				"inspecting": "قيد الفحص",
+				"pricing": "التسعير",
+				"inProgress": "قيد التنفيذ",
+				"awaitingPayment": "بانتظار الدفع"
+			},
+			"openJob": "فتح المهمة"
+		},
+		"nextJob": {
+			"starts": "تبدأ {{time}}",
+			"viewDetails": "عرض التفاصيل",
+			"viewDetailsAria": "عرض تفاصيل المهمة",
+			"startTracking": "بدء التتبع",
+			"startTrackingAria": "بدء تتبع هذه المهمة"
+		},
+		"earnings": {
+			"today": "أرباح اليوم",
+			"vsYesterday": "{{sign}}{{value}}٪ مقارنة بالأمس",
+			"cashOut": "سحب الأرباح",
+			"cashOutSoonAria": "سحب الأرباح — قريبًا",
+			"emptyChart": "ستظهر أرباح المهام المكتملة هنا",
+			"thisWeek": "هذا الأسبوع"
+		},
+		"requests": {
+			"waiting_one": "{{count}} قيد الانتظار",
+			"waiting_other": "{{count}} قيد الانتظار",
+			"expired": "انتهى",
+			"expiring": "ينتهي قريبًا",
+			"durationHoursMinutes": "{{hours}}س {{minutes}}د",
+			"durationMinutes": "{{minutes}}د",
+			"autoDeclinesIn": "يُرفض تلقائيًا خلال {{time}}",
+			"declineRequestAria": "رفض الطلب",
+			"acceptRequestAria": "قبول الطلب",
+			"decline": "رفض",
+			"acceptJob": "قبول المهمة",
+			"dialogTitle": "هل تريد رفض هذا الطلب؟",
+			"dialogBody": "يمكنك إخبار العميل بالسبب اختياريًا. الرفض المتكرر قد يؤثر على معدل قبولك.",
+			"reasonPlaceholder": "السبب (اختياري)",
+			"keepRequest": "الاحتفاظ بالطلب"
+		},
+		"inspection": {
+			"fee": "الفحص {{amount}}"
+		},
+		"performance": {
+			"acceptanceRate": "معدل القبول",
+			"jobsThisWeek": "مهام هذا الأسبوع",
+			"rating": "التقييم",
+			"cancellationRate": "معدل الإلغاء",
+			"last30Days": "آخر 30 يومًا",
+			"completed": "مكتملة",
+			"reviewsThisWeek_one": "تقييم واحد هذا الأسبوع",
+			"reviewsThisWeek_other": "{{count}} تقييمات هذا الأسبوع"
+		},
+		"reschedules": {
+			"reviewAria": "مراجعة طلبات إعادة الجدولة",
+			"title_one": "طلب إعادة جدولة واحد",
+			"title_other": "{{count}} طلبات إعادة جدولة",
+			"body": "اضغط للمراجعة والرد."
+		},
+		"timeline": {
+			"calendar": "التقويم",
+			"next": "التالي",
+			"onNow": "جارٍ الآن"
+		},
+		"promo": {
+			"badge": "المكافآت — قريبًا",
+			"title": "أنهِ المهام واربح مكافآت",
+			"body": "برنامج مكافآت للفنيين المميزين قادم قريبًا. حافظ على معدل قبول مرتفع للتأهل مبكرًا."
+		},
+		"chart": {
+			"weekdayLetters": ["ح", "ن", "ث", "ر", "خ", "ج", "س"]
+		}
+	},
+	"jobs": {
+		"title": "المهام",
+		"tabs": {
+			"requests": "الطلبات",
+			"scheduled": "المجدولة",
+			"reschedules": "إعادة الجدولة"
+		},
+		"common": {
+			"customer": "عميل",
+			"service": "خدمة",
+			"timeTbd": "الوقت غير محدد",
+			"newRequest": "طلب جديد",
+			"noDescription": "لا يوجد وصف"
+		},
+		"toast": {
+			"accepted": "تم قبول المهمة",
+			"acceptFailed": "تعذر القبول",
+			"declined": "تم رفض الطلب",
+			"declineFailed": "تعذر الرفض"
+		},
+		"dialog": {
+			"declineTitle": "هل تريد رفض هذا الطلب؟",
+			"declineBody": "ستعود المهمة إلى قائمة الطلبات المتاحة لفنيين آخرين.",
+			"decline": "رفض",
+			"keep": "احتفاظ"
+		},
+		"empty": {
+			"requestsTitle": "لا توجد طلبات جديدة",
+			"requestsBody": "ستظهر هنا المهام الواردة عندما يحجزك العملاء.",
+			"scheduledTitle": "لا توجد مهام مجدولة",
+			"scheduledBody": "ستظهر المهام المقبولة هنا حسب تاريخها.",
+			"reschedulesTitle": "لا توجد طلبات إعادة جدولة",
+			"reschedulesBody": "ستظهر هنا طلبات إعادة الجدولة التي تستقبلها أو ترسلها."
+		},
+		"scheduled": {
+			"viewInSchedule": "عرض في الجدول",
+			"viewInScheduleAria": "عرض هذا اليوم في الجدول",
+			"live": "جارٍ الآن",
+			"reschedulePending": "إعادة جدولة معلقة",
+			"openBookingAria": "فتح حجز {{name}}"
+		},
+		"requests": {
+			"declineAria": "رفض الطلب",
+			"acceptAria": "قبول الطلب",
+			"decline": "رفض",
+			"acceptJob": "قبول المهمة"
+		},
+		"reschedules": {
+			"incomingSection": "بانتظار ردك",
+			"sentSection": "مرسلة منك",
+			"needsResponse": "يحتاج ردًا",
+			"awaitingCustomer": "بانتظار العميل"
+		},
+		"inspection": {
+			"fee": "الفحص {{amount}}"
+		},
+		"dates": {
+			"today": "اليوم",
+			"tomorrow": "غدًا",
+			"yesterday": "أمس"
+		}
+	},
+	"calendar": {
+		"today": "اليوم",
+		"weekdaysShort": [
+			"أحد",
+			"إثنين",
+			"ثلاثاء",
+			"أربعاء",
+			"خميس",
+			"جمعة",
+			"سبت"
+		],
+		"daysLong": [
+			"الأحد",
+			"الإثنين",
+			"الثلاثاء",
+			"الأربعاء",
+			"الخميس",
+			"الجمعة",
+			"السبت"
+		],
+		"units": {
+			"egp": "ج.م",
+			"km": "كم"
+		}
+	}
+}

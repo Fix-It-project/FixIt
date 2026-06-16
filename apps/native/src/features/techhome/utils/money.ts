@@ -1,6 +1,9 @@
 /** Formats integer EGP amounts for the dashboard ("EGP 1,240"). */
+import i18n from "@/src/config/i18n";
+
 export function formatEgp(amount: number): string {
-	return `EGP ${Math.round(amount).toLocaleString("en-EG")}`;
+	const value = Math.round(amount).toLocaleString(i18n.language || "en");
+	return `${value} ${i18n.t("technician:calendar.units.egp")}`;
 }
 
 /**

@@ -1,0 +1,250 @@
+{
+	"tabs": {
+		"home": "Home",
+		"schedule": "Schedule",
+		"jobs": "Jobs",
+		"notifications": "Alerts",
+		"profile": "Profile"
+	},
+	"schedule": {
+		"title": "Schedule",
+		"editAria": "Edit schedule",
+		"openCalendar": "Open calendar",
+		"hideCalendar": "Hide calendar",
+		"legend": {
+			"bookings": "Bookings",
+			"selected": "Selected",
+			"unavailable": "Unavailable"
+		},
+		"day": {
+			"markedUnavailableTitle": "Marked unavailable",
+			"markedUnavailableBody": "You won't receive bookings on this day.",
+			"makeAvailable": "Make available",
+			"pastTitle": "Past day",
+			"pastBody": "No bookings were scheduled.",
+			"notWorkingTitle": "Not a working day",
+			"notWorkingBody": "Add this weekday from Edit schedule to take bookings.",
+			"noBookingsTitle": "No bookings",
+			"noBookingsBody": "This day is open. Mark it unavailable if you're off.",
+			"markUnavailable": "Mark as unavailable"
+		},
+		"orderCard": {
+			"customerFallback": "Customer",
+			"serviceFallback": "Service",
+			"openLocationAria": "Open customer location in maps",
+			"openBookingAria": "Open booking with {{name}}"
+		},
+		"onboarding": {
+			"skip": "Skip",
+			"skipAria": "Skip intro and set up schedule",
+			"next": "Next",
+			"setup": "Set up schedule",
+			"steps": {
+				"availabilityTitle": "Set your weekly availability",
+				"availabilityBody": "Choose the days you take jobs. Customers can only book you on the days you turn on.",
+				"slotsTitle": "Pick your visit times",
+				"slotsBody": "Offer up to five time slots a day, so every booking lands at an hour that works for you.",
+				"readyTitle": "Stay in control",
+				"readyBody": "Block a single day whenever you're off, and watch new bookings fill your calendar."
+			}
+		},
+		"setup": {
+			"title": "Set up schedule",
+			"intro": "Turn on the days you take jobs, then choose the visit times you offer. You can change this anytime.",
+			"dayOff": "Day off",
+			"slotCount_one": "{{count}} slot",
+			"slotCount_other": "{{count}} slots",
+			"save": "Save schedule",
+			"saveWithDays_one": "Save schedule · {{count}} day",
+			"saveWithDays_other": "Save schedule · {{count}} days",
+			"saved": "Schedule saved"
+		}
+	},
+	"home": {
+		"hero": {
+			"technicianFallback": "Technician",
+			"switchLanguageAria": "Switch to {{language}}",
+			"online": "Online",
+			"offline": "Offline"
+		},
+		"sections": {
+			"activeJob": "Active job",
+			"nextJob": "Next job",
+			"incomingRequests": "Incoming requests",
+			"performance": "Performance",
+			"todaySchedule": "Today's schedule"
+		},
+		"common": {
+			"customer": "Customer",
+			"service": "Service",
+			"job": "Job",
+			"newRequest": "New request",
+			"noDescription": "No description provided",
+			"payout": "Payout",
+			"openJobDetails": "Open job details",
+			"contactCustomer": "Contact {{name}}",
+			"openNamedDetails": "Open {{name}} details"
+		},
+		"activeJob": {
+			"status": {
+				"tracking": "ON THE WAY",
+				"arrivedInspection": "INSPECTING",
+				"awaitingFinalCost": "PRICING",
+				"negotiating": "NEGOTIATING",
+				"inProgress": "IN PROGRESS",
+				"awaitingPayment": "AWAITING PAYMENT"
+			},
+			"steps": {
+				"onTheWay": "On the way",
+				"inspecting": "Inspecting",
+				"pricing": "Pricing",
+				"inProgress": "In progress",
+				"awaitingPayment": "Awaiting payment"
+			},
+			"openJob": "Open job"
+		},
+		"nextJob": {
+			"starts": "Starts {{time}}",
+			"viewDetails": "View details",
+			"viewDetailsAria": "View job details",
+			"startTracking": "Start tracking",
+			"startTrackingAria": "Start tracking this job"
+		},
+		"earnings": {
+			"today": "Today's earnings",
+			"vsYesterday": "{{sign}}{{value}}% vs yesterday",
+			"cashOut": "Cash out",
+			"cashOutSoonAria": "Cash out — coming soon",
+			"emptyChart": "Earnings from completed jobs will chart here",
+			"thisWeek": "This week"
+		},
+		"requests": {
+			"waiting_one": "{{count}} waiting",
+			"waiting_other": "{{count}} waiting",
+			"expired": "Expired",
+			"expiring": "Expiring",
+			"durationHoursMinutes": "{{hours}}h {{minutes}}m",
+			"durationMinutes": "{{minutes}}m",
+			"autoDeclinesIn": "Auto-declines in {{time}}",
+			"declineRequestAria": "Decline request",
+			"acceptRequestAria": "Accept request",
+			"decline": "Decline",
+			"acceptJob": "Accept job",
+			"dialogTitle": "Decline this request?",
+			"dialogBody": "Optionally tell the customer why. Declining often hurts your acceptance rate.",
+			"reasonPlaceholder": "Reason (optional)",
+			"keepRequest": "Keep request"
+		},
+		"inspection": {
+			"fee": "Inspection {{amount}}"
+		},
+		"performance": {
+			"acceptanceRate": "Acceptance rate",
+			"jobsThisWeek": "Jobs this week",
+			"rating": "Rating",
+			"cancellationRate": "Cancellation rate",
+			"last30Days": "last 30 days",
+			"completed": "completed",
+			"reviewsThisWeek_one": "{{count}} review this week",
+			"reviewsThisWeek_other": "{{count}} reviews this week"
+		},
+		"reschedules": {
+			"reviewAria": "Review reschedule requests",
+			"title_one": "{{count}} reschedule request",
+			"title_other": "{{count}} reschedule requests",
+			"body": "Tap to review and respond."
+		},
+		"timeline": {
+			"calendar": "Calendar",
+			"next": "NEXT",
+			"onNow": "ON NOW"
+		},
+		"promo": {
+			"badge": "Rewards — coming soon",
+			"title": "Finish jobs, earn bonuses",
+			"body": "A rewards program for top technicians is on its way. Keep your acceptance rate high to qualify early."
+		},
+		"chart": {
+			"weekdayLetters": ["S", "M", "T", "W", "T", "F", "S"]
+		}
+	},
+	"jobs": {
+		"title": "Jobs",
+		"tabs": {
+			"requests": "Requests",
+			"scheduled": "Scheduled",
+			"reschedules": "Reschedules"
+		},
+		"common": {
+			"customer": "Customer",
+			"service": "Service",
+			"timeTbd": "Time TBD",
+			"newRequest": "New request",
+			"noDescription": "No description provided"
+		},
+		"toast": {
+			"accepted": "Job accepted",
+			"acceptFailed": "Couldn't accept",
+			"declined": "Request declined",
+			"declineFailed": "Couldn't decline"
+		},
+		"dialog": {
+			"declineTitle": "Decline this request?",
+			"declineBody": "The job goes back to the pool for other technicians.",
+			"decline": "Decline",
+			"keep": "Keep"
+		},
+		"empty": {
+			"requestsTitle": "No new requests",
+			"requestsBody": "Incoming jobs will appear here as customers book you.",
+			"scheduledTitle": "Nothing scheduled",
+			"scheduledBody": "Accepted jobs show up here grouped by their date.",
+			"reschedulesTitle": "No reschedule requests",
+			"reschedulesBody": "Reschedules you receive or send will show up here."
+		},
+		"scheduled": {
+			"viewInSchedule": "View in schedule",
+			"viewInScheduleAria": "View this day in schedule",
+			"live": "Live",
+			"reschedulePending": "Reschedule pending",
+			"openBookingAria": "Open booking with {{name}}"
+		},
+		"requests": {
+			"declineAria": "Decline request",
+			"acceptAria": "Accept request",
+			"decline": "Decline",
+			"acceptJob": "Accept job"
+		},
+		"reschedules": {
+			"incomingSection": "Needs your response",
+			"sentSection": "Sent by you",
+			"needsResponse": "Needs response",
+			"awaitingCustomer": "Awaiting customer"
+		},
+		"inspection": {
+			"fee": "Inspection {{amount}}"
+		},
+		"dates": {
+			"today": "Today",
+			"tomorrow": "Tomorrow",
+			"yesterday": "Yesterday"
+		}
+	},
+	"calendar": {
+		"today": "Today",
+		"weekdaysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+		"daysLong": [
+			"Sunday",
+			"Monday",
+			"Tuesday",
+			"Wednesday",
+			"Thursday",
+			"Friday",
+			"Saturday"
+		],
+		"units": {
+			"egp": "EGP",
+			"km": "km"
+		}
+	}
+}

@@ -1,6 +1,7 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import { type StatusBarStyle, setStatusBarStyle } from "expo-status-bar";
 import { useCallback } from "react";
+import { useScreenChromeStore } from "@/src/components/layout/screen-chrome-store";
 import { useThemeTokens } from "@/src/constants/design-tokens";
 
 /**
@@ -27,12 +28,21 @@ export function ScreenStatusBar({
 	const tokens = useThemeTokens();
 	const surfaceStyle = tokens.statusBarStyle as StatusBarStyle;
 	const style: StatusBarStyle = variant === "blue" ? "light" : surfaceStyle;
+	const setTopVariant = useScreenChromeStore((s) => s.setTopVariant);
 
+	// On focus: set the status-bar icon contrast AND publish the top-inset chrome
+	// so the shared safe-area frame paints behind the bar to match this page.
+	// On blur: reset both to the surface default, so the next screen — even one
+	// that declares nothing — never inherits a blue band or light icons.
 	useFocusEffect(
 		useCallback(() => {
 			setStatusBarStyle(style);
-			return () => setStatusBarStyle(surfaceStyle);
-		}, [style, surfaceStyle]),
+			setTopVariant(variant);
+			return () => {
+				setStatusBarStyle(surfaceStyle);
+				setTopVariant("surface");
+			};
+		}, [style, surfaceStyle, variant, setTopVariant]),
 	);
 
 	return null;
