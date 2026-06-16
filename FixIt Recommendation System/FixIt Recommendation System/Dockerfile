@@ -2,15 +2,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies (ffmpeg required by Whisper for audio decoding)
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    curl \
+ARG INSTALL_AUDIO=false
+ARG REQUIREMENTS_FILE=requirements.txt
+
+# Install only the system packages needed by the selected feature set.
+RUN apt-get update && apt-get install -y curl \
+    && if [ "$INSTALL_AUDIO" = "true" ]; then apt-get install -y ffmpeg; fi \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements*.txt ./
+RUN pip install --no-cache-dir -r ${REQUIREMENTS_FILE}
 
 # Copy application code and data
 COPY app/ ./app/

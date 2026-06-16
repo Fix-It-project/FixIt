@@ -111,7 +111,7 @@ class TechnicianMatch(BaseModel):
         le=1,
         description="MarketTrust reliability score (0-1).",
     )
-    base_hourly_rate: int
+    base_hourly_rate: Optional[int] = None
 
 
 # ──────────────────────────────────────────────
@@ -145,4 +145,3 @@ class AudioTranscriptionResponse(BaseModel):
         ...,
         description="The transcribed text from the audio.",
     )
-

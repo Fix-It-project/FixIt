@@ -1,0 +1,5 @@
+# Optional audio/transcription dependencies.
+# Install these only when `/api/transcribe` is needed.
+transformers>=4.30.0
+torch>=2.0.0
+imageio-ffmpeg
