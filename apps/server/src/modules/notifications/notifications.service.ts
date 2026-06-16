@@ -1,9 +1,11 @@
 import { AppError } from "../../shared/errors/app-error.js";
 import { logger } from "../../shared/logger.js";
 import {
+  getExpoPushReceipts,
   isExpoPushToken,
   sendExpoPush,
   type ExpoPushPayload,
+  type ExpoPushReceipt,
 } from "../../shared/expo/expo-push.js";
 import {
   notificationsRepository,
@@ -47,6 +49,15 @@ function isDeviceNotRegisteredError(error: unknown): boolean {
     error instanceof Error ? error.message : typeof error === "string" ? error : "";
   return /DeviceNotRegistered/i.test(message);
 }
+
+// Background receipt poll: Expo receipts are asynchronous, so we re-check a few
+// times with backoff. Kept short (a server request shouldn't block on this) —
+// the common delivery errors (DeviceNotRegistered, MismatchSenderId) surface
+// quickly; anything still unresolved is logged as pending, never as delivered.
+const RECEIPT_POLL_ATTEMPTS = 3;
+const RECEIPT_POLL_BACKOFF_MS = [1500, 3000, 6000] as const;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class NotificationsService {
   async registerDevice(input: RegisterDeviceInput) {
@@ -216,40 +227,145 @@ export class NotificationsService {
       playSound: preferences.sound_enabled,
     };
 
-    await Promise.allSettled(
-      devices.map(async (device) => {
-        try {
-          const ticket = await sendExpoPush(device.expo_push_token, payload);
-          logger.info(
-            {
-              recipientRole: input.recipientRole,
-              recipientId: input.recipientId,
-              orderId: input.orderId,
-              type: input.type,
-              ticket,
-            },
-            "[notifications] Expo push accepted",
+    const sendResults = await Promise.allSettled(
+      devices.map((device) =>
+        sendExpoPush(device.expo_push_token, payload).then((ticket) => ({
+          token: device.expo_push_token,
+          ticket,
+        })),
+      ),
+    );
+
+    // Map each accepted ticket's receipt id back to its token so the background
+    // receipt poll can deactivate the right device on a delivery error.
+    const receiptIdToToken = new Map<string, string>();
+    for (const [i, result] of sendResults.entries()) {
+      const device = devices[i];
+      if (!device) continue;
+      if (result.status === "fulfilled") {
+        const { token, ticket } = result.value;
+        logger.info(
+          {
+            recipientRole: input.recipientRole,
+            recipientId: input.recipientId,
+            orderId: input.orderId,
+            type: input.type,
+            ticket,
+          },
+          "[notifications] Expo push accepted",
+        );
+        if (ticket?.id) receiptIdToToken.set(ticket.id, token);
+      } else {
+        // Synchronous send failure (ticket error or exhausted network retries).
+        logger.warn(
+          {
+            err: result.reason,
+            expoPushToken: device.expo_push_token,
+            recipientRole: input.recipientRole,
+            recipientId: input.recipientId,
+            orderId: input.orderId,
+            type: input.type,
+          },
+          "[notifications] Expo push failed",
+        );
+        if (isDeviceNotRegisteredError(result.reason)) {
+          await notificationsRepository.deactivateByExpoPushTokenValue(
+            device.expo_push_token,
           );
-        } catch (error) {
+        }
+      }
+    }
+
+    // Resolve delivery receipts in the background so the caller isn't blocked on
+    // Expo's async receipt latency. This is where MismatchSenderId / FCM-credential
+    // problems become visible and dead tokens get soft-deactivated.
+    void this.resolvePushReceipts(receiptIdToToken, {
+      recipientRole: input.recipientRole,
+      recipientId: input.recipientId,
+      orderId: input.orderId,
+      type: input.type,
+    }).catch((error) => {
+      logger.warn(
+        { err: error, recipientRole: input.recipientRole, type: input.type },
+        "[notifications] receipt resolution crashed",
+      );
+    });
+  }
+
+  /**
+   * Poll Expo delivery receipts with bounded backoff. A receipt absent from the
+   * response is still pending — re-polled, and finally logged as unresolved
+   * (never treated as delivered). On a `DeviceNotRegistered` receipt the token is
+   * soft-deactivated (matching the sync path); never hard-deleted.
+   */
+  private async resolvePushReceipts(
+    receiptIdToToken: Map<string, string>,
+    context: {
+      recipientRole: RecipientRole;
+      recipientId: string;
+      orderId?: string;
+      type: string;
+    },
+  ): Promise<void> {
+    if (receiptIdToToken.size === 0) return;
+
+    const pending = new Set(receiptIdToToken.keys());
+
+    for (
+      let attempt = 0;
+      attempt < RECEIPT_POLL_ATTEMPTS && pending.size > 0;
+      attempt += 1
+    ) {
+      await delay(RECEIPT_POLL_BACKOFF_MS[attempt] ?? 6000);
+
+      let receipts: Record<string, ExpoPushReceipt>;
+      try {
+        receipts = await getExpoPushReceipts([...pending]);
+      } catch (error) {
+        logger.warn(
+          { err: error, ...context },
+          "[notifications] receipt fetch failed — will retry",
+        );
+        continue;
+      }
+
+      for (const [receiptId, receipt] of Object.entries(receipts)) {
+        if (!receipt?.status) continue; // not ready yet — leave pending
+        pending.delete(receiptId);
+
+        if (receipt.status === "error") {
+          const token = receiptIdToToken.get(receiptId);
+          const detail =
+            typeof receipt.details?.error === "string"
+              ? receipt.details.error
+              : undefined;
           logger.warn(
             {
-              err: error,
-              expoPushToken: device.expo_push_token,
-              recipientRole: input.recipientRole,
-              recipientId: input.recipientId,
-              orderId: input.orderId,
-              type: input.type,
+              receiptId,
+              expoPushToken: token,
+              detail,
+              message: receipt.message,
+              ...context,
             },
-            "[notifications] Expo push failed",
+            "[notifications] push receipt reported an error",
           );
-          if (isDeviceNotRegisteredError(error)) {
-            await notificationsRepository.deactivateByExpoPushTokenValue(
-              device.expo_push_token,
-            );
+          if (
+            token &&
+            (detail === "DeviceNotRegistered" ||
+              isDeviceNotRegisteredError(detail ?? receipt.message))
+          ) {
+            await notificationsRepository.deactivateByExpoPushTokenValue(token);
           }
         }
-      }),
-    );
+      }
+    }
+
+    if (pending.size > 0) {
+      logger.warn(
+        { pendingReceiptIds: [...pending], ...context },
+        "[notifications] push receipts unresolved (pending/unknown) — not confirmed delivered",
+      );
+    }
   }
 }
 

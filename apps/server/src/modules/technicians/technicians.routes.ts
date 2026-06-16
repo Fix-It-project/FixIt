@@ -61,6 +61,11 @@ technicianSelfRoutes.patch(
 	validate({ body: UpdateTechnicianAvailabilityBodySchema }),
 	techniciansController.updateAvailability,
 );
+technicianSelfRoutes.post(
+	"/me/schedule-setup-complete",
+	requireTechnicianAuth,
+	techniciansController.completeScheduleSetup,
+);
 technicianSelfRoutes.get(
 	"/me/stats",
 	requireTechnicianAuth,

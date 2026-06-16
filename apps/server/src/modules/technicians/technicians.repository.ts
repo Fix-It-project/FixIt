@@ -46,6 +46,8 @@ export interface TechnicianSelfProfile {
 	completed_orders: number;
 	avg_rating: number | null;
 	review_count: number;
+	/** Set once when the technician completes first-time schedule setup. */
+	schedule_setup_completed_at: string | null;
 }
 
 export interface UpdateTechnicianSelfData {
@@ -223,6 +225,7 @@ export interface ITechniciansRepository extends ITechnicianQueryRepository {
 		id: string,
 		data: UpdateTechnicianSelfData,
 	): Promise<any>;
+	completeScheduleSetup(id: string): Promise<void>;
 	updateProfileImage(id: string, url: string): Promise<any>;
 }
 
@@ -624,7 +627,7 @@ export class TechniciansRepository implements ITechniciansRepository {
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(
-				"id, first_name, last_name, email, phone, profile_image, description, is_available, categories(name)",
+				"id, first_name, last_name, email, phone, profile_image, description, is_available, schedule_setup_completed_at, categories(name)",
 			)
 			.eq("id", id)
 			.maybeSingle();
@@ -672,7 +675,23 @@ export class TechniciansRepository implements ITechniciansRepository {
 			completed_orders: completedOrders ?? 0,
 			avg_rating: reviewAggregate.avg_rating,
 			review_count: reviewAggregate.review_count,
+			schedule_setup_completed_at:
+				(data as { schedule_setup_completed_at?: string | null })
+					.schedule_setup_completed_at ?? null,
 		};
+	}
+
+	/**
+	 * Stamp the first-time schedule-setup completion. Idempotent: only sets the
+	 * timestamp when it's still null, preserving the original completion time.
+	 */
+	async completeScheduleSetup(id: string): Promise<void> {
+		const { error } = await supabaseAdmin
+			.from("technicians")
+			.update({ schedule_setup_completed_at: new Date().toISOString() })
+			.eq("id", id)
+			.is("schedule_setup_completed_at", null);
+		if (error) throw new Error(error.message);
 	}
 
 	async updateTechnicianSelf(id: string, data: UpdateTechnicianSelfData) {

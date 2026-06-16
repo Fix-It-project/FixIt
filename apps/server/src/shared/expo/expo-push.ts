@@ -19,6 +19,20 @@ interface ExpoPushResponse {
   errors?: Array<Record<string, unknown>>;
 }
 
+// A delivery receipt — fetched asynchronously after a send. `status: "error"` +
+// `details.error` (e.g. "DeviceNotRegistered", "MismatchSenderId") is where FCM
+// delivery problems actually surface; the send ticket alone can be "ok".
+export interface ExpoPushReceipt {
+  status?: "ok" | "error";
+  message?: string;
+  details?: Record<string, unknown>;
+}
+
+interface ExpoReceiptsResponse {
+  data?: Record<string, ExpoPushReceipt>;
+  errors?: Array<Record<string, unknown>>;
+}
+
 export function isExpoPushToken(token: string): boolean {
   return /^ExponentPushToken\[[^\]]+\]$|^ExpoPushToken\[[^\]]+\]$/.test(token);
 }
@@ -96,4 +110,56 @@ export async function sendExpoPush(
   throw lastNetworkError instanceof Error
     ? lastNetworkError
     : new Error("Expo push network error");
+}
+
+// Fetch delivery receipts for previously-returned ticket ids. Expo only includes
+// a receipt once it's ready, so ids absent from `data` are still pending — the
+// caller must treat those as unknown, never as delivered. Network failures retry
+// with the same backoff as the send; a bad HTTP status throws.
+export async function getExpoPushReceipts(
+  receiptIds: readonly string[],
+): Promise<Record<string, ExpoPushReceipt>> {
+  if (receiptIds.length === 0) return {};
+
+  const requestBody = JSON.stringify({ ids: receiptIds });
+
+  let lastNetworkError: unknown;
+  for (let attempt = 0; attempt < PUSH_MAX_ATTEMPTS; attempt += 1) {
+    if (attempt > 0) await delay(PUSH_BACKOFF_MS[attempt] ?? 1800);
+
+    let response: Response;
+    try {
+      response = await fetch("https://exp.host/--/api/v2/push/getReceipts", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip, deflate",
+          "Content-Type": "application/json",
+        },
+        body: requestBody,
+      });
+    } catch (err) {
+      lastNetworkError = err;
+      continue;
+    }
+
+    const json = (await response.json().catch(() => undefined)) as
+      | ExpoReceiptsResponse
+      | undefined;
+
+    if (!response.ok) {
+      const message = json?.errors?.[0]?.message;
+      throw new Error(
+        typeof message === "string"
+          ? `Expo getReceipts failed: ${message}`
+          : `Expo getReceipts failed with status ${response.status}`,
+      );
+    }
+
+    return json?.data ?? {};
+  }
+
+  throw lastNetworkError instanceof Error
+    ? lastNetworkError
+    : new Error("Expo getReceipts network error");
 }
