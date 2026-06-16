@@ -1,0 +1,59 @@
+{
+	"title": "FAQ & app rules",
+	"user": {
+		"items": [
+			{
+				"q": "Why can't I book a technician for today?",
+				"a": "Bookings must be scheduled for a future time slot. Same-day and past times aren't available, so the technician has time to plan their route and arrive prepared."
+			},
+			{
+				"q": "Why do I need an address before booking?",
+				"a": "Every booking uses your active address to match nearby technicians and to calculate the inspection fee, which depends on the distance to your location. Add and select an address before booking."
+			},
+			{
+				"q": "How many addresses can I save?",
+				"a": "You can save up to 3 addresses and choose which one is active. Bookings always use your active address. You can't delete the active address — switch to another one first."
+			},
+			{
+				"q": "When can I track my technician on the map?",
+				"a": "Live location only appears while the technician is on the way to your job. Outside that window there's nothing to track yet."
+			},
+			{
+				"q": "Why can't I leave a review?",
+				"a": "Reviews are only available after an order is completed, and you can leave one review per order."
+			},
+			{
+				"q": "Why can't I place a new order?",
+				"a": "If your account is suspended you can't start new orders. Contact support if you think this is a mistake."
+			}
+		]
+	},
+	"technician": {
+		"items": [
+			{
+				"q": "Why can't I track this order?",
+				"a": "You can track only one order at a time. Finish or stop the order you're currently tracking, then start the next one. Location updates are sent only while you're actively tracking."
+			},
+			{
+				"q": "Why can't I reschedule an order?",
+				"a": "Rescheduling works only for orders in the accepted state. The new date must be after the original date, and both the original and proposed dates must be at least 24 hours from now."
+			},
+			{
+				"q": "Why is a date unavailable when I reschedule?",
+				"a": "The new day must still be open in your schedule (not a day off or holiday), and you can hold at most 5 active orders per day. If the day is full or closed, pick another."
+			},
+			{
+				"q": "Why am I not receiving new requests?",
+				"a": "You only receive requests while you're online and your schedule setup is complete. Go online and finish your schedule to start getting jobs."
+			},
+			{
+				"q": "Why can't I collect cash for this order?",
+				"a": "Cash can be collected only when a cash payment is actually pending on the order. If nothing is due in cash, the option won't appear."
+			},
+			{
+				"q": "Why can't I start work?",
+				"a": "Suspended or blocked accounts can't start jobs. Reach out to support to resolve your account status."
+			}
+		]
+	}
+}

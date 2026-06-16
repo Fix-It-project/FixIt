@@ -1,12 +1,6 @@
 import { MapPin } from "lucide-react-native";
-import { useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
-import Animated, {
-	interpolateColor,
-	useAnimatedStyle,
-	useSharedValue,
-	withTiming,
-} from "react-native-reanimated";
+import { RadioGroupItem } from "@/src/components/ui/radio-group";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import type { Address } from "@/src/features/addresses/schemas/response.schema";
@@ -17,42 +11,26 @@ interface AddressListItemProps {
 	readonly onPress: () => void;
 	readonly disabled?: boolean;
 	readonly onDelete?: () => void;
+	/** Dim + disable the delete action (e.g. the active address can't be deleted). */
+	readonly deleteDisabled?: boolean;
 	readonly deleteLabel?: string;
 }
 
+/**
+ * One selectable address row. Selection is driven by a `RadioGroupItem`
+ * (the parent must render it inside a `<RadioGroup>`); the row body is also
+ * tappable. An optional delete action sits at the trailing edge.
+ */
 export default function AddressListItem({
 	address,
 	isActive,
 	onPress,
 	disabled = false,
 	onDelete,
+	deleteDisabled = false,
 	deleteLabel,
 }: AddressListItemProps) {
 	const themeColors = useThemeColors();
-	const activeColor = themeColors.primary;
-	const active = useSharedValue(isActive ? 1 : 0);
-
-	useEffect(() => {
-		active.value = withTiming(isActive ? 1 : 0, { duration: 200 });
-	}, [isActive, active]);
-
-	const ringStyle = useAnimatedStyle(() => ({
-		borderColor: interpolateColor(
-			active.value,
-			[0, 1],
-			[themeColors.borderDefault, activeColor],
-		),
-		backgroundColor: interpolateColor(
-			active.value,
-			[0, 1],
-			["transparent", activeColor],
-		),
-	}));
-
-	const dotStyle = useAnimatedStyle(() => ({
-		opacity: active.value,
-		transform: [{ scale: active.value }],
-	}));
 
 	const detailParts = [address.building_no, address.apartment_no].filter(
 		Boolean,
@@ -90,24 +68,19 @@ export default function AddressListItem({
 					</Text>
 				</View>
 
-				<Animated.View
-					className="h-icon-sm w-icon-sm items-center justify-center rounded-pill border-selected"
-					style={[{ borderColor: themeColors.borderDefault }, ringStyle]}
-				>
-					<Animated.View
-						className="h-status-dot-sm w-status-dot-sm rounded-pill"
-						style={[{ backgroundColor: themeColors.surfaceBase }, dotStyle]}
-					/>
-				</Animated.View>
+				<RadioGroupItem value={address.id} disabled={disabled} />
 			</TouchableOpacity>
 
 			{onDelete ? (
 				<TouchableOpacity
 					onPress={onDelete}
-					disabled={disabled}
+					disabled={disabled || deleteDisabled}
 					activeOpacity={0.7}
 					className="rounded-button px-stack-sm py-stack-xs"
-					style={{ backgroundColor: themeColors.dangerLight }}
+					style={{
+						backgroundColor: themeColors.dangerLight,
+						opacity: deleteDisabled ? 0.4 : 1,
+					}}
 				>
 					<Text variant="caption" style={{ color: themeColors.danger }}>
 						{deleteLabel}

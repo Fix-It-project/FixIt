@@ -13,7 +13,6 @@ export const technicianQueryKeys = {
 		lng: number | null,
 		sort: string | null,
 		pageSize: number,
-		refreshToken: number,
 	) =>
 		[
 			...technicianQueryKeys.list(),
@@ -24,7 +23,6 @@ export const technicianQueryKeys = {
 			lng,
 			sort,
 			pageSize,
-			refreshToken,
 		] as const,
 	profile: (technicianId: string) =>
 		["technician-profile", technicianId] as const,

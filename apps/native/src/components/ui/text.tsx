@@ -15,6 +15,7 @@ import {
 	typography,
 } from "@/src/constants/design-tokens";
 import { cn } from "@/src/lib/utils";
+import { usePrefsStore } from "@/src/stores/prefs-store";
 
 const textVariants = cva(
 	cn(
@@ -173,9 +174,24 @@ function Text({
 			: family;
 	const baseVariantStyle = typography[semanticVariant];
 	const localizedVariantFamily = localizeFamily(baseVariantStyle.fontFamily);
+	// In-app text scale (Display settings). Scales fontSize + lineHeight together
+	// so vertical rhythm is preserved. 1 = off (no allocation on the hot path).
+	const fontScale = usePrefsStore((s) => s.fontScale);
+	const scaledStyle: TextStyle =
+		fontScale === 1
+			? baseVariantStyle
+			: {
+					...baseVariantStyle,
+					...(typeof baseVariantStyle.fontSize === "number"
+						? { fontSize: baseVariantStyle.fontSize * fontScale }
+						: {}),
+					...(typeof baseVariantStyle.lineHeight === "number"
+						? { lineHeight: baseVariantStyle.lineHeight * fontScale }
+						: {}),
+				};
 	const variantStyle: TextStyle = localizedVariantFamily
-		? { ...baseVariantStyle, fontFamily: localizedVariantFamily }
-		: baseVariantStyle;
+		? { ...scaledStyle, fontFamily: localizedVariantFamily }
+		: scaledStyle;
 	const classFontStyle = classFontFamily
 		? ({
 				fontFamily: localizeFamily(classFontFamily),

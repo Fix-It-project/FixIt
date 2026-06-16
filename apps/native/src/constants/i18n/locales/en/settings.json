@@ -1,16 +1,69 @@
 {
+	"sections": {
+		"appearance": "Appearance",
+		"work": "Work",
+		"preferences": "Preferences",
+		"support": "Support",
+		"account": "Account"
+	},
 	"menu": {
 		"address": "Service location",
 		"services": "Services",
 		"notifications": "Notifications",
+		"display": "Display & text size",
+		"data": "Data & storage",
+		"faq": "FAQ & app rules",
 		"privacy": "Privacy & Security",
-		"help": "Help & Support"
+		"help": "Help & Support",
+		"about": "About"
 	},
 	"layout": {
 		"settings": "Settings",
 		"back": "Back"
 	},
+	"appearance": {
+		"theme": "Theme"
+	},
+	"account": {
+		"logout": "Log out",
+		"logoutTitle": "Log out",
+		"logoutDescription": "Are you sure you want to log out?",
+		"logoutConfirm": "Log out",
+		"logoutCancel": "Cancel"
+	},
+	"display": {
+		"title": "Display & text size",
+		"textSize": "Text size",
+		"size": {
+			"small": "Small",
+			"default": "Default",
+			"large": "Large"
+		},
+		"previewText": "The quick brown fox jumps over the lazy dog.",
+		"reduceMotion": "Reduce motion",
+		"reduceMotionHint": "Minimize non-essential animations across the app."
+	},
+	"data": {
+		"title": "Data & storage",
+		"intro": "Free up space by clearing cached images and data. Your account and bookings are not affected.",
+		"clearCache": "Clear cache",
+		"clearTitle": "Clear cache?",
+		"clearDescription": "This removes cached images and data. Nothing in your account is deleted.",
+		"clearConfirm": "Clear",
+		"clearCancel": "Cancel",
+		"cleared": "Cache cleared",
+		"clearFailed": "Couldn't clear the cache"
+	},
+	"about": {
+		"title": "About",
+		"appName": "FixIt",
+		"version": "Version {{version}}",
+		"terms": "Terms of Service",
+		"privacy": "Privacy Policy",
+		"licenses": "Open-source licenses"
+	},
 	"language": {
+		"title": "Language",
 		"restartTitle": "Restart required",
 		"restartMessage": "Changing the language restarts the app to apply the new text direction.",
 		"restartConfirm": "Restart now",

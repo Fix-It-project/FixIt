@@ -20,6 +20,7 @@ import {
 	type BottomSheetRef,
 } from "@/src/components/ui/bottom-sheet";
 import { Button } from "@/src/components/ui/button";
+import { RadioGroup } from "@/src/components/ui/radio-group";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import { useAddressesQuery } from "@/src/features/addresses/hooks/useAddressesQuery";
@@ -41,7 +42,7 @@ interface AddressBottomSheetProps {
 }
 
 function AddressSeparator() {
-	return <View className="h-px bg-surface-elevated" />;
+	return <View className="h-px bg-edge" />;
 }
 
 const AddressBottomSheet = forwardRef<
@@ -64,7 +65,6 @@ const AddressBottomSheet = forwardRef<
 	const { data: addresses, isLoading, isError } = useAddressesQuery();
 	const setActiveMutation = useSetActiveAddressMutation();
 
-	const [optimisticActiveId, setOptimisticActiveId] = useState<string>();
 	const [sheetIndex, setSheetIndex] = useState(-1);
 
 	const { height } = useWindowDimensions();
@@ -77,7 +77,6 @@ const AddressBottomSheet = forwardRef<
 
 	useImperativeHandle(ref, () => ({
 		open() {
-			setOptimisticActiveId(undefined);
 			bottomSheetRef.current?.snapToIndex(0);
 		},
 		close() {
@@ -87,10 +86,7 @@ const AddressBottomSheet = forwardRef<
 
 	const handleActivate = useCallback(
 		(addressId: string) => {
-			setOptimisticActiveId(addressId);
-			setActiveMutation.mutate(addressId, {
-				onSettled: () => setOptimisticActiveId(undefined),
-			});
+			setActiveMutation.mutate(addressId);
 		},
 		[setActiveMutation],
 	);
@@ -105,12 +101,6 @@ const AddressBottomSheet = forwardRef<
 			onOpenChange?.(index >= 0);
 		},
 		[onOpenChange],
-	);
-
-	const getIsActive = useCallback(
-		(id: string, serverActive: boolean) =>
-			optimisticActiveId ? id === optimisticActiveId : serverActive,
-		[optimisticActiveId],
 	);
 
 	return (
@@ -166,27 +156,34 @@ const AddressBottomSheet = forwardRef<
 							{t("sheet.saved")}
 						</Text>
 
-						<FlatList
-							data={addresses}
-							keyExtractor={(item) => item.id}
-							extraData={optimisticActiveId}
-							showsVerticalScrollIndicator={false}
-							ItemSeparatorComponent={AddressSeparator}
-							renderItem={({ item }) => (
-								<AddressListItem
-									address={item}
-									isActive={getIsActive(item.id, item.is_active)}
-									onPress={() => handleActivate(item.id)}
-									disabled={setActiveMutation.isPending}
-									onDelete={
-										showDeleteActions && onDeleteAddress && addresses.length > 1
-											? () => onDeleteAddress(item.id)
-											: undefined
-									}
-									deleteLabel={t("sheet.delete")}
-								/>
-							)}
-						/>
+						<RadioGroup
+							value={addresses.find((a) => a.is_active)?.id}
+							onValueChange={handleActivate}
+							className="flex-1"
+						>
+							<FlatList
+								data={addresses}
+								keyExtractor={(item) => item.id}
+								showsVerticalScrollIndicator={false}
+								ItemSeparatorComponent={AddressSeparator}
+								renderItem={({ item }) => (
+									<AddressListItem
+										address={item}
+										isActive={item.is_active}
+										onPress={() => handleActivate(item.id)}
+										onDelete={
+											showDeleteActions &&
+											onDeleteAddress &&
+											addresses.length > 1
+												? () => onDeleteAddress(item.id)
+												: undefined
+										}
+										deleteDisabled={item.is_active}
+										deleteLabel={t("sheet.delete")}
+									/>
+								)}
+							/>
+						</RadioGroup>
 
 						{showAddAction && onAddNewAddress ? (
 							<Button

@@ -1,4 +1,4 @@
-import { router, Tabs, usePathname } from "expo-router";
+import { router, Tabs } from "expo-router";
 import {
 	Bell,
 	type LucideProps,
@@ -12,6 +12,7 @@ import {
 	HouseTabIcon,
 } from "@/src/components/icons/FilledTabIcons";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { useScreenChromeStore } from "@/src/components/layout/screen-chrome-store";
 import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_HEIGHT,
@@ -116,7 +117,6 @@ export default function UserTabsLayout() {
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
 	const { width, height } = useWindowDimensions();
-	const pathname = usePathname();
 	const goToChatbot = useDebounce(() => router.push(ROUTES.user.chat));
 	const { data: unreadCount } = useNotificationUnreadCountQuery("user");
 	const hasUnread = (unreadCount ?? 0) > 0;
@@ -124,8 +124,13 @@ export default function UserTabsLayout() {
 		showLabels:
 			width >= NARROW_TAB_BAR_WIDTH && height >= NARROW_TAB_BAR_HEIGHT,
 	});
+	// Top inset blends with the focused screen: each screen publishes a chrome
+	// variant via ScreenStatusBar; we resolve it to a live theme color here so it
+	// re-renders across light/dark. The user side's `blue` band is heroStart (the
+	// home + profile hero color); everything else sits on the elevated surface.
+	const topVariant = useScreenChromeStore((s) => s.topVariant);
 	const topSafeAreaBackground =
-		pathname === ROUTES.user.home
+		topVariant === "blue"
 			? themeColors.tint.heroStart
 			: themeColors.surfaceElevated;
 

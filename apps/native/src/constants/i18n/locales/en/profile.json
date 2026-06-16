@@ -3,14 +3,42 @@
 		"userFallback": "User",
 		"editTitle": "Edit Profile"
 	},
+	"hero": {
+		"memberSince": "Member since {{date}}"
+	},
 	"stats": {
 		"bookings": "Bookings",
 		"completed": "Completed"
 	},
+	"metrics": {
+		"totalBookings": "Total bookings",
+		"completed": "Completed",
+		"topService": "Top service",
+		"totalOrders": "Total orders",
+		"rating": "Rating"
+	},
+	"sections": {
+		"account": "Account",
+		"work": "Work",
+		"earnings": "Earnings",
+		"rewards": "Rewards"
+	},
+	"actions": {
+		"openSettings": "Settings"
+	},
+	"earnings": {
+		"totalEarned": "Total earned"
+	},
+	"rewards": {
+		"comingSoon": "Rewards are on the way — start earning perks soon."
+	},
 	"menu": {
 		"editProfile": "Edit Profile",
+		"orderHistory": "Order history",
 		"pastOrders": "Past Orders",
 		"addresses": "My Addresses",
+		"serviceLocation": "Service location",
+		"services": "Services",
 		"settings": "Settings",
 		"loggingOut": "Logging out…",
 		"logout": "Log Out"
@@ -32,14 +60,22 @@
 	"edit": {
 		"fullName": "Full Name",
 		"fullNamePlaceholder": "Enter your full name",
+		"firstName": "First name",
+		"firstNamePlaceholder": "Enter your first name",
+		"lastName": "Last name",
+		"lastNamePlaceholder": "Enter your last name",
 		"email": "Email",
 		"emailPlaceholder": "Enter your email",
 		"phone": "Phone",
 		"phonePlaceholder": "Enter your phone number",
+		"about": "About",
+		"aboutPlaceholder": "Tell clients about yourself…",
 		"save": "Save Changes"
 	},
 	"avatar": {
 		"alt": "Profile photo",
-		"change": "Change profile photo"
+		"change": "Change profile photo",
+		"permissionTitle": "Permission required",
+		"permissionBody": "Please allow access to your photo library."
 	}
 }
