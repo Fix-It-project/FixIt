@@ -18,6 +18,8 @@ import {
 	ArrivedInspectingActionsView,
 	ArrivedInspectingCta,
 	CashReceivedActionsView,
+	PendingActionsView,
+	PendingCta,
 	QuoteActionsView,
 	QuoteCta,
 	TrackingActionsView,
@@ -39,6 +41,7 @@ import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 function isWizardStatus(status: LifecycleOrderStatus): boolean {
 	return (
+		status === "pending" ||
 		status === "accepted" ||
 		status === "reschedule_requested_by_user" ||
 		status === "reschedule_requested_by_technician" ||
@@ -50,7 +53,7 @@ export default function BookingDetailScreen() {
 	const themeColors = useThemeColors();
 	const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
 	const booking = useTechnicianBookingById(bookingId);
-	const goBack = useSafeBack(ROUTES.technician.bookings);
+	const goBack = useSafeBack(ROUTES.technician.jobs);
 
 	useOrderRealtimeInvalidate(
 		bookingId,
@@ -78,6 +81,10 @@ export default function BookingDetailScreen() {
 		let body: ReactNode = null;
 		let cta: ReactNode = null;
 		switch (lifecycleStatus) {
+			case "pending":
+				body = <PendingActionsView order={bookingAsOrder} />;
+				cta = <PendingCta order={bookingAsOrder} />;
+				break;
 			case "accepted":
 				body = <AcceptedActionsView order={bookingAsOrder} />;
 				cta = <AcceptedCta order={bookingAsOrder} />;
@@ -135,7 +142,7 @@ export default function BookingDetailScreen() {
 	const icon = isCompleted ? CheckCircle2 : XCircle;
 	const eyebrow = isCompleted ? "Done" : "Closed";
 	const handleDone = () => {
-		router.replace(ROUTES.technician.bookings);
+		router.replace(ROUTES.technician.jobs);
 	};
 
 	return (

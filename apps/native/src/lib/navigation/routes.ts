@@ -14,6 +14,7 @@ export const ROUTES = {
 		roleSelection: "/role-selection" as const,
 		login: "/login" as const,
 		signup: "/signup" as const,
+		signupStep2: "/signup/step-2" as const,
 		forgotPassword: "/forgot-password" as const,
 		resetPassword: "/reset-password" as const,
 		techLogin: "/tech-login" as const,
@@ -113,6 +114,21 @@ export const ROUTES = {
 	technician: {
 		home: "/technician" as const,
 		schedule: "/technician/schedule" as const,
+		// Deep-link into the schedule tab with a specific day preselected
+		// (used by "View in schedule" from the Jobs → Scheduled date headers).
+		scheduleDay: (date: string) => ({
+			pathname: "/technician/schedule" as const,
+			params: { date },
+		}),
+		// First-time onboarding setup + later "Edit schedule" both open this screen.
+		scheduleSetup: "/technician/schedule-setup" as const,
+		jobs: "/technician/jobs" as const,
+		// Deep-link into a specific Jobs tab (e.g. the dashboard reschedule teaser
+		// jumps straight to "reschedules").
+		jobsTab: (tab: "requests" | "scheduled" | "reschedules") => ({
+			pathname: "/technician/jobs" as const,
+			params: { tab },
+		}),
 		bookings: "/technician/bookings" as const,
 		bookingDetail: (bookingId: string) => ({
 			pathname: "/technician/bookings/[bookingId]" as const,

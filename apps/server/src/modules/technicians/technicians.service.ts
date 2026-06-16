@@ -86,6 +86,7 @@ export interface ITechniciansService {
 		technicianId: string,
 		isAvailable: boolean,
 	): Promise<TechnicianSelfProfile>;
+	completeScheduleSetup(technicianId: string): Promise<TechnicianSelfProfile>;
 	getStats(technicianId: string): Promise<TechnicianDashboardStats>;
 	uploadProfileImage(
 		technicianId: string,
@@ -98,7 +99,10 @@ export class TechniciansService implements ITechniciansService {
 		private readonly repo: ITechnicianQueryRepository &
 			Pick<
 				ITechniciansRepository,
-				"getTechnicianSelf" | "updateTechnicianSelf" | "updateProfileImage"
+				| "getTechnicianSelf"
+				| "updateTechnicianSelf"
+				| "completeScheduleSetup"
+				| "updateProfileImage"
 			>,
 		private readonly categoriesRepo: ICategoriesRepository,
 		private readonly storageRepo: IStorageRepository,
@@ -278,6 +282,13 @@ export class TechniciansService implements ITechniciansService {
 		await this.repo.updateTechnicianSelf(technicianId, {
 			is_available: isAvailable,
 		});
+		return this.getSelf(technicianId);
+	}
+
+	async completeScheduleSetup(
+		technicianId: string,
+	): Promise<TechnicianSelfProfile> {
+		await this.repo.completeScheduleSetup(technicianId);
 		return this.getSelf(technicianId);
 	}
 

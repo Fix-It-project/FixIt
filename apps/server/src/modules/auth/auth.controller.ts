@@ -40,6 +40,24 @@ export class AuthController {
     res.status(200).json({ user });
   });
 
+  oauthStatus: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const result = await authService.oauthStatus(user);
+    res.status(200).json(result);
+  });
+
+  oauthComplete: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const { fullName, phone, city, street, building_no, apartment_no, latitude, longitude } = req.body;
+    const result = await authService.completeOAuthProfile(
+      user,
+      { city, street, building_no, apartment_no, latitude, longitude },
+      { fullName, phone },
+    );
+    req.log.info({ action: 'oauth_complete', userId: user?.id });
+    res.status(201).json(result);
+  });
+
   refreshToken: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
     const { refreshToken } = req.body;
     const result = await authService.refreshSession(refreshToken);

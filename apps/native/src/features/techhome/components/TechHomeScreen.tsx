@@ -1,13 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { useThemeColors } from "@/src/constants/design-tokens";
-import {
-	PROMO_PLACEHOLDER,
-	SECTION_ENTER_DURATION_MS,
-	SECTION_STAGGER_MS,
-} from "../constants";
+import { SECTION_ENTER_DURATION_MS, SECTION_STAGGER_MS } from "../constants";
 import {
 	useActiveJob,
 	useNextTodayJob,
@@ -21,6 +18,7 @@ import { IncomingRequestsSection } from "./IncomingRequestsSection";
 import { NextJobCard } from "./NextJobCard";
 import { PerformanceGrid } from "./PerformanceGrid";
 import { PromoCard } from "./PromoCard";
+import { RescheduleTeaserCard } from "./RescheduleTeaserCard";
 import { ScheduleTimeline } from "./ScheduleTimeline";
 import { TechHomeSkeleton } from "./skeletons";
 
@@ -46,6 +44,7 @@ function Enter({
 }
 
 export function TechHomeScreen() {
+	const { t } = useTranslation("technician");
 	const colors = useThemeColors();
 	const insets = useSafeAreaInsets();
 	const ordersQuery = useTechHomeOrdersQuery();
@@ -109,16 +108,25 @@ export function TechHomeScreen() {
 							<IncomingRequestsSection />
 						</Enter>
 
+						{/* Appears only when a customer sent a reschedule request. */}
 						<Enter order={3}>
-							<ScheduleTimeline />
+							<RescheduleTeaserCard />
 						</Enter>
 
 						<Enter order={4}>
-							<PerformanceGrid />
+							<ScheduleTimeline />
 						</Enter>
 
 						<Enter order={5}>
-							<PromoCard {...PROMO_PLACEHOLDER} />
+							<PerformanceGrid />
+						</Enter>
+
+						<Enter order={6}>
+							<PromoCard
+								badgeLabel={t("home.promo.badge")}
+								title={t("home.promo.title")}
+								body={t("home.promo.body")}
+							/>
 						</Enter>
 					</>
 				)}

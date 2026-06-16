@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBookedSlots } from "@/src/features/schedule/api/calendar";
+import { getBookedSlots } from "@/src/lib/technician-calendar";
 
 /**
  * Slots already taken by blocking orders for a technician, optionally within a

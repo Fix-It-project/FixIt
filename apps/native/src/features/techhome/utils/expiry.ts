@@ -3,6 +3,8 @@
  * Deadline = created_at + pendingExpiryHours (value delivered by
  * GET /api/technicians/me/stats so the app needn't hardcode the DB interval).
  */
+import i18n from "@/src/config/i18n";
+
 export interface PendingExpiry {
 	/** Milliseconds remaining; 0 when already past the deadline. */
 	remainingMs: number;
@@ -13,12 +15,17 @@ export interface PendingExpiry {
 }
 
 function expiryLabel(remainingMs: number): string {
-	if (remainingMs === 0) return "Expired";
+	if (remainingMs === 0) return i18n.t("technician:home.requests.expired");
 	const totalMinutes = Math.floor(remainingMs / 60_000);
-	if (totalMinutes < 5) return "Expiring";
+	if (totalMinutes < 5) return i18n.t("technician:home.requests.expiring");
 	const hours = Math.floor(totalMinutes / 60);
 	const minutes = totalMinutes % 60;
-	return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+	return hours > 0
+		? i18n.t("technician:home.requests.durationHoursMinutes", {
+				hours,
+				minutes,
+			})
+		: i18n.t("technician:home.requests.durationMinutes", { minutes });
 }
 
 export function pendingExpiryFor(

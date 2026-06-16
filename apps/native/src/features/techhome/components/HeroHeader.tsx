@@ -27,6 +27,7 @@ interface HeroHeaderProps {
 function LanguageToggle() {
 	const colors = useThemeColors();
 	const { t: ts } = useTranslation("settings");
+	const { t } = useTranslation("technician");
 	const language = useLanguageStore((state) => state.language);
 	const setLanguage = useLanguageStore((state) => state.setLanguage);
 	const nextLanguage: Language = language === "ar" ? "en" : "ar";
@@ -48,7 +49,9 @@ function LanguageToggle() {
 			pressedScale={0.94}
 			onPress={() => void handlePress()}
 			accessibilityRole="button"
-			accessibilityLabel={`Switch to ${nextLanguage.toUpperCase()}`}
+			accessibilityLabel={t("home.hero.switchLanguageAria", {
+				language: nextLanguage.toUpperCase(),
+			})}
 			className="h-9 flex-row items-center gap-1 rounded-xl bg-overlay-white px-2.5"
 		>
 			<Icon as={Languages} size={15} color={colors.tint.onHero} />
@@ -61,6 +64,7 @@ function LanguageToggle() {
 
 export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
 	const colors = useThemeColors();
+	const { t } = useTranslation("technician");
 	const { data: profile } = useTechSelfQuery();
 
 	const fullName = profile
@@ -79,7 +83,10 @@ export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
 		>
 			<View className="flex-row items-center justify-between px-screen-x pt-stack-sm">
 				<View className="flex-1 flex-row items-center gap-stack-sm">
-					<Avatar alt={fullName || "Technician"} className="h-11 w-11">
+					<Avatar
+						alt={fullName || t("home.hero.technicianFallback")}
+						className="h-11 w-11"
+					>
 						{profile?.profile_image ? (
 							<AvatarImage source={{ uri: profile.profile_image }} />
 						) : null}

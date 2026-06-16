@@ -3,8 +3,6 @@ import { ClipboardList } from "lucide-react-native";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/navigation";
 import {
 	elevation,
 	shadowStyle,
@@ -12,6 +10,8 @@ import {
 	type ThemePalette,
 	useThemeColors,
 } from "@/src/constants/design-tokens";
+import { useDebounce } from "@/src/hooks/useDebounce";
+import { ROUTES } from "@/src/lib/navigation";
 import {
 	useDashboardOrdersQuery,
 	useTodayAcceptedDashboardOrders,
@@ -111,9 +111,7 @@ export default function TodayScheduleSection() {
 	const themeColors = useThemeColors();
 	const todaysOrders = useTodayAcceptedDashboardOrders();
 	const { isLoading } = useDashboardOrdersQuery();
-	const goToBookings = useDebounce(() =>
-		router.push(ROUTES.technician.bookings),
-	);
+	const goToBookings = useDebounce(() => router.push(ROUTES.technician.jobs));
 	let content = (
 		<View>
 			{todaysOrders.map((item, index) => (

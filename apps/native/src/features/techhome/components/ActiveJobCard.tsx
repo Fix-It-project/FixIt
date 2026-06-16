@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { ArrowRight, MapPin } from "lucide-react-native";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import CustomerActionsSheet, {
@@ -16,25 +17,26 @@ import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
 import type { OrderStatus, TechHomeOrder } from "../schemas/orders.schema";
 import { formatEgp } from "../utils/money";
+import { JobInspectionMeta } from "./JobInspectionMeta";
 import { SectionHeader } from "./SectionHeader";
 
-const STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
-	tracking: "ON THE WAY",
-	arrived_inspection: "INSPECTING",
-	awaiting_final_cost: "PRICING",
-	negotiating: "NEGOTIATING",
-	in_progress: "IN PROGRESS",
-	awaiting_payment: "AWAITING PAYMENT",
+const STATUS_LABEL_KEY: Partial<Record<OrderStatus, string>> = {
+	tracking: "home.activeJob.status.tracking",
+	arrived_inspection: "home.activeJob.status.arrivedInspection",
+	awaiting_final_cost: "home.activeJob.status.awaitingFinalCost",
+	negotiating: "home.activeJob.status.negotiating",
+	in_progress: "home.activeJob.status.inProgress",
+	awaiting_payment: "home.activeJob.status.awaitingPayment",
 };
 
 // ── Job progress (mirrors the user home ActiveOrderStrip 5-step model) ──────────
 // on the way → inspecting → pricing → in progress → awaiting payment.
 const JOB_STEPS = [
-	"On the way",
-	"Inspecting",
-	"Pricing",
-	"In progress",
-	"Awaiting payment",
+	"home.activeJob.steps.onTheWay",
+	"home.activeJob.steps.inspecting",
+	"home.activeJob.steps.pricing",
+	"home.activeJob.steps.inProgress",
+	"home.activeJob.steps.awaitingPayment",
 ] as const;
 const TOTAL_JOB_STEPS = JOB_STEPS.length;
 
@@ -57,11 +59,14 @@ function getJobStep(status: OrderStatus): number {
 }
 
 export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
+	const { t } = useTranslation("technician");
 	const router = useRouter();
 	const sheetRef = useRef<CustomerActionsSheetHandle>(null);
-	const customerName = order.user_name ?? "Customer";
+	const customerName = order.user_name ?? t("home.common.customer");
 	const initials = getPfpInitialsFallback(customerName);
 	const jobStep = getJobStep(order.status);
+	const statusLabelKey =
+		STATUS_LABEL_KEY[order.status] ?? "home.activeJob.status.inProgress";
 
 	const openDetails = () =>
 		router.push(ROUTES.technician.bookingDetail(order.id));
@@ -77,18 +82,18 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 
 	return (
 		<View className="px-screen-x pt-stack-lg">
-			<SectionHeader title="Active job" />
+			<SectionHeader title={t("home.sections.activeJob")} />
 			<PressableScale
 				onPress={openDetails}
 				accessibilityRole="button"
-				accessibilityLabel="Open job details"
+				accessibilityLabel={t("home.common.openJobDetails")}
 			>
 				<Card elevated className="p-card">
 					{/* status strip — STATUS_LABEL is a compact functional status code */}
 					<View className="flex-row items-center gap-stack-xs border-edge border-b pb-stack-sm">
 						<View className="h-2 w-2 rounded-full bg-app-primary" />
 						<Text variant="caption" className="font-semibold text-app-primary">
-							{STATUS_LABEL[order.status] ?? "IN PROGRESS"}
+							{t(statusLabelKey)}
 						</Text>
 					</View>
 
@@ -97,7 +102,9 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 						<Pressable
 							onPress={openCustomerSheet}
 							accessibilityRole="button"
-							accessibilityLabel={`Contact ${customerName}`}
+							accessibilityLabel={t("home.common.contactCustomer", {
+								name: customerName,
+							})}
 							className="flex-1 flex-row items-center gap-stack-md"
 						>
 							<Avatar alt={customerName} className="h-12 w-12">
@@ -120,7 +127,9 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 									className="text-content-muted"
 									numberOfLines={1}
 								>
-									{order.service_name ?? order.problem_description ?? "Service"}
+									{order.service_name ??
+										order.problem_description ??
+										t("home.common.service")}
 								</Text>
 								{order.user_address ? (
 									<View className="mt-1 flex-row items-center gap-1">
@@ -143,7 +152,7 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 						{order.final_price == null ? null : (
 							<View className="items-end">
 								<Text variant="caption" className="text-content-muted">
-									Payout
+									{t("home.common.payout")}
 								</Text>
 								<Text variant="body" className="font-bold text-content">
 									{formatEgp(order.final_price)}
@@ -151,6 +160,13 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 							</View>
 						)}
 					</View>
+
+					{/* inspection fee + distance it was priced from */}
+					<JobInspectionMeta
+						inspectionFee={order.inspection_fee}
+						inspectionDistanceKm={order.inspection_distance_km}
+						className="pb-stack-sm"
+					/>
 
 					{/* progress — 5-step job lifecycle, matches user home tracking strip */}
 					<View className="pb-stack-sm">
@@ -165,7 +181,7 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 								className="font-semibold text-app-primary"
 								numberOfLines={1}
 							>
-								{JOB_STEPS[jobStep - 1]}
+								{t(JOB_STEPS[jobStep - 1])}
 							</Text>
 							<Text variant="caption" className="text-content-muted">
 								{`${jobStep}/${TOTAL_JOB_STEPS}`}
@@ -175,7 +191,7 @@ export function ActiveJobCard({ order }: { order: TechHomeOrder }) {
 
 					<Button variant="primary" size="md" fullWidth onPress={openDetails}>
 						<Text variant="buttonMd" className="text-surface-on-primary">
-							Open job
+							{t("home.activeJob.openJob")}
 						</Text>
 						<Icon
 							as={ArrowRight}

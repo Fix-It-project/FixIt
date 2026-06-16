@@ -121,40 +121,16 @@ function TopRatedTechnicianCard({
 					</PressableScale>
 
 					<View style={{ flex: 1, minWidth: 0 }}>
-						<View className="min-w-0 flex-row items-start justify-between gap-stack-xs">
-							<View className="min-w-0 flex-1">
-								<Text
-									variant="label"
-									className="font-bold text-foreground"
-									numberOfLines={1}
-								>
-									{name}
-								</Text>
-								<View className="mt-[2px] flex-row items-center gap-stack-xs">
-									<Icon
-										as={CategoryIcon}
-										size={12}
-										color={t.textSecondary}
-										strokeWidth={2}
-									/>
-									<Text
-										variant="caption"
-										className="min-w-0 flex-1 text-content-secondary"
-										numberOfLines={1}
-									>
-										{categoryName}
-									</Text>
-								</View>
-								<Text
-									variant="caption"
-									className="mt-[2px] text-content-secondary"
-									numberOfLines={2}
-								>
-									{description}
-								</Text>
-							</View>
-
-							<View className="flex-row items-center gap-stack-xs">
+						<View className="min-w-0 flex-1">
+							<Text
+								variant="label"
+								className="font-bold text-foreground"
+								numberOfLines={1}
+							>
+								{name}
+							</Text>
+							{/* rating sits directly under the name */}
+							<View className="mt-[2px] flex-row items-center gap-stack-xs">
 								<Icon
 									as={Star}
 									size={12}
@@ -167,6 +143,28 @@ function TopRatedTechnicianCard({
 										: tr("newTech")}
 								</Text>
 							</View>
+							<View className="mt-[2px] flex-row items-center gap-stack-xs">
+								<Icon
+									as={CategoryIcon}
+									size={12}
+									color={t.textSecondary}
+									strokeWidth={2}
+								/>
+								<Text
+									variant="caption"
+									className="min-w-0 flex-1 text-content-secondary"
+									numberOfLines={1}
+								>
+									{categoryName}
+								</Text>
+							</View>
+							<Text
+								variant="caption"
+								className="mt-[2px] text-content-secondary"
+								numberOfLines={2}
+							>
+								{description}
+							</Text>
 						</View>
 					</View>
 				</View>

@@ -126,6 +126,23 @@ export class TechniciansController {
 		},
 	);
 
+	completeScheduleSetup: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const technicianId = (req as any).technician?.id;
+			if (!technicianId) {
+				throw AppError.unauthorized("Technician not authenticated", {
+					token: "no_technician",
+				});
+			}
+			const profile = await service.completeScheduleSetup(technicianId);
+			req.log.info({
+				action: "technician_schedule_setup_completed",
+				technicianId,
+			});
+			res.json({ profile });
+		},
+	);
+
 	updateAvailability: RequestHandler = asyncHandler(
 		async (req: Request, res: Response) => {
 			const technicianId = (req as any).technician?.id;

@@ -8,6 +8,7 @@ import {
   RefreshTokenBodySchema,
   ForgotPasswordBodySchema,
   ResetPasswordBodySchema,
+  OAuthCompleteBodySchema,
 } from '../../shared/dtos/index.js';
 
 const router: RouterType = Router();
@@ -16,6 +17,8 @@ router.post('/signup', validate({ body: SignUpBodySchema }), authController.sign
 router.post('/signin', validate({ body: SignInBodySchema }), authController.signIn);
 router.post('/signout', requireUserAuth, authController.signOut);
 router.get('/me', requireUserAuth, authController.getCurrentUser);
+router.get('/oauth/status', requireUserAuth, authController.oauthStatus);
+router.post('/oauth/complete', requireUserAuth, validate({ body: OAuthCompleteBodySchema }), authController.oauthComplete);
 router.post('/refresh', validate({ body: RefreshTokenBodySchema }), authController.refreshToken);
 router.post('/forgot-password', validate({ body: ForgotPasswordBodySchema }), authController.requestPasswordReset);
 router.post('/reset-password', validate({ body: ResetPasswordBodySchema }), authController.resetPassword);

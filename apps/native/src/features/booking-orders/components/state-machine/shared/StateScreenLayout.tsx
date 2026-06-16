@@ -2,13 +2,12 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type LayoutChangeEvent, ScrollView, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { space } from "@/src/constants/design-tokens";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/navigation";
-import { space } from "@/src/constants/design-tokens";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 import StageProgressBar from "./StageProgressBar";
 import StepBodySlide from "./StepBodySlide";
 import StickyBottomCTA from "./StickyBottomCTA";
@@ -46,7 +45,7 @@ export default function StateScreenLayout({
 	const [ctaHeight, setCtaHeight] = useState(0);
 
 	const goBack = useSafeBack(
-		viewer === "user" ? ROUTES.user.orders : ROUTES.technician.bookings,
+		viewer === "user" ? ROUTES.user.orders : ROUTES.technician.jobs,
 	);
 
 	useFocusBackHandler(() => {

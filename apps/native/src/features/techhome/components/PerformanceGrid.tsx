@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { useTechHomeStatsQuery } from "../hooks/useTechHomeStatsQuery";
@@ -36,6 +37,7 @@ function StatCell({
 
 /** 2×2 performance figures — bare numbers, no fills, every figure server-side. */
 export function PerformanceGrid() {
+	const { t } = useTranslation("technician");
 	const { data: stats } = useTechHomeStatsQuery();
 
 	// Weekly rating — this week's reviews only, separate from the lifetime figure.
@@ -47,33 +49,33 @@ export function PerformanceGrid() {
 
 	return (
 		<View className="px-screen-x pt-stack-lg">
-			<SectionHeader title="Performance" />
+			<SectionHeader title={t("home.sections.performance")} />
 			<View className="gap-stack-md">
 				<View className="flex-row">
 					<StatCell
-						label="Acceptance rate"
+						label={t("home.performance.acceptanceRate")}
 						value={pct(stats?.rates.acceptanceRate)}
-						sub="last 30 days"
+						sub={t("home.performance.last30Days")}
 						className="pr-card-compact"
 					/>
 					<StatCell
-						label="Jobs this week"
+						label={t("home.performance.jobsThisWeek")}
 						value={String(stats?.jobs.thisWeek ?? 0)}
-						sub="completed"
+						sub={t("home.performance.completed")}
 						className="pl-card-compact"
 					/>
 				</View>
 				<View className="flex-row">
 					<StatCell
-						label="Rating"
+						label={t("home.performance.rating")}
 						value={rating}
-						sub={`${reviews} ${reviews === 1 ? "review" : "reviews"} this week`}
+						sub={t("home.performance.reviewsThisWeek", { count: reviews })}
 						className="pr-card-compact"
 					/>
 					<StatCell
-						label="Cancellation rate"
+						label={t("home.performance.cancellationRate")}
 						value={pct(stats?.rates.cancellationRate)}
-						sub="last 30 days"
+						sub={t("home.performance.last30Days")}
 						className="pl-card-compact"
 					/>
 				</View>
