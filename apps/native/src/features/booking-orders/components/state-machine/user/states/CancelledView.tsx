@@ -2,17 +2,18 @@ import { XCircle } from "lucide-react-native";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
 import { Text } from "@/src/components/ui/text";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	OrderInfoCompact,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
+import { ReportProblemEntry } from "@/src/features/reports/components/ReportProblemEntry";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
 	readonly order: Order;
@@ -61,6 +62,13 @@ export default function CancelledView({ order }: Props) {
 						getPfpInitialsFallback(order.technician_name),
 					)
 				}
+			/>
+
+			<ReportProblemEntry
+				orderId={order.id}
+				viewer="user"
+				counterpartyName={order.technician_name}
+				hasOpenReport={order.has_open_report}
 			/>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />
