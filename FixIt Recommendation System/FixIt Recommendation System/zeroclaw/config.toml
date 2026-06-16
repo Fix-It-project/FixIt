@@ -1,88 +1,76 @@
-# ═══════════════════════════════════════════════════════════════
-#  FixIt AI Agent — ZeroClaw Configuration
-#  Place this at:  ~/.zeroclaw/config.toml
-#  Or set ZEROCLAW_WORKSPACE to this directory.
-# ═══════════════════════════════════════════════════════════════
+schema_version = 3
 
-# ── Core Provider ─────────────────────────────────────────────
-# Points at local Ollama server running Gemma 3 4B.
-default_provider    = "ollama"
-default_model       = "gemma3:4b"
-default_temperature = 0.1          # Low temp for deterministic diagnostics
+[providers.models.ollama.default]
+model = "gemma3:4b"
+temperature = 0.1
+num_ctx = 12288
+timeout_secs = 180
 
-# Ollama-specific: provider URL is resolved from the provider name.
-# ZeroClaw auto-detects Ollama at http://127.0.0.1:11434.
-# If your Ollama runs on a different port, override with:
-#   OLLAMA_HOST=http://127.0.0.1:11434
+[agents.default]
+model_provider = "ollama.default"
+risk_profile = "default"
+runtime_profile = "default"
 
-# ── Gateway (REST API control plane) ─────────────────────────
+[risk_profiles.default]
+level = "full"
+workspace_only = false
+allowed_tools = ["get_technician_recommendation"]
+allowed_commands = ["curl"]
+block_high_risk_commands = false
+require_approval_for_medium_risk = false
+
+[runtime_profiles.default]
+compact_context = true
+max_actions_per_hour = 100
+max_cost_per_day_cents = 0
+max_history_messages = 10
+max_tool_iterations = 5
+
 [gateway]
-host = "0.0.0.0"                   # Accept connections from Windows host
-port = 3000                        # Custom port for FixIt (default is 42617)
+host = "0.0.0.0"
+port = 3000
+require_pairing = false
+allow_public_bind = true
+max_request_body_bytes = 52428800
 
-# ── Agent Settings ────────────────────────────────────────────
-[agent]
-max_tool_iterations    = 5          # Max tool-call loop turns per message
-max_history_messages   = 20         # Conversation context window
-compact_context        = true       # Optimized for smaller models (4B)
-
-# ── Pacing (for local Ollama inference) ───────────────────────
 [pacing]
-step_timeout_secs              = 120   # 2 min per LLM inference step
+step_timeout_secs               = 180
 loop_detection_min_elapsed_secs = 60
 message_timeout_scale_max       = 6
 
-# ── HTTP Request Tool (calls FixIt FastAPI) ───────────────────
-# This built-in tool lets the agent make HTTP calls to the FixIt API.
 [http_request]
-enabled         = true
-allowed_domains = ["*"]             # Allow all (local dev only!)
-max_response_size = 1000000         # 1 MB
-timeout_secs    = 15
+enabled              = true
+allowed_domains      = ["*"]
+max_response_size    = 1000000
+timeout_secs         = 30
+allow_private_hosts  = true
+allowed_private_hosts = ["fixit-api"]
 
-# ── Multimodal Settings ──────────────────────────────────────
-# Gemma 3 4B supports text and vision natively.
+[shell_tool]
+timeout_secs = 30
+
 [multimodal]
-max_images        = 4
-max_image_size_mb = 5
-allow_remote_fetch = false          # Only local/base64 images
+max_images         = 4
+max_image_size_mb  = 20
+allow_remote_fetch = false
 
-# ── Security / Autonomy ──────────────────────────────────────
-# Full autonomy for demo — no approval gates.
-[autonomy]
-level                               = "full"
-workspace_only                      = false
-allowed_commands                    = ["*"]
-max_actions_per_hour                = 100
-max_cost_per_day_cents              = 0     # Local LLM = $0 cost
-require_approval_for_medium_risk    = false
-block_high_risk_commands            = false
-
-# ── Runtime ──────────────────────────────────────────────────
 [runtime]
-reasoning_enabled = true            # Enable Gemma 3 4B thinking mode
+reasoning_enabled = false
 
-# ── Identity ─────────────────────────────────────────────────
-# Uses the default IDENTITY.md in the workspace root.
-# Copy IDENTITY.md to ~/.zeroclaw/workspace/IDENTITY.md
-
-# ── Skills ───────────────────────────────────────────────────
 [skills]
-open_skills_enabled    = false      # No community skills needed
-prompt_injection_mode  = "full"     # Full skill instructions in prompt
+open_skills_enabled   = false
+allow_scripts         = false
+prompt_injection_mode = "full"
 
-# ── Memory ───────────────────────────────────────────────────
 [memory]
 backend   = "sqlite"
-auto_save = true
+auto_save = false
 
-# ── Reliability ──────────────────────────────────────────────
 [reliability]
 provider_retries    = 2
 provider_backoff_ms = 500
 
-# ── Observability (optional — enable for debugging) ──────────
 [observability]
-backend             = "log"
-runtime_trace_mode  = "rolling"
+backend                  = "log"
+runtime_trace_mode       = "rolling"
 runtime_trace_max_entries = 100

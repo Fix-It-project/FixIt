@@ -16,7 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY Data/ ./Data/
 COPY run.py .
-COPY .env .
 
 # Expose the API port
 EXPOSE 8000

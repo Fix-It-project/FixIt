@@ -6,8 +6,10 @@
 	"composer": {
 		"imageNote": "سترسل الصورة مع طلب التشخيص",
 		"voiceMessage": "رسالة صوتية · {{duration}}",
+		"voiceMessageLabel": "رسالة صوتية",
 		"voiceReplaces": "الصوت يحل محل النص",
 		"recording": "جارٍ التسجيل · {{duration}}",
+		"recordingLabel": "جارٍ التسجيل...",
 		"modeLabel": "الوضع: {{mode}}",
 		"modeRecommend": "توصية",
 		"modeAgent": "وكيل",
@@ -29,6 +31,7 @@
 		"estimatedCost": "التكلفة التقديرية",
 		"notAvailable": "غير متاح",
 		"recommendedTechs": "الفنيون الموصى بهم",
+		"noRecommendations": "لا توجد فنيون متاحون في استجابة الذكاء الاصطناعي حالياً.",
 		"distanceAway": "{{km}} كم",
 		"match": "{{n}}% تطابق",
 		"rate": "{{n}} ج.م/ساعة",

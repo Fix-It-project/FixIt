@@ -22,7 +22,7 @@ SERVER_PID=$!
 echo "  Waiting for Ollama server to start..."
 MAX_RETRIES=30
 for i in $(seq 1 $MAX_RETRIES); do
-    if curl -sf http://localhost:11434/api/tags > /dev/null 2>&1; then
+    if ollama list > /dev/null 2>&1; then
         echo "  ✅ Ollama server is ready."
         break
     fi
@@ -35,7 +35,7 @@ for i in $(seq 1 $MAX_RETRIES); do
 done
 
 # Pull model if not already present
-if curl -sf http://localhost:11434/api/tags | grep -q "${MODEL%%:*}"; then
+if ollama list | grep -q "${MODEL%%:*}"; then
     echo "  ✅ Model '${MODEL}' already cached."
 else
     echo "  📥 Pulling model '${MODEL}' (first run only, ~2.5 GB)..."

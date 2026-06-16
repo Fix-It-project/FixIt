@@ -78,7 +78,7 @@ class CollaborativeEngine:
             i = self._uid_to_idx[uid]
             j = self._tid_to_idx[tid]
 
-            if row["status"] == "Completed":
+            if row["status"] == "completed":
                 rating = row["rating"] if pd.notna(row["rating"]) else 2.5
                 val = float(rating)
             else:

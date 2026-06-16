@@ -6,8 +6,10 @@
 	"composer": {
 		"imageNote": "Image will be sent with the diagnosis request",
 		"voiceMessage": "Voice message · {{duration}}",
+		"voiceMessageLabel": "Voice message",
 		"voiceReplaces": "Voice replaces text input",
 		"recording": "Recording · {{duration}}",
+		"recordingLabel": "Recording...",
 		"modeLabel": "Mode: {{mode}}",
 		"modeRecommend": "Recommend",
 		"modeAgent": "Agent",
@@ -29,6 +31,7 @@
 		"estimatedCost": "Estimated cost",
 		"notAvailable": "N/A",
 		"recommendedTechs": "Recommended technicians",
+		"noRecommendations": "No technicians are available from the AI response right now.",
 		"distanceAway": "{{km}} km away",
 		"match": "{{n}}% match",
 		"rate": "{{n}} EGP/hr",

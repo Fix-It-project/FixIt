@@ -35,13 +35,6 @@ type Props = {
 	onCancelRecording: () => void;
 };
 
-function formatDuration(ms: number) {
-	const totalSeconds = Math.floor(ms / 1000);
-	const minutes = Math.floor(totalSeconds / 60);
-	const seconds = totalSeconds % 60;
-	return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
 export default function ChatComposer({
 	mode,
 	onToggleMode,
@@ -156,9 +149,7 @@ export default function ChatComposer({
 						</View>
 						<View className="ml-3 flex-1">
 							<Text variant="bodySm" style={{ color: bodyText }}>
-								{t("composer.voiceMessage", {
-									duration: formatDuration(recordingDurationMs),
-								})}
+								{t("composer.voiceMessageLabel")}
 							</Text>
 							<Text
 								variant="caption"
@@ -200,9 +191,7 @@ export default function ChatComposer({
 							className="ml-2 flex-1 font-google-sans-semibold"
 							style={{ color: danger }}
 						>
-							{t("composer.recording", {
-								duration: formatDuration(recordingDurationMs),
-							})}
+							{t("composer.recordingLabel")}
 						</Text>
 						<TouchableOpacity
 							onPress={onCancelRecording}

@@ -55,28 +55,35 @@ export function createChatEntryId() {
 }
 
 export function getRecommendationCards(serviceOrder: ServiceOrder) {
-	const assignedId = String(serviceOrder.assigned_technician.id);
-	const cards: RecommendationCard[] = [
-		{
+	const assignedId =
+		serviceOrder.assigned_technician.id == null
+			? ""
+			: String(serviceOrder.assigned_technician.id);
+	const assignedName = serviceOrder.assigned_technician.name?.trim() ?? "";
+	const cards: RecommendationCard[] = [];
+
+	if (assignedId && assignedName) {
+		cards.push({
 			id: assignedId,
-			name: serviceOrder.assigned_technician.name,
+			name: assignedName,
 			category: serviceOrder.assigned_technician.category,
 			distance_km: serviceOrder.assigned_technician.distance_km,
 			match_score: serviceOrder.assigned_technician.match_score,
 			trust_score: serviceOrder.assigned_technician.trust_score,
 			hourly_rate_egp: serviceOrder.assigned_technician.hourly_rate_egp,
 			isAssigned: true,
-		},
-	];
+		});
+	}
 
-	const seen = new Set<string>([assignedId]);
+	const seen = new Set<string>(assignedId ? [assignedId] : []);
 	for (const technician of serviceOrder.all_recommendations ?? []) {
 		const technicianId = String(technician.id || "");
-		if (!technicianId || seen.has(technicianId)) continue;
+		const technicianName = technician.name?.trim() ?? "";
+		if (!technicianId || !technicianName || seen.has(technicianId)) continue;
 		seen.add(technicianId);
 		cards.push({
 			id: technicianId,
-			name: technician.name,
+			name: technicianName,
 			category: technician.category,
 			distance_km: technician.distance_km,
 			match_score: technician.match_score,

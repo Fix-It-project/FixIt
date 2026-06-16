@@ -17,7 +17,7 @@ use serde_json::{json, Value};
 use std::env;
 use std::time::Duration;
 
-use crate::tools::traits::{Tool, ToolResult};
+use crate::tools::{Tool, ToolResult};
 
 // ── Response types for deserialization ───────────────────────
 
@@ -135,8 +135,9 @@ impl Tool for FixItRecommendTool {
 
         if problem.len() < 5 {
             return Ok(ToolResult {
-                output: "Error: problem_description must be at least 5 characters.".to_string(),
-                is_error: true,
+                success: false,
+                output: String::new(),
+                error: Some("Error: problem_description must be at least 5 characters.".to_string()),
             });
         }
 
@@ -173,12 +174,13 @@ impl Tool for FixItRecommendTool {
             Ok(resp) => resp,
             Err(e) => {
                 return Ok(ToolResult {
-                    output: format!(
+                    success: false,
+                    output: String::new(),
+                    error: Some(format!(
                         "Failed to reach FixIt API at {}: {}. \
                          Ensure the FastAPI server is running on Windows with: python run.py",
                         url, e
-                    ),
-                    is_error: true,
+                    )),
                 });
             }
         };
@@ -194,19 +196,23 @@ impl Tool for FixItRecommendTool {
                 _ => "Unexpected error from the FixIt API.",
             };
             return Ok(ToolResult {
-                output: format!(
+                success: false,
+                output: String::new(),
+                error: Some(format!(
                     "FixIt API error (HTTP {}): {}\nHint: {}",
                     status, body, hint
-                ),
-                is_error: true,
+                )),
             });
         }
 
         // Parse and return the response
         let body: Value = response.json().await?;
         Ok(ToolResult {
+            success: true,
             output: serde_json::to_string_pretty(&body)?,
-            is_error: false,
+            error: None,
         })
     }
 }
+
+zeroclaw_api::tool_attribution!(FixItRecommendTool, zeroclaw_api::attribution::ToolKind::Plugin);

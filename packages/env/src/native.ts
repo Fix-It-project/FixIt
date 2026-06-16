@@ -5,6 +5,8 @@ export const env = createEnv({
   clientPrefix: "EXPO_PUBLIC_",
   client: {
     EXPO_PUBLIC_SERVER_URL: z.string().url(),
+    EXPO_PUBLIC_RECOMMENDATION_API_URL: z.string().url().optional(),
+    EXPO_PUBLIC_AI_BASE_URL: z.string().url().optional(),
     EXPO_PUBLIC_SENTRY_DSN: z.string().url().optional(),
     // locize translation management. Project id is public/safe. The API key is
     // DEV/CI ONLY (saveMissing + locize-cli) — never set it in a production build.
@@ -15,6 +17,9 @@ export const env = createEnv({
   },
   runtimeEnv: {
     EXPO_PUBLIC_SERVER_URL: process.env.EXPO_PUBLIC_SERVER_URL,
+    EXPO_PUBLIC_RECOMMENDATION_API_URL:
+      process.env.EXPO_PUBLIC_RECOMMENDATION_API_URL,
+    EXPO_PUBLIC_AI_BASE_URL: process.env.EXPO_PUBLIC_AI_BASE_URL,
     EXPO_PUBLIC_SENTRY_DSN: process.env.EXPO_PUBLIC_SENTRY_DSN,
     EXPO_PUBLIC_LOCIZE_PROJECT_ID: process.env.EXPO_PUBLIC_LOCIZE_PROJECT_ID,
     EXPO_PUBLIC_LOCIZE_API_KEY: process.env.EXPO_PUBLIC_LOCIZE_API_KEY,
