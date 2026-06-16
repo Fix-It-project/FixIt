@@ -3,7 +3,9 @@ import { CheckCircle2, XCircle } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import {
 	OrderInfoCompact,
@@ -31,11 +33,9 @@ import {
 	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { Button } from "@/src/components/ui/button";
+import { ReportProblemEntry } from "@/src/features/reports/components/ReportProblemEntry";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/navigation";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 function isWizardStatus(status: LifecycleOrderStatus): boolean {
 	return (
@@ -187,6 +187,13 @@ export default function BookingDetailScreen() {
 							</Text>
 						</View>
 					) : null}
+					<ReportProblemEntry
+						orderId={booking.id}
+						viewer="technician"
+						counterpartyName={booking.user_name}
+						hasOpenReport={booking.has_open_report}
+					/>
+
 					<Button
 						variant="primary"
 						size="xl"

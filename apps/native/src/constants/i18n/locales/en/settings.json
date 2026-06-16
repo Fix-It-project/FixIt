@@ -42,24 +42,33 @@
 		"vibrationDesc": "Vibrate this device when FixIt notifications arrive."
 	},
 	"services": {
-		"title": "My services",
-		"subtitle": "The services you currently offer to customers.",
+		"title": "Services",
+		"subtitle": "Manage what you offer and request new ones.",
+		"liveHeader": "Services you offer",
 		"empty": "You don't offer any services yet. Request one below to get started.",
 		"loadError": "Couldn't load your services.",
-		"requestTitle": "Request a new service",
-		"requestSubtitle": "Tell us about a service you'd like to offer. Our team reviews every request.",
 		"priceOnRequest": "Price on request",
+		"requestsHeader": "My requests",
+		"status": {
+			"inReview": "In review",
+			"approved": "Approved",
+			"rejected": "Not approved"
+		},
+		"rejectReasonLabel": "Reason",
+		"requestTitle": "Request a new service",
+		"requestSubtitle": "Filed under your category. Our team reviews every request.",
 		"form": {
 			"name": "Service name",
 			"namePlaceholder": "e.g. AC installation",
-			"category": "Category",
-			"categoryPlaceholder": "e.g. Cooling & Heating",
 			"description": "Description",
 			"descriptionPlaceholder": "Describe what this service includes",
 			"minPrice": "Min price (EGP)",
-			"maxPrice": "Max price (EGP)"
+			"maxPrice": "Max price (EGP)",
+			"priceInvalid": "Enter a whole number above 0",
+			"priceOrder": "Max must be at least the min"
 		},
 		"submit": "Submit request",
-		"submitSuccess": "Request submitted — we'll review it and get back to you."
+		"submitSuccess": "Request submitted. We'll review it and get back to you.",
+		"verifiedOnly": "Only verified technicians can request services."
 	}
 }

@@ -78,12 +78,17 @@ export interface Order {
 	technician_image?: string | null;
 	technician_phone?: string | null;
 	has_review: boolean;
+	/** True when the viewer (the list's user or technician) already has an OPEN
+	 *  report on this order — drives the native "Reported" state. */
+	has_open_report: boolean;
 	reschedule_request?: RescheduleRequest | null;
 	has_pending_reschedule?: boolean;
 }
 
 function mapOrderWithJoins(row: any): Order {
-	const tech = Array.isArray(row.technicians) ? row.technicians[0] : row.technicians;
+	const tech = Array.isArray(row.technicians)
+		? row.technicians[0]
+		: row.technicians;
 	const usr = Array.isArray(row.users) ? row.users[0] : row.users;
 	const svc = Array.isArray(row.services) ? row.services[0] : row.services;
 	const addr = Array.isArray(usr?.addresses)
@@ -96,17 +101,19 @@ function mapOrderWithJoins(row: any): Order {
 		technicians: undefined,
 		users: undefined,
 		services: undefined,
-		user_address: parts.length > 0 ? parts.join(", ") : row.user_address ?? null,
+		user_address:
+			parts.length > 0 ? parts.join(", ") : (row.user_address ?? null),
 		user_latitude: addr?.latitude ?? row.user_latitude ?? null,
 		user_longitude: addr?.longitude ?? row.user_longitude ?? null,
 		service_name: svc?.name ?? row.service_name ?? null,
 		category_id: svc?.category_id ?? row.category_id ?? null,
 		user_name: usr?.full_name ?? row.user_name ?? null,
-		user_phone: row.user_phone ?? (usr?.phone ?? null),
-		technician_name:
-			tech ? `${tech.first_name} ${tech.last_name}` : (row.technician_name ?? null),
+		user_phone: row.user_phone ?? usr?.phone ?? null,
+		technician_name: tech
+			? `${tech.first_name} ${tech.last_name}`
+			: (row.technician_name ?? null),
 		technician_image: tech?.profile_image ?? row.technician_image ?? null,
-		technician_phone: row.technician_phone ?? (tech?.phone ?? null),
+		technician_phone: row.technician_phone ?? tech?.phone ?? null,
 	} as Order;
 }
 
@@ -130,6 +137,16 @@ export function applyReviewFlagsToOrders(
 	return rows.map((row) => ({
 		...row,
 		has_review: reviewedOrderIds.has(row.id),
+	}));
+}
+
+export function applyReportFlagsToOrders(
+	rows: Order[],
+	reportedOrderIds: ReadonlySet<string>,
+): Order[] {
+	return rows.map((row) => ({
+		...row,
+		has_open_report: reportedOrderIds.has(row.id),
 	}));
 }
 
@@ -180,22 +197,50 @@ export class OrdersRepository {
 			.filter((order) => order.status === "completed")
 			.map((order) => order.id);
 
-		if (completedOrderIds.length === 0) {
-			return applyReviewFlagsToOrders(mapped, new Set());
+		let reviewedOrderIds: ReadonlySet<string> = new Set();
+		if (completedOrderIds.length > 0) {
+			const { data: reviews, error: reviewsError } = await supabase
+				.from("reviews")
+				.select("order_id")
+				.in("order_id", completedOrderIds);
+
+			if (reviewsError) throw reviewsError;
+
+			reviewedOrderIds = new Set(
+				(reviews ?? []).map((review: { order_id: string }) => review.order_id),
+			);
 		}
 
-		const { data: reviews, error: reviewsError } = await supabase
-			.from("reviews")
-			.select("order_id")
-			.in("order_id", completedOrderIds);
-
-		if (reviewsError) throw reviewsError;
-
-		const reviewedOrderIds = new Set(
-			(reviews ?? []).map((review: { order_id: string }) => review.order_id),
+		const reportedOrderIds = await this.getOpenReportedOrderIds(
+			userId,
+			mapped.map((order) => order.id),
 		);
 
-		return applyReviewFlagsToOrders(mapped, reviewedOrderIds);
+		return applyReportFlagsToOrders(
+			applyReviewFlagsToOrders(mapped, reviewedOrderIds),
+			reportedOrderIds,
+		);
+	}
+
+	/** Order ids the given reporter has an OPEN report on (viewer-scoped dedup). */
+	private async getOpenReportedOrderIds(
+		reporterId: string,
+		orderIds: string[],
+	): Promise<Set<string>> {
+		if (orderIds.length === 0) return new Set();
+
+		const { data, error } = await supabase
+			.from("reports")
+			.select("order_id")
+			.eq("reporter_id", reporterId)
+			.eq("status", "open")
+			.in("order_id", orderIds);
+
+		if (error) throw error;
+
+		return new Set(
+			(data ?? []).map((report: { order_id: string }) => report.order_id),
+		);
 	}
 
 	async getTechnicianOrders(technicianId: string): Promise<Order[]> {
@@ -209,7 +254,7 @@ export class OrdersRepository {
 
 		if (error) throw error;
 
-		return (data ?? []).map((row: any) => {
+		const mapped = (data ?? []).map((row: any) => {
 			const mappedRow = mapOrderWithJoins(row);
 			return {
 				...mappedRow,
@@ -218,6 +263,13 @@ export class OrdersRepository {
 					: null,
 			};
 		}) as Order[];
+
+		const reportedOrderIds = await this.getOpenReportedOrderIds(
+			technicianId,
+			mapped.map((order) => order.id),
+		);
+
+		return applyReportFlagsToOrders(mapped, reportedOrderIds);
 	}
 
 	async getOrderById(id: string): Promise<Order | null> {
@@ -257,8 +309,6 @@ export class OrdersRepository {
 		if (error) throw error;
 		return count ?? 0;
 	}
-
-
 
 	async checkTechnicianAvailability(
 		technicianId: string,

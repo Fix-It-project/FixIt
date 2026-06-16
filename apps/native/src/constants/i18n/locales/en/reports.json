@@ -1,0 +1,28 @@
+{
+	"entry": {
+		"report": "Report a problem",
+		"reported": "Reported"
+	},
+	"sheet": {
+		"title": "Report a problem",
+		"body": "Tell us what went wrong with {{name}}. Our team reviews every report.",
+		"counterpartyFallback": "this person",
+		"reasonLabel": "Reason",
+		"summaryPlaceholder": "Describe what happened",
+		"cancel": "Cancel",
+		"submit": "Submit"
+	},
+	"labels": {
+		"no_show": "No-show",
+		"unprofessional": "Unprofessional",
+		"overcharged": "Overcharged",
+		"poor_quality": "Poor quality",
+		"safety_concern": "Safety concern",
+		"abusive": "Abusive behavior",
+		"refused_payment": "Refused payment",
+		"unsafe_dishonest": "Unsafe or dishonest",
+		"other": "Other"
+	},
+	"success": "Report submitted. Our team will review it.",
+	"alreadyReported": "You've already reported this order."
+}
