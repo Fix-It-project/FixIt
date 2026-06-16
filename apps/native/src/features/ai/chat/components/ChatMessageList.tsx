@@ -258,13 +258,15 @@ export default function ChatMessageList({
 							{t("messages.recommendedTechs")}
 						</Text>
 						<View className="mt-2 gap-3">
+							{cards.length === 0 ? (
+								<Text variant="bodySm" style={{ color: mutedText }}>
+									{t("messages.noRecommendations")}
+								</Text>
+							) : null}
 							{cards.map((technician, index) => {
 								const isTopPick = index === 0 || technician.isAssigned;
 								const distanceLabel = t("messages.distanceAway", {
 									km: technician.distance_km.toFixed(1),
-								});
-								const scorePercent = t("messages.match", {
-									n: Math.round(technician.match_score * 100),
 								});
 								const rateLabel = technician.hourly_rate_egp
 									? t("messages.rate", { n: technician.hourly_rate_egp })
@@ -335,7 +337,7 @@ export default function ChatMessageList({
 															: mutedText,
 													}}
 												>
-													{distanceLabel} · {scorePercent}
+													{distanceLabel}
 												</Text>
 
 												{rateLabel ? (

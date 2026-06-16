@@ -50,7 +50,7 @@ pipeline = DataPipeline()
 content_engine = ContentEngine()
 collab_engine = CollaborativeEngine()
 hybrid_engine: Optional[HybridEngine] = None
-audio_engine = AudioEngine(model_name="base")
+audio_engine = AudioEngine(model_name="IbrahimAmin/code-switched-egyptian-arabic-whisper-small")
 _data_source: str = "unknown"
 
 
@@ -246,6 +246,12 @@ async def transcribe_audio(req: AudioTranscriptionRequest):
     try:
         text = await audio_engine.transcribe_base64(req.audio_base64)
         return AudioTranscriptionResponse(text=text)
+    except ValueError as e:
+        logger.error(f"Audio input error: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid audio input: {str(e)}")
+    except RuntimeError as e:
+        logger.error(f"Transcription runtime error: {e}")
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
     except Exception as e:
-        logger.error(f"Transcription error: {e}")
-        raise HTTPException(status_code=400, detail=f"Audio processing failed: {str(e)}")
+        logger.error(f"Unexpected transcription error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Audio processing failed: {str(e)}")

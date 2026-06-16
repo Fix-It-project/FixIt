@@ -80,6 +80,18 @@ functions:
           method: any
           cors: true
 
+  serviceRequests:
+    handler: serverless-deploy/service-requests-lambda.handler
+    events:
+      - http:
+          path: api/admin/service-requests
+          method: any
+          cors: true
+      - http:
+          path: api/admin/service-requests/{proxy+}
+          method: any
+          cors: true
+
   auth:
     handler: serverless-deploy/auth-lambda.handler
     warmup:
@@ -193,6 +205,26 @@ functions:
           cors: true
       - http:
           path: api/reviews/{proxy+}
+          method: any
+          cors: true
+
+  reports:
+    handler: serverless-deploy/reports-lambda.handler
+    events:
+      - http:
+          path: api/reports
+          method: any
+          cors: true
+      - http:
+          path: api/reports/{proxy+}
+          method: any
+          cors: true
+      - http:
+          path: api/admin/reports
+          method: any
+          cors: true
+      - http:
+          path: api/admin/reports/{proxy+}
           method: any
           cors: true
 

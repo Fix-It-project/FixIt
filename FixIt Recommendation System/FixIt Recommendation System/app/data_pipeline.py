@@ -161,7 +161,7 @@ class DataPipeline:
         df["norm_rate"] = (df["base_hourly_rate"] - rate_min) / max(rate_max - rate_min, 1)
 
         # Aggregate booking stats per technician
-        completed = bookings[bookings["status"] == "Completed"]
+        completed = bookings[bookings["status"] == "completed"]
         tech_stats = (
             completed.groupby("technician_id")
             .agg(avg_rating=("rating", "mean"), total_completed=("booking_id", "count"))
@@ -198,7 +198,7 @@ class DataPipeline:
         volume_bonus = log2(1 + total_completed) / log2(1 + max_completed)
         """
         bookings = self.bookings_df
-        completed = bookings[bookings["status"] == "Completed"]
+        completed = bookings[bookings["status"] == "completed"]
 
         stats = (
             completed.groupby("technician_id")
@@ -212,6 +212,7 @@ class DataPipeline:
             .rename(columns={"booking_id": "total_bookings"})
         )
         stats = stats.merge(total, on="technician_id", how="left")
+        stats["avg_rating"] = stats["avg_rating"].fillna(3.0)
         stats["completion_rate"] = stats["total_completed"] / stats["total_bookings"]
         stats["norm_rating"] = stats["avg_rating"] / 5.0
 
@@ -222,7 +223,7 @@ class DataPipeline:
             MT_WEIGHT_COMPLETION * stats["completion_rate"]
             + MT_WEIGHT_RATING * stats["norm_rating"]
             + MT_WEIGHT_VOLUME * stats["volume_bonus"]
-        )
+        ).fillna(0.3)
 
         self.technician_market_trust = dict(zip(stats["technician_id"], stats["market_trust"]))
 
@@ -245,7 +246,7 @@ class DataPipeline:
           • booking_count          — total bookings (cold-start flag)
         """
         bookings = self.bookings_df
-        completed = bookings[bookings["status"] == "Completed"]
+        completed = bookings[bookings["status"] == "completed"]
 
         for uid in self.users_df["user_id"].unique():
             user_bookings = completed[completed["user_id"] == uid]
@@ -313,7 +314,8 @@ class DataPipeline:
 
     def infer_category(self, problem_description: str) -> Optional[str]:
         """
-        Simple keyword-based category inference from the problem description.
+        Keyword-based category inference from the problem description.
+        Supports English and Arabic (MSA + Egyptian dialect) keywords.
         Phase 2 will replace this with NLP embeddings + FAISS.
         """
         text = problem_description.lower()
@@ -323,64 +325,103 @@ class DataPipeline:
                 "plumb", "pipe", "leak", "drain", "toilet", "faucet",
                 "sink", "flush", "water pressure", "washing machine",
                 "water flow", "tap", "shower", "sewage", "water heater", 
-                "heater", "dishwasher", "water line", "appliance hookup"
+                "heater", "dishwasher", "water line", "appliance hookup",
+                # Arabic (MSA + Egyptian dialect)
+                "سباكة", "مواسير", "ماسورة", "حنفية", "صرف", "سخان",
+                "مياه", "تسريب", "تسرب", "حمام", "مغسلة", "صنبور",
+                "مجاري", "صرف صحي", "سيفون", "خلاط", "دش",
             ],
             "air condition": [
                 "ac", "air condition", "aircon", "freon", "cooling",
                 "split unit", "hvac", "air con", "not cooling", "air filter",
                 "cool", "conditioner", "maintenance", "filter", "coil", 
-                "recharge"
+                "recharge",
+                # Arabic
+                "تكييف", "مكيف", "فريون", "تبريد", "سبليت", "مكيفة",
+                "تكيف", "فلتر", "كويل", "شحن فريون",
             ],
             "dish": [
                 "dish", "satellite", "signal", "receiver", "channel",
                 "antenna", "tv mount", "hang tv", "aerial", "mount", "mounted",
-                "cable", "decoder", "programming", "channel scan", "cables"
+                "cable", "decoder", "programming", "channel scan", "cables",
+                # Arabic
+                "دش", "ريسيفر", "طبق", "ستلايت", "شاشة", "تلفزيون",
+                "تليفزيون", "قنوات", "اشارة", "إشارة",
             ],
             "fridge/freezer": [
                 "fridge", "freezer", "refrigerator", "compressor",
                 "thermostat", "frost", "ice maker", "defrost", "cooling",
                 "not cold", "food spoil", "ice cream", "melting",
-                "auto-defrost", "ice cubes"
+                "auto-defrost", "ice cubes",
+                # Arabic
+                "تلاجة", "ثلاجة", "فريزر", "ديب فريزر", "كمبروسر",
+                "ترموستات", "تبريد", "ثلج", "تلج",
             ],
             "oven/cooker": [
                 "oven", "cooker", "stove", "burner", "gas cooker",
                 "baking", "heating element", "ignite", "igniting", "hob", "grill",
-                "microwave", "gas", "stove top", "electric coil", "thermostat"
+                "microwave", "gas", "stove top", "electric coil", "thermostat",
+                # Arabic
+                "فرن", "بوتاجاز", "بوتجاز", "شعلة", "كوكر", "ميكروويف",
+                "موقد", "غاز", "شواية", "عيون",
             ],
             "fan": [
                 "fan", "ceiling fan", "blade", "rotate", "spinning",
                 "ventilation", "exhaust", "stand fan", "wobble", "pedestal fan", 
-                "wobbling", "attic"
+                "wobbling", "attic",
+                # Arabic
+                "مروحة", "مروحه", "شفاط", "تهوية", "ريشة", "مروحة سقف",
             ],
             "electrical": [
                 "electric", "wire", "wiring", "outlet", "fuse", "light",
                 "spark", "circuit", "tv setup", "smart tv", "fuse box", 
-                "tripping", "breaker", "circuit breaker", "chandelier", "sparking"
+                "tripping", "breaker", "circuit breaker", "chandelier", "sparking",
+                # Arabic
+                "كهرباء", "سلك", "فيشة", "بريزة", "فيوز", "لمبة", "نور",
+                "كهربا", "اسلاك", "أسلاك", "نجفة", "مفتاح نور", "تابلوه",
             ],
             "carpentry": [
                 "carpent", "wood", "furniture", "door", "window",
                 "cabinet", "shelf", "shelves", "table", "chair", "drawer",
                 "assemble", "assembly", "disassemble", "hinge", "lock",
-                "ikea", "bookshelf", "desk", "flat-pack", "wardrobe"
+                "ikea", "bookshelf", "desk", "flat-pack", "wardrobe",
+                # Arabic
+                "نجارة", "باب", "شباك", "خشب", "دولاب", "رف", "موبيليا",
+                "أثاث", "اثاث", "كرسي", "ترابيزة", "درفة", "مفصلة",
             ],
             "home cleaning": [
                 "clean", "cleaning", "mop", "sweep", "dust", "vacuum",
                 "sanitize", "carpet", "housekeep", "scrub", "polish",
-                "deep clean", "move out", "move in", "sanitization", "appliance"
+                "deep clean", "move out", "move in", "sanitization", "appliance",
+                # Arabic
+                "تنظيف", "نظافة", "غسيل", "مسح", "تعقيم", "نضافة",
+                "كنس", "تلميع", "سجاد", "موكيت",
             ],
             "painter": [
                 "paint", "painting", "repaint", "wall", "ceiling",
                 "peeling", "lacquer", "color", "colour", "primer", "holes",
                 "coat", "brush", "roller", "repainting", "rust removal",
-                "touch-ups", "decorative", "textured"
+                "touch-ups", "decorative", "textured",
+                # Arabic
+                "دهان", "نقاشة", "حيطة", "سقف", "بويه", "طلاء",
+                "دهانات", "نقاش", "معجون", "أساس",
             ],
         }
 
         import re
-        scores = {
-            cat: sum(1 for kw in kws if re.search(r'\b' + re.escape(kw) + r's?\b', text))
-            for cat, kws in keywords.items()
-        }
+        scores = {}
+        for cat, kws in keywords.items():
+            score = 0
+            for kw in kws:
+                # For Arabic keywords: direct substring match (no word boundary needed)
+                if any(ord(c) > 0x600 and ord(c) < 0x700 for c in kw):
+                    if kw in text:
+                        score += 1
+                else:
+                    # For English keywords: word boundary match
+                    if re.search(r'\b' + re.escape(kw) + r's?\b', text):
+                        score += 1
+            scores[cat] = score
         
         # In case of tie, check what the max score is
         max_score = max(scores.values()) if scores else 0

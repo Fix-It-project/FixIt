@@ -23,7 +23,7 @@ EARTH_RADIUS_KM = 6_371.0        # mean Earth radius for Haversine
 # ──────────────────────────────────────────────
 # Recommendation engine defaults
 # ──────────────────────────────────────────────
-DEFAULT_TOP_K = 5                 # number of technicians to return
+DEFAULT_TOP_K = 3                 # number of technicians to return
 COLD_START_BOOKING_THRESHOLD = 3  # users with fewer bookings are "cold"
 
 # ──────────────────────────────────────────────

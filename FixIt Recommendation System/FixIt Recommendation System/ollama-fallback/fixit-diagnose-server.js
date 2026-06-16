@@ -31,9 +31,13 @@ const cors = require("cors");
 const axios = require("axios");
 const {
   diagnoseWithOllama,
+  agentWithOllama,
   checkOllamaHealth,
   checkFixItHealth,
 } = require("./ollama-client");
+
+// In-memory session store for Flow 2
+const agentSessions = new Map();
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -138,10 +142,52 @@ app.post("/api/ai/diagnose", async (req, res) => {
     console.log(`  User ID:  ${userId || "anonymous"}`);
 
     // ── Run the diagnostic pipeline ─────────────────────────
-    const result = await diagnoseWithOllama([userMessage]);
+    let result = await diagnoseWithOllama([userMessage]);
 
     const duration = Date.now() - requestStart;
     console.log(`\n  ✅ Diagnosis complete in ${duration}ms (${result.iterations} LLM iterations)`);
+
+    // ── Server-Side Guardrail / Response Sanitizer ──────────
+    function sanitizeResponse(response) {
+      if (!response) return response;
+      const BLOCKED_PATTERNS = [
+        // Code blocks
+        /```(python|javascript|js|sql|bash|java|c\+\+|rust|typescript|ts|html|css|php|ruby|go|swift|kotlin)\b/i,
+        // SQL queries
+        /SELECT\s+[\w*].*\s+FROM\s+/i,
+        /CREATE\s+TABLE/i,
+        /INSERT\s+INTO/i,
+        /DROP\s+TABLE/i,
+        // Python/JS code patterns (anchored to avoid Arabic false positives)
+        /^import\s+\w+/m,
+        /^from\s+\w+\s+import/m,
+        /^def\s+\w+\s*\(/m,
+        /^function\s+\w+\s*\(/m,
+        /^class\s+\w+[\s({:]/m,
+        /^const\s+\w+\s*=/m,
+        /^let\s+\w+\s*=/m,
+        /^var\s+\w+\s*=/m,
+        // System info leakage
+        /DATABASE_URL/i,
+        /SUPABASE/i,
+        /api_key/i,
+        /system_prompt/i,
+        /\.env\b/,
+        /docker-compose/i,
+      ];
+      for (const pattern of BLOCKED_PATTERNS) {
+        if (pattern.test(response)) {
+          console.warn(`  [GUARDRAIL] Blocked response due to pattern match: ${pattern}`);
+          return "أنا مساعد FixIt للصيانة المنزلية فقط. إزاي أقدر أساعدك في مشكلة صيانة؟";
+        }
+      }
+      return response;
+    }
+
+    result.response = sanitizeResponse(result.response);
+    if (result.serviceOrder && result.serviceOrder.raw_response) {
+      result.serviceOrder.raw_response = sanitizeResponse(result.serviceOrder.raw_response);
+    }
 
     // ── Return response ─────────────────────────────────────
     if (result.serviceOrder) {
@@ -195,6 +241,87 @@ app.post("/api/ai/diagnose", async (req, res) => {
         duration_ms: duration,
       },
     });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  POST /api/ai/agent (FLOW 2 CONCIERGE)
+//
+//  Stateful conversational endpoint that handles audio, text,
+//  and returns both a natural chat response AND the service cards.
+// ═══════════════════════════════════════════════════════════════
+app.post("/api/ai/agent", async (req, res) => {
+  const requestStart = Date.now();
+  try {
+    const { text, message, audio, image, latitude, longitude, session_id, userId } = req.body;
+    const sessionId = session_id || userId || "default";
+
+    if (!agentSessions.has(sessionId)) {
+      agentSessions.set(sessionId, []);
+    }
+    const history = agentSessions.get(sessionId);
+
+    let userContent = message || text || "";
+    let base64Images = [];
+
+    // Handle Image
+    if (image) {
+      const cleanBase64 = image.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
+      base64Images.push(cleanBase64);
+      userContent += `\n[User uploaded an image. Please analyze it.]`;
+    }
+
+    // Handle Audio (Whisper STT via FastAPI)
+    if (audio) {
+      console.log(`  [STT] Transcribing audio for Agent...`);
+      try {
+        const audioResponse = await axios.post(`${process.env.FIXIT_API_URL || "http://localhost:8000"}/api/transcribe`, {
+          audio_base64: audio
+        }, { timeout: 30000 });
+        const transcription = audioResponse.data.text;
+        userContent += `\n[User Voice Note: "${transcription}"]`;
+      } catch (err) {
+        console.error("  [STT] Audio transcription failed:", err.message);
+      }
+    }
+
+    // Append location context if provided
+    if (latitude !== undefined && longitude !== undefined) {
+      userContent += `\n[User Location: latitude=${latitude}, longitude=${longitude}]`;
+    }
+
+    // If there's literally no message and no audio, don't run AI
+    if (!userContent.trim()) {
+      return res.status(400).json({ success: false, error: "Message or audio is required." });
+    }
+
+    let msgObj = { role: "user", content: userContent.trim() };
+    if (base64Images.length > 0) {
+      msgObj.images = base64Images;
+    }
+    history.push(msgObj);
+
+    console.log(`\n╔══════════════════════════════════════════════╗`);
+    console.log(`║  Agent Request (Session: ${sessionId})`);
+    console.log(`╚══════════════════════════════════════════════╝`);
+
+    let result = await agentWithOllama(history);
+    
+    // Save updated history
+    agentSessions.set(sessionId, result.history);
+
+    res.json({
+      success: true,
+      data: {
+        message: result.response,
+        service_order: result.serviceOrder
+      },
+      meta: { engine: "ollama-agent", iterations: result.iterations }
+    });
+
+  } catch (error) {
+    console.error(`  ❌ Agent failed:`, error.message);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

@@ -54,6 +54,7 @@ export function useAudioRecorder() {
 	const recorderStatus = useAudioRecorderState(recorder);
 
 	const localDurationMsRef = useRef(0);
+	const isRecordingRef = useRef(false);
 
 	useEffect(() => {
 		if (recorderState === "recording") {
@@ -61,8 +62,12 @@ export function useAudioRecorder() {
 		}
 	}, [recorderState, recorderStatus.durationMillis]);
 
+	useEffect(() => {
+		isRecordingRef.current = recorderStatus.isRecording;
+	}, [recorderStatus.isRecording]);
+
 	const stopAndCleanup = useCallback(async () => {
-		if (recorderStatus.isRecording) {
+		if (isRecordingRef.current) {
 			try {
 				await recorder.stop();
 			} catch {
@@ -70,7 +75,7 @@ export function useAudioRecorder() {
 			}
 		}
 		await setAudioModeAsync({ allowsRecording: false });
-	}, [recorder, recorderStatus.isRecording]);
+	}, [recorder]);
 
 	useEffect(() => {
 		return () => {

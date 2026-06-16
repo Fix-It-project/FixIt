@@ -460,7 +460,7 @@ for booking_id in range(1, NUM_BOOKINGS + 1):
     elif dist > 10:
         completion_prob *= 0.85
 
-    status = "Completed" if random.random() < completion_prob else "Canceled"
+    status = "completed" if random.random() < completion_prob else "cancelled"
 
     # ── Rating calculation ───────────────────
     rating = None
@@ -503,7 +503,7 @@ for booking_id in range(1, NUM_BOOKINGS + 1):
                     (user["longitude"] - tech["longitude"])**2), 4),
     })
 
-    if status == "Completed" and rating is not None:
+    if status == "completed" and rating is not None:
         user_history[uid].append((int(tech["technician_id"]), category, rating))
 
 bookings_df = pd.DataFrame(bookings_data)
@@ -515,7 +515,7 @@ print("\n" + "=" * 60)
 print("  DATA PATTERN DIAGNOSTICS")
 print("=" * 60)
 
-completed = bookings_df[bookings_df["status"] == "Completed"]
+completed = bookings_df[bookings_df["status"] == "completed"]
 print(f"\nBookings: {len(bookings_df)} total  |  {len(completed)} completed  |  "
       f"{len(bookings_df) - len(completed)} canceled")
 print(f"Avg rating: {completed['rating'].mean():.2f}")
