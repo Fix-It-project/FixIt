@@ -1,5 +1,6 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
+import { useFocusEffect } from "expo-router/react-navigation";
 import { Search, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,7 +28,11 @@ import { orderQueryKeys } from "@/src/features/booking-orders/schemas/query-keys
 import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
 import { getCategorySlug } from "@/src/features/categories/constants/categories";
 import type { TechniciansSortParam } from "@/src/features/technicians/api/technicians";
-import { useTechniciansInfiniteQuery } from "@/src/features/technicians/hooks/useTechniciansQuery";
+import {
+	TECHNICIAN_LIST_CACHE_MS,
+	TECHNICIAN_LIST_GC_MS,
+	useTechniciansInfiniteQuery,
+} from "@/src/features/technicians/hooks/useTechniciansQuery";
 import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { useTechnicianSearchStore } from "@/src/features/technicians/stores/technician-search-store";
@@ -132,10 +137,17 @@ export default function NewTechnicians() {
 		};
 	}, [activePricingAddress]);
 	const coords = activeAddressCoords ?? location;
-	const [sortRefreshToken, setSortRefreshToken] = useState(0);
 	const lastCategoryRef = useRef<string | null>(null);
+	const [isScreenFocused, setIsScreenFocused] = useState(false);
 
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
+
+	useFocusEffect(
+		useCallback(() => {
+			setIsScreenFocused(true);
+			return () => setIsScreenFocused(false);
+		}, []),
+	);
 
 	useEffect(() => {
 		if (!categoryId || lastCategoryRef.current === categoryId) return;
@@ -151,6 +163,9 @@ export default function NewTechnicians() {
 				: activeSort === "Nearest"
 					? "nearest"
 					: undefined;
+	const activeRefetchInterval = isScreenFocused
+		? TECHNICIAN_LIST_CACHE_MS
+		: false;
 
 	const {
 		data,
@@ -161,20 +176,21 @@ export default function NewTechnicians() {
 		refetch,
 		fetchNextPage,
 		hasNextPage,
-	} = useTechniciansInfiniteQuery(
+	} = useTechniciansInfiniteQuery({
 		categoryId,
-		debouncedSearch,
+		searchQuery: debouncedSearch,
 		coords,
-		serverSort,
-		sortRefreshToken,
-	);
+		sort: serverSort,
+		pageSize: 20,
+		refetchInterval: activeRefetchInterval,
+	});
 	const technicians = useMemo(() => data?.pages.flat() ?? [], [data]);
 
 	const goBack = useSafeBack(ROUTES.user.categories);
 
 	const problemDescription = categoryName || "General home service needed";
 
-	const { data: recommendedRank = null, isFetching: isFetchingRecommended } =
+	const { data: recommendedRank = null, isLoading: isLoadingRecommended } =
 		useQuery({
 			queryKey: [
 				"recommended-technician-rank",
@@ -182,7 +198,6 @@ export default function NewTechnicians() {
 				problemDescription,
 				coords?.latitude ?? null,
 				coords?.longitude ?? null,
-				sortRefreshToken,
 			],
 			queryFn: async () => {
 				const recs = await getRecommendedTechnicians({
@@ -199,7 +214,13 @@ export default function NewTechnicians() {
 				);
 			},
 			enabled: activeSort === "Recommended" && categoryId.length > 0,
-			staleTime: 0,
+			staleTime: TECHNICIAN_LIST_CACHE_MS,
+			gcTime: TECHNICIAN_LIST_GC_MS,
+			refetchInterval:
+				isScreenFocused && activeSort === "Recommended"
+					? TECHNICIAN_LIST_CACHE_MS
+					: false,
+			refetchIntervalInBackground: false,
 			retry: 1,
 		});
 
@@ -222,7 +243,6 @@ export default function NewTechnicians() {
 				}
 			}
 			setActiveSort(option);
-			setSortRefreshToken((token) => token + 1);
 		},
 		[
 			activeSort,
@@ -284,7 +304,10 @@ export default function NewTechnicians() {
 			enabled: !!activePricingAddress?.id,
 			retry: false,
 			meta: { showToast: false },
-			staleTime: 5 * 60 * 1000,
+			staleTime: TECHNICIAN_LIST_CACHE_MS,
+			gcTime: TECHNICIAN_LIST_GC_MS,
+			refetchInterval: activeRefetchInterval,
+			refetchIntervalInBackground: false,
 		})),
 	});
 
@@ -329,8 +352,10 @@ export default function NewTechnicians() {
 
 	const showSkeleton =
 		isLoading ||
-		(isFetching && !isFetchingNextPage) ||
-		isFetchingRecommended ||
+		(isFetching && !isFetchingNextPage && technicians.length === 0) ||
+		(activeSort === "Recommended" &&
+			isLoadingRecommended &&
+			recommendedRank === null) ||
 		isSearchSettling;
 	const hasSearch =
 		debouncedSearch.trim().length > 0 || searchText.trim().length > 0;

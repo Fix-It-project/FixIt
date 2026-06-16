@@ -24,6 +24,21 @@ export const updateProfileResponseSchema = z.object({
 	profile: userProfileSchema,
 });
 
+export const userStatsSchema = z.object({
+	totalBookings: z.number(),
+	completedBookings: z.number(),
+	mostBookedCategory: z
+		.object({ name: z.string(), count: z.number() })
+		.nullable(),
+	memberSince: z.string().nullable(),
+});
+
+export const getUserStatsResponseSchema = z.object({
+	stats: userStatsSchema,
+});
+
 export type UserProfile = z.infer<typeof userProfileSchema>;
 export type GetProfileResponse = z.infer<typeof getProfileResponseSchema>;
 export type UpdateProfileResponse = z.infer<typeof updateProfileResponseSchema>;
+export type UserStats = z.infer<typeof userStatsSchema>;
+export type GetUserStatsResponse = z.infer<typeof getUserStatsResponseSchema>;

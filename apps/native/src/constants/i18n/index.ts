@@ -3,6 +3,7 @@ import arBooking from "./locales/ar/booking.json";
 import arCategories from "./locales/ar/categories.json";
 import arChat from "./locales/ar/chat.json";
 import arCommon from "./locales/ar/common.json";
+import arFaq from "./locales/ar/faq.json";
 import arHome from "./locales/ar/home.json";
 import arLocation from "./locales/ar/location.json";
 import arNotifications from "./locales/ar/notifications.json";
@@ -18,6 +19,7 @@ import enBooking from "./locales/en/booking.json";
 import enCategories from "./locales/en/categories.json";
 import enChat from "./locales/en/chat.json";
 import enCommon from "./locales/en/common.json";
+import enFaq from "./locales/en/faq.json";
 import enHome from "./locales/en/home.json";
 import enLocation from "./locales/en/location.json";
 import enNotifications from "./locales/en/notifications.json";
@@ -56,6 +58,7 @@ export const namespaces = [
 	"chat",
 	"addresses",
 	"location",
+	"faq",
 ] as const;
 
 export const resources = {
@@ -75,6 +78,7 @@ export const resources = {
 		chat: enChat,
 		addresses: enAddresses,
 		location: enLocation,
+		faq: enFaq,
 	},
 	ar: {
 		common: arCommon,
@@ -92,6 +96,7 @@ export const resources = {
 		chat: arChat,
 		addresses: arAddresses,
 		location: arLocation,
+		faq: arFaq,
 	},
 } as const;
 

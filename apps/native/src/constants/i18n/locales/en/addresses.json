@@ -8,6 +8,19 @@
 		"add": "Add address",
 		"delete": "Delete"
 	},
+	"manage": {
+		"title": "My Addresses",
+		"max": "You can save up to {{max}} addresses.",
+		"maxReached": "You've reached the maximum of {{max}} addresses.",
+		"add": "Add address",
+		"delete": "Delete",
+		"deleteTitle": "Delete address?",
+		"deleteMessage": "This removes the address from your account.",
+		"deleteConfirm": "Delete",
+		"deleteCancel": "Cancel",
+		"empty": "You haven't added any addresses yet.",
+		"loadError": "Couldn't load your addresses."
+	},
 	"addSheet": {
 		"title": "Add New Location",
 		"heading": "Capture Your Location",
