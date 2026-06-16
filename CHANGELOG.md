@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.1.0...fixit-v0.2.0) (2026-06-16)
+
+
+### Features
+
+* enhance technician workflows, OAuth auth, scheduling, and localization ([46fa762](https://github.com/Fix-It-project/FixIt/commit/46fa7629f8073fcb28e53975d7b134d9cdb1fb79))
+* reporting feature finalized ([9a3d364](https://github.com/Fix-It-project/FixIt/commit/9a3d364c43d08914320f69e88f3e21753e349948))
+* reporting feature finalized ([b565036](https://github.com/Fix-It-project/FixIt/commit/b5650364d94fec102417c23b70cfcc0c10bbc51a))
+* technicians requesting services completed ([ca2da6e](https://github.com/Fix-It-project/FixIt/commit/ca2da6e9887daa10fd76fb1abb42fb08a86cdeab))
+* technicians requesting services completed ([1b808e6](https://github.com/Fix-It-project/FixIt/commit/1b808e6218154a75c9d569b0322fd556dc9ce5b5))
+
 ## [0.1.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.0.1...fixit-v0.1.0) (2026-06-15)
 
 
