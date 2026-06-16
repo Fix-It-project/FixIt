@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -7,18 +6,21 @@ import Animated, {
 	useReducedMotion,
 } from "react-native-reanimated";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
-import { Toast } from "@/src/components/ui/toast";
 import {
 	DUR_SLIDE_UP,
 	EASE_OUT_QUART,
 	ENTRANCE_STAGGER,
 } from "@/src/constants/animation";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { RequestStatusChip } from "@/src/features/technicians/components/RequestStatusChip";
+import { ServiceListItem } from "@/src/features/technicians/components/ServiceListItem";
+import { ServiceRequestForm } from "@/src/features/technicians/components/ServiceRequestForm";
+import { useMyServiceRequestsQuery } from "@/src/features/technicians/hooks/useCustomServiceRequests";
 import { useTechnicianServicesQuery } from "@/src/features/technicians/hooks/useTechnicianServicesQuery";
+import type { ServiceRequestStatus } from "@/src/features/technicians/schemas/custom-service.schema";
+import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 const SKELETON_KEYS = ["s1", "s2", "s3"] as const;
@@ -36,6 +38,18 @@ function formatPriceRange(
 	return `EGP ${value.toLocaleString()}`;
 }
 
+/** Quiet small-caps section label — hierarchy by weight, not boxes. */
+function SectionHeader({ label }: { label: string }) {
+	return (
+		<Text
+			variant="caption"
+			className="font-bold text-content-muted uppercase tracking-widest"
+		>
+			{label}
+		</Text>
+	);
+}
+
 export default function TechnicianServicesScreen() {
 	const { t } = useTranslation("settings");
 	const themeColors = useThemeColors();
@@ -44,35 +58,24 @@ export default function TechnicianServicesScreen() {
 	const technicianId = useAuthStore((s) => s.user?.id) ?? null;
 	const {
 		data: services = [],
-		isLoading,
-		isError,
+		isLoading: servicesLoading,
+		isError: servicesError,
 	} = useTechnicianServicesQuery(technicianId);
+	const { data: requests = [], isLoading: requestsLoading } =
+		useMyServiceRequestsQuery(technicianId);
 
-	const [name, setName] = useState("");
-	const [category, setCategory] = useState("");
-	const [description, setDescription] = useState("");
-	const [minPrice, setMinPrice] = useState("");
-	const [maxPrice, setMaxPrice] = useState("");
+	const statusLabel: Record<ServiceRequestStatus, string> = {
+		pending: t("services.status.inReview"),
+		approved: t("services.status.approved"),
+		rejected: t("services.status.rejected"),
+	};
 
 	const fadeDown = (delay: number) =>
 		reducedMotion
 			? undefined
 			: FadeInDown.delay(delay).duration(DUR_SLIDE_UP).easing(EASE_OUT_QUART);
 
-	const canSubmit = name.trim().length > 0;
-
-	const handleSubmit = () => {
-		if (!canSubmit) return;
-		// TODO: wire to the custom-services backend (technician requests a unique
-		// service for admin approval). That module lives on another branch and is
-		// not yet in tech-side-finalise, so the submission is stubbed for now.
-		Toast.show({ type: "success", text1: t("services.submitSuccess") });
-		setName("");
-		setCategory("");
-		setDescription("");
-		setMinPrice("");
-		setMaxPrice("");
-	};
+	const showRequests = requestsLoading || requests.length > 0;
 
 	return (
 		<ScreenSafeAreaView
@@ -86,14 +89,14 @@ export default function TechnicianServicesScreen() {
 				keyboardShouldPersistTaps="handled"
 				keyboardDismissMode="interactive"
 				contentContainerStyle={{
-					gap: spacing.stack.lg,
+					gap: spacing.stack.xl,
 					paddingVertical: spacing.stack.lg,
 					paddingBottom: spacing.stack.xl + spacing.stack.sm,
 				}}
 				bottomOffset={20}
 			>
-				{/* Current services */}
-				<Animated.View entering={fadeDown(0)} className="gap-stack-sm">
+				{/* Screen header */}
+				<Animated.View entering={fadeDown(0)} className="gap-stack-xs">
 					<Text variant="h2" className="text-content">
 						{t("services.title")}
 					</Text>
@@ -102,140 +105,126 @@ export default function TechnicianServicesScreen() {
 					</Text>
 				</Animated.View>
 
-				{isLoading ? (
-					<View className="gap-stack-sm">
-						{SKELETON_KEYS.map((key) => (
-							<Skeleton key={key} className="h-20 w-full rounded-card" />
-						))}
-					</View>
-				) : isError ? (
-					<Text variant="bodySm" className="text-content-muted">
-						{t("services.loadError")}
-					</Text>
-				) : services.length === 0 ? (
-					<Text variant="bodySm" className="text-content-muted">
-						{t("services.empty")}
-					</Text>
-				) : (
-					<View className="gap-stack-xs rounded-card bg-card p-card">
-						{services.map((service, index) => (
-							<Animated.View
-								key={service.id}
-								entering={fadeDown(index * ENTRANCE_STAGGER)}
-								className="rounded-input p-card"
-							>
-								<Text
-									variant="buttonLg"
-									className="font-bold text-content"
-									numberOfLines={1}
-								>
-									{service.name}
-								</Text>
-								{service.description ? (
-									<Text
-										variant="caption"
-										className="mt-stack-xs text-content-muted"
-										numberOfLines={2}
-									>
-										{service.description}
-									</Text>
-								) : null}
-								<Text
-									variant="buttonMd"
-									className="mt-stack-sm font-bold text-app-primary"
-								>
-									{formatPriceRange(
-										service.min_price,
-										service.max_price,
-										t("services.priceOnRequest"),
-									)}
-								</Text>
-							</Animated.View>
-						))}
-					</View>
-				)}
-
-				{/* Request a new service */}
+				{/* Section 1 — live, bookable services */}
 				<Animated.View
-					entering={fadeDown(120)}
-					className="gap-stack-md rounded-card bg-card p-card"
+					entering={fadeDown(ENTRANCE_STAGGER)}
+					className="gap-stack-sm"
 				>
-					<View className="gap-stack-xs">
-						<Text variant="buttonLg" className="font-bold text-content">
-							{t("services.requestTitle")}
-						</Text>
-						<Text variant="bodySm" className="text-content-secondary">
-							{t("services.requestSubtitle")}
-						</Text>
-					</View>
-
-					<View className="gap-stack-xs">
-						<Text variant="label" className="text-content-secondary">
-							{t("services.form.name")}
-						</Text>
-						<Input
-							value={name}
-							onChangeText={setName}
-							placeholder={t("services.form.namePlaceholder")}
-						/>
-					</View>
-
-					<View className="gap-stack-xs">
-						<Text variant="label" className="text-content-secondary">
-							{t("services.form.category")}
-						</Text>
-						<Input
-							value={category}
-							onChangeText={setCategory}
-							placeholder={t("services.form.categoryPlaceholder")}
-						/>
-					</View>
-
-					<View className="gap-stack-xs">
-						<Text variant="label" className="text-content-secondary">
-							{t("services.form.description")}
-						</Text>
-						<Input
-							value={description}
-							onChangeText={setDescription}
-							placeholder={t("services.form.descriptionPlaceholder")}
-							multiline
-						/>
-					</View>
-
-					<View className="flex-row gap-stack-md">
-						<View className="flex-1 gap-stack-xs">
-							<Text variant="label" className="text-content-secondary">
-								{t("services.form.minPrice")}
-							</Text>
-							<Input
-								value={minPrice}
-								onChangeText={setMinPrice}
-								placeholder="0"
-								keyboardType="number-pad"
-							/>
+					<SectionHeader label={t("services.liveHeader")} />
+					{servicesLoading ? (
+						<View className="gap-stack-sm">
+							{SKELETON_KEYS.map((key) => (
+								<Skeleton key={key} className="h-14 w-full rounded-input" />
+							))}
 						</View>
-						<View className="flex-1 gap-stack-xs">
-							<Text variant="label" className="text-content-secondary">
-								{t("services.form.maxPrice")}
-							</Text>
-							<Input
-								value={maxPrice}
-								onChangeText={setMaxPrice}
-								placeholder="0"
-								keyboardType="number-pad"
-							/>
+					) : servicesError ? (
+						<Text variant="bodySm" className="text-content-muted">
+							{t("services.loadError")}
+						</Text>
+					) : services.length === 0 ? (
+						<Text variant="bodySm" className="text-content-muted">
+							{t("services.empty")}
+						</Text>
+					) : (
+						<View>
+							{services.map((service, index) => (
+								<View
+									key={service.id}
+									className={cn(index > 0 && "border-edge border-t")}
+								>
+									<ServiceListItem
+										name={service.name}
+										description={service.description}
+										priceLabel={formatPriceRange(
+											service.min_price,
+											service.max_price,
+											t("services.priceOnRequest"),
+										)}
+									/>
+								</View>
+							))}
 						</View>
-					</View>
+					)}
+				</Animated.View>
 
-					<Button
-						variant="primary"
-						onPress={handleSubmit}
-						disabled={!canSubmit}
-						fullWidth
+				{/* Section 2 — review pipeline (pending / approved / rejected) */}
+				{showRequests ? (
+					<Animated.View
+						entering={fadeDown(ENTRANCE_STAGGER * 2)}
+						className="gap-stack-sm"
 					>
-						{t("services.submit")}
-					</Button>
+						<SectionHeader label={t("services.requestsHeader")} />
+						{requestsLoading ? (
+							<View className="gap-stack-sm">
+								{SKELETON_KEYS.map((key) => (
+									<Skeleton key={key} className="h-16 w-full rounded-input" />
+								))}
+							</View>
+						) : (
+							<View>
+								{requests.map((req, index) => (
+									<View
+										key={req.id}
+										className={cn(
+											"py-stack-sm",
+											index > 0 && "border-edge border-t",
+										)}
+									>
+										<View className="flex-row items-start justify-between gap-stack-md">
+											<View className="min-w-0 flex-1">
+												<Text
+													variant="body"
+													className="font-semibold text-content"
+													numberOfLines={1}
+												>
+													{req.name}
+												</Text>
+												<Text
+													variant="caption"
+													className="mt-0.5 text-content-muted"
+												>
+													{formatPriceRange(
+														req.min_price,
+														req.max_price,
+														t("services.priceOnRequest"),
+													)}
+												</Text>
+											</View>
+											<RequestStatusChip
+												status={req.status}
+												label={statusLabel[req.status]}
+											/>
+										</View>
+										{req.status === "rejected" && req.reject_reason ? (
+											<View
+												className="mt-stack-xs rounded-input px-card py-stack-xs"
+												style={{ backgroundColor: themeColors.dangerLight }}
+											>
+												<Text
+													variant="caption"
+													className="font-semibold"
+													style={{ color: themeColors.danger }}
+												>
+													{t("services.rejectReasonLabel")}
+												</Text>
+												<Text
+													variant="caption"
+													className="mt-0.5 text-content-secondary"
+												>
+													{req.reject_reason}
+												</Text>
+											</View>
+										) : null}
+									</View>
+								))}
+							</View>
+						)}
+					</Animated.View>
+				) : null}
+
+				{/* Section 3 — request a new service */}
+				<Animated.View entering={fadeDown(ENTRANCE_STAGGER * 3)}>
+					<ServiceRequestForm technicianId={technicianId} />
 				</Animated.View>
 			</KeyboardAwareScrollView>
 		</ScreenSafeAreaView>

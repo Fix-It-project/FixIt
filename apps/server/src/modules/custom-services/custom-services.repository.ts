@@ -14,6 +14,7 @@ export interface ICustomServicesRepository {
 		id: string,
 		input: SetCustomServiceStatusInput,
 	): Promise<CustomService | null>;
+	approveAndPublish(id: string, reviewedBy: string): Promise<CustomService>;
 }
 
 export class CustomServicesRepository implements ICustomServicesRepository {
@@ -79,6 +80,27 @@ export class CustomServicesRepository implements ICustomServicesRepository {
 
 		if (error) throw new Error(error.message);
 		return (data as CustomService | null) ?? null;
+	}
+
+	/** Approve = publish. The `approve_custom_service` function inserts the catalog
+	 *  `services` row + the `technician_services` link and flips status to approved,
+	 *  atomically and idempotently, in one round trip. */
+	async approveAndPublish(
+		id: string,
+		reviewedBy: string,
+	): Promise<CustomService> {
+		const { data, error } = await supabaseAdmin.rpc("approve_custom_service", {
+			p_id: id,
+			p_reviewed_by: reviewedBy,
+		});
+
+		if (error) {
+			// Surface the not-found guard distinctly so the service can map it.
+			const err = new Error(error.message) as Error & { code?: string };
+			err.code = error.code;
+			throw err;
+		}
+		return (Array.isArray(data) ? data[0] : data) as CustomService;
 	}
 }
 

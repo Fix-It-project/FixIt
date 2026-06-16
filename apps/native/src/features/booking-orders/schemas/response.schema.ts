@@ -22,6 +22,7 @@ export const orderSchema = z.object({
 	service_name: z.string().nullable().optional(),
 	category_id: z.string().nullable().optional(),
 	has_review: z.boolean().default(false),
+	has_open_report: z.boolean().optional(),
 	has_pending_reschedule: z.boolean().optional(),
 	// Phase 4c dual-confirm fields (may not be present on older API responses)
 	payment_method: z.enum(["cash", "card"]).nullable().optional(),

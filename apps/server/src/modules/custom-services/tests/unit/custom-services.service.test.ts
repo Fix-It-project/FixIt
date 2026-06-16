@@ -18,6 +18,7 @@ function makeRepo() {
 		listByTechnician: vi.fn(),
 		listForAdmin: vi.fn(),
 		setStatus: vi.fn(),
+		approveAndPublish: vi.fn(),
 	};
 }
 
@@ -104,15 +105,21 @@ describe("CustomServicesService", () => {
 		expect(repo.listForAdmin).toHaveBeenCalledWith("pending");
 	});
 
-	it("approves a request, sets reviewer, and fires the approved push", async () => {
-		repo.setStatus.mockResolvedValue({ id: "req-1", technician_id: "tech-1" });
+	it("approves a request via publish, sets reviewer, and fires the approved push", async () => {
+		repo.approveAndPublish.mockResolvedValue({
+			id: "req-1",
+			technician_id: "tech-1",
+			status: "approved",
+			published_service_id: "svc-1",
+		});
 
 		await service.approve("req-1");
 
-		expect(repo.setStatus).toHaveBeenCalledWith("req-1", {
-			status: "approved",
-			reviewedBy: expect.any(String),
-		});
+		expect(repo.approveAndPublish).toHaveBeenCalledWith(
+			"req-1",
+			expect.any(String),
+		);
+		expect(repo.setStatus).not.toHaveBeenCalled();
 		expect(mockNotifications.sendPushToRecipient).toHaveBeenCalledWith(
 			expect.objectContaining({
 				recipientRole: "technician",
@@ -123,7 +130,7 @@ describe("CustomServicesService", () => {
 	});
 
 	it("throws 404 when approving an unknown request", async () => {
-		repo.setStatus.mockResolvedValue(null);
+		repo.approveAndPublish.mockRejectedValue(new Error("request_not_found"));
 		await expect(service.approve("nope")).rejects.toMatchObject({
 			status: 404,
 		});

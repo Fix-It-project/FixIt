@@ -35,6 +35,7 @@ import {
 	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
+import { ReportProblemEntry } from "@/src/features/reports/components/ReportProblemEntry";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
@@ -193,6 +194,13 @@ export default function BookingDetailScreen() {
 							</Text>
 						</View>
 					) : null}
+					<ReportProblemEntry
+						orderId={booking.id}
+						viewer="technician"
+						counterpartyName={booking.user_name}
+						hasOpenReport={booking.has_open_report}
+					/>
+
 					<Button
 						variant="primary"
 						size="xl"

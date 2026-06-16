@@ -1,0 +1,28 @@
+{
+	"entry": {
+		"report": "الإبلاغ عن مشكلة",
+		"reported": "تم الإبلاغ"
+	},
+	"sheet": {
+		"title": "الإبلاغ عن مشكلة",
+		"body": "أخبرنا بما حدث مع {{name}}. يراجع فريقنا كل بلاغ.",
+		"counterpartyFallback": "هذا الشخص",
+		"reasonLabel": "السبب",
+		"summaryPlaceholder": "صِف ما حدث",
+		"cancel": "إلغاء",
+		"submit": "إرسال"
+	},
+	"labels": {
+		"no_show": "عدم الحضور",
+		"unprofessional": "سلوك غير مهني",
+		"overcharged": "مبالغة في السعر",
+		"poor_quality": "جودة رديئة",
+		"safety_concern": "مشكلة تتعلق بالسلامة",
+		"abusive": "سلوك مسيء",
+		"refused_payment": "رفض الدفع",
+		"unsafe_dishonest": "غير آمن أو غير أمين",
+		"other": "أخرى"
+	},
+	"success": "تم إرسال البلاغ. سيراجعه فريقنا.",
+	"alreadyReported": "لقد أبلغت بالفعل عن هذا الطلب."
+}
