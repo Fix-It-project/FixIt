@@ -36,6 +36,7 @@ export default function RecommendScreen() {
 			try {
 				const data = await getRecommendedTechnicians({
 					problemDescription: q.trim(),
+					topK: 5,
 				});
 				if (!cancelled) {
 					setResults(data);
@@ -66,7 +67,10 @@ export default function RecommendScreen() {
 		let cancelled = false;
 		setIsLoading(true);
 		setHasError(false);
-		getRecommendedTechnicians({ problemDescription: q.trim() })
+		getRecommendedTechnicians({
+			problemDescription: q.trim(),
+			topK: 5,
+		})
 			.then((data) => {
 				if (!cancelled) setResults(data);
 			})

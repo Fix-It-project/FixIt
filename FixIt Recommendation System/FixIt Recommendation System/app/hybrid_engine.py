@@ -14,6 +14,8 @@ import logging
 import math
 from typing import Dict, List, Optional, Tuple
 
+import pandas as pd
+
 from app.collaborative_engine import CollaborativeEngine
 from app.config import COLD_START_BOOKING_THRESHOLD
 from app.content_engine import ContentEngine
@@ -181,6 +183,12 @@ class HybridEngine:
 
             c_score = content_scores.get(tid, 0.5)
             f_score = collab_scores.get(tid, 0.0)
+            raw_hourly_rate = tech.get("base_hourly_rate")
+            hourly_rate = (
+                int(raw_hourly_rate)
+                if pd.notna(raw_hourly_rate)
+                else None
+            )
 
             # Hybrid blend
             hybrid_raw = alpha * c_score + beta * f_score
@@ -205,7 +213,7 @@ class HybridEngine:
                     match_score=final,
                     distance_km=round(dist_km, 2),
                     market_trust_score=round(trust, 4),
-                    base_hourly_rate=int(tech["base_hourly_rate"]),
+                    base_hourly_rate=hourly_rate,
                 )
             )
 
