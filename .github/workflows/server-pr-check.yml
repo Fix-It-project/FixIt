@@ -81,12 +81,12 @@ jobs:
           PAYMOB_INTEGRATION_ID: ${{ secrets.PAYMOB_INTEGRATION_ID }}
           PAYMOB_IFRAME_ID: ${{ secrets.PAYMOB_IFRAME_ID }}
           PAYMOB_HMAC_SECRET: ${{ secrets.PAYMOB_HMAC_SECRET }}
-          PAYMOB_BASE_URL: ${{ secrets.PAYMOB_BASE_URL }}
-          PAYMOB_IFRAME_BASE_URL: ${{ secrets.PAYMOB_IFRAME_BASE_URL }}
-          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ secrets.PAYMOB_UNIFIED_CHECKOUT_URL }}
-          PAYMOB_CURRENCY: ${{ secrets.PAYMOB_CURRENCY }}
-          PAYMOB_PLATFORM_FEE_PERCENT: ${{ secrets.PAYMOB_PLATFORM_FEE_PERCENT }}
-          PAYMOB_SANDBOX_MODE: ${{ secrets.PAYMOB_SANDBOX_MODE }}
+          PAYMOB_BASE_URL: ${{ vars.PAYMOB_BASE_URL || 'https://accept.paymob.com/api' }}
+          PAYMOB_IFRAME_BASE_URL: ${{ vars.PAYMOB_IFRAME_BASE_URL || 'https://accept.paymob.com/api/acceptance/iframes' }}
+          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ vars.PAYMOB_UNIFIED_CHECKOUT_URL || 'https://accept.paymob.com/unifiedcheckout/' }}
+          PAYMOB_CURRENCY: ${{ vars.PAYMOB_CURRENCY || 'EGP' }}
+          PAYMOB_PLATFORM_FEE_PERCENT: ${{ vars.PAYMOB_PLATFORM_FEE_PERCENT || '5' }}
+          PAYMOB_SANDBOX_MODE: ${{ vars.PAYMOB_SANDBOX_MODE || 'true' }}
           LIFECYCLE_SMOKE_AUTO_COMPLETE: ${{ secrets.LIFECYCLE_SMOKE_AUTO_COMPLETE }}
 
       - name: Package check (serverless)
@@ -111,10 +111,10 @@ jobs:
           PAYMOB_INTEGRATION_ID: ${{ secrets.PAYMOB_INTEGRATION_ID }}
           PAYMOB_IFRAME_ID: ${{ secrets.PAYMOB_IFRAME_ID }}
           PAYMOB_HMAC_SECRET: ${{ secrets.PAYMOB_HMAC_SECRET }}
-          PAYMOB_BASE_URL: ${{ secrets.PAYMOB_BASE_URL }}
-          PAYMOB_IFRAME_BASE_URL: ${{ secrets.PAYMOB_IFRAME_BASE_URL }}
-          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ secrets.PAYMOB_UNIFIED_CHECKOUT_URL }}
-          PAYMOB_CURRENCY: ${{ secrets.PAYMOB_CURRENCY }}
-          PAYMOB_PLATFORM_FEE_PERCENT: ${{ secrets.PAYMOB_PLATFORM_FEE_PERCENT }}
-          PAYMOB_SANDBOX_MODE: ${{ secrets.PAYMOB_SANDBOX_MODE }}
+          PAYMOB_BASE_URL: ${{ vars.PAYMOB_BASE_URL || 'https://accept.paymob.com/api' }}
+          PAYMOB_IFRAME_BASE_URL: ${{ vars.PAYMOB_IFRAME_BASE_URL || 'https://accept.paymob.com/api/acceptance/iframes' }}
+          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ vars.PAYMOB_UNIFIED_CHECKOUT_URL || 'https://accept.paymob.com/unifiedcheckout/' }}
+          PAYMOB_CURRENCY: ${{ vars.PAYMOB_CURRENCY || 'EGP' }}
+          PAYMOB_PLATFORM_FEE_PERCENT: ${{ vars.PAYMOB_PLATFORM_FEE_PERCENT || '5' }}
+          PAYMOB_SANDBOX_MODE: ${{ vars.PAYMOB_SANDBOX_MODE || 'true' }}
           LIFECYCLE_SMOKE_AUTO_COMPLETE: ${{ secrets.LIFECYCLE_SMOKE_AUTO_COMPLETE }}
