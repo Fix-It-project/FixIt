@@ -161,6 +161,7 @@ export interface AdminOrderDetail {
 	attachment: string | null;
 	customer: string;
 	tech: string;
+	service: string;
 	category: string;
 	review: { rating: number; comment: string | null; date: string } | null;
 	quotes: AdminOrderQuote[];
@@ -186,12 +187,12 @@ export interface AdminHomeowner {
 	avgRatingGiven: number | null;
 	lastOrder: string;
 	lastOrderAt: string | null;
+	reportCount: number;
 	blocked: boolean;
 	blockPending: boolean;
 	blockedReason?: string;
 	blockedAt?: string;
 	blockedBy?: string;
-	history: AdminHomeownerHistory[];
 }
 
 // ---- Technicians (admin technicians page) ----
@@ -240,6 +241,7 @@ export interface AdminTechnician {
 	revenue: string;
 	revenueValue: number;
 	yearsExperience: number | null;
+	reportCount: number;
 	documents: AdminTechnicianDocument[];
 	status: TechnicianStatus;
 	blocked: boolean;

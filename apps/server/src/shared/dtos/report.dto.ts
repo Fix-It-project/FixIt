@@ -29,5 +29,14 @@ export const ReportIdParamSchema = z.object({
 	id: z.string().uuid("Invalid report id"),
 });
 
+/** Query params for the server-side admin reports queue (pagination + filters). */
+export const ReportsListQuerySchema = z.object({
+	page: z.coerce.number().int().positive().default(1),
+	pageSize: z.coerce.number().int().positive().max(100).default(20),
+	status: z.enum(["open", "closed"]).default("open"),
+	source: z.enum(["all", "user", "technician"]).default("all"),
+});
+
 export type CreateReportBody = z.infer<typeof CreateReportBodySchema>;
 export type ReportIdParam = z.infer<typeof ReportIdParamSchema>;
+export type ReportsListQuery = z.infer<typeof ReportsListQuerySchema>;

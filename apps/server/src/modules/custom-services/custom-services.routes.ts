@@ -2,6 +2,7 @@ import express, { type Router } from "express";
 import {
 	CreateCustomServiceBodySchema,
 	CustomServiceIdParamSchema,
+	CustomServicesListQuerySchema,
 	RejectCustomServiceBodySchema,
 } from "../../shared/dtos/index.js";
 import { requireAdminAuth } from "../../shared/middlewares/admin-auth.middleware.js";
@@ -30,6 +31,7 @@ export const adminCustomServiceRoutes: Router = express.Router();
 adminCustomServiceRoutes.get(
 	"/",
 	requireAdminAuth,
+	validate({ query: CustomServicesListQuerySchema }),
 	customServicesController.listForAdmin,
 );
 adminCustomServiceRoutes.patch(

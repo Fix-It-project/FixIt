@@ -1,4 +1,5 @@
 import type { Request, RequestHandler, Response } from "express";
+import type { CustomServicesListQuery } from "../../shared/dtos/custom-service.dto.js";
 import { AppError } from "../../shared/errors/app-error.js";
 import { asyncHandler } from "../../shared/errors/async-handler.js";
 import { customServicesService } from "./custom-services.service.js";
@@ -43,9 +44,10 @@ export class CustomServicesController {
 
 	listForAdmin: RequestHandler = asyncHandler(
 		async (req: Request, res: Response) => {
-			const status = req.query.status as string | undefined;
-			const data = await customServicesService.listRequests(status);
-			res.status(200).json({ data });
+			const params = req.query as unknown as CustomServicesListQuery;
+			const { data, total, counts } =
+				await customServicesService.listRequests(params);
+			res.status(200).json({ data, total, counts });
 		},
 	);
 

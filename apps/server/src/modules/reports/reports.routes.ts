@@ -2,6 +2,7 @@ import express, { type Router } from "express";
 import {
 	CreateReportBodySchema,
 	ReportIdParamSchema,
+	ReportsListQuerySchema,
 } from "../../shared/dtos/index.js";
 import { requireAdminAuth } from "../../shared/middlewares/admin-auth.middleware.js";
 import { requireTechnicianAuth } from "../../shared/middlewares/technician-auth.middleware.js";
@@ -32,7 +33,12 @@ technicianReportRoutes.post(
 // Mounted at /api/admin/reports (admin).
 export const adminReportRoutes: Router = express.Router();
 
-adminReportRoutes.get("/", requireAdminAuth, reportsController.listForAdmin);
+adminReportRoutes.get(
+	"/",
+	requireAdminAuth,
+	validate({ query: ReportsListQuerySchema }),
+	reportsController.listForAdmin,
+);
 adminReportRoutes.patch(
 	"/:id/resolve",
 	requireAdminAuth,

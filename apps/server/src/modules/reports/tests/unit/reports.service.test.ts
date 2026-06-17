@@ -14,6 +14,7 @@ function makeRepo() {
 	return {
 		submitReport: vi.fn(),
 		listForAdmin: vi.fn(),
+		countReports: vi.fn(),
 		setStatus: vi.fn(),
 		markWarned: vi.fn(),
 	};
@@ -96,11 +97,26 @@ describe("ReportsService", () => {
 	});
 
 	it("maps admin rows to DTOs with both parties' display fields + label text", async () => {
-		repo.listForAdmin.mockResolvedValue([adminRow]);
+		repo.listForAdmin.mockResolvedValue({ rows: [adminRow], total: 1 });
+		repo.countReports.mockResolvedValue({
+			open: 1,
+			closed: 0,
+			all: 1,
+			user: 1,
+			technician: 0,
+		});
 
-		const dtos = await service.listReports("open");
-		const dto = dtos[0]!;
+		const params = {
+			page: 1,
+			pageSize: 20,
+			status: "open" as const,
+			source: "all" as const,
+		};
+		const result = await service.listReports(params);
+		const dto = result.data[0]!;
 
+		expect(result.total).toBe(1);
+		expect(result.counts.open).toBe(1);
 		expect(dto).toMatchObject({
 			id: "rep-1",
 			reporterName: "Sara Adam",
@@ -114,7 +130,8 @@ describe("ReportsService", () => {
 		});
 		expect(dto.reporterColor).toMatch(/^#/);
 		expect(dto.reportedColor).toMatch(/^#/);
-		expect(repo.listForAdmin).toHaveBeenCalledWith("open");
+		expect(repo.listForAdmin).toHaveBeenCalledWith(params);
+		expect(repo.countReports).toHaveBeenCalledWith("open");
 	});
 
 	it("resolves a report, closing it and pushing the reporter", async () => {
