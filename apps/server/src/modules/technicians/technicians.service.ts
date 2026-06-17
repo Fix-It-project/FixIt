@@ -78,9 +78,9 @@ export interface TechnicianWalletEntry {
 }
 
 /**
- * Technician wallet for profile + wallet screens.
- * `lifetimeEarnings` and `last30` power the profile earnings chart; `summary`
- * and `entries` power the settlement/payment detail screen.
+ * Technician wallet for both technician profile earnings and wallet settlement.
+ * `summary` / `entries` are the incoming wallet contract; lifetime + last30 are
+ * additive compatibility for the existing profile earnings chart.
  */
 export interface TechnicianWallet {
 	lifetimeEarnings: number;
@@ -442,8 +442,7 @@ export class TechniciansService implements ITechniciansService {
 				grossAmount: row.gross_amount ?? row.technician_net_amount ?? 0,
 				platformFeePercent: row.platform_fee_percent ?? 0,
 				platformFeeAmount: row.platform_fee_amount ?? 0,
-				technicianNetAmount:
-					row.technician_net_amount ?? row.gross_amount ?? 0,
+				technicianNetAmount: row.technician_net_amount ?? row.gross_amount ?? 0,
 				paymentStatus: row.status,
 				payoutStatus:
 					paymentMethod === "cash" ? "paid_out" : "pending_settlement",
