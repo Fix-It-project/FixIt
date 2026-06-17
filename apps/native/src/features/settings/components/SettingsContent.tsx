@@ -6,6 +6,7 @@ import {
 	Info,
 	LogOut,
 	MessageCircleQuestion,
+	RefreshCw,
 	Shield,
 	TextCursorInput,
 } from "lucide-react-native";
@@ -13,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { ScrollView } from "react-native";
 import { confirm } from "@/src/components/ui/dialog";
 import { useLogoutMutation } from "@/src/features/auth/hooks/useLogoutMutation";
+import { useOtaUpdate } from "@/src/features/updates/hooks/useOtaUpdate";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { showError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation";
@@ -28,6 +30,7 @@ interface SettingsContentProps {
 export default function SettingsContent({ userType }: SettingsContentProps) {
 	const { t } = useTranslation("settings");
 	const logout = useLogoutMutation();
+	const { status: otaStatus, checkForUpdate } = useOtaUpdate();
 	const isTech = userType === "technician";
 	const r = isTech ? ROUTES.technician : ROUTES.user;
 
@@ -92,6 +95,19 @@ export default function SettingsContent({ userType }: SettingsContentProps) {
 					onPress={goHelp}
 				/>
 				<SettingsItem icon={Info} label={t("menu.about")} onPress={goAbout} />
+				<SettingsItem
+					icon={RefreshCw}
+					label={t("menu.checkUpdates")}
+					onPress={checkForUpdate}
+					rightText={
+						otaStatus === "checking"
+							? t("updates.checking")
+							: otaStatus === "downloading"
+								? t("updates.downloading")
+								: undefined
+					}
+					hideChevron
+				/>
 			</SettingsSection>
 
 			<SettingsSection title={t("sections.account")} bottomSeparator={false}>

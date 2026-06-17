@@ -65,6 +65,7 @@ export function useTechCancel() {
 		TechReasonArgs,
 		Awaited<ReturnType<typeof techCancel>>
 	>(({ orderId, reason }) => techCancel(orderId, reason), {
+		mutationKey: ["tech-cancel"],
 		// Backend decides cancelled_with_fee / cancelled_no_fee via the Phase 1
 		// fee gate; hint with cancelled_with_fee. Refetch corrects if it disagrees.
 		optimisticTo: "cancelled_with_fee",
@@ -158,6 +159,7 @@ export function useTechConfirmCompletion() {
 		TechSimpleArgs,
 		Awaited<ReturnType<typeof techConfirmCompletion>>
 	>(({ orderId }) => techConfirmCompletion(orderId), {
+		mutationKey: ["tech-confirm-completion"],
 		optimisticTo: "awaiting_payment",
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
@@ -171,6 +173,7 @@ export function useTechDeclineCompletion() {
 		TechSimpleArgs,
 		Awaited<ReturnType<typeof techDeclineCompletion>>
 	>(({ orderId }) => techDeclineCompletion(orderId), {
+		mutationKey: ["tech-decline-completion"],
 		optimisticTo: null,
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {

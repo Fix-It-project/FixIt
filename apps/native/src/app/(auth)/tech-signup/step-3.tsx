@@ -1,11 +1,12 @@
 import { router } from "expo-router";
 import { User as UserIcon } from "lucide-react-native";
 import { useState } from "react";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import { useTranslation } from "react-i18next";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
 import { techStep3Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
@@ -13,6 +14,7 @@ import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSignUpStep3() {
+	const { t } = useTranslation("auth");
 	const store = useTechnicianSignupStore();
 	const [firstName, setFirstName] = useState(store.firstName);
 	const [lastName, setLastName] = useState(store.lastName);
@@ -41,39 +43,39 @@ export default function TechnicianSignUpStep3() {
 
 	return (
 		<AuthPageLayout
-			title="About you."
-			subtitle="Tell us your name and create a secure password for your account."
+			title={t("techSignup.step3Title")}
+			subtitle={t("techSignup.step3Subtitle")}
 		>
 			<ErrorBanner message={error} />
 
 			<FormInput
-				label="First Name"
+				label={t("form.firstName")}
 				value={firstName}
 				onChangeText={(text) => {
 					setFirstName(text);
 					clearFieldError("firstName");
 				}}
-				placeholder="John"
+				placeholder={t("form.firstNamePlaceholder")}
 				icon={UserIcon}
 				error={fieldErrors.firstName}
 				required
 			/>
 
 			<FormInput
-				label="Last Name"
+				label={t("form.lastName")}
 				value={lastName}
 				onChangeText={(text) => {
 					setLastName(text);
 					clearFieldError("lastName");
 				}}
-				placeholder="Doe"
+				placeholder={t("form.lastNamePlaceholder")}
 				icon={UserIcon}
 				error={fieldErrors.lastName}
 				required
 			/>
 
 			<PasswordInput
-				label="Password"
+				label={t("form.password")}
 				value={password}
 				onChangeText={(text) => {
 					setPassword(text);
@@ -84,19 +86,23 @@ export default function TechnicianSignUpStep3() {
 			/>
 
 			<PasswordInput
-				label="Confirm Password"
+				label={t("form.confirmPassword")}
 				value={confirmPassword}
 				onChangeText={(text) => {
 					setConfirmPassword(text);
 					clearFieldError("confirmPassword");
 				}}
-				placeholder="Re-enter your password"
+				placeholder={t("form.confirmPasswordPlaceholder")}
 				error={fieldErrors.confirmPassword}
 				required
 			/>
 
-			<Button onPress={handleNext} disabled={!isFormValid} className="mt-stack-sm">
-				<BtnText variant="buttonLg">Next</BtnText>
+			<Button
+				onPress={handleNext}
+				disabled={!isFormValid}
+				className="mt-stack-sm"
+			>
+				<BtnText variant="buttonLg">{t("form.next")}</BtnText>
 			</Button>
 		</AuthPageLayout>
 	);

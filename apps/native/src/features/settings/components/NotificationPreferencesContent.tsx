@@ -1,19 +1,9 @@
-import {
-	BellRing,
-	type LucideIcon,
-	Smartphone,
-	Vibrate,
-} from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, Switch, View } from "react-native";
+import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
-import {
-	Colors,
-	elevation,
-	shadowStyle,
-	useThemeColors,
-} from "@/src/constants/design-tokens";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import { useNotificationPreferencesQuery } from "@/src/features/notifications/hooks/useNotificationPreferencesQuery";
 import { useUpdateNotificationPreferencesMutation } from "@/src/features/notifications/hooks/useUpdateNotificationPreferencesMutation";
 import type {
@@ -28,14 +18,12 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 };
 
 function PreferenceRow({
-	icon: Icon,
 	label,
 	description,
 	value,
 	disabled = false,
 	onChange,
 }: Readonly<{
-	icon: LucideIcon;
 	label: string;
 	description: string;
 	value: boolean;
@@ -46,20 +34,12 @@ function PreferenceRow({
 	const contentColor = disabled
 		? themeColors.textMuted
 		: themeColors.textPrimary;
-	const iconOpacity = disabled ? 0.45 : 1;
-	const rowOpacity = disabled ? 0.55 : 1;
 
 	return (
 		<View
-			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
-			style={{ opacity: rowOpacity }}
+			className="flex-row items-center gap-stack-md py-list-row-comfortable-y"
+			style={{ opacity: disabled ? 0.55 : 1 }}
 		>
-			<View
-				className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill bg-app-primary-light"
-				style={{ opacity: iconOpacity }}
-			>
-				<Icon size={18} color={Colors.primary} strokeWidth={1.8} />
-			</View>
 			<View className="flex-1">
 				<Text variant="buttonLg" style={{ color: contentColor }}>
 					{label}
@@ -92,7 +72,6 @@ export default function NotificationPreferencesContent({
 	role: NotificationPreferencesRole;
 }>) {
 	const { t } = useTranslation("settings");
-	const themeColors = useThemeColors();
 	const { data, isLoading } = useNotificationPreferencesQuery(role);
 	const updateMutation = useUpdateNotificationPreferencesMutation(role);
 	const [draftPreferences, setDraftPreferences] =
@@ -118,88 +97,56 @@ export default function NotificationPreferencesContent({
 		updateMutation.mutate(next);
 	};
 
+	if (isLoading) {
+		return (
+			<View className="flex-1 items-center justify-center bg-surface">
+				<ActivityIndicator color={Colors.primary} />
+			</View>
+		);
+	}
+
 	return (
 		<ScrollView
 			className="flex-1 bg-surface"
-			contentContainerClassName="px-screen-x py-stack-xl gap-stack-lg"
+			contentContainerClassName="px-screen-x py-stack-lg"
 		>
-			<View
-				className="rounded-card bg-card px-card-roomy py-stack-xl"
-				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
-			>
-				<View className="mb-stack-lg h-avatar-lg w-avatar-lg items-center justify-center rounded-pill bg-app-primary-light">
-					<BellRing size={28} color={Colors.primary} strokeWidth={1.8} />
-				</View>
-				<Text variant="bodyLg" className="font-bold text-content">
-					{t("notifications.title")}
-				</Text>
-				<Text variant="bodySm" className="mt-stack-sm text-content-muted">
-					{t("notifications.description")}
-				</Text>
-			</View>
-
-			<View
-				className="rounded-card bg-card px-card-roomy py-card-roomy"
-				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
-			>
-				{isLoading ? (
-					<View className="items-center py-stack-xl">
-						<ActivityIndicator color={Colors.primary} />
-						<Text variant="caption" className="mt-stack-sm text-content-muted">
-							{t("notifications.loading")}
-						</Text>
-					</View>
-				) : (
-					<>
-						<PreferenceRow
-							icon={BellRing}
-							label={t("notifications.notificationsLabel")}
-							description={t("notifications.notificationsDesc")}
-							value={preferences.notificationsEnabled}
-							onChange={(value) =>
-								updatePreferences({
-									...preferences,
-									notificationsEnabled: value,
-								})
-							}
-						/>
-						<View
-							className="my-stack-sm h-px"
-							style={{ backgroundColor: themeColors.borderDefault }}
-						/>
-						<PreferenceRow
-							icon={Smartphone}
-							label={t("notifications.soundLabel")}
-							description={t("notifications.soundDesc")}
-							value={displayedSoundValue}
-							disabled={detailControlsDisabled}
-							onChange={(value) =>
-								updatePreferences({
-									...preferences,
-									soundEnabled: value,
-								})
-							}
-						/>
-						<View
-							className="my-stack-sm h-px"
-							style={{ backgroundColor: themeColors.borderDefault }}
-						/>
-						<PreferenceRow
-							icon={Vibrate}
-							label={t("notifications.vibrationLabel")}
-							description={t("notifications.vibrationDesc")}
-							value={displayedVibrationValue}
-							disabled={detailControlsDisabled}
-							onChange={(value) =>
-								updatePreferences({
-									...preferences,
-									vibrationEnabled: value,
-								})
-							}
-						/>
-					</>
-				)}
-			</View>
+			<PreferenceRow
+				label={t("notifications.notificationsLabel")}
+				description={t("notifications.notificationsDesc")}
+				value={preferences.notificationsEnabled}
+				onChange={(value) =>
+					updatePreferences({
+						...preferences,
+						notificationsEnabled: value,
+					})
+				}
+			/>
+			<Separator />
+			<PreferenceRow
+				label={t("notifications.soundLabel")}
+				description={t("notifications.soundDesc")}
+				value={displayedSoundValue}
+				disabled={detailControlsDisabled}
+				onChange={(value) =>
+					updatePreferences({
+						...preferences,
+						soundEnabled: value,
+					})
+				}
+			/>
+			<Separator />
+			<PreferenceRow
+				label={t("notifications.vibrationLabel")}
+				description={t("notifications.vibrationDesc")}
+				value={displayedVibrationValue}
+				disabled={detailControlsDisabled}
+				onChange={(value) =>
+					updatePreferences({
+						...preferences,
+						vibrationEnabled: value,
+					})
+				}
+			/>
 		</ScrollView>
 	);
 }

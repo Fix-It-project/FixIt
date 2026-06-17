@@ -283,13 +283,13 @@ export default function ChatComposer({
 						</CircleButton>
 					) : (
 						<CircleButton
-							bg={themeColors.textPrimary}
+							bg={themeColors.primary}
 							onPress={onStartRecording}
 							label={t("composer.voiceMessageLabel")}
 						>
 							<Mic
 								size={ICON}
-								color={themeColors.surfaceBase}
+								color={themeColors.onPrimaryHeader}
 								strokeWidth={2.2}
 							/>
 						</CircleButton>

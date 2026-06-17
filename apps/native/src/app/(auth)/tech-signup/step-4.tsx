@@ -1,15 +1,21 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
 import CategoryChip from "@/src/features/auth/components/shared/CategoryChip";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
-import { CATEGORIES } from "@/src/features/categories/constants/categories";
+import {
+	CATEGORIES,
+	translateCategoryLabel,
+} from "@/src/features/categories/constants/categories";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSignUpStep4() {
+	const { t } = useTranslation("auth");
+	const { t: tc } = useTranslation("categories");
 	const store = useTechnicianSignupStore();
 	const [selectedId, setSelectedId] = useState<string | null>(
 		store.categories[0] || null,
@@ -28,8 +34,8 @@ export default function TechnicianSignUpStep4() {
 
 	return (
 		<AuthPageLayout
-			title="Your specialty."
-			subtitle="Select the category that matches your skills."
+			title={t("techSignup.step4Title")}
+			subtitle={t("techSignup.step4Subtitle")}
 		>
 			<View className="-mx-screen-form-bleed pt-stack-xs pb-stack-sm">
 				<FlatList
@@ -38,7 +44,7 @@ export default function TechnicianSignUpStep4() {
 					scrollEnabled={false}
 					renderItem={({ item }) => (
 						<CategoryChip
-							label={item.label}
+							label={translateCategoryLabel(tc, item.id, item.label)}
 							icon={item.icon}
 							selected={selectedId === item.id}
 							onPress={() => toggleCategory(item.id)}
@@ -52,7 +58,7 @@ export default function TechnicianSignUpStep4() {
 				disabled={selectedId === null}
 				className="mt-stack-sm"
 			>
-				<BtnText variant="buttonLg">Next</BtnText>
+				<BtnText variant="buttonLg">{t("form.next")}</BtnText>
 			</Button>
 		</AuthPageLayout>
 	);

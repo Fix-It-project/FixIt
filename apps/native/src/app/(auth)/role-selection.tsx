@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -8,12 +9,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TechRoleIllustration from "@/src/assets/onboarding/techrole1.svg";
 import UserRoleIllustration from "@/src/assets/onboarding/userrole.svg";
 import { Text } from "@/src/components/ui/text";
+import { space } from "@/src/constants/design-tokens";
 import { RoleCard } from "@/src/features/onboarding/components/RoleCard";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
-import { space } from "@/src/constants/design-tokens";
 
 export default function RoleSelectionScreen() {
+	const { t } = useTranslation("auth");
 	const insets = useSafeAreaInsets();
 	const reducedMotion = useReducedMotion();
 	const { height, width } = useWindowDimensions();
@@ -76,7 +78,7 @@ export default function RoleSelectionScreen() {
 							className="font-google-sans-bold text-content"
 							style={{ fontSize: titleSize, lineHeight: titleLineHeight }}
 						>
-							Choose your role
+							{t("roleSelection.title")}
 						</Text>
 					</Animated.View>
 
@@ -99,7 +101,7 @@ export default function RoleSelectionScreen() {
 							variant="h3"
 							className="font-google-sans-bold text-app-primary"
 						>
-							How will you use FixIt?
+							{t("roleSelection.heading")}
 						</Text>
 					</Animated.View>
 
@@ -108,8 +110,7 @@ export default function RoleSelectionScreen() {
 						style={{ marginTop: space[3] }}
 					>
 						<Text variant="body" className="text-content-secondary">
-							We match the right help to the right hands. Pick the path that
-							fits your needs.
+							{t("roleSelection.subtitle")}
 						</Text>
 					</Animated.View>
 				</View>
@@ -125,12 +126,12 @@ export default function RoleSelectionScreen() {
 				>
 					<RoleCard
 						variant="user"
-						title={<>Homeowner</>}
-						description="Request repairs and home care from experienced technicians."
+						title={t("roleSelection.user.title")}
+						description={t("roleSelection.user.description")}
 						features={[
-							"Post repair requests",
-							"Track job progress",
-							"Experienced pros",
+							t("roleSelection.user.feature1"),
+							t("roleSelection.user.feature2"),
+							t("roleSelection.user.feature3"),
 						]}
 						illustration={
 							<UserRoleIllustration
@@ -149,12 +150,12 @@ export default function RoleSelectionScreen() {
 					/>
 					<RoleCard
 						variant="tech"
-						title={<>Technician</>}
-						description="Offer services and get matched with local jobs."
+						title={t("roleSelection.tech.title")}
+						description={t("roleSelection.tech.description")}
 						features={[
-							"Accept local jobs",
-							"Set your schedule",
-							"Grow your business",
+							t("roleSelection.tech.feature1"),
+							t("roleSelection.tech.feature2"),
+							t("roleSelection.tech.feature3"),
 						]}
 						illustration={
 							<TechRoleIllustration

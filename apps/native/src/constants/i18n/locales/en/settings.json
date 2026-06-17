@@ -15,7 +15,8 @@
 		"faq": "FAQ & app rules",
 		"privacy": "Privacy & Security",
 		"help": "Help & Support",
-		"about": "About"
+		"about": "About",
+		"checkUpdates": "Check for updates"
 	},
 	"layout": {
 		"settings": "Settings",
@@ -93,6 +94,17 @@
 		"soundDesc": "Play the default alert sound for incoming notifications.",
 		"vibrationLabel": "Vibration",
 		"vibrationDesc": "Vibrate this device when FixIt notifications arrive."
+	},
+	"updates": {
+		"checking": "Checking…",
+		"downloading": "Downloading…",
+		"upToDate": "You're on the latest version.",
+		"readyTitle": "Update ready",
+		"readyBody": "A new version has been downloaded. Restart now to apply it.",
+		"restartNow": "Restart now",
+		"later": "Later",
+		"error": "Couldn't check for updates. Please try again.",
+		"unavailableDev": "Updates aren't available in development."
 	},
 	"services": {
 		"title": "Services",

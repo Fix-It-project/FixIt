@@ -23,6 +23,12 @@ export interface LifecycleMutationOpts<TArgs, TResult> {
 	extractOrderId: (args: TArgs) => string;
 	/** Invalidate all query keys impacted by this transition. */
 	invalidate: (queryClient: QueryClient, args: TArgs, result: TResult) => void;
+	/**
+	 * Identifies the mutation in error logs + dedupe (query-client `handleCacheError`
+	 * reads `key[0]`). Without it, every lifecycle error logs as "[mutation] unknown".
+	 * Defaults to ["lifecycle"].
+	 */
+	mutationKey?: readonly unknown[];
 }
 
 export function useLifecycleMutation<TArgs, TResult>(
@@ -36,6 +42,7 @@ export function useLifecycleMutation<TArgs, TResult>(
 	);
 
 	return useMutation<TResult, Error, TArgs>({
+		mutationKey: opts.mutationKey ?? ["lifecycle"],
 		mutationFn,
 		onMutate: (args) => {
 			if (opts.optimisticTo != null) {
