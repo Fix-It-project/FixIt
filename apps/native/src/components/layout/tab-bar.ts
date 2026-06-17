@@ -13,7 +13,7 @@ const MIN_TAB_BAR_BOTTOM_PADDING = spacing.stack.md;
 
 const TAB_BAR_LABEL_STYLE = {
 	fontFamily: fontFamily.bold,
-	fontSize: 11,
+	fontSize: 10,
 	marginTop: 2,
 } as const;
 

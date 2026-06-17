@@ -1,5 +1,3 @@
-import { showError, toAppError } from "@/src/lib/errors";
-import { logger } from "@/src/lib/logger";
 import { isRetryable } from "@FixIt/errors";
 import {
 	focusManager,
@@ -10,6 +8,8 @@ import {
 } from "@tanstack/react-query";
 import * as Network from "expo-network";
 import { AppState, type AppStateStatus, Platform } from "react-native";
+import { showError, toAppError } from "@/src/lib/errors";
+import { logger } from "@/src/lib/logger";
 
 // Noise-control dedupe — bounded by (distinct AppErrorCode) × (distinct queryKey heads).
 // Realistic ceiling ~100 entries over a long session. If growth becomes a concern,
@@ -18,7 +18,9 @@ const dedupeMap = new Map<string, number>();
 const DEDUPE_WINDOW_MS = 2000;
 
 type CacheSource = "query" | "mutation";
-type CacheMeta = { showToast?: boolean; background?: boolean } | undefined;
+type CacheMeta =
+	| { showToast?: boolean; background?: boolean; silent?: boolean }
+	| undefined;
 
 const KNOWN_APP_ERROR_CODES: ReadonlySet<string> = new Set([
 	"VALIDATION",
@@ -34,7 +36,9 @@ const KNOWN_APP_ERROR_CODES: ReadonlySet<string> = new Set([
 
 function extractCauseResponse(
 	cause: unknown,
-): { status?: number; data?: unknown; url?: string; method?: string } | undefined {
+):
+	| { status?: number; data?: unknown; url?: string; method?: string }
+	| undefined {
 	if (!cause || typeof cause !== "object") return undefined;
 	const maybe = cause as {
 		response?: { status?: number; data?: unknown };
@@ -60,6 +64,7 @@ function handleCacheError(
 	// Known business errors → warn (no Expo red overlay). Unknown / unexpected
 	// errors still go through logger.error so real bugs stay visible in dev.
 	if (KNOWN_APP_ERROR_CODES.has(app.code)) {
+		if (meta?.silent === true) return;
 		const causeResponse = extractCauseResponse(app.opts.cause);
 		logger.warn(source, keyHead, {
 			code: app.code,
@@ -88,7 +93,11 @@ function handleCacheError(
 		app.code === "NOT_FOUND"
 	)
 		return;
-	if (app.code === "NETWORK" || app.code === "OFFLINE" || app.code === "TIMEOUT")
+	if (
+		app.code === "NETWORK" ||
+		app.code === "OFFLINE" ||
+		app.code === "TIMEOUT"
+	)
 		return;
 
 	const dedupeKey = `${app.code}:${keyHead}`;

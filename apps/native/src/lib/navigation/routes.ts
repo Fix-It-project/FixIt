@@ -58,6 +58,10 @@ export const ROUTES = {
 	user: {
 		home: "/user" as const,
 		categories: "/user/categories" as const,
+		// The Activity tab (Bookings + Reschedule Requests). Replaces the old
+		// "My Orders" list tab as the back-to-list target. Order detail/placed
+		// routes still live under `/user/orders/...` (see orderDetail/placedOrder).
+		activity: "/user/activity" as const,
 		orders: "/user/orders" as const,
 		orderDetail: (orderId: string) => ({
 			pathname: "/user/orders/[orderId]" as const,

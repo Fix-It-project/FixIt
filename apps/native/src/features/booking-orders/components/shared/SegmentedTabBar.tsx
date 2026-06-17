@@ -8,14 +8,14 @@ import Animated, {
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 
-export interface JobsTabDef<T extends string> {
+export interface SegmentedTabDef<T extends string> {
 	readonly key: T;
 	readonly label: string;
 	readonly count?: number;
 }
 
-interface JobsTabBarProps<T extends string> {
-	readonly tabs: readonly JobsTabDef<T>[];
+interface SegmentedTabBarProps<T extends string> {
+	readonly tabs: readonly SegmentedTabDef<T>[];
 	readonly active: T;
 	readonly onChange: (key: T, index: number) => void;
 	/** Fractional pager position (0..n-1) that drives the sliding underline so it
@@ -23,13 +23,17 @@ interface JobsTabBarProps<T extends string> {
 	readonly position: SharedValue<number>;
 }
 
-/** Minimalist Material tab bar: equal segments with a sliding blue underline. */
-export function JobsTabBar<T extends string>({
+/**
+ * Minimalist Material tab bar: equal segments with a sliding blue underline.
+ * Shared by the technician Jobs screen and the user Activity screen — pair it
+ * with a `PagerView` and feed `position` from `onPageScroll` for finger-follow.
+ */
+export function SegmentedTabBar<T extends string>({
 	tabs,
 	active,
 	onChange,
 	position,
-}: JobsTabBarProps<T>) {
+}: SegmentedTabBarProps<T>) {
 	const themeColors = useThemeColors();
 	const containerWidth = useSharedValue(0);
 

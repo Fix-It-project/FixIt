@@ -1,4 +1,5 @@
 import { ArrowRight, Bot, Sparkles, Star } from "lucide-react-native";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	ActivityIndicator,
@@ -7,6 +8,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
@@ -15,6 +17,7 @@ import type { ChatEntry, ChatFlow } from "../types";
 import { getRecommendationCards } from "../utils";
 
 type Props = {
+	mode: ChatFlow;
 	chatEntries: ChatEntry[];
 	isLoading: boolean;
 	error: string | null;
@@ -27,7 +30,11 @@ type Props = {
 	) => void;
 };
 
+// Subtle fade — message bubbles ease in without the bouncy spring.
+const BUBBLE_IN = FadeIn.duration(160);
+
 export default function ChatMessageList({
+	mode,
 	chatEntries,
 	isLoading,
 	error,
@@ -38,6 +45,7 @@ export default function ChatMessageList({
 	const { t } = useTranslation("chat");
 	const { t: tc } = useTranslation("categories");
 	const themeColors = useThemeColors();
+	const scrollRef = useRef<ScrollView>(null);
 
 	const surface = themeColors.surfaceBase;
 	const surfaceText = themeColors.textPrimary;
@@ -51,55 +59,67 @@ export default function ChatMessageList({
 	const agentBadge = themeColors.textMuted;
 	const orderCard = themeColors.orderBg;
 
+	const isEmpty = chatEntries.length === 0 && !isLoading && !error;
+	const modeLabel =
+		mode === "recommend"
+			? t("composer.modeRecommend")
+			: t("composer.modeAgent");
+
 	return (
 		<ScrollView
+			ref={scrollRef}
 			className="flex-1"
-			contentContainerClassName="px-4 py-5"
+			contentContainerClassName="px-4 py-4"
+			contentContainerStyle={{ flexGrow: 1 }}
 			showsVerticalScrollIndicator={false}
 			keyboardDismissMode="interactive"
 			keyboardShouldPersistTaps="handled"
+			onContentSizeChange={() =>
+				scrollRef.current?.scrollToEnd({ animated: true })
+			}
 		>
-			<View
-				className="max-w-[88%] self-start rounded-[24px] rounded-tl-md px-4 py-4 shadow-sm"
-				style={{
-					backgroundColor: assistantBubble,
-					borderWidth: 1,
-					borderColor: assistantBorder,
-				}}
-			>
-				<View className="mb-2 flex-row items-center">
-					<View
-						className="h-7 w-7 items-center justify-center rounded-full"
-						style={{ backgroundColor: assistantBadge }}
+			{isEmpty ? (
+				<Animated.View
+					entering={FadeIn.duration(240)}
+					className="flex-1 items-center justify-center px-8"
+				>
+					<Text
+						variant="bodyLg"
+						className="text-center font-google-sans-bold"
+						style={{ color: surfaceText }}
 					>
-						<Sparkles size={14} color={themeColors.primary} strokeWidth={2.2} />
-					</View>
-					<Text variant="bodySm" className="ml-2" style={{ color: mutedText }}>
-						{t("messages.assistant")}
+						{t("composer.modeLabel", { mode: modeLabel })}
 					</Text>
-				</View>
-				<Text variant="body" style={{ color: surfaceText }}>
-					{t("messages.intro")}
-				</Text>
-			</View>
+					<Text
+						variant="bodySm"
+						className="mt-stack-sm text-center leading-5"
+						style={{ color: mutedText }}
+					>
+						{mode === "agent"
+							? t("modeHint.agentBody")
+							: t("modeHint.recommendBody")}
+					</Text>
+				</Animated.View>
+			) : null}
 
 			{chatEntries.map((entry) => {
 				if (entry.type === "user") {
 					if (!entry.text && !entry.image) return null;
 
 					return (
-						<View
+						<Animated.View
 							key={entry.id}
-							className="mt-4 max-w-[88%] self-end rounded-[24px] rounded-tr-md px-4 py-4"
+							entering={BUBBLE_IN}
+							className="mt-stack-md max-w-[88%] self-end rounded-3xl rounded-tr-md px-stack-md py-stack-md"
 							style={{ backgroundColor: userBubble }}
 						>
 							{entry.text ? (
-								<Text variant="body" style={{ color: userBubbleText }}>
+								<Text variant="bodySm" style={{ color: userBubbleText }}>
 									{entry.text}
 								</Text>
 							) : null}
 							{entry.image ? (
-								<View className={entry.text ? "mt-3" : ""}>
+								<View className={entry.text ? "mt-2" : ""}>
 									<Image
 										source={{ uri: entry.image.uri }}
 										className="h-40 w-[220px] rounded-2xl"
@@ -115,24 +135,25 @@ export default function ChatMessageList({
 									</Text>
 								</View>
 							) : null}
-						</View>
+						</Animated.View>
 					);
 				}
 
 				if (entry.type === "assistant") {
 					return (
-						<View
+						<Animated.View
 							key={entry.id}
-							className="mt-4 max-w-[88%] self-start rounded-[24px] rounded-tl-md px-4 py-4 shadow-sm"
+							entering={BUBBLE_IN}
+							className="mt-stack-md max-w-[88%] self-start rounded-3xl rounded-tl-md px-stack-md py-stack-md shadow-sm"
 							style={{
 								backgroundColor: assistantBubble,
 								borderWidth: 1,
 								borderColor: assistantBorder,
 							}}
 						>
-							<View className="mb-2 flex-row items-center">
+							<View className="mb-stack-sm flex-row items-center">
 								<View
-									className="h-7 w-7 items-center justify-center rounded-full"
+									className="h-6 w-6 items-center justify-center rounded-full"
 									style={{
 										backgroundColor:
 											entry.flow === "agent" ? agentBadge : assistantBadge,
@@ -140,20 +161,20 @@ export default function ChatMessageList({
 								>
 									{entry.flow === "agent" ? (
 										<Bot
-											size={14}
+											size={13}
 											color={themeColors.onPrimaryHeader}
 											strokeWidth={2.2}
 										/>
 									) : (
 										<Sparkles
-											size={14}
+											size={13}
 											color={themeColors.primary}
 											strokeWidth={2.2}
 										/>
 									)}
 								</View>
 								<Text
-									variant="bodySm"
+									variant="caption"
 									className="ml-2"
 									style={{ color: mutedText }}
 								>
@@ -162,10 +183,10 @@ export default function ChatMessageList({
 										: t("messages.assistant")}
 								</Text>
 							</View>
-							<Text variant="body" style={{ color: surfaceText }}>
+							<Text variant="bodySm" style={{ color: surfaceText }}>
 								{entry.text}
 							</Text>
-						</View>
+						</Animated.View>
 					);
 				}
 
@@ -176,28 +197,29 @@ export default function ChatMessageList({
 					entry.serviceOrder.diagnosed_category,
 				);
 				return (
-					<View
+					<Animated.View
 						key={entry.id}
-						className="mt-4 max-w-[92%] self-start rounded-[24px] rounded-tl-md px-4 py-4 shadow-sm"
+						entering={BUBBLE_IN}
+						className="mt-stack-md max-w-[92%] self-start rounded-3xl rounded-tl-md px-stack-md py-stack-md shadow-sm"
 						style={{
 							backgroundColor: assistantBubble,
 							borderWidth: 1,
 							borderColor: assistantBorder,
 						}}
 					>
-						<View className="mb-3 flex-row items-center">
+						<View className="mb-stack-sm flex-row items-center">
 							<View
-								className="h-8 w-8 items-center justify-center rounded-full"
+								className="h-7 w-7 items-center justify-center rounded-full"
 								style={{ backgroundColor: assistantBadge }}
 							>
 								<Sparkles
-									size={15}
+									size={14}
 									color={themeColors.primary}
 									strokeWidth={2.2}
 								/>
 							</View>
 							<Text
-								variant="body"
+								variant="bodySm"
 								className="ml-2 font-google-sans-semibold"
 								style={{ color: surfaceText }}
 							>
@@ -207,11 +229,11 @@ export default function ChatMessageList({
 							</Text>
 						</View>
 
-						<Text variant="bodySm" style={{ color: mutedText }}>
+						<Text variant="caption" style={{ color: mutedText }}>
 							{t("messages.diagnosedCategory")}
 						</Text>
 						<Text
-							variant="body"
+							variant="bodySm"
 							className="mt-1 font-google-sans-bold"
 							style={{ color: surfaceText }}
 						>
@@ -219,14 +241,14 @@ export default function ChatMessageList({
 						</Text>
 
 						<Text
-							variant="bodySm"
-							className="mt-4"
+							variant="caption"
+							className="mt-3"
 							style={{ color: mutedText }}
 						>
 							{t("messages.summary")}
 						</Text>
 						<Text
-							variant="body"
+							variant="bodySm"
 							className="mt-1"
 							style={{ color: surfaceText }}
 						>
@@ -234,14 +256,14 @@ export default function ChatMessageList({
 						</Text>
 
 						<View
-							className="mt-4 rounded-2xl px-4 py-4"
+							className="mt-3 rounded-2xl px-stack-md py-stack-sm"
 							style={{ backgroundColor: cardBg }}
 						>
-							<Text variant="bodySm" style={{ color: mutedText }}>
+							<Text variant="caption" style={{ color: mutedText }}>
 								{t("messages.estimatedCost")}
 							</Text>
 							<Text
-								variant="body"
+								variant="bodySm"
 								className="mt-1 font-google-sans-semibold"
 								style={{ color: surfaceText }}
 							>
@@ -251,13 +273,13 @@ export default function ChatMessageList({
 						</View>
 
 						<Text
-							variant="bodySm"
-							className="mt-4"
+							variant="caption"
+							className="mt-3"
 							style={{ color: mutedText }}
 						>
 							{t("messages.recommendedTechs")}
 						</Text>
-						<View className="mt-2 gap-3">
+						<View className="mt-2 gap-2">
 							{cards.length === 0 ? (
 								<Text variant="bodySm" style={{ color: mutedText }}>
 									{t("messages.noRecommendations")}
@@ -285,7 +307,7 @@ export default function ChatMessageList({
 										}
 										activeOpacity={0.85}
 										disabled={isOpeningTechnician}
-										className="rounded-2xl px-4 py-4"
+										className="rounded-2xl px-stack-md py-stack-sm"
 										style={{
 											backgroundColor: isTopPick
 												? themeColors.primary
@@ -301,7 +323,7 @@ export default function ChatMessageList({
 															style={{ backgroundColor: themeColors.overlayMd }}
 														>
 															<Star
-																size={12}
+																size={11}
 																color={themeColors.onPrimaryHeader}
 																strokeWidth={2.4}
 																fill={themeColors.onPrimaryHeader}
@@ -316,7 +338,7 @@ export default function ChatMessageList({
 														</View>
 													) : null}
 													<Text
-														variant="body"
+														variant="bodySm"
 														className="font-google-sans-bold"
 														style={{
 															color: isTopPick
@@ -329,7 +351,7 @@ export default function ChatMessageList({
 												</View>
 
 												<Text
-													variant="bodySm"
+													variant="caption"
 													className="mt-2"
 													style={{
 														color: isTopPick
@@ -342,7 +364,7 @@ export default function ChatMessageList({
 
 												{rateLabel ? (
 													<Text
-														variant="bodySm"
+														variant="caption"
 														className="mt-1"
 														style={{
 															color: isTopPick
@@ -355,8 +377,8 @@ export default function ChatMessageList({
 												) : null}
 
 												<Text
-													variant="bodySm"
-													className="mt-2"
+													variant="caption"
+													className="mt-2 font-google-sans-semibold"
 													style={{
 														color: isTopPick
 															? themeColors.onPrimaryHeader
@@ -378,7 +400,7 @@ export default function ChatMessageList({
 												/>
 											) : (
 												<ArrowRight
-													size={20}
+													size={18}
 													color={
 														isTopPick
 															? themeColors.onPrimaryHeader
@@ -392,13 +414,14 @@ export default function ChatMessageList({
 								);
 							})}
 						</View>
-					</View>
+					</Animated.View>
 				);
 			})}
 
 			{isLoading ? (
-				<View
-					className="mt-4 max-w-[82%] self-start rounded-[24px] rounded-tl-md px-4 py-4"
+				<Animated.View
+					entering={FadeIn.duration(200)}
+					className="mt-stack-md max-w-[82%] self-start rounded-3xl rounded-tl-md px-stack-md py-stack-md"
 					style={{ backgroundColor: surface }}
 				>
 					<View className="flex-row items-center">
@@ -413,18 +436,19 @@ export default function ChatMessageList({
 								: t("messages.loadingRecommend")}
 						</Text>
 					</View>
-				</View>
+				</Animated.View>
 			) : null}
 
 			{error ? (
-				<View
-					className="mt-4 max-w-[88%] self-start rounded-[24px] rounded-tl-md px-4 py-4"
+				<Animated.View
+					entering={FadeIn.duration(200)}
+					className="mt-stack-md max-w-[88%] self-start rounded-3xl rounded-tl-md px-stack-md py-stack-md"
 					style={{ backgroundColor: themeColors.dangerLight }}
 				>
 					<Text variant="bodySm" style={{ color: themeColors.danger }}>
 						{error}
 					</Text>
-				</View>
+				</Animated.View>
 			) : null}
 		</ScrollView>
 	);

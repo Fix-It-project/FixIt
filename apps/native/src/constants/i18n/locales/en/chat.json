@@ -49,5 +49,9 @@
 		"emptyMessage": "Try a different description or expand your search area.",
 		"distance": "{{km}} km",
 		"rate": "From EGP {{rate}}/hr"
+	},
+	"modeHint": {
+		"recommendBody": "Describe your problem or send a photo and I'll suggest the best technicians near you.",
+		"agentBody": "Tell me what's wrong and I'll prepare a complete service order for you automatically."
 	}
 }

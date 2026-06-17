@@ -23,6 +23,6 @@ export function useInspectionFeePreview(
 		},
 		enabled,
 		retry: false,
-		meta: { showToast: false },
+		meta: { showToast: false, silent: true },
 	});
 }

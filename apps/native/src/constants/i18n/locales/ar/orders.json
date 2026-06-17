@@ -34,7 +34,8 @@
 			"cancelled_with_fee": "ملغى (مع رسوم)",
 			"rejected": "رفضه الفني",
 			"cancelled_by_user": "ألغيته أنت",
-			"reschedule_requested_by_user": "طلبت إعادة الجدولة"
+			"reschedule_requested_by_user": "طلبت إعادة الجدولة",
+			"reschedule_requested_by_technician": "طلب الفني إعادة الجدولة"
 		},
 		"technician": {
 			"pending": "طلب جديد — اقبل أو ارفض",
@@ -316,6 +317,23 @@
 			"activeJob": "مهمة نشطة",
 			"activeJobEta": "مهمة نشطة — تصل خلال {{n}} دقيقة تقريباً",
 			"etaShort": "~{{n}} د"
+		}
+	},
+	"activity": {
+		"title": "النشاط",
+		"tabs": {
+			"bookings": "الحجوزات",
+			"reschedules": "طلبات إعادة الجدولة"
+		},
+		"reschedules": {
+			"incomingSection": "بانتظار ردك",
+			"sentSection": "بانتظار الفني"
+		},
+		"empty": {
+			"reschedulesTitle": "لا توجد طلبات إعادة جدولة",
+			"reschedulesBody": "ستظهر هنا طلبات إعادة جدولة حجوزاتك.",
+			"bookingsTitle": "لا توجد حجوزات نشطة",
+			"bookingsBody": "ستظهر هنا طلبات الحجز والمهام النشطة."
 		}
 	}
 }

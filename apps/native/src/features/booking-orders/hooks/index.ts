@@ -22,3 +22,4 @@ export * from "./useTechnicianBookingsQuery";
 // Phase 4a Plan 06 — new lifecycle / state-machine hooks:
 export * from "./useUserActiveOrder";
 export * from "./useUserOrders";
+export * from "./useUserRescheduleRequests";
