@@ -1,8 +1,12 @@
-import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
@@ -36,6 +40,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
+	const technicianImage = order.technician_image?.trim() || null;
 	const status = getOrderStatusBadge(order.status, themeColors, "user", t);
 	const scheduledTime = formatTime(order.scheduled_start_at, i18n.language);
 	const serviceName = translateServiceName(
@@ -53,26 +58,26 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{/* Avatar */}
-				{order.technician_image ? (
-					<Image
-						source={{ uri: order.technician_image }}
-						className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
-						contentFit="cover"
-						style={{ backgroundColor: themeColors.surfaceElevated }}
-					/>
-				) : (
-					<View
-						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
-						style={{ backgroundColor: avatarColor }}
-					>
+				<Avatar
+					alt={order.technician_name ?? initials}
+					className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
+					style={{ backgroundColor: avatarColor }}
+				>
+					{technicianImage ? (
+						<AvatarImage
+							source={{ uri: technicianImage }}
+							className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
+						/>
+					) : null}
+					<AvatarFallback className="bg-transparent">
 						<Text
 							variant="buttonLg"
 							style={{ color: themeColors.surfaceOnPrimary }}
 						>
 							{initials}
 						</Text>
-					</View>
-				)}
+					</AvatarFallback>
+				</Avatar>
 
 				{/* Info */}
 				<View className="flex-1">

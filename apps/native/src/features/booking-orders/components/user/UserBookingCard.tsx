@@ -1,9 +1,13 @@
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ChevronRight, Clock } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
@@ -36,6 +40,7 @@ export default function UserBookingCard({ order }: { readonly order: Order }) {
 	const avatarColor = getAvatarColor(order.technician_name);
 	const status = getOrderStatusBadge(order.status, themeColors, "user", t);
 	const scheduledTime = formatTime(order.scheduled_start_at, i18n.language);
+	const technicianImage = order.technician_image?.trim() || null;
 	const serviceName = translateServiceName(
 		tc,
 		order.service_id,
@@ -56,18 +61,18 @@ export default function UserBookingCard({ order }: { readonly order: Order }) {
 			accessibilityLabel={order.technician_name ?? t("card.technicianFallback")}
 		>
 			<View className="flex-row items-center gap-stack-md">
-				{order.technician_image ? (
-					<Image
-						source={{ uri: order.technician_image }}
-						className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
-						contentFit="cover"
-						style={{ backgroundColor: themeColors.surfaceElevated }}
-					/>
-				) : (
-					<View
-						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
-						style={{ backgroundColor: avatarColor }}
-					>
+				<Avatar
+					alt={order.technician_name ?? initials}
+					className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
+					style={{ backgroundColor: avatarColor }}
+				>
+					{technicianImage ? (
+						<AvatarImage
+							source={{ uri: technicianImage }}
+							className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
+						/>
+					) : null}
+					<AvatarFallback className="bg-transparent">
 						<Text
 							variant="buttonLg"
 							className="font-bold"
@@ -75,8 +80,8 @@ export default function UserBookingCard({ order }: { readonly order: Order }) {
 						>
 							{initials}
 						</Text>
-					</View>
-				)}
+					</AvatarFallback>
+				</Avatar>
 
 				<View className="flex-1">
 					<Text
