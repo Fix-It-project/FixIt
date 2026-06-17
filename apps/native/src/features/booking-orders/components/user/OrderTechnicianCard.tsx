@@ -1,7 +1,11 @@
-import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
@@ -28,6 +32,7 @@ export default function OrderTechnicianCard({ order }: Props) {
 	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
+	const technicianImage = order.technician_image?.trim() || null;
 	const avatarSize = width < 360 ? 52 : 64;
 	const nameFontSize = width < 360 ? 16 : 18;
 	const serviceName = translateServiceName(
@@ -39,26 +44,26 @@ export default function OrderTechnicianCard({ order }: Props) {
 	return (
 		<View className="mb-stack-lg rounded-card bg-card p-card-roomy">
 			<View className="flex-row gap-stack-lg" style={{ alignItems: "center" }}>
-				{order.technician_image ? (
-					<Image
-						source={{ uri: order.technician_image }}
-						contentFit="cover"
-						style={{
-							width: avatarSize,
-							height: avatarSize,
-							borderRadius: avatarSize / 2,
-							backgroundColor: themeColors.surfaceElevated,
-						}}
-					/>
-				) : (
-					<View
-						className="items-center justify-center rounded-pill"
-						style={{
-							width: avatarSize,
-							height: avatarSize,
-							backgroundColor: avatarColor,
-						}}
-					>
+				<Avatar
+					alt={order.technician_name ?? initials}
+					className="items-center justify-center rounded-pill"
+					style={{
+						width: avatarSize,
+						height: avatarSize,
+						backgroundColor: avatarColor,
+					}}
+				>
+					{technicianImage ? (
+						<AvatarImage
+							source={{ uri: technicianImage }}
+							style={{
+								width: avatarSize,
+								height: avatarSize,
+								borderRadius: avatarSize / 2,
+							}}
+						/>
+					) : null}
+					<AvatarFallback className="bg-transparent">
 						<Text
 							variant="body"
 							className="font-bold"
@@ -69,8 +74,8 @@ export default function OrderTechnicianCard({ order }: Props) {
 						>
 							{initials}
 						</Text>
-					</View>
-				)}
+					</AvatarFallback>
+				</Avatar>
 				<View className="min-w-0 flex-1">
 					<Text
 						variant="body"

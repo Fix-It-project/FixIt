@@ -1,8 +1,15 @@
-import { ArrowRight, Bot, Sparkles, Star } from "lucide-react-native";
+import { ArrowRight, Sparkles, Star } from "lucide-react-native";
+import { type ElementRef, useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Image, TouchableOpacity, View } from "react-native";
+import {
+	ActivityIndicator,
+	Image,
+	type LayoutChangeEvent,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import { KeyboardChatScrollView } from "react-native-keyboard-controller";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, useSharedValue } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
@@ -49,7 +56,6 @@ export default function ChatMessageList({
 	const userBubble = themeColors.roleTech;
 	const userBubbleText = themeColors.onPrimaryHeader;
 	const assistantBadge = themeColors.primaryLight;
-	const agentBadge = themeColors.textMuted;
 	const orderCard = themeColors.orderBg;
 
 	const isEmpty = chatEntries.length === 0 && !isLoading && !error;
@@ -57,16 +63,78 @@ export default function ChatMessageList({
 		mode === "recommend"
 			? t("composer.modeRecommend")
 			: t("composer.modeAgent");
+	const scrollRef = useRef<ElementRef<typeof KeyboardChatScrollView> | null>(
+		null,
+	);
+	const blankSpace = useSharedValue(0);
+	const [viewportHeight, setViewportHeight] = useState(0);
+	const anchoredUserEntryId = useRef<string | null>(null);
+	const contentHeightRef = useRef(0);
+	const latestUserTopRef = useRef(0);
+	const latestUserEntryId = chatEntries.findLast(
+		(entry) => entry.type === "user",
+	)?.id;
+
+	const scrollToTurnEnd = useCallback((animated = true) => {
+		requestAnimationFrame(() => {
+			scrollRef.current?.scrollToEnd({ animated });
+		});
+	}, []);
+
+	const handleLayout = useCallback((event: LayoutChangeEvent) => {
+		const nextHeight = event.nativeEvent.layout.height;
+		setViewportHeight((currentHeight) =>
+			Math.abs(currentHeight - nextHeight) > 0.5 ? nextHeight : currentHeight,
+		);
+	}, []);
+
+	const syncLatestTurnEnd = useCallback(
+		(userEntryId: string, animated: boolean) => {
+			if (!viewportHeight) return;
+
+			const latestTurnHeight =
+				contentHeightRef.current - latestUserTopRef.current;
+			blankSpace.value = Math.max(0, viewportHeight - latestTurnHeight);
+			anchoredUserEntryId.current = userEntryId;
+			scrollToTurnEnd(animated);
+		},
+		[blankSpace, scrollToTurnEnd, viewportHeight],
+	);
+
+	const handleLatestUserLayout = useCallback(
+		(event: LayoutChangeEvent, entryId: string) => {
+			latestUserTopRef.current = event.nativeEvent.layout.y;
+			syncLatestTurnEnd(entryId, true);
+		},
+		[syncLatestTurnEnd],
+	);
+
+	const handleContentSizeChange = useCallback(
+		(_width: number, height: number) => {
+			contentHeightRef.current = height;
+			if (latestUserEntryId) {
+				syncLatestTurnEnd(
+					latestUserEntryId,
+					latestUserEntryId !== anchoredUserEntryId.current,
+				);
+			}
+		},
+		[latestUserEntryId, syncLatestTurnEnd],
+	);
 
 	return (
 		<View className="flex-1">
 			<KeyboardChatScrollView
+				ref={scrollRef}
 				className="flex-1"
+				blankSpace={blankSpace}
 				contentContainerClassName="px-4 py-4"
-				keyboardLiftBehavior="never"
+				keyboardLiftBehavior="whenAtEnd"
 				showsVerticalScrollIndicator={false}
 				keyboardDismissMode="interactive"
 				keyboardShouldPersistTaps="handled"
+				onContentSizeChange={handleContentSizeChange}
+				onLayout={handleLayout}
 			>
 				{chatEntries.map((entry) => {
 					if (entry.type === "user") {
@@ -78,6 +146,11 @@ export default function ChatMessageList({
 								entering={BUBBLE_IN}
 								className="mt-stack-md max-w-[88%] self-end rounded-3xl rounded-tr-md px-stack-md py-stack-md"
 								style={{ backgroundColor: userBubble }}
+								onLayout={
+									entry.id === latestUserEntryId
+										? (event) => handleLatestUserLayout(event, entry.id)
+										: undefined
+								}
 							>
 								{entry.text ? (
 									<Text variant="bodySm" style={{ color: userBubbleText }}>
@@ -118,32 +191,7 @@ export default function ChatMessageList({
 								}}
 							>
 								<View className="mb-stack-sm flex-row items-center">
-									<View
-										className="h-6 w-6 items-center justify-center rounded-full"
-										style={{
-											backgroundColor:
-												entry.flow === "agent" ? agentBadge : assistantBadge,
-										}}
-									>
-										{entry.flow === "agent" ? (
-											<Bot
-												size={13}
-												color={themeColors.onPrimaryHeader}
-												strokeWidth={2.2}
-											/>
-										) : (
-											<Sparkles
-												size={13}
-												color={themeColors.primary}
-												strokeWidth={2.2}
-											/>
-										)}
-									</View>
-									<Text
-										variant="caption"
-										className="ml-2"
-										style={{ color: mutedText }}
-									>
+									<Text variant="caption" style={{ color: mutedText }}>
 										{entry.flow === "agent"
 											? t("messages.agent")
 											: t("messages.assistant")}
