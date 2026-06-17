@@ -28,11 +28,12 @@ const makeStorageRepo = () =>
 	}) as any;
 
 const makeStatsRepo = () =>
-	({
-		getPaidPaymentsSince: vi.fn(),
-		getOrdersSince: vi.fn(),
-		getAcceptDeclineEvents: vi.fn(),
-		getRatingStats: vi.fn(),
+		({
+			getPaidPaymentsSince: vi.fn(),
+			getWalletEntries: vi.fn().mockResolvedValue([]),
+			getOrdersSince: vi.fn(),
+			getAcceptDeclineEvents: vi.fn(),
+			getRatingStats: vi.fn(),
 		getWeeklyRatingStats: vi
 			.fn()
 			.mockResolvedValue({ rating: null, review_count: 0 }),
@@ -244,6 +245,69 @@ describe("TechniciansService.getStats", () => {
 			technicianId,
 			"2026-01-10T22:00:00.000Z",
 		);
+	});
+
+	it("builds wallet totals from technician net snapshots", async () => {
+		statsRepo.getWalletEntries.mockResolvedValue([
+			{
+				order_id: "o1",
+				payment_method: "card",
+				gross_amount: 1000,
+				platform_fee_percent: 5,
+				platform_fee_amount: 50,
+				technician_net_amount: 950,
+				status: "paid",
+				paid_at: "2026-01-15T10:00:00.000Z",
+				created_at: "2026-01-15T09:00:00.000Z",
+			},
+			{
+				order_id: "o2",
+				payment_method: "card",
+				gross_amount: 800,
+				platform_fee_percent: 5,
+				platform_fee_amount: 40,
+				technician_net_amount: 760,
+				status: "paid",
+				paid_at: "2026-01-14T10:00:00.000Z",
+				created_at: "2026-01-14T09:00:00.000Z",
+			},
+		]);
+
+		const wallet = await service.getWallet(technicianId);
+
+		expect(wallet.summary.pendingBalance).toBe(1710);
+		expect(wallet.summary.lifetimeNet).toBe(1710);
+		expect(wallet.summary.lifetimeGross).toBe(1800);
+		expect(wallet.summary.lifetimePlatformFees).toBe(90);
+		expect(wallet.entries[0]?.payoutStatus).toBe("pending_settlement");
+	});
+
+	it("keeps off-site cash wallet rows paid out with no platform fee", async () => {
+		statsRepo.getWalletEntries.mockResolvedValue([
+			{
+				order_id: "cash-1",
+				payment_method: "cash",
+				gross_amount: 600,
+				platform_fee_percent: 0,
+				platform_fee_amount: 0,
+				technician_net_amount: 600,
+				status: "paid",
+				paid_at: "2026-01-15T10:00:00.000Z",
+				created_at: "2026-01-15T09:00:00.000Z",
+			},
+		]);
+
+		const wallet = await service.getWallet(technicianId);
+
+		expect(wallet.summary.pendingBalance).toBe(0);
+		expect(wallet.summary.paidOutBalance).toBe(600);
+		expect(wallet.summary.lifetimeNet).toBe(600);
+		expect(wallet.summary.lifetimeGross).toBe(600);
+		expect(wallet.summary.lifetimePlatformFees).toBe(0);
+		expect(wallet.entries[0]).toMatchObject({
+			paymentMethod: "cash",
+			payoutStatus: "paid_out",
+		});
 	});
 });
 

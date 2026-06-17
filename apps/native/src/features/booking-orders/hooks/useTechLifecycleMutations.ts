@@ -6,7 +6,6 @@ import {
 	techAcceptUserQuote,
 	techApproveReschedule,
 	techCancel,
-	techConfirmCashReceived,
 	techConfirmCompletion,
 	techDecline,
 	techDeclineCompletion,
@@ -158,7 +157,9 @@ export function useTechConfirmCompletion() {
 		TechSimpleArgs,
 		Awaited<ReturnType<typeof techConfirmCompletion>>
 	>(({ orderId }) => techConfirmCompletion(orderId), {
-		optimisticTo: "awaiting_payment",
+		// Method-dependent target (cash → completed, card → awaiting_payment) isn't
+		// known from orderId alone, so let the server response drive the status.
+		optimisticTo: null,
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
 			invalidateTechBookings(qc);
@@ -172,19 +173,6 @@ export function useTechDeclineCompletion() {
 		Awaited<ReturnType<typeof techDeclineCompletion>>
 	>(({ orderId }) => techDeclineCompletion(orderId), {
 		optimisticTo: null,
-		extractOrderId: (a) => a.orderId,
-		invalidate: (qc) => {
-			invalidateTechBookings(qc);
-		},
-	});
-}
-
-export function useTechMarkCashReceived() {
-	return useLifecycleMutation<
-		TechSimpleArgs,
-		Awaited<ReturnType<typeof techConfirmCashReceived>>
-	>(({ orderId }) => techConfirmCashReceived(orderId), {
-		optimisticTo: "completed",
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
 			invalidateTechBookings(qc);

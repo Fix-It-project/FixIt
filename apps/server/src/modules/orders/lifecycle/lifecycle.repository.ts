@@ -16,10 +16,10 @@ export type OrderActionKind =
 export type PaymentMethod = "cash" | "card";
 export type PaymentStatus =
 	| "created"
-	| "pending"
+	| "processing"
 	| "paid"
 	| "failed"
-	| "refunded";
+	| "cancelled";
 export type QuoteStatus = "pending" | "accepted" | "rejected" | "superseded";
 export type FeeObligationStatus = "unpaid" | "paid" | "waived";
 
@@ -55,7 +55,16 @@ export interface Payment {
 	method: PaymentMethod;
 	status: PaymentStatus;
 	provider: string | null;
+	provider_order_id: string | null;
+	provider_payment_id: string | null;
 	provider_transaction_id: string | null;
+	gross_amount: number | null;
+	platform_fee_percent: number | null;
+	platform_fee_amount: number | null;
+	technician_net_amount: number | null;
+	currency: string | null;
+	provider_response: Record<string, unknown> | null;
+	paid_at: string | null;
 	created_at: string;
 }
 
@@ -76,6 +85,7 @@ export interface SubmitOrderParams {
 	technicianId: string;
 	serviceId: string;
 	destinationAddressId: string;
+	paymentMethod: "cash" | "card";
 	inspectionFee: number;
 	inspectionDistanceKm: number;
 	problemDescription?: string | null;
@@ -132,6 +142,11 @@ export interface MarkCashReceivedParams {
 	technicianId: string;
 }
 
+export interface SwitchToCashParams {
+	orderId: string;
+	userId: string;
+}
+
 export interface CancelOrderParams {
 	orderId: string;
 	actorId: string;
@@ -142,6 +157,35 @@ export interface CancelOrderParams {
 export interface ResolveFeeObligationParams {
 	obligationId: string;
 	status: "paid" | "waived";
+}
+
+export interface SyncCardPaymentSnapshotParams {
+	orderId: string;
+	userId: string;
+	provider: string;
+	grossAmount: number;
+	platformFeePercent: number;
+	platformFeeAmount: number;
+	technicianNetAmount: number;
+	currency: string;
+}
+
+export interface UpdateCardPaymentStatusParams {
+	paymentId: string;
+	status: Extract<PaymentStatus, "processing" | "paid" | "failed" | "cancelled">;
+	providerOrderId?: string | null;
+	providerPaymentId?: string | null;
+	providerTransactionId?: string | null;
+	providerResponse?: Record<string, unknown> | null;
+	paidAt?: string | null;
+}
+
+export interface PaymentProviderEventInsert {
+	provider: string;
+	eventId: string | null;
+	payloadHash: string;
+	payload: Record<string, unknown>;
+	result: string;
 }
 
 // ─── Error mapping ───────────────────────────────────────────────────────────
@@ -224,6 +268,15 @@ function shouldRetryLegacySubmitOrder(error: {
 		message.includes("rpc_submit_order") &&
 		(message.includes("p_inspection_fee") ||
 			message.includes("p_inspection_distance_km"))
+	);
+}
+
+function isRpcShapeError(error: { code?: string; message?: string }): boolean {
+	const message = error.message ?? "";
+	return (
+		(typeof error.code === "string" && error.code.startsWith("PGRST")) ||
+		message.includes("Could not find the function") ||
+		message.includes("rpc_switch_to_cash")
 	);
 }
 
@@ -334,6 +387,7 @@ export class LifecycleRepository {
 			p_technician_id: p.technicianId,
 			p_service_id: p.serviceId,
 			p_destination_address_id: p.destinationAddressId,
+			p_payment_method: p.paymentMethod,
 			p_inspection_fee: p.inspectionFee,
 			p_inspection_distance_km: p.inspectionDistanceKm,
 			p_problem_description: p.problemDescription ?? null,
@@ -353,6 +407,7 @@ export class LifecycleRepository {
 				p_technician_id: p.technicianId,
 				p_service_id: p.serviceId,
 				p_destination_address_id: p.destinationAddressId,
+				p_payment_method: p.paymentMethod,
 				p_problem_description: p.problemDescription ?? null,
 				p_attachment: p.attachment ?? null,
 				p_scheduled_date: p.scheduledDate,
@@ -451,6 +506,7 @@ export class LifecycleRepository {
 		return data as Order;
 	}
 
+	/** @deprecated Payment method is chosen upfront at booking; kept for back-compat. */
 	async choosePaymentMethod(p: ChoosePaymentMethodParams): Promise<Order> {
 		const { data, error } = await supabase.rpc("rpc_choose_payment_method", {
 			p_order_id: p.orderId,
@@ -464,6 +520,7 @@ export class LifecycleRepository {
 		return data as Order;
 	}
 
+	/** @deprecated Cash auto-completes via the dual-confirm trigger now. */
 	async markCashReceived(p: MarkCashReceivedParams): Promise<Order> {
 		const { data, error } = await supabase.rpc("rpc_mark_cash_received", {
 			p_order_id: p.orderId,
@@ -474,6 +531,303 @@ export class LifecycleRepository {
 				error as { code?: string; message?: string; hint?: string },
 			);
 		return data as Order;
+	}
+
+	/** "Pay cash instead": completes a stuck awaiting_payment (card) order off-site. */
+	async switchToCash(p: SwitchToCashParams): Promise<Order> {
+		const { data, error } = await supabase.rpc("rpc_switch_to_cash", {
+			p_order_id: p.orderId,
+			p_user_id: p.userId,
+		});
+		if (!error) return data as Order;
+		if (isRpcShapeError(error)) return this.switchToCashFallback(p);
+		try {
+			mapLifecycleRpcError(
+				error as { code?: string; message?: string; hint?: string },
+			);
+		} catch (mapped) {
+			if (mapped instanceof AppError) throw mapped;
+			return this.switchToCashFallback(p);
+		}
+		return this.switchToCashFallback(p);
+	}
+
+	private async switchToCashFallback(p: SwitchToCashParams): Promise<Order> {
+		const { data: order, error: readError } = await supabase
+			.from("orders")
+			.select("*")
+			.eq("id", p.orderId)
+			.eq("user_id", p.userId)
+			.maybeSingle();
+		if (readError) throw readError;
+		if (!order) {
+			throw AppError.notFound(humanMessageFor("order_not_found"), {
+				token: "order_not_found",
+			});
+		}
+		if (order.status !== "awaiting_payment") {
+			throw AppError.conflict(humanMessageFor("invalid_transition"), {
+				token: "invalid_transition",
+			});
+		}
+
+		const amount = Number(order.final_price ?? 0);
+		if (amount <= 0) {
+			throw AppError.conflict(humanMessageFor("missing_final_price"), {
+				token: "missing_final_price",
+			});
+		}
+
+		const { error: cancelError } = await supabase
+			.from("payments")
+			.update({ status: "cancelled" })
+			.eq("order_id", p.orderId)
+			.eq("payment_method", "card")
+			.in("status", ["created", "processing"]);
+		if (cancelError) throw cancelError;
+
+		const { data: paidPayment, error: paidReadError } = await supabase
+			.from("payments")
+			.select("id")
+			.eq("order_id", p.orderId)
+			.eq("status", "paid")
+			.limit(1)
+			.maybeSingle();
+		if (paidReadError) throw paidReadError;
+
+		if (!paidPayment) {
+			const { error: paymentError } = await supabase.from("payments").insert({
+				order_id: p.orderId,
+				user_id: p.userId,
+				amount,
+				payment_method: "cash",
+				status: "paid",
+				provider: null,
+				gross_amount: amount,
+				platform_fee_percent: 0,
+				platform_fee_amount: 0,
+				technician_net_amount: amount,
+				currency: "EGP",
+				paid_at: new Date().toISOString(),
+			});
+			if (paymentError) throw paymentError;
+		}
+
+		const { data: completed, error: updateError } = await supabase
+			.from("orders")
+			.update({ status: "completed", active: false, payment_method: "cash" })
+			.eq("id", p.orderId)
+			.eq("user_id", p.userId)
+			.eq("status", "awaiting_payment")
+			.select()
+			.single();
+		if (updateError) throw updateError;
+		return completed as Order;
+	}
+
+	async getLatestPaymentForOrder(orderId: string): Promise<Payment | null> {
+		const { data, error } = await supabase
+			.from("payments")
+			.select(
+				"id, order_id, user_id, amount, payment_method, status, provider, provider_order_id, provider_payment_id, provider_transaction_id, gross_amount, platform_fee_percent, platform_fee_amount, technician_net_amount, currency, provider_response, paid_at, created_at",
+			)
+			.eq("order_id", orderId)
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+		if (error) throw error;
+		if (!data) return null;
+		return {
+			id: data.id,
+			order_id: data.order_id,
+			user_id: data.user_id,
+			amount: Number(data.amount),
+			method: data.payment_method as PaymentMethod,
+			status: data.status as PaymentStatus,
+			provider: data.provider,
+			provider_order_id: data.provider_order_id ?? null,
+			provider_payment_id: data.provider_payment_id ?? null,
+			provider_transaction_id: data.provider_transaction_id ?? null,
+			gross_amount:
+				data.gross_amount == null ? null : Number(data.gross_amount),
+			platform_fee_percent:
+				data.platform_fee_percent == null
+					? null
+					: Number(data.platform_fee_percent),
+			platform_fee_amount:
+				data.platform_fee_amount == null
+					? null
+					: Number(data.platform_fee_amount),
+			technician_net_amount:
+				data.technician_net_amount == null
+					? null
+					: Number(data.technician_net_amount),
+			currency: data.currency ?? null,
+			provider_response:
+				(data.provider_response as Record<string, unknown> | null) ?? null,
+			paid_at: data.paid_at ?? null,
+			created_at: data.created_at,
+		};
+	}
+
+	async syncCardPaymentSnapshot(
+		p: SyncCardPaymentSnapshotParams,
+	): Promise<Payment> {
+		const payment = await this.getLatestPaymentForOrder(p.orderId);
+		const write = payment
+			? supabase
+					.from("payments")
+					.update({
+						status: "processing",
+						provider: p.provider,
+						gross_amount: p.grossAmount,
+						platform_fee_percent: p.platformFeePercent,
+						platform_fee_amount: p.platformFeeAmount,
+						technician_net_amount: p.technicianNetAmount,
+						currency: p.currency,
+					})
+					.eq("id", payment.id)
+			: supabase.from("payments").insert({
+					order_id: p.orderId,
+					user_id: p.userId,
+					amount: p.grossAmount,
+					payment_method: "card",
+					status: "processing",
+					provider: p.provider,
+					gross_amount: p.grossAmount,
+					platform_fee_percent: p.platformFeePercent,
+					platform_fee_amount: p.platformFeeAmount,
+					technician_net_amount: p.technicianNetAmount,
+					currency: p.currency,
+				});
+		const { data, error } = await write
+			.select(
+				"id, order_id, user_id, amount, payment_method, status, provider, provider_order_id, provider_payment_id, provider_transaction_id, gross_amount, platform_fee_percent, platform_fee_amount, technician_net_amount, currency, provider_response, paid_at, created_at",
+			)
+			.single();
+		if (error) throw error;
+		return {
+			id: data.id,
+			order_id: data.order_id,
+			user_id: data.user_id,
+			amount: Number(data.amount),
+			method: data.payment_method as PaymentMethod,
+			status: data.status as PaymentStatus,
+			provider: data.provider,
+			provider_order_id: data.provider_order_id ?? null,
+			provider_payment_id: data.provider_payment_id ?? null,
+			provider_transaction_id: data.provider_transaction_id ?? null,
+			gross_amount:
+				data.gross_amount == null ? null : Number(data.gross_amount),
+			platform_fee_percent:
+				data.platform_fee_percent == null
+					? null
+					: Number(data.platform_fee_percent),
+			platform_fee_amount:
+				data.platform_fee_amount == null
+					? null
+					: Number(data.platform_fee_amount),
+			technician_net_amount:
+				data.technician_net_amount == null
+					? null
+					: Number(data.technician_net_amount),
+			currency: data.currency ?? null,
+			provider_response:
+				(data.provider_response as Record<string, unknown> | null) ?? null,
+			paid_at: data.paid_at ?? null,
+			created_at: data.created_at,
+		};
+	}
+
+	async updateCardPaymentStatus(p: UpdateCardPaymentStatusParams): Promise<Payment> {
+		const { data, error } = await supabase
+			.from("payments")
+			.update({
+				status: p.status,
+				provider_order_id: p.providerOrderId ?? null,
+				provider_payment_id: p.providerPaymentId ?? null,
+				provider_transaction_id: p.providerTransactionId ?? null,
+				provider_response: p.providerResponse ?? null,
+				paid_at: p.paidAt ?? null,
+			})
+			.eq("id", p.paymentId)
+			.select(
+				"id, order_id, user_id, amount, payment_method, status, provider, provider_order_id, provider_payment_id, provider_transaction_id, gross_amount, platform_fee_percent, platform_fee_amount, technician_net_amount, currency, provider_response, paid_at, created_at",
+			)
+			.single();
+		if (error) throw error;
+		return {
+			id: data.id,
+			order_id: data.order_id,
+			user_id: data.user_id,
+			amount: Number(data.amount),
+			method: data.payment_method as PaymentMethod,
+			status: data.status as PaymentStatus,
+			provider: data.provider,
+			provider_order_id: data.provider_order_id ?? null,
+			provider_payment_id: data.provider_payment_id ?? null,
+			provider_transaction_id: data.provider_transaction_id ?? null,
+			gross_amount:
+				data.gross_amount == null ? null : Number(data.gross_amount),
+			platform_fee_percent:
+				data.platform_fee_percent == null
+					? null
+					: Number(data.platform_fee_percent),
+			platform_fee_amount:
+				data.platform_fee_amount == null
+					? null
+					: Number(data.platform_fee_amount),
+			technician_net_amount:
+				data.technician_net_amount == null
+					? null
+					: Number(data.technician_net_amount),
+			currency: data.currency ?? null,
+			provider_response:
+				(data.provider_response as Record<string, unknown> | null) ?? null,
+			paid_at: data.paid_at ?? null,
+			created_at: data.created_at,
+		};
+	}
+
+	async markOrderCompletedAfterCardPayment(orderId: string): Promise<Order> {
+		const { data, error } = await supabase
+			.from("orders")
+			.update({ status: "completed", active: false })
+			.eq("id", orderId)
+			.eq("status", "awaiting_payment")
+			.select()
+			.single();
+		if (error) throw error;
+		return data as Order;
+	}
+
+	async insertPaymentProviderEvent(
+		event: PaymentProviderEventInsert,
+	): Promise<void> {
+		const { error } = await supabase.from("payment_provider_events").insert({
+			provider: event.provider,
+			external_event_id: event.eventId,
+			payload_hash: event.payloadHash,
+			payload: event.payload,
+			received_at: new Date().toISOString(),
+			result: event.result,
+		});
+		if (error) throw error;
+	}
+
+	async getProcessedProviderEventByHash(
+		provider: string,
+		payloadHash: string,
+	): Promise<boolean> {
+		const { data, error } = await supabase
+			.from("payment_provider_events")
+			.select("id")
+			.eq("provider", provider)
+			.eq("payload_hash", payloadHash)
+			.limit(1)
+			.maybeSingle();
+		if (error) throw error;
+		return Boolean(data);
 	}
 
 	async cancelOrder(p: CancelOrderParams): Promise<Order> {

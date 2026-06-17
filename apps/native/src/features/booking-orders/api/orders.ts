@@ -12,6 +12,7 @@ import type {
 } from "../schemas";
 import {
 	inspectionFeePreviewResponseSchema,
+	cardSessionSchema,
 	orderDistanceResponseSchema,
 	orderQuoteResponseSchema,
 	orderQuotesResponseSchema,
@@ -57,6 +58,7 @@ export async function createOrder(
 		form.append("service_id", payload.service_id);
 		form.append("scheduled_date", payload.scheduled_date);
 		form.append("scheduled_start_at", payload.scheduled_start_at);
+		form.append("payment_method", payload.payment_method);
 		if (payload.destination_address_id) {
 			form.append("destination_address_id", payload.destination_address_id);
 		}
@@ -231,18 +233,28 @@ export async function userGetReschedule(
 }
 
 /**
- * POST /user/orders/:id/checkout — choose payment method.
- * Phase 2 is cash-only; server enforces z.literal('cash').
+ * POST /user/orders/:id/switch-to-cash — "pay cash instead" escape for a stuck
+ * awaiting_payment (card) order; completes it off-site. Payment method is chosen
+ * upfront at booking, so there is no general-purpose checkout selector anymore.
  */
-export async function userCheckout(
-	orderId: string,
-	method: "cash" | "card" = "cash",
-): Promise<OrderResponse> {
+export async function switchToCash(orderId: string): Promise<OrderResponse> {
 	const response = await apiClient.post(
-		`/api/orders/user/orders/${orderId}/checkout`,
-		{ method },
+		`/api/orders/user/orders/${orderId}/switch-to-cash`,
+		{},
 	);
-	return safeParseResponse(orderResponseSchema, response.data, "userCheckout");
+	return safeParseResponse(orderResponseSchema, response.data, "switchToCash");
+}
+
+export async function createCardSession(orderId: string) {
+	const response = await apiClient.post(
+		`/api/orders/user/orders/${orderId}/card-session`,
+		{},
+	);
+	return safeParseResponse(
+		cardSessionSchema,
+		response.data,
+		"createCardSession",
+	);
 }
 
 /**

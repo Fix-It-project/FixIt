@@ -24,6 +24,7 @@ import {
 	translateServiceName,
 } from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { PaymentMethodBadge } from "../../PaymentMethodBadge";
 import OrderIdentityRow from "./OrderIdentityRow";
 
 interface OrderInfoCompactProps {
@@ -191,6 +192,18 @@ export default function OrderInfoCompact({
 					</Text>
 				</View>
 			</View>
+
+			{order.payment_method ? (
+				<View style={{ gap: space[1] }}>
+					<Text variant="caption" style={{ color: themeColors.textMuted }}>
+						{t("payment_methods.label")}
+					</Text>
+					<PaymentMethodBadge
+						method={order.payment_method}
+						className="self-start"
+					/>
+				</View>
+			) : null}
 
 			{phone ? (
 				<PressableScale

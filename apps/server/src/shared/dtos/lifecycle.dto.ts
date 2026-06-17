@@ -4,10 +4,8 @@ import { z } from "zod";
  * Lifecycle DTOs — Zod schemas for every route mounted by Plan 03.
  * One schema per route body/params; mirrors `reschedule.dto.ts` style.
  *
- * NOTE: Phase 2 is **cash only**. ChoosePaymentMethodBodySchema uses
- * z.literal('cash') so the Express layer rejects `method='card'` before
- * it reaches the RPC. Phase 6 will widen this to z.enum(['cash','card'])
- * once Paymob iframe + HMAC webhook are wired.
+ * NOTE: Card support is enabled for the Paymob sandbox flow, so the payment
+ * method schema now accepts both `cash` and `card`.
  */
 
 // ─── Order submission ────────────────────────────────────────────────────────
@@ -29,6 +27,7 @@ export const SubmitOrderBodySchema = z.object({
 			"scheduled_date must be in YYYY-MM-DD format",
 		),
 	scheduled_start_at: z.iso.datetime({ offset: true }),
+	payment_method: z.enum(["cash", "card"]),
 	problem_description: z.string().max(1000).optional(),
 	destination_address_id: z
 		.string()
@@ -94,15 +93,9 @@ export const QuoteIdParamsSchema = z.object({
 
 // ─── Payment / completion ────────────────────────────────────────────────────
 
-/**
- * POST /user/orders/:id/checkout — choose payment method.
- *
- * Phase 2 cash-only; Phase 6 will widen to z.enum(['cash','card']).
- * Submitting `{ method: 'card' }` MUST fail at this layer so the surface
- * area stays honest until Paymob is wired.
- */
+/** @deprecated Payment method is chosen upfront by POST /user/orders. */
 export const ChoosePaymentMethodBodySchema = z.object({
-	method: z.literal("cash"),
+	method: z.enum(["cash", "card"]),
 });
 
 /**

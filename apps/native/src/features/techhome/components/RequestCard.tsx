@@ -6,6 +6,7 @@ import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
+import { PaymentMethodBadge } from "@/src/features/booking-orders/components/PaymentMethodBadge";
 import { formatRelativeTime } from "@/src/lib/date/relative-time";
 import { EXPIRY_TICK_MS } from "../constants";
 import type { TechHomeOrder } from "../schemas/orders.schema";
@@ -76,13 +77,16 @@ export function RequestCard({
 
 				{/* request body */}
 				<View className="pt-stack-sm">
-					<Text
-						variant="body"
-						className="font-bold text-content"
-						numberOfLines={1}
-					>
-						{order.service_name ?? t("home.common.newRequest")}
-					</Text>
+					<View className="flex-row items-start justify-between gap-stack-sm">
+						<Text
+							variant="body"
+							className="flex-1 font-bold text-content"
+							numberOfLines={1}
+						>
+							{order.service_name ?? t("home.common.newRequest")}
+						</Text>
+						<PaymentMethodBadge method={order.payment_method} />
+					</View>
 					<Text
 						variant="caption"
 						className="mt-0.5 text-content-muted"
