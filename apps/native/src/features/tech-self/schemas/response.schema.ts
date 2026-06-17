@@ -43,10 +43,6 @@ export const technicianWalletSchema = z.object({
 	last30: z.array(earningsPointSchema),
 });
 
-export const technicianWalletResponseSchema = z.object({
-	wallet: technicianWalletSchema,
-});
-
 export const technicianReviewSummarySchema = z.object({
 	avg_rating: z.number().nullable(),
 	review_count: z.number(),

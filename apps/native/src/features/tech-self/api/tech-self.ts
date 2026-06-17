@@ -8,7 +8,7 @@ import {
 	type TechnicianWallet,
 	technicianReviewSummaryResponseSchema,
 	technicianSelfResponseSchema,
-	technicianWalletResponseSchema,
+	technicianWalletSchema,
 } from "../schemas/response.schema";
 import type { UpdateTechnicianSelfRequest } from "../types/tech-self";
 
@@ -23,11 +23,7 @@ export async function getTechnicianSelf(): Promise<TechnicianSelfProfile> {
 
 export async function getTechnicianWallet(): Promise<TechnicianWallet> {
 	const { data } = await apiClient.get("/api/technicians/me/wallet");
-	return safeParseResponse(
-		technicianWalletResponseSchema,
-		data,
-		"getTechnicianWallet",
-	).wallet;
+	return safeParseResponse(technicianWalletSchema, data, "getTechnicianWallet");
 }
 
 export async function getTechnicianSelfReviewSummary(): Promise<TechnicianReviewSummary> {
