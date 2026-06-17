@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/design-tokens";
@@ -32,6 +33,7 @@ export default function CategoriesScreen() {
 
 	return (
 		<ScreenSafeAreaView edges={["top"]} className="flex-1 bg-surface">
+			<ScreenStatusBar variant="surface" />
 			<View className="flex-row items-center gap-stack-sm px-screen-x pt-card pb-stack-md">
 				<PressableScale
 					onPress={() => router.back()}

@@ -55,6 +55,11 @@ export function getBaseTabScreenOptions(
 
 	return {
 		headerShown: false,
+		// Perf: defer mounting a tab until it's first focused (`lazy`) and freeze
+		// inactive tabs so background screens don't re-render / refetch during a
+		// tab switch — this is what kills the multi-second freeze on navigation.
+		lazy: true,
+		freezeOnBlur: true,
 		tabBarActiveTintColor: themeColors.primary,
 		tabBarInactiveTintColor: themeColors.textPrimary,
 		tabBarShowLabel: showLabels,

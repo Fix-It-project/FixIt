@@ -79,27 +79,13 @@ export default function UserBookingCard({ order }: { readonly order: Order }) {
 				)}
 
 				<View className="flex-1">
-					<View className="flex-row items-center gap-stack-xs">
-						<Text
-							variant="label"
-							className="flex-1 font-bold text-content"
-							numberOfLines={1}
-						>
-							{order.technician_name ?? t("card.technicianFallback")}
-						</Text>
-						<View
-							className="rounded-pill px-stack-sm py-0.5"
-							style={{ backgroundColor: status.bg }}
-						>
-							<Text
-								variant="caption"
-								className="font-semibold"
-								style={{ color: status.color }}
-							>
-								{status.label}
-							</Text>
-						</View>
-					</View>
+					<Text
+						variant="label"
+						className="font-bold text-content"
+						numberOfLines={1}
+					>
+						{order.technician_name ?? t("card.technicianFallback")}
+					</Text>
 
 					<Text
 						variant="caption"
@@ -108,6 +94,19 @@ export default function UserBookingCard({ order }: { readonly order: Order }) {
 					>
 						{serviceName || t("card.serviceFallback")}
 					</Text>
+
+					<View
+						className="mt-stack-xs self-start rounded-pill px-stack-sm py-0.5"
+						style={{ backgroundColor: status.bg }}
+					>
+						<Text
+							variant="caption"
+							className="font-semibold"
+							style={{ color: status.color }}
+						>
+							{status.label}
+						</Text>
+					</View>
 
 					{timeLabel ? (
 						<View className="mt-stack-xs flex-row items-center gap-1">

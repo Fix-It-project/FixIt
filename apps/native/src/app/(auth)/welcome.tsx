@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, {
 	runOnJS,
@@ -10,8 +11,8 @@ import Animated, {
 	withDelay,
 	withTiming,
 } from "react-native-reanimated";
-import WelcomeAsset from "@/src/assets/onboarding/welcomeasset.svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import WelcomeAsset from "@/src/assets/onboarding/welcomeasset.svg";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_COLLAPSE,
@@ -22,8 +23,8 @@ import {
 import { space } from "@/src/constants/design-tokens";
 import { BrandMark } from "@/src/features/onboarding/components/BrandMark";
 import { SplashIntroPanel } from "@/src/features/onboarding/components/SplashIntroPanel";
-import { brandMarkWidthFor } from "@/src/features/onboarding/components/welcome-layout";
 import { WelcomeContent } from "@/src/features/onboarding/components/WelcomeContent";
+import { brandMarkWidthFor } from "@/src/features/onboarding/components/welcome-layout";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
 import {
@@ -35,9 +36,9 @@ const COLLAPSED_RATIO = 0.58;
 // Below this height (vertical split-screen, tiny devices) the absolute splash/surface
 // overlaps. Switch to a static, scrollable layout so "Get Started" is always reachable.
 const WELCOME_COMPACT_MAX_HEIGHT = 640;
-const MOTTO = "Home care, fixed faster.";
 
 export default function WelcomeScreen() {
+	const { t } = useTranslation("auth");
 	const { width: screenW, height: screenH } = useWindowDimensions();
 	const reducedMotion = useReducedMotion();
 	const insets = useSafeAreaInsets();
@@ -153,7 +154,7 @@ export default function WelcomeScreen() {
 							variant="bodyLg"
 							className="text-center font-google-sans-medium text-overlay-bright"
 						>
-							{MOTTO}
+							{t("welcome.motto")}
 						</Text>
 					</View>
 
@@ -175,7 +176,7 @@ export default function WelcomeScreen() {
 			<StatusBar style="light" />
 
 			<SplashIntroPanel
-				motto={MOTTO}
+				motto={t("welcome.motto")}
 				collapsedRatio={COLLAPSED_RATIO}
 				reveal={reveal}
 				collapse={collapse}

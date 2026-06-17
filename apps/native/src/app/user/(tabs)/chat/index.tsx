@@ -1,6 +1,7 @@
 import { View } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
+import { useBottomTabMetrics } from "@/src/components/layout/tab-bar";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import ChatComposer from "@/src/features/ai/chat/components/ChatComposer";
 import ChatHeader from "@/src/features/ai/chat/components/ChatHeader";
@@ -10,6 +11,7 @@ import type { ChatFlow } from "@/src/features/ai/chat/types";
 
 export default function ChatbotScreen() {
 	const themeColors = useThemeColors();
+	const { tabBarHeight } = useBottomTabMetrics();
 	const {
 		message,
 		setMessage,
@@ -46,29 +48,26 @@ export default function ChatbotScreen() {
 	const selectMode = (next: ChatFlow) => {
 		if (next !== mode) toggleMode();
 	};
-
 	return (
 		<View
 			className="flex-1"
 			style={{ backgroundColor: themeColors.surfaceBase }}
 		>
 			<ScreenStatusBar variant="surface" />
-			<KeyboardAvoidingView
-				behavior="padding"
-				keyboardVerticalOffset={0}
-				className="flex-1"
+			<ChatHeader />
+			<ChatMessageList
+				mode={mode}
+				chatEntries={chatEntries}
+				isLoading={isLoading}
+				error={error}
+				activeFlow={activeFlow}
+				isOpeningTechnician={isOpeningTechnician}
+				onOpenTechnician={handleOpenTechnician}
+			/>
+			<KeyboardStickyView
+				offset={{ closed: 0, opened: tabBarHeight }}
 				style={{ backgroundColor: themeColors.surfaceBase }}
 			>
-				<ChatHeader />
-				<ChatMessageList
-					mode={mode}
-					chatEntries={chatEntries}
-					isLoading={isLoading}
-					error={error}
-					activeFlow={activeFlow}
-					isOpeningTechnician={isOpeningTechnician}
-					onOpenTechnician={handleOpenTechnician}
-				/>
 				<ChatComposer
 					mode={mode}
 					onSelectMode={selectMode}
@@ -93,7 +92,7 @@ export default function ChatbotScreen() {
 					onClearAudio={() => void clearAudio()}
 					onCancelRecording={() => void cancelRecording()}
 				/>
-			</KeyboardAvoidingView>
+			</KeyboardStickyView>
 		</View>
 	);
 }

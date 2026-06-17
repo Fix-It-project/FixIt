@@ -4,6 +4,7 @@ import {
 	CloudUpload,
 	FileText,
 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { Colors } from "@/src/constants/design-tokens";
@@ -25,6 +26,7 @@ export default function DocumentUploadField({
 	error,
 	required = false,
 }: DocumentUploadFieldProps) {
+	const { t } = useTranslation("auth");
 	const hasFile = value.length > 0;
 
 	return (
@@ -51,10 +53,10 @@ export default function DocumentUploadField({
 						</View>
 						<View className="flex-1">
 							<Text variant="bodySm" className="text-content" numberOfLines={1}>
-								{fileName ?? "Document uploaded"}
+								{fileName ?? t("document.uploaded")}
 							</Text>
 							<Text variant="caption" className="text-content-muted">
-								Tap to change
+								{t("document.tapToChange")}
 							</Text>
 						</View>
 						<CheckCircle2 size={22} color={Colors.successAlt} />
@@ -66,10 +68,10 @@ export default function DocumentUploadField({
 						</View>
 						<View className="flex-1">
 							<Text variant="bodySm" className="text-content">
-								Upload document
+								{t("document.upload")}
 							</Text>
 							<Text variant="caption" className="text-content-muted">
-								Choose a PDF, image, or document file
+								{t("document.uploadHint")}
 							</Text>
 						</View>
 						<ChevronRight size={18} color={Colors.textMuted} />

@@ -1,5 +1,6 @@
 import { Check } from "lucide-react-native";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	Easing,
@@ -37,6 +38,7 @@ interface ReviewTimelineProps {
  * the whole transition so it reads as one motion.
  */
 export function ReviewTimeline({ phase }: ReviewTimelineProps) {
+	const { t } = useTranslation("auth");
 	const c = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const approved = phase === "approved";
@@ -128,9 +130,9 @@ export function ReviewTimeline({ phase }: ReviewTimelineProps) {
 					<DoneDot color={c.primary} checkColor={c.surfaceOnPrimary} />
 				</View>
 				<RowText
-					title="Submitted"
+					title={t("verification.timeline.submitted")}
 					titleColor={c.textPrimary}
-					subtitle="Your application and documents are in."
+					subtitle={t("verification.timeline.submittedSubtitle")}
 				/>
 			</View>
 
@@ -196,12 +198,16 @@ export function ReviewTimeline({ phase }: ReviewTimelineProps) {
 					</Animated.View>
 				</View>
 				<RowText
-					title={approved ? "Reviewed" : "Under review"}
+					title={
+						approved
+							? t("verification.timeline.reviewed")
+							: t("verification.timeline.underReview")
+					}
 					titleColor={approved ? c.textPrimary : c.accentCyan}
 					subtitle={
 						approved
-							? "Your details checked out."
-							: "Our team is verifying your details."
+							? t("verification.timeline.reviewedSubtitle")
+							: t("verification.timeline.underReviewSubtitle")
 					}
 				/>
 			</View>
@@ -254,12 +260,12 @@ export function ReviewTimeline({ phase }: ReviewTimelineProps) {
 					</Animated.View>
 				</View>
 				<RowText
-					title="Approved"
+					title={t("verification.timeline.approved")}
 					titleColor={approved ? c.success : c.textMuted}
 					subtitle={
 						approved
-							? "Welcome aboard. You can sign in now."
-							: "You'll be notified the moment this clears."
+							? t("verification.timeline.approvedSubtitle")
+							: t("verification.timeline.approvalPendingSubtitle")
 					}
 					isLast
 				/>

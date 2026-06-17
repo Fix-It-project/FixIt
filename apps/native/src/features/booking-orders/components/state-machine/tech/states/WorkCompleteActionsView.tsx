@@ -21,6 +21,7 @@ import type {
 	Order,
 	TechnicianBooking,
 } from "@/src/features/booking-orders/schemas/response.schema";
+import { getErrorMessage } from "@/src/lib/errors";
 
 interface Props {
 	readonly order: Order;
@@ -44,7 +45,7 @@ export default function WorkCompleteBody({ order }: Props) {
 					Toast.show({
 						type: "info",
 						text1: `Could not ${label}`,
-						text2: err.message,
+						text2: getErrorMessage(err),
 					}),
 			},
 		);
@@ -124,7 +125,7 @@ export function WorkCompleteCta({ order }: Props) {
 					Toast.show({
 						type: "info",
 						text1: "Failed to cancel",
-						text2: err.message,
+						text2: getErrorMessage(err),
 					}),
 			},
 		);
@@ -147,7 +148,7 @@ export function WorkCompleteCta({ order }: Props) {
 										Toast.show({
 											type: "info",
 											text1: "Could not confirm",
-											text2: err.message,
+											text2: getErrorMessage(err),
 										}),
 								},
 							)

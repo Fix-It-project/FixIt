@@ -57,6 +57,11 @@ const TOKEN_MESSAGES: Record<string, string> = {
 		"Your account has an unpaid inspection cancellation fee. Clear or waive it before placing a new order.",
 	technician_already_tracking_another_order:
 		"You already have an order being tracked. Finish it first before starting another.",
+	cannot_cancel_from_status:
+		"This order can't be cancelled from its current state.",
+	no_completion_pending: "There's no pending completion request to act on.",
+	no_cash_payment_pending: "There's no pending cash payment for this order.",
+	missing_final_price: "A final price is required to complete this order.",
 
 	// Auth / authz
 	not_initiator: "You aren't allowed to perform this action on this order.",

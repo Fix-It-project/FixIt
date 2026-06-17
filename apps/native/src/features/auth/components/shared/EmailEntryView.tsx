@@ -1,11 +1,12 @@
 import { Mail } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText, Text } from "@/src/components/ui/text";
-import type { useForgotPasswordMutation } from "@/src/features/auth/hooks/useForgotPasswordMutation";
 import { Colors } from "@/src/constants/design-tokens";
+import type { useForgotPasswordMutation } from "@/src/features/auth/hooks/useForgotPasswordMutation";
 
 interface EmailEntryViewProps {
 	readonly email: string;
@@ -24,6 +25,7 @@ export default function EmailEntryView({
 	mutation,
 	onSubmit,
 }: EmailEntryViewProps) {
+	const { t } = useTranslation("auth");
 	const insets = useSafeAreaInsets();
 	const isButtonActive = email.trim().length > 0 && !mutation.isPending;
 
@@ -32,11 +34,10 @@ export default function EmailEntryView({
 			{/* Header */}
 			<View className="mt-stack-sm mb-stack-2xl px-screen-x">
 				<Text variant="h2" className="mb-stack-sm text-content">
-					Reset your password
+					{t("forgotPassword.title")}
 				</Text>
 				<Text variant="body" className="text-content-secondary">
-					Enter your email address and we'll send you a link to reset your
-					password
+					{t("forgotPassword.subtitle")}
 				</Text>
 			</View>
 
@@ -49,7 +50,7 @@ export default function EmailEntryView({
 						clearFieldError("email");
 						if (mutation.error) mutation.reset();
 					}}
-					placeholder="Email address"
+					placeholder={t("forgotPassword.emailPlaceholder")}
 					icon={Mail}
 					error={fieldErrors.email}
 					disabled={mutation.isPending}
@@ -79,7 +80,7 @@ export default function EmailEntryView({
 					{mutation.isPending ? (
 						<ActivityIndicator color={Colors.surfaceOnPrimary} />
 					) : (
-						<BtnText variant="buttonLg">Reset Password</BtnText>
+						<BtnText variant="buttonLg">{t("forgotPassword.submit")}</BtnText>
 					)}
 				</Button>
 			</View>

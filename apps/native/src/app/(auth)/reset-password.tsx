@@ -2,10 +2,12 @@ import * as Linking from "expo-linking";
 import { type Href, router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText, Text } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import AuthFormScreen from "@/src/features/auth/components/shared/AuthFormScreen";
 import InvalidResetLinkView from "@/src/features/auth/components/shared/InvalidResetLinkView";
 import PasswordInput from "@/src/features/auth/components/shared/PasswordInput";
@@ -19,9 +21,9 @@ import {
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation";
-import { useThemeColors } from "@/src/constants/design-tokens";
 
 export default function ResetPassword() {
+	const { t } = useTranslation("auth");
 	const themeColors = useThemeColors();
 	const insets = useSafeAreaInsets();
 	const [recoverySession, setRecoverySessionState] =
@@ -123,10 +125,10 @@ export default function ResetPassword() {
 				{/* ── Header ─────────────────────────────────────────────────── */}
 				<View className="mt-stack-sm mb-stack-2xl px-screen-x">
 					<Text variant="h2" className="mb-stack-sm text-content">
-						Reset your password
+						{t("resetPassword.title")}
 					</Text>
 					<Text variant="body" className="text-content-secondary">
-						Enter your new password below
+						{t("resetPassword.subtitle")}
 					</Text>
 				</View>
 
@@ -139,7 +141,7 @@ export default function ResetPassword() {
 							clearFieldError("newPassword");
 							if (resetMutation.error) resetMutation.reset();
 						}}
-						placeholder="New password"
+						placeholder={t("resetPassword.newPasswordPlaceholder")}
 						error={fieldErrors.newPassword}
 						disabled={resetMutation.isPending}
 						variant="outline"
@@ -156,7 +158,7 @@ export default function ResetPassword() {
 							clearFieldError("confirmPassword");
 							if (resetMutation.error) resetMutation.reset();
 						}}
-						placeholder="Confirm password"
+						placeholder={t("resetPassword.confirmPasswordPlaceholder")}
 						error={fieldErrors.confirmPassword}
 						disabled={resetMutation.isPending}
 						variant="outline"
@@ -174,10 +176,10 @@ export default function ResetPassword() {
 						size="sm"
 						onPress={() => router.replace(loginRoute)}
 						iconLeft={<ArrowLeft size={16} color={themeColors.textSecondary} />}
-						accessibilityLabel="Back to Login"
+						accessibilityLabel={t("resetPassword.backToLogin")}
 					>
 						<Text variant="label" className="text-content-secondary">
-							Back to Login
+							{t("resetPassword.backToLogin")}
 						</Text>
 					</Button>
 				</View>
@@ -191,7 +193,7 @@ export default function ResetPassword() {
 						{resetMutation.isPending ? (
 							<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 						) : (
-							<BtnText variant="buttonLg">Reset Password</BtnText>
+							<BtnText variant="buttonLg">{t("resetPassword.submit")}</BtnText>
 						)}
 					</Button>
 				</View>

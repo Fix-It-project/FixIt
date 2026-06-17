@@ -97,20 +97,20 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 							{serviceName || t("card.serviceFallback")}
 						</Text>
 					</View>
-				</View>
 
-				{/* Status badge */}
-				<View
-					className="rounded-pill px-stack-md py-stack-xs"
-					style={{ backgroundColor: status.bg }}
-				>
-					<Text
-						variant="caption"
-						className="font-semibold"
-						style={{ color: status.color }}
+					{/* Status badge — own row, never competes with the name */}
+					<View
+						className="mt-stack-xs self-start rounded-pill px-stack-md py-stack-xs"
+						style={{ backgroundColor: status.bg }}
 					>
-						{status.label}
-					</Text>
+						<Text
+							variant="caption"
+							className="font-semibold"
+							style={{ color: status.color }}
+						>
+							{status.label}
+						</Text>
+					</View>
 				</View>
 			</View>
 

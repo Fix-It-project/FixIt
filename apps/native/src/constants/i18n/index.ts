@@ -1,4 +1,5 @@
 import arAddresses from "./locales/ar/addresses.json";
+import arAuth from "./locales/ar/auth.json";
 import arBooking from "./locales/ar/booking.json";
 import arCategories from "./locales/ar/categories.json";
 import arChat from "./locales/ar/chat.json";
@@ -15,6 +16,7 @@ import arSettings from "./locales/ar/settings.json";
 import arTechnician from "./locales/ar/technician.json";
 import arTechnicians from "./locales/ar/technicians.json";
 import enAddresses from "./locales/en/addresses.json";
+import enAuth from "./locales/en/auth.json";
 import enBooking from "./locales/en/booking.json";
 import enCategories from "./locales/en/categories.json";
 import enChat from "./locales/en/chat.json";
@@ -44,6 +46,7 @@ export const DEFAULT_LANGUAGE: Language = "en";
 export const defaultNS = "common" as const;
 export const namespaces = [
 	"common",
+	"auth",
 	"home",
 	"booking",
 	"technicians",
@@ -64,6 +67,7 @@ export const namespaces = [
 export const resources = {
 	en: {
 		common: enCommon,
+		auth: enAuth,
 		home: enHome,
 		booking: enBooking,
 		technicians: enTechnicians,
@@ -82,6 +86,7 @@ export const resources = {
 	},
 	ar: {
 		common: arCommon,
+		auth: arAuth,
 		home: arHome,
 		booking: arBooking,
 		technicians: arTechnicians,

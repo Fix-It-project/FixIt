@@ -109,12 +109,12 @@ export default function UserTabsLayout() {
 	// Top inset blends with the focused screen: each screen publishes a chrome
 	// variant via ScreenStatusBar; we resolve it to a live theme color here so it
 	// re-renders across light/dark. The user side's `blue` band is heroStart (the
-	// home + profile hero color); everything else sits on the elevated surface.
+	// home + profile hero color); everything else sits on the base surface.
 	const topVariant = useScreenChromeStore((s) => s.topVariant);
 	const topSafeAreaBackground =
 		topVariant === "blue"
 			? themeColors.tint.heroStart
-			: themeColors.surfaceElevated;
+			: themeColors.surfaceBase;
 
 	return (
 		<ScreenSafeAreaView

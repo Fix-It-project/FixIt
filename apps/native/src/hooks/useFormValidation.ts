@@ -1,5 +1,10 @@
+import i18next from "i18next";
 import { useCallback, useState } from "react";
 import type { z } from "zod";
+
+function translateValidationMessage(message: string): string {
+	return message.startsWith("auth:") ? i18next.t(message) : message;
+}
 
 export function useFormValidation<T extends z.ZodTypeAny>(schema: T) {
 	type FormData = z.infer<T>;
@@ -28,7 +33,9 @@ export function useFormValidation<T extends z.ZodTypeAny>(schema: T) {
 				const errors: FieldErrors = {};
 				for (const issue of result.error.issues) {
 					const field = String(issue.path[0]);
-					if (!errors[field]) errors[field] = issue.message;
+					if (!errors[field]) {
+						errors[field] = translateValidationMessage(issue.message);
+					}
 				}
 				setFieldErrors(errors);
 				return { success: false };

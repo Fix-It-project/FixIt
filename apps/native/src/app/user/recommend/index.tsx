@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
@@ -91,6 +92,7 @@ export default function RecommendScreen() {
 
 	return (
 		<SafeAreaView className="flex-1 bg-background">
+			<ScreenStatusBar variant="surface" />
 			<View
 				style={{
 					paddingHorizontal: 20,

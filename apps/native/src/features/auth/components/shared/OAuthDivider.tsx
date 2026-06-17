@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { GoogleIcon } from "@/src/components/icons/GoogleIcon";
 import { Button } from "@/src/components/ui/button";
@@ -5,6 +6,7 @@ import { Text } from "@/src/components/ui/text";
 import { useGoogleAuthFlow } from "@/src/features/auth/hooks/useGoogleAuthFlow";
 
 export default function OAuthDivider() {
+	const { t } = useTranslation("auth");
 	const { startGoogleSignIn, isPending } = useGoogleAuthFlow();
 
 	return (
@@ -12,7 +14,7 @@ export default function OAuthDivider() {
 			<View className="my-stack-sm flex-row items-center">
 				<View className="h-[1px] flex-1 bg-edge" />
 				<Text variant="caption" className="px-card text-content-muted">
-					Or continue with
+					{t("login.orContinueWith")}
 				</Text>
 				<View className="h-[1px] flex-1 bg-edge" />
 			</View>
@@ -24,7 +26,7 @@ export default function OAuthDivider() {
 				onPress={startGoogleSignIn}
 				disabled={isPending}
 			>
-				Continue with Google
+				{t("login.continueWithGoogle")}
 			</Button>
 		</>
 	);

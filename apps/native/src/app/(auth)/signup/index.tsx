@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Mail, Phone, User } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
@@ -20,6 +21,7 @@ import { ROUTES } from "@/src/lib/navigation";
  * straight to step 2.
  */
 export default function SignUpStep1() {
+	const { t } = useTranslation("auth");
 	const [fullName, setFullName] = useState("");
 	const [email, setEmail] = useState("");
 	const [phone, setPhone] = useState("");
@@ -58,17 +60,17 @@ export default function SignUpStep1() {
 
 	return (
 		<AuthPageLayout
-			title="Let's get it fixed."
-			subtitle="Create an account to connect with top-rated technicians nearby."
+			title={t("signup.step1Title")}
+			subtitle={t("signup.step1Subtitle")}
 		>
 			<FormInput
-				label="Full Name"
+				label={t("form.fullName")}
 				value={fullName}
 				onChangeText={(text) => {
 					setFullName(text);
 					clearFieldError("fullName");
 				}}
-				placeholder="John Doe"
+				placeholder={t("form.fullNamePlaceholder")}
 				icon={User}
 				error={fieldErrors.fullName}
 				required
@@ -76,13 +78,13 @@ export default function SignUpStep1() {
 			/>
 
 			<FormInput
-				label="Email Address"
+				label={t("form.emailAddress")}
 				value={email}
 				onChangeText={(text) => {
 					setEmail(text);
 					clearFieldError("email");
 				}}
-				placeholder="john@example.com"
+				placeholder={t("form.emailPlaceholder")}
 				icon={Mail}
 				error={fieldErrors.email}
 				keyboardType="email-address"
@@ -92,13 +94,13 @@ export default function SignUpStep1() {
 			/>
 
 			<FormInput
-				label="Phone Number"
+				label={t("form.phoneNumber")}
 				value={phone}
 				onChangeText={(text) => {
 					setPhone(text);
 					clearFieldError("phone");
 				}}
-				placeholder="(555) 123-4567"
+				placeholder={t("form.phonePlaceholder")}
 				icon={Phone}
 				error={fieldErrors.phone}
 				keyboardType="phone-pad"
@@ -107,7 +109,7 @@ export default function SignUpStep1() {
 			/>
 
 			<PasswordInput
-				label="Password"
+				label={t("form.password")}
 				value={password}
 				onChangeText={(text) => {
 					setPassword(text);
@@ -119,13 +121,13 @@ export default function SignUpStep1() {
 			/>
 
 			<PasswordInput
-				label="Confirm Password"
+				label={t("form.confirmPassword")}
 				value={confirmPassword}
 				onChangeText={(text) => {
 					setConfirmPassword(text);
 					clearFieldError("confirmPassword");
 				}}
-				placeholder="Re-enter your password"
+				placeholder={t("form.confirmPasswordPlaceholder")}
 				error={fieldErrors.confirmPassword}
 				required
 				testID="signup-confirm-password-input"
@@ -137,7 +139,7 @@ export default function SignUpStep1() {
 				className="mt-stack-sm"
 				testID="signup-next"
 			>
-				<BtnText variant="buttonLg">Continue</BtnText>
+				<BtnText variant="buttonLg">{t("form.continue")}</BtnText>
 			</Button>
 
 			<OAuthDivider />
