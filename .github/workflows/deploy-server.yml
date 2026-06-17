@@ -11,6 +11,7 @@ on:
       - "pnpm-workspace.yaml"
       - ".github/workflows/deploy-server.yml"
       - ".github/workflows/server-pr-check.yml"
+      - ".github/workflows/release-please.yml"
   workflow_dispatch:
 
 concurrency:
@@ -43,6 +44,47 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-3
 
+      - name: Validate required server env
+        run: |
+          missing=0
+          for name in \
+            API_PUBLIC_URL \
+            PAYMOB_API_KEY \
+            PAYMOB_SECRET_KEY \
+            PAYMOB_PUBLIC_KEY \
+            PAYMOB_INTEGRATION_ID \
+            PAYMOB_IFRAME_ID \
+            PAYMOB_HMAC_SECRET \
+            PAYMOB_BASE_URL \
+            PAYMOB_IFRAME_BASE_URL \
+            PAYMOB_UNIFIED_CHECKOUT_URL \
+            PAYMOB_CURRENCY \
+            PAYMOB_PLATFORM_FEE_PERCENT \
+            PAYMOB_SANDBOX_MODE \
+            LIFECYCLE_SMOKE_AUTO_COMPLETE
+          do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is required"
+              missing=1
+            fi
+          done
+          exit "$missing"
+        env:
+          API_PUBLIC_URL: ${{ secrets.API_PUBLIC_URL }}
+          PAYMOB_API_KEY: ${{ secrets.PAYMOB_API_KEY }}
+          PAYMOB_SECRET_KEY: ${{ secrets.PAYMOB_SECRET_KEY }}
+          PAYMOB_PUBLIC_KEY: ${{ secrets.PAYMOB_PUBLIC_KEY }}
+          PAYMOB_INTEGRATION_ID: ${{ secrets.PAYMOB_INTEGRATION_ID }}
+          PAYMOB_IFRAME_ID: ${{ secrets.PAYMOB_IFRAME_ID }}
+          PAYMOB_HMAC_SECRET: ${{ secrets.PAYMOB_HMAC_SECRET }}
+          PAYMOB_BASE_URL: ${{ secrets.PAYMOB_BASE_URL }}
+          PAYMOB_IFRAME_BASE_URL: ${{ secrets.PAYMOB_IFRAME_BASE_URL }}
+          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ secrets.PAYMOB_UNIFIED_CHECKOUT_URL }}
+          PAYMOB_CURRENCY: ${{ secrets.PAYMOB_CURRENCY }}
+          PAYMOB_PLATFORM_FEE_PERCENT: ${{ secrets.PAYMOB_PLATFORM_FEE_PERCENT }}
+          PAYMOB_SANDBOX_MODE: ${{ secrets.PAYMOB_SANDBOX_MODE }}
+          LIFECYCLE_SMOKE_AUTO_COMPLETE: ${{ secrets.LIFECYCLE_SMOKE_AUTO_COMPLETE }}
+
       - name: Package check (serverless)
         run: pnpm --dir apps/server exec serverless package
         env:
@@ -58,6 +100,20 @@ jobs:
           ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
           ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
           ADMIN_SESSION_TTL_SECONDS: ${{ secrets.ADMIN_SESSION_TTL_SECONDS }}
+          API_PUBLIC_URL: ${{ secrets.API_PUBLIC_URL }}
+          PAYMOB_API_KEY: ${{ secrets.PAYMOB_API_KEY }}
+          PAYMOB_SECRET_KEY: ${{ secrets.PAYMOB_SECRET_KEY }}
+          PAYMOB_PUBLIC_KEY: ${{ secrets.PAYMOB_PUBLIC_KEY }}
+          PAYMOB_INTEGRATION_ID: ${{ secrets.PAYMOB_INTEGRATION_ID }}
+          PAYMOB_IFRAME_ID: ${{ secrets.PAYMOB_IFRAME_ID }}
+          PAYMOB_HMAC_SECRET: ${{ secrets.PAYMOB_HMAC_SECRET }}
+          PAYMOB_BASE_URL: ${{ secrets.PAYMOB_BASE_URL }}
+          PAYMOB_IFRAME_BASE_URL: ${{ secrets.PAYMOB_IFRAME_BASE_URL }}
+          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ secrets.PAYMOB_UNIFIED_CHECKOUT_URL }}
+          PAYMOB_CURRENCY: ${{ secrets.PAYMOB_CURRENCY }}
+          PAYMOB_PLATFORM_FEE_PERCENT: ${{ secrets.PAYMOB_PLATFORM_FEE_PERCENT }}
+          PAYMOB_SANDBOX_MODE: ${{ secrets.PAYMOB_SANDBOX_MODE }}
+          LIFECYCLE_SMOKE_AUTO_COMPLETE: ${{ secrets.LIFECYCLE_SMOKE_AUTO_COMPLETE }}
 
       - name: Deploy with Serverless
         run: pnpm --dir apps/server exec serverless deploy
@@ -74,3 +130,17 @@ jobs:
           ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
           ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
           ADMIN_SESSION_TTL_SECONDS: ${{ secrets.ADMIN_SESSION_TTL_SECONDS }}
+          API_PUBLIC_URL: ${{ secrets.API_PUBLIC_URL }}
+          PAYMOB_API_KEY: ${{ secrets.PAYMOB_API_KEY }}
+          PAYMOB_SECRET_KEY: ${{ secrets.PAYMOB_SECRET_KEY }}
+          PAYMOB_PUBLIC_KEY: ${{ secrets.PAYMOB_PUBLIC_KEY }}
+          PAYMOB_INTEGRATION_ID: ${{ secrets.PAYMOB_INTEGRATION_ID }}
+          PAYMOB_IFRAME_ID: ${{ secrets.PAYMOB_IFRAME_ID }}
+          PAYMOB_HMAC_SECRET: ${{ secrets.PAYMOB_HMAC_SECRET }}
+          PAYMOB_BASE_URL: ${{ secrets.PAYMOB_BASE_URL }}
+          PAYMOB_IFRAME_BASE_URL: ${{ secrets.PAYMOB_IFRAME_BASE_URL }}
+          PAYMOB_UNIFIED_CHECKOUT_URL: ${{ secrets.PAYMOB_UNIFIED_CHECKOUT_URL }}
+          PAYMOB_CURRENCY: ${{ secrets.PAYMOB_CURRENCY }}
+          PAYMOB_PLATFORM_FEE_PERCENT: ${{ secrets.PAYMOB_PLATFORM_FEE_PERCENT }}
+          PAYMOB_SANDBOX_MODE: ${{ secrets.PAYMOB_SANDBOX_MODE }}
+          LIFECYCLE_SMOKE_AUTO_COMPLETE: ${{ secrets.LIFECYCLE_SMOKE_AUTO_COMPLETE }}
