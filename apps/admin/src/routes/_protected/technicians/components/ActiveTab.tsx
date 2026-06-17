@@ -7,9 +7,20 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { TableToolbar } from "@/components/TableToolbar";
 import { TechAvatar } from "@/components/TechAvatar";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import type { AdminTechnician, AvailabilityFilter, TechnicianSort } from "@/types";
+import type {
+	AdminTechnician,
+	AvailabilityFilter,
+	TechnicianSort,
+} from "@/types";
 import { AvailabilityFilterDropdown } from "./AvailabilityFilterDropdown";
 import { CategoryFilterDropdown } from "./CategoryFilterDropdown";
 import { CompletionPill } from "./CompletionPill";
@@ -22,26 +33,58 @@ interface ActiveTabProps {
 }
 
 function exportToCSV(techs: AdminTechnician[]) {
-	const cols = ["Name", "Category", "City", "Completed", "Rating", "Reviews", "Revenue (EGP)", "Availability", "Joined"];
+	const cols = [
+		"Name",
+		"Category",
+		"City",
+		"Completed",
+		"Rating",
+		"Reviews",
+		"Reports",
+		"Revenue (EGP)",
+		"Availability",
+		"Joined",
+	];
 	const rows = techs.map((t) =>
-		[t.name, t.specialty, t.city, t.completed, t.rating ?? "", t.reviews, t.revenue, t.availability, t.joined]
-			.map((v) => `"${v}"`).join(","),
+		[
+			t.name,
+			t.specialty,
+			t.city,
+			t.completed,
+			t.rating ?? "",
+			t.reviews,
+			t.reportCount,
+			t.revenue,
+			t.availability,
+			t.joined,
+		]
+			.map((v) => `"${v}"`)
+			.join(","),
 	);
 	const csv = [cols.join(","), ...rows].join("\n");
 	const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-	const a = Object.assign(document.createElement("a"), { href: url, download: "technicians.csv" });
+	const a = Object.assign(document.createElement("a"), {
+		href: url,
+		download: "technicians.csv",
+	});
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
 }
 
-function filterByAvailability(techs: AdminTechnician[], f: AvailabilityFilter): AdminTechnician[] {
+function filterByAvailability(
+	techs: AdminTechnician[],
+	f: AvailabilityFilter,
+): AdminTechnician[] {
 	if (f === "all") return techs;
 	return techs.filter((t) => t.availability === f);
 }
 
-function sortTechs(techs: AdminTechnician[], sort: TechnicianSort): AdminTechnician[] {
+function sortTechs(
+	techs: AdminTechnician[],
+	sort: TechnicianSort,
+): AdminTechnician[] {
 	const copy = [...techs];
 	switch (sort) {
 		case "newest":
@@ -69,16 +112,23 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 
 	const byAvailability = filterByAvailability(techs, filter);
 	const byCategory =
-		category === "all" ? byAvailability : byAvailability.filter((t) => t.specialty === category);
-	const searched = byCategory.filter((t) =>
-		t.name.toLowerCase().includes(search.toLowerCase()) ||
-		t.specialty.toLowerCase().includes(search.toLowerCase()),
+		category === "all"
+			? byAvailability
+			: byAvailability.filter((t) => t.specialty === category);
+	const searched = byCategory.filter(
+		(t) =>
+			t.name.toLowerCase().includes(search.toLowerCase()) ||
+			t.specialty.toLowerCase().includes(search.toLowerCase()),
 	);
 	const filtered = sortTechs(searched, sort);
 
 	const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-	useEffect(() => { setPage(1); }, [filter, search, category, sort]);
-	useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+	useEffect(() => {
+		setPage(1);
+	}, [filter, search, category, sort]);
+	useEffect(() => {
+		if (page > pageCount) setPage(pageCount);
+	}, [page, pageCount]);
 	const pageStart = (page - 1) * PAGE_SIZE;
 	const paged = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
@@ -92,7 +142,11 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 				trailing={
 					<>
 						<AvailabilityFilterDropdown value={filter} onChange={setFilter} />
-						<CategoryFilterDropdown value={category} options={categoryOptions} onChange={setCategory} />
+						<CategoryFilterDropdown
+							value={category}
+							options={categoryOptions}
+							onChange={setCategory}
+						/>
 						<TechnicianSortDropdown value={sort} onChange={setSort} />
 					</>
 				}
@@ -104,64 +158,129 @@ export function ActiveTab({ techs, onView }: ActiveTabProps) {
 			</div>
 
 			{/* Desktop table */}
-			<div className="hidden md:block overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+			<div className="hidden overflow-x-auto rounded-xl border border-border bg-card shadow-sm md:block">
 				<Table>
 					<TableHeader>
-						<TableRow className="bg-muted/40 hover:bg-muted/40 border-b border-border">
-							<TableHead className="pl-5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Technician</TableHead>
-							<TableHead className="hidden lg:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Category</TableHead>
-							<TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Completed</TableHead>
-							<TableHead className="hidden lg:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Rating</TableHead>
-							<TableHead className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Completion</TableHead>
-							<TableHead className="hidden xl:table-cell text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Availability</TableHead>
-							<TableHead className="text-right pr-5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground h-11">Actions</TableHead>
+						<TableRow className="border-border border-b bg-muted/40 hover:bg-muted/40">
+							<TableHead className="h-11 pl-5 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+								Technician
+							</TableHead>
+							<TableHead className="hidden h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider lg:table-cell">
+								Category
+							</TableHead>
+							<TableHead className="h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+								Completed
+							</TableHead>
+							<TableHead className="hidden h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider lg:table-cell">
+								Rating
+							</TableHead>
+							<TableHead className="h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+								Completion
+							</TableHead>
+							<TableHead className="h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+								Reports
+							</TableHead>
+							<TableHead className="hidden h-11 font-semibold text-[11px] text-muted-foreground uppercase tracking-wider xl:table-cell">
+								Availability
+							</TableHead>
+							<TableHead className="h-11 pr-5 text-right font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
+								Actions
+							</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{filtered.length === 0 && (
 							<TableRow className="hover:bg-transparent">
-								<TableCell colSpan={7} className="py-16">
+								<TableCell colSpan={8} className="py-16">
 									<div className="flex flex-col items-center gap-2 text-muted-foreground">
 										<Inbox className="h-8 w-8 opacity-50" />
-										<p className="text-sm font-medium">No technicians match these filters</p>
-										<p className="text-xs">Try adjusting your search or filter selection.</p>
+										<p className="font-medium text-sm">
+											No technicians match these filters
+										</p>
+										<p className="text-xs">
+											Try adjusting your search or filter selection.
+										</p>
 									</div>
 								</TableCell>
 							</TableRow>
 						)}
 						{paged.map((tech) => (
-							<TableRow key={tech.id} className="group transition-colors hover:bg-muted/30">
-								<TableCell className="pl-5 py-3">
+							<TableRow
+								key={tech.id}
+								className="group transition-colors hover:bg-muted/30"
+							>
+								<TableCell className="py-3 pl-5">
 									<div className="flex items-center gap-2.5">
-										<TechAvatar initials={tech.initials} color={tech.color} size="sm" />
+										<TechAvatar
+											initials={tech.initials}
+											color={tech.color}
+											size="sm"
+										/>
 										<div>
-											<p className="text-sm font-semibold text-foreground">{tech.name}</p>
-											<p className="text-xs text-muted-foreground">{tech.city}</p>
+											<p className="font-semibold text-foreground text-sm">
+												{tech.name}
+											</p>
+											<p className="text-muted-foreground text-xs">
+												{tech.city}
+											</p>
 											{tech.blockPending && (
-												<span className="mt-0.5 inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+												<span className="mt-0.5 inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 font-semibold text-[10px] text-amber-600 dark:text-amber-400">
 													Block scheduled
 												</span>
 											)}
 										</div>
 									</div>
 								</TableCell>
-								<TableCell className="hidden lg:table-cell py-3">
-									<CategoryTag meta={getCategoryMetaBySpecialty(tech.specialty)} fallbackLabel={tech.specialty} size="sm" />
+								<TableCell className="hidden py-3 lg:table-cell">
+									<CategoryTag
+										meta={getCategoryMetaBySpecialty(tech.specialty)}
+										fallbackLabel={tech.specialty}
+										size="sm"
+									/>
 								</TableCell>
-								<TableCell className="text-sm tabular-nums py-3">{tech.completed}</TableCell>
-								<TableCell className="hidden lg:table-cell py-3">
+								<TableCell className="py-3 text-sm tabular-nums">
+									{tech.completed}
+								</TableCell>
+								<TableCell className="hidden py-3 lg:table-cell">
 									{tech.rating != null ? (
 										<StarRating rating={tech.rating} reviews={tech.reviews} />
 									) : (
-										<span className="text-xs text-muted-foreground/60">No ratings</span>
+										<span className="text-muted-foreground/60 text-xs">
+											No ratings
+										</span>
 									)}
 								</TableCell>
-								<TableCell className="py-3"><CompletionPill completed={tech.completed} total={tech.totalOrders} /></TableCell>
-								<TableCell className="hidden xl:table-cell py-3">
-									<StatusBadge variant={tech.availability === "online" ? "success" : "muted"} label={tech.availability} />
+								<TableCell className="py-3">
+									<CompletionPill
+										completed={tech.completed}
+										total={tech.totalOrders}
+									/>
 								</TableCell>
-								<TableCell className="text-right pr-5 py-3">
-									<Button size="sm" variant="outline" onClick={() => onView(tech)}>View</Button>
+								<TableCell className="py-3 text-sm tabular-nums">
+									{tech.reportCount > 0 ? (
+										<span className="font-semibold text-destructive">
+											{tech.reportCount}
+										</span>
+									) : (
+										<span className="text-muted-foreground/60">0</span>
+									)}
+								</TableCell>
+								<TableCell className="hidden py-3 xl:table-cell">
+									<StatusBadge
+										variant={
+											tech.availability === "online" ? "success" : "muted"
+										}
+										label={tech.availability}
+									/>
+								</TableCell>
+								<TableCell className="py-3 pr-5 text-right">
+									<Button
+										size="sm"
+										variant="outline"
+										onClick={() => onView(tech)}
+									>
+										View
+									</Button>
 								</TableCell>
 							</TableRow>
 						))}

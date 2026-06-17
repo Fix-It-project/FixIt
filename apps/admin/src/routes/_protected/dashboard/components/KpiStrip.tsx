@@ -80,14 +80,19 @@ export function KpiStrip() {
 								</div>
 							)}
 
-							<p className="mt-3 text-[11px] text-muted-foreground">
-								{kpi.deltaLabel}
+							<div className="mt-3 space-y-0.5">
+								<p className="text-[11px] text-muted-foreground">
+									{kpi.deltaLabel}
+								</p>
 								{kpi.previous != null && (
-									<span className="ml-1">
-										· {kpi.previousLabel ?? "last mo"}: {kpi.previous}
-									</span>
+									<p className="text-[11px] text-muted-foreground">
+										{kpi.previousLabel ?? "last mo"}:{" "}
+										<span className="font-semibold text-foreground">
+											{kpi.previous}
+										</span>
+									</p>
 								)}
-							</p>
+							</div>
 						</CardContent>
 					</Card>
 				);

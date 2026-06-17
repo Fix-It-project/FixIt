@@ -102,6 +102,7 @@ export function OrderDetailModal({
 							<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
 								<Field label="Customer" value={o.customer} />
 								<Field label="Technician" value={o.tech} />
+								<Field label="Service" value={o.service} />
 								<Field
 									label="Category"
 									value={

@@ -1,17 +1,47 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import type { AdminServiceRequest } from "@/types";
 
 const KEY = ["service-requests"] as const;
 
-export function useServiceRequests() {
+export interface ServiceRequestsCounts {
+	pending: number;
+	decided: number;
+}
+
+export interface ServiceRequestsParams {
+	page: number;
+	pageSize: number;
+	status: "pending" | "decided";
+}
+
+interface ServiceRequestsResponse {
+	data: AdminServiceRequest[];
+	total: number;
+	counts: ServiceRequestsCounts;
+}
+
+export function useServiceRequests(params: ServiceRequestsParams) {
 	return useQuery({
-		queryKey: KEY,
+		queryKey: [...KEY, params],
+		placeholderData: keepPreviousData,
 		queryFn: async () => {
-			const { data } = await apiClient.get<{ data: AdminServiceRequest[] }>(
+			const { data } = await apiClient.get<ServiceRequestsResponse>(
 				"/api/admin/service-requests",
+				{
+					params: {
+						page: params.page,
+						pageSize: params.pageSize,
+						status: params.status,
+					},
+				},
 			);
-			return data.data;
+			return data;
 		},
 	});
 }

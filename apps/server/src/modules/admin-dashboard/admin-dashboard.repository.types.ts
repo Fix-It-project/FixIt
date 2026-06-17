@@ -21,6 +21,84 @@ export interface CategoryRow {
 	name: string | null;
 }
 
+// ---- Aggregate-view rows (computed in Postgres; see admin-dashboard-aggregates.sql) ----
+
+/** Single-row headline KPIs from `admin_dashboard_kpis`. */
+export interface DashboardKpisRow {
+	total_orders: number;
+	active_orders: number;
+	completed_orders: number;
+	revenue_total: number;
+}
+
+/** Orders created per day (`admin_order_created_daily`). */
+export interface OrderCreatedDailyRow {
+	day: string;
+	orders_made: number;
+}
+
+/** Orders completed per day + revenue (`admin_order_completed_daily`). */
+export interface OrderCompletedDailyRow {
+	day: string;
+	completed: number;
+	revenue: number;
+}
+
+/** Technician-accept events per day (`admin_accept_daily`). */
+export interface AcceptDailyRow {
+	day: string;
+	accepted: number;
+}
+
+/** Review ratings per day (`admin_review_daily`). */
+export interface ReviewDailyRow {
+	day: string;
+	rating_sum: number;
+	rating_count: number;
+}
+
+/** Order count per raw status (`admin_status_share`). */
+export interface StatusShareRow {
+	status: string;
+	count: number;
+}
+
+/** Order count per category (`admin_category_share`). */
+export interface CategoryShareCountRow {
+	category_id: string;
+	count: number;
+}
+
+/** Completed jobs + revenue per technician (`admin_tech_order_stats`). */
+export interface TechOrderStatsRow {
+	technician_id: string;
+	completed_jobs: number;
+	completed_revenue: number;
+}
+
+/** One aggregated row per homeowner (`admin_homeowner_stats`). */
+export interface HomeownerStatsRow {
+	id: string;
+	created_at: string;
+	full_name: string | null;
+	email: string | null;
+	phone: string | null;
+	blocked: boolean;
+	block_pending: boolean;
+	blocked_reason: string | null;
+	blocked_at: string | null;
+	blocked_by: string | null;
+	city: string | null;
+	total_orders: number;
+	completed: number;
+	cancelled: number;
+	spend: number;
+	last_order_at: string | null;
+	review_given_sum: number;
+	review_given_count: number;
+	report_count: number;
+}
+
 export interface TechnicianRow {
 	id: string;
 	first_name: string | null;
@@ -83,6 +161,7 @@ export interface TechnicianStatsRow {
 	completed: number;
 	cancelled: number;
 	revenue: number;
+	report_count: number;
 }
 
 export interface OrderQuoteRow {
@@ -129,11 +208,30 @@ export interface OrderDetailRow {
 	customerName: string | null;
 	techFirstName: string | null;
 	techLastName: string | null;
+	serviceName: string | null;
 	categoryName: string | null;
 	review: { rating: number; comment: string | null; created_at: string } | null;
 	quotes: OrderQuoteRow[];
 	events: OrderEventRow[];
 	payments: OrderPaymentRow[];
+}
+
+/** One denormalized row from the `admin_orders` flat view (list + history). */
+export interface AdminOrderListRow {
+	id: string;
+	id_text: string;
+	created_at: string;
+	status: string;
+	final_price: number | null;
+	user_id: string | null;
+	technician_id: string | null;
+	customer_name: string | null;
+	tech_name: string | null;
+	category_name: string | null;
+	review_rating: number | null;
+	review_comment: string | null;
+	review_created_at: string | null;
+	cancellation_reason: string | null;
 }
 
 /** Fully-joined order row for the admin orders list. */

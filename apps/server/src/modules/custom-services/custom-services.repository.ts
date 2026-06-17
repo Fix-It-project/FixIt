@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
+import type { CustomServicesListQuery } from "../../shared/dtos/custom-service.dto.js";
 import type {
 	AdminCustomServiceRow,
 	CustomService,
@@ -6,10 +7,18 @@ import type {
 	SubmitCustomServiceInput,
 } from "./custom-services.types.js";
 
+export interface CustomServicesCounts {
+	pending: number;
+	decided: number;
+}
+
 export interface ICustomServicesRepository {
 	submitRequest(input: SubmitCustomServiceInput): Promise<CustomService>;
 	listByTechnician(technicianId: string): Promise<CustomService[]>;
-	listForAdmin(status?: string): Promise<AdminCustomServiceRow[]>;
+	listForAdmin(
+		params: CustomServicesListQuery,
+	): Promise<{ rows: AdminCustomServiceRow[]; total: number }>;
+	countRequests(): Promise<CustomServicesCounts>;
 	setStatus(
 		id: string,
 		input: SetCustomServiceStatusInput,
@@ -49,17 +58,49 @@ export class CustomServicesRepository implements ICustomServicesRepository {
 		return (data ?? []) as CustomService[];
 	}
 
-	async listForAdmin(status?: string): Promise<AdminCustomServiceRow[]> {
+	async listForAdmin(
+		params: CustomServicesListQuery,
+	): Promise<{ rows: AdminCustomServiceRow[]; total: number }> {
+		// Pending = oldest-first (review queue); decided = newest-first (recent first).
+		const decided = params.status === "decided";
 		let query = supabaseAdmin
 			.from("admin_custom_service_requests")
-			.select("*")
-			.order("created_at", { ascending: true });
+			.select("*", { count: "exact" })
+			.order("created_at", { ascending: !decided });
 
-		if (status) query = query.eq("status", status);
+		query = decided
+			? query.neq("status", "pending")
+			: query.eq("status", "pending");
 
-		const { data, error } = await query;
+		query = query.range(
+			(params.page - 1) * params.pageSize,
+			params.page * params.pageSize - 1,
+		);
+
+		const { data, error, count } = await query;
 		if (error) throw new Error(error.message);
-		return (data ?? []) as AdminCustomServiceRow[];
+		return { rows: (data ?? []) as AdminCustomServiceRow[], total: count ?? 0 };
+	}
+
+	/** Pending vs decided counts for the queue tabs. */
+	async countRequests(): Promise<CustomServicesCounts> {
+		const headCount = async (apply: "pending" | "decided"): Promise<number> => {
+			let q = supabaseAdmin
+				.from("admin_custom_service_requests")
+				.select("id", { count: "exact", head: true });
+			q =
+				apply === "decided"
+					? q.neq("status", "pending")
+					: q.eq("status", "pending");
+			const { count, error } = await q;
+			if (error) throw new Error(error.message);
+			return count ?? 0;
+		};
+		const [pending, decided] = await Promise.all([
+			headCount("pending"),
+			headCount("decided"),
+		]);
+		return { pending, decided };
 	}
 
 	async setStatus(

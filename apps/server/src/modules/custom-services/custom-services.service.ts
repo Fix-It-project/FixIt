@@ -1,8 +1,10 @@
 import { env } from "@FixIt/env/server";
+import type { CustomServicesListQuery } from "../../shared/dtos/custom-service.dto.js";
 import { AppError } from "../../shared/errors/app-error.js";
 import { logger } from "../../shared/logger.js";
 import { notificationsService } from "../notifications/notifications.service.js";
 import {
+	type CustomServicesCounts,
 	type CustomServicesRepository,
 	customServicesRepository,
 } from "./custom-services.repository.js";
@@ -126,9 +128,16 @@ export class CustomServicesService {
 		return this.repo.listByTechnician(technicianId);
 	}
 
-	async listRequests(status?: string): Promise<AdminCustomServiceRequestDTO[]> {
-		const rows = await this.repo.listForAdmin(status);
-		return rows.map(toAdminDTO);
+	async listRequests(params: CustomServicesListQuery): Promise<{
+		data: AdminCustomServiceRequestDTO[];
+		total: number;
+		counts: CustomServicesCounts;
+	}> {
+		const [{ rows, total }, counts] = await Promise.all([
+			this.repo.listForAdmin(params),
+			this.repo.countRequests(),
+		]);
+		return { data: rows.map(toAdminDTO), total, counts };
 	}
 
 	/** Approve publishes the request as a bookable catalog service + technician

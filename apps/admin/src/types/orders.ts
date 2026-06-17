@@ -1,4 +1,9 @@
-export type OrderStatus = "pending" | "accepted" | "in_progress" | "completed" | "cancelled";
+export type OrderStatus =
+	| "pending"
+	| "accepted"
+	| "in_progress"
+	| "completed"
+	| "cancelled";
 
 /** Full DB `order_status` enum — used by the dashboard recent-orders table. */
 export type OrderStatusRaw =
@@ -43,7 +48,12 @@ export interface Order {
 	review?: OrderReview | null;
 }
 
-export type OrderFilter = "all" | "pending" | "active" | "completed" | "cancelled";
+export type OrderFilter =
+	| "all"
+	| "pending"
+	| "active"
+	| "completed"
+	| "cancelled";
 
 /** Dashboard recent-orders row — same shape as Order but carries the raw DB status. */
 export interface RecentOrder {
@@ -61,7 +71,12 @@ export interface RecentOrder {
 	review?: OrderReview | null;
 }
 
-export type RecentOrderFilter = "all" | "pending" | "accepted" | "active" | "cancelled";
+export type RecentOrderFilter =
+	| "all"
+	| "pending"
+	| "accepted"
+	| "active"
+	| "cancelled";
 
 // ---- Order detail (order-detail modal) ----
 
@@ -105,6 +120,7 @@ export interface AdminOrderDetail {
 	attachment: string | null;
 	customer: string;
 	tech: string;
+	service: string;
 	category: string;
 	review: { rating: number; comment: string | null; date: string } | null;
 	quotes: AdminOrderQuote[];
@@ -128,6 +144,19 @@ export type OrdersPageFilter =
 export type DateRangePreset = "all" | "today" | "7d" | "30d" | "90d";
 
 export type AmountBucket = "all" | "lt100" | "100_500" | "500_1000" | "gt1000";
+
+/** Query params sent to the server-side admin orders list endpoint. */
+export interface OrdersListParams {
+	page: number;
+	pageSize: number;
+	status: OrdersPageFilter;
+	search: string;
+	date: DateRangePreset;
+	amount: AmountBucket;
+}
+
+/** Per-status-chip counts returned by the orders list endpoint. */
+export type OrdersCounts = Record<OrdersPageFilter, number>;
 
 export interface ReviewView {
 	rating: number;

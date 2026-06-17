@@ -1,4 +1,5 @@
 import type { Request, RequestHandler, Response } from "express";
+import type { ReportsListQuery } from "../../shared/dtos/report.dto.js";
 import { asyncHandler } from "../../shared/errors/async-handler.js";
 import {
 	requireTechnicianId,
@@ -49,9 +50,9 @@ export class ReportsController {
 
 	listForAdmin: RequestHandler = asyncHandler(
 		async (req: Request, res: Response) => {
-			const status = req.query.status as string | undefined;
-			const data = await reportsService.listReports(status);
-			res.status(200).json({ data });
+			const params = req.query as unknown as ReportsListQuery;
+			const { data, total, counts } = await reportsService.listReports(params);
+			res.status(200).json({ data, total, counts });
 		},
 	);
 

@@ -1,23 +1,29 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
+import type { OrdersListQuery } from "../../shared/dtos/admin-dashboard.dto.js";
 import type {
+	AcceptDailyRow,
+	AdminOrderListRow,
 	CategoryRow,
-	DashboardOrderRow,
+	CategoryShareCountRow,
+	DashboardKpisRow,
 	DetailedOrderRow,
+	HomeownerStatsRow,
 	HomeownerUserRow,
+	OrderCompletedDailyRow,
+	OrderCreatedDailyRow,
 	OrderDetailRow,
 	RatingStatRow,
-	ReviewRow,
+	ReviewDailyRow,
+	StatusShareRow,
 	TechnicianRow,
 	TechnicianStatsRow,
+	TechOrderStatsRow,
 } from "./admin-dashboard.repository.types.js";
 
 // Row shapes live in `admin-dashboard.repository.types.js` (colocated with the
 // data layer); re-exported here so existing consumers keep importing from the
 // repository module.
 export type * from "./admin-dashboard.repository.types.js";
-
-const ORDER_FIELDS =
-	"id, status, active, created_at, final_price, service_id, technician_id, user_id, user_completed_at, technician_completed_at, cancellation_reason" as const;
 
 // Non-terminal order statuses (everything except completed / declined / the
 // cancelled* variants / rejected). An account with any of these is mid-engagement.
@@ -48,25 +54,240 @@ function one<T>(rel: T | T[] | null | undefined): T | null {
 	return rel ?? null;
 }
 
+/** Map a `DETAILED_SELECT` row into a `DetailedOrderRow` (recent + orders list). */
+function mapDetailedOrderRow(row: any): DetailedOrderRow {
+	const user = one<{ full_name: string | null }>(row.users);
+	const tech = one<{ first_name: string | null; last_name: string | null }>(
+		row.technicians,
+	);
+	const service = one<{
+		name: string | null;
+		categories: { name: string | null } | { name: string | null }[] | null;
+	}>(row.services);
+	const category = service
+		? one<{ name: string | null }>(service.categories)
+		: null;
+	const review = one<{
+		rating: number;
+		comment: string | null;
+		created_at: string;
+		user_id: string | null;
+	}>(row.reviews);
+
+	return {
+		id: row.id,
+		status: row.status,
+		created_at: row.created_at,
+		final_price: row.final_price,
+		cancellation_reason: row.cancellation_reason,
+		customerName: user?.full_name ?? null,
+		techFirstName: tech?.first_name ?? null,
+		techLastName: tech?.last_name ?? null,
+		categoryName: category?.name ?? null,
+		review,
+	};
+}
+
+// ---- Orders list (server-side pagination/filter on the admin_orders view) ----
+
+export type OrdersStatusBucket = OrdersListQuery["status"];
+
+/** Raw statuses that collapse into each orders-page filter chip. */
+const ORDERS_BUCKET_STATUSES: Record<
+	Exclude<OrdersStatusBucket, "all">,
+	readonly string[]
+> = {
+	pending: ["pending"],
+	accepted: ["accepted"],
+	completed: ["completed"],
+	cancelled: [
+		"cancelled",
+		"cancelled_no_fee",
+		"cancelled_with_fee",
+		"cancelled_by_user",
+		"cancelled_by_technician",
+		"declined_by_technician",
+		"rejected",
+	],
+	active: [
+		"tracking",
+		"arrived_inspection",
+		"awaiting_final_cost",
+		"negotiating",
+		"in_progress",
+		"awaiting_payment",
+		"reschedule_requested_by_user",
+		"reschedule_requested_by_technician",
+	],
+};
+
+function ordersDateCutoffIso(date: OrdersListQuery["date"]): string | null {
+	if (date === "all") return null;
+	const days =
+		date === "today" ? 1 : date === "7d" ? 7 : date === "30d" ? 30 : 90;
+	return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+/** Strip characters that would break the PostgREST `.or()` filter grammar. */
+function sanitizeSearch(q?: string): string | null {
+	if (!q) return null;
+	const cleaned = q.replace(/[,()*%]/g, " ").trim();
+	return cleaned.length > 0 ? cleaned : null;
+}
+
+/** Apply search/date/amount (+ optional status list) to an admin_orders query. */
+function applyOrderFilters(
+	// biome-ignore lint/suspicious/noExplicitAny: PostgREST builder generics are unwieldy.
+	query: any,
+	params: OrdersListQuery,
+	statuses: readonly string[] | null,
+	// biome-ignore lint/suspicious/noExplicitAny: see above.
+): any {
+	let q = query;
+	if (statuses) q = q.in("status", statuses as string[]);
+	const s = sanitizeSearch(params.search);
+	if (s) {
+		q = q.or(
+			`id_text.ilike.*${s}*,customer_name.ilike.*${s}*,tech_name.ilike.*${s}*`,
+		);
+	}
+	const cutoff = ordersDateCutoffIso(params.date);
+	if (cutoff) q = q.gte("created_at", cutoff);
+	switch (params.amount) {
+		case "lt100":
+			q = q.lt("final_price", 100);
+			break;
+		case "100_500":
+			q = q.gte("final_price", 100).lte("final_price", 500);
+			break;
+		case "500_1000":
+			q = q.gt("final_price", 500).lte("final_price", 1000);
+			break;
+		case "gt1000":
+			q = q.gt("final_price", 1000);
+			break;
+	}
+	return q;
+}
+
 export class AdminDashboardRepository {
-	/** One read powers KPIs, statusShare, categoryShare, series, recent, top-tech. */
-	async getOrders(): Promise<DashboardOrderRow[]> {
+	// ---- Dashboard aggregates (computed in Postgres; see admin-dashboard-aggregates.sql) ----
+	// These read small fixed result sets from the aggregate views instead of
+	// pulling every order row into Node (which capped totals at PostgREST's
+	// 1000-row default and did not scale).
+
+	/** Single-row headline KPIs. */
+	async getDashboardKpis(): Promise<DashboardKpisRow> {
 		const { data, error } = await supabaseAdmin
-			.from("orders")
-			.select(ORDER_FIELDS)
-			.order("created_at", { ascending: false });
+			.from("admin_dashboard_kpis")
+			.select("total_orders, active_orders, completed_orders, revenue_total")
+			.maybeSingle();
 		if (error) throw new Error(error.message);
-		return (data ?? []) as DashboardOrderRow[];
+		const r = (data ?? {}) as Partial<DashboardKpisRow>;
+		return {
+			total_orders: Number(r.total_orders ?? 0),
+			active_orders: Number(r.active_orders ?? 0),
+			completed_orders: Number(r.completed_orders ?? 0),
+			revenue_total: Number(r.revenue_total ?? 0),
+		};
 	}
 
-	/** Timestamps of tech-accept events — drives the "accepted" series. */
-	async getAcceptEventDates(): Promise<string[]> {
+	/** Orders created per UTC day. */
+	async getOrderCreatedDaily(): Promise<OrderCreatedDailyRow[]> {
 		const { data, error } = await supabaseAdmin
-			.from("order_events")
-			.select("created_at")
-			.eq("event_type", "tech_accept");
+			.from("admin_order_created_daily")
+			.select("day, orders_made");
 		if (error) throw new Error(error.message);
-		return (data ?? []).map((r: { created_at: string }) => r.created_at);
+		return (data ?? []).map((r: any) => ({
+			day: r.day as string,
+			orders_made: Number(r.orders_made ?? 0),
+		}));
+	}
+
+	/** Orders completed per UTC day + revenue. */
+	async getOrderCompletedDaily(): Promise<OrderCompletedDailyRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_order_completed_daily")
+			.select("day, completed, revenue");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any) => ({
+			day: r.day as string,
+			completed: Number(r.completed ?? 0),
+			revenue: Number(r.revenue ?? 0),
+		}));
+	}
+
+	/** Technician-accept events per UTC day — drives the "accepted" series. */
+	async getAcceptDaily(): Promise<AcceptDailyRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_accept_daily")
+			.select("day, accepted");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any) => ({
+			day: r.day as string,
+			accepted: Number(r.accepted ?? 0),
+		}));
+	}
+
+	/** Review ratings per UTC day — drives the rolling avg-rating delta + sparkline. */
+	async getReviewDaily(): Promise<ReviewDailyRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_review_daily")
+			.select("day, rating_sum, rating_count");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any) => ({
+			day: r.day as string,
+			rating_sum: Number(r.rating_sum ?? 0),
+			rating_count: Number(r.rating_count ?? 0),
+		}));
+	}
+
+	/** Order count per raw status (collapsed to UI buckets in the service). */
+	async getStatusShareCounts(): Promise<StatusShareRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_status_share")
+			.select("status, count");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any) => ({
+			status: r.status as string,
+			count: Number(r.count ?? 0),
+		}));
+	}
+
+	/** Order count per category. */
+	async getCategoryShareCounts(): Promise<CategoryShareCountRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_category_share")
+			.select("category_id, count");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any) => ({
+			category_id: r.category_id as string,
+			count: Number(r.count ?? 0),
+		}));
+	}
+
+	/** Completed jobs + revenue per technician — drives top technicians. */
+	async getTechOrderStats(): Promise<TechOrderStatsRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_tech_order_stats")
+			.select("technician_id, completed_jobs, completed_revenue");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map((r: any) => ({
+			technician_id: r.technician_id as string,
+			completed_jobs: Number(r.completed_jobs ?? 0),
+			completed_revenue: Number(r.completed_revenue ?? 0),
+		}));
+	}
+
+	/** The N newest orders, fully joined — drives the dashboard "recent orders" panel. */
+	async getRecentOrders(limit = 8): Promise<DetailedOrderRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("orders")
+			.select(DETAILED_SELECT)
+			.order("created_at", { ascending: false })
+			.limit(limit);
+		if (error) throw new Error(error.message);
+		return (data ?? []).map(mapDetailedOrderRow);
 	}
 
 	async getCategories(): Promise<CategoryRow[]> {
@@ -75,22 +296,6 @@ export class AdminDashboardRepository {
 			.select("id, name");
 		if (error) throw new Error(error.message);
 		return (data ?? []) as CategoryRow[];
-	}
-
-	/** Map service_id -> category_id (orders reference services, not categories). */
-	async getServiceCategoryMap(): Promise<Map<string, string>> {
-		const { data, error } = await supabaseAdmin
-			.from("services")
-			.select("id, category_id");
-		if (error) throw new Error(error.message);
-		const map = new Map<string, string>();
-		for (const row of (data ?? []) as Array<{
-			id: string;
-			category_id: string | null;
-		}>) {
-			if (row.category_id) map.set(row.id, row.category_id);
-		}
-		return map;
 	}
 
 	async getTechnicians(): Promise<TechnicianRow[]> {
@@ -123,72 +328,48 @@ export class AdminDashboardRepository {
 		return map;
 	}
 
-	async getUsersMap(): Promise<Map<string, string>> {
-		const { data, error } = await supabaseAdmin
-			.from("users")
-			.select("id, full_name");
-		if (error) throw new Error(error.message);
-		const map = new Map<string, string>();
-		for (const row of (data ?? []) as Array<{
-			id: string;
-			full_name: string | null;
-		}>) {
-			map.set(row.id, row.full_name ?? "Unknown");
-		}
-		return map;
-	}
-
 	// ---- Homeowners ----
 
-	async getHomeownerUsers(): Promise<HomeownerUserRow[]> {
+	/** One already-aggregated row per homeowner (counts/spend/city done by the view). */
+	async getHomeownerStats(): Promise<HomeownerStatsRow[]> {
+		const { data, error } = await supabaseAdmin
+			.from("admin_homeowner_stats")
+			.select("*");
+		if (error) throw new Error(error.message);
+		return (data ?? []).map(
+			(r: any): HomeownerStatsRow => ({
+				id: r.id,
+				created_at: r.created_at,
+				full_name: r.full_name,
+				email: r.email,
+				phone: r.phone,
+				blocked: !!r.blocked,
+				block_pending: !!r.block_pending,
+				blocked_reason: r.blocked_reason,
+				blocked_at: r.blocked_at,
+				blocked_by: r.blocked_by,
+				city: r.city,
+				total_orders: Number(r.total_orders ?? 0),
+				completed: Number(r.completed ?? 0),
+				cancelled: Number(r.cancelled ?? 0),
+				spend: Number(r.spend ?? 0),
+				last_order_at: r.last_order_at,
+				review_given_sum: Number(r.review_given_sum ?? 0),
+				review_given_count: Number(r.review_given_count ?? 0),
+				report_count: Number(r.report_count ?? 0),
+			}),
+		);
+	}
+
+	/** Does a homeowner id exist? (history endpoint 404 guard.) */
+	async homeownerExists(id: string): Promise<boolean> {
 		const { data, error } = await supabaseAdmin
 			.from("users")
-			.select(
-				"id, created_at, full_name, email, phone, blocked, block_pending, blocked_reason, blocked_at, blocked_by",
-			);
+			.select("id")
+			.eq("id", id)
+			.maybeSingle();
 		if (error) throw new Error(error.message);
-		return (data ?? []) as HomeownerUserRow[];
-	}
-
-	/** user_id -> city (prefer the active address). */
-	async getCitiesByUser(): Promise<Map<string, string>> {
-		const { data, error } = await supabaseAdmin
-			.from("addresses")
-			.select("user_id, city, is_active")
-			.not("user_id", "is", null);
-		if (error) throw new Error(error.message);
-		const map = new Map<string, string>();
-		for (const row of (data ?? []) as Array<{
-			user_id: string | null;
-			city: string | null;
-			is_active: boolean;
-		}>) {
-			if (!row.user_id || !row.city) continue;
-			if (row.is_active || !map.has(row.user_id))
-				map.set(row.user_id, row.city);
-		}
-		return map;
-	}
-
-	/** user_id -> { sum, count } of review ratings given. */
-	async getReviewAggByUser(): Promise<
-		Map<string, { sum: number; count: number }>
-	> {
-		const { data, error } = await supabaseAdmin
-			.from("reviews")
-			.select("user_id, rating");
-		if (error) throw new Error(error.message);
-		const map = new Map<string, { sum: number; count: number }>();
-		for (const row of (data ?? []) as Array<{
-			user_id: string;
-			rating: number;
-		}>) {
-			const cur = map.get(row.user_id) ?? { sum: 0, count: 0 };
-			cur.sum += row.rating;
-			cur.count += 1;
-			map.set(row.user_id, cur);
-		}
-		return map;
+		return !!data;
 	}
 
 	async setBlocked(
@@ -274,21 +455,9 @@ export class AdminDashboardRepository {
 				completed: Number(r.completed ?? 0),
 				cancelled: Number(r.cancelled ?? 0),
 				revenue: Number(r.revenue ?? 0),
+				report_count: Number(r.report_count ?? 0),
 			}),
 		);
-	}
-
-	/** One technician's orders (newest first) — powers the detail-page history. */
-	async getOrdersByTechnician(
-		technicianId: string,
-	): Promise<DashboardOrderRow[]> {
-		const { data, error } = await supabaseAdmin
-			.from("orders")
-			.select(ORDER_FIELDS)
-			.eq("technician_id", technicianId)
-			.order("created_at", { ascending: false });
-		if (error) throw new Error(error.message);
-		return (data ?? []) as DashboardOrderRow[];
 	}
 
 	/** Does a technician id exist? (history endpoint 404 guard.) */
@@ -332,68 +501,80 @@ export class AdminDashboardRepository {
 		return data as { id: string };
 	}
 
-	/** Reviews keyed by order_id — embedded into recent orders. */
-	async getReviewsByOrderId(): Promise<Map<string, ReviewRow>> {
-		const { data, error } = await supabaseAdmin
-			.from("reviews")
-			.select("order_id, rating, comment, created_at, user_id");
+	/** Admin orders list page (server-side filter + pagination + exact count). */
+	async listOrders(
+		params: OrdersListQuery,
+	): Promise<{ rows: AdminOrderListRow[]; total: number }> {
+		const statuses =
+			params.status === "all" ? null : ORDERS_BUCKET_STATUSES[params.status];
+		let q = supabaseAdmin.from("admin_orders").select("*", { count: "exact" });
+		q = applyOrderFilters(q, params, statuses);
+		q = q
+			.order("created_at", { ascending: false })
+			.range(
+				(params.page - 1) * params.pageSize,
+				params.page * params.pageSize - 1,
+			);
+		const { data, error, count } = await q;
 		if (error) throw new Error(error.message);
-		const map = new Map<string, ReviewRow>();
-		for (const row of (data ?? []) as ReviewRow[]) {
-			map.set(row.order_id, row);
-		}
-		return map;
+		return { rows: (data ?? []) as AdminOrderListRow[], total: count ?? 0 };
 	}
 
-	/** All review ratings with their timestamps (for the rolling rating delta). */
-	async getReviewRatings(): Promise<{ created_at: string; rating: number }[]> {
-		const { data, error } = await supabaseAdmin
-			.from("reviews")
-			.select("created_at, rating");
-		if (error) throw new Error(error.message);
-		return (data ?? []) as { created_at: string; rating: number }[];
+	/** Per-bucket counts under the base filters (search/date/amount, no status). */
+	async countOrdersByBucket(
+		params: OrdersListQuery,
+	): Promise<Record<OrdersStatusBucket, number>> {
+		const buckets: OrdersStatusBucket[] = [
+			"all",
+			"pending",
+			"accepted",
+			"active",
+			"completed",
+			"cancelled",
+		];
+		const entries = await Promise.all(
+			buckets.map(async (bucket) => {
+				const statuses =
+					bucket === "all" ? null : ORDERS_BUCKET_STATUSES[bucket];
+				let q = supabaseAdmin
+					.from("admin_orders")
+					.select("id", { count: "exact", head: true });
+				q = applyOrderFilters(q, params, statuses);
+				const { count, error } = await q;
+				if (error) throw new Error(error.message);
+				return [bucket, count ?? 0] as const;
+			}),
+		);
+		return Object.fromEntries(entries) as Record<OrdersStatusBucket, number>;
 	}
 
-	/** Fully-joined orders for the admin orders list (newest first). */
-	async getDetailedOrders(): Promise<DetailedOrderRow[]> {
+	/** All orders matching the filters (no pagination, capped) — drives CSV export. */
+	async exportOrders(
+		params: OrdersListQuery,
+		cap = 5000,
+	): Promise<AdminOrderListRow[]> {
+		const statuses =
+			params.status === "all" ? null : ORDERS_BUCKET_STATUSES[params.status];
+		let q = supabaseAdmin.from("admin_orders").select("*");
+		q = applyOrderFilters(q, params, statuses);
+		q = q.order("created_at", { ascending: false }).range(0, cap - 1);
+		const { data, error } = await q;
+		if (error) throw new Error(error.message);
+		return (data ?? []) as AdminOrderListRow[];
+	}
+
+	/** One entity's orders (newest first) from the flat view — detail-page history. */
+	async getOrdersForEntity(
+		column: "user_id" | "technician_id",
+		id: string,
+	): Promise<AdminOrderListRow[]> {
 		const { data, error } = await supabaseAdmin
-			.from("orders")
-			.select(DETAILED_SELECT)
+			.from("admin_orders")
+			.select("*")
+			.eq(column, id)
 			.order("created_at", { ascending: false });
 		if (error) throw new Error(error.message);
-
-		return (data ?? []).map((row: any): DetailedOrderRow => {
-			const user = one<{ full_name: string | null }>(row.users);
-			const tech = one<{ first_name: string | null; last_name: string | null }>(
-				row.technicians,
-			);
-			const service = one<{
-				name: string | null;
-				categories: { name: string | null } | { name: string | null }[] | null;
-			}>(row.services);
-			const category = service
-				? one<{ name: string | null }>(service.categories)
-				: null;
-			const review = one<{
-				rating: number;
-				comment: string | null;
-				created_at: string;
-				user_id: string | null;
-			}>(row.reviews);
-
-			return {
-				id: row.id,
-				status: row.status,
-				created_at: row.created_at,
-				final_price: row.final_price,
-				cancellation_reason: row.cancellation_reason,
-				customerName: user?.full_name ?? null,
-				techFirstName: tech?.first_name ?? null,
-				techLastName: tech?.last_name ?? null,
-				categoryName: category?.name ?? null,
-				review,
-			};
-		});
+		return (data ?? []) as AdminOrderListRow[];
 	}
 
 	/** Single order with everything the admin order-detail modal needs. */
@@ -454,6 +635,7 @@ export class AdminDashboardRepository {
 			customerName: user?.full_name ?? null,
 			techFirstName: tech?.first_name ?? null,
 			techLastName: tech?.last_name ?? null,
+			serviceName: service?.name ?? null,
 			categoryName: category?.name ?? null,
 			review,
 			quotes,

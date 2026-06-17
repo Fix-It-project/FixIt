@@ -1,8 +1,10 @@
 import { env } from "@FixIt/env/server";
+import type { ReportsListQuery } from "../../shared/dtos/report.dto.js";
 import { AppError } from "../../shared/errors/app-error.js";
 import { logger } from "../../shared/logger.js";
 import { notificationsService } from "../notifications/notifications.service.js";
 import {
+	type ReportsCounts,
 	type ReportsRepository,
 	reportsRepository,
 } from "./reports.repository.js";
@@ -164,9 +166,16 @@ export class ReportsService {
 		}
 	}
 
-	async listReports(status?: string): Promise<AdminReportDTO[]> {
-		const rows = await this.repo.listForAdmin(status);
-		return rows.map(toAdminDTO);
+	async listReports(params: ReportsListQuery): Promise<{
+		data: AdminReportDTO[];
+		total: number;
+		counts: ReportsCounts;
+	}> {
+		const [{ rows, total }, counts] = await Promise.all([
+			this.repo.listForAdmin(params),
+			this.repo.countReports(params.status),
+		]);
+		return { data: rows.map(toAdminDTO), total, counts };
 	}
 
 	async resolve(id: string): Promise<Report> {

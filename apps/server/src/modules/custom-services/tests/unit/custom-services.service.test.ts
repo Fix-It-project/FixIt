@@ -17,6 +17,7 @@ function makeRepo() {
 		submitRequest: vi.fn(),
 		listByTechnician: vi.fn(),
 		listForAdmin: vi.fn(),
+		countRequests: vi.fn(),
 		setStatus: vi.fn(),
 		approveAndPublish: vi.fn(),
 	};
@@ -85,11 +86,15 @@ describe("CustomServicesService", () => {
 	});
 
 	it("maps admin rows to DTOs with technician display fields + catalog range", async () => {
-		repo.listForAdmin.mockResolvedValue([adminRow]);
+		repo.listForAdmin.mockResolvedValue({ rows: [adminRow], total: 1 });
+		repo.countRequests.mockResolvedValue({ pending: 1, decided: 0 });
 
-		const dtos = await service.listRequests("pending");
-		const dto = dtos[0]!;
+		const params = { page: 1, pageSize: 20, status: "pending" as const };
+		const result = await service.listRequests(params);
+		const dto = result.data[0]!;
 
+		expect(result.total).toBe(1);
+		expect(result.counts.pending).toBe(1);
 		expect(dto).toMatchObject({
 			id: "req-1",
 			technicianName: "Ali Hassan",
@@ -102,7 +107,8 @@ describe("CustomServicesService", () => {
 			status: "pending",
 		});
 		expect(dto.color).toMatch(/^#/);
-		expect(repo.listForAdmin).toHaveBeenCalledWith("pending");
+		expect(repo.listForAdmin).toHaveBeenCalledWith(params);
+		expect(repo.countRequests).toHaveBeenCalled();
 	});
 
 	it("approves a request via publish, sets reviewer, and fires the approved push", async () => {

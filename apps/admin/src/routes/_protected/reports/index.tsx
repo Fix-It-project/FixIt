@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import type { AdminReport, ReportSourceFilter } from "@/types";
+import type { ReportSourceFilter } from "@/types";
 import { ReportCasePanel } from "./components/ReportCasePanel";
 import { ReportQueue } from "./components/ReportQueue";
 import {
@@ -42,39 +43,39 @@ const SOURCES: { key: ReportSourceFilter; label: string }[] = [
 	{ key: "technician", label: "From technicians" },
 ];
 
-function bySource(
-	reports: AdminReport[],
-	f: ReportSourceFilter,
-): AdminReport[] {
-	if (f === "all") return reports;
-	return reports.filter((r) => r.reporterRole === f);
-}
-
 function ReportsPage() {
-	const { data, isLoading } = useReports();
+	const [tab, setTab] = useState<"open" | "closed">("open");
+	const [source, setSource] = useState<ReportSourceFilter>("all");
+	const [page, setPage] = useState(1);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const [mobileOpen, setMobileOpen] = useState(false);
+
+	const { data, isLoading } = useReports({
+		page,
+		pageSize: PAGE_SIZE,
+		status: tab,
+		source,
+	});
 	const resolve = useResolveReport();
 	const dismiss = useDismissReport();
 	const reopen = useReopenReport();
 	const warn = useWarnReport();
 	const isDesktop = useIsDesktop();
 
-	const reports = useMemo(() => data ?? [], [data]);
-	const open = useMemo(
-		() => reports.filter((r) => r.status === "open"),
-		[reports],
-	);
-	const closed = useMemo(
-		() => reports.filter((r) => r.status === "closed"),
-		[reports],
-	);
+	const activeList = useMemo(() => data?.data ?? [], [data]);
+	const counts = data?.counts;
+	const total = data?.total ?? 0;
+	const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-	const [tab, setTab] = useState<"open" | "closed">("open");
-	const [source, setSource] = useState<ReportSourceFilter>("all");
-	const [selectedId, setSelectedId] = useState<string | null>(null);
-	const [mobileOpen, setMobileOpen] = useState(false);
-
-	const base = tab === "open" ? open : closed;
-	const activeList = useMemo(() => bySource(base, source), [base, source]);
+	// Tab/source changes reset to page 1.
+	const changeTab = (next: "open" | "closed") => {
+		setTab(next);
+		setPage(1);
+	};
+	const changeSource = (next: ReportSourceFilter) => {
+		setSource(next);
+		setPage(1);
+	};
 
 	// Keep a valid selection on desktop: hold the current one if still in the
 	// active list, otherwise advance to the first (never an empty panel).
@@ -122,27 +123,30 @@ function ReportsPage() {
 					Reports
 				</h1>
 				<p className="mt-1 text-muted-foreground text-sm">
-					{isLoading
+					{!counts
 						? "Loading…"
-						: `${open.length} open · ${closed.length} closed · complaints between users and technicians`}
+						: `${counts.open} open · ${counts.closed} closed · complaints between users and technicians`}
 				</p>
 			</div>
 
-			<Tabs value={tab} onValueChange={(v) => setTab(v as "open" | "closed")}>
+			<Tabs
+				value={tab}
+				onValueChange={(v) => changeTab(v as "open" | "closed")}
+			>
 				<TabsList className="w-full sm:w-auto">
 					<TabsTrigger value="open" className="flex-1 sm:flex-none">
 						Open
-						{open.length > 0 && (
+						{counts && counts.open > 0 && (
 							<span className="ml-1.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 font-semibold text-[11px] text-amber-600">
-								{open.length}
+								{counts.open}
 							</span>
 						)}
 					</TabsTrigger>
 					<TabsTrigger value="closed" className="flex-1 sm:flex-none">
 						Closed
-						{closed.length > 0 && (
+						{counts && counts.closed > 0 && (
 							<span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 font-semibold text-[11px] text-muted-foreground">
-								{closed.length}
+								{counts.closed}
 							</span>
 						)}
 					</TabsTrigger>
@@ -152,14 +156,13 @@ function ReportsPage() {
 					{/* Source filter */}
 					<div className="inline-flex w-fit items-center gap-1 rounded-lg border border-border bg-card p-1">
 						{SOURCES.map((f) => {
-							const count =
-								f.key === "all" ? base.length : bySource(base, f.key).length;
+							const count = counts?.[f.key] ?? 0;
 							const active = source === f.key;
 							return (
 								<button
 									key={f.key}
 									type="button"
-									onClick={() => setSource(f.key)}
+									onClick={() => changeSource(f.key)}
 									className={cn(
 										"rounded-md px-3 py-1.5 font-medium text-xs transition-colors",
 										active
@@ -181,18 +184,27 @@ function ReportsPage() {
 					) : activeList.length === 0 ? (
 						<EmptyState closed={tab === "closed"} />
 					) : (
-						<div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr] lg:items-start">
-							<div className="overflow-hidden rounded-xl border border-border bg-card">
-								<ReportQueue
-									reports={activeList}
-									selectedId={selectedId}
-									onSelect={handleSelect}
-								/>
+						<>
+							<div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr] lg:items-start">
+								<div className="overflow-hidden rounded-xl border border-border bg-card">
+									<ReportQueue
+										reports={activeList}
+										selectedId={selectedId}
+										onSelect={handleSelect}
+									/>
+								</div>
+								<div className="hidden rounded-xl border border-border bg-card lg:block">
+									<ReportCasePanel {...panelProps} />
+								</div>
 							</div>
-							<div className="hidden rounded-xl border border-border bg-card lg:block">
-								<ReportCasePanel {...panelProps} />
-							</div>
-						</div>
+							<Pagination
+								page={page}
+								pageCount={pageCount}
+								pageSize={PAGE_SIZE}
+								totalItems={total}
+								onPageChange={setPage}
+							/>
+						</>
 					)}
 				</TabsContent>
 			</Tabs>
