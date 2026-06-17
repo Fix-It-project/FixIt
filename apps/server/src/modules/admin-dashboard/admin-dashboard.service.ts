@@ -1,15 +1,24 @@
 import { env } from "@FixIt/env/server";
+import type { OrdersListQuery } from "../../shared/dtos/admin-dashboard.dto.js";
 import { AppError } from "../../shared/errors/app-error.js";
 import { logger } from "../../shared/logger.js";
 import { notificationsService } from "../notifications/notifications.service.js";
 import { lifecycleService } from "../orders/lifecycle/lifecycle.service.js";
 import {
 	type AdminDashboardRepository,
+	type AdminOrderListRow,
 	adminDashboardRepository,
-	type DashboardOrderRow,
+	type CategoryShareCountRow,
+	type DashboardKpisRow,
 	type DetailedOrderRow,
-	type HomeownerUserRow,
+	type HomeownerStatsRow,
+	type OrderCompletedDailyRow,
+	type OrderCreatedDailyRow,
+	type OrdersStatusBucket,
+	type ReviewDailyRow,
+	type StatusShareRow,
 	type TechnicianStatsRow,
+	type TechOrderStatsRow,
 } from "./admin-dashboard.repository.js";
 import type {
 	AdminHomeowner,
@@ -53,10 +62,6 @@ function collapseStatus(raw: string): StatusBucket {
 	if (raw === "pending") return "pending";
 	if (CANCELLED_STATUSES.has(raw)) return "cancelled";
 	return "active";
-}
-
-function isCompleted(row: DashboardOrderRow): boolean {
-	return row.status === "completed";
 }
 
 /** Who cancelled, inferred from the raw order status. */
@@ -122,10 +127,6 @@ function formatCompact(n: number): string {
 	return formatInt(n);
 }
 
-function dayKey(iso: string): string {
-	return iso.slice(0, 10); // YYYY-MM-DD (UTC)
-}
-
 function dayKeyFor(date: Date): string {
 	return date.toISOString().slice(0, 10);
 }
@@ -136,10 +137,47 @@ function pctDelta(current: number, prior: number): number {
 	return Math.round(((current - prior) / prior) * 1000) / 10;
 }
 
-/** Sum/count over a rolling window of `days` ending now, vs the prior window. */
-function rollingWindowCompare(
-	dates: string[],
-	values: number[],
+// ---- Daily-bucket helpers ----
+// The dashboard now reads pre-aggregated per-day rows (≤ number of distinct
+// days) from Postgres instead of every order row. These mirror the raw-date
+// helpers above but sum a `value` per `day` ("YYYY-MM-DD", UTC).
+
+interface DailyPoint {
+	day: string;
+	value: number;
+}
+
+/** Midnight-UTC epoch ms for a "YYYY-MM-DD" day key. */
+function dayStartMs(day: string): number {
+	return new Date(`${day}T00:00:00Z`).getTime();
+}
+
+/** The last `n` UTC day keys ending today (oldest first). */
+function lastNDayKeys(n: number): string[] {
+	const keys: string[] = [];
+	const today = new Date();
+	for (let i = n - 1; i >= 0; i--) {
+		const d = new Date(today);
+		d.setUTCDate(d.getUTCDate() - i);
+		keys.push(dayKeyFor(d));
+	}
+	return keys;
+}
+
+/** Align daily points to a window's day keys (summing into matching buckets). */
+function alignDaily(keys: string[], points: DailyPoint[]): number[] {
+	const idx = new Map(keys.map((k, i) => [k, i]));
+	const out = new Array(keys.length).fill(0);
+	for (const p of points) {
+		const pos = idx.get(p.day);
+		if (pos !== undefined) out[pos] = (out[pos] ?? 0) + p.value;
+	}
+	return out;
+}
+
+/** Sum over a rolling window of `days` ending now, vs the prior window. */
+function rollingWindowCompareDaily(
+	points: DailyPoint[],
 	days: number,
 ): { current: number; prior: number } {
 	const now = Date.now();
@@ -148,41 +186,17 @@ function rollingWindowCompare(
 	const priorStart = now - 2 * windowMs;
 	let current = 0;
 	let prior = 0;
-	for (let i = 0; i < dates.length; i++) {
-		const iso = dates[i];
-		if (iso === undefined) continue;
-		const t = new Date(iso).getTime();
-		const v = values[i] ?? 0;
-		if (t >= currentStart) current += v;
-		else if (t >= priorStart) prior += v;
+	for (const p of points) {
+		const t = dayStartMs(p.day);
+		if (t >= currentStart) current += p.value;
+		else if (t >= priorStart) prior += p.value;
 	}
 	return { current, prior };
 }
 
-/** Last 14 calendar days (UTC), summing `values` into the matching day bucket. */
-function last14DayTrend(dates: string[], values: number[]): number[] {
-	const keys: string[] = [];
-	const today = new Date();
-	for (let i = 13; i >= 0; i--) {
-		const d = new Date(today);
-		d.setUTCDate(d.getUTCDate() - i);
-		keys.push(dayKeyFor(d));
-	}
-	const idx = new Map(keys.map((k, i) => [k, i]));
-	const out = new Array(14).fill(0);
-	for (let i = 0; i < dates.length; i++) {
-		const iso = dates[i];
-		if (iso === undefined) continue;
-		const pos = idx.get(dayKey(iso));
-		if (pos !== undefined) out[pos] = (out[pos] ?? 0) + (values[i] ?? 0);
-	}
-	return out;
-}
-
-/** Average rating over the last `days` vs the prior `days`, as a % delta.
- *  Null when either window has no reviews (no honest comparison to show). */
-function rollingRatingDelta(
-	ratings: { created_at: string; rating: number }[],
+/** Average rating last `days` vs prior `days` as a % delta, from daily sums/counts. */
+function rollingRatingDeltaDaily(
+	rows: ReviewDailyRow[],
 	days: number,
 ): { delta: number | null } {
 	const now = Date.now();
@@ -193,57 +207,42 @@ function rollingRatingDelta(
 	let curCount = 0;
 	let priorSum = 0;
 	let priorCount = 0;
-	for (const r of ratings) {
-		const t = new Date(r.created_at).getTime();
+	for (const r of rows) {
+		const t = dayStartMs(r.day);
 		if (t >= currentStart) {
-			curSum += r.rating;
-			curCount += 1;
+			curSum += r.rating_sum;
+			curCount += r.rating_count;
 		} else if (t >= priorStart) {
-			priorSum += r.rating;
-			priorCount += 1;
+			priorSum += r.rating_sum;
+			priorCount += r.rating_count;
 		}
 	}
 	if (curCount === 0 || priorCount === 0) return { delta: null };
 	return { delta: pctDelta(curSum / curCount, priorSum / priorCount) };
 }
 
-/** Last 14 days' daily average rating, carrying the last known value forward
- *  (and seeded with the overall average) so the sparkline never collapses to 0. */
-function dailyAvgRatingTrend(
-	ratings: { created_at: string; rating: number }[],
+/** Last 14 days' daily average rating, carrying the last known value forward. */
+function dailyAvgRatingTrendDaily(
+	rows: ReviewDailyRow[],
 	overallAvg: number,
 ): number[] {
-	const keys: string[] = [];
-	const today = new Date();
-	for (let i = 13; i >= 0; i--) {
-		const d = new Date(today);
-		d.setUTCDate(d.getUTCDate() - i);
-		keys.push(dayKeyFor(d));
-	}
-	const sums = new Map<string, number>();
-	const counts = new Map<string, number>();
-	for (const r of ratings) {
-		const k = dayKeyFor(new Date(r.created_at));
-		sums.set(k, (sums.get(k) ?? 0) + r.rating);
-		counts.set(k, (counts.get(k) ?? 0) + 1);
-	}
-	const out: number[] = [];
+	const byDay = new Map(rows.map((r) => [r.day, r]));
 	let last = Math.round(overallAvg * 100) / 100;
-	for (const k of keys) {
-		const c = counts.get(k) ?? 0;
-		if (c > 0) last = Math.round(((sums.get(k) ?? 0) / c) * 100) / 100;
+	const out: number[] = [];
+	for (const k of lastNDayKeys(14)) {
+		const r = byDay.get(k);
+		if (r && r.rating_count > 0) {
+			last = Math.round((r.rating_sum / r.rating_count) * 100) / 100;
+		}
 		out.push(last);
 	}
 	return out;
 }
 
-/**
- * Build an N-day window ending today: `labels` are short dates ("May 23"),
- * `count(dates)` buckets timestamps into per-day counts aligned to the window.
- */
-function buildDayWindow(days: number): {
+/** N-day window: short labels ("May 23") + the matching "YYYY-MM-DD" keys. */
+function buildDayWindowKeys(days: number): {
 	labels: string[];
-	count: (dates: string[]) => number[];
+	keys: string[];
 } {
 	const keys: string[] = [];
 	const labels: string[] = [];
@@ -256,20 +255,7 @@ function buildDayWindow(days: number): {
 			d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
 		);
 	}
-	const idx = new Map(keys.map((k, i) => [k, i]));
-	const count = (dates: string[]): number[] => {
-		const out = new Array(days).fill(0);
-		for (const iso of dates) {
-			const pos = idx.get(dayKey(iso));
-			if (pos !== undefined) out[pos] = (out[pos] ?? 0) + 1;
-		}
-		return out;
-	};
-	return { labels, count };
-}
-
-function completionDate(row: DashboardOrderRow): string {
-	return row.user_completed_at ?? row.technician_completed_at ?? row.created_at;
+	return { labels, keys };
 }
 
 function relativeWhen(iso: string): { when: string; time: string } {
@@ -302,23 +288,29 @@ export class AdminDashboardService {
 
 	async getSummary(): Promise<DashboardSummary> {
 		const [
-			orders,
+			kpis,
+			createdDaily,
+			completedDaily,
+			reviewDaily,
+			statusCounts,
+			categoryCounts,
+			techStats,
 			categories,
-			serviceCat,
 			technicians,
 			ratingStats,
-			users,
-			reviews,
-			reviewRatings,
+			recent,
 		] = await Promise.all([
-			this.repo.getOrders(),
+			this.repo.getDashboardKpis(),
+			this.repo.getOrderCreatedDaily(),
+			this.repo.getOrderCompletedDaily(),
+			this.repo.getReviewDaily(),
+			this.repo.getStatusShareCounts(),
+			this.repo.getCategoryShareCounts(),
+			this.repo.getTechOrderStats(),
 			this.repo.getCategories(),
-			this.repo.getServiceCategoryMap(),
 			this.repo.getTechnicians(),
 			this.repo.getRatingStats(),
-			this.repo.getUsersMap(),
-			this.repo.getReviewsByOrderId(),
-			this.repo.getReviewRatings(),
+			this.repo.getRecentOrders(8),
 		]);
 
 		const categoryNameById = new Map(
@@ -326,23 +318,18 @@ export class AdminDashboardService {
 		);
 
 		return {
-			kpis: this.buildKpis(orders, ratingStats, reviewRatings),
-			categoryShare: this.buildCategoryShare(
-				orders,
-				serviceCat,
-				categoryNameById,
+			kpis: this.buildKpis(
+				kpis,
+				createdDaily,
+				completedDaily,
+				ratingStats,
+				reviewDaily,
 			),
-			statusShare: this.buildStatusShare(orders),
-			recentOrders: this.buildRecentOrders(
-				orders,
-				serviceCat,
-				categoryNameById,
-				technicians,
-				users,
-				reviews,
-			),
+			categoryShare: this.buildCategoryShare(categoryCounts, categoryNameById),
+			statusShare: this.buildStatusShare(statusCounts),
+			recentOrders: this.buildRecentOrders(recent),
 			topTechnicians: this.buildTopTechnicians(
-				orders,
+				techStats,
 				technicians,
 				ratingStats,
 				categoryNameById,
@@ -352,15 +339,25 @@ export class AdminDashboardService {
 
 	async getOrdersSeries(range: SeriesRange): Promise<OrdersSeries> {
 		const days = range === "7d" ? 7 : range === "90d" ? 90 : 30;
-		const [orders, acceptDates] = await Promise.all([
-			this.repo.getOrders(),
-			this.repo.getAcceptEventDates(),
+		const [createdDaily, completedDaily, acceptDaily] = await Promise.all([
+			this.repo.getOrderCreatedDaily(),
+			this.repo.getOrderCompletedDaily(),
+			this.repo.getAcceptDaily(),
 		]);
 
-		const { labels, count } = buildDayWindow(days);
-		const ordersMade = count(orders.map((o) => o.created_at));
-		const accepted = count(acceptDates);
-		const completed = count(orders.filter(isCompleted).map(completionDate));
+		const { labels, keys } = buildDayWindowKeys(days);
+		const ordersMade = alignDaily(
+			keys,
+			createdDaily.map((r) => ({ day: r.day, value: r.orders_made })),
+		);
+		const accepted = alignDaily(
+			keys,
+			acceptDaily.map((r) => ({ day: r.day, value: r.accepted })),
+		);
+		const completed = alignDaily(
+			keys,
+			completedDaily.map((r) => ({ day: r.day, value: r.completed })),
+		);
 
 		return {
 			days: labels,
@@ -372,36 +369,34 @@ export class AdminDashboardService {
 
 	// --- KPI block ---
 	private buildKpis(
-		orders: DashboardOrderRow[],
+		kpis: DashboardKpisRow,
+		createdDaily: OrderCreatedDailyRow[],
+		completedDaily: OrderCompletedDailyRow[],
 		ratingStats: Map<string, { review_count: number; rating_sum: number }>,
-		reviewRatings: { created_at: string; rating: number }[],
+		reviewDaily: ReviewDailyRow[],
 	): KpiMetric[] {
-		const createdDates = orders.map((o) => o.created_at);
-		const ones = orders.map(() => 1);
+		const createdPoints = createdDaily.map((r) => ({
+			day: r.day,
+			value: r.orders_made,
+		}));
+		const revenuePoints = completedDaily.map((r) => ({
+			day: r.day,
+			value: r.revenue,
+		}));
+		const last14 = lastNDayKeys(14);
 
 		// Orders — 30-day headline (so the % vs the prior 30 days actually matches);
-		// the all-time total is surfaced as the secondary figure.
-		const totalOrders = orders.length;
-		const totalCmp = rollingWindowCompare(createdDates, ones, 30);
+		// the all-time total (uncapped) is surfaced as the secondary figure.
+		const totalCmp = rollingWindowCompareDaily(createdPoints, 30);
 
 		// Active Orders — a live snapshot of in-flight orders (orders.active=true:
 		// accepted -> awaiting_payment). No history exists, so there's no delta.
-		const activeNow = orders.filter((o) => o.active).length;
 
 		// Revenue — 30-day headline; all-time total as the secondary figure.
-		const completedOrders = orders.filter(isCompleted);
-		const revenueTotal = completedOrders.reduce(
-			(s, o) => s + (o.final_price ?? 0),
-			0,
-		);
-		const revCmp = rollingWindowCompare(
-			completedOrders.map(completionDate),
-			completedOrders.map((o) => o.final_price ?? 0),
-			30,
-		);
+		const revCmp = rollingWindowCompareDaily(revenuePoints, 30);
 
 		// Avg Rating — overall weighted average (headline) plus a real last-30d vs
-		// prior-30d delta from review timestamps.
+		// prior-30d delta from daily review buckets.
 		let sumRatings = 0;
 		let sumCount = 0;
 		for (const s of ratingStats.values()) {
@@ -409,7 +404,7 @@ export class AdminDashboardService {
 			sumCount += s.review_count;
 		}
 		const avgRating = sumCount > 0 ? sumRatings / sumCount : 5;
-		const ratingCmp = rollingRatingDelta(reviewRatings, 30);
+		const ratingCmp = rollingRatingDeltaDaily(reviewDaily, 30);
 
 		return [
 			{
@@ -418,13 +413,13 @@ export class AdminDashboardService {
 				delta: pctDelta(totalCmp.current, totalCmp.prior),
 				deltaLabel: "vs. prior 30 days",
 				icon: "list",
-				trend: last14DayTrend(createdDates, ones),
-				previous: formatInt(totalOrders),
+				trend: alignDaily(last14, createdPoints),
+				previous: formatInt(kpis.total_orders),
 				previousLabel: "all-time",
 			},
 			{
 				label: "Active Orders",
-				value: formatInt(activeNow),
+				value: formatInt(kpis.active_orders),
 				delta: null,
 				deltaLabel: "orders in progress",
 				icon: "activity",
@@ -436,11 +431,8 @@ export class AdminDashboardService {
 				delta: pctDelta(revCmp.current, revCmp.prior),
 				deltaLabel: "vs. prior 30 days",
 				icon: "wallet",
-				trend: last14DayTrend(
-					completedOrders.map(completionDate),
-					completedOrders.map((o) => o.final_price ?? 0),
-				),
-				previous: formatCompact(revenueTotal),
+				trend: alignDaily(last14, revenuePoints),
+				previous: formatCompact(kpis.revenue_total),
 				previousLabel: "all-time",
 			},
 			{
@@ -449,49 +441,40 @@ export class AdminDashboardService {
 				delta: ratingCmp.delta,
 				deltaLabel: "vs. prior 30 days",
 				icon: "star",
-				trend: dailyAvgRatingTrend(reviewRatings, avgRating),
+				trend: dailyAvgRatingTrendDaily(reviewDaily, avgRating),
 			},
 		];
 	}
 
 	// --- Category share ---
 	private buildCategoryShare(
-		orders: DashboardOrderRow[],
-		serviceCat: Map<string, string>,
+		rows: CategoryShareCountRow[],
 		categoryNameById: Map<string, string>,
 	): CategoryShare[] {
-		const counts = new Map<string, number>();
-		let total = 0;
-		for (const o of orders) {
-			if (!o.service_id) continue;
-			const catId = serviceCat.get(o.service_id);
-			if (!catId) continue;
-			counts.set(catId, (counts.get(catId) ?? 0) + 1);
-			total += 1;
-		}
+		const total = rows.reduce((s, r) => s + r.count, 0);
 		if (total === 0) return [];
-		return [...counts.entries()]
-			.map(([id, count]) => {
-				const name = categoryNameById.get(id) ?? "Unknown";
+		return rows
+			.map((r) => {
+				const name = categoryNameById.get(r.category_id) ?? "Unknown";
 				return {
-					id,
+					id: r.category_id,
 					name,
 					color: colorForName(name),
-					pct: Math.round((count / total) * 100),
+					pct: Math.round((r.count / total) * 100),
 				};
 			})
 			.sort((a, b) => b.pct - a.pct);
 	}
 
 	// --- Status share (collapsed to 4 UI buckets) ---
-	private buildStatusShare(orders: DashboardOrderRow[]): StatusShare[] {
+	private buildStatusShare(rows: StatusShareRow[]): StatusShare[] {
 		const counts: Record<StatusBucket, number> = {
 			completed: 0,
 			active: 0,
 			pending: 0,
 			cancelled: 0,
 		};
-		for (const o of orders) counts[collapseStatus(o.status)] += 1;
+		for (const r of rows) counts[collapseStatus(r.status)] += r.count;
 		return [
 			{
 				key: "completed",
@@ -521,52 +504,21 @@ export class AdminDashboardService {
 	}
 
 	// --- Recent orders (8 newest, raw status) ---
-	private buildRecentOrders(
-		orders: DashboardOrderRow[],
-		serviceCat: Map<string, string>,
-		categoryNameById: Map<string, string>,
-		technicians: Array<{
-			id: string;
-			first_name: string | null;
-			last_name: string | null;
-		}>,
-		users: Map<string, string>,
-		reviews: Map<
-			string,
-			{
-				rating: number;
-				comment: string | null;
-				created_at: string;
-				user_id: string | null;
-			}
-		>,
-	): DashboardOrder[] {
-		const techNameById = new Map(
-			technicians.map((t) => [
-				t.id,
-				`${t.first_name ?? ""} ${t.last_name ?? ""}`.trim() || "Unassigned",
-			]),
-		);
-
-		return orders.slice(0, 8).map((o) => {
-			const techName = o.technician_id
-				? (techNameById.get(o.technician_id) ?? "Unassigned")
-				: "Unassigned";
-			const customer = o.user_id
-				? (users.get(o.user_id) ?? "Unknown")
-				: "Unknown";
-			const catId = o.service_id ? serviceCat.get(o.service_id) : undefined;
-			const category = catId
-				? (categoryNameById.get(catId) ?? "Unknown")
-				: "Unknown";
+	private buildRecentOrders(orders: DetailedOrderRow[]): DashboardOrder[] {
+		return orders.map((o) => {
+			const techName =
+				`${o.techFirstName ?? ""} ${o.techLastName ?? ""}`.trim() ||
+				"Unassigned";
+			const customer = o.customerName ?? "Unknown";
+			const category = o.categoryName ?? "Unknown";
 			const { when, time } = relativeWhen(o.created_at);
 
-			const r = reviews.get(o.id);
+			const r = o.review;
 			const review: DashboardOrderReview | null = r
 				? {
 						rating: r.rating,
 						comment: r.comment,
-						customer: r.user_id ? (users.get(r.user_id) ?? customer) : customer,
+						customer,
 						date: new Date(r.created_at).toLocaleDateString("en-US", {
 							day: "numeric",
 							month: "short",
@@ -593,7 +545,7 @@ export class AdminDashboardService {
 
 	// --- Top technicians ---
 	private buildTopTechnicians(
-		orders: DashboardOrderRow[],
+		techStats: TechOrderStatsRow[],
 		technicians: Array<{
 			id: string;
 			first_name: string | null;
@@ -605,13 +557,9 @@ export class AdminDashboardService {
 	): { overall: TopTech[]; byCategory: TopTech[] } {
 		const jobs = new Map<string, number>();
 		const revenue = new Map<string, number>();
-		for (const o of orders) {
-			if (!o.technician_id || !isCompleted(o)) continue;
-			jobs.set(o.technician_id, (jobs.get(o.technician_id) ?? 0) + 1);
-			revenue.set(
-				o.technician_id,
-				(revenue.get(o.technician_id) ?? 0) + (o.final_price ?? 0),
-			);
+		for (const s of techStats) {
+			jobs.set(s.technician_id, s.completed_jobs);
+			revenue.set(s.technician_id, s.completed_revenue);
 		}
 
 		const toTopTech = (t: (typeof technicians)[number]): TopTech => {
@@ -652,10 +600,64 @@ export class AdminDashboardService {
 		return { overall, byCategory };
 	}
 
-	// --- Orders list (admin orders page) ---
-	async getAllOrders(): Promise<AdminOrder[]> {
-		const rows = await this.repo.getDetailedOrders();
-		return rows.map((r) => this.toAdminOrder(r));
+	// --- Orders list (admin orders page; server-side filter + pagination) ---
+	async getOrders(params: OrdersListQuery): Promise<{
+		data: AdminOrder[];
+		total: number;
+		counts: Record<OrdersStatusBucket, number>;
+	}> {
+		const [{ rows, total }, counts] = await Promise.all([
+			this.repo.listOrders(params),
+			this.repo.countOrdersByBucket(params),
+		]);
+		return {
+			data: rows.map((r) => this.toAdminOrderFromListRow(r)),
+			total,
+			counts,
+		};
+	}
+
+	/** Full filtered set (no pagination, capped) for CSV export. */
+	async exportOrders(params: OrdersListQuery): Promise<AdminOrder[]> {
+		const rows = await this.repo.exportOrders(params);
+		return rows.map((r) => this.toAdminOrderFromListRow(r));
+	}
+
+	private toAdminOrderFromListRow(r: AdminOrderListRow): AdminOrder {
+		const tech = r.tech_name ?? "Unassigned";
+		const customer = r.customer_name ?? "Unknown";
+		const { when, time } = relativeWhen(r.created_at);
+
+		const review: AdminOrderReview | null =
+			r.review_rating != null
+				? {
+						rating: r.review_rating,
+						comment: r.review_comment,
+						customer,
+						date: r.review_created_at
+							? new Date(r.review_created_at).toLocaleDateString("en-US", {
+									day: "numeric",
+									month: "short",
+								})
+							: "",
+					}
+				: null;
+
+		return {
+			id: r.id,
+			customer,
+			tech,
+			techInitials: initialsOf(tech),
+			techColor: colorForName(tech),
+			category: r.category_name ?? "Unknown",
+			status: r.status,
+			amount: r.final_price ?? 0,
+			time,
+			when,
+			createdAt: r.created_at,
+			cancelReason: r.cancellation_reason ?? undefined,
+			review,
+		};
 	}
 
 	async getOrderDetail(id: string): Promise<AdminOrderDetail> {
@@ -679,6 +681,7 @@ export class AdminDashboardService {
 			attachment: r.attachment,
 			customer: r.customerName ?? "Unknown",
 			tech,
+			service: r.serviceName ?? "Unknown",
 			category: r.categoryName ?? "Unknown",
 			review: r.review
 				? {
@@ -715,178 +718,76 @@ export class AdminDashboardService {
 		};
 	}
 
-	private toAdminOrder(r: DetailedOrderRow): AdminOrder {
-		const tech =
-			`${r.techFirstName ?? ""} ${r.techLastName ?? ""}`.trim() || "Unassigned";
-		const customer = r.customerName ?? "Unknown";
-		const { when, time } = relativeWhen(r.created_at);
-
-		const review: AdminOrderReview | null = r.review
-			? {
-					rating: r.review.rating,
-					comment: r.review.comment,
-					customer,
-					date: new Date(r.review.created_at).toLocaleDateString("en-US", {
-						day: "numeric",
-						month: "short",
-					}),
-				}
-			: null;
-
-		return {
-			id: r.id,
-			customer,
-			tech,
-			techInitials: initialsOf(tech),
-			techColor: colorForName(tech),
-			category: r.categoryName ?? "Unknown",
-			status: r.status,
-			amount: r.final_price ?? 0,
-			time,
-			when,
-			createdAt: r.created_at,
-			cancelReason: r.cancellation_reason ?? undefined,
-			review,
-		};
-	}
-
 	// --- Homeowners (admin homeowners page) ---
+	// One aggregated row per homeowner from `admin_homeowner_stats` (counts/spend/
+	// city done in Postgres). Per-order history loads separately via
+	// `getHomeownerHistory` so the list query stays small and uncapped.
 	async getHomeowners(): Promise<AdminHomeowner[]> {
-		const [
-			users,
-			orders,
-			cities,
-			reviewAgg,
-			serviceCat,
-			categories,
-			technicians,
-			reviewsByOrder,
-		] = await Promise.all([
-			this.repo.getHomeownerUsers(),
-			this.repo.getOrders(),
-			this.repo.getCitiesByUser(),
-			this.repo.getReviewAggByUser(),
-			this.repo.getServiceCategoryMap(),
-			this.repo.getCategories(),
-			this.repo.getTechnicians(),
-			this.repo.getReviewsByOrderId(),
-		]);
-
-		const categoryNameById = new Map(
-			categories.map((c) => [c.id, c.name ?? "Unknown"]),
-		);
-		const techNameById = new Map(
-			technicians.map((t) => [
-				t.id,
-				`${t.first_name ?? ""} ${t.last_name ?? ""}`.trim() || "Unassigned",
-			]),
-		);
-
-		// Orders come newest-first from getOrders(); group by user preserving order.
-		const ordersByUser = new Map<string, DashboardOrderRow[]>();
-		for (const o of orders) {
-			if (!o.user_id) continue;
-			const arr = ordersByUser.get(o.user_id) ?? [];
-			arr.push(o);
-			ordersByUser.set(o.user_id, arr);
-		}
-
-		return users.map((u) =>
-			this.toAdminHomeowner(
-				u,
-				ordersByUser.get(u.id) ?? [],
-				cities,
-				reviewAgg,
-				serviceCat,
-				categoryNameById,
-				techNameById,
-				reviewsByOrder,
-			),
-		);
+		const rows = await this.repo.getHomeownerStats();
+		return rows.map((r) => this.toAdminHomeowner(r));
 	}
 
-	private toAdminHomeowner(
-		u: HomeownerUserRow,
-		userOrders: DashboardOrderRow[],
-		cities: Map<string, string>,
-		reviewAgg: Map<string, { sum: number; count: number }>,
-		serviceCat: Map<string, string>,
-		categoryNameById: Map<string, string>,
-		techNameById: Map<string, string>,
-		reviewsByOrder: Map<string, { rating: number }>,
-	): AdminHomeowner {
-		const name = u.full_name ?? "Unknown";
-
-		let completed = 0;
-		let cancelled = 0;
-		let spendValue = 0;
-		for (const o of userOrders) {
-			const bucket = collapseStatus(o.status);
-			if (bucket === "completed") {
-				completed += 1;
-				spendValue += o.final_price ?? 0;
-			} else if (bucket === "cancelled") {
-				cancelled += 1;
-			}
-		}
-
-		const lastOrderAt = userOrders[0]?.created_at ?? null;
-		const history: AdminHomeownerHistory[] = userOrders.map((o) => ({
-			id: o.id,
-			date: relativeWhen(o.created_at).when,
-			category: o.service_id
-				? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ??
-					"Unknown")
-				: "Unknown",
-			tech: o.technician_id
-				? (techNameById.get(o.technician_id) ?? "Unassigned")
-				: "Unassigned",
-			status: o.status,
-			amount: o.final_price ?? 0,
-			rating: reviewsByOrder.get(o.id)?.rating ?? null,
-		}));
-
-		const agg = reviewAgg.get(u.id);
+	private toAdminHomeowner(s: HomeownerStatsRow): AdminHomeowner {
+		const name = s.full_name ?? "Unknown";
 		const avgRatingGiven =
-			agg && agg.count > 0
-				? Math.round((agg.sum / agg.count) * 100) / 100
+			s.review_given_count > 0
+				? Math.round((s.review_given_sum / s.review_given_count) * 100) / 100
 				: null;
-		const joinedDate = new Date(u.created_at);
+		const joinedDate = new Date(s.created_at);
 
 		return {
-			id: u.id,
+			id: s.id,
 			name,
 			initials: initialsOf(name),
 			color: colorForName(name),
-			phone: u.phone ?? "—",
-			email: u.email ?? "—",
-			city: cities.get(u.id) ?? "—",
+			phone: s.phone ?? "—",
+			email: s.email ?? "—",
+			city: s.city ?? "—",
 			joined: joinedDate.toLocaleDateString("en-US", {
 				month: "short",
 				year: "numeric",
 			}),
-			joinedAt: u.created_at,
-			totalOrders: userOrders.length,
-			completed,
-			cancelled,
-			spend: formatCompact(spendValue),
-			spendValue,
+			joinedAt: s.created_at,
+			totalOrders: s.total_orders,
+			completed: s.completed,
+			cancelled: s.cancelled,
+			spend: formatCompact(s.spend),
+			spendValue: s.spend,
 			avgRatingGiven,
-			lastOrder: lastOrderAt ? relativeWhen(lastOrderAt).when : "—",
-			lastOrderAt,
-			blocked: u.blocked,
-			blockPending: u.block_pending,
-			blockedReason: u.blocked_reason ?? undefined,
-			blockedAt: u.blocked_at
-				? new Date(u.blocked_at).toLocaleDateString("en-GB", {
+			lastOrder: s.last_order_at ? relativeWhen(s.last_order_at).when : "—",
+			lastOrderAt: s.last_order_at,
+			reportCount: s.report_count,
+			blocked: s.blocked,
+			blockPending: s.block_pending,
+			blockedReason: s.blocked_reason ?? undefined,
+			blockedAt: s.blocked_at
+				? new Date(s.blocked_at).toLocaleDateString("en-GB", {
 						day: "2-digit",
 						month: "short",
 						year: "numeric",
 					})
 				: undefined,
-			blockedBy: u.blocked_by ?? undefined,
-			history,
+			blockedBy: s.blocked_by ?? undefined,
 		};
+	}
+
+	/** One homeowner's order history (detail page). Mirrors getTechnicianHistory. */
+	async getHomeownerHistory(id: string): Promise<AdminHomeownerHistory[]> {
+		if (!(await this.repo.homeownerExists(id))) {
+			throw AppError.notFound("Homeowner not found");
+		}
+		const rows = await this.repo.getOrdersForEntity("user_id", id);
+		return rows.map(
+			(r): AdminHomeownerHistory => ({
+				id: r.id,
+				date: relativeWhen(r.created_at).when,
+				category: r.category_name ?? "Unknown",
+				tech: r.tech_name ?? "Unassigned",
+				status: r.status,
+				amount: r.final_price ?? 0,
+				rating: r.review_rating ?? null,
+			}),
+		);
 	}
 
 	/**
@@ -1002,6 +903,7 @@ export class AdminDashboardService {
 			revenue: formatCompact(s.revenue),
 			revenueValue: s.revenue,
 			yearsExperience: s.years_experience,
+			reportCount: s.report_count,
 			documents,
 			status: s.status as TechnicianStatus,
 			blocked: s.status === "blocked",
@@ -1022,35 +924,23 @@ export class AdminDashboardService {
 		if (!(await this.repo.technicianExists(id))) {
 			throw AppError.notFound("Technician not found");
 		}
-		const [orders, serviceCat, categories, users, reviewsByOrder] =
-			await Promise.all([
-				this.repo.getOrdersByTechnician(id),
-				this.repo.getServiceCategoryMap(),
-				this.repo.getCategories(),
-				this.repo.getUsersMap(),
-				this.repo.getReviewsByOrderId(),
-			]);
-		const categoryNameById = new Map(
-			categories.map((c) => [c.id, c.name ?? "Unknown"]),
+		const rows = await this.repo.getOrdersForEntity("technician_id", id);
+		return rows.map(
+			(r): AdminTechnicianHistory => ({
+				id: r.id,
+				date: relativeWhen(r.created_at).when,
+				category: r.category_name ?? "Unknown",
+				customer: r.customer_name ?? "Unknown",
+				status: r.status,
+				cancelReason: r.cancellation_reason,
+				cancelledBy: cancelledByFrom(r.status),
+				review:
+					r.review_rating != null
+						? { rating: r.review_rating, comment: r.review_comment }
+						: null,
+				amount: r.final_price ?? 0,
+			}),
 		);
-
-		return orders.map((o): AdminTechnicianHistory => {
-			const r = reviewsByOrder.get(o.id);
-			return {
-				id: o.id,
-				date: relativeWhen(o.created_at).when,
-				category: o.service_id
-					? (categoryNameById.get(serviceCat.get(o.service_id) ?? "") ??
-						"Unknown")
-					: "Unknown",
-				customer: o.user_id ? (users.get(o.user_id) ?? "Unknown") : "Unknown",
-				status: o.status,
-				cancelReason: o.cancellation_reason,
-				cancelledBy: cancelledByFrom(o.status),
-				review: r ? { rating: r.rating, comment: r.comment } : null,
-				amount: o.final_price ?? 0,
-			};
-		});
 	}
 
 	async verifyTechnician(id: string): Promise<AdminTechnician> {

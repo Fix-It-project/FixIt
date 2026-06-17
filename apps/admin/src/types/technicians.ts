@@ -103,6 +103,7 @@ export interface AdminTechnician {
 	revenue: string;
 	revenueValue: number;
 	yearsExperience: number | null;
+	reportCount: number;
 	documents: AdminTechnicianDocument[];
 	status: TechnicianStatus;
 	blocked: boolean;
@@ -112,4 +113,8 @@ export interface AdminTechnician {
 	blockedBy?: string;
 }
 
-export type TechnicianSort = "newest" | "most_completed" | "highest_rating" | "most_revenue";
+export type TechnicianSort =
+	| "newest"
+	| "most_completed"
+	| "highest_rating"
+	| "most_revenue";

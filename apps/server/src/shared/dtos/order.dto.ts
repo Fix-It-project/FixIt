@@ -10,6 +10,9 @@ export const CreateOrderBodySchema = z.object({
 			"scheduled_date must be in YYYY-MM-DD format",
 		),
 	scheduled_start_at: z.iso.datetime({ offset: true }),
+	// Mandatory at booking: drives the lifecycle (cash completes off-site; card
+	// routes through awaiting_payment) and is shown to the technician on the request.
+	payment_method: z.enum(["cash", "card"]),
 	problem_description: z.string().optional(),
 	// Phase 2 Plan 02-03 (D6): optional explicit destination address. When
 	// omitted, the lifecycle service falls back to the user's single active

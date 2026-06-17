@@ -12,7 +12,7 @@
   | POST | /user/orders/:id/quotes                                       | user | SubmitQuoteBodySchema           |
   | POST | /user/orders/:id/quotes/:quoteId/accept                       | user | -                               |
   | POST | /user/orders/:id/confirm-completion                           | user | ConfirmCompletionBodySchema     |
-  | POST | /user/orders/:id/checkout                                     | user | ChoosePaymentMethodBodySchema   |
+  | POST | /user/orders/:id/switch-to-cash                               | user | -                               |
   | POST | /technician/orders/:id/accept                                 | tech | -                               |
   | POST | /technician/orders/:id/decline                                | tech | OrderActionBodySchema           |
   | POST | /technician/orders/:id/cancel                                 | tech | OrderActionBodySchema           |
@@ -23,7 +23,6 @@
   | POST | /technician/orders/:id/quotes                                 | tech | SubmitQuoteBodySchema           |
   | POST | /technician/orders/:id/quotes/:quoteId/accept                 | tech | -                               |
   | POST | /technician/orders/:id/confirm-completion                     | tech | ConfirmCompletionBodySchema     |
-  | POST | /technician/orders/:id/mark-cash-received                     | tech | -                               |
   | GET  | /user/orders/:id/events                                       | user | params + EventsQuerySchema      |
   | GET  | /user/orders/:id/quotes                                       | user | -                               |
   | GET  | /technician/orders/:id/events                                 | tech | params + EventsQuerySchema      |
@@ -31,17 +30,16 @@
  
   Every route mounts auth (requireUserAuth | requireTechnicianAuth) BEFORE
   `validate(...)`. Controllers are thin glue (see `lifecycle.controller.ts`).
-  Errors funnel through `next(error)` and are caught by the local error
-  middleware appended at the bottom of this file (normalises AppError →
-  `{ error: <message> }` JSON envelope mirroring the rest of the API).
+  Errors funnel through `next(error)` and are caught by the app-level Problem
+  Details middleware so native clients receive `code`, `userMessage`, and
+  machine-readable `token` fields.
  */
 
 import type { Router as RouterType } from "express";
-import { type ErrorRequestHandler, Router } from "express";
+import { Router } from "express";
 import {
 	AcceptQuoteParamsSchema,
 	CancelOrderBodySchema,
-	ChoosePaymentMethodBodySchema,
 	ConfirmCompletionBodySchema,
 	EventsQuerySchema,
 	InspectionFeePreviewQuerySchema,
@@ -50,7 +48,6 @@ import {
 	SubmitQuoteBodySchema,
 	UpsertLocationBodySchema,
 } from "../../../shared/dtos/index.js";
-import { normalizeError } from "../../../shared/errors/index.js";
 import { requireTechnicianAuth } from "../../../shared/middlewares/technician-auth.middleware.js";
 import { requireUserAuth } from "../../../shared/middlewares/user-auth.middleware.js";
 import { validate } from "../../../shared/middlewares/validate.middleware.js";
@@ -61,7 +58,8 @@ import {
 	userAcceptQuote,
 	userConfirmCompletion,
 	userDeclineCompletion,
-	userCheckout,
+	userSwitchToCash,
+	userCreateCardSession,
 	techAccept,
 	techDecline,
 	techCancel,
@@ -73,7 +71,6 @@ import {
 	techAcceptQuote,
 	techConfirmCompletion,
 	techDeclineCompletion,
-	techMarkCashReceived,
 	getUserOrderEvents,
 	getUserOrderQuotes,
 	getTechnicianOrderEvents,
@@ -129,13 +126,17 @@ router.post(
 );
 
 router.post(
-	"/user/orders/:id/checkout",
+	"/user/orders/:id/switch-to-cash",
 	requireUserAuth,
-	validate({
-		params: OrderIdParamsSchema,
-		body: ChoosePaymentMethodBodySchema,
-	}),
-	userCheckout,
+	validate({ params: OrderIdParamsSchema }),
+	userSwitchToCash,
+);
+
+router.post(
+	"/user/orders/:id/card-session",
+	requireUserAuth,
+	validate({ params: OrderIdParamsSchema }),
+	userCreateCardSession,
 );
 
 // ─── Technician surface ──────────────────────────────────────────────────────
@@ -217,13 +218,6 @@ router.post(
 	techDeclineCompletion,
 );
 
-router.post(
-	"/technician/orders/:id/mark-cash-received",
-	requireTechnicianAuth,
-	validate({ params: OrderIdParamsSchema }),
-	techMarkCashReceived,
-);
-
 // ─── GET sub-resources (events + quotes per role) ────────────────────────────
 
 router.get(
@@ -269,19 +263,6 @@ router.get(
 	validate({ params: OrderIdParamsSchema }),
 	getTechnicianOrderDistance,
 );
-
-// ─── Local error middleware (JSON envelope for `next(error)` calls) ─────────
-// Mirrors the `normalizeError` pattern used by the other controllers, but at
-// the router level so handlers can stay thin and consistent with Express's
-// canonical `next(error)` flow. AppError instances retain their HTTP status;
-// everything else becomes a 500 with the original message.
-
-const lifecycleErrorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
-	const { status, message } = normalizeError(err);
-	res.status(status).json({ error: message });
-};
-
-router.use(lifecycleErrorHandler);
 
 export const lifecycleRoutes = router;
 export default router;

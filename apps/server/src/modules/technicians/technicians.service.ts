@@ -65,16 +65,36 @@ export interface TechnicianDashboardStats {
 	pendingExpiryHours: number;
 }
 
+export interface TechnicianWalletEntry {
+	orderId: string;
+	paymentMethod: "cash" | "card";
+	grossAmount: number;
+	platformFeePercent: number;
+	platformFeeAmount: number;
+	technicianNetAmount: number;
+	paymentStatus: string;
+	payoutStatus: "pending_settlement" | "paid_out";
+	paidAt: string | null;
+}
+
 /**
- * Technician wallet for the profile screen. There is no payout/settlement
- * ledger, so `lifetimeEarnings` is the sum of all paid payments (NOT a
- * withdrawable balance). `last30` powers the profile earnings area chart.
+ * Technician wallet for profile + wallet screens.
+ * `lifetimeEarnings` and `last30` power the profile earnings chart; `summary`
+ * and `entries` power the settlement/payment detail screen.
  */
 export interface TechnicianWallet {
 	lifetimeEarnings: number;
 	currency: string;
 	/** Last 30 Cairo calendar days, oldest first, today last. */
 	last30: Array<{ date: string; amount: number }>;
+	summary: {
+		pendingBalance: number;
+		paidOutBalance: number;
+		lifetimeNet: number;
+		lifetimeGross: number;
+		lifetimePlatformFees: number;
+	};
+	entries: TechnicianWalletEntry[];
 }
 
 export interface ITechniciansService {
@@ -401,19 +421,60 @@ export class TechniciansService implements ITechniciansService {
 			shiftDateString(todayStr, -30),
 		).toISOString();
 
-		const [lifetimeEarnings, recentPayments] = await Promise.all([
+		const [lifetimeEarnings, recentPayments, rows] = await Promise.all([
 			this.statsRepo.getLifetimePaidTotal(technicianId),
 			this.statsRepo.getPaidPaymentsSince(technicianId, thirtyDaysAgoIso),
+			this.statsRepo.getWalletEntries(technicianId),
 		]);
 
 		const last30Map = new Map<string, number>(last30Days.map((d) => [d, 0]));
-		for (const p of recentPayments) {
+		for (const p of recentPayments ?? []) {
 			const day = cairoDateString(new Date(p.paid_at));
 			if (last30Map.has(day))
 				last30Map.set(day, (last30Map.get(day) ?? 0) + p.amount);
 		}
 
-		// EGP is the app's only currency (amounts are whole EGP integers).
+		const entries: TechnicianWalletEntry[] = (rows ?? []).map((row) => {
+			const paymentMethod = row.payment_method === "card" ? "card" : "cash";
+			return {
+				orderId: row.order_id,
+				paymentMethod,
+				grossAmount: row.gross_amount ?? row.technician_net_amount ?? 0,
+				platformFeePercent: row.platform_fee_percent ?? 0,
+				platformFeeAmount: row.platform_fee_amount ?? 0,
+				technicianNetAmount:
+					row.technician_net_amount ?? row.gross_amount ?? 0,
+				paymentStatus: row.status,
+				payoutStatus:
+					paymentMethod === "cash" ? "paid_out" : "pending_settlement",
+				paidAt: row.paid_at,
+			};
+		});
+
+		const summary = entries.reduce(
+			(acc, entry) => ({
+				pendingBalance:
+					acc.pendingBalance +
+					(entry.payoutStatus === "pending_settlement"
+						? entry.technicianNetAmount
+						: 0),
+				paidOutBalance:
+					acc.paidOutBalance +
+					(entry.payoutStatus === "paid_out" ? entry.technicianNetAmount : 0),
+				lifetimeNet: acc.lifetimeNet + entry.technicianNetAmount,
+				lifetimeGross: acc.lifetimeGross + entry.grossAmount,
+				lifetimePlatformFees:
+					acc.lifetimePlatformFees + entry.platformFeeAmount,
+			}),
+			{
+				pendingBalance: 0,
+				paidOutBalance: 0,
+				lifetimeNet: 0,
+				lifetimeGross: 0,
+				lifetimePlatformFees: 0,
+			},
+		);
+
 		return {
 			lifetimeEarnings,
 			currency: "EGP",
@@ -421,6 +482,8 @@ export class TechniciansService implements ITechniciansService {
 				date,
 				amount: last30Map.get(date) ?? 0,
 			})),
+			summary,
+			entries,
 		};
 	}
 

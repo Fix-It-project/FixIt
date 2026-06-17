@@ -1,4 +1,5 @@
-import { type Request, type RequestHandler, type Response } from "express";
+import type { Request, RequestHandler, Response } from "express";
+import type { OrdersListQuery } from "../../shared/dtos/admin-dashboard.dto.js";
 import { asyncHandler } from "../../shared/errors/async-handler.js";
 import type { SeriesRange } from "./admin-dashboard.service.js";
 import { adminDashboardService } from "./admin-dashboard.service.js";
@@ -20,8 +21,18 @@ export class AdminDashboardController {
 	);
 
 	getOrders: RequestHandler = asyncHandler(
-		async (_req: Request, res: Response) => {
-			const data = await adminDashboardService.getAllOrders();
+		async (req: Request, res: Response) => {
+			const params = req.query as unknown as OrdersListQuery;
+			const { data, total, counts } =
+				await adminDashboardService.getOrders(params);
+			res.status(200).json({ data, total, counts });
+		},
+	);
+
+	exportOrders: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const params = req.query as unknown as OrdersListQuery;
+			const data = await adminDashboardService.exportOrders(params);
 			res.status(200).json({ data });
 		},
 	);
@@ -41,12 +52,24 @@ export class AdminDashboardController {
 		},
 	);
 
+	getHomeownerHistory: RequestHandler = asyncHandler(
+		async (req: Request, res: Response) => {
+			const { id } = req.params as { id: string };
+			const data = await adminDashboardService.getHomeownerHistory(id);
+			res.status(200).json({ data });
+		},
+	);
+
 	blockHomeowner: RequestHandler = asyncHandler(
 		async (req: Request, res: Response) => {
 			const { id } = req.params as { id: string };
 			const { reason } = req.body as { reason: string };
 			const data = await adminDashboardService.blockHomeowner(id, reason);
-			req.log.info({ action: "admin_block_homeowner", homeownerId: id, reason });
+			req.log.info({
+				action: "admin_block_homeowner",
+				homeownerId: id,
+				reason,
+			});
 			res.status(200).json({ data });
 		},
 	);
@@ -98,7 +121,11 @@ export class AdminDashboardController {
 			const { id } = req.params as { id: string };
 			const { reason } = req.body as { reason: string };
 			const data = await adminDashboardService.blockTechnician(id, reason);
-			req.log.info({ action: "admin_block_technician", technicianId: id, reason });
+			req.log.info({
+				action: "admin_block_technician",
+				technicianId: id,
+				reason,
+			});
 			res.status(200).json({ data });
 		},
 	);

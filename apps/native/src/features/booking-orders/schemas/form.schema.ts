@@ -8,6 +8,9 @@ export const bookingSchema = z.object({
 		error: "Invalid start time",
 	}),
 	service_id: z.uuid("Invalid service ID"),
+	// Mandatory: drives the lifecycle (cash completes off-site; card routes through
+	// awaiting_payment) and is shown to the technician on the request.
+	payment_method: z.enum(["cash", "card"]),
 	problem_description: z.string().optional(),
 	destination_address_id: z.uuid("Invalid address ID").optional(),
 });

@@ -6,7 +6,6 @@ import {
 	techAcceptUserQuote,
 	techApproveReschedule,
 	techCancel,
-	techConfirmCashReceived,
 	techConfirmCompletion,
 	techDecline,
 	techDeclineCompletion,
@@ -65,7 +64,6 @@ export function useTechCancel() {
 		TechReasonArgs,
 		Awaited<ReturnType<typeof techCancel>>
 	>(({ orderId, reason }) => techCancel(orderId, reason), {
-		mutationKey: ["tech-cancel"],
 		// Backend decides cancelled_with_fee / cancelled_no_fee via the Phase 1
 		// fee gate; hint with cancelled_with_fee. Refetch corrects if it disagrees.
 		optimisticTo: "cancelled_with_fee",
@@ -159,8 +157,9 @@ export function useTechConfirmCompletion() {
 		TechSimpleArgs,
 		Awaited<ReturnType<typeof techConfirmCompletion>>
 	>(({ orderId }) => techConfirmCompletion(orderId), {
-		mutationKey: ["tech-confirm-completion"],
-		optimisticTo: "awaiting_payment",
+		// Method-dependent target (cash → completed, card → awaiting_payment) isn't
+		// known from orderId alone, so let the server response drive the status.
+		optimisticTo: null,
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
 			invalidateTechBookings(qc);
@@ -173,21 +172,7 @@ export function useTechDeclineCompletion() {
 		TechSimpleArgs,
 		Awaited<ReturnType<typeof techDeclineCompletion>>
 	>(({ orderId }) => techDeclineCompletion(orderId), {
-		mutationKey: ["tech-decline-completion"],
 		optimisticTo: null,
-		extractOrderId: (a) => a.orderId,
-		invalidate: (qc) => {
-			invalidateTechBookings(qc);
-		},
-	});
-}
-
-export function useTechMarkCashReceived() {
-	return useLifecycleMutation<
-		TechSimpleArgs,
-		Awaited<ReturnType<typeof techConfirmCashReceived>>
-	>(({ orderId }) => techConfirmCashReceived(orderId), {
-		optimisticTo: "completed",
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
 			invalidateTechBookings(qc);

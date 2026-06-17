@@ -1,10 +1,12 @@
 // Orchestrates order lifecycle operations and delegates state changes to the repository.
 
+import crypto from "node:crypto";
 import {
 	calculateInspectionFeePreview,
 	type InspectionFeePreview,
 } from "../../../config/inspection-pricing.js";
 import { AVG_SPEED_KMH } from "../../../config/lifecycle.js";
+import { getPaymobConfig } from "../../../config/paymob.js";
 import { supabaseAdmin } from "../../../shared/db/supabase.js";
 import { AppError } from "../../../shared/errors/index.js";
 import { logger } from "../../../shared/logger.js";
@@ -19,15 +21,20 @@ import {
 	type OrderActionKind,
 	type OrderLocation,
 	type OrderQuote,
-	type PaymentMethod,
 	type UserFeeObligation,
 } from "./lifecycle.repository.js";
+import {
+	type PaymobCardSession,
+	type PaymobBillingData,
+	paymobAdapter,
+} from "./paymob.adapter.js";
 
 export interface SubmitOrderInput {
 	technician_id: string;
 	service_id: string;
 	scheduled_date: string;
 	scheduled_start_at: string;
+	payment_method: "cash" | "card";
 	problem_description?: string | null;
 	attachment?: string | null;
 	destination_address_id?: string | null;
@@ -46,6 +53,29 @@ export interface OrderDistanceResult {
 }
 
 export interface InspectionFeePreviewResult extends InspectionFeePreview {}
+export interface TechnicianWalletEntry {
+	orderId: string;
+	grossAmount: number;
+	platformFeePercent: number;
+	platformFeeAmount: number;
+	technicianNetAmount: number;
+	paymentStatus: string;
+	payoutStatus: "pending_settlement" | "paid_out";
+	paidAt: string | null;
+}
+
+export interface TechnicianWalletSummary {
+	pendingBalance: number;
+	paidOutBalance: number;
+	lifetimeNet: number;
+	lifetimeGross: number;
+	lifetimePlatformFees: number;
+}
+
+export interface TechnicianWalletResult {
+	summary: TechnicianWalletSummary;
+	entries: TechnicianWalletEntry[];
+}
 
 interface PricingAddressRow {
 	id: string;
@@ -65,6 +95,10 @@ function customerName(order: Pick<Order, "user_name">): string {
 
 function formatEgp(amount: number): string {
 	return `${amount.toLocaleString("en-US")} EGP`;
+}
+
+function roundCurrency(amount: number): number {
+	return Math.round(amount);
 }
 
 function customerSender(order: Pick<Order, "user_name">) {
@@ -160,6 +194,7 @@ export class LifecycleService {
 			technicianId: body.technician_id,
 			serviceId: body.service_id,
 			destinationAddressId,
+			paymentMethod: body.payment_method,
 			inspectionFee: inspectionPricing.inspection_fee,
 			inspectionDistanceKm: inspectionPricing.inspection_distance_km,
 			problemDescription: body.problem_description ?? null,
@@ -469,54 +504,199 @@ export class LifecycleService {
 			viewerRole: recipientRole,
 		});
 
+		// Smoke/E2E auto-finalize. Cash already auto-completes via the dual-confirm
+		// trigger, so only the card path needs a shortcut here: simulate a
+		// successful Paymob payment instead of opening the real gateway.
 		// Read the flag here so tests can override process.env.
 		const smokeEnabled = process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE !== "false";
 		if (!smokeEnabled) return order;
+		if (order.status !== "awaiting_payment") return order;
 
-		// Auto-finalize only after the second confirmation moves the order to awaiting payment.
-		if ((order as { status?: string }).status !== "awaiting_payment")
-			return order;
-
-		// In smoke mode, finish the payment flow automatically.
-		await this.repo.choosePaymentMethod({
+		const fee = this.computeCardFeeBreakdown(order);
+		const payment = await this.repo.syncCardPaymentSnapshot({
 			orderId: order.id,
-			userId: (order as { user_id: string }).user_id,
-			method: "cash",
+			userId: order.user_id,
+			provider: "paymob",
+			grossAmount: fee.grossAmount,
+			platformFeePercent: fee.platformFeePercent,
+			platformFeeAmount: fee.platformFeeAmount,
+			technicianNetAmount: fee.technicianNetAmount,
+			currency: getPaymobConfig().currency,
 		});
 		await this.repo.tagPaymentAsSmokeAuto(order.id);
-		return this.repo.markCashReceived({
-			orderId: order.id,
-			technicianId: (order as { technician_id: string }).technician_id,
+		await this.repo.updateCardPaymentStatus({
+			paymentId: payment.id,
+			status: "paid",
+			providerOrderId: null,
+			providerPaymentId: null,
+			providerTransactionId: null,
+			providerResponse: { smoke_auto: true },
+			paidAt: new Date().toISOString(),
 		});
+		return this.repo.markOrderCompletedAfterCardPayment(order.id);
 	}
 
 	// Payment
 
-	async choosePaymentMethod(
-		orderId: string,
-		userId: string,
-		method: PaymentMethod,
-	): Promise<Order> {
-		return this.repo.choosePaymentMethod({ orderId, userId, method });
+	/** Card fee breakdown from the single env-sourced rate. Cash never uses this. */
+	private computeCardFeeBreakdown(order: Order): {
+		grossAmount: number;
+		platformFeePercent: number;
+		platformFeeAmount: number;
+		technicianNetAmount: number;
+	} {
+		const config = getPaymobConfig();
+		const grossAmount = roundCurrency(order.final_price ?? 0);
+		const platformFeePercent = config.platformFeePercent;
+		const platformFeeAmount = roundCurrency(
+			(grossAmount * platformFeePercent) / 100,
+		);
+		return {
+			grossAmount,
+			platformFeePercent,
+			platformFeeAmount,
+			technicianNetAmount: grossAmount - platformFeeAmount,
+		};
 	}
 
-	async markCashReceived(orderId: string, techId: string): Promise<Order> {
-		const order = await this.repo.markCashReceived({
-			orderId,
-			technicianId: techId,
-		});
+	/**
+	 * "Pay cash instead" — completes a stuck `awaiting_payment` (card) order
+	 * off-site. The RPC cancels any pending card payment, records a paid cash row
+	 * (no platform cut), and flips the order to `completed`.
+	 */
+	async switchToCash(orderId: string, userId: string): Promise<Order> {
+		const order = await this.repo.switchToCash({ orderId, userId });
 		const notificationOrder = await this.readOrder(order.id);
 		await this.notifyBestEffort({
-			recipientRole: "user",
-			recipientId: order.user_id,
+			recipientRole: "technician",
+			recipientId: notificationOrder.technician_id,
 			type: "order_completed",
 			title: "Order completed",
-			body: `${technicianName(notificationOrder)} marked your booking as completed.`,
-			...technicianSender(notificationOrder),
+			body: `${customerName(notificationOrder)} chose to pay cash. The booking is now completed.`,
+			...customerSender(notificationOrder),
 			orderId: order.id,
-			viewerRole: "user",
+			viewerRole: "technician",
 		});
 		return order;
+	}
+
+	async createCardSession(
+		orderId: string,
+		userId: string,
+	): Promise<PaymobCardSession> {
+		const order = await this.readOrder(orderId);
+		if (order.user_id !== userId) {
+			throw AppError.notFound("order_not_found");
+		}
+		if (order.status !== "awaiting_payment") {
+			throw AppError.conflict("The order is not ready for card payment.", {
+				token: "invalid_transition",
+			});
+		}
+		if ((order.final_price ?? 0) <= 0) {
+			throw AppError.conflict("A final price is required to complete this order.", {
+				token: "missing_final_price",
+			});
+		}
+
+		const existingPayment = await this.repo.getLatestPaymentForOrder(orderId);
+		if (existingPayment?.status === "paid") {
+			throw AppError.conflict("This order has already been paid.", {
+				token: "order_already_paid",
+			});
+		}
+
+		// Payment method is chosen upfront at booking; card-session must not flip it.
+		if (order.payment_method !== "card") {
+			throw AppError.conflict("This order is not set to card payment.", {
+				token: "order_not_card_payment",
+			});
+		}
+
+		const { grossAmount, platformFeePercent, platformFeeAmount, technicianNetAmount } =
+			this.computeCardFeeBreakdown(order);
+
+		const payment = await this.repo.syncCardPaymentSnapshot({
+			orderId,
+			userId: order.user_id,
+			provider: "paymob",
+			grossAmount,
+			platformFeePercent,
+			platformFeeAmount,
+			technicianNetAmount,
+			currency: getPaymobConfig().currency,
+		});
+
+		const billingData = await this.buildPaymobBillingData(order);
+		return paymobAdapter.createCardSession({
+			paymentId: payment.id,
+			orderId: order.id,
+			amountCents: grossAmount * 100,
+			merchantOrderId: `fixit-payment-${payment.id}-${Date.now()}`,
+			billingData,
+		});
+	}
+
+	async handlePaymobWebhook(
+		payload: Record<string, unknown>,
+		headers: Record<string, string | string[] | undefined>,
+		query: Record<string, unknown> = {},
+	): Promise<{ accepted: true; duplicate: boolean }> {
+		paymobAdapter.verifyWebhook(payload, headers, query);
+		const outcome = paymobAdapter.extractPaymentOutcome(payload);
+		const payloadHash = this.hashPayload(payload);
+		const duplicate = await this.repo.getProcessedProviderEventByHash(
+			outcome.provider,
+			payloadHash,
+		);
+		if (duplicate) {
+			return { accepted: true, duplicate: true };
+		}
+
+		const payment = await this.repo.updateCardPaymentStatus({
+			paymentId: outcome.paymentId,
+			status: outcome.status === "paid" ? "paid" : outcome.status,
+			providerOrderId: outcome.providerPaymentId,
+			providerPaymentId: outcome.providerPaymentId,
+			providerTransactionId: outcome.providerTransactionId,
+			providerResponse: payload,
+			paidAt: outcome.success ? new Date().toISOString() : null,
+		});
+
+		if (outcome.success) {
+			await this.repo.markOrderCompletedAfterCardPayment(payment.order_id);
+			const completedOrder = await this.readOrder(payment.order_id);
+			await this.notifyBestEffort({
+				recipientRole: "technician",
+				recipientId: completedOrder.technician_id,
+				type: "order_completed",
+				title: "Order completed",
+				body: `${customerName(completedOrder)} paid for the booking by card.`,
+				...customerSender(completedOrder),
+				orderId: completedOrder.id,
+				viewerRole: "technician",
+			});
+			await this.notifyBestEffort({
+				recipientRole: "user",
+				recipientId: completedOrder.user_id,
+				type: "order_completed",
+				title: "Order completed",
+				body: "Your card payment was successful and the booking is now completed.",
+				...technicianSender(completedOrder),
+				orderId: completedOrder.id,
+				viewerRole: "user",
+			});
+		}
+
+		await this.repo.insertPaymentProviderEvent({
+			provider: outcome.provider,
+			eventId: outcome.externalEventId,
+			payloadHash,
+			payload,
+			result: outcome.status,
+		});
+
+		return { accepted: true, duplicate: false };
 	}
 
 	// Cancellation and fee resolution
@@ -743,6 +923,36 @@ export class LifecycleService {
 			throw AppError.notFound("order_not_found");
 		}
 		return order;
+	}
+
+	private async buildPaymobBillingData(
+		order: Order,
+	): Promise<PaymobBillingData> {
+		const fallbackName = order.user_name?.trim() || "FixIt Customer";
+		const [first_name, ...rest] = fallbackName.split(/\s+/);
+		const addressParts = (order.user_address ?? "").split(",").map((part) => part.trim());
+
+		return {
+			email: "paymob-sandbox@fixit.app",
+			first_name: first_name || "FixIt",
+			last_name: rest.join(" ") || "Customer",
+			phone_number: order.user_phone ?? "+201000000000",
+			apartment: "NA",
+			floor: "NA",
+			street: addressParts[0] || "NA",
+			building: "NA",
+			city: addressParts[1] || "Cairo",
+			state: addressParts[1] || "Cairo",
+			country: "EG",
+			postal_code: "00000",
+		};
+	}
+
+	private hashPayload(payload: Record<string, unknown>): string {
+		return crypto
+			.createHash("sha256")
+			.update(JSON.stringify(payload))
+			.digest("hex");
 	}
 
 	private async readQuote(quoteId: string): Promise<OrderQuote> {

@@ -16,19 +16,15 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { getCategoryMetaBySpecialty } from "@/lib/category-icons";
-import {
-	humanizeStatus,
-	matchesAmountBucket,
-	matchesDatePreset,
-	matchesOrderFilter,
-	statusVariant,
-} from "@/lib/order-status";
+import { humanizeStatus, statusVariant } from "@/lib/order-status";
+import { cn } from "@/lib/utils";
 import type {
 	AdminOrder,
-	AmountBucket,
-	DateRangePreset,
+	OrdersCounts,
+	OrdersListParams,
 	OrdersPageFilter,
 } from "@/types";
+import { fetchOrdersForExport } from "../hooks/useOrders";
 import { OrdersFilters } from "./OrdersFilters";
 
 const FILTER_KEYS: { key: OrdersPageFilter; label: string }[] = [
@@ -81,79 +77,82 @@ function exportToCSV(orders: AdminOrder[]) {
 
 interface OrdersTableProps {
 	orders: AdminOrder[];
+	total: number;
+	counts: OrdersCounts;
 	isLoading?: boolean;
+	isFetching?: boolean;
+	params: OrdersListParams;
+	onParamsChange: (patch: Partial<OrdersListParams>) => void;
 }
 
-export function OrdersTable({ orders, isLoading }: OrdersTableProps) {
-	const [filter, setFilter] = useState<OrdersPageFilter>("all");
-	const [search, setSearch] = useState("");
-	const [datePreset, setDatePreset] = useState<DateRangePreset>("all");
-	const [amountBucket, setAmountBucket] = useState<AmountBucket>("all");
+export function OrdersTable({
+	orders,
+	total,
+	counts,
+	isLoading,
+	isFetching,
+	params,
+	onParamsChange,
+}: OrdersTableProps) {
 	const [detailId, setDetailId] = useState<string | null>(null);
-	const [page, setPage] = useState(1);
 
-	// base = everything except the status chip (so chip counts reflect the other filters)
-	const base = orders.filter((o) => {
-		if (search) {
-			const q = search.toLowerCase();
-			const hit =
-				o.id.toLowerCase().includes(q) ||
-				o.customer.toLowerCase().includes(q) ||
-				o.tech.toLowerCase().includes(q);
-			if (!hit) return false;
+	// Local search input, debounced into the server query params.
+	const [searchInput, setSearchInput] = useState(params.search);
+	useEffect(() => {
+		const t = setTimeout(() => {
+			if (searchInput !== params.search)
+				onParamsChange({ search: searchInput });
+		}, 300);
+		return () => clearTimeout(t);
+	}, [searchInput, params.search, onParamsChange]);
+
+	const pageCount = Math.max(1, Math.ceil(total / params.pageSize));
+
+	const handleExport = async () => {
+		try {
+			const rows = await fetchOrdersForExport(params);
+			exportToCSV(rows);
+		} catch {
+			// best-effort export; ignore failures
 		}
-		return (
-			matchesDatePreset(o.createdAt, datePreset) &&
-			matchesAmountBucket(o.amount, amountBucket)
-		);
-	});
-	const visible = base.filter((o) => matchesOrderFilter(o.status, filter));
-
-	const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
-	useEffect(() => {
-		setPage(1);
-	}, [filter, search, datePreset, amountBucket]);
-	useEffect(() => {
-		if (page > pageCount) setPage(pageCount);
-	}, [page, pageCount]);
-	const pageStart = (page - 1) * PAGE_SIZE;
-	const paged = visible.slice(pageStart, pageStart + PAGE_SIZE);
+	};
 
 	return (
 		<>
 			<div className="flex flex-col gap-4">
 				<TableToolbar<OrdersPageFilter>
-					searchValue={search}
-					onSearchChange={setSearch}
+					searchValue={searchInput}
+					onSearchChange={setSearchInput}
 					searchPlaceholder="Search ID, customer, technician…"
-					onExport={() => exportToCSV(visible)}
+					onExport={handleExport}
 					trailing={
 						<>
 							<StatusDropdown
-								value={filter}
+								value={params.status}
 								options={FILTER_KEYS.map(({ key, label }) => ({
 									key,
 									label,
-									count:
-										key === "all"
-											? base.length
-											: base.filter((o) => matchesOrderFilter(o.status, key))
-													.length,
+									count: counts[key],
 								}))}
-								onChange={setFilter}
+								onChange={(status) => onParamsChange({ status })}
 							/>
 							<OrdersFilters
-								datePreset={datePreset}
-								onDatePreset={setDatePreset}
-								amountBucket={amountBucket}
-								onAmountBucket={setAmountBucket}
+								datePreset={params.date}
+								onDatePreset={(date) => onParamsChange({ date })}
+								amountBucket={params.amount}
+								onAmountBucket={(amount) => onParamsChange({ amount })}
 							/>
 						</>
 					}
 				/>
 
 				{/* Table */}
-				<div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+				<div
+					className={cn(
+						"overflow-x-auto rounded-xl border border-border bg-card shadow-sm transition-opacity",
+						isFetching && !isLoading && "opacity-60",
+					)}
+				>
 					<Table>
 						<TableHeader>
 							<TableRow className="border-border border-b bg-muted/40 hover:bg-muted/40">
@@ -194,7 +193,7 @@ export function OrdersTable({ orders, isLoading }: OrdersTableProps) {
 									</TableCell>
 								</TableRow>
 							)}
-							{!isLoading && visible.length === 0 && (
+							{!isLoading && orders.length === 0 && (
 								<TableRow className="hover:bg-transparent">
 									<TableCell colSpan={8} className="py-16">
 										<div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -209,7 +208,7 @@ export function OrdersTable({ orders, isLoading }: OrdersTableProps) {
 									</TableCell>
 								</TableRow>
 							)}
-							{paged.map((order) => {
+							{orders.map((order) => {
 								return (
 									<TableRow
 										key={order.id}
@@ -274,11 +273,11 @@ export function OrdersTable({ orders, isLoading }: OrdersTableProps) {
 				</div>
 
 				<Pagination
-					page={page}
+					page={params.page}
 					pageCount={pageCount}
-					pageSize={PAGE_SIZE}
-					totalItems={visible.length}
-					onPageChange={setPage}
+					pageSize={params.pageSize ?? PAGE_SIZE}
+					totalItems={total}
+					onPageChange={(page) => onParamsChange({ page })}
 				/>
 			</div>
 

@@ -4,6 +4,7 @@ import {
 	BlockTechnicianBodySchema,
 	HomeownerIdParamSchema,
 	OrderIdParamSchema,
+	OrdersListQuerySchema,
 	RangeQuerySchema,
 	TechnicianIdParamSchema,
 } from "../../shared/dtos/index.js";
@@ -23,7 +24,18 @@ router.get(
 
 // Mounted separately at /api/admin/orders (orders list lives in this module).
 export const ordersRouter: Router = express.Router();
-ordersRouter.get("/", requireAdminAuth, adminDashboardController.getOrders);
+ordersRouter.get(
+	"/",
+	requireAdminAuth,
+	validate({ query: OrdersListQuerySchema }),
+	adminDashboardController.getOrders,
+);
+ordersRouter.get(
+	"/export",
+	requireAdminAuth,
+	validate({ query: OrdersListQuerySchema }),
+	adminDashboardController.exportOrders,
+);
 ordersRouter.get(
 	"/:id",
 	requireAdminAuth,
@@ -33,7 +45,17 @@ ordersRouter.get(
 
 // Mounted separately at /api/admin/homeowners.
 export const homeownersRouter: Router = express.Router();
-homeownersRouter.get("/", requireAdminAuth, adminDashboardController.getHomeowners);
+homeownersRouter.get(
+	"/",
+	requireAdminAuth,
+	adminDashboardController.getHomeowners,
+);
+homeownersRouter.get(
+	"/:id/history",
+	requireAdminAuth,
+	validate({ params: HomeownerIdParamSchema }),
+	adminDashboardController.getHomeownerHistory,
+);
 homeownersRouter.patch(
 	"/:id/block",
 	requireAdminAuth,
@@ -49,7 +71,11 @@ homeownersRouter.patch(
 
 // Mounted separately at /api/admin/technicians.
 export const techniciansRouter: Router = express.Router();
-techniciansRouter.get("/", requireAdminAuth, adminDashboardController.getTechnicians);
+techniciansRouter.get(
+	"/",
+	requireAdminAuth,
+	adminDashboardController.getTechnicians,
+);
 techniciansRouter.get(
 	"/:id/history",
 	requireAdminAuth,
@@ -71,7 +97,10 @@ techniciansRouter.patch(
 techniciansRouter.patch(
 	"/:id/block",
 	requireAdminAuth,
-	validate({ params: TechnicianIdParamSchema, body: BlockTechnicianBodySchema }),
+	validate({
+		params: TechnicianIdParamSchema,
+		body: BlockTechnicianBodySchema,
+	}),
 	adminDashboardController.blockTechnician,
 );
 techniciansRouter.patch(

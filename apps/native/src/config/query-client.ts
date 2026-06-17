@@ -32,6 +32,8 @@ const KNOWN_APP_ERROR_CODES: ReadonlySet<string> = new Set([
 	"OFFLINE",
 	"TIMEOUT",
 	"RATE_LIMITED",
+	"SERVER",
+	"MAINTENANCE",
 ]);
 
 function extractCauseResponse(

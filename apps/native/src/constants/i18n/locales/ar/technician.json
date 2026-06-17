@@ -115,6 +115,8 @@
 			"vsYesterday": "{{sign}}{{value}}٪ مقارنة بالأمس",
 			"cashOut": "سحب الأرباح",
 			"cashOutSoonAria": "سحب الأرباح — قريبًا",
+			"wallet": "المحفظة",
+			"walletAria": "افتح المحفظة",
 			"emptyChart": "ستظهر أرباح المهام المكتملة هنا",
 			"thisWeek": "هذا الأسبوع"
 		},
@@ -253,6 +255,29 @@
 		"units": {
 			"egp": "ج.م",
 			"km": "كم"
+		}
+	},
+	"wallet": {
+		"title": "المحفظة",
+		"subtitle": "أرباحك. تُدفع البطاقة عبر فِكس إت بعد الخصم، ويُسوَّى النقد مباشرةً.",
+		"loading": "جارٍ تحميل المحفظة…",
+		"pendingBalance": "رصيد بانتظار التسوية",
+		"lifetimeGross": "إجمالي المبالغ",
+		"lifetimeFees": "إجمالي خصم المنصة",
+		"lifetimeNet": "إجمالي الصافي",
+		"entries": "أحدث العمليات",
+		"empty": "ستظهر هنا المهام المكتملة.",
+		"orderLabel": "طلب",
+		"gross": "الإجمالي",
+		"platformCut": "خصم FixIt ({{percent}}٪)",
+		"net": "الصافي",
+		"method": {
+			"cash": "نقداً",
+			"card": "بطاقة"
+		},
+		"payoutStatus": {
+			"pending_settlement": "بانتظار التسوية",
+			"paid_out": "تم الدفع"
 		}
 	}
 }

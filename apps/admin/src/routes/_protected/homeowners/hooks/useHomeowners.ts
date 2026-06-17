@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { AdminHomeowner } from "@/types";
+import type { AdminHomeowner, HomeownerOrderHistory } from "@/types";
 
 const KEY = ["homeowners"] as const;
 
@@ -10,6 +10,20 @@ export function useHomeowners() {
 		queryFn: async () => {
 			const { data } = await apiClient.get<{ data: AdminHomeowner[] }>(
 				"/api/admin/homeowners",
+			);
+			return data.data;
+		},
+	});
+}
+
+/** One homeowner's order history — loaded lazily on the detail page. */
+export function useHomeownerHistory(id: string | null) {
+	return useQuery({
+		queryKey: ["homeowner", id, "history"],
+		enabled: !!id,
+		queryFn: async () => {
+			const { data } = await apiClient.get<{ data: HomeownerOrderHistory[] }>(
+				`/api/admin/homeowners/${id}/history`,
 			);
 			return data.data;
 		},

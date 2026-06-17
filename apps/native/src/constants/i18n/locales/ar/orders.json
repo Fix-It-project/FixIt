@@ -1,4 +1,9 @@
 {
+	"payment_methods": {
+		"cash": "نقداً",
+		"card": "بطاقة",
+		"label": "الدفع"
+	},
 	"status": {
 		"base": {
 			"pending": "قيد الانتظار",
@@ -28,7 +33,7 @@
 			"awaiting_final_cost": "مراجعة السعر النهائي",
 			"negotiating": "التفاوض على السعر النهائي",
 			"in_progress": "الفني يقوم بالفحص",
-			"awaiting_payment": "سلّم المبلغ النقدي وأكّد",
+			"awaiting_payment": "ادفع بأمان بالبطاقة",
 			"declined_by_technician": "رفضه الفني",
 			"cancelled_no_fee": "ملغى",
 			"cancelled_with_fee": "ملغى (مع رسوم)",
@@ -45,7 +50,7 @@
 			"awaiting_final_cost": "أرسل السعر النهائي",
 			"negotiating": "جولة تسعير جارية",
 			"in_progress": "الفحص في الموقع",
-			"awaiting_payment": "بانتظار الدفع من العميل",
+			"awaiting_payment": "بانتظار الدفع بالبطاقة",
 			"declined_by_technician": "رفضته أنت",
 			"cancelled_no_fee": "ملغى",
 			"cancelled_with_fee": "ملغى (مع رسوم)",
@@ -295,19 +300,27 @@
 			"finalize": "الإنهاء"
 		},
 		"finalize": {
-			"eyebrow": "الإنهاء",
+			"eyebrow": "الدفع",
 			"title": "ضغطة واحدة للإغلاق.",
-			"subtitle": "أكّد تسليم النقد، ثم ننهي الطلب.",
+			"subtitle": "ادفع بالبطاقة للإنهاء، أو ادفع نقداً للفني.",
 			"finalPrice": "السعر النهائي",
 			"currency": "ج.م",
-			"cashNote": "الدفع نقداً عند التسليم · الدفع داخل التطبيق قريباً",
+			"cashNote": "مدفوعات البطاقة تتم بأمان عبر Paymob.",
+			"workPrice": "سعر العمل",
+			"inspectionFee": "رسوم المعاينة",
+			"totalPayable": "الإجمالي المستحق",
 			"timeline": "المسار الزمني",
 			"orderPlaced": "تم إنشاء الطلب",
 			"techArrived": "وصل الفني",
 			"workComplete": "اكتمل العمل",
 			"confirmedTapFinalize": "أكّد {{role}}. اضغط للإنهاء.",
 			"waitingOther": "بانتظار الطرف الآخر…",
-			"markCompleted": "تأكيد إكمال الطلب"
+			"markCompleted": "تأكيد إكمال الطلب",
+			"payWithCard": "ادفع الآن",
+			"payCash": "ادفع نقدًا",
+			"payCashInstead": "ادفع نقداً بدلاً من ذلك",
+			"awaitingCardTech": "بانتظار دفع العميل بالبطاقة.",
+			"waitingForCard": "بانتظار تأكيد البطاقة"
 		},
 		"attachment": "المرفق",
 		"problemDescription": "وصف المشكلة",

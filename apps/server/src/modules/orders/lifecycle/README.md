@@ -65,7 +65,7 @@ The migration converts `orders.status` to `public.order_status`, keeps
 | --- | --- |
 | `status` | Canonical state machine position. |
 | `final_price` | Accepted quote amount; must be positive when present. |
-| `payment_method` | `cash` or `card`; card is reserved for future PSP work. |
+| `payment_method` | `cash` or `card`; card routes into the Paymob sandbox flow. |
 | `destination_address_id` | Address used for ownership and distance/geofence checks. |
 | `scheduled_start_at` | Required for new writes; must match a fixed Cairo slot hour (`08:00`, `11:00`, `14:00`, `17:00`, `20:00`). |
 | `arrived_at` | Set once when location updates enter the 1km geofence. |
@@ -152,7 +152,7 @@ Payment-attempt table.
 | `amount` | Final price snapshot. |
 | `payment_method` | `cash` or `card`. |
 | `status` | `created`, `processing`, `paid`, `failed`, or `cancelled`. |
-| `provider` | `paymob` for future card flow, `NULL` for cash, or smoke labels. |
+| `provider` | `paymob` for card flow, `NULL` for cash, or smoke labels. |
 | `provider_order_id` / `provider_transaction_id` | PSP identifiers. |
 | `failure_reason` | Cancel/failure detail. |
 | `paid_at` | Payment completion timestamp. |
@@ -492,6 +492,7 @@ Behavior:
 - Sets `orders.payment_method`.
 - Inserts a `payments` row with status `created`.
 - Uses provider `paymob` for card and `NULL` for cash.
+- Card attempts now snapshot `gross_amount`, `platform_fee_percent`, `platform_fee_amount`, `technician_net_amount`, and `currency` when the session is created.
 - Writes `payment_method_chosen` event.
 
 Main error tokens:
@@ -660,6 +661,8 @@ order_locations
 1. Calls `rpc_confirm_completion`.
 2. If the returned order is `awaiting_payment` and
    `LIFECYCLE_SMOKE_AUTO_COMPLETE !== 'false'`, it chooses cash.
+3. For Paymob sandbox testing, keep `LIFECYCLE_SMOKE_AUTO_COMPLETE=false` so
+   card sessions and webhooks drive completion instead of the smoke cash path.
 3. Tags the created payment with `provider = 'smoke_auto'`.
 4. Calls `rpc_mark_cash_received`.
 

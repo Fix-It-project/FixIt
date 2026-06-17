@@ -147,18 +147,89 @@ export const userDeclineCompletion: RequestHandler = asyncHandler(async (req: Re
 	res.status(200).json({ data: order });
 });
 
-export const userCheckout: RequestHandler = asyncHandler(async (req: Request, res) => {
+// "Pay cash instead": escape a stuck awaiting_payment (card) order by completing
+// it off-site. Payment method is chosen upfront at booking, so there is no
+// general-purpose checkout selector anymore.
+export const userSwitchToCash: RequestHandler = asyncHandler(async (req: Request, res) => {
 	const userId = requireUserId(req);
 	const orderId = req.params.id as string;
-	const { method } = req.body as { method: "cash" };
-	const order = await lifecycleService.choosePaymentMethod(
-		orderId,
-		userId,
-		method,
-	);
-	req.log.info({ action: 'payment_method_chosen', orderId, userId, method });
+	const order = await lifecycleService.switchToCash(orderId, userId);
+	req.log.info({ action: 'order_switched_to_cash', orderId, userId });
 	res.status(200).json({ data: order });
 });
+
+export const userCreateCardSession: RequestHandler = asyncHandler(
+	async (req: Request, res: Response) => {
+		const userId = requireUserId(req);
+		const orderId = req.params.id as string;
+		const session = await lifecycleService.createCardSession(orderId, userId);
+		req.log.info({ action: "paymob_card_session_created", orderId, userId });
+		res.status(200).json(session);
+	},
+);
+
+export const paymobWebhook: RequestHandler = asyncHandler(
+	async (req: Request, res: Response) => {
+		const query = req.query as Record<string, unknown>;
+		const body = req.body as Record<string, unknown>;
+		const payload = Object.keys(body).length > 0 ? body : query;
+		const result = await lifecycleService.handlePaymobWebhook(
+			payload,
+			req.headers,
+			query,
+		);
+		res.status(200).json(result);
+	},
+);
+
+export const paymobReturn: RequestHandler = asyncHandler(
+	async (req: Request, res: Response) => {
+		const query = req.query as Record<string, unknown>;
+		if (query.hmac && query.id) {
+			try {
+				const result = await lifecycleService.handlePaymobWebhook(
+					query,
+					req.headers,
+					query,
+				);
+				req.log.info({
+					action: "paymob_return_processed",
+					duplicate: result.duplicate,
+				});
+			} catch (error) {
+				req.log.warn({
+					action: "paymob_return_process_failed",
+					error: error instanceof Error ? error.message : String(error),
+					queryKeys: Object.keys(query),
+				});
+			}
+		}
+
+		res
+			.status(200)
+			.type("html")
+			.send(`<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Payment complete</title>
+	<style>
+		body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; background: #f6f8fb; }
+		main { width: min(88vw, 420px); text-align: center; }
+		h1 { font-size: 24px; line-height: 1.2; margin: 0 0 10px; }
+		p { font-size: 16px; line-height: 1.5; margin: 0; color: #5b6475; }
+	</style>
+</head>
+<body>
+	<main>
+		<h1>Payment received</h1>
+		<p>You can close this page and return to FixIt.</p>
+	</main>
+</body>
+</html>`);
+	},
+);
 
 // ─── Technician actions ───────────────────────────────────────────────────
 
@@ -291,14 +362,6 @@ export const techDeclineCompletion: RequestHandler = asyncHandler(async (req: Re
 		"technician",
 	);
 	req.log.info({ action: 'completion_declined_by_tech', orderId, technicianId: techId });
-	res.status(200).json({ data: order });
-});
-
-export const techMarkCashReceived: RequestHandler = asyncHandler(async (req: Request, res) => {
-	const techId = requireTechnicianId(req);
-	const orderId = req.params.id as string;
-	const order = await lifecycleService.markCashReceived(orderId, techId);
-	req.log.info({ action: 'cash_received', orderId, technicianId: techId });
 	res.status(200).json({ data: order });
 });
 

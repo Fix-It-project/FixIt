@@ -29,10 +29,20 @@ export const RejectCustomServiceBodySchema = z.object({
 	reason: z.string().trim().max(500, "Reason too long").optional(),
 });
 
+/** Query params for the server-side admin service-requests queue. */
+export const CustomServicesListQuerySchema = z.object({
+	page: z.coerce.number().int().positive().default(1),
+	pageSize: z.coerce.number().int().positive().max(100).default(20),
+	status: z.enum(["pending", "decided"]).default("pending"),
+});
+
 export type CreateCustomServiceBody = z.infer<
 	typeof CreateCustomServiceBodySchema
 >;
 export type CustomServiceIdParam = z.infer<typeof CustomServiceIdParamSchema>;
 export type RejectCustomServiceBody = z.infer<
 	typeof RejectCustomServiceBodySchema
+>;
+export type CustomServicesListQuery = z.infer<
+	typeof CustomServicesListQuerySchema
 >;

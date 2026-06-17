@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../shared/db/supabase.js";
+import type { ReportsListQuery } from "../../shared/dtos/report.dto.js";
 import type {
 	AdminReportRow,
 	Report,
@@ -6,9 +7,20 @@ import type {
 	SubmitReportInput,
 } from "./reports.types.js";
 
+export interface ReportsCounts {
+	open: number;
+	closed: number;
+	all: number;
+	user: number;
+	technician: number;
+}
+
 export interface IReportsRepository {
 	submitReport(input: SubmitReportInput): Promise<Report>;
-	listForAdmin(status?: string): Promise<AdminReportRow[]>;
+	listForAdmin(
+		params: ReportsListQuery,
+	): Promise<{ rows: AdminReportRow[]; total: number }>;
+	countReports(status: "open" | "closed"): Promise<ReportsCounts>;
 	setStatus(id: string, input: SetReportStatusInput): Promise<Report | null>;
 	markWarned(id: string): Promise<Report | null>;
 }
@@ -34,17 +46,49 @@ export class ReportsRepository implements IReportsRepository {
 		return (Array.isArray(data) ? data[0] : data) as Report;
 	}
 
-	async listForAdmin(status?: string): Promise<AdminReportRow[]> {
+	async listForAdmin(
+		params: ReportsListQuery,
+	): Promise<{ rows: AdminReportRow[]; total: number }> {
 		let query = supabaseAdmin
 			.from("admin_reports")
-			.select("*")
+			.select("*", { count: "exact" })
+			.eq("status", params.status)
 			.order("created_at", { ascending: false });
 
-		if (status) query = query.eq("status", status);
+		if (params.source !== "all") {
+			query = query.eq("reporter_role", params.source);
+		}
 
-		const { data, error } = await query;
+		query = query.range(
+			(params.page - 1) * params.pageSize,
+			params.page * params.pageSize - 1,
+		);
+
+		const { data, error, count } = await query;
 		if (error) throw new Error(error.message);
-		return (data ?? []) as AdminReportRow[];
+		return { rows: (data ?? []) as AdminReportRow[], total: count ?? 0 };
+	}
+
+	/** Tab counts (open/closed, all sources) + source counts within `status`. */
+	async countReports(status: "open" | "closed"): Promise<ReportsCounts> {
+		const headCount = async (eqs: Record<string, string>): Promise<number> => {
+			let q = supabaseAdmin
+				.from("admin_reports")
+				.select("id", { count: "exact", head: true });
+			for (const [col, val] of Object.entries(eqs)) q = q.eq(col, val);
+			const { count, error } = await q;
+			if (error) throw new Error(error.message);
+			return count ?? 0;
+		};
+
+		const [open, closed, all, user, technician] = await Promise.all([
+			headCount({ status: "open" }),
+			headCount({ status: "closed" }),
+			headCount({ status }),
+			headCount({ status, reporter_role: "user" }),
+			headCount({ status, reporter_role: "technician" }),
+		]);
+		return { open, closed, all, user, technician };
 	}
 
 	async setStatus(

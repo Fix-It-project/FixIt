@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ClipboardList } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { PAGE_SIZE, Pagination } from "@/components/Pagination";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,35 +35,37 @@ function useIsDesktop(): boolean {
 }
 
 function ServicesPage() {
-	const { data, isLoading } = useServiceRequests();
+	const [tab, setTab] = useState<"pending" | "decided">("pending");
+	const [pendingPage, setPendingPage] = useState(1);
+	const [decidedPage, setDecidedPage] = useState(1);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
+	const [mobileOpen, setMobileOpen] = useState(false);
+
+	const page = tab === "pending" ? pendingPage : decidedPage;
+	const { data, isLoading } = useServiceRequests({
+		page,
+		pageSize: PAGE_SIZE,
+		status: tab,
+	});
 	const approve = useApproveServiceRequest();
 	const reject = useRejectServiceRequest();
 	const isDesktop = useIsDesktop();
 
-	const requests = useMemo(() => data ?? [], [data]);
-	const pending = useMemo(
-		() => requests.filter((r) => r.status === "pending"),
-		[requests],
-	);
-	const decided = useMemo(
-		() => requests.filter((r) => r.status !== "pending"),
-		[requests],
-	);
+	const requests = useMemo(() => data?.data ?? [], [data]);
+	const counts = data?.counts;
+	const total = data?.total ?? 0;
+	const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-	const [selectedId, setSelectedId] = useState<string | null>(null);
-	const [mobileOpen, setMobileOpen] = useState(false);
-
-	// Keep a valid selection on desktop: hold the current one if still pending,
-	// otherwise advance to the first pending request (never an empty panel).
-	const pendingIds = pending.map((p) => p.id).join(",");
+	// Keep a valid selection on desktop while on the pending tab: hold the current
+	// one if still in the list, otherwise advance to the first (never an empty panel).
 	useEffect(() => {
-		if (!isDesktop) return;
+		if (!isDesktop || tab !== "pending") return;
 		setSelectedId((prev) =>
-			prev && pending.some((p) => p.id === prev)
+			prev && requests.some((r) => r.id === prev)
 				? prev
-				: (pending[0]?.id ?? null),
+				: (requests[0]?.id ?? null),
 		);
-	}, [pendingIds, isDesktop]);
+	}, [requests, isDesktop, tab]);
 
 	const selected = requests.find((r) => r.id === selectedId) ?? null;
 
@@ -83,27 +86,30 @@ function ServicesPage() {
 					Services
 				</h1>
 				<p className="mt-1 text-muted-foreground text-sm">
-					{isLoading
+					{!counts
 						? "Loading…"
-						: `${pending.length} awaiting review · ${decided.length} decided`}
+						: `${counts.pending} awaiting review · ${counts.decided} decided`}
 				</p>
 			</div>
 
-			<Tabs defaultValue="pending">
+			<Tabs
+				value={tab}
+				onValueChange={(v) => setTab(v as "pending" | "decided")}
+			>
 				<TabsList className="w-full sm:w-auto">
 					<TabsTrigger value="pending" className="flex-1 sm:flex-none">
 						Pending
-						{pending.length > 0 && (
+						{counts && counts.pending > 0 && (
 							<span className="ml-1.5 rounded-full bg-amber-500/10 px-1.5 py-0.5 font-semibold text-[11px] text-amber-600">
-								{pending.length}
+								{counts.pending}
 							</span>
 						)}
 					</TabsTrigger>
 					<TabsTrigger value="decided" className="flex-1 sm:flex-none">
 						Decided
-						{decided.length > 0 && (
+						{counts && counts.decided > 0 && (
 							<span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 font-semibold text-[11px] text-muted-foreground">
-								{decided.length}
+								{counts.decided}
 							</span>
 						)}
 					</TabsTrigger>
@@ -112,32 +118,54 @@ function ServicesPage() {
 				<TabsContent value="pending" className="mt-4">
 					{isLoading ? (
 						<QueueSkeleton />
-					) : pending.length === 0 ? (
+					) : requests.length === 0 ? (
 						<EmptyState />
 					) : (
-						<div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr] lg:items-start">
-							<div className="overflow-hidden rounded-xl border border-border bg-card">
-								<RequestQueue
-									requests={pending}
-									selectedId={selectedId}
-									onSelect={handleSelect}
-								/>
+						<div className="flex flex-col gap-4">
+							<div className="grid gap-4 lg:grid-cols-[minmax(320px,380px)_1fr] lg:items-start">
+								<div className="overflow-hidden rounded-xl border border-border bg-card">
+									<RequestQueue
+										requests={requests}
+										selectedId={selectedId}
+										onSelect={handleSelect}
+									/>
+								</div>
+								<div className="hidden rounded-xl border border-border bg-card lg:block">
+									<RequestReviewPanel
+										request={selected}
+										onApprove={handleApprove}
+										onReject={handleReject}
+										approvePending={approve.isPending}
+										rejectPending={reject.isPending}
+									/>
+								</div>
 							</div>
-							<div className="hidden rounded-xl border border-border bg-card lg:block">
-								<RequestReviewPanel
-									request={selected}
-									onApprove={handleApprove}
-									onReject={handleReject}
-									approvePending={approve.isPending}
-									rejectPending={reject.isPending}
-								/>
-							</div>
+							<Pagination
+								page={pendingPage}
+								pageCount={pageCount}
+								pageSize={PAGE_SIZE}
+								totalItems={total}
+								onPageChange={setPendingPage}
+							/>
 						</div>
 					)}
 				</TabsContent>
 
 				<TabsContent value="decided" className="mt-4">
-					{isLoading ? <QueueSkeleton /> : <DecidedList requests={decided} />}
+					{isLoading ? (
+						<QueueSkeleton />
+					) : (
+						<div className="flex flex-col gap-4">
+							<DecidedList requests={requests} />
+							<Pagination
+								page={decidedPage}
+								pageCount={pageCount}
+								pageSize={PAGE_SIZE}
+								totalItems={total}
+								onPageChange={setDecidedPage}
+							/>
+						</div>
+					)}
 				</TabsContent>
 			</Tabs>
 

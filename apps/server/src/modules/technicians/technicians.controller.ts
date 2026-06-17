@@ -189,7 +189,7 @@ export class TechniciansController {
 			}
 			const wallet = await service.getWallet(technicianId);
 			req.log.info({ action: "technician_wallet_retrieved", technicianId });
-			res.json({ wallet });
+			res.json({ ...wallet, wallet });
 		},
 	);
 

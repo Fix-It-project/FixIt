@@ -27,7 +27,8 @@ export interface Homeowner {
 	blockedReason?: string;
 	blockedAt?: string;
 	blockedBy?: string;
-	history: HomeownerOrderHistory[];
+	// Per-order history loads separately (GET /api/admin/homeowners/:id/history),
+	// so it is not part of the list payload.
 }
 
 export type ActivityFilter = "all" | "recent" | "dormant";
@@ -37,7 +38,12 @@ export interface AdminHomeowner extends Homeowner {
 	joinedAt: string;
 	lastOrderAt: string | null;
 	spendValue: number;
+	reportCount: number;
 	blockPending: boolean;
 }
 
-export type HomeownerSort = "newest" | "most_orders" | "most_spent" | "recent_order";
+export type HomeownerSort =
+	| "newest"
+	| "most_orders"
+	| "most_spent"
+	| "recent_order";

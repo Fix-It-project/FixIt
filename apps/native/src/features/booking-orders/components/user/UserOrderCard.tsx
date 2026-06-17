@@ -17,6 +17,7 @@ import {
 	translateServiceName,
 } from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { PaymentMethodBadge } from "../PaymentMethodBadge";
 
 interface Props {
 	readonly order: Order;
@@ -115,19 +116,22 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 
 			{/* Date + actions */}
 			<View className="mt-stack-md border-edge border-t pt-stack-md">
-				<View className="min-w-0">
-					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						{formatDate(order.scheduled_date, i18n.language)}
-					</Text>
-					{scheduledTime ? (
-						<Text
-							variant="caption"
-							className="mt-stack-xs"
-							style={{ color: themeColors.textMuted }}
-						>
-							{scheduledTime}
+				<View className="flex-row items-start justify-between gap-stack-sm">
+					<View className="min-w-0 flex-1">
+						<Text variant="caption" style={{ color: themeColors.textMuted }}>
+							{formatDate(order.scheduled_date, i18n.language)}
 						</Text>
-					) : null}
+						{scheduledTime ? (
+							<Text
+								variant="caption"
+								className="mt-stack-xs"
+								style={{ color: themeColors.textMuted }}
+							>
+								{scheduledTime}
+							</Text>
+						) : null}
+					</View>
+					<PaymentMethodBadge method={order.payment_method} />
 				</View>
 
 				<View className="mt-stack-md flex-row flex-wrap items-center justify-end gap-stack-sm">
