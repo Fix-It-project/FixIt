@@ -36,6 +36,20 @@ vi.mock("../lifecycle.repository.js", () => ({
 		resolveFeeObligation: vi.fn(),
 		tagPaymentAsSmokeAuto: vi.fn(),
 		getOrderDistance: vi.fn(),
+		getLatestPaymentForOrder: vi.fn(),
+		syncCardPaymentSnapshot: vi.fn(),
+		updateCardPaymentStatus: vi.fn(),
+		markOrderCompletedAfterCardPayment: vi.fn(),
+		insertPaymentProviderEvent: vi.fn(),
+		getProcessedProviderEventByHash: vi.fn(),
+	},
+}));
+
+vi.mock("../paymob.adapter.js", () => ({
+	paymobAdapter: {
+		createCardSession: vi.fn(),
+		verifyWebhook: vi.fn(),
+		extractPaymentOutcome: vi.fn(),
 	},
 }));
 
@@ -123,6 +137,7 @@ vi.mock("../../../../shared/db/supabase.js", () => ({
 
 const repoModule = await import("../lifecycle.repository.js");
 const { LifecycleService } = await import("../lifecycle.service.js");
+const paymobModule = await import("../paymob.adapter.js");
 const notificationsModule = await import(
 	"../../../notifications/notifications.service.js"
 );
@@ -141,6 +156,12 @@ const repo = repoModule.lifecycleRepository as unknown as {
 	tagPaymentAsSmokeAuto: ReturnType<typeof vi.fn>;
 	cancelOrder: ReturnType<typeof vi.fn>;
 	getOrderDistance: ReturnType<typeof vi.fn>;
+	getLatestPaymentForOrder: ReturnType<typeof vi.fn>;
+	syncCardPaymentSnapshot: ReturnType<typeof vi.fn>;
+	updateCardPaymentStatus: ReturnType<typeof vi.fn>;
+	markOrderCompletedAfterCardPayment: ReturnType<typeof vi.fn>;
+	insertPaymentProviderEvent: ReturnType<typeof vi.fn>;
+	getProcessedProviderEventByHash: ReturnType<typeof vi.fn>;
 };
 
 const notifications = notificationsModule.notificationsService as unknown as {
@@ -149,6 +170,12 @@ const notifications = notificationsModule.notificationsService as unknown as {
 
 const ordersRepository = ordersModule.ordersRepository as unknown as {
 	getOrderById: ReturnType<typeof vi.fn>;
+};
+
+const paymobAdapter = paymobModule.paymobAdapter as unknown as {
+	createCardSession: ReturnType<typeof vi.fn>;
+	verifyWebhook: ReturnType<typeof vi.fn>;
+	extractPaymentOutcome: ReturnType<typeof vi.fn>;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -201,6 +228,9 @@ beforeEach(() => {
 	}
 	notifications.sendPushToRecipient.mockReset();
 	ordersRepository.getOrderById.mockReset();
+	paymobAdapter.createCardSession.mockReset();
+	paymobAdapter.verifyWebhook.mockReset();
+	paymobAdapter.extractPaymentOutcome.mockReset();
 	// Restore env baseline (smoke ON by default — anything except 'false')
 	delete process.env.LIFECYCLE_SMOKE_AUTO_COMPLETE;
 	// Reset table handlers
@@ -271,6 +301,7 @@ describe("LifecycleService.submitOrder", () => {
 			service_id: "svc-1",
 			scheduled_date: "2026-06-01",
 			scheduled_start_at: "2026-06-01T08:00:00+03:00",
+			payment_method: "card",
 			destination_address_id: explicitAddressId,
 		});
 
@@ -282,6 +313,7 @@ describe("LifecycleService.submitOrder", () => {
 			technicianId: "tech-1",
 			serviceId: "svc-1",
 			destinationAddressId: explicitAddressId,
+			paymentMethod: "card",
 			inspectionFee: 100,
 			inspectionDistanceKm: 0,
 			scheduledDate: "2026-06-01",
@@ -343,6 +375,7 @@ describe("LifecycleService.submitOrder", () => {
 			service_id: "svc-2",
 			scheduled_date: "2026-06-02",
 			scheduled_start_at: "2026-06-02T11:00:00+03:00",
+			payment_method: "cash",
 		});
 
 		expect(repo.submitOrder).toHaveBeenCalledTimes(1);
@@ -367,6 +400,7 @@ describe("LifecycleService.submitOrder", () => {
 				service_id: "svc-3",
 				scheduled_date: "2026-06-03",
 				scheduled_start_at: "2026-06-03T14:00:00+03:00",
+				payment_method: "cash",
 			});
 		} catch (err) {
 			caught = err;
@@ -389,6 +423,7 @@ describe("LifecycleService.submitOrder", () => {
 				scheduled_date: "2026-06-04",
 				// runtime guard coverage; API schema also rejects this upstream
 				scheduled_start_at: undefined as unknown as string,
+				payment_method: "cash",
 			});
 		} catch (err) {
 			caught = err;
@@ -412,6 +447,7 @@ describe("LifecycleService.submitOrder", () => {
 				service_id: "svc-5",
 				scheduled_date: "2026-06-05",
 				scheduled_start_at: "2026-06-05T09:00:00+03:00",
+				payment_method: "cash",
 			});
 		} catch (err) {
 			caught = err;
@@ -566,22 +602,36 @@ describe("LifecycleService.previewInspectionFee", () => {
 
 // ─── confirmCompletion smoke branches ────────────────────────────────────────
 
-describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
+describe("LifecycleService.confirmCompletion (card-only smoke auto-finalize)", () => {
 	const orderAwaitingPayment = {
 		id: "order-x",
 		user_id: "user-x",
 		technician_id: "tech-x",
 		status: "awaiting_payment",
+		payment_method: "card",
+		final_price: 1000,
 	};
 	const orderCompleted = { ...orderAwaitingPayment, status: "completed" };
 	const orderInProgress = { ...orderAwaitingPayment, status: "in_progress" };
+	const orderCashCompleted = {
+		id: "order-c",
+		user_id: "user-c",
+		technician_id: "tech-c",
+		status: "completed",
+		payment_method: "cash",
+		final_price: 1000,
+	};
 
-	it("smoke ON + status=awaiting_payment → choose → tag → mark in order", async () => {
+	it("smoke ON + card awaiting_payment → snapshot → tag → mark paid → complete in order", async () => {
 		const service = new LifecycleService();
 		repo.confirmCompletion.mockResolvedValue(orderAwaitingPayment);
-		repo.choosePaymentMethod.mockResolvedValue(orderAwaitingPayment);
+		repo.syncCardPaymentSnapshot.mockResolvedValue({
+			id: "pay-x",
+			order_id: "order-x",
+		});
 		repo.tagPaymentAsSmokeAuto.mockResolvedValue(undefined);
-		repo.markCashReceived.mockResolvedValue(orderCompleted);
+		repo.updateCardPaymentStatus.mockResolvedValue({ id: "pay-x" });
+		repo.markOrderCompletedAfterCardPayment.mockResolvedValue(orderCompleted);
 		ordersRepository.getOrderById.mockResolvedValue({
 			id: "order-x",
 			user_id: "user-x",
@@ -592,28 +642,49 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
-		expect(repo.choosePaymentMethod).toHaveBeenCalledWith({
-			orderId: "order-x",
-			userId: "user-x",
-			method: "cash",
-		});
+		expect(repo.syncCardPaymentSnapshot).toHaveBeenCalledWith(
+			expect.objectContaining({ orderId: "order-x", provider: "paymob" }),
+		);
 		expect(repo.tagPaymentAsSmokeAuto).toHaveBeenCalledWith("order-x");
-		expect(repo.markCashReceived).toHaveBeenCalledWith({
-			orderId: "order-x",
-			technicianId: "tech-x",
-		});
+		expect(repo.updateCardPaymentStatus).toHaveBeenCalledWith(
+			expect.objectContaining({ paymentId: "pay-x", status: "paid" }),
+		);
+		expect(repo.markOrderCompletedAfterCardPayment).toHaveBeenCalledWith(
+			"order-x",
+		);
+		// No legacy cash-selection / cash-received calls.
+		expect(repo.choosePaymentMethod).not.toHaveBeenCalled();
+		expect(repo.markCashReceived).not.toHaveBeenCalled();
 
-		// Assert ordering: choose < tag < mark
-		const chooseOrder = repo.choosePaymentMethod.mock.invocationCallOrder[0];
+		// Ordering: snapshot < tag < update < complete
+		const snapOrder = repo.syncCardPaymentSnapshot.mock.invocationCallOrder[0];
 		const tagOrder = repo.tagPaymentAsSmokeAuto.mock.invocationCallOrder[0];
-		const markOrder = repo.markCashReceived.mock.invocationCallOrder[0];
-		expect(chooseOrder !== undefined).toBe(true);
-		expect(tagOrder !== undefined).toBe(true);
-		expect(markOrder !== undefined).toBe(true);
-		expect(chooseOrder).toBeLessThan(tagOrder as number);
-		expect(tagOrder).toBeLessThan(markOrder as number);
+		const updOrder = repo.updateCardPaymentStatus.mock.invocationCallOrder[0];
+		const compOrder =
+			repo.markOrderCompletedAfterCardPayment.mock.invocationCallOrder[0];
+		expect(snapOrder).toBeLessThan(tagOrder as number);
+		expect(tagOrder).toBeLessThan(updOrder as number);
+		expect(updOrder).toBeLessThan(compOrder as number);
 
 		expect(result).toEqual(orderCompleted);
+	});
+
+	it("cash order auto-completes via the trigger → no smoke calls", async () => {
+		const service = new LifecycleService();
+		repo.confirmCompletion.mockResolvedValue(orderCashCompleted);
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-c",
+			user_id: "user-c",
+			technician_id: "tech-c",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
+
+		const result = await service.confirmCompletion("order-c", "user-c", "user");
+
+		expect(repo.syncCardPaymentSnapshot).not.toHaveBeenCalled();
+		expect(repo.markOrderCompletedAfterCardPayment).not.toHaveBeenCalled();
+		expect(result).toEqual(orderCashCompleted);
 	});
 
 	it("smoke OFF (env=`false`) → no smoke calls, returns RPC result as-is", async () => {
@@ -630,9 +701,9 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
-		expect(repo.choosePaymentMethod).not.toHaveBeenCalled();
+		expect(repo.syncCardPaymentSnapshot).not.toHaveBeenCalled();
 		expect(repo.tagPaymentAsSmokeAuto).not.toHaveBeenCalled();
-		expect(repo.markCashReceived).not.toHaveBeenCalled();
+		expect(repo.markOrderCompletedAfterCardPayment).not.toHaveBeenCalled();
 		expect(result).toEqual(orderAwaitingPayment);
 	});
 
@@ -649,10 +720,174 @@ describe("LifecycleService.confirmCompletion (smoke auto-finalize)", () => {
 
 		const result = await service.confirmCompletion("order-x", "user-x", "user");
 
-		expect(repo.choosePaymentMethod).not.toHaveBeenCalled();
+		expect(repo.syncCardPaymentSnapshot).not.toHaveBeenCalled();
 		expect(repo.tagPaymentAsSmokeAuto).not.toHaveBeenCalled();
-		expect(repo.markCashReceived).not.toHaveBeenCalled();
+		expect(repo.markOrderCompletedAfterCardPayment).not.toHaveBeenCalled();
 		expect(result).toEqual(orderInProgress);
+	});
+});
+
+describe("LifecycleService.createCardSession", () => {
+	it("creates a card payment snapshot and returns a Paymob session", async () => {
+		const service = new LifecycleService();
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-card",
+			user_id: "user-card",
+			technician_id: "tech-card",
+			status: "awaiting_payment",
+			final_price: 1000,
+			payment_method: "card",
+			user_name: "Sarah Ali",
+			user_phone: "+201000000000",
+			user_address: "12 Road, Cairo",
+		});
+		repo.getLatestPaymentForOrder.mockResolvedValue({
+			id: "pay-1",
+			status: "created",
+		});
+		repo.syncCardPaymentSnapshot.mockResolvedValue({
+			id: "pay-1",
+			order_id: "order-card",
+		});
+		paymobAdapter.createCardSession.mockResolvedValue({
+			provider: "paymob",
+			paymentId: "pay-1",
+			clientSecret: "secret",
+			publicKey: "pk",
+			expiresAt: "2026-01-15T12:00:00.000Z",
+			checkoutUrl: "https://example.com/pay",
+		});
+
+		const session = await service.createCardSession("order-card", "user-card");
+
+		// Method is chosen upfront; card-session must not re-select it.
+		expect(repo.choosePaymentMethod).not.toHaveBeenCalled();
+		expect(repo.syncCardPaymentSnapshot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				orderId: "order-card",
+				grossAmount: 1000,
+				platformFeePercent: 5,
+				platformFeeAmount: 50,
+				technicianNetAmount: 950,
+				provider: "paymob",
+				currency: "EGP",
+			}),
+		);
+		expect(paymobAdapter.createCardSession).toHaveBeenCalledWith(
+			expect.objectContaining({
+				paymentId: "pay-1",
+				merchantOrderId: expect.stringMatching(/^fixit-payment-pay-1-\d+$/),
+			}),
+		);
+		expect(session.checkoutUrl).toBe("https://example.com/pay");
+	});
+
+	it("rejects a cash order (order_not_card_payment)", async () => {
+		const service = new LifecycleService();
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-card",
+			user_id: "user-card",
+			technician_id: "tech-card",
+			status: "awaiting_payment",
+			final_price: 1000,
+			payment_method: "cash",
+		});
+
+		await expect(
+			service.createCardSession("order-card", "user-card"),
+		).rejects.toMatchObject({ opts: { token: "order_not_card_payment" } });
+		expect(repo.syncCardPaymentSnapshot).not.toHaveBeenCalled();
+	});
+
+	it("rejects orders that are not awaiting payment", async () => {
+		const service = new LifecycleService();
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-card",
+			user_id: "user-card",
+			technician_id: "tech-card",
+			status: "in_progress",
+			final_price: 1000,
+			payment_method: "card",
+		});
+
+		await expect(
+			service.createCardSession("order-card", "user-card"),
+		).rejects.toBeInstanceOf(AppError);
+		expect(repo.syncCardPaymentSnapshot).not.toHaveBeenCalled();
+	});
+});
+
+describe("LifecycleService.handlePaymobWebhook", () => {
+	it("returns duplicate=true when the payload hash was already processed", async () => {
+		const service = new LifecycleService();
+		paymobAdapter.extractPaymentOutcome.mockReturnValue({
+			provider: "paymob",
+			externalEventId: "event-1",
+			paymentId: "pay-1",
+			providerPaymentId: "provider-1",
+			providerTransactionId: "txn-1",
+			status: "paid",
+			success: true,
+			raw: { ok: true },
+		});
+		repo.getProcessedProviderEventByHash.mockResolvedValue(true);
+
+		const result = await service.handlePaymobWebhook(
+			{ id: "event-1" },
+			{ "x-paymob-signature": "sig" },
+		);
+
+		expect(paymobAdapter.verifyWebhook).toHaveBeenCalled();
+		expect(result).toEqual({ accepted: true, duplicate: true });
+		expect(repo.updateCardPaymentStatus).not.toHaveBeenCalled();
+	});
+
+	it("marks the payment paid and completes the order on successful webhook", async () => {
+		const service = new LifecycleService();
+		paymobAdapter.extractPaymentOutcome.mockReturnValue({
+			provider: "paymob",
+			externalEventId: "event-2",
+			paymentId: "pay-2",
+			providerPaymentId: "provider-2",
+			providerTransactionId: "txn-2",
+			status: "paid",
+			success: true,
+			raw: { success: true },
+		});
+		repo.getProcessedProviderEventByHash.mockResolvedValue(false);
+		repo.updateCardPaymentStatus.mockResolvedValue({
+			id: "pay-2",
+			order_id: "order-2",
+		});
+		repo.markOrderCompletedAfterCardPayment.mockResolvedValue({
+			id: "order-2",
+			status: "completed",
+		});
+		ordersRepository.getOrderById.mockResolvedValue({
+			id: "order-2",
+			user_id: "user-2",
+			technician_id: "tech-2",
+			user_name: "Sarah Ali",
+			technician_name: "Omar Hassan",
+		});
+
+		const result = await service.handlePaymobWebhook(
+			{ id: "event-2", success: true },
+			{ "x-paymob-signature": "sig" },
+		);
+
+		expect(repo.updateCardPaymentStatus).toHaveBeenCalledWith(
+			expect.objectContaining({
+				paymentId: "pay-2",
+				status: "paid",
+				providerTransactionId: "txn-2",
+			}),
+		);
+		expect(repo.markOrderCompletedAfterCardPayment).toHaveBeenCalledWith(
+			"order-2",
+		);
+		expect(repo.insertPaymentProviderEvent).toHaveBeenCalled();
+		expect(result).toEqual({ accepted: true, duplicate: false });
 	});
 });
 

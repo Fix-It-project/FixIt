@@ -34,7 +34,7 @@ const ALL_UI_PHASES = [
 	"tech_on_the_way",
 	"tech_inspecting",
 	"quote_open",
-	"cash_pending",
+	"payment_pending",
 	"completed",
 	"cancelled",
 ] as const;

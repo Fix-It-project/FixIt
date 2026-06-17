@@ -1,7 +1,6 @@
 export type { CustomerActionsSheetHandle as CustomerInfoSheetHandle } from "@/src/components/identity/CustomerActionsSheet";
 export { default as CustomerInfoSheet } from "@/src/components/identity/CustomerActionsSheet";
 export { default as CashConfirmModal } from "./CashConfirmModal";
-export { default as CashReceivedModal } from "./CashReceivedModal";
 export type { CompletionPendingDirection } from "./CompletionRequestPendingCard";
 export { default as CompletionRequestPendingCard } from "./CompletionRequestPendingCard";
 export { default as EtaHeadline } from "./EtaHeadline";

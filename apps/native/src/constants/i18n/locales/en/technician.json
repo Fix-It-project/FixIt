@@ -115,6 +115,8 @@
 			"vsYesterday": "{{sign}}{{value}}% vs yesterday",
 			"cashOut": "Cash out",
 			"cashOutSoonAria": "Cash out — coming soon",
+			"wallet": "Wallet",
+			"walletAria": "Open wallet",
 			"emptyChart": "Earnings from completed jobs will chart here",
 			"thisWeek": "This week"
 		},
@@ -245,6 +247,29 @@
 		"units": {
 			"egp": "EGP",
 			"km": "km"
+		}
+	},
+	"wallet": {
+		"title": "Wallet",
+		"subtitle": "Your earnings. Card is paid out by FixIt (after its cut); cash is settled in person.",
+		"loading": "Loading wallet…",
+		"pendingBalance": "Pending settlement",
+		"lifetimeGross": "Lifetime gross",
+		"lifetimeFees": "Lifetime platform fees",
+		"lifetimeNet": "Lifetime net",
+		"entries": "Recent entries",
+		"empty": "Completed jobs will appear here.",
+		"orderLabel": "Order",
+		"gross": "Gross",
+		"platformCut": "FixIt cut ({{percent}}%)",
+		"net": "Net",
+		"method": {
+			"cash": "Cash",
+			"card": "Card"
+		},
+		"payoutStatus": {
+			"pending_settlement": "Pending settlement",
+			"paid_out": "Paid out"
 		}
 	}
 }
