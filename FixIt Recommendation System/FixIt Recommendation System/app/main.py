@@ -26,13 +26,21 @@ from app.config import BOOKINGS_CSV, TECHNICIANS_CSV, USERS_CSV
 from app.content_engine import ContentEngine
 from app.data_pipeline import DataPipeline
 from app.hybrid_engine import HybridEngine
-from app.audio_engine import AudioEngine
 from app.schemas import (
     RecommendationRequest,
     RecommendationResponse,
     AudioTranscriptionRequest,
     AudioTranscriptionResponse,
 )
+
+try:
+    from app.audio_engine import AudioEngine
+    AUDIO_SUPPORT_AVAILABLE = True
+    AUDIO_IMPORT_ERROR: Exception | None = None
+except Exception as exc:  # pragma: no cover - depends on optional deps
+    AudioEngine = None
+    AUDIO_SUPPORT_AVAILABLE = False
+    AUDIO_IMPORT_ERROR = exc
 
 # ──────────────────────────────────────────────
 #  Logging
@@ -50,7 +58,11 @@ pipeline = DataPipeline()
 content_engine = ContentEngine()
 collab_engine = CollaborativeEngine()
 hybrid_engine: Optional[HybridEngine] = None
-audio_engine = AudioEngine(model_name="IbrahimAmin/code-switched-egyptian-arabic-whisper-small")
+audio_engine = (
+    AudioEngine(model_name="IbrahimAmin/code-switched-egyptian-arabic-whisper-small")
+    if AUDIO_SUPPORT_AVAILABLE and AudioEngine is not None
+    else None
+)
 _data_source: str = "unknown"
 
 
@@ -120,7 +132,10 @@ async def lifespan(app: FastAPI):
     )
 
     # 6. Audio STT engine
-    audio_engine.build()
+    if audio_engine is not None:
+        audio_engine.build()
+    else:
+        logger.info("Audio engine disabled: optional audio dependencies are not installed.")
 
     logger.info("✅  All engines ready — serving requests")
     yield
@@ -166,7 +181,8 @@ async def health():
             "content_engine": content_engine._ready,
             "collaborative_engine": collab_engine._ready,
             "hybrid_engine": hybrid_engine is not None,
-            "audio_engine": audio_engine._ready,
+            "audio_engine": bool(audio_engine and audio_engine._ready),
+            "audio_support_available": AUDIO_SUPPORT_AVAILABLE,
         },
         "data": {
             "users": len(pipeline.users_df),
@@ -240,6 +256,12 @@ async def transcribe_audio(req: AudioTranscriptionRequest):
     Takes base64 encoded audio from a mobile client and runs it through
     the local Whisper 'base' model.
     """
+    if audio_engine is None:
+        detail = "Audio transcription dependencies are not installed."
+        if AUDIO_IMPORT_ERROR is not None:
+            logger.warning("Audio endpoint requested without audio deps: %s", AUDIO_IMPORT_ERROR)
+        raise HTTPException(status_code=503, detail=detail)
+
     if not audio_engine._ready:
         raise HTTPException(status_code=503, detail="Audio STT engine not ready.")
 

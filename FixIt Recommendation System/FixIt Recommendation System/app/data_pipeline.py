@@ -156,9 +156,13 @@ class DataPipeline:
             df[f"cat_{cat}"] = (df["category"] == cat).astype(float)
 
         # Normalise hourly rate to [0, 1]
+        df["base_hourly_rate"] = pd.to_numeric(
+            df["base_hourly_rate"], errors="coerce"
+        )
         rate_min = df["base_hourly_rate"].min()
         rate_max = df["base_hourly_rate"].max()
         df["norm_rate"] = (df["base_hourly_rate"] - rate_min) / max(rate_max - rate_min, 1)
+        df["norm_rate"] = df["norm_rate"].fillna(0.5)
 
         # Aggregate booking stats per technician
         completed = bookings[bookings["status"] == "completed"]

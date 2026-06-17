@@ -216,7 +216,7 @@ export default function NewTechnicians() {
 					problemDescription,
 					latitude: coords?.latitude,
 					longitude: coords?.longitude,
-					topK: 20,
+					topK: 10,
 				});
 				return new Map(
 					recs.map((r: { technician_id: string }, i: number) => [
