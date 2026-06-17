@@ -20,7 +20,6 @@ type TechnicianListQueryParams = {
 	readonly searchQuery?: string;
 	readonly coords?: { latitude: number; longitude: number } | null;
 	readonly sort?: TechniciansSortParam;
-	readonly refetchInterval?: number | false;
 };
 
 type TechnicianInfiniteListQueryParams = TechnicianListQueryParams & {
@@ -32,7 +31,6 @@ export function technicianListQueryOptions({
 	searchQuery = "",
 	coords,
 	sort,
-	refetchInterval = TECHNICIAN_LIST_CACHE_MS,
 }: TechnicianListQueryParams) {
 	const trimmedCategoryId = categoryId.trim();
 	const trimmedQuery = searchQuery.trim();
@@ -61,8 +59,6 @@ export function technicianListQueryOptions({
 		enabled: trimmedCategoryId.length > 0,
 		staleTime: TECHNICIAN_LIST_CACHE_MS,
 		gcTime: TECHNICIAN_LIST_GC_MS,
-		refetchInterval,
-		refetchIntervalInBackground: false,
 		retry: 1,
 		placeholderData: keepPreviousData,
 	});
@@ -74,7 +70,6 @@ export function technicianInfiniteListQueryOptions({
 	coords,
 	sort,
 	pageSize = 20,
-	refetchInterval = TECHNICIAN_LIST_CACHE_MS,
 }: TechnicianInfiniteListQueryParams) {
 	const trimmedCategoryId = categoryId.trim();
 	const trimmedQuery = searchQuery.trim();
@@ -104,12 +99,10 @@ export function technicianInfiniteListQueryOptions({
 		},
 		initialPageParam: 0,
 		getNextPageParam: (lastPage, allPages) =>
-			lastPage.length === 0 ? undefined : allPages.length * pageSize,
+			lastPage.length < pageSize ? undefined : allPages.length * pageSize,
 		enabled: trimmedCategoryId.length > 0,
 		staleTime: TECHNICIAN_LIST_CACHE_MS,
 		gcTime: TECHNICIAN_LIST_GC_MS,
-		refetchInterval,
-		refetchIntervalInBackground: false,
 		retry: 1,
 	});
 }

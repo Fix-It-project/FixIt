@@ -1,8 +1,14 @@
 import { router } from "expo-router";
 import { BellRing } from "lucide-react-native";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, SectionList, StyleSheet, View } from "react-native";
+import {
+	ActivityIndicator,
+	Image,
+	SectionList,
+	StyleSheet,
+	View,
+} from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import {
@@ -24,6 +30,8 @@ import { formatRelativeTime } from "@/src/lib/date/relative-time";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
 
+const systemNotificationIcon = require("@/src/assets/images/notification-icon.png");
+
 function notificationTarget(
 	item: NotificationLogItem,
 	role: NotificationPreferencesRole,
@@ -40,6 +48,7 @@ function isGenericSenderName(name: string | undefined): boolean {
 	const normalized = name.trim().toLowerCase();
 	return (
 		normalized === "" ||
+		normalized.startsWith("your ") ||
 		normalized === "fixit" ||
 		normalized === "the customer" ||
 		normalized === "the technician" ||
@@ -62,6 +71,13 @@ function senderLabel(item: NotificationLogItem): string {
 		return senderName;
 	}
 	return inferSenderNameFromBody(item.body) ?? "FixIt";
+}
+
+function isSystemNotification(
+	item: NotificationLogItem,
+	avatarLabel: string,
+): boolean {
+	return !item.senderImageUrl && avatarLabel === "FixIt";
 }
 
 interface NotificationSection {
@@ -145,26 +161,40 @@ export default function NotificationLogContent({
 }>) {
 	const { t, i18n } = useTranslation("notifications");
 	const themeColors = useThemeColors();
-	const { data, isLoading, isRefetching, refetch } =
-		useNotificationLogsQuery(notificationRole);
+	const {
+		data,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+		isLoading,
+		isRefetching,
+		refetch,
+	} = useNotificationLogsQuery(notificationRole);
 	const { mutate: markAllRead, isPending: isMarkingRead } =
 		useMarkAllNotificationsReadMutation(notificationRole);
+	const notifications = useMemo(() => data?.pages.flat() ?? [], [data]);
 
 	useEffect(() => {
-		if (data?.some((item) => !item.isRead) && !isMarkingRead) {
+		if (notifications.some((item) => !item.isRead) && !isMarkingRead) {
 			markAllRead();
 		}
-	}, [data, isMarkingRead, markAllRead]);
+	}, [notifications, isMarkingRead, markAllRead]);
+
+	const handleEndReached = useCallback(() => {
+		if (hasNextPage && !isFetchingNextPage) {
+			void fetchNextPage();
+		}
+	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
 	const sections = useMemo(
 		() =>
 			groupByDay(
-				data ?? [],
+				notifications,
 				i18n.language,
 				t("today", { defaultValue: "Today" }),
 				t("yesterday", { defaultValue: "Yesterday" }),
 			),
-		[data, i18n.language, t],
+		[notifications, i18n.language, t],
 	);
 
 	return (
@@ -204,6 +234,8 @@ export default function NotificationLogContent({
 						flexGrow: 1,
 					}}
 					SectionSeparatorComponent={null}
+					onEndReached={handleEndReached}
+					onEndReachedThreshold={0.35}
 					ItemSeparatorComponent={() => (
 						<View
 							style={{
@@ -224,6 +256,7 @@ export default function NotificationLogContent({
 					renderItem={({ item }) => {
 						const target = notificationTarget(item, notificationRole);
 						const avatarLabel = senderLabel(item);
+						const systemNotification = isSystemNotification(item, avatarLabel);
 						return (
 							<PressableScale
 								pressedScale={target ? 0.985 : 1}
@@ -238,24 +271,34 @@ export default function NotificationLogContent({
 									opacity: item.isRead ? 0.7 : 1,
 								}}
 							>
-								<Avatar alt={avatarLabel} className="h-avatar-md w-avatar-md">
-									{item.senderImageUrl ? (
-										<AvatarImage source={{ uri: item.senderImageUrl }} />
-									) : null}
-									<AvatarFallback
-										style={{
-											backgroundColor: getAvatarColor(item.senderName),
-										}}
-									>
-										<Text
-											variant="caption"
-											className="font-bold"
-											style={{ color: themeColors.surfaceBase }}
+								{systemNotification ? (
+									<View className="h-avatar-md w-avatar-md items-center justify-center rounded-pill bg-app-primary-light">
+										<Image
+											source={systemNotificationIcon}
+											className="h-icon-sm w-icon-sm"
+											style={{ tintColor: themeColors.primary }}
+										/>
+									</View>
+								) : (
+									<Avatar alt={avatarLabel} className="h-avatar-md w-avatar-md">
+										{item.senderImageUrl ? (
+											<AvatarImage source={{ uri: item.senderImageUrl }} />
+										) : null}
+										<AvatarFallback
+											style={{
+												backgroundColor: getAvatarColor(avatarLabel),
+											}}
 										>
-											{getPfpInitialsFallback(item.senderName)}
-										</Text>
-									</AvatarFallback>
-								</Avatar>
+											<Text
+												variant="caption"
+												className="font-bold"
+												style={{ color: themeColors.surfaceBase }}
+											>
+												{getPfpInitialsFallback(avatarLabel)}
+											</Text>
+										</AvatarFallback>
+									</Avatar>
+								)}
 
 								<View className="flex-1">
 									<View className="flex-row items-center gap-stack-sm">
@@ -311,6 +354,13 @@ export default function NotificationLogContent({
 								{t("emptyBody")}
 							</Text>
 						</View>
+					}
+					ListFooterComponent={
+						isFetchingNextPage ? (
+							<View className="items-center py-stack-lg">
+								<ActivityIndicator color={themeColors.primary} />
+							</View>
+						) : null
 					}
 					refreshControl={
 						<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />

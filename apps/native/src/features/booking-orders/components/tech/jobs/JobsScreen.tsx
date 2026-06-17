@@ -38,8 +38,8 @@ import {
 	extractOrderErrorToken,
 	translateOrderError,
 } from "../../../utils/translate-order-error";
+import { SegmentedTabBar } from "../../shared/SegmentedTabBar";
 import { JobsEmptyState } from "./JobsEmptyState";
-import { JobsTabBar } from "./JobsTabBar";
 import { formatJobDateLabel } from "./job-format";
 import { RequestJobCard } from "./RequestJobCard";
 import { RescheduleJobItem } from "./RescheduleJobItem";
@@ -195,9 +195,9 @@ export function JobsScreen() {
 				className="border-b-0"
 			/>
 			{/* Full-bleed: the track + sliding blue indicator reach both screen
-			    edges; labels stay centered in equal segments inside JobsTabBar. */}
+			    edges; labels stay centered in equal segments inside SegmentedTabBar. */}
 			<View style={{ backgroundColor: themeColors.surfaceBase }}>
-				<JobsTabBar
+				<SegmentedTabBar
 					tabs={tabs}
 					active={active}
 					onChange={handleTabPress}

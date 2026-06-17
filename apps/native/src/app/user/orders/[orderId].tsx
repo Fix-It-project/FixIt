@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import {
 	PendingWaitingCard,
@@ -33,20 +34,20 @@ import {
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
-import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/navigation";
-import { space, useThemeColors } from "@/src/constants/design-tokens";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 export default function OrderDetailScreen() {
 	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const { orderId } = useLocalSearchParams<{ orderId: string }>();
 	const order = useUserOrderById(orderId);
-	const goBack = useSafeBack(ROUTES.user.orders);
+	const goBack = useSafeBack(ROUTES.user.activity);
 
 	useOrderRealtimeInvalidate(
 		orderId,
-		order ? !TERMINAL_STATUSES.has(order.status as LifecycleOrderStatus) : false,
+		order
+			? !TERMINAL_STATUSES.has(order.status as LifecycleOrderStatus)
+			: false,
 	);
 
 	useFocusBackHandler(() => {

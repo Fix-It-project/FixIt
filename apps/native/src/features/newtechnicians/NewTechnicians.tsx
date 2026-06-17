@@ -1,8 +1,7 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { useFocusEffect } from "expo-router/react-navigation";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Search, X } from "lucide-react-native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	FlatList,
@@ -33,6 +32,7 @@ import {
 	TECHNICIAN_LIST_GC_MS,
 	useTechniciansInfiniteQuery,
 } from "@/src/features/technicians/hooks/useTechniciansQuery";
+import { technicianQueryKeys } from "@/src/features/technicians/query-keys";
 import { getRecommendedTechnicians } from "@/src/features/technicians/recommendations.service";
 import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
 import { useTechnicianSearchStore } from "@/src/features/technicians/stores/technician-search-store";
@@ -49,6 +49,37 @@ import { TechnicianListSkeleton } from "./components/TechnicianCardSkeleton";
 function getStringParam(value: string | string[] | undefined): string {
 	if (Array.isArray(value)) return value[0] ?? "";
 	return value ?? "";
+}
+
+function toServerSort(sort: SortKey): TechniciansSortParam | undefined {
+	if (sort === "Top Rated") return "top_rated";
+	if (sort === "Most Reviews") return "most_reviews";
+	if (sort === "Nearest") return "nearest";
+	return undefined;
+}
+
+function isCacheOlderThanOneMinute(dataUpdatedAt: number | undefined): boolean {
+	return (
+		!!dataUpdatedAt && Date.now() - dataUpdatedAt >= TECHNICIAN_LIST_CACHE_MS
+	);
+}
+
+function recommendedRankQueryKey({
+	categoryId,
+	problemDescription,
+	coords,
+}: {
+	readonly categoryId: string;
+	readonly problemDescription: string;
+	readonly coords?: { latitude: number; longitude: number } | null;
+}) {
+	return [
+		"recommended-technician-rank",
+		categoryId || null,
+		problemDescription,
+		coords?.latitude ?? null,
+		coords?.longitude ?? null,
+	] as const;
 }
 
 function EmptyState({
@@ -96,6 +127,7 @@ function EmptyState({
 export default function NewTechnicians() {
 	const { t } = useTranslation(["technicians", "categories"]);
 	const themeColors = useThemeColors();
+	const queryClient = useQueryClient();
 	const params = useLocalSearchParams<{
 		categoryId?: string | string[];
 		categoryName?: string | string[];
@@ -138,16 +170,8 @@ export default function NewTechnicians() {
 	}, [activePricingAddress]);
 	const coords = activeAddressCoords ?? location;
 	const lastCategoryRef = useRef<string | null>(null);
-	const [isScreenFocused, setIsScreenFocused] = useState(false);
 
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
-
-	useFocusEffect(
-		useCallback(() => {
-			setIsScreenFocused(true);
-			return () => setIsScreenFocused(false);
-		}, []),
-	);
 
 	useEffect(() => {
 		if (!categoryId || lastCategoryRef.current === categoryId) return;
@@ -155,17 +179,7 @@ export default function NewTechnicians() {
 		setSearchText("");
 	}, [categoryId, setSearchText]);
 
-	const serverSort: TechniciansSortParam | undefined =
-		activeSort === "Top Rated"
-			? "top_rated"
-			: activeSort === "Most Reviews"
-				? "most_reviews"
-				: activeSort === "Nearest"
-					? "nearest"
-					: undefined;
-	const activeRefetchInterval = isScreenFocused
-		? TECHNICIAN_LIST_CACHE_MS
-		: false;
+	const serverSort = toServerSort(activeSort);
 
 	const {
 		data,
@@ -182,23 +196,21 @@ export default function NewTechnicians() {
 		coords,
 		sort: serverSort,
 		pageSize: 20,
-		refetchInterval: activeRefetchInterval,
 	});
 	const technicians = useMemo(() => data?.pages.flat() ?? [], [data]);
 
 	const goBack = useSafeBack(ROUTES.user.categories);
 
 	const problemDescription = categoryName || "General home service needed";
+	const activeRecommendedRankQueryKey = recommendedRankQueryKey({
+		categoryId,
+		problemDescription,
+		coords,
+	});
 
 	const { data: recommendedRank = null, isLoading: isLoadingRecommended } =
 		useQuery({
-			queryKey: [
-				"recommended-technician-rank",
-				categoryId || null,
-				problemDescription,
-				coords?.latitude ?? null,
-				coords?.longitude ?? null,
-			],
+			queryKey: activeRecommendedRankQueryKey,
 			queryFn: async () => {
 				const recs = await getRecommendedTechnicians({
 					problemDescription,
@@ -216,17 +228,56 @@ export default function NewTechnicians() {
 			enabled: activeSort === "Recommended" && categoryId.length > 0,
 			staleTime: TECHNICIAN_LIST_CACHE_MS,
 			gcTime: TECHNICIAN_LIST_GC_MS,
-			refetchInterval:
-				isScreenFocused && activeSort === "Recommended"
-					? TECHNICIAN_LIST_CACHE_MS
-					: false,
-			refetchIntervalInBackground: false,
 			retry: 1,
 		});
 
+	// Refetch on return-to-screen, but only when the cache for the *current* filter
+	// is older than one minute. Gives "refresh when I come back to it, only after a
+	// minute" without any background auto-refresh while the screen just sits open.
+	// (On first focus the data is fresh/loading, so this never double-fetches.)
+	useFocusEffect(
+		useCallback(() => {
+			const listKey = technicianQueryKeys.infiniteList(
+				categoryId.trim(),
+				debouncedSearch.trim(),
+				coords?.latitude ?? null,
+				coords?.longitude ?? null,
+				serverSort ?? null,
+				20,
+			);
+			const listState = queryClient.getQueryState(listKey);
+			if (isCacheOlderThanOneMinute(listState?.dataUpdatedAt)) {
+				void refetch();
+			}
+			if (activeSort === "Recommended") {
+				const rankKey = recommendedRankQueryKey({
+					categoryId,
+					problemDescription,
+					coords,
+				});
+				const rankState = queryClient.getQueryState(rankKey);
+				if (isCacheOlderThanOneMinute(rankState?.dataUpdatedAt)) {
+					void queryClient.invalidateQueries({
+						queryKey: rankKey,
+						exact: true,
+						refetchType: "active",
+					});
+				}
+			}
+		}, [
+			activeSort,
+			categoryId,
+			coords,
+			debouncedSearch,
+			problemDescription,
+			queryClient,
+			refetch,
+			serverSort,
+		]),
+	);
+
 	const handleSortPress = useCallback(
 		async (option: SortKey) => {
-			if (option === activeSort) return;
 			if (
 				option === "Nearest" &&
 				!activeAddressCoords &&
@@ -242,12 +293,54 @@ export default function NewTechnicians() {
 					return;
 				}
 			}
+			const targetSort = toServerSort(option);
+			const targetTechniciansQueryKey = technicianQueryKeys.infiniteList(
+				categoryId.trim(),
+				debouncedSearch.trim(),
+				coords?.latitude ?? null,
+				coords?.longitude ?? null,
+				targetSort ?? null,
+				20,
+			);
+			const targetTechniciansState = queryClient.getQueryState(
+				targetTechniciansQueryKey,
+			);
+			if (isCacheOlderThanOneMinute(targetTechniciansState?.dataUpdatedAt)) {
+				await queryClient.invalidateQueries({
+					queryKey: targetTechniciansQueryKey,
+					exact: true,
+					refetchType: option === activeSort ? "active" : "inactive",
+				});
+			}
+			if (option === "Recommended") {
+				const targetRecommendedRankQueryKey = recommendedRankQueryKey({
+					categoryId,
+					problemDescription,
+					coords,
+				});
+				const targetRecommendedState = queryClient.getQueryState(
+					targetRecommendedRankQueryKey,
+				);
+				if (isCacheOlderThanOneMinute(targetRecommendedState?.dataUpdatedAt)) {
+					await queryClient.invalidateQueries({
+						queryKey: targetRecommendedRankQueryKey,
+						exact: true,
+						refetchType: option === activeSort ? "active" : "inactive",
+					});
+				}
+			}
+			if (option === activeSort) return;
 			setActiveSort(option);
 		},
 		[
 			activeSort,
 			activeAddressCoords,
+			categoryId,
+			coords,
+			debouncedSearch,
 			permissionStatus,
+			problemDescription,
+			queryClient,
 			requestLocationPermission,
 			setActiveSort,
 			t,
@@ -303,11 +396,9 @@ export default function NewTechnicians() {
 			},
 			enabled: !!activePricingAddress?.id,
 			retry: false,
-			meta: { showToast: false },
+			meta: { showToast: false, silent: true },
 			staleTime: TECHNICIAN_LIST_CACHE_MS,
 			gcTime: TECHNICIAN_LIST_GC_MS,
-			refetchInterval: activeRefetchInterval,
-			refetchIntervalInBackground: false,
 		})),
 	});
 
@@ -357,6 +448,13 @@ export default function NewTechnicians() {
 			isLoadingRecommended &&
 			recommendedRank === null) ||
 		isSearchSettling;
+	// Background refetch keeps cached cards on screen; show a small top spinner
+	// instead of replacing real results with placeholders.
+	const isBackgroundRefreshing =
+		isFetching &&
+		!isFetchingNextPage &&
+		!showSkeleton &&
+		technicians.length > 0;
 	const hasSearch =
 		debouncedSearch.trim().length > 0 || searchText.trim().length > 0;
 	const count = showSkeleton ? technicians.length : displayedTechnicians.length;
@@ -366,6 +464,10 @@ export default function NewTechnicians() {
 		if (!isFetchingNextPage) return null;
 		return <LoadingSpinner className="py-stack-lg" size="small" />;
 	}, [isFetchingNextPage]);
+	const listHeader = useMemo(() => {
+		if (!isBackgroundRefreshing) return null;
+		return <LoadingSpinner className="py-stack-sm" size="small" />;
+	}, [isBackgroundRefreshing]);
 	const loadNextPage = useCallback(() => {
 		if (!hasNextPage || isFetching || isFetchingNextPage) return;
 		void fetchNextPage();
@@ -389,9 +491,7 @@ export default function NewTechnicians() {
 			<View className="flex-1 bg-background">
 				<PageHeader
 					title={headerTitle}
-					subtitle={
-						showSkeleton ? t("list.updatingResults") : `${count} ${countLabel}`
-					}
+					subtitle={`${count} ${countLabel}`}
 					variant="app-primary"
 					onBackPress={goBack}
 				/>
@@ -448,6 +548,7 @@ export default function NewTechnicians() {
 						data={displayedTechnicians}
 						keyExtractor={keyExtractor}
 						renderItem={renderItem}
+						ListHeaderComponent={listHeader}
 						ListFooterComponent={listFooter}
 						onEndReached={loadNextPage}
 						onEndReachedThreshold={0.4}
