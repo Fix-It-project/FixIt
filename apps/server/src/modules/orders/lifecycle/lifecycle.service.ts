@@ -386,6 +386,18 @@ export class LifecycleService {
 				orderId: refreshed.id,
 				viewerRole: "user",
 			});
+			// Back the device-side arrival notification with a push so the technician
+			// is alerted even when the app was backgrounded / relaunched by the OS.
+			await this.notifyBestEffort({
+				recipientRole: "technician",
+				recipientId: techId,
+				type: "technician_arrived_self",
+				title: "You've arrived",
+				body: "Tap to confirm arrival and start the inspection.",
+				...customerSender(refreshed),
+				orderId: refreshed.id,
+				viewerRole: "technician",
+			});
 		}
 
 		return { location, order: refreshed, arrived };

@@ -134,6 +134,11 @@ function addMonthsYmd(ymd: string, months: number): string {
 	return new Date(Date.UTC(y, m - 1 + months, d)).toISOString().slice(0, 10);
 }
 
+function addDaysYmd(ymd: string, days: number): string {
+	const [y, m, d] = ymd.split("-").map(Number);
+	return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
 /**
  * Weekday (0=Sun) for a plain YYYY-MM-DD. The components are fixed, so
  * local-midnight yields the same weekday the date represents — timezone-safe.
@@ -212,6 +217,8 @@ export function AvailabilityCalendar({
 	LocaleConfig.defaultLocale = i18n.language === "ar" ? "ar" : "en";
 
 	const today = useMemo(() => cairoTodayYmd(), []);
+	// Bookings are next-day only — the earliest selectable day is tomorrow (Cairo).
+	const tomorrow = useMemo(() => addDaysYmd(today, 1), [today]);
 	const [visibleMonth, setVisibleMonth] = useState(selectedDate ?? today);
 	const maxDate = useMemo(
 		() => addMonthsYmd(today, monthsAhead),
@@ -280,7 +287,8 @@ export function AvailabilityCalendar({
 			if (!date) return <View className="h-9 w-9" />;
 			const ymd = date.dateString;
 
-			const isPast = ymd < today;
+			// Same-day and past are not bookable — bookings start next day.
+			const isPast = ymd <= today;
 			const hasTemplates = templates.length > 0;
 			const isUnavailable = hasTemplates
 				? !availableDays.has(dayOfWeek(ymd)) || exceptionDates.has(ymd)
@@ -407,7 +415,7 @@ export function AvailabilityCalendar({
 			<Animated.View style={calendarAnimatedStyle}>
 				<Calendar
 					current={visibleMonth}
-					minDate={today}
+					minDate={tomorrow}
 					maxDate={maxDate}
 					theme={calendarTheme}
 					dayComponent={DayCell}

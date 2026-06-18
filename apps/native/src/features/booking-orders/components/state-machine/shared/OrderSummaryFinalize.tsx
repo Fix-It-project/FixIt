@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import * as WebBrowser from "expo-web-browser";
+import { router } from "expo-router";
 import { Check, CheckCircle2, Circle, CreditCard, Wallet } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,6 +35,7 @@ import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpe
 import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
 import { showError } from "@/src/lib/errors";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES } from "@/src/lib/navigation";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
 
@@ -107,14 +108,14 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 
 	const handleCardCheckout = async () => {
 		try {
-			// Payment method is already 'card' (chosen upfront), so just open the
-			// gateway; the webhook flips the order to completed and we poll for it.
+			// Payment method is already 'card' (chosen upfront). Open the gateway in
+			// the in-app webview; the webhook flips the order to completed and the
+			// poll below picks it up once the webview returns.
 			const session = await userCreateCardSession.mutateAsync({
 				orderId: order.id,
 			});
 			setIsPollingForCard(true);
-			await WebBrowser.openBrowserAsync(session.checkoutUrl);
-			void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+			router.push(ROUTES.user.paymentCheckout(session.checkoutUrl));
 		} catch (error) {
 			setIsPollingForCard(false);
 			showError(error);

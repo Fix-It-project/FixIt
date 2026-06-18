@@ -213,6 +213,7 @@
 			"totalPricing": "Total pricing",
 			"inspectionFee": "Inspection fee: {{amount}}",
 			"acceptedTotalRule": "Accepted total = work price + inspection fee",
+			"workPriceRange": "Work price range: {{range}}",
 			"latestTotalIfAccepted": "Latest total if accepted: {{amount}}",
 			"emptyTech": "Press \"Offer work price\" to send your first quote.",
 			"emptyUser": "Waiting for technician to send a work price.",
@@ -239,6 +240,9 @@
 				"sameBody": "Your offer must differ from the last one.",
 				"amountPlaceholder": "Work price ({{currency}})",
 				"lastOffer": "Last work price: {{amount}}",
+				"rangeHint": "Accepted range: {{range}}",
+				"outOfRangeTitle": "Out of range",
+				"outOfRangeBody": "Enter a work price within {{range}}.",
 				"notePlaceholder": "Add a note (optional)",
 				"cancel": "Cancel",
 				"send": "Send"

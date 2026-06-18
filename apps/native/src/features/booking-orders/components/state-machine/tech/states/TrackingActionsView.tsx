@@ -20,8 +20,8 @@ import {
 import {
 	useOrderDistance,
 	useTechCancel,
-	useTechLocationPing,
 	useTechMarkArrived,
+	useTechTracking,
 } from "@/src/features/booking-orders/hooks";
 import type {
 	Order,
@@ -39,8 +39,10 @@ export default function TrackingBody({ order }: Props) {
 	const booking = order as unknown as TechnicianBooking;
 	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
 
-	const { permissionStatus, canAskAgain, requestPermission } =
-		useTechLocationPing({ orderId: order.id, enabled: true });
+	const { permissionStatus, canAskAgain, requestPermission } = useTechTracking({
+		orderId: order.id,
+		active: true,
+	});
 
 	const { data: distance } = useOrderDistance(order.id, {
 		enabled: true,

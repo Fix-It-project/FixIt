@@ -71,6 +71,12 @@ export const ROUTES = {
 			pathname: "/user/orders/placed/[id]" as const,
 			params: { id },
 		}),
+		// In-app Paymob checkout (react-native-webview). `url` is the gateway
+		// checkout URL returned by the create-card-session mutation.
+		paymentCheckout: (url: string) => ({
+			pathname: "/user/payment/checkout" as const,
+			params: { url },
+		}),
 		profile: "/user/profile" as const,
 		profileEdit: "/user/profile/edit" as const,
 		profileAddresses: "/user/profile/addresses" as const,

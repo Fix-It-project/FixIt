@@ -213,6 +213,7 @@
 			"totalPricing": "التسعير الإجمالي",
 			"inspectionFee": "رسوم المعاينة: {{amount}}",
 			"acceptedTotalRule": "الإجمالي المقبول = سعر العمل + رسوم المعاينة",
+			"workPriceRange": "نطاق سعر العمل: {{range}}",
 			"latestTotalIfAccepted": "أحدث إجمالي عند القبول: {{amount}}",
 			"emptyTech": "اضغط «اعرض سعر العمل» لإرسال أول عرض.",
 			"emptyUser": "بانتظار إرسال الفني لسعر العمل.",
@@ -239,6 +240,9 @@
 				"sameBody": "يجب أن يختلف عرضك عن السابق.",
 				"amountPlaceholder": "سعر العمل ({{currency}})",
 				"lastOffer": "آخر سعر عمل: {{amount}}",
+				"rangeHint": "النطاق المسموح: {{range}}",
+				"outOfRangeTitle": "خارج النطاق",
+				"outOfRangeBody": "أدخل سعر عمل ضمن {{range}}.",
 				"notePlaceholder": "أضف ملاحظة (اختياري)",
 				"cancel": "إلغاء",
 				"send": "إرسال"

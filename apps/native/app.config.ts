@@ -80,6 +80,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		bundleIdentifier: "com.anonymous.fixitapp",
 		infoPlist: {
 			ITSAppUsesNonExemptEncryption: false,
+			// Technician background location tracking continues while suspended.
+			UIBackgroundModes: ["location"],
 		},
 	},
 	android: {
@@ -93,6 +95,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		permissions: [
 			"android.permission.ACCESS_COARSE_LOCATION",
 			"android.permission.ACCESS_FINE_LOCATION",
+			// Technician background location tracking (foreground service).
+			"android.permission.ACCESS_BACKGROUND_LOCATION",
+			"android.permission.FOREGROUND_SERVICE",
+			"android.permission.FOREGROUND_SERVICE_LOCATION",
 			"android.permission.POST_NOTIFICATIONS",
 			"android.permission.RECORD_AUDIO",
 		],
@@ -141,6 +147,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 					"FixIt needs your location to connect you with nearby technicians.",
 				locationWhenInUsePermission:
 					"FixIt needs your location to connect you with nearby technicians.",
+				// Technician live tracking runs as an Android foreground service and
+				// keeps streaming in the background until arrival.
+				isAndroidForegroundServiceEnabled: true,
+				isAndroidBackgroundLocationEnabled: true,
 			},
 		],
 		[

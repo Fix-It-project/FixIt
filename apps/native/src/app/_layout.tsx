@@ -4,6 +4,9 @@ import "@/src/config/google-signin";
 import "@/src/config/intl-polyfills";
 import "@/src/config/monitoring";
 import "@/src/config/i18n";
+// Registers the technician background-location TaskManager task on every JS
+// launch (including the OS's headless background launch).
+import "@/src/features/booking-orders/lib/location-task";
 
 import { useFonts } from "@expo-google-fonts/google-sans";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";

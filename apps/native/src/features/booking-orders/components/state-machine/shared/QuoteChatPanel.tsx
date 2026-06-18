@@ -14,6 +14,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import {
 	useOrderQuoteHistory,
 	useTechAcceptUserQuote,
@@ -39,6 +40,14 @@ interface QuoteChatProps {
 }
 
 const MAX_ROUNDS = 5;
+
+/** "EGP 250 – EGP 400" for the order's service, or null when unconfigured. */
+function workPriceRangeLabel(order: Order): string | null {
+	const min = order.service_min_price;
+	const max = order.service_max_price;
+	if (typeof min !== "number" || typeof max !== "number") return null;
+	return `${formatCurrency(min)} – ${formatCurrency(max)}`;
+}
 
 function deriveQuoteState(
 	rounds: readonly OrderQuote[],
@@ -68,6 +77,7 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 	const latestQuote = rounds[rounds.length - 1] ?? null;
 	const latestTotal =
 		latestQuote != null ? latestQuote.amount + inspectionFee : inspectionFee;
+	const rangeLabel = workPriceRangeLabel(order);
 
 	return (
 		<View
@@ -125,6 +135,15 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
 					{t("detail.quote.acceptedTotalRule")}
 				</Text>
+				{rangeLabel ? (
+					<Text
+						variant="bodySm"
+						className="font-google-sans-medium"
+						style={{ color: themeColors.primary }}
+					>
+						{t("detail.quote.workPriceRange", { range: rangeLabel })}
+					</Text>
+				) : null}
 				{latestQuote ? (
 					<Text
 						variant="bodySm"
@@ -212,7 +231,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				Toast.show({
 					type: "info",
 					text1: t("detail.quote.toastSubmitFailed"),
-					text2: err.message,
+					text2: translateOrderError(err),
 				}),
 		});
 	}
@@ -233,7 +252,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				Toast.show({
 					type: "info",
 					text1: t("detail.quote.toastAcceptFailed"),
-					text2: err.message,
+					text2: translateOrderError(err),
 				}),
 		});
 	}
@@ -255,7 +274,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				Toast.show({
 					type: "info",
 					text1: t("detail.quote.toastCancelFailed"),
-					text2: err.message,
+					text2: translateOrderError(err),
 				}),
 		});
 	}
@@ -311,6 +330,8 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				ctaLabel={sheetCta}
 				isPending={isSubmitPending}
 				previousAmount={latest?.amount ?? null}
+				minPrice={order.service_min_price}
+				maxPrice={order.service_max_price}
 				onSubmit={handleSheetSubmit}
 			/>
 		);
@@ -399,6 +420,8 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				ctaLabel={sheetCta}
 				isPending={isSubmitPending}
 				previousAmount={latest?.amount ?? null}
+				minPrice={order.service_min_price}
+				maxPrice={order.service_max_price}
 				onSubmit={handleSheetSubmit}
 			/>
 			<CancelReasonModal
