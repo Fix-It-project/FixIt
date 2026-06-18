@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/src/components/ui/button";
@@ -17,6 +18,7 @@ export default function CheckInboxView({
 	isResending,
 	onResend,
 }: CheckInboxViewProps) {
+	const { t } = useTranslation("auth");
 	const insets = useSafeAreaInsets();
 
 	return (
@@ -24,10 +26,11 @@ export default function CheckInboxView({
 			{/* Header */}
 			<View className="mt-stack-sm mb-stack-lg px-screen-x">
 				<Text variant="h2" className="mb-stack-sm text-content">
-					Check your inbox
+					{t("forgotPassword.checkInboxTitle")}
 				</Text>
 				<Text variant="body" className="text-content-secondary">
-					A link to reset your password was sent to{"\n"}
+					{t("forgotPassword.checkInboxBody")}
+					{"\n"}
 					<Text variant="body" className="font-semibold text-content">
 						{email}
 					</Text>
@@ -41,15 +44,15 @@ export default function CheckInboxView({
 			<View className="mb-card-roomy items-center">
 				{cooldown > 0 ? (
 					<Text variant="body" className="text-content-secondary">
-						Didn't get an email?{" "}
+						{t("forgotPassword.didNotGetEmail")}{" "}
 						<Text variant="body" className="font-semibold">
-							Resend in {cooldown}
+							{t("forgotPassword.resendIn", { seconds: cooldown })}
 						</Text>
 					</Text>
 				) : (
 					<View className="flex-row items-center">
 						<Text variant="body" className="text-content-secondary">
-							Didn't get an email?{" "}
+							{t("forgotPassword.didNotGetEmail")}{" "}
 						</Text>
 						<Button
 							variant="link"
@@ -57,7 +60,9 @@ export default function CheckInboxView({
 							onPress={onResend}
 							disabled={isResending}
 						>
-							{isResending ? "Sending..." : "Resend"}
+							{isResending
+								? t("forgotPassword.sending")
+								: t("forgotPassword.resend")}
 						</Button>
 					</View>
 				)}
@@ -69,7 +74,9 @@ export default function CheckInboxView({
 				style={{ paddingBottom: insets.bottom + 16 }}
 			>
 				<Button onPress={() => void openMailApp()}>
-					<BtnText variant="buttonLg">Open email app</BtnText>
+					<BtnText variant="buttonLg">
+						{t("forgotPassword.openEmailApp")}
+					</BtnText>
 				</Button>
 			</View>
 		</>

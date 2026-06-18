@@ -2,7 +2,7 @@ import axios from "axios";
 import * as Crypto from "expo-crypto";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Keyboard } from "react-native";
 import Toast from "react-native-toast-message";
 import { diagnoseIssue, placeOrderWithAgent } from "@/src/features/ai/api";
@@ -17,6 +17,8 @@ import { useAudioRecorder } from "./useAudioRecorder";
 
 const AI_IMAGE_PICK_QUALITY = 0.25;
 const MAX_AGENT_IMAGE_BASE64_LENGTH = 600_000;
+const AI_UNAVAILABLE_MESSAGE =
+	"FixIt AI is unavailable right now. Send another message when you're ready.";
 
 export function useChatbotController() {
 	const router = useRouter();
@@ -35,6 +37,7 @@ export function useChatbotController() {
 	const [agentSessionId, setAgentSessionId] = useState<string | null>(() =>
 		Crypto.randomUUID(),
 	);
+	const isSubmittingRef = useRef(false);
 
 	// Audio recorder
 	const {
@@ -60,6 +63,18 @@ export function useChatbotController() {
 
 	const toggleMode = useCallback(() => {
 		setMode((prev) => (prev === "recommend" ? "agent" : "recommend"));
+	}, []);
+
+	const appendAssistantFailure = useCallback((flow: ChatFlow) => {
+		setChatEntries((entries) => [
+			...entries,
+			{
+				id: createChatEntryId(),
+				type: "assistant",
+				text: AI_UNAVAILABLE_MESSAGE,
+				flow,
+			},
+		]);
 	}, []);
 
 	const resetChatState = useCallback(() => {
@@ -159,6 +174,7 @@ export function useChatbotController() {
 	}, []);
 
 	const handleRecommend = useCallback(async () => {
+		if (isSubmittingRef.current) return;
 		setError(null);
 
 		if (hasAudio && trimmedMessage) {
@@ -173,18 +189,12 @@ export function useChatbotController() {
 			return;
 		}
 
-		await requestLocationPermission();
-		const { location } = useLocationStore.getState();
-		if (!location) {
-			setError("Location is required to find nearby technicians.");
-			return;
-		}
-
 		const promptText = trimmedMessage;
 		const promptImage = selectedImage;
 		const audioBase64 = recordedAudio?.base64 ?? undefined;
 		const userText = promptText || (hasAudio ? "Voice message" : "");
 
+		isSubmittingRef.current = true;
 		setChatEntries((entries) => [
 			...entries,
 			{
@@ -202,6 +212,13 @@ export function useChatbotController() {
 		setActiveFlow("recommend");
 
 		try {
+			await requestLocationPermission();
+			const { location } = useLocationStore.getState();
+			if (!location) {
+				setError("Location is required to find nearby technicians.");
+				return;
+			}
+
 			logger.info("ai.chat", "recommendation_request_started", {
 				hasText: promptText.length > 0,
 				hasImage: !!promptImage?.base64,
@@ -249,11 +266,13 @@ export function useChatbotController() {
 			});
 		} catch (err: unknown) {
 			logger.error("ai.chat", "recommendation_request_failed", err);
-			setError(getErrorMessage(err));
+			appendAssistantFailure("recommend");
 		} finally {
+			isSubmittingRef.current = false;
 			setActiveFlow(null);
 		}
 	}, [
+		appendAssistantFailure,
 		requestLocationPermission,
 		selectedImage,
 		trimmedMessage,
@@ -264,6 +283,7 @@ export function useChatbotController() {
 	]);
 
 	const handleAgentOrder = useCallback(async () => {
+		if (isSubmittingRef.current) return;
 		setError(null);
 
 		if (hasAudio && trimmedMessage) {
@@ -277,13 +297,6 @@ export function useChatbotController() {
 		}
 		if (!agentSessionId) {
 			setError("Start a new agent session before sending your message.");
-			return;
-		}
-
-		await requestLocationPermission();
-		const { location } = useLocationStore.getState();
-		if (!location) {
-			setError("Location is required for the agent to prepare your order.");
 			return;
 		}
 
@@ -302,6 +315,7 @@ export function useChatbotController() {
 			return;
 		}
 
+		isSubmittingRef.current = true;
 		setChatEntries((entries) => [
 			...entries,
 			{
@@ -319,6 +333,13 @@ export function useChatbotController() {
 		setActiveFlow("agent");
 
 		try {
+			await requestLocationPermission();
+			const { location } = useLocationStore.getState();
+			if (!location) {
+				setError("Location is required for the agent to prepare your order.");
+				return;
+			}
+
 			const userId = user?.id ?? null;
 			logger.info("ai.chat", "agent_order_request_started", {
 				hasText: promptText.length > 0,
@@ -381,12 +402,14 @@ export function useChatbotController() {
 			} else {
 				logger.error("ai.chat", "agent_order_request_failed", err);
 			}
-			setError(getErrorMessage(err));
+			appendAssistantFailure("agent");
 		} finally {
+			isSubmittingRef.current = false;
 			setActiveFlow(null);
 		}
 	}, [
 		agentSessionId,
+		appendAssistantFailure,
 		requestLocationPermission,
 		trimmedMessage,
 		user?.id,

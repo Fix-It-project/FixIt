@@ -34,12 +34,18 @@ export async function getInspectionFeePreview(
 	technicianId: string,
 	destinationAddressId: string,
 ): Promise<InspectionFeePreviewResponse> {
-	const response = await apiClient.get("/api/orders/user/inspection-fee-preview", {
-		params: {
-			technician_id: technicianId,
-			destination_address_id: destinationAddressId,
+	const response = await apiClient.get(
+		"/api/orders/user/inspection-fee-preview",
+		{
+			params: {
+				technician_id: technicianId,
+				destination_address_id: destinationAddressId,
+			},
+			// Pricing-unavailable (tech has no geocoded address) is an expected, UI-handled
+			// 400 here — don't log it as a validation warning per request.
+			suppressErrorLog: true,
 		},
-	});
+	);
 	return safeParseResponse(
 		inspectionFeePreviewResponseSchema,
 		response.data,

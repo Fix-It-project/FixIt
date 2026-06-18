@@ -60,6 +60,8 @@ export interface ITechniciansStatsRepository {
 		technicianId: string,
 		sinceIso: string,
 	): Promise<TechnicianRatingStats>;
+	/** Lifetime sum of paid payments across the technician's orders. */
+	getLifetimePaidTotal(technicianId: string): Promise<number>;
 }
 
 export class TechniciansStatsRepository implements ITechniciansStatsRepository {
@@ -222,6 +224,22 @@ export class TechniciansStatsRepository implements ITechniciansStatsRepository {
 			rating: rated > 0 ? Math.round((sum / rated) * 10) / 10 : null,
 			review_count: rated,
 		};
+	}
+
+	async getLifetimePaidTotal(technicianId: string): Promise<number> {
+		// No payout/settlement ledger exists — "wallet" is simply the lifetime
+		// sum of paid payments for this technician's orders, not a withdrawable
+		// balance. A real balance would need a settlements table.
+		const { data, error } = await supabaseAdmin
+			.from("payments")
+			.select("amount, orders!inner(technician_id)")
+			.eq("status", "paid")
+			.eq("orders.technician_id", technicianId);
+		if (error) throw new Error(error.message);
+		return (data ?? []).reduce(
+			(total: number, row: { amount: number }) => total + Number(row.amount),
+			0,
+		);
 	}
 }
 

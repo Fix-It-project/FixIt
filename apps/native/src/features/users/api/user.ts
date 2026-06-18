@@ -2,10 +2,12 @@ import apiClient from "@/src/config/api-client";
 import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import type {
 	GetProfileResponse,
+	GetUserStatsResponse,
 	UpdateProfileResponse,
 } from "../schemas/response.schema";
 import {
 	getProfileResponseSchema,
+	getUserStatsResponseSchema,
 	updateProfileResponseSchema,
 } from "../schemas/response.schema";
 import type { UpdateProfileRequest } from "../types/user";
@@ -27,5 +29,14 @@ export async function updateProfile(
 		updateProfileResponseSchema,
 		response.data,
 		"updateProfile",
+	);
+}
+
+export async function getUserStats(): Promise<GetUserStatsResponse> {
+	const response = await apiClient.get("/api/users/me/stats");
+	return safeParseResponse(
+		getUserStatsResponseSchema,
+		response.data,
+		"getUserStats",
 	);
 }

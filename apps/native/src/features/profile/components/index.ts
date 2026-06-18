@@ -1,6 +1,7 @@
 export { default as ProfileAvatar } from "./ProfileAvatar";
-export { default as ProfileContentLayout } from "./ProfileContentLayout";
 export { default as ProfileEditScreenLayout } from "./ProfileEditScreenLayout";
-export { default as ProfileHeader } from "./ProfileHeader";
-export { default as ProfileMenuSection } from "./ProfileMenuSection";
-export { default as ProfileStatsSection } from "./ProfileStatsSection";
+export { default as ProfileHero } from "./ProfileHero";
+export { default as ProfileMetrics } from "./ProfileMetrics";
+export { default as ProfileRow } from "./ProfileRow";
+export { default as ProfileSection } from "./ProfileSection";
+export { default as RewardsSection } from "./RewardsSection";

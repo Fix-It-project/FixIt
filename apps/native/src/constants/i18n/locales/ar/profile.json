@@ -3,14 +3,42 @@
 		"userFallback": "مستخدم",
 		"editTitle": "تعديل الملف الشخصي"
 	},
+	"hero": {
+		"memberSince": "عضو منذ {{date}}"
+	},
 	"stats": {
 		"bookings": "الحجوزات",
 		"completed": "المكتملة"
 	},
+	"metrics": {
+		"totalBookings": "إجمالي الحجوزات",
+		"completed": "المكتملة",
+		"topService": "الخدمة الأكثر",
+		"totalOrders": "إجمالي الطلبات",
+		"rating": "التقييم"
+	},
+	"sections": {
+		"account": "الحساب",
+		"work": "العمل",
+		"earnings": "الأرباح",
+		"rewards": "المكافآت"
+	},
+	"actions": {
+		"openSettings": "الإعدادات"
+	},
+	"earnings": {
+		"totalEarned": "إجمالي الأرباح"
+	},
+	"rewards": {
+		"comingSoon": "المكافآت في الطريق — ابدأ بجمع المزايا قريبًا."
+	},
 	"menu": {
 		"editProfile": "تعديل الملف الشخصي",
+		"orderHistory": "سجل الطلبات",
 		"pastOrders": "الطلبات السابقة",
 		"addresses": "عناويني",
+		"serviceLocation": "موقع الخدمة",
+		"services": "الخدمات",
 		"settings": "الإعدادات",
 		"loggingOut": "جارٍ تسجيل الخروج…",
 		"logout": "تسجيل الخروج"
@@ -32,14 +60,22 @@
 	"edit": {
 		"fullName": "الاسم الكامل",
 		"fullNamePlaceholder": "أدخل اسمك الكامل",
+		"firstName": "الاسم الأول",
+		"firstNamePlaceholder": "أدخل اسمك الأول",
+		"lastName": "اسم العائلة",
+		"lastNamePlaceholder": "أدخل اسم عائلتك",
 		"email": "البريد الإلكتروني",
 		"emailPlaceholder": "أدخل بريدك الإلكتروني",
 		"phone": "الهاتف",
 		"phonePlaceholder": "أدخل رقم هاتفك",
+		"about": "نبذة",
+		"aboutPlaceholder": "عرّف العملاء بنفسك…",
 		"save": "حفظ التغييرات"
 	},
 	"avatar": {
 		"alt": "صورة الملف الشخصي",
-		"change": "تغيير صورة الملف الشخصي"
+		"change": "تغيير صورة الملف الشخصي",
+		"permissionTitle": "الإذن مطلوب",
+		"permissionBody": "يرجى السماح بالوصول إلى مكتبة الصور."
 	}
 }

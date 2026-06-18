@@ -1,10 +1,14 @@
-import { Image } from "expo-image";
 import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import {
@@ -69,6 +73,7 @@ function PastOrderCard({
 		t,
 	);
 	const scheduledTime = formatTime(item.scheduledStartAt, i18n.language);
+	const avatarImage = item.avatarImage?.trim() || null;
 	const serviceName = translateServiceName(
 		tc,
 		item.serviceId,
@@ -82,18 +87,18 @@ function PastOrderCard({
 			className="mb-stack-md rounded-card bg-card p-card"
 		>
 			<View className="flex-row items-center gap-stack-md">
-				{item.avatarImage ? (
-					<Image
-						source={{ uri: item.avatarImage }}
-						className="h-control-icon-box-touch w-control-icon-box-touch rounded-pill"
-						contentFit="cover"
-						style={{ backgroundColor: themeColors.surfaceElevated }}
-					/>
-				) : (
-					<View
-						className="h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-pill"
-						style={{ backgroundColor: getAvatarColor(item.avatarName) }}
-					>
+				<Avatar
+					alt={item.avatarName ?? getPfpInitialsFallback(item.avatarName)}
+					className="h-control-icon-box-touch w-control-icon-box-touch items-center justify-center rounded-pill"
+					style={{ backgroundColor: getAvatarColor(item.avatarName) }}
+				>
+					{avatarImage ? (
+						<AvatarImage
+							source={{ uri: avatarImage }}
+							className="h-control-icon-box-touch w-control-icon-box-touch rounded-pill"
+						/>
+					) : null}
+					<AvatarFallback className="bg-transparent">
 						<Text
 							variant="label"
 							className="font-bold"
@@ -101,8 +106,8 @@ function PastOrderCard({
 						>
 							{getPfpInitialsFallback(item.avatarName)}
 						</Text>
-					</View>
-				)}
+					</AvatarFallback>
+				</Avatar>
 
 				<View className="flex-1">
 					<Text

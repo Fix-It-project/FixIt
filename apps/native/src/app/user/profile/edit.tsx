@@ -76,7 +76,7 @@ export default function EditProfileScreen() {
 				icon={User}
 				error={fieldErrors.full_name}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
 				autoCapitalize="words"
 			/>
 
@@ -91,7 +91,7 @@ export default function EditProfileScreen() {
 				icon={Mail}
 				error={fieldErrors.email}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
 				keyboardType="email-address"
 				autoCapitalize="none"
 				textAlign="left"
@@ -109,7 +109,7 @@ export default function EditProfileScreen() {
 				icon={Phone}
 				error={fieldErrors.phone}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
 				keyboardType="phone-pad"
 				textAlign="left"
 				textDirection="ltr"

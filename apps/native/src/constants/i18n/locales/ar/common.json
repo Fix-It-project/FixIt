@@ -5,8 +5,9 @@
 	"arabic": "العربية",
 	"tabs": {
 		"home": "الرئيسية",
+		"activity": "النشاط",
+		"chat": "اسأل فِكس",
 		"notifications": "الإشعارات",
-		"orders": "طلباتي",
 		"profile": "ملفي الشخصي",
 		"openChat": "فتح الدردشة الذكية"
 	},

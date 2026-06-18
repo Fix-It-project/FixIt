@@ -1,5 +1,6 @@
 export { default as HelpSupportContent } from "./HelpSupportContent";
-export { LanguageSegmentedControl } from "./LanguageSegmentedControl";
+export { LanguageSettingRow } from "./LanguageSettingRow";
 export { default as SettingsContent } from "./SettingsContent";
 export { SettingsItem } from "./SettingsItem";
-export { ThemeSegmentedControl } from "./ThemeSegmentedControl";
+export { SettingsSection } from "./SettingsSection";
+export { ThemeSettingRow } from "./ThemeSettingRow";

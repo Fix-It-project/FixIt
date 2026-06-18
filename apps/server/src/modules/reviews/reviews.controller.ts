@@ -1,6 +1,9 @@
 import type { Request, RequestHandler } from "express";
 import { asyncHandler } from "../../shared/errors/async-handler.js";
-import { requireUserId } from "../../shared/utils/request-auth.js";
+import {
+	requireTechnicianId,
+	requireUserId,
+} from "../../shared/utils/request-auth.js";
 import { reviewsService } from "./reviews.service.js";
 
 const REVIEW_PAGE_SIZE = 20;
@@ -50,6 +53,18 @@ export class ReviewsController {
 		async (req: Request, res) => {
 			const { id } = req.params as { id: string };
 			const summary = await reviewsService.getReviewSummaryForTechnician(id);
+			res.status(200).json({ data: summary });
+		},
+	);
+
+	// Technician-auth variant: a technician reads their OWN rating summary.
+	// The public `:id/summary` route is user-auth only, so technician tokens
+	// cannot call it — this resolves the id from the authenticated technician.
+	getMyReviewSummary: RequestHandler = asyncHandler(
+		async (req: Request, res) => {
+			const technicianId = requireTechnicianId(req);
+			const summary =
+				await reviewsService.getReviewSummaryForTechnician(technicianId);
 			res.status(200).json({ data: summary });
 		},
 	);

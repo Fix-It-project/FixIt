@@ -5,8 +5,9 @@
 	"arabic": "العربية",
 	"tabs": {
 		"home": "Home",
+		"activity": "Activity",
+		"chat": "Ask FixIt",
 		"notifications": "Notifications",
-		"orders": "My Orders",
 		"profile": "My Profile",
 		"openChat": "Open AI chat"
 	},

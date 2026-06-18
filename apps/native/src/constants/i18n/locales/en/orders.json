@@ -39,7 +39,8 @@
 			"cancelled_with_fee": "Cancelled (fee applied)",
 			"rejected": "Rejected by technician",
 			"cancelled_by_user": "Cancelled by you",
-			"reschedule_requested_by_user": "Reschedule requested by you"
+			"reschedule_requested_by_user": "Reschedule requested by you",
+			"reschedule_requested_by_technician": "Reschedule requested by technician"
 		},
 		"technician": {
 			"pending": "New request — accept or decline",
@@ -329,6 +330,23 @@
 			"activeJob": "Active job",
 			"activeJobEta": "Active job — arrives in about {{n}} minutes",
 			"etaShort": "~{{n}}m"
+		}
+	},
+	"activity": {
+		"title": "Activity",
+		"tabs": {
+			"bookings": "Bookings",
+			"reschedules": "Reschedule Requests"
+		},
+		"reschedules": {
+			"incomingSection": "Needs your response",
+			"sentSection": "Awaiting technician"
+		},
+		"empty": {
+			"reschedulesTitle": "No reschedule requests",
+			"reschedulesBody": "Reschedule requests for your bookings will show up here.",
+			"bookingsTitle": "No active bookings",
+			"bookingsBody": "Your booking requests and active jobs show up here."
 		}
 	}
 }

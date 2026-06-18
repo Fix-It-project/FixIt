@@ -1,5 +1,6 @@
 import { type Href, router } from "expo-router";
 import { AlertCircle } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import BackButton from "@/src/components/ui/back-button";
@@ -14,6 +15,7 @@ interface InvalidResetLinkViewProps {
 export default function InvalidResetLinkView({
 	loginRoute,
 }: InvalidResetLinkViewProps) {
+	const { t } = useTranslation("auth");
 	const insets = useSafeAreaInsets();
 	return (
 		<View className="flex-1 bg-surface">
@@ -28,10 +30,10 @@ export default function InvalidResetLinkView({
 			{/* Header */}
 			<View className="mt-stack-sm mb-stack-xl px-screen-x">
 				<Text variant="h2" className="mb-stack-sm text-content">
-					Invalid Link
+					{t("resetPassword.invalidTitle")}
 				</Text>
 				<Text variant="body" className="text-content-secondary">
-					This password reset link is invalid or has expired
+					{t("resetPassword.invalidSubtitle")}
 				</Text>
 			</View>
 
@@ -44,7 +46,7 @@ export default function InvalidResetLinkView({
 					variant="bodySm"
 					className="mt-stack-lg px-screen-bottom-inset text-center text-content-secondary"
 				>
-					Please request a new password reset link from the login page.
+					{t("resetPassword.invalidBody")}
 				</Text>
 			</View>
 
@@ -59,9 +61,11 @@ export default function InvalidResetLinkView({
 				<Button
 					variant="outline"
 					onPress={() => router.replace(loginRoute)}
-					className="border-selected border-app-primary"
+					className="border-app-primary border-selected"
 				>
-					<BtnText variant="buttonLg" className="text-app-primary">Back to Login</BtnText>
+					<BtnText variant="buttonLg" className="text-app-primary">
+						{t("resetPassword.backToLogin")}
+					</BtnText>
 				</Button>
 			</View>
 		</View>

@@ -1,17 +1,15 @@
 import { CheckCircle2 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Text } from "@/src/components/ui/text";
 import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 
 // The three documents a technician uploads during signup. Listed back to them
 // as a receipt — concrete and reassuring, not a generic "pending" placeholder.
-const DOCUMENTS = [
-	"National ID",
-	"Criminal record",
-	"Trade certificate",
-] as const;
+const DOCUMENTS = ["nationalId", "criminalRecord", "certificate"] as const;
 
 export function DocumentsReceivedPanel() {
+	const { t } = useTranslation("auth");
 	const c = useThemeColors();
 
 	return (
@@ -31,7 +29,7 @@ export function DocumentsReceivedPanel() {
 				className="font-google-sans-bold text-content-muted uppercase"
 				style={{ letterSpacing: 1 }}
 			>
-				Documents received
+				{t("verification.documents.title")}
 			</Text>
 
 			{DOCUMENTS.map((doc) => (
@@ -41,7 +39,7 @@ export function DocumentsReceivedPanel() {
 				>
 					<CheckCircle2 size={17} color={c.success} strokeWidth={2.4} />
 					<Text variant="bodySm" className="text-content">
-						{doc}
+						{t(`verification.documents.${doc}`)}
 					</Text>
 				</View>
 			))}

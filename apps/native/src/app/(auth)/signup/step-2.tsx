@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Phone } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
@@ -26,13 +27,16 @@ import { useLocationStore } from "@/src/stores/location-store";
  *    has no phone from Google, so we collect it here.
  */
 export default function SignUpStep2() {
+	const { t } = useTranslation("auth");
 	const themeColors = useThemeColors();
 	const mode = useUserSignupStore((s) => s.mode);
 	const storedName = useUserSignupStore((s) => s.fullName);
 	const storedEmail = useUserSignupStore((s) => s.email);
 	const storedPhone = useUserSignupStore((s) => s.phone);
 	const storedPassword = useUserSignupStore((s) => s.password);
-	const hasPendingSession = useUserSignupStore((s) => s.pendingSession !== null);
+	const hasPendingSession = useUserSignupStore(
+		(s) => s.pendingSession !== null,
+	);
 
 	const [city, setCity] = useState("");
 	const [street, setStreet] = useState("");
@@ -46,8 +50,7 @@ export default function SignUpStep2() {
 	const { fieldErrors, clearFieldError, validate } =
 		useFormValidation(userAddressSchema);
 
-	const isPending =
-		signUpMutation.isPending || oauthCompleteMutation.isPending;
+	const isPending = signUpMutation.isPending || oauthCompleteMutation.isPending;
 
 	// Guard against landing here without the step-1 / OAuth state (e.g. deep link).
 	useEffect(() => {
@@ -106,17 +109,17 @@ export default function SignUpStep2() {
 
 	return (
 		<AuthPageLayout
-			title="Where should we send help?"
-			subtitle="Add your address so technicians can find you."
+			title={t("signup.step2Title")}
+			subtitle={t("signup.step2Subtitle")}
 		>
 			<ErrorBanner message={errorMessage} />
 
 			{mode === "oauth" ? (
 				<FormInput
-					label="Phone Number"
+					label={t("form.phoneNumber")}
 					value={phone}
 					onChangeText={setPhone}
-					placeholder="(555) 123-4567"
+					placeholder={t("form.phonePlaceholder")}
 					icon={Phone}
 					keyboardType="phone-pad"
 					required
@@ -166,7 +169,9 @@ export default function SignUpStep2() {
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
 					<BtnText variant="buttonLg">
-						{mode === "oauth" ? "Finish setup" : "Create account"}
+						{mode === "oauth"
+							? t("signup.finishSetup")
+							: t("signup.createAccount")}
 					</BtnText>
 				)}
 			</Button>

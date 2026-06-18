@@ -45,7 +45,7 @@ export default function StateScreenLayout({
 	const [ctaHeight, setCtaHeight] = useState(0);
 
 	const goBack = useSafeBack(
-		viewer === "user" ? ROUTES.user.orders : ROUTES.technician.jobs,
+		viewer === "user" ? ROUTES.user.activity : ROUTES.technician.jobs,
 	);
 
 	useFocusBackHandler(() => {
