@@ -164,6 +164,41 @@ describe("ReportsService", () => {
 		});
 	});
 
+	it("dismisses a report, closing it with the dismissed resolution", async () => {
+		repo.setStatus.mockResolvedValue({
+			id: "rep-1",
+			reporter_id: "user-1",
+			reporter_role: "user",
+		});
+
+		await service.dismiss("rep-1");
+
+		expect(repo.setStatus).toHaveBeenCalledWith("rep-1", {
+			status: "closed",
+			resolution: "dismissed",
+			resolvedBy: expect.any(String),
+		});
+	});
+
+	it("reopens a closed report, clearing the resolution", async () => {
+		repo.setStatus.mockResolvedValue({ id: "rep-1", status: "open" });
+
+		await service.reopen("rep-1");
+
+		expect(repo.setStatus).toHaveBeenCalledWith("rep-1", {
+			status: "open",
+			resolution: null,
+			resolvedBy: null,
+		});
+	});
+
+	it("throws 404 when reopening an unknown report", async () => {
+		repo.setStatus.mockResolvedValue(null);
+		await expect(service.reopen("nope")).rejects.toMatchObject({
+			status: 404,
+		});
+	});
+
 	it("warns the reported party, stamping warned_at and pushing them", async () => {
 		repo.markWarned.mockResolvedValue({
 			id: "rep-1",
