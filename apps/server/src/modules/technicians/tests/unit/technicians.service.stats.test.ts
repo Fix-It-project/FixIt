@@ -28,12 +28,12 @@ const makeStorageRepo = () =>
 	}) as any;
 
 const makeStatsRepo = () =>
-		({
-			getPaidPaymentsSince: vi.fn(),
-			getWalletEntries: vi.fn().mockResolvedValue([]),
-			getOrdersSince: vi.fn(),
-			getAcceptDeclineEvents: vi.fn(),
-			getRatingStats: vi.fn(),
+	({
+		getPaidPaymentsSince: vi.fn(),
+		getWalletEntries: vi.fn().mockResolvedValue([]),
+		getOrdersSince: vi.fn(),
+		getAcceptDeclineEvents: vi.fn(),
+		getRatingStats: vi.fn(),
 		getWeeklyRatingStats: vi
 			.fn()
 			.mockResolvedValue({ rating: null, review_count: 0 }),

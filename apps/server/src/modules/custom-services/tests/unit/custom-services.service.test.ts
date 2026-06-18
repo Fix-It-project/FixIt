@@ -85,6 +85,16 @@ describe("CustomServicesService", () => {
 		).rejects.toMatchObject({ status: 403 });
 	});
 
+	it("lists a technician's own requests via the repository", async () => {
+		const own = [{ id: "req-1" }, { id: "req-2" }];
+		repo.listByTechnician.mockResolvedValue(own);
+
+		const result = await service.listOwn("tech-1");
+
+		expect(repo.listByTechnician).toHaveBeenCalledWith("tech-1");
+		expect(result).toBe(own);
+	});
+
 	it("maps admin rows to DTOs with technician display fields + catalog range", async () => {
 		repo.listForAdmin.mockResolvedValue({ rows: [adminRow], total: 1 });
 		repo.countRequests.mockResolvedValue({ pending: 1, decided: 0 });
