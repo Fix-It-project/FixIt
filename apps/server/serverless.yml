@@ -90,18 +90,30 @@ functions:
       - http:
           path: api/admin/dashboard/{proxy+}
           method: any
+
+  adminOrders:
+    handler: serverless-deploy/admin-orders-lambda.handler
+    events:
       - http:
           path: api/admin/orders
           method: any
       - http:
           path: api/admin/orders/{proxy+}
           method: any
+
+  adminHomeowners:
+    handler: serverless-deploy/admin-homeowners-lambda.handler
+    events:
       - http:
           path: api/admin/homeowners
           method: any
       - http:
           path: api/admin/homeowners/{proxy+}
           method: any
+
+  adminTechnicians:
+    handler: serverless-deploy/admin-technicians-lambda.handler
+    events:
       - http:
           path: api/admin/technicians
           method: any

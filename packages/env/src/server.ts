@@ -13,6 +13,9 @@ export const env = createEnv({
     ADMIN_PASSWORD_HASH: z.string().min(1),
     ADMIN_JWT_SECRET: z.string().min(16),
     ADMIN_SESSION_TTL_SECONDS: z.coerce.number().positive().default(43200),
+    // Keep admin auth on SameSite=Lax by default; set to `none` for cross-site
+    // admin frontends talking to the deployed API over HTTPS.
+    ADMIN_COOKIE_SAME_SITE: z.enum(["lax", "strict", "none"]).default("lax"),
     STORAGE_BUCKET: z.string().min(1),
     ORDER_BUCKET: z.string().min(1),
     PORT: z.coerce.number().default(3000),
