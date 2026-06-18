@@ -1,21 +1,23 @@
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import { technicianCheckEmail } from "@/src/features/auth/api/technician-auth";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import LoginLink from "@/src/features/auth/components/shared/LoginLink";
 import { techStep1Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { ROUTES } from "@/src/lib/navigation";
-import { useThemeColors } from "@/src/constants/design-tokens";
 
 export default function TechnicianSignUpStep1() {
+	const { t } = useTranslation("auth");
 	const themeColors = useThemeColors();
 	const store = useTechnicianSignupStore();
 	const [email, setEmail] = useState(store.email);
@@ -34,16 +36,14 @@ export default function TechnicianSignUpStep1() {
 				email: result.data.email,
 			});
 			if (exists) {
-				setError(
-					"A technician with this email already exists. Please sign in instead.",
-				);
+				setError(t("techSignup.emailExists"));
 				return;
 			}
 
 			store.setStep1Data({ email: result.data.email });
 			router.push(ROUTES.auth.techSignupStep(2));
 		} catch {
-			setError("Could not verify email. Please try again.");
+			setError(t("techSignup.emailCheckFailed"));
 		} finally {
 			setIsChecking(false);
 		}
@@ -51,19 +51,19 @@ export default function TechnicianSignUpStep1() {
 
 	return (
 		<AuthPageLayout
-			title="Join as a Technician."
-			subtitle="Enter your email to get started with your technician account."
+			title={t("techSignup.step1Title")}
+			subtitle={t("techSignup.step1Subtitle")}
 		>
 			<ErrorBanner message={error} />
 
 			<FormInput
-				label="Email Address"
+				label={t("form.emailAddress")}
 				value={email}
 				onChangeText={(text) => {
 					setEmail(text);
 					clearFieldError("email");
 				}}
-				placeholder="john@example.com"
+				placeholder={t("form.emailPlaceholder")}
 				icon={Mail}
 				error={fieldErrors.email}
 				keyboardType="email-address"
@@ -80,7 +80,7 @@ export default function TechnicianSignUpStep1() {
 				{isChecking ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
-					<BtnText variant="buttonLg">Next</BtnText>
+					<BtnText variant="buttonLg">{t("form.next")}</BtnText>
 				)}
 			</Button>
 

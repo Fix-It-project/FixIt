@@ -9,6 +9,7 @@ import {
 } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import Animated, {
 	FadeIn,
@@ -37,11 +38,7 @@ interface VerificationScreenProps {
 interface StateCopy {
 	readonly icon: LucideIcon;
 	readonly tint: (c: ReturnType<typeof useThemeColors>) => string;
-	readonly eyebrow: string;
-	readonly title: string;
-	readonly body: string;
-	readonly contactPrompt: string;
-	readonly contactSubject: string;
+	readonly copyKey: "pending" | "rejected";
 	readonly contactEmphasis: "tonal" | "primary";
 }
 
@@ -49,30 +46,16 @@ const COPY: Record<TechVerificationState, StateCopy> = {
 	pending: {
 		icon: ShieldCheck,
 		tint: (c) => c.primary,
-		eyebrow: "Application under review",
-		title: "We're verifying your application",
-		body: "Hang tight. Our team is reviewing your documents, and we'll notify you the moment you're approved so you can sign in.",
-		contactPrompt: "Questions about your application?",
-		contactSubject: "Question about my FixIt technician application",
+		copyKey: "pending",
 		contactEmphasis: "tonal",
 	},
 	rejected: {
 		icon: FileX,
 		tint: (c) => c.textSecondary,
-		eyebrow: "Application not approved",
-		title: "Your application wasn't approved",
-		body: "After reviewing your application, we weren't able to approve your account at this time.",
-		contactPrompt: "Have questions about this decision?",
-		contactSubject: "Question about my FixIt technician application",
+		copyKey: "rejected",
 		contactEmphasis: "primary",
 	},
 };
-
-const APPROVED_COPY = {
-	eyebrow: "You're approved",
-	title: "Your account is verified",
-	body: "Welcome to FixIt. You can now sign in to your technician account and start taking jobs.",
-} as const;
 
 export function VerificationScreen({
 	state,
@@ -80,6 +63,7 @@ export function VerificationScreen({
 	message,
 	initialApproved = false,
 }: VerificationScreenProps) {
+	const { t } = useTranslation("auth");
 	const c = useThemeColors();
 	const insets = useSafeAreaInsets();
 	const reducedMotion = useReducedMotion();
@@ -116,7 +100,18 @@ export function VerificationScreen({
 	const copy = COPY[state];
 	const tint = showApproved ? c.success : copy.tint(c);
 	const Icon = showApproved ? BadgeCheck : copy.icon;
-	const header = showApproved ? APPROVED_COPY : copy;
+	const copyPrefix = `verification.${copy.copyKey}` as const;
+	const header = showApproved
+		? {
+				eyebrow: t("verification.approved.eyebrow"),
+				title: t("verification.approved.title"),
+				body: t("verification.approved.body"),
+			}
+		: {
+				eyebrow: t(`${copyPrefix}.eyebrow`),
+				title: t(`${copyPrefix}.title`),
+				body: t(`${copyPrefix}.body`),
+			};
 
 	// Staggered entrance — each block fades up just behind the previous one.
 	let step = 0;
@@ -176,7 +171,7 @@ export function VerificationScreen({
 						className="text-content-secondary"
 						style={{ maxWidth: 520 }}
 					>
-						{showApproved ? header.body : (message ?? copy.body)}
+						{showApproved ? header.body : (message ?? header.body)}
 					</Text>
 				</Animated.View>
 
@@ -196,11 +191,11 @@ export function VerificationScreen({
 					<Animated.View entering={fadeIn()} style={{ gap: space[1] }}>
 						{email ? (
 							<Text variant="caption" className="text-content-muted">
-								Reviewing for {email}
+								{t("verification.reviewingFor", { email })}
 							</Text>
 						) : null}
 						<Text variant="caption" className="text-content-muted">
-							Most applications are reviewed within 24 to 48 hours.
+							{t("verification.reviewTime")}
 						</Text>
 					</Animated.View>
 				)}
@@ -212,8 +207,8 @@ export function VerificationScreen({
 						</Animated.View>
 						<Animated.View entering={fadeIn()}>
 							<ContactSupportRow
-								prompt={copy.contactPrompt}
-								subject={copy.contactSubject}
+								prompt={t(`${copyPrefix}.contactPrompt`)}
+								subject={t(`${copyPrefix}.contactSubject`)}
 								emphasis={copy.contactEmphasis}
 							/>
 						</Animated.View>
@@ -230,7 +225,7 @@ export function VerificationScreen({
 							iconRight={ArrowRight}
 							onPress={goToLogin}
 						>
-							Sign in to your account
+							{t("verification.approved.signIn")}
 						</Button>
 					</Animated.View>
 				) : (
@@ -250,7 +245,7 @@ export function VerificationScreen({
 									iconRight={ArrowRight}
 									onPress={goToLogin}
 								>
-									Already approved? Sign in
+									{t("verification.alreadyApproved")}
 								</Button>
 								{email ? (
 									<Pressable hitSlop={8} onPress={() => setCancelOpen(true)}>
@@ -259,14 +254,14 @@ export function VerificationScreen({
 											className="font-google-sans-semibold"
 											style={{ color: c.danger }}
 										>
-											Cancel application
+											{t("verification.cancelApplication")}
 										</Text>
 									</Pressable>
 								) : null}
 							</>
 						) : (
 							<Button variant="link" size="sm" onPress={goToLogin}>
-								Back to login
+								{t("verification.backToLogin")}
 							</Button>
 						)}
 					</Animated.View>

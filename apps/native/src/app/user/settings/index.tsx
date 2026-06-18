@@ -1,22 +1,11 @@
-import { router } from "expo-router";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import SettingsContent from "@/src/features/settings/components/SettingsContent";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/navigation";
 
 export default function SettingsScreen() {
-	const goToNotifications = useDebounce(() =>
-		router.push(ROUTES.user.settingsNotifications as never),
-	);
-	const goToPrivacy = useDebounce(() =>
-		router.push(ROUTES.user.settingsPrivacy),
-	);
-	const goToHelp = useDebounce(() => router.push(ROUTES.user.settingsHelp));
-
 	return (
-		<SettingsContent
-			onNotificationsPress={goToNotifications}
-			onPrivacyPress={goToPrivacy}
-			onHelpPress={goToHelp}
-		/>
+		<>
+			<ScreenStatusBar variant="surface" />
+			<SettingsContent userType="user" />
+		</>
 	);
 }

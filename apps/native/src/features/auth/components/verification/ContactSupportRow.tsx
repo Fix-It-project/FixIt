@@ -1,4 +1,5 @@
 import { Mail } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Linking, View } from "react-native";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
@@ -17,6 +18,7 @@ export function ContactSupportRow({
 	subject,
 	emphasis = "tonal",
 }: ContactSupportRowProps) {
+	const { t } = useTranslation("auth");
 	return (
 		<View style={{ gap: space[3] }}>
 			<Text variant="bodySm" className="text-content-secondary">
@@ -26,9 +28,11 @@ export function ContactSupportRow({
 				variant={emphasis}
 				iconLeft={Mail}
 				onPress={() => Linking.openURL(supportMailto(subject))}
-				accessibilityLabel={`Email support at ${SUPPORT_EMAIL}`}
+				accessibilityLabel={t("verification.support.emailAccessibility", {
+					email: SUPPORT_EMAIL,
+				})}
 			>
-				Email support
+				{t("verification.support.emailButton")}
 			</Button>
 		</View>
 	);

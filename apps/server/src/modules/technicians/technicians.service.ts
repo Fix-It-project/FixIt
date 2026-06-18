@@ -13,6 +13,7 @@ import {
 import { PENDING_ORDER_EXPIRY_HOURS } from "../../shared/time/order-expiry.js";
 import { sortByDistance } from "../../shared/utils/technicians/index.js";
 import type { ICategoriesRepository } from "../categories/categories.repository.js";
+import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 import type {
 	ITechnicianQueryRepository,
 	ITechniciansRepository,
@@ -24,7 +25,6 @@ import type {
 	UpdateTechnicianSelfData,
 } from "./technicians.repository.js";
 import { toDTO } from "./technicians.repository.js";
-import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 
 export interface TechnicianListOpts {
 	lat?: number;
@@ -77,7 +77,16 @@ export interface TechnicianWalletEntry {
 	paidAt: string | null;
 }
 
+/**
+ * Technician wallet for both technician profile earnings and wallet settlement.
+ * `summary` / `entries` are the incoming wallet contract; lifetime + last30 are
+ * additive compatibility for the existing profile earnings chart.
+ */
 export interface TechnicianWallet {
+	lifetimeEarnings: number;
+	currency: string;
+	/** Last 30 Cairo calendar days, oldest first, today last. */
+	last30: Array<{ date: string; amount: number }>;
 	summary: {
 		pendingBalance: number;
 		paidOutBalance: number;
@@ -405,9 +414,27 @@ export class TechniciansService implements ITechniciansService {
 	}
 
 	async getWallet(technicianId: string): Promise<TechnicianWallet> {
-		const rows = await this.statsRepo.getWalletEntries(technicianId);
+		const now = new Date();
+		const last30Days = cairoLastNDays(30, now);
+		const todayStr = cairoDateString(now);
+		const thirtyDaysAgoIso = cairoMidnightUtc(
+			shiftDateString(todayStr, -30),
+		).toISOString();
 
-		const entries: TechnicianWalletEntry[] = rows.map((row) => {
+		const [lifetimeEarnings, recentPayments, rows] = await Promise.all([
+			this.statsRepo.getLifetimePaidTotal(technicianId),
+			this.statsRepo.getPaidPaymentsSince(technicianId, thirtyDaysAgoIso),
+			this.statsRepo.getWalletEntries(technicianId),
+		]);
+
+		const last30Map = new Map<string, number>(last30Days.map((d) => [d, 0]));
+		for (const p of recentPayments ?? []) {
+			const day = cairoDateString(new Date(p.paid_at));
+			if (last30Map.has(day))
+				last30Map.set(day, (last30Map.get(day) ?? 0) + p.amount);
+		}
+
+		const entries: TechnicianWalletEntry[] = (rows ?? []).map((row) => {
 			const paymentMethod = row.payment_method === "card" ? "card" : "cash";
 			return {
 				orderId: row.order_id,
@@ -415,11 +442,8 @@ export class TechniciansService implements ITechniciansService {
 				grossAmount: row.gross_amount ?? row.technician_net_amount ?? 0,
 				platformFeePercent: row.platform_fee_percent ?? 0,
 				platformFeeAmount: row.platform_fee_amount ?? 0,
-				technicianNetAmount:
-					row.technician_net_amount ?? row.gross_amount ?? 0,
+				technicianNetAmount: row.technician_net_amount ?? row.gross_amount ?? 0,
 				paymentStatus: row.status,
-				// Cash is collected in person, so it is already settled; card net is
-				// held by Paymob and pending the platform→technician payout.
 				payoutStatus:
 					paymentMethod === "cash" ? "paid_out" : "pending_settlement",
 				paidAt: row.paid_at,
@@ -450,7 +474,16 @@ export class TechniciansService implements ITechniciansService {
 			},
 		);
 
-		return { summary, entries };
+		return {
+			lifetimeEarnings,
+			currency: "EGP",
+			last30: last30Days.map((date) => ({
+				date,
+				amount: last30Map.get(date) ?? 0,
+			})),
+			summary,
+			entries,
+		};
 	}
 
 	async uploadProfileImage(

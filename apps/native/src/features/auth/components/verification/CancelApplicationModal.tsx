@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/src/components/ui/button";
 import { Dialog } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
@@ -18,6 +19,7 @@ export function CancelApplicationModal({
 	open,
 	onClose,
 }: CancelApplicationModalProps) {
+	const { t } = useTranslation("auth");
 	const c = useThemeColors();
 	const [password, setPassword] = useState("");
 	const mutation = useCancelApplicationMutation();
@@ -37,12 +39,8 @@ export function CancelApplicationModal({
 
 	return (
 		<Dialog visible={open} onClose={close}>
-			<Dialog.Header>Withdraw your application?</Dialog.Header>
-			<Dialog.Body>
-				This permanently deletes your application and uploaded documents. You
-				can apply again later with the same email. Enter your password to
-				confirm.
-			</Dialog.Body>
+			<Dialog.Header>{t("verification.cancelModal.title")}</Dialog.Header>
+			<Dialog.Body>{t("verification.cancelModal.body")}</Dialog.Body>
 			<Dialog.Form>
 				{errorMessage ? (
 					<Text variant="bodySm" style={{ color: c.danger }}>
@@ -50,7 +48,7 @@ export function CancelApplicationModal({
 					</Text>
 				) : null}
 				<PasswordInput
-					label="Confirm your password"
+					label={t("verification.cancelModal.passwordLabel")}
 					value={password}
 					onChangeText={setPassword}
 					disabled={mutation.isPending}
@@ -63,7 +61,7 @@ export function CancelApplicationModal({
 					onPress={close}
 					disabled={mutation.isPending}
 				>
-					Keep
+					{t("verification.cancelModal.keep")}
 				</Button>
 				<Button
 					variant="destructive"
@@ -71,7 +69,7 @@ export function CancelApplicationModal({
 					disabled={!password}
 					onPress={submit}
 				>
-					Withdraw
+					{t("verification.cancelModal.withdraw")}
 				</Button>
 			</Dialog.Footer>
 		</Dialog>

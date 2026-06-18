@@ -1,17 +1,19 @@
 import { router } from "expo-router";
 import { Phone } from "lucide-react-native";
 import { useState } from "react";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
+import { useTranslation } from "react-i18next";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { techStep2Schema } from "@/src/features/auth/schemas/form.schema";
 import { useTechnicianSignupStore } from "@/src/features/auth/stores/technician-signup-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { ROUTES } from "@/src/lib/navigation";
 
 export default function TechnicianSignUpStep2() {
+	const { t } = useTranslation("auth");
 	const store = useTechnicianSignupStore();
 	const [phone, setPhone] = useState(store.phone);
 	const { fieldErrors, error, clearFieldError, validate } =
@@ -27,19 +29,19 @@ export default function TechnicianSignUpStep2() {
 
 	return (
 		<AuthPageLayout
-			title="Your phone number."
-			subtitle="We'll use this to reach you about service requests and updates."
+			title={t("techSignup.step2Title")}
+			subtitle={t("techSignup.step2Subtitle")}
 		>
 			<ErrorBanner message={error} />
 
 			<FormInput
-				label="Phone Number"
+				label={t("form.phoneNumber")}
 				value={phone}
 				onChangeText={(text) => {
 					setPhone(text);
 					clearFieldError("phone");
 				}}
-				placeholder="(555) 123-4567"
+				placeholder={t("form.phonePlaceholder")}
 				icon={Phone}
 				error={fieldErrors.phone}
 				keyboardType="phone-pad"
@@ -51,7 +53,7 @@ export default function TechnicianSignUpStep2() {
 				disabled={phone.trim().length === 0}
 				className="mt-stack-sm"
 			>
-				<BtnText variant="buttonLg">Next</BtnText>
+				<BtnText variant="buttonLg">{t("form.next")}</BtnText>
 			</Button>
 		</AuthPageLayout>
 	);

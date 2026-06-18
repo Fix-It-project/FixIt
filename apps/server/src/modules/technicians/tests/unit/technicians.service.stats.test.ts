@@ -28,15 +28,16 @@ const makeStorageRepo = () =>
 	}) as any;
 
 const makeStatsRepo = () =>
-		({
-			getPaidPaymentsSince: vi.fn(),
-			getWalletEntries: vi.fn().mockResolvedValue([]),
-			getOrdersSince: vi.fn(),
-			getAcceptDeclineEvents: vi.fn(),
-			getRatingStats: vi.fn(),
+	({
+		getPaidPaymentsSince: vi.fn(),
+		getWalletEntries: vi.fn().mockResolvedValue([]),
+		getOrdersSince: vi.fn(),
+		getAcceptDeclineEvents: vi.fn(),
+		getRatingStats: vi.fn(),
 		getWeeklyRatingStats: vi
 			.fn()
 			.mockResolvedValue({ rating: null, review_count: 0 }),
+		getLifetimePaidTotal: vi.fn().mockResolvedValue(0),
 	}) as any;
 
 const technicianId = "tech-1";
@@ -308,6 +309,47 @@ describe("TechniciansService.getStats", () => {
 			paymentMethod: "cash",
 			payoutStatus: "paid_out",
 		});
+	});
+});
+
+describe("TechniciansService.getWallet", () => {
+	// Fixed clock so the 30-day window is deterministic (see NOW_UTC above).
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(NOW_UTC);
+	});
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it("returns lifetime EGP earnings (no withdrawable balance) and a 30-day series", async () => {
+		const repo = makeRepo();
+		const statsRepo = makeStatsRepo();
+		statsRepo.getLifetimePaidTotal.mockResolvedValue(13500);
+		statsRepo.getPaidPaymentsSince.mockResolvedValue([
+			{ amount: 200, paid_at: "2026-01-15T10:00:00.000Z" }, // today
+			{ amount: 100, paid_at: "2026-01-12T10:00:00.000Z" }, // 3 days ago
+			{ amount: 999, paid_at: "2026-01-05T10:00:00.000Z" }, // 10 days ago (in 30d)
+		]);
+
+		const { TechniciansService } = await import("../../technicians.service.js");
+		const service = new TechniciansService(
+			repo,
+			makeCategoriesRepo(),
+			makeStorageRepo(),
+			statsRepo,
+		);
+
+		const wallet = await service.getWallet(technicianId);
+
+		expect(statsRepo.getLifetimePaidTotal).toHaveBeenCalledWith(technicianId);
+		expect(wallet.lifetimeEarnings).toBe(13500);
+		expect(wallet.currency).toBe("EGP");
+		expect(wallet.last30).toHaveLength(30);
+		expect(wallet.last30[29]).toEqual({ date: "2026-01-15", amount: 200 });
+		const byDate = new Map(wallet.last30.map((d) => [d.date, d.amount]));
+		expect(byDate.get("2026-01-12")).toBe(100);
+		expect(byDate.get("2026-01-05")).toBe(999);
 	});
 });
 

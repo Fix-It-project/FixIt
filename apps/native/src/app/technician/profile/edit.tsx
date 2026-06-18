@@ -1,6 +1,6 @@
 import { FileText, Phone, User } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import FormInput from "@/src/components/forms/FormInput";
-import { ROUTES } from "@/src/lib/navigation";
 import ProfileEditScreenLayout from "@/src/features/profile/components/ProfileEditScreenLayout";
 import { useTechProfileEditController } from "@/src/features/tech-self/hooks/useTechProfileEditController";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
@@ -8,9 +8,10 @@ import { useUpdateTechSelfProfileMutation } from "@/src/features/tech-self/hooks
 import { editTechProfileSchema } from "@/src/features/tech-self/schemas/form.schema";
 import { useEditTechProfileStore } from "@/src/features/tech-self/stores/edit-tech-profile-store";
 import { useFormValidation } from "@/src/hooks/useFormValidation";
-import { useSafeBack } from "@/src/lib/navigation";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 export default function EditTechProfileScreen() {
+	const { t } = useTranslation("profile");
 	const { data: profile } = useTechSelfProfileQuery();
 	const updateProfile = useUpdateTechSelfProfileMutation();
 	const { fieldErrors, clearFieldError, validate } = useFormValidation(
@@ -71,62 +72,63 @@ export default function EditTechProfileScreen() {
 			onSavePress={handleSave}
 		>
 			<FormInput
-				label="First Name"
+				label={t("edit.firstName")}
 				value={firstName}
 				onChangeText={(text) => {
 					setFirstName(text);
 					clearFieldError("first_name");
 				}}
-				placeholder="Enter your first name"
+				placeholder={t("edit.firstNamePlaceholder")}
 				icon={User}
 				error={fieldErrors.first_name}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
 				autoCapitalize="words"
 			/>
 
 			<FormInput
-				label="Last Name"
+				label={t("edit.lastName")}
 				value={lastName}
 				onChangeText={(text) => {
 					setLastName(text);
 					clearFieldError("last_name");
 				}}
-				placeholder="Enter your last name"
+				placeholder={t("edit.lastNamePlaceholder")}
 				icon={User}
 				error={fieldErrors.last_name}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
 				autoCapitalize="words"
 			/>
 
 			<FormInput
-				label="Phone"
+				label={t("edit.phone")}
 				value={phone}
 				onChangeText={(text) => {
 					setPhone(text);
 					clearFieldError("phone");
 				}}
-				placeholder="Enter your phone number"
+				placeholder={t("edit.phonePlaceholder")}
 				icon={Phone}
 				error={fieldErrors.phone}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
 				keyboardType="phone-pad"
 			/>
 
 			<FormInput
-				label="About"
+				label={t("edit.about")}
 				value={description}
 				onChangeText={(text) => {
 					setDescription(text);
 					clearFieldError("description");
 				}}
-				placeholder="Tell clients about yourself…"
+				placeholder={t("edit.aboutPlaceholder")}
 				icon={FileText}
 				error={fieldErrors.description}
 				disabled={isPending}
-				variant="outline"
+				variant="filled"
+				multiline
 			/>
 		</ProfileEditScreenLayout>
 	);

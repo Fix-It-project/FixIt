@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
 	FadeInDown,
@@ -21,6 +22,7 @@ export function WelcomeContent({
 	inputReady,
 	onPressGetStarted,
 }: WelcomeContentProps) {
+	const { t } = useTranslation("auth");
 	const insets = useSafeAreaInsets();
 	const reducedMotion = useReducedMotion();
 	const bottomInset = Math.min(insets.bottom, space[8]);
@@ -58,7 +60,7 @@ export function WelcomeContent({
 					}
 				>
 					<Text variant="h1" className="font-google-sans-bold text-content">
-						Trusted help,{"\n"}one tap away.
+						{t("welcome.title")}
 					</Text>
 				</Animated.View>
 
@@ -70,8 +72,7 @@ export function WelcomeContent({
 					}
 				>
 					<Text variant="body" className="text-content-secondary">
-						Find a verified technician for repairs and home care, when you
-						actually need them.
+						{t("welcome.subtitle")}
 					</Text>
 				</Animated.View>
 
@@ -86,13 +87,13 @@ export function WelcomeContent({
 					<Button
 						onPress={onPressGetStarted}
 						disabled={!inputReady}
-						accessibilityLabel="Get started"
+						accessibilityLabel={t("welcome.getStarted")}
 						testID="welcome-get-started"
 						fullWidth
 						size="lg"
 						iconRight={ArrowRight}
 					>
-						Get Started
+						{t("welcome.getStarted")}
 					</Button>
 				</Animated.View>
 
@@ -104,7 +105,7 @@ export function WelcomeContent({
 					}
 				>
 					<Text variant="caption" className="text-center text-content-muted">
-						By continuing you agree to our Terms of Service and Privacy Policy.
+						{t("welcome.terms")}
 					</Text>
 				</Animated.View>
 			</View>
