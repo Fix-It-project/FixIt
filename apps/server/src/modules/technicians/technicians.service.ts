@@ -13,6 +13,7 @@ import {
 import { PENDING_ORDER_EXPIRY_HOURS } from "../../shared/time/order-expiry.js";
 import { sortByDistance } from "../../shared/utils/technicians/index.js";
 import type { ICategoriesRepository } from "../categories/categories.repository.js";
+import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 import type {
 	ITechnicianQueryRepository,
 	ITechniciansRepository,
@@ -24,7 +25,6 @@ import type {
 	UpdateTechnicianSelfData,
 } from "./technicians.repository.js";
 import { toDTO } from "./technicians.repository.js";
-import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 
 export interface TechnicianListOpts {
 	lat?: number;
