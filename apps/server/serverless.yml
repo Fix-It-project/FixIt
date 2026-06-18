@@ -38,6 +38,7 @@ provider:
     ADMIN_PASSWORD_HASH: ${env:ADMIN_PASSWORD_HASH}
     ADMIN_JWT_SECRET: ${env:ADMIN_JWT_SECRET}
     ADMIN_SESSION_TTL_SECONDS: ${env:ADMIN_SESSION_TTL_SECONDS}
+    ADMIN_COOKIE_SAME_SITE: ${env:ADMIN_COOKIE_SAME_SITE, 'lax'}
     API_PUBLIC_URL: ${env:API_PUBLIC_URL, ''}
     PAYMOB_API_KEY: ${env:PAYMOB_API_KEY}
     PAYMOB_SECRET_KEY: ${env:PAYMOB_SECRET_KEY}
@@ -76,11 +77,9 @@ functions:
       - http:
           path: api/admin/auth
           method: any
-          cors: true
       - http:
           path: api/admin/auth/{proxy+}
           method: any
-          cors: true
 
   adminDashboard:
     handler: serverless-deploy/admin-dashboard-lambda.handler
@@ -88,11 +87,27 @@ functions:
       - http:
           path: api/admin/dashboard
           method: any
-          cors: true
       - http:
           path: api/admin/dashboard/{proxy+}
           method: any
-          cors: true
+      - http:
+          path: api/admin/orders
+          method: any
+      - http:
+          path: api/admin/orders/{proxy+}
+          method: any
+      - http:
+          path: api/admin/homeowners
+          method: any
+      - http:
+          path: api/admin/homeowners/{proxy+}
+          method: any
+      - http:
+          path: api/admin/technicians
+          method: any
+      - http:
+          path: api/admin/technicians/{proxy+}
+          method: any
 
   serviceRequests:
     handler: serverless-deploy/service-requests-lambda.handler
@@ -100,11 +115,9 @@ functions:
       - http:
           path: api/admin/service-requests
           method: any
-          cors: true
       - http:
           path: api/admin/service-requests/{proxy+}
           method: any
-          cors: true
 
   auth:
     handler: serverless-deploy/auth-lambda.handler
@@ -115,11 +128,9 @@ functions:
       - http:
           path: api/auth
           method: any
-          cors: true
       - http:
           path: api/auth/{proxy+}
           method: any
-          cors: true
 
   technicianAuth:
     handler: serverless-deploy/technician-auth-lambda.handler
@@ -130,11 +141,9 @@ functions:
       - http:
           path: api/technician-auth
           method: any
-          cors: true
       - http:
           path: api/technician-auth/{proxy+}
           method: any
-          cors: true
   users:
     handler: serverless-deploy/users-lambda.handler
     events:
@@ -151,11 +160,9 @@ functions:
       - http:
           path: api/technicians
           method: any
-          cors: true
       - http:
           path: api/technicians/{proxy+}
           method: any
-          cors: true
 
   addresses:
     handler: serverless-deploy/addresses-lambda.handler
@@ -163,22 +170,18 @@ functions:
       - http:
           path: api/addresses
           method: any
-          cors: true
       - http:
           path: api/addresses/{proxy+}
           method: any
-          cors: true
   categories:
     handler: serverless-deploy/categories-lambda.handler
     events:
       - http:
           path: api/categories
           method: any
-          cors: true
       - http:
           path: api/categories/{proxy+}
           method: any
-          cors: true
 
   technicianCalendar:
     handler: serverless-deploy/technician-calendar-lambda.handler
@@ -189,11 +192,9 @@ functions:
       - http:
           path: api/technician-calendar
           method: any
-          cors: true
       - http:
           path: api/technician-calendar/{proxy+}
           method: any
-          cors: true
 
   orders:
     handler: serverless-deploy/orders-lambda.handler
@@ -204,11 +205,9 @@ functions:
       - http:
           path: api/orders
           method: any
-          cors: true
       - http:
           path: api/orders/{proxy+}
           method: any
-          cors: true
 
   reviews:
     handler: serverless-deploy/reviews-lambda.handler
@@ -216,11 +215,9 @@ functions:
       - http:
           path: api/reviews
           method: any
-          cors: true
       - http:
           path: api/reviews/{proxy+}
           method: any
-          cors: true
 
   reports:
     handler: serverless-deploy/reports-lambda.handler
@@ -228,19 +225,15 @@ functions:
       - http:
           path: api/reports
           method: any
-          cors: true
       - http:
           path: api/reports/{proxy+}
           method: any
-          cors: true
       - http:
           path: api/admin/reports
           method: any
-          cors: true
       - http:
           path: api/admin/reports/{proxy+}
           method: any
-          cors: true
 
   notifications:
     handler: serverless-deploy/notifications-lambda.handler
@@ -251,8 +244,6 @@ functions:
       - http:
           path: api/notifications
           method: any
-          cors: true
       - http:
           path: api/notifications/{proxy+}
           method: any
-          cors: true

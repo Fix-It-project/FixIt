@@ -9,13 +9,18 @@ export type { AdminUser } from "./admin-auth.types.js";
 
 export const adminCookieName = "admin_session";
 
-export const adminCookieOptions = (): CookieOptions => ({
-	httpOnly: true,
-	secure: env.NODE_ENV === "production",
-	sameSite: "lax",
-	path: "/",
-	maxAge: env.ADMIN_SESSION_TTL_SECONDS * 1000,
-});
+export const adminCookieOptions = (): CookieOptions => {
+	const sameSite = env.ADMIN_COOKIE_SAME_SITE;
+
+	return {
+		httpOnly: true,
+		// Browsers require SameSite=None cookies to also be Secure.
+		secure: env.NODE_ENV === "production" || sameSite === "none",
+		sameSite,
+		path: "/",
+		maxAge: env.ADMIN_SESSION_TTL_SECONDS * 1000,
+	};
+};
 
 export class AdminAuthService {
 	async login(
