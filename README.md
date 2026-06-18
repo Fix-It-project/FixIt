@@ -106,13 +106,15 @@ pnpm --filter native ios
 
 ## Environment Summary
 
-The server requires Supabase credentials, admin auth credentials, storage bucket names, CORS origins, and a port.
+The server requires Supabase credentials, admin auth credentials, storage bucket names, CORS origins, and a port. Cross-origin admin deployments may also need `ADMIN_COOKIE_SAME_SITE=none` so the browser will send the admin session cookie back to the API over HTTPS.
 
 The admin dashboard requires:
 
 ```bash
 VITE_SERVER_URL=http://localhost:3000
 ```
+
+When running the admin app locally with `pnpm dev:admin`, the Vite dev server proxies `/api` to `VITE_SERVER_URL`. This avoids browser CORS and third-party cookie issues while keeping the deployed build pointed at the configured API origin.
 
 The native app requires at minimum:
 

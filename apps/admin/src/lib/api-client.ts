@@ -2,7 +2,7 @@ import axios from "axios";
 import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 
-const API_BASE_URL = env.VITE_SERVER_URL;
+const API_BASE_URL = import.meta.env.DEV ? "" : env.VITE_SERVER_URL;
 
 const LOGIN_PATH = "/api/admin/auth/login";
 
