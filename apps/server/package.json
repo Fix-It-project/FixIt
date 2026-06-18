@@ -10,7 +10,14 @@
 		"start": "node --import ./dist/instrument.js dist/index.js",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"load": "k6 run load/scenarios/smoke.js",
+		"load:all": "k6 run load/scenarios/load.js",
+		"load:monitor": "k6 run load/scenarios/monitor.js",
+		"load:cloud": "k6 run -e BASE=https://d25l1nu40gf2i5.cloudfront.net load/scenarios/cloud.js",
+		"load:bench": "k6 run load/scenarios/bench.js",
+		"load:bench:cloud": "k6 run -e BASE=https://d25l1nu40gf2i5.cloudfront.net load/scenarios/bench.js",
+		"load:stress": "k6 run load/scenarios/stress.js"
 	},
 	"dependencies": {
 		"@FixIt/db": "workspace:*",
