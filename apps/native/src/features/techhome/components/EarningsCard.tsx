@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { TrendingDown, TrendingUp } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -17,6 +18,7 @@ import { EarningsChart } from "./EarningsChart";
  */
 export function EarningsCard() {
 	const { t } = useTranslation("technician");
+	const router = useRouter();
 	const { data: stats } = useTechHomeStatsQuery();
 
 	const today = stats?.earnings.today ?? 0;
@@ -58,11 +60,11 @@ export function EarningsCard() {
 				<Button
 					variant="tonal"
 					size="sm"
-					disabled
-					accessibilityLabel={t("home.earnings.cashOutSoonAria")}
+					onPress={() => router.push("/technician/wallet")}
+					accessibilityLabel={t("home.earnings.walletAria")}
 				>
 					<Text variant="buttonMd" className="text-app-primary">
-						{t("home.earnings.cashOut")}
+						{t("home.earnings.wallet")}
 					</Text>
 				</Button>
 			</View>

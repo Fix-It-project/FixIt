@@ -1,14 +1,9 @@
-import {
-	CircleHelp,
-	type LucideIcon,
-	Mail,
-	MessageCircle,
-} from "lucide-react-native";
+import { type LucideIcon, Mail, MessageCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { Separator } from "@/src/components/ui/separator";
 import { Text } from "@/src/components/ui/text";
-import { Colors, elevation, shadowStyle } from "@/src/constants/design-tokens";
+import { Colors } from "@/src/constants/design-tokens";
 
 function ContactItem({
 	icon: Icon,
@@ -27,9 +22,7 @@ function ContactItem({
 			activeOpacity={0.7}
 			className="flex-row items-center gap-list-row py-list-row-comfortable-y"
 		>
-			<View className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill bg-app-primary-light">
-				<Icon size={18} color={Colors.primary} strokeWidth={1.8} />
-			</View>
+			<Icon size={22} color={Colors.primary} strokeWidth={1.8} />
 			<View className="flex-1">
 				<Text variant="caption" className="text-content-muted">
 					{label}
@@ -53,45 +46,28 @@ export default function HelpSupportContent({
 	return (
 		<ScrollView
 			className="flex-1 bg-surface"
-			contentContainerClassName="gap-stack-lg px-screen-x py-stack-xl"
+			contentContainerClassName="px-screen-x py-stack-lg"
 		>
-			<View
-				className="rounded-card bg-card px-card-roomy py-stack-xl"
-				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
-			>
-				<View className="mb-stack-lg h-avatar-lg w-avatar-lg items-center justify-center rounded-pill bg-app-primary-light">
-					<CircleHelp size={28} color={Colors.primary} strokeWidth={1.8} />
-				</View>
-				<Text variant="bodyLg" className="font-bold text-content text-lg">
-						{t("help.title")}
-					</Text>
-				<Text variant="bodySm" className="mt-stack-sm text-content-muted">
-					{description}
-				</Text>
-			</View>
-
-			<View
-				className="rounded-card bg-card px-card-roomy py-stack-sm"
-				style={shadowStyle(elevation.raised, { shadowColor: Colors.shadow })}
-			>
-				<ContactItem
-					icon={Mail}
-					label={t("help.emailLabel")}
-					value="support@fixit.app"
-					onPress={() => {
-						void Linking.openURL("mailto:support@fixit.app");
-					}}
-				/>
-				<Separator />
-				<ContactItem
-					icon={MessageCircle}
-					label={t("help.whatsappLabel")}
-					value="+20 100 000 0000"
-					onPress={() => {
-						void Linking.openURL("whatsapp://send?phone=201000000000");
-					}}
-				/>
-			</View>
+			<Text variant="bodySm" className="mb-stack-md text-content-muted">
+				{description}
+			</Text>
+			<ContactItem
+				icon={Mail}
+				label={t("help.emailLabel")}
+				value="support@fixit.app"
+				onPress={() => {
+					void Linking.openURL("mailto:support@fixit.app");
+				}}
+			/>
+			<Separator />
+			<ContactItem
+				icon={MessageCircle}
+				label={t("help.whatsappLabel")}
+				value="+20 100 000 0000"
+				onPress={() => {
+					void Linking.openURL("whatsapp://send?phone=201000000000");
+				}}
+			/>
 		</ScrollView>
 	);
 }

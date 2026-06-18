@@ -63,7 +63,7 @@ const STATUS_TO_PHASE: Record<
 	awaiting_final_cost: { phase: "quote_open", stepIndex: 5 },
 	negotiating: { phase: "quote_open", stepIndex: 5 },
 	in_progress: { phase: "work_in_progress", stepIndex: 6 },
-	awaiting_payment: { phase: "cash_pending", stepIndex: 6 },
+	awaiting_payment: { phase: "payment_pending", stepIndex: 6 },
 	completed: { phase: "completed", stepIndex: 7 },
 	declined_by_technician: { phase: "cancelled", stepIndex: 7 },
 	cancelled_no_fee: { phase: "cancelled", stepIndex: 7 },
@@ -103,9 +103,9 @@ const PHASE_COPY: Record<UiPhase, { label: string; helperText: string }> = {
 		label: "Work in progress",
 		helperText: "Technician on the job. Confirm once the work is done.",
 	},
-	cash_pending: {
+	payment_pending: {
 		label: "Awaiting payment",
-		helperText: "Hand over cash and confirm.",
+		helperText: "Pay by card to finish, or pay cash in person.",
 	},
 	completed: {
 		label: "Order complete",
@@ -181,12 +181,10 @@ function allowedActionsFor(
 			return ["tech_confirm_completion", "tech_cancel"] as const;
 		}
 
-		case "cash_pending": {
-			if (viewer === "user") {
-				// Caller picks between these based on completion sub-state.
-				return ["user_confirm_completion", "user_confirm_paid"] as const;
-			}
-			return ["tech_confirm_completion", "tech_confirm_cash_received"] as const;
+		case "payment_pending": {
+			// The awaiting_payment screen (OrderSummaryFinalize) owns the pay /
+			// pay-cash-instead actions directly; no phase-level actions needed.
+			return [] as const;
 		}
 
 		case "completed":

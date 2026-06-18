@@ -1,4 +1,9 @@
 {
+	"payment_methods": {
+		"cash": "Cash",
+		"card": "Card",
+		"label": "Payment"
+	},
 	"status": {
 		"base": {
 			"pending": "Pending",
@@ -28,13 +33,14 @@
 			"awaiting_final_cost": "Reviewing final price",
 			"negotiating": "Negotiating final price",
 			"in_progress": "Technician inspecting",
-			"awaiting_payment": "Hand over cash and confirm",
+			"awaiting_payment": "Pay securely by card",
 			"declined_by_technician": "Declined by technician",
 			"cancelled_no_fee": "Cancelled",
 			"cancelled_with_fee": "Cancelled (fee applied)",
 			"rejected": "Rejected by technician",
 			"cancelled_by_user": "Cancelled by you",
-			"reschedule_requested_by_user": "Reschedule requested by you"
+			"reschedule_requested_by_user": "Reschedule requested by you",
+			"reschedule_requested_by_technician": "Reschedule requested by technician"
 		},
 		"technician": {
 			"pending": "New request — accept or decline",
@@ -44,7 +50,7 @@
 			"awaiting_final_cost": "Send final price",
 			"negotiating": "Quote round in progress",
 			"in_progress": "Inspecting on site",
-			"awaiting_payment": "Awaiting cash from client",
+			"awaiting_payment": "Awaiting card payment",
 			"declined_by_technician": "Declined by you",
 			"cancelled_no_fee": "Cancelled",
 			"cancelled_with_fee": "Cancelled (fee applied)",
@@ -294,19 +300,27 @@
 			"finalize": "Finalize"
 		},
 		"finalize": {
-			"eyebrow": "Finalize",
+			"eyebrow": "Payment",
 			"title": "One tap to close out.",
-			"subtitle": "Confirm cash handover, then we wrap the order.",
+			"subtitle": "Pay by card to finish, or pay cash in person.",
 			"finalPrice": "Final price",
 			"currency": "EGP",
-			"cashNote": "Cash on delivery · in-app payments soon",
+			"cashNote": "Card payments are processed securely by Paymob.",
+			"workPrice": "Work price",
+			"inspectionFee": "Inspection fee",
+			"totalPayable": "Total payable",
 			"timeline": "Timeline",
 			"orderPlaced": "Order placed",
 			"techArrived": "Tech arrived",
 			"workComplete": "Work complete",
 			"confirmedTapFinalize": "{{role}} confirmed. Tap to finalize.",
 			"waitingOther": "Waiting on the other side…",
-			"markCompleted": "Mark order completed"
+			"markCompleted": "Mark order completed",
+			"payWithCard": "Pay now",
+			"payCash": "Pay cash",
+			"payCashInstead": "Pay cash instead",
+			"awaitingCardTech": "Waiting for the customer’s card payment.",
+			"waitingForCard": "Waiting for card confirmation"
 		},
 		"attachment": "Attachment",
 		"problemDescription": "Problem Description",
@@ -316,6 +330,23 @@
 			"activeJob": "Active job",
 			"activeJobEta": "Active job — arrives in about {{n}} minutes",
 			"etaShort": "~{{n}}m"
+		}
+	},
+	"activity": {
+		"title": "Activity",
+		"tabs": {
+			"bookings": "Bookings",
+			"reschedules": "Reschedule Requests"
+		},
+		"reschedules": {
+			"incomingSection": "Needs your response",
+			"sentSection": "Awaiting technician"
+		},
+		"empty": {
+			"reschedulesTitle": "No reschedule requests",
+			"reschedulesBody": "Reschedule requests for your bookings will show up here.",
+			"bookingsTitle": "No active bookings",
+			"bookingsBody": "Your booking requests and active jobs show up here."
 		}
 	}
 }

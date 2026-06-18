@@ -1,4 +1,11 @@
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
+import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
@@ -7,12 +14,6 @@ import { getRecommendedTechnicians } from "@/src/features/technicians/recommenda
 import type { RecommendedTechnicianApi } from "@/src/features/technicians/schemas/response.schema";
 import { showError, toAppError } from "@/src/lib/errors";
 import { ROUTES } from "@/src/lib/navigation/routes";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecommendScreen() {
 	const { t } = useTranslation("chat");
@@ -39,7 +40,7 @@ export default function RecommendScreen() {
 					topK: 5,
 				});
 				if (!cancelled) {
-					setResults(data);
+					setResults(Array.isArray(data) ? data : []);
 				}
 			} catch (error) {
 				if (!cancelled) {
@@ -72,7 +73,7 @@ export default function RecommendScreen() {
 			topK: 5,
 		})
 			.then((data) => {
-				if (!cancelled) setResults(data);
+				if (!cancelled) setResults(Array.isArray(data) ? data : []);
 			})
 			.catch((error) => {
 				if (!cancelled) {
@@ -91,6 +92,7 @@ export default function RecommendScreen() {
 
 	return (
 		<SafeAreaView className="flex-1 bg-background">
+			<ScreenStatusBar variant="surface" />
 			<View
 				style={{
 					paddingHorizontal: 20,

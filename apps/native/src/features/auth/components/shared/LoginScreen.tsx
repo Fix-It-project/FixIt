@@ -1,6 +1,7 @@
 import { type Href, router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import FormInput from "@/src/components/forms/FormInput";
 import { Button } from "@/src/components/ui/button";
@@ -45,6 +46,7 @@ export default function LoginScreen({
 	signupActionText,
 	initialEmail,
 }: LoginScreenProps) {
+	const { t } = useTranslation("auth");
 	const themeColors = useThemeColors();
 	const [emailOrUsername, setEmailOrUsername] = useState(initialEmail ?? "");
 	const [password, setPassword] = useState("");
@@ -75,17 +77,17 @@ export default function LoginScreen({
 	const isFormValid = emailOrUsername.trim().length > 0 && password.length > 0;
 
 	return (
-		<AuthPageLayout title="Welcome back" subtitle={subtitle}>
+		<AuthPageLayout title={t("login.title")} subtitle={subtitle}>
 			<ErrorBanner message={errorMessage} />
 
 			<FormInput
-				label="Email"
+				label={t("login.emailLabel")}
 				value={emailOrUsername}
 				onChangeText={(text) => {
 					setEmailOrUsername(text);
 					clearFieldError("email");
 				}}
-				placeholder="Enter your email"
+				placeholder={t("login.emailPlaceholder")}
 				icon={Mail}
 				error={fieldErrors.email}
 				disabled={loginMutation.isPending}
@@ -96,7 +98,7 @@ export default function LoginScreen({
 			/>
 
 			<PasswordInput
-				label="Password"
+				label={t("login.passwordLabel")}
 				value={password}
 				onChangeText={(text) => {
 					setPassword(text);
@@ -111,7 +113,7 @@ export default function LoginScreen({
 			{/* Forgot Password */}
 			<View className="-mt-stack-md items-end">
 				<Button variant="link" size="sm" onPress={goToForgotPassword}>
-					Forgot Password?
+					{t("login.forgotPassword")}
 				</Button>
 			</View>
 
@@ -124,7 +126,7 @@ export default function LoginScreen({
 				{loginMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
-					<BtnText variant="buttonLg">Log in</BtnText>
+					<BtnText variant="buttonLg">{t("login.submit")}</BtnText>
 				)}
 			</Button>
 

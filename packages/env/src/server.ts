@@ -17,6 +17,28 @@ export const env = createEnv({
     ORDER_BUCKET: z.string().min(1),
     PORT: z.coerce.number().default(3000),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    // Public base URL of the deployed API (API Gateway / custom domain), used to
+    // build Paymob notification_url (webhook) and redirection_url (browser return).
+    API_PUBLIC_URL: z.string().url().optional(),
+    // Paymob — optional so local/test/CI without payment creds still boots; the
+    // adapter throws `paymob_not_configured` at call time when a required one is
+    // missing. SECRET_KEY authenticates the Intention API (Bearer token).
+    PAYMOB_API_KEY: z.string().optional(),
+    PAYMOB_SECRET_KEY: z.string().optional(),
+    PAYMOB_PUBLIC_KEY: z.string().optional(),
+    PAYMOB_INTEGRATION_ID: z.string().optional(),
+    PAYMOB_IFRAME_ID: z.string().optional(),
+    PAYMOB_HMAC_SECRET: z.string().optional(),
+    PAYMOB_BASE_URL: z.string().url().optional(),
+    PAYMOB_IFRAME_BASE_URL: z.string().url().optional(),
+    PAYMOB_UNIFIED_CHECKOUT_URL: z.string().url().optional(),
+    PAYMOB_CURRENCY: z.string().default("EGP"),
+    PAYMOB_PLATFORM_FEE_PERCENT: z.coerce.number().min(0).max(100).default(5),
+    // Preserve legacy semantics: anything other than the literal "false" is sandbox.
+    PAYMOB_SANDBOX_MODE: z
+      .string()
+      .optional()
+      .transform((v) => (v ?? "true").toLowerCase() !== "false"),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

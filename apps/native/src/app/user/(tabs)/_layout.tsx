@@ -1,47 +1,61 @@
-import { router, Tabs, usePathname } from "expo-router";
-import {
-	Bell,
-	type LucideProps,
-	MessageCircle,
-	User,
-} from "lucide-react-native";
+import { Tabs } from "expo-router";
+import { Bell, type LucideProps, User } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Platform, useWindowDimensions, View } from "react-native";
+import {
+	type ColorValue,
+	Image,
+	useWindowDimensions,
+	View,
+} from "react-native";
 import {
 	ClipboardListTabIcon,
 	HouseTabIcon,
 } from "@/src/components/icons/FilledTabIcons";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
+import { useScreenChromeStore } from "@/src/components/layout/screen-chrome-store";
 import {
 	getBaseTabScreenOptions,
 	NARROW_TAB_BAR_HEIGHT,
 	NARROW_TAB_BAR_WIDTH,
 	useBottomTabMetrics,
 } from "@/src/components/layout/tab-bar";
-import { Button } from "@/src/components/ui/button";
-import {
-	Colors,
-	elevation,
-	shadowStyle,
-	spacing,
-	useThemeColors,
-} from "@/src/constants/design-tokens";
+import { Colors, useThemeColors } from "@/src/constants/design-tokens";
 import { useNotificationUnreadCountQuery } from "@/src/features/notifications/hooks/useNotificationUnreadCountQuery";
-import { useDebounce } from "@/src/hooks/useDebounce";
-import { ROUTES } from "@/src/lib/navigation";
 
-interface ChatFabProps {
-	readonly bottom: number;
-	readonly onPress: () => void;
-	readonly primaryColor: string;
-	readonly surfaceColor: string;
-	readonly accessibilityLabel: string;
+// Idle = the flat FXT wordmark tinted to the icon color (no badge), like the
+// other outlined tab icons. Focused = the real blue rounded-square FixIt badge
+// (white FXT) — a small square over the slot, mirroring Grok's active icon.
+const fxtGlyph = require("@/src/assets/onboarding/fxt.png");
+const fxtBadge = require("@/src/assets/images/fixit.png");
+
+function FxtTabIcon({
+	focused,
+	tint,
+}: Readonly<{ focused: boolean; tint: ColorValue }>) {
+	if (focused) {
+		return (
+			<Image
+				source={fxtBadge}
+				resizeMode="contain"
+				style={{ width: 34, height: 34 }}
+			/>
+		);
+	}
+	return (
+		<Image
+			source={fxtGlyph}
+			resizeMode="contain"
+			style={{ width: 40, height: 26, tintColor: tint }}
+		/>
+	);
 }
 
 // Active tab icons fill with the active tint (blue); inactive stay outlined.
-// Home + Orders use custom split-path glyphs so the interior detail (house door,
-// list rows + dots) cuts out to the tab-bar background (surfaceBase) when focused
-// — see the inline tabBarIcon renders below, which supply detailColor.
+// Home + Activity use custom split-path glyphs so the interior detail (house
+// door, list rows + dots) cuts out to the tab-bar background (surfaceBase) when
+// focused — see the inline tabBarIcon renders below, which supply detailColor.
+// The center chat tab is the exception: see FxtTabIcon above — idle FXT glyph,
+// focused swaps to the blue rounded-square FixIt badge.
 function ProfileTabIcon({
 	color,
 	size,
@@ -81,53 +95,26 @@ function NotificationTabIcon({
 	);
 }
 
-function ChatFab({
-	bottom,
-	onPress,
-	primaryColor,
-	surfaceColor,
-	accessibilityLabel,
-}: ChatFabProps) {
-	return (
-		<Button
-			variant="primary"
-			size="icon"
-			onPress={onPress}
-			accessibilityLabel={accessibilityLabel}
-			style={{
-				position: "absolute",
-				right: spacing.screen.paddingX,
-				bottom,
-				...shadowStyle(elevation.header, {
-					shadowColor: primaryColor,
-					opacity: Platform.OS === "ios" ? 0.35 : 0,
-					android: Platform.OS === "android" ? 6 : 0,
-					radius: Platform.OS === "ios" ? 10 : 0,
-				}),
-			}}
-		>
-			<MessageCircle size={26} color={surfaceColor} strokeWidth={1.8} />
-		</Button>
-	);
-}
-
 export default function UserTabsLayout() {
 	const { t } = useTranslation("common");
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
 	const { width, height } = useWindowDimensions();
-	const pathname = usePathname();
-	const goToChatbot = useDebounce(() => router.push(ROUTES.user.chat));
 	const { data: unreadCount } = useNotificationUnreadCountQuery("user");
 	const hasUnread = (unreadCount ?? 0) > 0;
 	const screenOptions = getBaseTabScreenOptions(themeColors, metrics, {
 		showLabels:
 			width >= NARROW_TAB_BAR_WIDTH && height >= NARROW_TAB_BAR_HEIGHT,
 	});
+	// Top inset blends with the focused screen: each screen publishes a chrome
+	// variant via ScreenStatusBar; we resolve it to a live theme color here so it
+	// re-renders across light/dark. The user side's `blue` band is heroStart (the
+	// home + profile hero color); everything else sits on the base surface.
+	const topVariant = useScreenChromeStore((s) => s.topVariant);
 	const topSafeAreaBackground =
-		pathname === ROUTES.user.home
+		topVariant === "blue"
 			? themeColors.tint.heroStart
-			: themeColors.surfaceElevated;
+			: themeColors.surfaceBase;
 
 	return (
 		<ScreenSafeAreaView
@@ -152,6 +139,29 @@ export default function UserTabsLayout() {
 						}}
 					/>
 					<Tabs.Screen
+						name="activity/index"
+						options={{
+							title: t("tabs.activity"),
+							tabBarIcon: ({ color, size, focused }) => (
+								<ClipboardListTabIcon
+									color={color}
+									size={size}
+									focused={focused}
+									detailColor={themeColors.surfaceBase}
+								/>
+							),
+						}}
+					/>
+					<Tabs.Screen
+						name="chat/index"
+						options={{
+							title: t("tabs.chat"),
+							tabBarIcon: ({ focused, color }) => (
+								<FxtTabIcon focused={focused} tint={color} />
+							),
+						}}
+					/>
+					<Tabs.Screen
 						name="notifications/index"
 						options={{
 							title: t("tabs.notifications"),
@@ -166,20 +176,6 @@ export default function UserTabsLayout() {
 						}}
 					/>
 					<Tabs.Screen
-						name="orders/index"
-						options={{
-							title: t("tabs.orders"),
-							tabBarIcon: ({ color, size, focused }) => (
-								<ClipboardListTabIcon
-									color={color}
-									size={size}
-									focused={focused}
-									detailColor={themeColors.surfaceBase}
-								/>
-							),
-						}}
-					/>
-					<Tabs.Screen
 						name="profile/index"
 						options={{
 							title: t("tabs.profile"),
@@ -187,13 +183,6 @@ export default function UserTabsLayout() {
 						}}
 					/>
 				</Tabs>
-				<ChatFab
-					onPress={goToChatbot}
-					bottom={metrics.tabBarHeight + spacing.stack.md}
-					primaryColor={themeColors.primary}
-					surfaceColor={themeColors.surfaceOnPrimary}
-					accessibilityLabel={t("tabs.openChat")}
-				/>
 			</View>
 		</ScreenSafeAreaView>
 	);

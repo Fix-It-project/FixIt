@@ -65,6 +65,38 @@ export interface TechnicianDashboardStats {
 	pendingExpiryHours: number;
 }
 
+export interface TechnicianWalletEntry {
+	orderId: string;
+	paymentMethod: "cash" | "card";
+	grossAmount: number;
+	platformFeePercent: number;
+	platformFeeAmount: number;
+	technicianNetAmount: number;
+	paymentStatus: string;
+	payoutStatus: "pending_settlement" | "paid_out";
+	paidAt: string | null;
+}
+
+/**
+ * Technician wallet for both technician profile earnings and wallet settlement.
+ * `summary` / `entries` are the incoming wallet contract; lifetime + last30 are
+ * additive compatibility for the existing profile earnings chart.
+ */
+export interface TechnicianWallet {
+	lifetimeEarnings: number;
+	currency: string;
+	/** Last 30 Cairo calendar days, oldest first, today last. */
+	last30: Array<{ date: string; amount: number }>;
+	summary: {
+		pendingBalance: number;
+		paidOutBalance: number;
+		lifetimeNet: number;
+		lifetimeGross: number;
+		lifetimePlatformFees: number;
+	};
+	entries: TechnicianWalletEntry[];
+}
+
 export interface ITechniciansService {
 	getTechniciansByCategory(
 		categoryId: string,
@@ -88,6 +120,7 @@ export interface ITechniciansService {
 	): Promise<TechnicianSelfProfile>;
 	completeScheduleSetup(technicianId: string): Promise<TechnicianSelfProfile>;
 	getStats(technicianId: string): Promise<TechnicianDashboardStats>;
+	getWallet(technicianId: string): Promise<TechnicianWallet>;
 	uploadProfileImage(
 		technicianId: string,
 		file: Express.Multer.File,
@@ -377,6 +410,79 @@ export class TechniciansService implements ITechniciansService {
 				weeklyReviewCount: weeklyRatingStats.review_count,
 			},
 			pendingExpiryHours: PENDING_ORDER_EXPIRY_HOURS,
+		};
+	}
+
+	async getWallet(technicianId: string): Promise<TechnicianWallet> {
+		const now = new Date();
+		const last30Days = cairoLastNDays(30, now);
+		const todayStr = cairoDateString(now);
+		const thirtyDaysAgoIso = cairoMidnightUtc(
+			shiftDateString(todayStr, -30),
+		).toISOString();
+
+		const [lifetimeEarnings, recentPayments, rows] = await Promise.all([
+			this.statsRepo.getLifetimePaidTotal(technicianId),
+			this.statsRepo.getPaidPaymentsSince(technicianId, thirtyDaysAgoIso),
+			this.statsRepo.getWalletEntries(technicianId),
+		]);
+
+		const last30Map = new Map<string, number>(last30Days.map((d) => [d, 0]));
+		for (const p of recentPayments ?? []) {
+			const day = cairoDateString(new Date(p.paid_at));
+			if (last30Map.has(day))
+				last30Map.set(day, (last30Map.get(day) ?? 0) + p.amount);
+		}
+
+		const entries: TechnicianWalletEntry[] = (rows ?? []).map((row) => {
+			const paymentMethod = row.payment_method === "card" ? "card" : "cash";
+			return {
+				orderId: row.order_id,
+				paymentMethod,
+				grossAmount: row.gross_amount ?? row.technician_net_amount ?? 0,
+				platformFeePercent: row.platform_fee_percent ?? 0,
+				platformFeeAmount: row.platform_fee_amount ?? 0,
+				technicianNetAmount: row.technician_net_amount ?? row.gross_amount ?? 0,
+				paymentStatus: row.status,
+				payoutStatus:
+					paymentMethod === "cash" ? "paid_out" : "pending_settlement",
+				paidAt: row.paid_at,
+			};
+		});
+
+		const summary = entries.reduce(
+			(acc, entry) => ({
+				pendingBalance:
+					acc.pendingBalance +
+					(entry.payoutStatus === "pending_settlement"
+						? entry.technicianNetAmount
+						: 0),
+				paidOutBalance:
+					acc.paidOutBalance +
+					(entry.payoutStatus === "paid_out" ? entry.technicianNetAmount : 0),
+				lifetimeNet: acc.lifetimeNet + entry.technicianNetAmount,
+				lifetimeGross: acc.lifetimeGross + entry.grossAmount,
+				lifetimePlatformFees:
+					acc.lifetimePlatformFees + entry.platformFeeAmount,
+			}),
+			{
+				pendingBalance: 0,
+				paidOutBalance: 0,
+				lifetimeNet: 0,
+				lifetimeGross: 0,
+				lifetimePlatformFees: 0,
+			},
+		);
+
+		return {
+			lifetimeEarnings,
+			currency: "EGP",
+			last30: last30Days.map((date) => ({
+				date,
+				amount: last30Map.get(date) ?? 0,
+			})),
+			summary,
+			entries,
 		};
 	}
 

@@ -78,10 +78,10 @@ const EXPECTED: Record<OrderStatus, Expected> = {
 		techActions: ["tech_confirm_completion", "tech_cancel"],
 	},
 	awaiting_payment: {
-		phase: "cash_pending",
+		phase: "payment_pending",
 		stepIndex: 6,
-		userActions: ["user_confirm_completion", "user_confirm_paid"],
-		techActions: ["tech_confirm_completion", "tech_confirm_cash_received"],
+		userActions: [],
+		techActions: [],
 	},
 	completed: {
 		phase: "completed",

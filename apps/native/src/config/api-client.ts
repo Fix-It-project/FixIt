@@ -14,6 +14,15 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 	_retry?: boolean;
 }
 
+// Opt-out flag for the 400/422 validation WARN below. Set on requests whose
+// validation failures are an expected, UI-handled outcome (e.g. bulk inspection
+// fee preview for technicians with no geocoded address) so they don't flood logs.
+declare module "axios" {
+	interface AxiosRequestConfig {
+		suppressErrorLog?: boolean;
+	}
+}
+
 // Mid-session block: the server returns 403 with `fields.accountStatus:'blocked'`
 // once an account is fully blocked. Wherever that surfaces (a normal request or
 // the refresh re-gate), log out and send the user to the shared Blocked screen.
@@ -174,7 +183,10 @@ apiClient.interceptors.response.use(
 			throw toAppError(error);
 		}
 
-		if (error.response?.status === 400 || error.response?.status === 422) {
+		if (
+			(error.response?.status === 400 || error.response?.status === 422) &&
+			!originalRequest?.suppressErrorLog
+		) {
 			const responseData =
 				error.response.data &&
 				typeof error.response.data === "object" &&

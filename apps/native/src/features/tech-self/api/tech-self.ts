@@ -3,8 +3,12 @@ import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import {
 	type ProfileImageResponse,
 	profileImageResponseSchema,
+	type TechnicianReviewSummary,
 	type TechnicianSelfProfile,
+	type TechnicianWallet,
+	technicianReviewSummaryResponseSchema,
 	technicianSelfResponseSchema,
+	technicianWalletSchema,
 } from "../schemas/response.schema";
 import type { UpdateTechnicianSelfRequest } from "../types/tech-self";
 
@@ -15,6 +19,20 @@ export async function getTechnicianSelf(): Promise<TechnicianSelfProfile> {
 		data,
 		"getTechnicianSelf",
 	).profile;
+}
+
+export async function getTechnicianWallet(): Promise<TechnicianWallet> {
+	const { data } = await apiClient.get("/api/technicians/me/wallet");
+	return safeParseResponse(technicianWalletSchema, data, "getTechnicianWallet");
+}
+
+export async function getTechnicianSelfReviewSummary(): Promise<TechnicianReviewSummary> {
+	const { data } = await apiClient.get("/api/reviews/technicians/me/summary");
+	return safeParseResponse(
+		technicianReviewSummaryResponseSchema,
+		data,
+		"getTechnicianSelfReviewSummary",
+	).data;
 }
 
 export async function updateTechnicianSelf(

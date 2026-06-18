@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { ShieldOff } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, {
 	Easing,
@@ -31,21 +32,23 @@ interface BlockedScreenProps {
 }
 
 interface RoleCopy {
-	readonly title: string;
-	readonly body: string;
-	readonly contactSubject: string;
+	readonly titleKey: "blocked.technicianTitle" | "blocked.userTitle";
+	readonly bodyKey: "blocked.technicianBody" | "blocked.userBody";
+	readonly contactSubjectKey:
+		| "blocked.technicianContactSubject"
+		| "blocked.userContactSubject";
 }
 
 const COPY: Record<BlockedRole, RoleCopy> = {
 	technician: {
-		title: "Your technician account is blocked",
-		body: "Your technician account has been blocked, so you can't sign in or take jobs right now. Reach out to our team and we'll help you sort it out.",
-		contactSubject: "Help with my blocked FixIt technician account",
+		titleKey: "blocked.technicianTitle",
+		bodyKey: "blocked.technicianBody",
+		contactSubjectKey: "blocked.technicianContactSubject",
 	},
 	user: {
-		title: "Your account is blocked",
-		body: "Your account has been blocked, so you can't sign in or book services right now. Reach out to our team and we'll help you sort it out.",
-		contactSubject: "Help with my blocked FixIt account",
+		titleKey: "blocked.userTitle",
+		bodyKey: "blocked.userBody",
+		contactSubjectKey: "blocked.userContactSubject",
 	},
 };
 
@@ -61,6 +64,7 @@ export function BlockedScreen({
 	message,
 	reason,
 }: BlockedScreenProps) {
+	const { t } = useTranslation("auth");
 	const c = useThemeColors();
 	const insets = useSafeAreaInsets();
 	const reducedMotion = useReducedMotion();
@@ -147,21 +151,21 @@ export function BlockedScreen({
 						className="font-google-sans-bold uppercase"
 						style={{ color: c.danger, letterSpacing: 1.4 }}
 					>
-						Account blocked
+						{t("blocked.eyebrow")}
 					</Text>
 					<Text variant="h1" className="font-google-sans-bold text-content">
-						{copy.title}
+						{t(copy.titleKey)}
 					</Text>
 					<Text
 						variant="body"
 						className="text-content-secondary"
 						style={{ maxWidth: 520 }}
 					>
-						{message ?? copy.body}
+						{message ?? t(copy.bodyKey)}
 					</Text>
 					{email ? (
 						<Text variant="caption" className="text-content-muted">
-							Signed in as {email}
+							{t("blocked.signedInAs", { email })}
 						</Text>
 					) : null}
 				</Animated.View>
@@ -184,7 +188,7 @@ export function BlockedScreen({
 							className="font-google-sans-bold text-content-muted uppercase"
 							style={{ letterSpacing: 1 }}
 						>
-							Reason from our team
+							{t("blocked.reasonTitle")}
 						</Text>
 						<Text variant="bodySm" className="text-content">
 							{reason}
@@ -198,8 +202,8 @@ export function BlockedScreen({
 
 				<Animated.View entering={fadeIn()}>
 					<ContactSupportRow
-						prompt="We're here to help you resolve this."
-						subject={copy.contactSubject}
+						prompt={t("blocked.contactPrompt")}
+						subject={t(copy.contactSubjectKey)}
 						emphasis="primary"
 					/>
 				</Animated.View>
@@ -209,7 +213,7 @@ export function BlockedScreen({
 					style={{ alignItems: "center", paddingTop: space[1] }}
 				>
 					<Button variant="link" size="sm" onPress={backToLogin}>
-						Back to login
+						{t("blocked.backToLogin")}
 					</Button>
 				</Animated.View>
 			</ScrollView>

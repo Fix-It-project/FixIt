@@ -1,8 +1,12 @@
-import { Image } from "expo-image";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
@@ -17,6 +21,7 @@ import {
 	translateServiceName,
 } from "@/src/features/categories/constants/categories";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { PaymentMethodBadge } from "../PaymentMethodBadge";
 
 interface Props {
 	readonly order: Order;
@@ -35,6 +40,7 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 	const categoryColor = Colors.primary;
 	const initials = getPfpInitialsFallback(order.technician_name);
 	const avatarColor = getAvatarColor(order.technician_name);
+	const technicianImage = order.technician_image?.trim() || null;
 	const status = getOrderStatusBadge(order.status, themeColors, "user", t);
 	const scheduledTime = formatTime(order.scheduled_start_at, i18n.language);
 	const serviceName = translateServiceName(
@@ -52,26 +58,26 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 		>
 			<View className="flex-row items-center gap-stack-md">
 				{/* Avatar */}
-				{order.technician_image ? (
-					<Image
-						source={{ uri: order.technician_image }}
-						className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
-						contentFit="cover"
-						style={{ backgroundColor: themeColors.surfaceElevated }}
-					/>
-				) : (
-					<View
-						className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
-						style={{ backgroundColor: avatarColor }}
-					>
+				<Avatar
+					alt={order.technician_name ?? initials}
+					className="h-control-icon-box-lg w-control-icon-box-lg items-center justify-center rounded-pill"
+					style={{ backgroundColor: avatarColor }}
+				>
+					{technicianImage ? (
+						<AvatarImage
+							source={{ uri: technicianImage }}
+							className="h-control-icon-box-lg w-control-icon-box-lg rounded-pill"
+						/>
+					) : null}
+					<AvatarFallback className="bg-transparent">
 						<Text
 							variant="buttonLg"
 							style={{ color: themeColors.surfaceOnPrimary }}
 						>
 							{initials}
 						</Text>
-					</View>
-				)}
+					</AvatarFallback>
+				</Avatar>
 
 				{/* Info */}
 				<View className="flex-1">
@@ -96,38 +102,41 @@ export default function UserOrderCard({ order, onPress, actionSlot }: Props) {
 							{serviceName || t("card.serviceFallback")}
 						</Text>
 					</View>
-				</View>
 
-				{/* Status badge */}
-				<View
-					className="rounded-pill px-stack-md py-stack-xs"
-					style={{ backgroundColor: status.bg }}
-				>
-					<Text
-						variant="caption"
-						className="font-semibold"
-						style={{ color: status.color }}
+					{/* Status badge — own row, never competes with the name */}
+					<View
+						className="mt-stack-xs self-start rounded-pill px-stack-md py-stack-xs"
+						style={{ backgroundColor: status.bg }}
 					>
-						{status.label}
-					</Text>
+						<Text
+							variant="caption"
+							className="font-semibold"
+							style={{ color: status.color }}
+						>
+							{status.label}
+						</Text>
+					</View>
 				</View>
 			</View>
 
 			{/* Date + actions */}
 			<View className="mt-stack-md border-edge border-t pt-stack-md">
-				<View className="min-w-0">
-					<Text variant="caption" style={{ color: themeColors.textMuted }}>
-						{formatDate(order.scheduled_date, i18n.language)}
-					</Text>
-					{scheduledTime ? (
-						<Text
-							variant="caption"
-							className="mt-stack-xs"
-							style={{ color: themeColors.textMuted }}
-						>
-							{scheduledTime}
+				<View className="flex-row items-start justify-between gap-stack-sm">
+					<View className="min-w-0 flex-1">
+						<Text variant="caption" style={{ color: themeColors.textMuted }}>
+							{formatDate(order.scheduled_date, i18n.language)}
 						</Text>
-					) : null}
+						{scheduledTime ? (
+							<Text
+								variant="caption"
+								className="mt-stack-xs"
+								style={{ color: themeColors.textMuted }}
+							>
+								{scheduledTime}
+							</Text>
+						) : null}
+					</View>
+					<PaymentMethodBadge method={order.payment_method} />
 				</View>
 
 				<View className="mt-stack-md flex-row flex-wrap items-center justify-end gap-stack-sm">

@@ -71,6 +71,11 @@ technicianSelfRoutes.get(
 	requireTechnicianAuth,
 	techniciansController.getStats,
 );
+technicianSelfRoutes.get(
+	"/me/wallet",
+	requireTechnicianAuth,
+	techniciansController.getWallet,
+);
 technicianSelfRoutes.post(
 	"/me/profile-image",
 	requireTechnicianAuth,

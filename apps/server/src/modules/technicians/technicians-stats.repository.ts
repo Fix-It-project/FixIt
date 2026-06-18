@@ -1,9 +1,23 @@
+import { getPaymobConfig } from "../../config/paymob.js";
 import { supabaseAdmin } from "../../shared/db/supabase.js";
 
 /** Paid payment row scoped to one technician's orders. */
 export interface PaidPaymentRow {
 	amount: number;
 	paid_at: string;
+}
+
+export interface TechnicianWalletEntryRow {
+	order_id: string;
+	payment_method: string;
+	provider: string | null;
+	gross_amount: number | null;
+	platform_fee_percent: number | null;
+	platform_fee_amount: number | null;
+	technician_net_amount: number | null;
+	status: string;
+	paid_at: string | null;
+	created_at: string;
 }
 
 /** Narrow order row — terminal-status counts + pending queue only. */
@@ -31,6 +45,7 @@ export interface ITechniciansStatsRepository {
 		technicianId: string,
 		sinceIso: string,
 	): Promise<PaidPaymentRow[]>;
+	getWalletEntries(technicianId: string): Promise<TechnicianWalletEntryRow[]>;
 	getOrdersSince(
 		technicianId: string,
 		sinceIso: string,
@@ -45,6 +60,8 @@ export interface ITechniciansStatsRepository {
 		technicianId: string,
 		sinceIso: string,
 	): Promise<TechnicianRatingStats>;
+	/** Lifetime sum of paid payments across the technician's orders. */
+	getLifetimePaidTotal(technicianId: string): Promise<number>;
 }
 
 export class TechniciansStatsRepository implements ITechniciansStatsRepository {
@@ -54,15 +71,73 @@ export class TechniciansStatsRepository implements ITechniciansStatsRepository {
 	): Promise<PaidPaymentRow[]> {
 		const { data, error } = await supabaseAdmin
 			.from("payments")
-			.select("amount, paid_at, orders!inner(technician_id)")
+			.select(
+				"amount, technician_net_amount, paid_at, orders!inner(technician_id)",
+			)
 			.eq("status", "paid")
 			.eq("orders.technician_id", technicianId)
 			.gte("paid_at", sinceIso);
 		if (error) throw new Error(error.message);
-		return (data ?? []).map((row: { amount: number; paid_at: string }) => ({
-			amount: Number(row.amount),
+		return (
+			data ?? []
+		).map((row: { amount: number; technician_net_amount?: number | null; paid_at: string }) => ({
+			amount: Number(row.technician_net_amount ?? row.amount),
 			paid_at: row.paid_at,
 		}));
+	}
+
+	async getWalletEntries(
+		technicianId: string,
+	): Promise<TechnicianWalletEntryRow[]> {
+		// Both card (provider=paymob) and off-site cash (provider=null) earnings.
+		const { data, error } = await supabaseAdmin
+			.from("payments")
+			.select(
+				"order_id, amount, payment_method, provider, gross_amount, platform_fee_percent, platform_fee_amount, technician_net_amount, status, paid_at, created_at, orders!inner(technician_id)",
+			)
+			.eq("status", "paid")
+			.eq("orders.technician_id", technicianId)
+			.order("paid_at", { ascending: false });
+		if (error) throw new Error(error.message);
+		const defaultFeePercent = getPaymobConfig().platformFeePercent;
+		return (
+			data ?? []
+		).map(
+			(row: {
+				order_id: string;
+				amount: number;
+				payment_method: string;
+				provider?: string | null;
+				gross_amount?: number | null;
+				platform_fee_percent?: number | null;
+				platform_fee_amount?: number | null;
+				technician_net_amount?: number | null;
+				status: string;
+				paid_at: string | null;
+				created_at: string;
+			}) => ({
+				order_id: row.order_id,
+				payment_method: row.payment_method,
+				provider: row.provider ?? null,
+				gross_amount:
+					row.gross_amount == null ? Number(row.amount) : Number(row.gross_amount),
+				platform_fee_percent:
+					row.platform_fee_percent == null
+						? defaultFeePercent
+						: Number(row.platform_fee_percent),
+				platform_fee_amount:
+					row.platform_fee_amount == null
+						? 0
+						: Number(row.platform_fee_amount),
+				technician_net_amount:
+					row.technician_net_amount == null
+						? Number(row.amount)
+						: Number(row.technician_net_amount),
+				status: row.status,
+				paid_at: row.paid_at,
+				created_at: row.created_at,
+			}),
+		);
 	}
 
 	async getOrdersSince(
@@ -149,6 +224,22 @@ export class TechniciansStatsRepository implements ITechniciansStatsRepository {
 			rating: rated > 0 ? Math.round((sum / rated) * 10) / 10 : null,
 			review_count: rated,
 		};
+	}
+
+	async getLifetimePaidTotal(technicianId: string): Promise<number> {
+		// No payout/settlement ledger exists — "wallet" is simply the lifetime
+		// sum of paid payments for this technician's orders, not a withdrawable
+		// balance. A real balance would need a settlements table.
+		const { data, error } = await supabaseAdmin
+			.from("payments")
+			.select("amount, orders!inner(technician_id)")
+			.eq("status", "paid")
+			.eq("orders.technician_id", technicianId);
+		if (error) throw new Error(error.message);
+		return (data ?? []).reduce(
+			(total: number, row: { amount: number }) => total + Number(row.amount),
+			0,
+		);
 	}
 }
 

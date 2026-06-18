@@ -1,4 +1,5 @@
 import { usersRepository, type UpdateProfileData } from './user-auth.repository.js';
+import { usersStatsRepository } from './users-stats.repository.js';
 
 export class UsersService {
   /**
@@ -21,6 +22,14 @@ export class UsersService {
 
     await usersRepository.updateUserProfile(userId, data);
     return await usersRepository.getProfileWithAddresses(userId);
+  }
+
+  /**
+   * Profile metrics aggregated from the user's orders: total bookings,
+   * completed count, most-booked category, and member-since date.
+   */
+  async getStats(userId: string) {
+    return await usersStatsRepository.getUserStats(userId);
   }
 }
 

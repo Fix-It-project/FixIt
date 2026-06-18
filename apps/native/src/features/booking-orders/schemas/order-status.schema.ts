@@ -22,7 +22,7 @@ export const uiPhaseSchema = z.enum([
 	"tech_inspecting",
 	"quote_open",
 	"work_in_progress",
-	"cash_pending",
+	"payment_pending",
 	"completed",
 	"cancelled",
 ]);

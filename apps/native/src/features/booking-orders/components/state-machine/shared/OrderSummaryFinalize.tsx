@@ -1,5 +1,7 @@
-import { Check, CheckCircle2, Circle, Wallet } from "lucide-react-native";
-import { useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import * as WebBrowser from "expo-web-browser";
+import { Check, CheckCircle2, Circle, CreditCard, Wallet } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, {
@@ -22,8 +24,8 @@ import {
 	useThemeColors,
 } from "@/src/constants/design-tokens";
 import {
-	useTechMarkCashReceived,
-	useUserCheckout,
+	useUserCreateCardSession,
+	useUserSwitchToCash,
 } from "@/src/features/booking-orders/hooks";
 import type {
 	Order,
@@ -31,6 +33,7 @@ import type {
 } from "@/src/features/booking-orders/schemas/response.schema";
 import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpers";
 import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
+import { showError } from "@/src/lib/errors";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
@@ -66,10 +69,12 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 	const { t, i18n } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
-	const userCheckout = useUserCheckout();
-	const techMarkCash = useTechMarkCashReceived();
+	const queryClient = useQueryClient();
+	const userCreateCardSession = useUserCreateCardSession();
+	const userSwitchToCash = useUserSwitchToCash();
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
+	const [isPollingForCard, setIsPollingForCard] = useState(false);
 
 	const isUser = viewer === "user";
 	const booking = order as unknown as TechnicianBooking;
@@ -78,17 +83,43 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 	const otherConfirmed = isUser ? techConfirmed : userConfirmed;
 	const meConfirmed = isUser ? userConfirmed : techConfirmed;
 
-	const handleFinalize = () => {
-		if (isUser) {
-			userCheckout.mutate({ orderId: order.id, method: "cash" });
-		} else {
-			techMarkCash.mutate({ orderId: order.id });
+	useEffect(() => {
+		if (!isPollingForCard) return;
+		if (order.status === "completed") {
+			setIsPollingForCard(false);
+			return;
 		}
+		const startedAt = Date.now();
+		const interval = setInterval(() => {
+			void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+			if (Date.now() - startedAt >= 45_000) {
+				clearInterval(interval);
+				setIsPollingForCard(false);
+			}
+		}, 3000);
+		return () => clearInterval(interval);
+	}, [isPollingForCard, order.status, queryClient]);
+
+	// "Pay cash instead": complete the order off-site (escape a stuck card payment).
+	const handleSwitchToCash = () => {
+		userSwitchToCash.mutate({ orderId: order.id });
 	};
 
-	const finalizePending = isUser
-		? userCheckout.isPending
-		: techMarkCash.isPending;
+	const handleCardCheckout = async () => {
+		try {
+			// Payment method is already 'card' (chosen upfront), so just open the
+			// gateway; the webhook flips the order to completed and we poll for it.
+			const session = await userCreateCardSession.mutateAsync({
+				orderId: order.id,
+			});
+			setIsPollingForCard(true);
+			await WebBrowser.openBrowserAsync(session.checkoutUrl);
+			void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+		} catch (error) {
+			setIsPollingForCard(false);
+			showError(error);
+		}
+	};
 
 	const fadeIn = (i: number) =>
 		reducedMotion
@@ -243,7 +274,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 									opacity: 0.82,
 								}}
 							>
-								Work price
+								{t("detail.finalize.workPrice")}
 							</Text>
 							<Text
 								variant="caption"
@@ -269,7 +300,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 									opacity: 0.82,
 								}}
 							>
-								Inspection fee
+								{t("detail.finalize.inspectionFee")}
 							</Text>
 							<Text
 								variant="caption"
@@ -296,7 +327,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 									letterSpacing: 0.8,
 								}}
 							>
-								Total payable
+								{t("detail.finalize.totalPayable")}
 							</Text>
 							<Text
 								variant="caption"
@@ -415,19 +446,57 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				</Animated.View>
 			) : null}
 
-			<Button
-				variant="primary"
-				size="lg"
-				fullWidth
-				iconLeft={CheckCircle2}
-				onPress={handleFinalize}
-				loading={finalizePending}
-				disabled={meConfirmed}
-			>
-				{meConfirmed
-					? t("detail.finalize.waitingOther")
-					: t("detail.finalize.markCompleted")}
-			</Button>
+			{isUser ? (
+				<View className="gap-3">
+					<Button
+						variant="primary"
+						size="lg"
+						fullWidth
+						iconLeft={CreditCard}
+						onPress={() => {
+							void handleCardCheckout();
+						}}
+						loading={userCreateCardSession.isPending || isPollingForCard}
+					>
+						{isPollingForCard
+							? t("detail.finalize.waitingForCard")
+							: t("detail.finalize.payWithCard")}
+					</Button>
+					<Button
+						variant="outline"
+						size="lg"
+						fullWidth
+						iconLeft={Wallet}
+						onPress={handleSwitchToCash}
+						loading={userSwitchToCash.isPending}
+					>
+						{t("detail.finalize.payCashInstead")}
+					</Button>
+				</View>
+			) : (
+				<View
+					style={{
+						borderRadius: radius.card,
+						padding: space[3],
+						flexDirection: "row",
+						alignItems: "center",
+						gap: space[2],
+						backgroundColor: themeColors.surfaceElevated,
+					}}
+				>
+					<CreditCard
+						size={spacing.icon.xs}
+						color={themeColors.textMuted}
+						strokeWidth={2.2}
+					/>
+					<Text
+						variant="bodySm"
+						style={{ color: themeColors.textMuted, flex: 1 }}
+					>
+						{t("detail.finalize.awaitingCardTech")}
+					</Text>
+				</View>
+			)}
 
 			<TechnicianProfileSheet ref={profileSheetRef} />
 			<CustomerInfoSheet ref={customerSheetRef} />

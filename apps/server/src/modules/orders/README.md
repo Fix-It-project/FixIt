@@ -74,7 +74,8 @@ These are the preferred explicit command routes. User routes use
 | `POST` | `/user/orders/:id/quotes/:quoteId/accept` | User accepts technician quote. |
 | `POST` | `/user/orders/:id/confirm-completion` | User marks work complete. |
 | `POST` | `/user/orders/:id/decline-completion` | User rejects or withdraws a pending completion mark. |
-| `POST` | `/user/orders/:id/checkout` | User chooses payment method. Currently cash-only at DTO layer. |
+| `POST` | `/user/orders/:id/card-session` | Create a Paymob checkout session for an awaiting-payment card order. |
+| `POST` | `/user/orders/:id/switch-to-cash` | Complete a stuck card order by paying cash off-site. |
 | `GET` | `/user/orders/:id/events` | Paginated event log. |
 | `GET` | `/user/orders/:id/quotes` | Quote history. |
 | `GET` | `/user/orders/:id/distance` | Distance, ETA, and geofence flag. |
@@ -89,7 +90,6 @@ These are the preferred explicit command routes. User routes use
 | `POST` | `/technician/orders/:id/quotes/:quoteId/accept` | Technician accepts user quote. |
 | `POST` | `/technician/orders/:id/confirm-completion` | Technician marks work complete. |
 | `POST` | `/technician/orders/:id/decline-completion` | Technician rejects or withdraws a pending completion mark. |
-| `POST` | `/technician/orders/:id/mark-cash-received` | Technician confirms cash payment. |
 | `GET` | `/technician/orders/:id/events` | Paginated event log. |
 | `GET` | `/technician/orders/:id/quotes` | Quote history. |
 | `GET` | `/technician/orders/:id/distance` | Distance, ETA, and geofence flag. |
@@ -108,6 +108,7 @@ compatibility. The current controller forwards body fields to
 | `service_id` | UUID | yes | Requested service. |
 | `scheduled_date` | `YYYY-MM-DD` | yes | Booking date. |
 | `scheduled_start_at` | ISO datetime | yes | Required start time; must be one of the fixed Cairo slots (`08:00`, `11:00`, `14:00`, `17:00`, `20:00`). |
+| `payment_method` | `cash` or `card` | yes | Chosen upfront. Cash auto-completes after dual confirmation; card enters Paymob checkout. |
 | `destination_address_id` | UUID | no | If omitted, lifecycle service uses the user's active address. |
 | `problem_description` | string | no | Max 1000 chars on lifecycle DTO. |
 | `attachment` | file/string URL | no | The route accepts the field, but the current lifecycle create shim does not upload or forward files. |
@@ -122,9 +123,9 @@ temporary testing override migration has been applied.
 | --- | --- |
 | `/cancel`, `/decline` | `{ "reason": "optional, max 500 chars" }` |
 | `/quotes` | `{ "amount": 150, "notes": "optional" }` |
-| `/checkout` | `{ "method": "cash" }` |
+| `/card-session`, `/switch-to-cash` | Empty body |
 | `/location` | `{ "latitude": 30.0, "longitude": 31.0, "heading": 90, "accuracy": 12 }` |
-| `/confirm-completion`, `/decline-completion`, `/accept`, `/start-*`, `/mark-cash-received` | Empty body |
+| `/confirm-completion`, `/decline-completion`, `/accept`, `/start-*` | Empty body |
 
 ## Current Order State Machine
 
@@ -188,7 +189,7 @@ The lean migration extends `orders` with lifecycle snapshot columns:
 | `scheduled_start_at` | Required for new writes; constrained to fixed Cairo slot hours. |
 | `arrived_at` | First time technician enters the 1km destination geofence. |
 | `final_price` | Accepted quote amount. |
-| `payment_method` | `cash` or `card`; DTO currently allows cash only. |
+| `payment_method` | `cash` or `card`; card creates a Paymob-backed payment attempt. |
 | `user_completed_at` | User completion confirmation timestamp. |
 | `technician_completed_at` | Technician completion confirmation timestamp. |
 
@@ -239,8 +240,9 @@ where the controller first asserts order ownership.
   check within 1km.
 - Quote rounds alternate technician/user and stop after round 5.
 - Completion requires both parties unless smoke auto-finalization is enabled.
-- `LIFECYCLE_SMOKE_AUTO_COMPLETE` defaults on; set it to `false` to disable
-  cash auto-finalization during development.
+- `LIFECYCLE_SMOKE_AUTO_COMPLETE` should be set to `false` while exercising the
+  real Paymob sandbox flow, otherwise the legacy cash smoke path may
+  auto-finalize an `awaiting_payment` order during development.
 
 ## Related Modules
 

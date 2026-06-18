@@ -52,7 +52,7 @@ export default function CompletedView({ order }: Props) {
 	const alreadyReviewed = order.has_review;
 
 	const goToOrders = useCallback(() => {
-		router.replace(ROUTES.user.orders);
+		router.replace(ROUTES.user.activity);
 	}, []);
 
 	const handleDone = useCallback(async () => {

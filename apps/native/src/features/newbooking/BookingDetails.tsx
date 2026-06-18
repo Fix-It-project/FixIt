@@ -50,6 +50,10 @@ import {
 	type AttachmentInfo,
 	BookingProblemCard,
 } from "./components/BookingProblemCard";
+import {
+	type PaymentMethodValue,
+	PaymentMethodSegmentedControl,
+} from "./components/PaymentMethodSegmentedControl";
 
 function getStringParam(value: string | string[] | undefined): string {
 	if (Array.isArray(value)) return value[0] ?? "";
@@ -141,6 +145,9 @@ export default function BookingDetails() {
 
 	const [description, setDescription] = useState("");
 	const [attachment, setAttachment] = useState<AttachmentInfo | null>(null);
+	const [paymentMethod, setPaymentMethod] = useState<PaymentMethodValue | null>(
+		null,
+	);
 
 	const {
 		data: addresses,
@@ -192,6 +199,7 @@ export default function BookingDetails() {
 		selectedHour !== null &&
 		!Number.isNaN(selectedHour) &&
 		!!inspectionFeeQuery.data &&
+		paymentMethod !== null &&
 		!isPending &&
 		!isLoadingAddresses &&
 		!inspectionFeeQuery.isLoading &&
@@ -222,6 +230,10 @@ export default function BookingDetails() {
 			Toast.show({ type: "info", text1: t("toast.addLocation") });
 			return;
 		}
+		if (!paymentMethod) {
+			Toast.show({ type: "info", text1: t("toast.pickPaymentMethod") });
+			return;
+		}
 
 		try {
 			const scheduledStartAt = buildCairoSlotIsoUtc(
@@ -233,6 +245,7 @@ export default function BookingDetails() {
 				service_id: serviceId,
 				scheduled_date: selectedDate,
 				scheduled_start_at: scheduledStartAt,
+				payment_method: paymentMethod,
 				problem_description: description || undefined,
 				destination_address_id: selectedAddress.id,
 			});
@@ -355,7 +368,22 @@ export default function BookingDetails() {
 						/>
 					</Animated.View>
 
-					<Animated.View entering={entering(3)} className="mt-card">
+					<Animated.View entering={entering(3)} className="mt-card gap-stack-sm">
+						<Text variant="buttonMd" className="font-semibold text-content">
+							{t("payment.title")}
+						</Text>
+						<PaymentMethodSegmentedControl
+							value={paymentMethod}
+							onChange={setPaymentMethod}
+						/>
+						<Text variant="caption" className="text-content-muted">
+							{paymentMethod === "card"
+								? t("payment.cardHint")
+								: t("payment.cashHint")}
+						</Text>
+					</Animated.View>
+
+					<Animated.View entering={entering(4)} className="mt-card">
 						<Button
 							disabled={!canConfirm}
 							onPress={handleConfirm}

@@ -20,7 +20,15 @@
 	"toast": {
 		"pickDateTime": "Pick a date and time first.",
 		"locationError": "Unable to load your location.",
-		"addLocation": "Add a location before booking."
+		"addLocation": "Add a location before booking.",
+		"pickPaymentMethod": "Choose how you'll pay."
+	},
+	"payment": {
+		"title": "Payment method",
+		"cash": "Cash",
+		"card": "Card",
+		"cashHint": "Pay the technician in person when the work is done.",
+		"cardHint": "Pay securely by card after the work is done."
 	},
 	"problem": {
 		"noteTitle": "Note for technician",

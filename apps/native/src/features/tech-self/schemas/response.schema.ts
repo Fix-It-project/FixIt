@@ -30,7 +30,40 @@ export const profileImageResponseSchema = z.object({
 	profile_image: z.string(),
 });
 
+const earningsPointSchema = z.object({
+	date: z.string(),
+	amount: z.number(),
+});
+
+export const technicianWalletSchema = z.object({
+	// Lifetime sum of paid payments — NOT a withdrawable balance (no ledger).
+	lifetimeEarnings: z.number(),
+	currency: z.string(),
+	/** Last 30 Cairo days, oldest first, today last (profile area chart). */
+	last30: z.array(earningsPointSchema),
+});
+
+export const technicianReviewSummarySchema = z.object({
+	avg_rating: z.number().nullable(),
+	review_count: z.number(),
+	distribution: z.object({
+		"1": z.number(),
+		"2": z.number(),
+		"3": z.number(),
+		"4": z.number(),
+		"5": z.number(),
+	}),
+});
+
+export const technicianReviewSummaryResponseSchema = z.object({
+	data: technicianReviewSummarySchema,
+});
+
 export type TechnicianSelfProfile = z.infer<typeof technicianSelfProfileSchema>;
+export type TechnicianWallet = z.infer<typeof technicianWalletSchema>;
+export type TechnicianReviewSummary = z.infer<
+	typeof technicianReviewSummarySchema
+>;
 export type TechnicianSelfResponse = z.infer<
 	typeof technicianSelfResponseSchema
 >;

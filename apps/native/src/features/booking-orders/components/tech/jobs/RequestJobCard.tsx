@@ -11,6 +11,7 @@ import {
 } from "@/src/features/booking-orders/utils/booking-helpers";
 import { formatRelativeTime } from "@/src/lib/date/relative-time";
 import type { TechnicianBooking } from "../../../schemas/response.schema";
+import { PaymentMethodBadge } from "../../PaymentMethodBadge";
 import { JobMetaRow } from "./JobMetaRow";
 
 interface RequestJobCardProps {
@@ -40,6 +41,7 @@ export function RequestJobCard({
 						{t("jobs.common.newRequest")}
 					</Text>
 				</View>
+				<PaymentMethodBadge method={booking.payment_method} />
 				{booking.created_at ? (
 					<Text variant="caption" className="ml-auto text-content-muted">
 						{formatRelativeTime(booking.created_at, new Date(), i18n.language)}

@@ -1,12 +1,14 @@
 import * as DocumentPicker from "expo-document-picker";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator } from "react-native";
-import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { Button } from "@/src/components/ui/button";
 import { Text as BtnText } from "@/src/components/ui/text";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import AddressFormSection from "@/src/features/address-entry/components/AddressFormSection";
 import AuthPageLayout from "@/src/features/auth/components/shared/AuthPageLayout";
 import DocumentUploadField from "@/src/features/auth/components/shared/DocumentUploadField";
+import ErrorBanner from "@/src/features/auth/components/shared/ErrorBanner";
 import { useTechnicianSignUpMutation } from "@/src/features/auth/hooks/useTechnicianSignUpMutation";
 import {
 	type TechStep5Data,
@@ -17,7 +19,6 @@ import type { UploadDocumentInput } from "@/src/features/auth/utils/signup-helpe
 import { useFormValidation } from "@/src/hooks/useFormValidation";
 import { getErrorMessage } from "@/src/lib/errors";
 import { logger } from "@/src/lib/logger";
-import { useThemeColors } from "@/src/constants/design-tokens";
 
 const DOCUMENT_PICKER_TYPES = [
 	"application/pdf",
@@ -36,6 +37,7 @@ function createStoredDocument(uri: string): UploadDocumentInput | null {
 }
 
 export default function TechnicianSignUpStep5() {
+	const { t } = useTranslation("auth");
 	const themeColors = useThemeColors();
 	const store = useTechnicianSignupStore();
 	const [nationalId, setNationalId] = useState<UploadDocumentInput | null>(
@@ -136,13 +138,13 @@ export default function TechnicianSignUpStep5() {
 
 	return (
 		<AuthPageLayout
-			title="Required Documents"
-			subtitle="Please upload the following documents and provide your location details."
+			title={t("techSignup.step5Title")}
+			subtitle={t("techSignup.step5Subtitle")}
 		>
 			<ErrorBanner message={errorMessage} />
 
 			<DocumentUploadField
-				label="National ID"
+				label={t("techSignup.nationalId")}
 				value={nationalId?.uri ?? ""}
 				fileName={nationalId?.name}
 				onPick={() => pickDocument(setNationalId, "nationalId")}
@@ -151,7 +153,7 @@ export default function TechnicianSignUpStep5() {
 			/>
 
 			<DocumentUploadField
-				label="Criminal Record"
+				label={t("techSignup.criminalRecord")}
 				value={criminalRecord?.uri ?? ""}
 				fileName={criminalRecord?.name}
 				onPick={() => pickDocument(setCriminalRecord, "criminalRecord")}
@@ -160,7 +162,7 @@ export default function TechnicianSignUpStep5() {
 			/>
 
 			<DocumentUploadField
-				label="Certificate"
+				label={t("techSignup.certificate")}
 				value={certificate?.uri ?? ""}
 				fileName={certificate?.name}
 				onPick={() => pickDocument(setCertificate, "certificate")}
@@ -196,7 +198,7 @@ export default function TechnicianSignUpStep5() {
 					apartmentNumber: fieldErrors.apartmentNumber,
 				}}
 				disabled={signUpMutation.isPending}
-				streetLabel="Address"
+				streetLabel={t("form.address")}
 			/>
 
 			<Button
@@ -207,7 +209,7 @@ export default function TechnicianSignUpStep5() {
 				{signUpMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />
 				) : (
-					<BtnText variant="buttonLg">Apply as Technician</BtnText>
+					<BtnText variant="buttonLg">{t("techSignup.apply")}</BtnText>
 				)}
 			</Button>
 		</AuthPageLayout>

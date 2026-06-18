@@ -11,6 +11,10 @@ import { requireTechnicianAuth } from "../../shared/middlewares/technician-auth.
 import { requireUserAuth } from "../../shared/middlewares/user-auth.middleware.js";
 import { validate } from "../../shared/middlewares/validate.middleware.js";
 import { lifecycleRoutes } from "./lifecycle/index.js";
+import {
+	paymobReturn,
+	paymobWebhook,
+} from "./lifecycle/lifecycle.controller.js";
 import { ordersController } from "./orders.controller.js";
 import rescheduleRoutes from "./reschedule.routes.js";
 
@@ -54,6 +58,10 @@ router.patch(
 	}),
 	ordersController.technicianUpdateOrder,
 );
+
+router.post("/webhooks/paymob", paymobWebhook);
+router.get("/webhooks/paymob", paymobWebhook);
+router.get("/payments/return", paymobReturn);
 
 router.use(rescheduleRoutes);
 

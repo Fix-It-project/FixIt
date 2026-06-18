@@ -58,6 +58,10 @@ export const ROUTES = {
 	user: {
 		home: "/user" as const,
 		categories: "/user/categories" as const,
+		// The Activity tab (Bookings + Reschedule Requests). Replaces the old
+		// "My Orders" list tab as the back-to-list target. Order detail/placed
+		// routes still live under `/user/orders/...` (see orderDetail/placedOrder).
+		activity: "/user/activity" as const,
 		orders: "/user/orders" as const,
 		orderDetail: (orderId: string) => ({
 			pathname: "/user/orders/[orderId]" as const,
@@ -69,6 +73,7 @@ export const ROUTES = {
 		}),
 		profile: "/user/profile" as const,
 		profileEdit: "/user/profile/edit" as const,
+		profileAddresses: "/user/profile/addresses" as const,
 		profileAddressNew: "/user/profile/addresses/new" as const,
 		profileAddressPickLocation: (
 			coords?: {
@@ -109,6 +114,10 @@ export const ROUTES = {
 		settingsNotifications: "/user/settings/notifications" as const,
 		settingsPrivacy: "/user/settings/privacy-security" as const,
 		settingsHelp: "/user/settings/help-support" as const,
+		settingsDisplay: "/user/settings/display" as const,
+		settingsData: "/user/settings/data" as const,
+		settingsAbout: "/user/settings/about" as const,
+		settingsFaq: "/user/settings/faq" as const,
 	},
 
 	technician: {
@@ -155,6 +164,10 @@ export const ROUTES = {
 		settingsNotifications: "/technician/settings/notifications" as const,
 		settingsPrivacy: "/technician/settings/privacy-security" as const,
 		settingsHelp: "/technician/settings/help-support" as const,
+		settingsDisplay: "/technician/settings/display" as const,
+		settingsData: "/technician/settings/data" as const,
+		settingsAbout: "/technician/settings/about" as const,
+		settingsFaq: "/technician/settings/faq" as const,
 	},
 } as const;
 

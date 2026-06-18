@@ -2,10 +2,11 @@
 // shared `useMutation` wrapper (optimistic transition + invalidation + cleanup).
 
 import {
+	createCardSession,
+	switchToCash,
 	userAcceptQuote,
 	userApproveReschedule,
 	userCancelOrder,
-	userCheckout,
 	userConfirmCompletion,
 	userDeclineCompletion,
 	userRejectReschedule,
@@ -68,17 +69,31 @@ export function useUserRequestReschedule() {
 	);
 }
 
-interface UserCheckoutArgs {
+interface UserSwitchToCashArgs {
 	orderId: string;
-	method?: "cash" | "card";
 }
-export function useUserCheckout() {
+/** "Pay cash instead": completes a stuck awaiting_payment (card) order off-site. */
+export function useUserSwitchToCash() {
 	return useLifecycleMutation<
-		UserCheckoutArgs,
-		Awaited<ReturnType<typeof userCheckout>>
-	>(({ orderId, method }) => userCheckout(orderId, method ?? "cash"), {
-		// No clean optimistic target for checkout (server may stay in
-		// awaiting_payment or jump to completed depending on method).
+		UserSwitchToCashArgs,
+		Awaited<ReturnType<typeof switchToCash>>
+	>(({ orderId }) => switchToCash(orderId), {
+		optimisticTo: "completed",
+		extractOrderId: (a) => a.orderId,
+		invalidate: (qc) => {
+			invalidateUserOrders(qc);
+		},
+	});
+}
+
+interface UserCardSessionArgs {
+	orderId: string;
+}
+export function useUserCreateCardSession() {
+	return useLifecycleMutation<
+		UserCardSessionArgs,
+		Awaited<ReturnType<typeof createCardSession>>
+	>(({ orderId }) => createCardSession(orderId), {
 		optimisticTo: null,
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
@@ -132,7 +147,9 @@ export function useUserConfirmCompletion() {
 		UserConfirmCompletionArgs,
 		Awaited<ReturnType<typeof userConfirmCompletion>>
 	>(({ orderId }) => userConfirmCompletion(orderId), {
-		optimisticTo: "awaiting_payment",
+		// Method-dependent target (cash → completed, card → awaiting_payment) isn't
+		// known from orderId alone, so let the server response drive the status.
+		optimisticTo: null,
 		extractOrderId: (a) => a.orderId,
 		invalidate: (qc) => {
 			invalidateUserOrders(qc);
