@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.1.0...admin-v0.2.0) (2026-06-18)
+
+
+### Features
+
+* admin side optimizations ([c5509e6](https://github.com/Fix-It-project/FixIt/commit/c5509e68c407f65f7bb8ba0d4b6631a6b7146594))
+
 ## [0.1.0](https://github.com/Fix-It-project/FixIt/compare/admin-v0.0.1...admin-v0.1.0) (2026-06-15)
 
 

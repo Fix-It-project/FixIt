@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.2.0...native-v0.3.0) (2026-06-18)
+
+
+### Features
+
+* **app:** refactor profile and settings pages, personalization settings, and navigation updates ([dcce3eb](https://github.com/Fix-It-project/FixIt/commit/dcce3eb860ce1279e0fda65e8dff9fce514f4678))
+* **auth:** integrate i18next for translation in verification and form validation messages ([594b1db](https://github.com/Fix-It-project/FixIt/commit/594b1db8fafc9ef93045f53fe7fd7cc468dd40d4))
+* enhance user interface with avatar components and improve chat functionality ([17a5290](https://github.com/Fix-It-project/FixIt/commit/17a5290698cf25dd42a9942fac4d8638ae3a7ad9))
+* refactor chatbot page, my orders page, and tab bar. ([af80b14](https://github.com/Fix-It-project/FixIt/commit/af80b14605779e55843967f5aee8b6a8a36de986))
+
+
+### Bug Fixes
+
+* reintigrated AI systems ([#190](https://github.com/Fix-It-project/FixIt/issues/190)) ([289c0c6](https://github.com/Fix-It-project/FixIt/commit/289c0c689c82af8fd96d2a146634b5b898b58fe0))
+
 ## [0.2.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.1.0...native-v0.2.0) (2026-06-16)
 
 
