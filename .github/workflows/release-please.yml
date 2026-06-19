@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Root "." component = the fixit-v* release shown as Latest.
-      root_released: ${{ steps.release.outputs['.--release_created'] }}
-      root_tag: ${{ steps.release.outputs['.--tag_name'] }}
+      root_released: ${{ steps.release.outputs.release_created }}
+      root_tag: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@v5
         id: release

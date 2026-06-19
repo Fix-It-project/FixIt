@@ -1,0 +1,16 @@
+name: Create Preview Builds
+
+# Manual EAS-side preview APK build.
+# The release APK is built + attached automatically by the GitHub Actions
+# flow (.github/workflows/release-please.yml -> native-apk-release.yml).
+# This workflow is a hand-triggered alternative: run it from the EAS
+# dashboard or `eas workflow:run create-preview-builds.yml`.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build_android:
+    type: build
+    params:
+      platform: android
+      profile: preview

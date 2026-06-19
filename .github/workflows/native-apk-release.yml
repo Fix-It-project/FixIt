@@ -1,7 +1,6 @@
 name: Native APK Release
 
 on:
-  # Called by release-please.yml after it publishes a fixit-v* release.
   workflow_call:
     inputs:
       tag:
@@ -113,7 +112,29 @@ jobs:
               --json > "$build_json"
           )
 
-          node .github/scripts/extract-eas-android-artifact.mjs "$build_json" "$GITHUB_OUTPUT"
+          node --input-type=module - "$build_json" "$GITHUB_OUTPUT" <<'NODE'
+          import { appendFileSync, readFileSync } from "node:fs";
+
+          const [, , buildJsonPath, outputPath] = process.argv;
+          const rawBuildJson = readFileSync(buildJsonPath, "utf8").trim();
+          const parsedBuilds = JSON.parse(rawBuildJson);
+          const builds = Array.isArray(parsedBuilds) ? parsedBuilds : [parsedBuilds];
+          const androidBuild =
+            builds.find((build) => String(build?.platform).toLowerCase() === "android") ??
+            builds[0];
+
+          const artifactUrl =
+            androidBuild?.artifacts?.buildUrl ??
+            androidBuild?.artifacts?.applicationArchiveUrl ??
+            androidBuild?.artifactUrl;
+
+          if (!artifactUrl) {
+            throw new Error("EAS build output did not include an Android artifact URL.");
+          }
+
+          appendFileSync(outputPath, `artifact_url=${artifactUrl}\n`);
+          appendFileSync(outputPath, `build_id=${androidBuild?.id ?? "unknown"}\n`);
+          NODE
 
       - name: Download APK artifact
         id: download
