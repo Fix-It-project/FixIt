@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.3.0...server-v0.4.0) (2026-06-19)
+
+
+### Features
+
+* add deferred mount hook for improved navigation performance ([58fa2af](https://github.com/Fix-It-project/FixIt/commit/58fa2afbb7eb0f8902f4a4aa576e85f973f9f238))
+
+
+### Bug Fixes
+
+* update navigation routes for user and technician orders ([58fa2af](https://github.com/Fix-It-project/FixIt/commit/58fa2afbb7eb0f8902f4a4aa576e85f973f9f238))
+
 ## [0.3.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.2.0...server-v0.3.0) (2026-06-18)
 
 
