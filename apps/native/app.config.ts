@@ -181,6 +181,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		"expo-secure-store",
 		"expo-localization",
 		"@sentry/react-native",
+		"./plugins/with-android-cleartext-traffic",
 	],
 	experiments: {
 		typedRoutes: true,
