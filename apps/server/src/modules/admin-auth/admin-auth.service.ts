@@ -9,8 +9,17 @@ export type { AdminUser } from "./admin-auth.types.js";
 
 export const adminCookieName = "admin_session";
 
+type AdminCookieSameSite = "lax" | "strict" | "none";
+
+function resolveAdminCookieSameSite(): AdminCookieSameSite {
+	const value = (env as typeof env & { ADMIN_COOKIE_SAME_SITE?: unknown })
+		.ADMIN_COOKIE_SAME_SITE;
+
+	return value === "strict" || value === "none" ? value : "lax";
+}
+
 export const adminCookieOptions = (): CookieOptions => {
-	const sameSite = env.ADMIN_COOKIE_SAME_SITE;
+	const sameSite = resolveAdminCookieSameSite();
 
 	return {
 		httpOnly: true,
