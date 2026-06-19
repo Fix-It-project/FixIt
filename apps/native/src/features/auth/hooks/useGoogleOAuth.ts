@@ -7,6 +7,7 @@ import {
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/src/config/supabase";
 import { toAppError } from "@/src/lib/errors";
+import { logger } from "@/src/lib/logger";
 
 export type GoogleOAuthResult =
 	| { type: "success"; session: Session }
@@ -47,8 +48,13 @@ export function useGoogleOAuth() {
 
 			return { type: "success", session: data.session };
 		} catch (err) {
-			if (isErrorWithCode(err) && err.code === statusCodes.SIGN_IN_CANCELLED) {
-				return { type: "cancel" };
+			if (isErrorWithCode(err)) {
+				// DEVELOPER_ERROR (code 10) == signing SHA-1 / package not registered
+				// for this build's OAuth client (e.g. after an EAS keystore change).
+				logger.debug("GoogleOAuth", "signIn error code", { code: err.code });
+				if (err.code === statusCodes.SIGN_IN_CANCELLED) {
+					return { type: "cancel" };
+				}
 			}
 			return { type: "error", error: toAppError(err) };
 		}

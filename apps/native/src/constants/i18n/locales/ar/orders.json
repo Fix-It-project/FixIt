@@ -80,10 +80,18 @@
 	"detail": {
 		"orderTitle": "الطلب",
 		"placed": {
-			"title": "تم إرسال الطلب.",
-			"subtitle": "أبلغنا الفني. ستصلك رسالة عند قبوله.",
-			"viewDetails": "عرض تفاصيل الطلب",
-			"backHome": "العودة للرئيسية"
+			"title": "تم تأكيد الحجز",
+			"subtitle": "تم إرسال طلبك بنجاح.",
+			"ok": "تم"
+		},
+		"summary": {
+			"title": "ملخص الطلب",
+			"completedSubtitle": "اكتمل هذا الطلب.",
+			"cancelledSubtitle": "انتهى هذا الطلب دون اكتمال.",
+			"completedTitle": "اكتمل الطلب",
+			"cancelledTitle": "أُلغي الطلب",
+			"reason": "السبب",
+			"submitReview": "إرسال التقييم"
 		},
 		"toast": {
 			"cancelled": "تم إلغاء الطلب",
@@ -215,6 +223,7 @@
 			"acceptedTotalRule": "الإجمالي المقبول = سعر العمل + رسوم المعاينة",
 			"workPriceRange": "نطاق سعر العمل: {{range}}",
 			"latestTotalIfAccepted": "أحدث إجمالي عند القبول: {{amount}}",
+			"totalIfAccepted": "الإجمالي عند القبول",
 			"emptyTech": "اضغط «اعرض سعر العمل» لإرسال أول عرض.",
 			"emptyUser": "بانتظار إرسال الفني لسعر العمل.",
 			"toastSubmitFailed": "فشل الإرسال",
@@ -287,7 +296,12 @@
 			"sendingRequest": "جارٍ إرسال الطلب...",
 			"sending": "جارٍ الإرسال...",
 			"submit": "طلب إعادة الجدولة",
-			"reasonPlaceholder": "لماذا تعيد الجدولة؟"
+			"reasonPlaceholder": "لماذا تعيد الجدولة؟",
+			"pageTitle": "إعادة جدولة الطلب",
+			"pageSubtitle": "اختر تاريخًا ووقتًا جديدًا. إضافة ملاحظة اختيارية.",
+			"reasonOptional": "أضف ملاحظة (اختياري)",
+			"defaultReasonUser": "أعاد العميل الجدولة",
+			"defaultReasonTech": "أعاد الفني الجدولة"
 		},
 		"cash": {
 			"confirmFailed": "فشل تأكيد الدفع",
@@ -301,7 +315,9 @@
 			"onTheWay": "في الطريق",
 			"inspecting": "الفحص",
 			"quote": "عرض السعر",
-			"finalize": "الإنهاء"
+			"finalize": "الإنهاء",
+			"work": "العمل",
+			"payment": "الدفع"
 		},
 		"finalize": {
 			"eyebrow": "الدفع",

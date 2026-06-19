@@ -18,6 +18,7 @@ import {
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
+	useArrivalGeofence,
 	useOrderDistance,
 	useTechCancel,
 	useTechMarkArrived,
@@ -144,16 +145,31 @@ export function TrackingCta({ order }: Props) {
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 
-	const { data: distance } = useOrderDistance(order.id, {
-		enabled: true,
-		viewer: "technician",
+	// Fast unblur: device GPS geofence (~1–2s) + realtime-fresh `arrived_at`.
+	// The button no longer reads the 30s `useOrderDistance` poll.
+	const destination =
+		typeof booking.user_latitude === "number" &&
+		typeof booking.user_longitude === "number"
+			? { latitude: booking.user_latitude, longitude: booking.user_longitude }
+			: null;
+	const { withinGeofence: localGeofence, confirmArrival } = useArrivalGeofence({
+		orderId: order.id,
+		destination,
+		active: true,
 	});
-	const withinGeofence = distance?.within_geofence === true;
+	const arrivedServerSide = Boolean(
+		(order as { arrived_at?: string | null }).arrived_at,
+	);
+	const withinGeofence = localGeofence || arrivedServerSide;
 	const markArrived = useTechMarkArrived();
 	const cancelMutation = useTechCancel();
 
-	const handleArrive = () => {
+	const handleArrive = async () => {
 		if (!withinGeofence) return;
+		// UI-enable ≠ backend-ready: send a fresh ping first so the server has
+		// registered arrival (`arrived_at`) before we mark arrived. Otherwise the
+		// transition can fail with arrival_not_detected_yet / too_far_from_destination.
+		await confirmArrival();
 		markArrived.mutate(
 			{ orderId: order.id },
 			{

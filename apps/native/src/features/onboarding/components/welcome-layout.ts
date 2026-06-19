@@ -1,7 +1,7 @@
 import { space } from "@/src/constants/design-tokens";
 
-// Cropped wordmark aspect (~800:220) — height follows width. Mirrors BrandMark.
-const WORDMARK_RATIO = 0.28;
+// Square PNG logo — height follows width 1:1. Mirrors BrandMark.
+const LOGO_RATIO = 1;
 
 // The wordmark reads as a small logo above the hero, never the focal point.
 const BRAND_WIDTH_RATIO = 0.3;
@@ -29,7 +29,7 @@ export function illustrationSizeFor(
 	panelHeight: number,
 	topPad: number,
 ): number {
-	const brandMarkHeight = brandMarkWidthFor(screenW) * WORDMARK_RATIO;
+	const brandMarkHeight = brandMarkWidthFor(screenW) * LOGO_RATIO;
 	// Reserve room for the wordmark above and the motto/breathing room below.
 	const available =
 		panelHeight - topPad - brandMarkHeight - space[6] - space[12];

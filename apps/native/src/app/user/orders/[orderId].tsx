@@ -7,6 +7,7 @@ import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { space, useThemeColors } from "@/src/constants/design-tokens";
 import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
 import {
+	OrderSummaryScreen,
 	PendingWaitingCard,
 	StateScreenLayout,
 } from "@/src/features/booking-orders/components/state-machine/shared";
@@ -16,8 +17,6 @@ import {
 	ArrivedInspectingView,
 	ArrivedInspectingViewCta,
 	AwaitingPaymentView,
-	CancelledView,
-	CompletedView,
 	QuoteView,
 	QuoteViewCta,
 	TrackingView,
@@ -32,7 +31,6 @@ import {
 	type OrderStatus as LifecycleOrderStatus,
 	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
-import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
@@ -63,7 +61,6 @@ export default function OrderDetailScreen() {
 		);
 	}
 
-	const ui = deriveUiState(order, "user");
 	const lifecycleStatus = order.status as unknown as LifecycleOrderStatus;
 	const isInProgress = IN_PROGRESS_STATUSES.has(lifecycleStatus);
 
@@ -118,9 +115,11 @@ export default function OrderDetailScreen() {
 		);
 	}
 
-	const isWaitingToAccept = ui.phase === "waiting_to_accept";
-	const isCompleted = ui.phase === "completed";
-	const isCancelled = ui.phase === "cancelled";
+	// Terminal orders land on the dedicated read-only summary (belt-and-braces:
+	// works even on direct navigation to this live route).
+	if (TERMINAL_STATUSES.has(lifecycleStatus)) {
+		return <OrderSummaryScreen order={order} viewer="user" onBack={goBack} />;
+	}
 
 	return (
 		<View testID="order-detail" className="flex-1 bg-surface">
@@ -143,9 +142,7 @@ export default function OrderDetailScreen() {
 							paddingBottom: space[10],
 						}}
 					>
-						{isWaitingToAccept && <PendingWaitingCard order={order} />}
-						{isCompleted && <CompletedView order={order} />}
-						{isCancelled && <CancelledView order={order} />}
+						<PendingWaitingCard order={order} />
 					</ScrollView>
 				</KeyboardAvoidingView>
 			</ScreenSafeAreaView>

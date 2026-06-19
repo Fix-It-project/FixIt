@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Ban, CalendarClock, CheckCircle2 } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,8 +10,6 @@ import { Button } from "@/src/components/ui/button";
 import {
 	OrderInfoCompact,
 	RescheduleRequestPanel,
-	RescheduleSheet,
-	type RescheduleSheetHandle,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import { useUserCancelOrder } from "@/src/features/booking-orders/hooks";
@@ -20,6 +19,7 @@ import TechnicianProfileSheet, {
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { space, useThemeColors } from "@/src/constants/design-tokens";
+import { ROUTES } from "@/src/lib/navigation";
 
 interface Props {
 	readonly order: Order;
@@ -61,7 +61,6 @@ export default function AcceptedView({ order }: Props) {
 export function AcceptedViewCta({ order }: Props) {
 	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
-	const rescheduleRef = useRef<RescheduleSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const cancel = useUserCancelOrder();
@@ -109,11 +108,9 @@ export function AcceptedViewCta({ order }: Props) {
 							size="icon"
 							accessibilityLabel={t("detail.a11y.rescheduleOrder")}
 							onPress={() =>
-								rescheduleRef.current?.open({
-									orderId: order.id,
-									technicianId: order.technician_id,
-									originalScheduledDate: order.scheduled_date,
-								})
+								router.push(
+									ROUTES.user.reschedule(order.id, order.technician_id),
+								)
 							}
 							disabled={cancel.isPending || hasPendingReschedule}
 						>
@@ -142,7 +139,6 @@ export function AcceptedViewCta({ order }: Props) {
 					</Text>
 				) : null}
 			</View>
-			<RescheduleSheet ref={rescheduleRef} viewer="user" />
 			<CancelReasonModal
 				visible={cancelOpen}
 				title={t("detail.cancelModal.title")}

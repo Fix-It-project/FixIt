@@ -7,7 +7,7 @@ import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 export default function PastOrdersScreen() {
 	const { t } = useTranslation("orders");
-	const { data: orders } = useUserPastOrders();
+	const { data: orders, isPending } = useUserPastOrders();
 	const goBack = useSafeBack(ROUTES.user.profile);
 	const items: PastOrdersListItem[] = orders.map((order) => ({
 		id: order.id,
@@ -21,10 +21,15 @@ export default function PastOrdersScreen() {
 		scheduledDate: order.scheduled_date,
 		scheduledStartAt: order.scheduled_start_at,
 		status: order.status,
-		route: ROUTES.user.orderDetail(order.id),
+		route: ROUTES.user.orderSummary(order.id),
 	}));
 
 	return (
-		<PastOrdersList items={items} onBack={goBack} statusPerspective="user" />
+		<PastOrdersList
+			items={items}
+			onBack={goBack}
+			statusPerspective="user"
+			loading={isPending}
+		/>
 	);
 }

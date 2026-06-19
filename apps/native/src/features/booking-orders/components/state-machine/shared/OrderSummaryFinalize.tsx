@@ -1,6 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Check, CheckCircle2, Circle, CreditCard, Wallet } from "lucide-react-native";
+import {
+	Check,
+	CheckCircle2,
+	Circle,
+	CreditCard,
+	Wallet,
+} from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -193,11 +199,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				>
 					<Text
 						variant="caption"
-						className="font-google-sans-bold uppercase"
+						className="font-google-sans-bold"
 						style={{
 							color: themeColors.onPrimaryHeader,
 							opacity: 0.78,
-							letterSpacing: 1.1,
 						}}
 					>
 						{t("detail.finalize.finalPrice")}
@@ -321,11 +326,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							}}
 						>
 							<Text
-								variant="caption"
-								className="font-google-sans-bold uppercase"
+								variant="bodySm"
+								className="font-google-sans-bold"
 								style={{
 									color: themeColors.onPrimaryHeader,
-									letterSpacing: 0.8,
 								}}
 							>
 								{t("detail.finalize.totalPayable")}
@@ -361,8 +365,8 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				>
 					<Text
 						variant="caption"
-						className="font-google-sans-bold uppercase"
-						style={{ color: themeColors.textMuted, letterSpacing: 1 }}
+						className="font-google-sans-bold"
+						style={{ color: themeColors.textMuted }}
 					>
 						{t("detail.finalize.timeline")}
 					</Text>
@@ -464,7 +468,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							: t("detail.finalize.payWithCard")}
 					</Button>
 					<Button
-						variant="outline"
+						variant="secondary"
 						size="lg"
 						fullWidth
 						iconLeft={Wallet}

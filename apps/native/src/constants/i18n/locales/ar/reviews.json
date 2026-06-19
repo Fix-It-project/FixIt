@@ -5,6 +5,7 @@
 	"rateTechnician": "قيّم الفني",
 	"commentPlaceholder": "أضف تعليقاً (اختياري)",
 	"invalidInput": "إدخال غير صالح.",
+	"submitSuccess": "شكراً على تقييمك!",
 	"anonymous": "مجهول",
 	"stats": {
 		"noReviews": "لا توجد تقييمات بعد",

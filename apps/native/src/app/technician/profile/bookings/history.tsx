@@ -2,11 +2,10 @@ import PastOrdersList, {
 	type PastOrdersListItem,
 } from "@/src/features/booking-orders/components/shared/PastOrdersList";
 import { usePastTechnicianBookings } from "@/src/features/booking-orders/hooks/useTechnicianBookingsQuery";
-import { useSafeBack } from "@/src/lib/navigation";
-import { ROUTES } from "@/src/lib/navigation";
+import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
 export default function PastOrdersScreen() {
-	const { data: orders } = usePastTechnicianBookings();
+	const { data: orders, isPending } = usePastTechnicianBookings();
 	const goBack = useSafeBack(ROUTES.technician.profile);
 	const items: PastOrdersListItem[] = orders.map((order) => ({
 		id: order.id,
@@ -18,7 +17,7 @@ export default function PastOrdersScreen() {
 		scheduledDate: order.scheduled_date,
 		scheduledStartAt: order.scheduled_start_at,
 		status: order.status,
-		route: ROUTES.technician.bookingDetail(order.id),
+		route: ROUTES.technician.bookingSummary(order.id),
 	}));
 
 	return (
@@ -26,6 +25,7 @@ export default function PastOrdersScreen() {
 			items={items}
 			onBack={goBack}
 			statusPerspective="technician"
+			loading={isPending}
 		/>
 	);
 }

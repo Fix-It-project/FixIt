@@ -19,6 +19,7 @@ import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { Button } from "@/src/components/ui/button";
+import { confirm } from "@/src/components/ui/dialog";
 import { Text } from "@/src/components/ui/text";
 import {
 	DUR_SLIDE_UP,
@@ -118,6 +119,7 @@ function formatDateLabel(value: string, language?: string): string {
 export default function BookingDetails() {
 	const { t, i18n } = useTranslation("booking");
 	const { t: tc } = useTranslation("categories");
+	const { t: tOrders } = useTranslation("orders");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const params = useLocalSearchParams<{
@@ -249,15 +251,19 @@ export default function BookingDetails() {
 				problem_description: description || undefined,
 				destination_address_id: selectedAddress.id,
 			});
-			const result = await createBooking({
+			await createBooking({
 				payload,
 				attachment: attachment ?? undefined,
 			});
-			const createdOrderId = result?.data?.id;
+			// Confirm dialog appears BEFORE any navigation; only OK navigates home.
+			await confirm({
+				title: tOrders("detail.placed.title"),
+				description: tOrders("detail.placed.subtitle"),
+				primary: { label: tOrders("detail.placed.ok") },
+				dismissible: false,
+			});
+			router.dismissAll();
 			router.replace(ROUTES.user.home);
-			if (createdOrderId) {
-				router.push(ROUTES.user.placedOrder(createdOrderId));
-			}
 		} catch (error: unknown) {
 			showError(error);
 		}

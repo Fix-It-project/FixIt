@@ -59,17 +59,25 @@ export const ROUTES = {
 		home: "/user" as const,
 		categories: "/user/categories" as const,
 		// The Activity tab (Bookings + Reschedule Requests). Replaces the old
-		// "My Orders" list tab as the back-to-list target. Order detail/placed
-		// routes still live under `/user/orders/...` (see orderDetail/placedOrder).
+		// "My Orders" list tab as the back-to-list target. Order detail
+		// routes still live under `/user/orders/...` (see orderDetail).
 		activity: "/user/activity" as const,
 		orders: "/user/orders" as const,
 		orderDetail: (orderId: string) => ({
 			pathname: "/user/orders/[orderId]" as const,
 			params: { orderId },
 		}),
-		placedOrder: (id: string) => ({
-			pathname: "/user/orders/placed/[id]" as const,
+		// Read-only summary for terminal orders (completed / cancelled). Distinct
+		// from the live `orderDetail` so finished orders never re-enter the flow.
+		orderSummary: (id: string) => ({
+			pathname: "/user/orders/summary/[id]" as const,
 			params: { id },
+		}),
+		// Full-page reschedule flow (replaces the old bottom sheet). `technicianId`
+		// is forwarded so the page can fetch the technician's public availability.
+		reschedule: (orderId: string, technicianId?: string | null) => ({
+			pathname: "/user/orders/reschedule/[id]" as const,
+			params: { id: orderId, technicianId: technicianId ?? "" },
 		}),
 		// In-app Paymob checkout (react-native-webview). `url` is the gateway
 		// checkout URL returned by the create-card-session mutation.
@@ -148,6 +156,18 @@ export const ROUTES = {
 		bookingDetail: (bookingId: string) => ({
 			pathname: "/technician/bookings/[bookingId]" as const,
 			params: { bookingId },
+		}),
+		// Read-only summary for terminal bookings (completed / cancelled). Distinct
+		// from the live `bookingDetail` so finished bookings never re-enter the flow.
+		bookingSummary: (id: string) => ({
+			pathname: "/technician/bookings/summary/[id]" as const,
+			params: { id },
+		}),
+		// Full-page reschedule flow (replaces the old bottom sheet). `technicianId`
+		// is the technician's own id, forwarded for the availability fetch.
+		reschedule: (bookingId: string, technicianId?: string | null) => ({
+			pathname: "/technician/bookings/reschedule/[id]" as const,
+			params: { id: bookingId, technicianId: technicianId ?? "" },
 		}),
 		wallet: "/technician/wallet" as const,
 		chat: "/technician/chat" as const,

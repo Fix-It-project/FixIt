@@ -35,8 +35,16 @@ function hex(t: Hsl): string {
 const blue = primitiveColors.blue as unknown as Record<number, Hsl>;
 const NATIVE_LIGHT_PRIMARY = hex(blue[600]);
 const NATIVE_DARK_PRIMARY = hex(blue[500]);
-const EAS_PROJECT_ID = "bac43c87-2b51-4268-8876-87395dd3dbca";
+const EAS_PROJECT_ID = "12a8c718-708c-4460-9e12-8d356b933b74";
 const GOOGLE_IOS_CLIENT_ID_SUFFIX = ".apps.googleusercontent.com";
+
+// Per-variant identity so an EAS `development` build (env APP_VARIANT) installs
+// alongside the preview/production app instead of overwriting it. preview +
+// production keep the base id (don't break existing installs / OTA channels).
+const IS_DEV_VARIANT = process.env.APP_VARIANT === "development";
+const BASE_BUNDLE_ID = "com.anonymous.fixitapp";
+const BUNDLE_ID = IS_DEV_VARIANT ? `${BASE_BUNDLE_ID}.dev` : BASE_BUNDLE_ID;
+const APP_NAME = IS_DEV_VARIANT ? "FixIt Dev" : "FixIt";
 
 function googleIosUrlScheme(clientId: string | undefined): string | undefined {
 	if (!clientId) return undefined;
@@ -62,7 +70,7 @@ const googleSignInPlugin: ExpoPlugin = googleIosScheme
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
-	name: "FixIt",
+	name: APP_NAME,
 	slug: "fixit",
 	version: "0.0.0",
 	orientation: "portrait",
@@ -77,7 +85,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	},
 	ios: {
 		supportsTablet: true,
-		bundleIdentifier: "com.anonymous.fixitapp",
+		bundleIdentifier: BUNDLE_ID,
 		infoPlist: {
 			ITSAppUsesNonExemptEncryption: false,
 			// Technician background location tracking continues while suspended.
@@ -90,7 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			foregroundImage: "./src/assets/images/android-adaptive-icon.png",
 		},
 		predictiveBackGestureEnabled: false,
-		package: "com.anonymous.fixitapp",
+		package: BUNDLE_ID,
 		googleServicesFile: "./google-services.json",
 		permissions: [
 			"android.permission.ACCESS_COARSE_LOCATION",
@@ -180,5 +188,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 			projectId: EAS_PROJECT_ID,
 		},
 	},
-	owner: "meryamrs-organization",
+	owner: "amrmamdouhs-organization",
 });

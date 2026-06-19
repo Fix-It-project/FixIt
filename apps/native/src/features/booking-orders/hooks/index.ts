@@ -1,6 +1,7 @@
 // Booking-orders hooks barrel.
 //
 // Existing hooks (pre-Phase-4a):
+export * from "./useArrivalGeofence";
 export * from "./useCreateBooking";
 export * from "./useInspectionFeePreview";
 export * from "./useOrderDistance";

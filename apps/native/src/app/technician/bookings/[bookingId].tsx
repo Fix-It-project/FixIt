@@ -1,15 +1,9 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { CheckCircle2, XCircle } from "lucide-react-native";
+import { useLocalSearchParams } from "expo-router";
 import type { ReactNode } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
-import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
-import { Button } from "@/src/components/ui/button";
-import { Text } from "@/src/components/ui/text";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
-import DetailHeader from "@/src/features/booking-orders/components/shared/DetailHeader";
+import { ActivityIndicator, View } from "react-native";
+import { useThemeColors } from "@/src/constants/design-tokens";
 import {
-	OrderInfoCompact,
-	StageHero,
+	OrderSummaryScreen,
 	StateScreenLayout,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
@@ -35,7 +29,6 @@ import {
 	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { ReportProblemEntry } from "@/src/features/reports/components/ReportProblemEntry";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
 
@@ -123,95 +116,20 @@ export default function BookingDetailScreen() {
 				order={bookingAsOrder}
 				viewer="technician"
 				stickyCta={cta}
+				hidePills={lifecycleStatus === "pending"}
 			>
 				{body}
 			</StateScreenLayout>
 		);
 	}
 
+	// Terminal bookings land on the dedicated read-only summary.
 	const bookingAsOrder = booking as unknown as Order;
-	const isCompleted = booking.status === "completed";
-	const isCancelledByUser = booking.status === "cancelled_by_user";
-	const accent = isCompleted ? themeColors.success : themeColors.danger;
-	const title = isCompleted ? "Job complete." : "Booking ended.";
-	const subtitle = isCompleted
-		? "Nice work. Payout follows your standard schedule."
-		: isCancelledByUser
-			? "Customer cancelled this booking."
-			: "You cancelled this booking.";
-	const icon = isCompleted ? CheckCircle2 : XCircle;
-	const eyebrow = isCompleted ? "Done" : "Closed";
-	const handleDone = () => {
-		router.replace(ROUTES.technician.jobs);
-	};
-
 	return (
-		<View className="flex-1 bg-surface">
-			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
-				<DetailHeader
-					categoryId={booking.category_id}
-					onBack={goBack}
-					title="Booking"
-				/>
-				<ScrollView
-					className="flex-1"
-					bounces={false}
-					showsVerticalScrollIndicator={false}
-					contentContainerStyle={{
-						flexGrow: 1,
-						paddingHorizontal: space[4],
-						paddingTop: space[3],
-						paddingBottom: space[10],
-						gap: space[5],
-					}}
-				>
-					<StageHero
-						icon={icon}
-						eyebrow={eyebrow}
-						title={title}
-						subtitle={subtitle}
-						accentColor={accent}
-					/>
-					<OrderInfoCompact order={bookingAsOrder} viewer="technician" />
-					{booking.cancellation_reason ? (
-						<View
-							style={{
-								padding: space[4],
-								borderRadius: radius.card,
-								backgroundColor: `${themeColors.danger}14`,
-								gap: space[1],
-							}}
-						>
-							<Text
-								variant="caption"
-								className="font-google-sans-bold"
-								style={{ color: themeColors.danger }}
-							>
-								Reason
-							</Text>
-							<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
-								{booking.cancellation_reason}
-							</Text>
-						</View>
-					) : null}
-					<ReportProblemEntry
-						orderId={booking.id}
-						viewer="technician"
-						counterpartyName={booking.user_name}
-						hasOpenReport={booking.has_open_report}
-					/>
-
-					<Button
-						variant="primary"
-						size="xl"
-						fullWidth
-						onPress={handleDone}
-						style={{ marginTop: "auto" }}
-					>
-						Done
-					</Button>
-				</ScrollView>
-			</ScreenSafeAreaView>
-		</View>
+		<OrderSummaryScreen
+			order={bookingAsOrder}
+			viewer="technician"
+			onBack={goBack}
+		/>
 	);
 }

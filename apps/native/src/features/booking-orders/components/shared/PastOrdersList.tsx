@@ -1,7 +1,7 @@
 import { type Href, router } from "expo-router";
 import { ClipboardList, type LucideIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import {
@@ -9,6 +9,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@/src/components/ui/avatar";
+import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { Colors, spacing, useThemeColors } from "@/src/constants/design-tokens";
 import {
@@ -48,6 +49,24 @@ interface Props {
 	readonly onBack?: () => void;
 	readonly statusPerspective?: OrderStatusPerspective;
 	readonly title?: string;
+	// While the orders query is still pending we show skeleton rows instead of the
+	// empty state, so a fresh navigation lands on a loading shell — not "no orders".
+	readonly loading?: boolean;
+}
+
+function PastOrderCardSkeleton() {
+	return (
+		<View className="mb-stack-md rounded-card bg-card p-card">
+			<View className="flex-row items-center gap-stack-md">
+				<Skeleton className="h-control-icon-box-touch w-control-icon-box-touch rounded-pill" />
+				<View className="flex-1 gap-stack-xs">
+					<Skeleton className="h-4 w-1/2" />
+					<Skeleton className="h-3 w-3/4" />
+				</View>
+				<Skeleton className="h-5 w-16 rounded-pill" />
+			</View>
+		</View>
+	);
 }
 
 function PastOrderCard({
@@ -162,39 +181,53 @@ export default function PastOrdersList({
 	onBack,
 	statusPerspective = "neutral",
 	title,
+	loading = false,
 }: Props) {
 	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
+	const showSkeleton = loading && items.length === 0;
 
 	return (
 		<View className="flex-1 bg-surface">
 			<ScreenSafeAreaView className="flex-1" edges={["top"]}>
 				<PageHeader title={title ?? t("list.pastTitle")} onBackPress={onBack} />
 
-				<ScrollView
-					className="flex-1"
-					showsVerticalScrollIndicator={false}
-					contentContainerStyle={{
-						padding: spacing.card.padding,
-						paddingBottom: spacing.screen.scrollBottomInset,
-					}}
-				>
-					{items.length === 0 ? (
-						<View className="items-center py-stack-4xl">
-							<Text variant="bodySm" style={{ color: themeColors.textMuted }}>
-								{t("list.pastEmpty")}
-							</Text>
-						</View>
-					) : (
-						items.map((item) => (
+				{showSkeleton ? (
+					<View
+						style={{
+							padding: spacing.card.padding,
+							paddingBottom: spacing.screen.scrollBottomInset,
+						}}
+					>
+						{[0, 1, 2, 3, 4].map((i) => (
+							<PastOrderCardSkeleton key={i} />
+						))}
+					</View>
+				) : (
+					<FlatList
+						className="flex-1"
+						data={items}
+						keyExtractor={(item) => item.id}
+						renderItem={({ item }) => (
 							<PastOrderCard
-								key={item.id}
 								item={item}
 								statusPerspective={statusPerspective}
 							/>
-						))
-					)}
-				</ScrollView>
+						)}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							padding: spacing.card.padding,
+							paddingBottom: spacing.screen.scrollBottomInset,
+						}}
+						ListEmptyComponent={
+							<View className="items-center py-stack-4xl">
+								<Text variant="bodySm" style={{ color: themeColors.textMuted }}>
+									{t("list.pastEmpty")}
+								</Text>
+							</View>
+						}
+					/>
+				)}
 			</ScreenSafeAreaView>
 		</View>
 	);

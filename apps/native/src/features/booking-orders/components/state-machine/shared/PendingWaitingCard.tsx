@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Ban, CalendarClock, Clock } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,10 +15,10 @@ import {
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES } from "@/src/lib/navigation";
 import { space } from "@/src/constants/design-tokens";
 import OrderInfoCompact from "./OrderInfoCompact";
 import RescheduleRequestPanel from "./RescheduleRequestPanel";
-import RescheduleSheet, { type RescheduleSheetHandle } from "./RescheduleSheet";
 import StageHero from "./StageHero";
 
 interface Props {
@@ -26,7 +27,6 @@ interface Props {
 
 export default function PendingWaitingCard({ order }: Props) {
 	const { t } = useTranslation("orders");
-	const rescheduleRef = useRef<RescheduleSheetHandle>(null);
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
@@ -36,12 +36,8 @@ export default function PendingWaitingCard({ order }: Props) {
 	const hasPendingReschedule = rescheduleRequest?.resolution === "pending";
 
 	const openReschedule = useCallback(() => {
-		rescheduleRef.current?.open({
-			orderId: order.id,
-			technicianId: order.technician_id,
-			originalScheduledDate: order.scheduled_date,
-		});
-	}, [order.id, order.scheduled_date, order.technician_id]);
+		router.push(ROUTES.user.reschedule(order.id, order.technician_id));
+	}, [order.id, order.technician_id]);
 
 	const handleConfirmCancel = useCallback(() => {
 		const trimmed = cancelReason.trim();
@@ -117,7 +113,6 @@ export default function PendingWaitingCard({ order }: Props) {
 				</View>
 			</View>
 
-			<RescheduleSheet ref={rescheduleRef} />
 			<TechnicianProfileSheet ref={profileSheetRef} />
 
 			<CancelReasonModal

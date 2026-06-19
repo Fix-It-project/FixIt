@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
+	locationPingResponseSchema,
 	orderDistanceResponseSchema,
 	orderDistanceSchema,
 } from "../order-eta.schema";
@@ -122,6 +123,59 @@ describe("orderDistanceResponseSchema", () => {
 				eta_minutes: 1,
 				within_geofence: true,
 			},
+		});
+		expect(result.success).toBe(false);
+	});
+});
+
+describe("locationPingResponseSchema", () => {
+	test("parses an arrival ping envelope", () => {
+		const result = locationPingResponseSchema.safeParse({
+			data: {
+				arrived: true,
+				location: { latitude: 30.1, longitude: 31.2 },
+				order: { status: "tracking", arrived_at: "2026-06-18T10:00:00Z" },
+			},
+		});
+		expect(result.success).toBe(true);
+	});
+
+	test("parses a non-arrival ping with null arrived_at", () => {
+		const result = locationPingResponseSchema.safeParse({
+			data: {
+				arrived: false,
+				location: null,
+				order: { status: "tracking", arrived_at: null },
+			},
+		});
+		expect(result.success).toBe(true);
+	});
+
+	test("keeps unknown order fields via passthrough", () => {
+		const result = locationPingResponseSchema.safeParse({
+			data: {
+				arrived: false,
+				location: {},
+				order: { status: "tracking", id: "abc", user_id: "u1" },
+			},
+		});
+		expect(result.success).toBe(true);
+	});
+
+	test("rejects a non-boolean arrived flag", () => {
+		const result = locationPingResponseSchema.safeParse({
+			data: {
+				arrived: "yes",
+				location: {},
+				order: { status: "tracking" },
+			},
+		});
+		expect(result.success).toBe(false);
+	});
+
+	test("rejects a missing order field", () => {
+		const result = locationPingResponseSchema.safeParse({
+			data: { arrived: true, location: {} },
 		});
 		expect(result.success).toBe(false);
 	});

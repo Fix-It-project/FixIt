@@ -24,6 +24,7 @@ import {
 	getCategoryMeta,
 	translateServiceName,
 } from "@/src/features/categories/constants/categories";
+import { routeToOrder } from "@/src/features/booking-orders/utils/order-routing";
 import { ROUTES } from "@/src/lib/navigation/routes";
 
 function resolveCategoryIcon(categoryId?: string | null): LucideIcon {
@@ -165,7 +166,7 @@ function LatestOrderCard({ order }: { readonly order: PaidCompletedOrder }) {
 			<Card className="p-card-roomy" style={{ gap: 14 }}>
 				<PressableScale
 					pressedScale={0.98}
-					onPress={() => router.push(ROUTES.user.orderDetail(order.id))}
+					onPress={() => routeToOrder(order, "user")}
 					style={{
 						flexDirection: "row",
 						alignItems: "center",

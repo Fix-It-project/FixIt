@@ -1,4 +1,5 @@
 import type { AxiosError } from "axios";
+import { router } from "expo-router";
 import { Ban, CalendarClock, Truck } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
 import { View } from "react-native";
@@ -12,8 +13,6 @@ import {
 	type CustomerInfoSheetHandle,
 	OrderInfoCompact,
 	RescheduleRequestPanel,
-	RescheduleSheet,
-	type RescheduleSheetHandle,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
@@ -31,6 +30,7 @@ import {
 	translateOrderError,
 } from "@/src/features/booking-orders/utils/translate-order-error";
 import { logger } from "@/src/lib/logger";
+import { ROUTES } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 interface Props {
@@ -81,7 +81,6 @@ export function AcceptedCta({ order }: Props) {
 	const booking = order as unknown as TechnicianBooking;
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
-	const rescheduleRef = useRef<RescheduleSheetHandle>(null);
 
 	const startTracking = useTechStartTracking();
 	const cancelMutation = useTechCancel();
@@ -167,11 +166,12 @@ export function AcceptedCta({ order }: Props) {
 							size="icon"
 							accessibilityLabel="Reschedule job"
 							onPress={() =>
-								rescheduleRef.current?.open({
-									orderId: order.id,
-									technicianId: order.technician_id ?? authUserId,
-									originalScheduledDate: order.scheduled_date,
-								})
+								router.push(
+									ROUTES.technician.reschedule(
+										order.id,
+										order.technician_id ?? authUserId,
+									),
+								)
 							}
 							disabled={startTracking.isPending || hasPendingReschedule}
 						>
@@ -213,7 +213,6 @@ export function AcceptedCta({ order }: Props) {
 					</Text>
 				) : null}
 			</View>
-			<RescheduleSheet ref={rescheduleRef} viewer="technician" />
 			<CancelReasonModal
 				visible={cancelOpen}
 				title="Cancel Booking"

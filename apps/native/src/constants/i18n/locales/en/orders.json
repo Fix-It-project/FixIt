@@ -80,10 +80,18 @@
 	"detail": {
 		"orderTitle": "Order",
 		"placed": {
-			"title": "Request sent.",
-			"subtitle": "We pinged the technician. You'll get a ping when they accept.",
-			"viewDetails": "View order details",
-			"backHome": "Back to home"
+			"title": "Booking confirmed",
+			"subtitle": "Your request was placed successfully.",
+			"ok": "Done"
+		},
+		"summary": {
+			"title": "Order summary",
+			"completedSubtitle": "This order is complete.",
+			"cancelledSubtitle": "This order ended without completion.",
+			"completedTitle": "Order complete",
+			"cancelledTitle": "Order cancelled",
+			"reason": "Reason",
+			"submitReview": "Submit review"
 		},
 		"toast": {
 			"cancelled": "Order cancelled",
@@ -215,6 +223,7 @@
 			"acceptedTotalRule": "Accepted total = work price + inspection fee",
 			"workPriceRange": "Work price range: {{range}}",
 			"latestTotalIfAccepted": "Latest total if accepted: {{amount}}",
+			"totalIfAccepted": "Total if accepted",
 			"emptyTech": "Press \"Offer work price\" to send your first quote.",
 			"emptyUser": "Waiting for technician to send a work price.",
 			"toastSubmitFailed": "Submit failed",
@@ -287,7 +296,12 @@
 			"sendingRequest": "Sending request...",
 			"sending": "Sending...",
 			"submit": "Request reschedule",
-			"reasonPlaceholder": "Why are you rescheduling?"
+			"reasonPlaceholder": "Why are you rescheduling?",
+			"pageTitle": "Reschedule order",
+			"pageSubtitle": "Pick a new date and time. Adding a note is optional.",
+			"reasonOptional": "Add a note (optional)",
+			"defaultReasonUser": "Rescheduled by the customer",
+			"defaultReasonTech": "Rescheduled by the technician"
 		},
 		"cash": {
 			"confirmFailed": "Payment confirmation failed",
@@ -301,7 +315,9 @@
 			"onTheWay": "On the way",
 			"inspecting": "Inspecting",
 			"quote": "Quote",
-			"finalize": "Finalize"
+			"finalize": "Finalize",
+			"work": "Work",
+			"payment": "Payment"
 		},
 		"finalize": {
 			"eyebrow": "Payment",

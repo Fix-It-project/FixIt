@@ -8,6 +8,7 @@ export { default as LocationPermissionBanner } from "./LocationPermissionBanner"
 export { default as OrderInfoCompact } from "./OrderInfoCompact";
 export type { SummaryViewer } from "./OrderSummaryFinalize";
 export { default as OrderSummaryFinalize } from "./OrderSummaryFinalize";
+export { default as OrderSummaryScreen } from "./OrderSummaryScreen";
 export { default as PendingWaitingCard } from "./PendingWaitingCard";
 export { default as PillStepIndicator } from "./PillStepIndicator";
 export type { QuoteChatPanelViewer } from "./QuoteChatPanel";
@@ -15,8 +16,6 @@ export { default as QuoteChatPanel, QuoteChatCta } from "./QuoteChatPanel";
 export type { QuoteOfferSheetHandle } from "./QuoteOfferSheet";
 export { default as QuoteOfferSheet } from "./QuoteOfferSheet";
 export { default as RescheduleRequestPanel } from "./RescheduleRequestPanel";
-export type { RescheduleSheetHandle } from "./RescheduleSheet";
-export { default as RescheduleSheet } from "./RescheduleSheet";
 export { default as StageHero } from "./StageHero";
 export { default as StageProgressBar } from "./StageProgressBar";
 export { default as StateScreenLayout } from "./StateScreenLayout";

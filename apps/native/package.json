@@ -121,8 +121,10 @@
 	},
 	"devDependencies": {
 		"@FixIt/config": "workspace:*",
+		"@babel/plugin-transform-react-jsx": "7.29.7",
 		"@eslint/js": "^10.0.1",
 		"@types/react": "~19.2.15",
+		"babel-preset-expo": "~56.0.15",
 		"dotenv-cli": "^11.0.0",
 		"eslint": "^10.4.0",
 		"eslint-plugin-depend": "^1.5.0",

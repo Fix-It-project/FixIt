@@ -6,15 +6,15 @@
 //   • Round 5 → no further counter; only Accept or Cancel.
 //   • "Cancel order" is a destructive action (Ban icon) — it ends the order.
 
-import { Ban, Check, MessageSquare, Pencil } from "lucide-react-native";
+import { Ban, Check, Pencil } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
-import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
+import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	useOrderQuoteHistory,
 	useTechAcceptUserQuote,
@@ -26,8 +26,8 @@ import {
 } from "@/src/features/booking-orders/hooks";
 import type { OrderQuote } from "@/src/features/booking-orders/schemas/quote.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
-import { Button } from "@/src/components/ui/button";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import CancelReasonModal from "../../shared/CancelReasonModal";
 import QuoteBubble from "./QuoteBubble";
 import QuoteOfferSheet, { type QuoteOfferSheetHandle } from "./QuoteOfferSheet";
@@ -88,75 +88,6 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 				gap: space[3],
 			}}
 		>
-			<View
-				style={{
-					flexDirection: "row",
-					alignItems: "center",
-					gap: space[2],
-				}}
-			>
-				<MessageSquare
-					size={spacing.icon.caption}
-					color={themeColors.primary}
-					strokeWidth={2.4}
-				/>
-				<Text
-					variant="bodySm"
-					className="font-google-sans-bold"
-					style={{ color: themeColors.textPrimary }}
-				>
-					{t("detail.quote.negotiation", {
-						n: Math.min(MAX_ROUNDS, Math.max(1, roundCount)),
-						max: MAX_ROUNDS,
-					})}
-				</Text>
-			</View>
-
-			<View
-				style={{
-					borderRadius: radius.card,
-					backgroundColor: `${themeColors.primary}10`,
-					padding: space[3],
-					gap: space[1],
-				}}
-			>
-				<Text
-					variant="caption"
-					className="font-google-sans-bold uppercase"
-					style={{ color: themeColors.textMuted, letterSpacing: 0.8 }}
-				>
-					{t("detail.quote.totalPricing")}
-				</Text>
-				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-					{t("detail.quote.inspectionFee", {
-						amount: formatCurrency(inspectionFee),
-					})}
-				</Text>
-				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-					{t("detail.quote.acceptedTotalRule")}
-				</Text>
-				{rangeLabel ? (
-					<Text
-						variant="bodySm"
-						className="font-google-sans-medium"
-						style={{ color: themeColors.primary }}
-					>
-						{t("detail.quote.workPriceRange", { range: rangeLabel })}
-					</Text>
-				) : null}
-				{latestQuote ? (
-					<Text
-						variant="bodySm"
-						className="font-google-sans-medium"
-						style={{ color: themeColors.textPrimary }}
-					>
-						{t("detail.quote.latestTotalIfAccepted", {
-							amount: formatCurrency(latestTotal),
-						})}
-					</Text>
-				) : null}
-			</View>
-
 			<View style={{ gap: space[2] }}>
 				{rounds.length === 0 ? (
 					<Text
@@ -183,6 +114,31 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 					))
 				)}
 			</View>
+
+			{latestQuote ? (
+				<View
+					style={{
+						flexDirection: "row",
+						alignItems: "center",
+						justifyContent: "space-between",
+					}}
+				>
+					<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+						{t("detail.quote.totalIfAccepted")}
+					</Text>
+					<Text
+						variant="body"
+						className="font-google-sans-bold"
+						style={{ color: themeColors.primary }}
+					>
+						{formatCurrency(latestTotal)}
+					</Text>
+				</View>
+			) : rangeLabel ? (
+				<Text variant="caption" style={{ color: themeColors.textMuted }}>
+					{t("detail.quote.workPriceRange", { range: rangeLabel })}
+				</Text>
+			) : null}
 		</View>
 	);
 }
@@ -368,49 +324,48 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			) : null}
 
 			{showAcceptDecline ? (
-				<>
-					<View className="flex-row items-center gap-stack-md">
-						<View className="flex-1">
-							<Button
-								variant="success"
-								size="lg"
-								fullWidth
-								iconLeft={Check}
-								onPress={handleAccept}
-								loading={isAcceptPending}
-							>
-								{latestTotal != null
-									? t("detail.quote.acceptAmount", {
-											amount: formatCurrency(latestTotal),
-										})
-									: t("detail.quote.accept")}
-							</Button>
-						</View>
-						<View className="shrink-0">
-							<Button
-								variant="destructive"
-								size="icon"
-								accessibilityLabel={t("detail.a11y.cancelOrder")}
-								onPress={() => setCancelOpen(true)}
-								loading={isCancelPending}
-							>
-								<Ban size={20} />
-							</Button>
-						</View>
-					</View>
-					{showCounter ? (
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-1">
 						<Button
-							variant="secondary"
+							variant="success"
 							size="lg"
 							fullWidth
-							iconLeft={Pencil}
-							onPress={openSheet}
-							loading={isSubmitPending}
+							iconLeft={Check}
+							onPress={handleAccept}
+							loading={isAcceptPending}
 						>
-							{t("detail.quote.suggestAnother")}
+							{latestTotal != null
+								? t("detail.quote.acceptAmount", {
+										amount: formatCurrency(latestTotal),
+									})
+								: t("detail.quote.accept")}
 						</Button>
+					</View>
+					{showCounter ? (
+						<View className="shrink-0">
+							<Button
+								variant="secondary"
+								size="icon"
+								accessibilityLabel={t("detail.quote.suggestAnother")}
+								onPress={openSheet}
+								loading={isSubmitPending}
+							>
+								<Pencil size={20} />
+							</Button>
+						</View>
 					) : null}
-				</>
+					<View className="shrink-0">
+						<Button
+							variant="destructive"
+							size="icon"
+							accessibilityLabel={t("detail.a11y.cancelOrder")}
+							onPress={() => setCancelOpen(true)}
+							loading={isCancelPending}
+						>
+							<Ban size={20} />
+						</Button>
+					</View>
+				</View>
 			) : null}
 
 			<QuoteOfferSheet
