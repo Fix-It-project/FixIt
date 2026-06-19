@@ -16,14 +16,7 @@
 			"component": "native",
 			"package-name": "fixit-native",
 			"changelog-path": "CHANGELOG.md",
-			"skip-github-release": true,
-			"extra-files": [
-				{
-					"type": "json",
-					"path": "app.json",
-					"jsonpath": "$.expo.version"
-				}
-			]
+			"skip-github-release": true
 		},
 		"apps/server": {
 			"component": "server",
