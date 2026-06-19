@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.4.0...fixit-v1.0.0) (2026-06-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* publishing first apk
+
+### Features
+
+* publishing first apk ([9e5980e](https://github.com/Fix-It-project/FixIt/commit/9e5980e97634251c817a0014ad4fbd9f29a74b9b))
+
 ## [0.4.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.3.0...fixit-v0.4.0) (2026-06-19)
 
 
