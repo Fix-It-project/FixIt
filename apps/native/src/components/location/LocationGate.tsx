@@ -44,16 +44,26 @@ export function LocationGate() {
 	const ctaLabel =
 		status === "request"
 			? t("gate.cta.request")
-			: status === "openSettings"
-				? t("gate.cta.openSettings")
-				: t("gate.cta.enableServices");
+			: status === "requestBackground"
+				? t("gate.cta.requestBackground")
+				: status === "openSettings"
+					? t("gate.cta.openSettings")
+					: t("gate.cta.enableServices");
 
 	const hint =
 		status === "openSettings"
 			? t("gate.deniedHint")
 			: status === "servicesOff"
 				? t("gate.servicesHint")
-				: null;
+				: status === "requestBackground"
+					? t("gate.backgroundHint")
+					: null;
+
+	// The background ("Always") step gets its own title/body so technicians
+	// understand why a second, stronger permission is being requested.
+	const isBackgroundStep = status === "requestBackground";
+	const title = isBackgroundStep ? t("gate.backgroundTitle") : t("gate.title");
+	const body = isBackgroundStep ? t("gate.backgroundBody") : t("gate.body");
 
 	return (
 		<View
@@ -77,13 +87,13 @@ export function LocationGate() {
 					className="mt-stack-xl items-center"
 				>
 					<Text variant="h2" className="text-center text-content">
-						{t("gate.title")}
+						{title}
 					</Text>
 					<Text
 						variant="body"
 						className="mt-stack-sm text-center text-content-secondary"
 					>
-						{t("gate.body")}
+						{body}
 					</Text>
 					{hint ? (
 						<Text

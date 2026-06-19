@@ -14,7 +14,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	useOrderQuoteHistory,
 	useTechAcceptUserQuote,
@@ -80,15 +80,21 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 	const rangeLabel = workPriceRangeLabel(order);
 
 	return (
-		<View
-			style={{
-				borderRadius: radius.card,
-				backgroundColor: themeColors.surfaceElevated,
-				padding: space[4],
-				gap: space[3],
-			}}
-		>
-			<View style={{ gap: space[2] }}>
+		<View style={{ gap: space[3] }}>
+			{roundCount > 0 ? (
+				<Text
+					variant="caption"
+					className="font-google-sans-bold"
+					style={{ color: themeColors.textMuted, letterSpacing: 0.4 }}
+				>
+					{t("detail.quote.negotiation", {
+						n: roundCount,
+						max: MAX_ROUNDS,
+					})}
+				</Text>
+			) : null}
+
+			<View style={{ gap: space[3] }}>
 				{rounds.length === 0 ? (
 					<Text
 						variant="bodySm"
@@ -116,24 +122,33 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 			</View>
 
 			{latestQuote ? (
-				<View
-					style={{
-						flexDirection: "row",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}
-				>
-					<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-						{t("detail.quote.totalIfAccepted")}
-					</Text>
-					<Text
-						variant="body"
-						className="font-google-sans-bold"
-						style={{ color: themeColors.primary }}
+				<>
+					<View
+						style={{
+							height: 1,
+							backgroundColor: themeColors.borderDefault,
+							opacity: 0.5,
+						}}
+					/>
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							justifyContent: "space-between",
+						}}
 					>
-						{formatCurrency(latestTotal)}
-					</Text>
-				</View>
+						<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+							{t("detail.quote.totalIfAccepted")}
+						</Text>
+						<Text
+							variant="h3"
+							className="font-google-sans-bold"
+							style={{ color: themeColors.primary }}
+						>
+							{formatCurrency(latestTotal)}
+						</Text>
+					</View>
+				</>
 			) : rangeLabel ? (
 				<Text variant="caption" style={{ color: themeColors.textMuted }}>
 					{t("detail.quote.workPriceRange", { range: rangeLabel })}
@@ -240,7 +255,10 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			? ((order as { user_name?: string | null }).user_name ?? null)
 			: order.technician_name;
 
-	const showTechInitial = viewer === "technician" && roundCount === 0;
+	const showTechInitial =
+		viewer === "technician" &&
+		order.status === "awaiting_final_cost" &&
+		roundCount === 0;
 	// Counter CTA is shown only to the actor whose turn it is — i.e. the side
 	// that DID NOT make the latest quote. Final round has no counter step.
 	const showCounter =
@@ -277,24 +295,25 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		? t("detail.quote.ctaSendQuote")
 		: t("detail.quote.ctaSendCounter");
 
-	if (!showTechInitial && !showAcceptDecline) {
-		return (
-			<QuoteOfferSheet
-				ref={sheetRef}
-				title={sheetTitle}
-				subtitle={sheetSubtitle}
-				ctaLabel={sheetCta}
-				isPending={isSubmitPending}
-				previousAmount={latest?.amount ?? null}
-				minPrice={order.service_min_price}
-				maxPrice={order.service_max_price}
-				onSubmit={handleSheetSubmit}
-			/>
-		);
-	}
+	// Neither side has an actionable quote on this turn — the viewer is waiting
+	// on the counterparty. We still render a cancel affordance so they're never
+	// stuck (previously this branch showed no controls at all).
+	const showWaitingOnly = !showTechInitial && !showAcceptDecline;
 
 	return (
 		<View style={{ gap: space[2] }}>
+			{showWaitingOnly ? (
+				<Button
+					variant="secondary"
+					fullWidth
+					iconLeft={Ban}
+					onPress={() => setCancelOpen(true)}
+					loading={isCancelPending}
+					accessibilityLabel={t("detail.a11y.cancelOrder")}
+				>
+					{t("detail.a11y.cancelOrder")}
+				</Button>
+			) : null}
 			{showTechInitial ? (
 				<View className="flex-row items-center gap-stack-md">
 					<View className="flex-1">
@@ -327,7 +346,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				<View className="flex-row items-center gap-stack-md">
 					<View className="flex-1">
 						<Button
-							variant="success"
+							variant="primary"
 							size="lg"
 							fullWidth
 							iconLeft={Check}

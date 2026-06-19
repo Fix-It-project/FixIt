@@ -5,10 +5,11 @@ import Animated, {
 	useAnimatedStyle,
 } from "react-native-reanimated";
 
-// PNG logo (same asset the native splash + LaunchSplashOverlay use). The SVG
-// wordmark didn't animate cleanly under the cropped viewBox, so we render the
-// square PNG and animate the wrapper instead.
-const splashLogo = require("@/src/assets/images/splash-logo.png");
+// FixItText wordmark PNG (same asset LaunchSplashOverlay uses). The SVG wordmark
+// didn't animate cleanly under the cropped viewBox, so we render the PNG and
+// animate the wrapper instead. `contentFit="contain"` centers the wordmark in
+// the square box, so the existing width-driven layout is unchanged.
+const splashLogo = require("@/src/assets/images/fixittext.png");
 
 interface BrandMarkProps {
 	width: number;

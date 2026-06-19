@@ -109,7 +109,12 @@ export default function OrderDetailScreen() {
 				body = null;
 		}
 		return (
-			<StateScreenLayout order={order} viewer="user" stickyCta={cta}>
+			<StateScreenLayout
+				order={order}
+				viewer="user"
+				stickyCta={cta}
+				hidePartyHeader={lifecycleStatus === "awaiting_payment"}
+			>
 				{body}
 			</StateScreenLayout>
 		);

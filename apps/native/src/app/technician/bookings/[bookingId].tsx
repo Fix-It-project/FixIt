@@ -117,6 +117,7 @@ export default function BookingDetailScreen() {
 				viewer="technician"
 				stickyCta={cta}
 				hidePills={lifecycleStatus === "pending"}
+				hidePartyHeader={lifecycleStatus === "awaiting_payment"}
 			>
 				{body}
 			</StateScreenLayout>

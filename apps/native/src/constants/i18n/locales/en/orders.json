@@ -237,7 +237,7 @@
 			"roundsLeftOne": "{{n}} round left before lock-in. Inspection fee stays {{amount}}.",
 			"roundsLeftOther": "{{n}} rounds left before lock-in. Inspection fee stays {{amount}}.",
 			"ctaSendQuote": "Send work price",
-			"ctaSendCounter": "Send work counter",
+			"ctaSendCounter": "Send counter",
 			"offerPrice": "Offer work price",
 			"accept": "Accept",
 			"acceptAmount": "Accept total {{amount}}",

@@ -1,24 +1,17 @@
 import { Ban, MapPin, Navigation } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Text } from "@/src/components/ui/text";
 import { Button } from "@/src/components/ui/button";
-import {
-	OrderInfoCompact,
-	StageHero,
-} from "@/src/features/booking-orders/components/state-machine/shared";
+import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
 	useOrderDistance,
 	useUserCancelOrder,
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
-import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
 
 interface Props {
@@ -69,7 +62,6 @@ function Distance({ orderId }: { orderId: string }) {
 
 export default function TrackingView({ order }: Props) {
 	const { t } = useTranslation("orders");
-	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
@@ -79,17 +71,6 @@ export default function TrackingView({ order }: Props) {
 				subtitle={t("detail.stage.tracking.subtitle")}
 			/>
 			<Distance orderId={order.id} />
-			<OrderInfoCompact
-				order={order}
-				viewer="user"
-				onIdentityPress={() =>
-					profileSheetRef.current?.open(
-						order.technician_id,
-						getPfpInitialsFallback(order.technician_name),
-					)
-				}
-			/>
-			<TechnicianProfileSheet ref={profileSheetRef} />
 		</View>
 	);
 }

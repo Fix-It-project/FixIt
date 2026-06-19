@@ -215,8 +215,6 @@ export default function RescheduleRequestPanel({
 					padding: space[4],
 					borderRadius: radius.card,
 					backgroundColor: themeColors.surfaceElevated,
-					borderWidth: 1,
-					borderColor: themeColors.borderDefault,
 					flexDirection: "row",
 					alignItems: "center",
 					gap: space[3],
@@ -247,8 +245,6 @@ export default function RescheduleRequestPanel({
 					padding: space[4],
 					borderRadius: radius.card,
 					backgroundColor: themeColors.surfaceElevated,
-					borderWidth: 1,
-					borderColor: themeColors.borderDefault,
 					flexDirection: "row",
 					alignItems: "center",
 					gap: space[3],
@@ -284,10 +280,6 @@ export default function RescheduleRequestPanel({
 				padding: space[4],
 				borderRadius: radius.card,
 				backgroundColor: themeColors.surfaceElevated,
-				borderWidth: 1,
-				borderColor: isCounterparty
-					? `${themeColors.success}55`
-					: `${themeColors.primary}33`,
 				opacity: isResolving ? 0.82 : 1,
 			}}
 		>
@@ -359,50 +351,52 @@ export default function RescheduleRequestPanel({
 
 			<View
 				style={{
-					padding: space[3],
-					borderRadius: radius.button,
-					backgroundColor: themeColors.surfaceBase,
-					gap: space[1],
+					borderTopWidth: 1,
+					borderTopColor: themeColors.borderDefault,
+					paddingTop: space[3],
+					gap: space[2],
 				}}
 			>
-				<Text
-					variant="caption"
-					className="uppercase"
-					style={{ color: themeColors.textMuted, letterSpacing: 0.6 }}
-				>
-					{t("detail.reschedule.original")}
-				</Text>
-				<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
-					{formatDateTime(
-						request.original_scheduled_date,
-						request.original_scheduled_start_at,
-						i18n.language,
-					)}
-				</Text>
 				<View
 					style={{
-						height: 1,
-						backgroundColor: themeColors.borderDefault,
-						marginVertical: space[2],
+						flexDirection: "row",
+						justifyContent: "space-between",
+						gap: space[3],
 					}}
-				/>
-				<Text
-					variant="caption"
-					className="uppercase"
-					style={{ color: themeColors.textMuted, letterSpacing: 0.6 }}
 				>
-					{t("detail.reschedule.reason")}
-				</Text>
-				<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
-					{request.request_reason}
-				</Text>
+					<Text variant="caption" style={{ color: themeColors.textMuted }}>
+						{t("detail.reschedule.original")}
+					</Text>
+					<Text
+						variant="bodySm"
+						style={{
+							color: themeColors.textPrimary,
+							flex: 1,
+							textAlign: "right",
+						}}
+					>
+						{formatDateTime(
+							request.original_scheduled_date,
+							request.original_scheduled_start_at,
+							i18n.language,
+						)}
+					</Text>
+				</View>
+				<View style={{ gap: space[1] }}>
+					<Text variant="caption" style={{ color: themeColors.textMuted }}>
+						{t("detail.reschedule.reason")}
+					</Text>
+					<Text variant="bodySm" style={{ color: themeColors.textPrimary }}>
+						{request.request_reason}
+					</Text>
+				</View>
 			</View>
 
 			{isCounterparty ? (
 				<View style={{ flexDirection: "row", gap: space[2] }}>
 					<View style={{ flex: 1 }}>
 						<Button
-							variant="success"
+							variant="primary"
 							size="lg"
 							fullWidth
 							iconLeft={Check}

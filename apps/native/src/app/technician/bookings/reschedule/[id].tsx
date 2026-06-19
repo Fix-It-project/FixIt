@@ -7,7 +7,7 @@ export default function TechnicianRescheduleScreen() {
 		id: string;
 		technicianId?: string;
 	}>();
-	const goBack = useSafeBack(ROUTES.technician.bookings);
+	const goBack = useSafeBack(ROUTES.technician.bookingDetail(id ?? ""));
 
 	return (
 		<RescheduleScreen

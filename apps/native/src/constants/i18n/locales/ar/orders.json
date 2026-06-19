@@ -237,7 +237,7 @@
 			"roundsLeftOne": "بقيت {{n}} جولة قبل الإقفال. تبقى رسوم المعاينة {{amount}}.",
 			"roundsLeftOther": "بقيت {{n}} جولات قبل الإقفال. تبقى رسوم المعاينة {{amount}}.",
 			"ctaSendQuote": "إرسال سعر العمل",
-			"ctaSendCounter": "إرسال عرض عمل مضاد",
+			"ctaSendCounter": "إرسال عرض مضاد",
 			"offerPrice": "اعرض سعر العمل",
 			"accept": "قبول",
 			"acceptAmount": "قبول الإجمالي {{amount}}",

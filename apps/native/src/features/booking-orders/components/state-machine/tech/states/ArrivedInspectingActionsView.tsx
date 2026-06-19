@@ -1,29 +1,19 @@
 import { Check, Search } from "lucide-react-native";
-import { useRef } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 import { Button } from "@/src/components/ui/button";
-import { Text } from "@/src/components/ui/text";
-import { radius, space, useThemeColors } from "@/src/constants/design-tokens";
+import { space } from "@/src/constants/design-tokens";
 import {
-	CustomerInfoSheet,
-	type CustomerInfoSheetHandle,
-	OrderInfoCompact,
+	InspectionProgress,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import { useTechFinishInspection } from "@/src/features/booking-orders/hooks";
-import type {
-	Order,
-	TechnicianBooking,
-} from "@/src/features/booking-orders/schemas/response.schema";
+import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 
 interface Props {
 	readonly order: Order;
 }
 
-export default function ArrivedInspectingBody({ order }: Props) {
-	const themeColors = useThemeColors();
-	const booking = order as unknown as TechnicianBooking;
-	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
+export default function ArrivedInspectingBody(_props: Props) {
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
@@ -32,40 +22,7 @@ export default function ArrivedInspectingBody({ order }: Props) {
 				title="Scope the work."
 				subtitle="Inspect carefully. Quote should reflect parts + labor."
 			/>
-			<View
-				style={{
-					flexDirection: "row",
-					alignItems: "center",
-					gap: space[3],
-					padding: space[3],
-					borderRadius: radius.button,
-					backgroundColor: `${themeColors.primary}10`,
-				}}
-			>
-				<ActivityIndicator size="small" color={themeColors.primary} />
-				<Text
-					variant="bodySm"
-					className="font-google-sans-bold"
-					style={{ color: themeColors.primary, flex: 1 }}
-				>
-					Inspection in progress…
-				</Text>
-			</View>
-			<OrderInfoCompact
-				order={order}
-				viewer="technician"
-				onIdentityPress={() =>
-					customerSheetRef.current?.open({
-						name: booking.user_name ?? "Customer",
-						phone: booking.user_phone ?? null,
-						address: booking.user_address ?? null,
-						latitude: booking.user_latitude ?? null,
-						longitude: booking.user_longitude ?? null,
-						problem: order.problem_description ?? null,
-					})
-				}
-			/>
-			<CustomerInfoSheet ref={customerSheetRef} />
+			<InspectionProgress />
 		</View>
 	);
 }

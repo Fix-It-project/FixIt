@@ -260,6 +260,7 @@ type IconLikeChildProps = {
 	size?: number;
 	strokeWidth?: number;
 	absoluteStrokeWidth?: boolean;
+	numberOfLines?: number;
 	children?: React.ReactNode;
 };
 
@@ -270,7 +271,9 @@ function renderButtonChild(
 	color: string,
 ): React.ReactNode {
 	if (typeof child === "string" || typeof child === "number") {
-		return <Text>{child}</Text>;
+		// Keep the auto-wrapped label on one line so it can never spill the
+		// fixed-height pill (h-btn-*).
+		return <Text numberOfLines={1}>{child}</Text>;
 	}
 	if (
 		React.isValidElement<IconLikeChildProps>(child) &&
@@ -299,6 +302,15 @@ function renderButtonChild(
 			if (Object.keys(iconProps).length > 0) {
 				return React.cloneElement(child, iconProps);
 			}
+			return child;
+		}
+
+		// A direct <Text> label (callers that pass their own Text instead of a
+		// string) bypasses the auto-wrap above — clamp it to one line too, but
+		// only inject numberOfLines when the caller didn't set it, preserving
+		// all existing props/className/style.
+		if (child.type === Text && child.props.numberOfLines == null) {
+			return React.cloneElement(child, { numberOfLines: 1 });
 		}
 	}
 	return child;

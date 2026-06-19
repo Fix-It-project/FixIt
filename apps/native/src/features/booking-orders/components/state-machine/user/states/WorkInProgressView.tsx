@@ -1,14 +1,11 @@
 import { Ban, CheckCircle2, Hammer } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
 import { Button } from "@/src/components/ui/button";
-import {
-	OrderInfoCompact,
-	StageHero,
-} from "@/src/features/booking-orders/components/state-machine/shared";
+import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import {
 	useUserCancelOrder,
@@ -16,10 +13,6 @@ import {
 	useUserDeclineCompletion,
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
-import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { space } from "@/src/constants/design-tokens";
 
 interface Props {
@@ -28,7 +21,6 @@ interface Props {
 
 export default function WorkInProgressView({ order }: Props) {
 	const { t } = useTranslation("orders");
-	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const userCompletedAt = order.user_completed_at ?? null;
 	const techCompletedAt = order.technician_completed_at ?? null;
 	const userRequested = userCompletedAt !== null && techCompletedAt === null;
@@ -58,16 +50,6 @@ export default function WorkInProgressView({ order }: Props) {
 				title={t("detail.stage.inProgress.title")}
 				subtitle={t("detail.stage.inProgress.subtitle")}
 			/>
-			<OrderInfoCompact
-				order={order}
-				viewer="user"
-				onIdentityPress={() =>
-					profileSheetRef.current?.open(
-						order.technician_id,
-						getPfpInitialsFallback(order.technician_name),
-					)
-				}
-			/>
 			{userRequested ? (
 				<CompletionRequestPendingCard
 					direction="awaiting_them"
@@ -88,7 +70,6 @@ export default function WorkInProgressView({ order }: Props) {
 					declinePending={decline.isPending}
 				/>
 			) : null}
-			<TechnicianProfileSheet ref={profileSheetRef} />
 		</View>
 	);
 }

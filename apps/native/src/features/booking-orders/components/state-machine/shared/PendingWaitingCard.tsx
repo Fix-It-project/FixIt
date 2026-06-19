@@ -1,5 +1,4 @@
-import { router } from "expo-router";
-import { Ban, CalendarClock, Clock } from "lucide-react-native";
+import { Ban, Clock } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -8,17 +7,12 @@ import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
 } from "@/src/components/identity/TechnicianProfileSheet";
 import { Button } from "@/src/components/ui/button";
+import { space } from "@/src/constants/design-tokens";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
-import {
-	useOrderRescheduleQuery,
-	useUserCancelOrder,
-} from "@/src/features/booking-orders/hooks";
+import { useUserCancelOrder } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
-import { ROUTES } from "@/src/lib/navigation";
-import { space } from "@/src/constants/design-tokens";
 import OrderInfoCompact from "./OrderInfoCompact";
-import RescheduleRequestPanel from "./RescheduleRequestPanel";
 import StageHero from "./StageHero";
 
 interface Props {
@@ -32,12 +26,6 @@ export default function PendingWaitingCard({ order }: Props) {
 	const [cancelReason, setCancelReason] = useState("");
 
 	const cancelMutation = useUserCancelOrder();
-	const { data: rescheduleRequest } = useOrderRescheduleQuery(order.id, "user");
-	const hasPendingReschedule = rescheduleRequest?.resolution === "pending";
-
-	const openReschedule = useCallback(() => {
-		router.push(ROUTES.user.reschedule(order.id, order.technician_id));
-	}, [order.id, order.technician_id]);
 
 	const handleConfirmCancel = useCallback(() => {
 		const trimmed = cancelReason.trim();
@@ -79,39 +67,17 @@ export default function PendingWaitingCard({ order }: Props) {
 				}
 			/>
 
-			<RescheduleRequestPanel
-				orderId={order.id}
-				viewer="user"
-				forceVisible={order.has_pending_reschedule === true}
-			/>
-
-			<View className="flex-row items-center gap-stack-md">
-				<View className="flex-1">
-					<Button
-						variant="primary"
-						size="lg"
-						fullWidth
-						iconLeft={CalendarClock}
-						onPress={openReschedule}
-						disabled={hasPendingReschedule}
-					>
-						{hasPendingReschedule
-							? t("detail.cta.requestPending")
-							: t("detail.cta.reschedule")}
-					</Button>
-				</View>
-				<View className="shrink-0">
-					<Button
-						variant="destructive"
-						size="icon"
-						accessibilityLabel={t("detail.a11y.cancelOrder")}
-						onPress={() => setCancelOpen(true)}
-						loading={cancelMutation.isPending}
-					>
-						<Ban size={20} />
-					</Button>
-				</View>
-			</View>
+			<Button
+				variant="destructive"
+				size="lg"
+				fullWidth
+				iconLeft={Ban}
+				accessibilityLabel={t("detail.a11y.cancelOrder")}
+				onPress={() => setCancelOpen(true)}
+				loading={cancelMutation.isPending}
+			>
+				{t("detail.a11y.cancelOrder")}
+			</Button>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />
 

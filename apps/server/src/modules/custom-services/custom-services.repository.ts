@@ -124,8 +124,8 @@ export class CustomServicesRepository implements ICustomServicesRepository {
 	}
 
 	/** Approve = publish. The `approve_custom_service` function inserts the catalog
-	 *  `services` row + the `technician_services` link and flips status to approved,
-	 *  atomically and idempotently, in one round trip. */
+	 *  `services` row + the `technician_services` link. Keep status persistence here
+	 *  too so older DB functions cannot publish while leaving the request pending. */
 	async approveAndPublish(
 		id: string,
 		reviewedBy: string,
@@ -141,7 +141,21 @@ export class CustomServicesRepository implements ICustomServicesRepository {
 			err.code = error.code;
 			throw err;
 		}
-		return (Array.isArray(data) ? data[0] : data) as CustomService;
+		const rpcRow = (Array.isArray(data) ? data[0] : data) as CustomService;
+		const { data: approved, error: approveError } = await supabaseAdmin
+			.from("technician_custom_services")
+			.update({
+				status: "approved",
+				reject_reason: null,
+				reviewed_by: reviewedBy,
+				reviewed_at: new Date().toISOString(),
+			})
+			.eq("id", id)
+			.select("*")
+			.maybeSingle();
+
+		if (approveError) throw new Error(approveError.message);
+		return (approved as CustomService | null) ?? rpcRow;
 	}
 }
 

@@ -7,6 +7,7 @@ import Animated, {
 	FadeInDown,
 	useReducedMotion,
 } from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
@@ -29,6 +30,7 @@ import {
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
 import { ReportProblemEntry } from "@/src/features/reports/components/ReportProblemEntry";
+import { showError } from "@/src/lib/errors";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation";
 
@@ -38,6 +40,7 @@ interface Props {
 
 export default function CompletedView({ order }: Props) {
 	const { t } = useTranslation("orders");
+	const { t: tReviews } = useTranslation("reviews");
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
@@ -60,8 +63,12 @@ export default function CompletedView({ order }: Props) {
 			goToOrders();
 			return;
 		}
-		await formRef.current.submit();
-		goToOrders();
+		if (!formRef.current.hasRating()) {
+			goToOrders();
+			return;
+		}
+		const result = await formRef.current.submit();
+		if (result.submitted) goToOrders();
 	}, [alreadyReviewed, goToOrders]);
 
 	return (
@@ -130,6 +137,13 @@ export default function CompletedView({ order }: Props) {
 								orderId={order.id}
 								technicianId={order.technician_id}
 								technicianName={order.technician_name ?? undefined}
+								onSubmitted={() =>
+									Toast.show({
+										type: "success",
+										text1: tReviews("submitSuccess"),
+									})
+								}
+								onError={(err) => showError(err)}
 							/>
 						</Animated.View>
 					) : null

@@ -15,6 +15,13 @@ interface LocationState {
 	 * is the only case the gate falls back to "Open settings".
 	 */
 	canAskAgain: boolean;
+	/**
+	 * Background ("Always") permission — required for technicians so live tracking
+	 * survives the app being backgrounded/suspended (expo-task-manager). Users
+	 * never need this; the gate only enforces it for the technician role.
+	 */
+	backgroundStatus: LocationPermissionStatus;
+	backgroundCanAskAgain: boolean;
 	/** True once the first status read has completed — gates the initial render. */
 	hasChecked: boolean;
 	isLoading: boolean;
@@ -27,6 +34,8 @@ interface LocationState {
 	/** Read current services + permission state without prompting (foreground re-checks). */
 	checkLocationStatus: () => Promise<void>;
 	requestLocationPermission: () => Promise<void>;
+	/** Prompt for background ("Always") permission. Requires foreground first. */
+	requestBackgroundPermission: () => Promise<void>;
 	armGate: () => void;
 	disarmGate: () => void;
 }
@@ -44,20 +53,25 @@ export const useLocationStore = create<LocationState>((set) => ({
 	permissionStatus: "undetermined",
 	servicesEnabled: false,
 	canAskAgain: true,
+	backgroundStatus: "undetermined",
+	backgroundCanAskAgain: true,
 	hasChecked: false,
 	isLoading: false,
 	gateArmed: false,
 
 	checkLocationStatus: async () => {
 		try {
-			const [servicesEnabled, permission] = await Promise.all([
+			const [servicesEnabled, permission, background] = await Promise.all([
 				Location.hasServicesEnabledAsync(),
 				Location.getForegroundPermissionsAsync(),
+				Location.getBackgroundPermissionsAsync(),
 			]);
 			set({
 				servicesEnabled,
 				permissionStatus: toPermissionStatus(permission.status),
 				canAskAgain: permission.canAskAgain,
+				backgroundStatus: toPermissionStatus(background.status),
+				backgroundCanAskAgain: background.canAskAgain,
 				hasChecked: true,
 			});
 		} catch (error) {
@@ -100,6 +114,27 @@ export const useLocationStore = create<LocationState>((set) => ({
 		}
 	},
 
+	requestBackgroundPermission: async () => {
+		set({ isLoading: true });
+		try {
+			// iOS/Android both require foreground granted before this resolves to a
+			// real prompt; the gate only routes here once foreground is satisfied.
+			const result = await Location.requestBackgroundPermissionsAsync();
+			set({
+				backgroundStatus: toPermissionStatus(result.status),
+				backgroundCanAskAgain: result.canAskAgain,
+			});
+		} catch (error) {
+			logger.error(
+				"LocationStore",
+				"Error requesting background location",
+				error,
+			);
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+
 	armGate: () => set({ gateArmed: true }),
 	disarmGate: () => set({ gateArmed: false }),
 }));
@@ -107,3 +142,12 @@ export const useLocationStore = create<LocationState>((set) => ({
 /** The app's hard invariant: device GPS on AND foreground permission granted. */
 export const selectIsLocationSatisfied = (state: LocationState): boolean =>
 	state.servicesEnabled && state.permissionStatus === "granted";
+
+/**
+ * Technician invariant: foreground satisfied AND background ("Always") granted —
+ * live tracking must keep running while the app is backgrounded/suspended.
+ */
+export const selectIsBackgroundLocationSatisfied = (
+	state: LocationState,
+): boolean =>
+	selectIsLocationSatisfied(state) && state.backgroundStatus === "granted";

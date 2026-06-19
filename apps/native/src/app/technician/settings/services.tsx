@@ -1,3 +1,5 @@
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -60,9 +62,23 @@ export default function TechnicianServicesScreen() {
 		data: services = [],
 		isLoading: servicesLoading,
 		isError: servicesError,
+		refetch: refetchServices,
 	} = useTechnicianServicesQuery(technicianId);
-	const { data: requests = [], isLoading: requestsLoading } =
-		useMyServiceRequestsQuery(technicianId);
+	const {
+		data: requests = [],
+		isLoading: requestsLoading,
+		refetch: refetchRequests,
+	} = useMyServiceRequestsQuery(technicianId);
+
+	// An approval lands as a push while this screen may already be mounted; the
+	// query then stays on its last value. Refetch both lists on focus so an
+	// approved request flips pending → approved and its service appears.
+	useFocusEffect(
+		useCallback(() => {
+			refetchRequests();
+			refetchServices();
+		}, [refetchRequests, refetchServices]),
+	);
 
 	const statusLabel: Record<ServiceRequestStatus, string> = {
 		pending: t("services.status.inReview"),

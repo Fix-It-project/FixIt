@@ -1,5 +1,5 @@
 import { Ban, MapPin, Navigation } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Linking, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
@@ -11,12 +11,7 @@ import {
 	useThemeColors,
 } from "@/src/constants/design-tokens";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
-import {
-	CustomerInfoSheet,
-	type CustomerInfoSheetHandle,
-	OrderInfoCompact,
-	StageHero,
-} from "@/src/features/booking-orders/components/state-machine/shared";
+import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
 	useArrivalGeofence,
 	useOrderDistance,
@@ -37,8 +32,6 @@ interface Props {
 
 export default function TrackingBody({ order }: Props) {
 	const themeColors = useThemeColors();
-	const booking = order as unknown as TechnicianBooking;
-	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
 
 	const { permissionStatus, canAskAgain, requestPermission } = useTechTracking({
 		orderId: order.id,
@@ -121,21 +114,6 @@ export default function TrackingBody({ order }: Props) {
 					</Text>
 				</View>
 			) : null}
-			<OrderInfoCompact
-				order={order}
-				viewer="technician"
-				onIdentityPress={() =>
-					customerSheetRef.current?.open({
-						name: booking.user_name ?? "Customer",
-						phone: booking.user_phone ?? null,
-						address: booking.user_address ?? null,
-						latitude: booking.user_latitude ?? null,
-						longitude: booking.user_longitude ?? null,
-						problem: order.problem_description ?? null,
-					})
-				}
-			/>
-			<CustomerInfoSheet ref={customerSheetRef} />
 		</View>
 	);
 }

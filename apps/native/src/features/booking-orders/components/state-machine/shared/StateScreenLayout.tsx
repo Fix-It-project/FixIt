@@ -8,6 +8,7 @@ import type { Order } from "@/src/features/booking-orders/schemas/response.schem
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
+import OrderPartyHeader from "./OrderPartyHeader";
 import StageProgressBar from "./StageProgressBar";
 import StepBodySlide from "./StepBodySlide";
 import StickyBottomCTA from "./StickyBottomCTA";
@@ -20,6 +21,9 @@ interface StateScreenLayoutProps {
 	// Suppress the stage pills (e.g. tech incoming-request / accept-reject screen,
 	// where no stage is active yet and the bar conveys nothing).
 	readonly hidePills?: boolean;
+	// Suppress the centralized party header — e.g. the payment finalize screen,
+	// which renders its own richer summary card.
+	readonly hidePartyHeader?: boolean;
 }
 
 // Resolve the visible 1-based step from the UI phase (NOT the lifecycle
@@ -49,6 +53,7 @@ export default function StateScreenLayout({
 	children,
 	stickyCta,
 	hidePills = false,
+	hidePartyHeader = false,
 }: StateScreenLayoutProps) {
 	const { t } = useTranslation("orders");
 	const ui = deriveUiState(order, viewer);
@@ -113,6 +118,11 @@ export default function StateScreenLayout({
 						paddingBottom: space[6] + (stickyCta ? ctaHeight : 0),
 					}}
 				>
+					{hidePartyHeader ? null : (
+						<View style={{ marginBottom: space[5] }}>
+							<OrderPartyHeader order={order} viewer={viewer} />
+						</View>
+					)}
 					<StepBodySlide slideKey={ui.phase}>{children}</StepBodySlide>
 				</ScrollView>
 			</ScreenSafeAreaView>

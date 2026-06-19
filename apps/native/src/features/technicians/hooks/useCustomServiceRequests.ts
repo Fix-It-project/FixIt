@@ -13,7 +13,8 @@ export function useMyServiceRequestsQuery(technicianId: string | null) {
 		queryKey: technicianQueryKeys.myServiceRequests(),
 		queryFn: getMyServiceRequests,
 		enabled: !!technicianId,
-		staleTime: 60 * 1000,
+		staleTime: 0,
+		refetchOnMount: "always",
 		retry: 1,
 	});
 }

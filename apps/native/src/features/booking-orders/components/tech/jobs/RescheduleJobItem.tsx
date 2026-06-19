@@ -29,7 +29,7 @@ export function RescheduleJobItem({
 	const incoming = direction === "incoming";
 
 	return (
-		<View className="gap-stack-sm rounded-card bg-card p-card">
+		<View className="gap-stack-sm">
 			<View className="flex-row items-center gap-stack-md">
 				<View
 					className="h-control-icon-box-md w-control-icon-box-md items-center justify-center rounded-pill"

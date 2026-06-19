@@ -430,7 +430,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							flexDirection: "row",
 							alignItems: "center",
 							gap: space[2],
-							backgroundColor: themeColors.success,
+							backgroundColor: themeColors.primary,
 						}}
 					>
 						<CheckCircle2

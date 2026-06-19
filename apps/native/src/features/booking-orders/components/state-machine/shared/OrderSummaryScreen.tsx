@@ -66,6 +66,7 @@ export default function OrderSummaryScreen({ order, viewer, onBack }: Props) {
 	const reviewFormRef = useRef<InlineReviewFormHandle>(null);
 	const [rating, setRating] = useState(0);
 	const [submitting, setSubmitting] = useState(false);
+	const [submittedReview, setSubmittedReview] = useState(false);
 
 	const isUser = viewer === "user";
 	const isCompleted = order.status === "completed";
@@ -79,7 +80,8 @@ export default function OrderSummaryScreen({ order, viewer, onBack }: Props) {
 	const handleSubmitReview = async () => {
 		setSubmitting(true);
 		try {
-			await reviewFormRef.current?.submit();
+			const result = await reviewFormRef.current?.submit();
+			if (result?.submitted) setRating(0);
 		} finally {
 			setSubmitting(false);
 		}
@@ -110,7 +112,8 @@ export default function OrderSummaryScreen({ order, viewer, onBack }: Props) {
 		{ label: t("detail.finalize.workComplete"), timestamp: workCompletedAt },
 	];
 
-	const showReviewForm = isUser && isCompleted && !order.has_review;
+	const showReviewForm =
+		isUser && isCompleted && !order.has_review && !submittedReview;
 
 	return (
 		<ScreenSafeAreaView edges={["top"]} className="flex-1 bg-surface">
@@ -260,12 +263,13 @@ export default function OrderSummaryScreen({ order, viewer, onBack }: Props) {
 									technicianId={order.technician_id}
 									technicianName={order.technician_name ?? undefined}
 									onRatingChange={setRating}
-									onSubmitted={() =>
+									onSubmitted={() => {
+										setSubmittedReview(true);
 										Toast.show({
 											type: "success",
 											text1: tReviews("submitSuccess"),
-										})
-									}
+										});
+									}}
 									onError={(err) => showError(err)}
 								/>
 								<Button

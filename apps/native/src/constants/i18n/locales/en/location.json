@@ -2,12 +2,16 @@
 	"gate": {
 		"title": "Turn on location",
 		"body": "FixIt uses your location to connect you with nearby technicians. The app can't be used until location is enabled.",
+		"backgroundTitle": "Allow location always",
+		"backgroundBody": "FixIt shares your live location with the customer while you head to a job, so location must be set to \"Allow all the time\".",
 		"cta": {
 			"request": "Enable location",
+			"requestBackground": "Allow all the time",
 			"openSettings": "Open settings",
 			"enableServices": "Turn on location"
 		},
 		"deniedHint": "Location permission is off. Turn it on in Settings to continue.",
-		"servicesHint": "Your device's location is turned off. Turn it on to continue."
+		"servicesHint": "Your device's location is turned off. Turn it on to continue.",
+		"backgroundHint": "Set location access to \"Allow all the time\" to keep tracking active."
 	}
 }

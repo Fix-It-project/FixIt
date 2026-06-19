@@ -128,6 +128,7 @@
 			"durationHoursMinutes": "{{hours}}س {{minutes}}د",
 			"durationMinutes": "{{minutes}}د",
 			"autoDeclinesIn": "يُرفض تلقائيًا خلال {{time}}",
+			"openDetailsAria": "فتح تفاصيل الطلب",
 			"declineRequestAria": "رفض الطلب",
 			"acceptRequestAria": "قبول الطلب",
 			"decline": "رفض",
@@ -212,6 +213,7 @@
 			"openBookingAria": "فتح حجز {{name}}"
 		},
 		"requests": {
+			"openDetailsAria": "فتح تفاصيل الطلب",
 			"declineAria": "رفض الطلب",
 			"acceptAria": "قبول الطلب",
 			"decline": "رفض",
