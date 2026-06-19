@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.3.0...fixit-v0.4.0) (2026-06-19)
+
+
+### Features
+
+* add deferred mount hook for improved navigation performance ([58fa2af](https://github.com/Fix-It-project/FixIt/commit/58fa2afbb7eb0f8902f4a4aa576e85f973f9f238))
+* add support for cleartext traffic in Android and update release config ([b8e4303](https://github.com/Fix-It-project/FixIt/commit/b8e4303168d81415e3ac387a360e6d73d8994155))
+* add support for cleartext traffic in Android and update release config ([4351729](https://github.com/Fix-It-project/FixIt/commit/4351729bfff7c3c588ad97e816c834bbbaf5bcb0))
+
+
+### Bug Fixes
+
+* update navigation routes for user and technician orders ([58fa2af](https://github.com/Fix-It-project/FixIt/commit/58fa2afbb7eb0f8902f4a4aa576e85f973f9f238))
+
 ## [0.3.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.2.0...fixit-v0.3.0) (2026-06-18)
 
 
