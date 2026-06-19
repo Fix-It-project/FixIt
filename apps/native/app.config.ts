@@ -1,4 +1,5 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
+import rootPackageJson from "../../package.json";
 import primitiveColors from "./src/constants/design-tokens/themes/primitive-colors.json";
 
 type Hsl = readonly [number, number, number];
@@ -45,6 +46,9 @@ const IS_DEV_VARIANT = process.env.APP_VARIANT === "development";
 const BASE_BUNDLE_ID = "com.anonymous.fixitapp";
 const BUNDLE_ID = IS_DEV_VARIANT ? `${BASE_BUNDLE_ID}.dev` : BASE_BUNDLE_ID;
 const APP_NAME = IS_DEV_VARIANT ? "FixIt Dev" : "FixIt";
+// App version tracks the root "fixit" release (the Latest GitHub release the
+// APK is attached to), not the per-package native version.
+const APP_VERSION = rootPackageJson.version;
 
 function googleIosUrlScheme(clientId: string | undefined): string | undefined {
 	if (!clientId) return undefined;
@@ -72,7 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	...config,
 	name: APP_NAME,
 	slug: "fixit",
-	version: "0.0.0",
+	version: APP_VERSION,
 	orientation: "portrait",
 	icon: "./src/assets/images/fixit.png",
 	scheme: "fixitapp",
