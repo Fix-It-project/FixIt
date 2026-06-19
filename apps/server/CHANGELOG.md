@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.2.0...server-v0.3.0) (2026-06-18)
+
+
+### Features
+
+* admin module tests ([ae5c257](https://github.com/Fix-It-project/FixIt/commit/ae5c257b966026f341a436e826b0cb4d2910d77e))
+* admin side optimizations ([c5509e6](https://github.com/Fix-It-project/FixIt/commit/c5509e68c407f65f7bb8ba0d4b6631a6b7146594))
+* performance testing added for cloud,backend ([98826f9](https://github.com/Fix-It-project/FixIt/commit/98826f909f8943a08b5e6a9f7d21070652b2aa4a))
+* performance testing added for cloud,backend and added unit testing for missing modules ([cea50b2](https://github.com/Fix-It-project/FixIt/commit/cea50b25cec36871dc5318603d06612b6a93d173))
+* unit testing for all modules ([44c96de](https://github.com/Fix-It-project/FixIt/commit/44c96dea704058ac44f0748e4bf6f59a787e9771))
+* **users, technicians:** add wallet and stats endpoints for technicians and users ([00af9d3](https://github.com/Fix-It-project/FixIt/commit/00af9d36b749153a6ae78fe2567f108884f21669))
+
+
+### Bug Fixes
+
+* reintigrated AI systems ([#190](https://github.com/Fix-It-project/FixIt/issues/190)) ([289c0c6](https://github.com/Fix-It-project/FixIt/commit/289c0c689c82af8fd96d2a146634b5b898b58fe0))
+
 ## [0.2.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.1.0...server-v0.2.0) (2026-06-16)
 
 
