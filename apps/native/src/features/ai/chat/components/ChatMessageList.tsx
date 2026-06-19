@@ -33,6 +33,11 @@ type Props = {
 
 // Subtle fade — message bubbles ease in without the bouncy spring.
 const BUBBLE_IN = FadeIn.duration(160);
+const USER_IMAGE_PREVIEW_STYLE = {
+	width: 220,
+	height: 160,
+	borderRadius: 16,
+} as const;
 
 export default function ChatMessageList({
 	mode,
@@ -161,7 +166,7 @@ export default function ChatMessageList({
 									<View className={entry.text ? "mt-2" : ""}>
 										<Image
 											source={{ uri: entry.image.uri }}
-											className="h-40 w-[220px] rounded-2xl"
+											style={USER_IMAGE_PREVIEW_STYLE}
 											resizeMode="cover"
 										/>
 										<Text

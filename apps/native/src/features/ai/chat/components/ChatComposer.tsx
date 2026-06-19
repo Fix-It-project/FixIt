@@ -54,6 +54,8 @@ type Props = {
 
 const ICON = 22;
 const CIRCLE = 36;
+const PREVIEW_IMAGE_SIZE = 36;
+const PREVIEW_IMAGE_RADIUS = 8;
 const HIT = { top: 8, bottom: 8, left: 8, right: 8 };
 
 export default function ChatComposer({
@@ -97,7 +99,11 @@ export default function ChatComposer({
 					leading={
 						<Image
 							source={{ uri: selectedImage.uri }}
-							className="h-9 w-9 rounded-lg"
+							style={{
+								width: PREVIEW_IMAGE_SIZE,
+								height: PREVIEW_IMAGE_SIZE,
+								borderRadius: PREVIEW_IMAGE_RADIUS,
+							}}
 							resizeMode="cover"
 						/>
 					}
@@ -111,8 +117,13 @@ export default function ChatComposer({
 					onClear={onClearAudio}
 					leading={
 						<View
-							className="h-9 w-9 items-center justify-center rounded-lg"
-							style={{ backgroundColor: themeColors.primary }}
+							className="items-center justify-center"
+							style={{
+								width: PREVIEW_IMAGE_SIZE,
+								height: PREVIEW_IMAGE_SIZE,
+								borderRadius: PREVIEW_IMAGE_RADIUS,
+								backgroundColor: themeColors.primary,
+							}}
 						>
 							<Mic
 								size={16}
