@@ -16,10 +16,27 @@ concurrency:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      # Root "." component = the fixit-v* release shown as Latest.
+      root_released: ${{ steps.release.outputs['.--release_created'] }}
+      root_tag: ${{ steps.release.outputs['.--tag_name'] }}
     steps:
       - uses: googleapis/release-please-action@v5
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: main
+
+  # Build the APK and attach it to the fixit-v* release in the same run.
+  # Calling the reusable workflow avoids the GitHub rule that releases created
+  # by GITHUB_TOKEN do not trigger `on: release` workflows.
+  native-apk:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.root_released == 'true' }}
+    uses: ./.github/workflows/native-apk-release.yml
+    with:
+      tag: ${{ needs.release-please.outputs.root_tag }}
+      profile: preview
+    secrets: inherit

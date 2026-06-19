@@ -1,5 +1,6 @@
+import { router } from "expo-router";
 import { Ban, CalendarClock, CheckCircle2 } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -7,19 +8,13 @@ import { Text } from "@/src/components/ui/text";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
 import { Button } from "@/src/components/ui/button";
 import {
-	OrderInfoCompact,
 	RescheduleRequestPanel,
-	RescheduleSheet,
-	type RescheduleSheetHandle,
 	StageHero,
 } from "@/src/features/booking-orders/components/state-machine/shared";
 import { useUserCancelOrder } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import TechnicianProfileSheet, {
-	type TechnicianProfileSheetRef,
-} from "@/src/components/identity/TechnicianProfileSheet";
-import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { space, useThemeColors } from "@/src/constants/design-tokens";
+import { ROUTES } from "@/src/lib/navigation";
 
 interface Props {
 	readonly order: Order;
@@ -28,7 +23,6 @@ interface Props {
 export default function AcceptedView({ order }: Props) {
 	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
-	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	return (
 		<View style={{ gap: space[5] }}>
 			<StageHero
@@ -38,22 +32,11 @@ export default function AcceptedView({ order }: Props) {
 				subtitle={t("detail.stage.accepted.subtitle")}
 				accentColor={themeColors.success}
 			/>
-			<OrderInfoCompact
-				order={order}
-				viewer="user"
-				onIdentityPress={() =>
-					profileSheetRef.current?.open(
-						order.technician_id,
-						getPfpInitialsFallback(order.technician_name),
-					)
-				}
-			/>
 			<RescheduleRequestPanel
 				orderId={order.id}
 				viewer="user"
 				forceVisible={order.has_pending_reschedule === true}
 			/>
-			<TechnicianProfileSheet ref={profileSheetRef} />
 		</View>
 	);
 }
@@ -61,7 +44,6 @@ export default function AcceptedView({ order }: Props) {
 export function AcceptedViewCta({ order }: Props) {
 	const { t } = useTranslation("orders");
 	const themeColors = useThemeColors();
-	const rescheduleRef = useRef<RescheduleSheetHandle>(null);
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const cancel = useUserCancelOrder();
@@ -109,11 +91,9 @@ export function AcceptedViewCta({ order }: Props) {
 							size="icon"
 							accessibilityLabel={t("detail.a11y.rescheduleOrder")}
 							onPress={() =>
-								rescheduleRef.current?.open({
-									orderId: order.id,
-									technicianId: order.technician_id,
-									originalScheduledDate: order.scheduled_date,
-								})
+								router.push(
+									ROUTES.user.reschedule(order.id, order.technician_id),
+								)
 							}
 							disabled={cancel.isPending || hasPendingReschedule}
 						>
@@ -142,7 +122,6 @@ export function AcceptedViewCta({ order }: Props) {
 					</Text>
 				) : null}
 			</View>
-			<RescheduleSheet ref={rescheduleRef} viewer="user" />
 			<CancelReasonModal
 				visible={cancelOpen}
 				title={t("detail.cancelModal.title")}

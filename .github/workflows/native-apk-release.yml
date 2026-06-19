@@ -1,0 +1,166 @@
+name: Native APK Release
+
+on:
+  # Called by release-please.yml after it publishes a fixit-v* release.
+  workflow_call:
+    inputs:
+      tag:
+        description: "fixit-v* release tag to attach the APK to."
+        required: true
+        type: string
+      profile:
+        description: "EAS build profile that produces an APK."
+        required: false
+        default: preview
+        type: string
+  # Manual run (e.g. rebuild an APK for an existing release).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "GitHub release tag to upload to. Defaults to fixit-v<root package.json version>."
+        required: false
+        type: string
+      profile:
+        description: "EAS build profile. Use a profile that produces an APK."
+        required: true
+        default: preview
+        type: string
+      create_release:
+        description: "Create the GitHub release when running manually and the tag does not exist."
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: native-apk-release-${{ inputs.tag || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_PROFILE: ${{ inputs.profile }}
+        run: |
+          set -euo pipefail
+
+          # Root package.json holds the "fixit" version the Latest release uses.
+          version="$(node -p "require('./package.json').version")"
+          profile="${INPUT_PROFILE:-preview}"
+          tag="${INPUT_TAG:-fixit-v$version}"
+
+          if [[ "$tag" =~ ^fixit-v(.+)$ ]] && [ "${BASH_REMATCH[1]}" != "$version" ]; then
+            echo "::error::Release tag $tag does not match root (fixit) package version $version."
+            exit 1
+          fi
+
+          apk_name="fixit-v$version.apk"
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "profile=$profile" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "apk_name=$apk_name" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK on EAS
+        id: eas
+        shell: bash
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          build_json="$RUNNER_TEMP/eas-build.json"
+
+          (
+            cd apps/native
+            eas build \
+              --platform android \
+              --profile "${{ steps.meta.outputs.profile }}" \
+              --non-interactive \
+              --wait \
+              --json > "$build_json"
+          )
+
+          node .github/scripts/extract-eas-android-artifact.mjs "$build_json" "$GITHUB_OUTPUT"
+
+      - name: Download APK artifact
+        id: download
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          apk_path="$RUNNER_TEMP/${{ steps.meta.outputs.apk_name }}"
+          curl --fail --location --show-error \
+            "${{ steps.eas.outputs.artifact_url }}" \
+            --output "$apk_path"
+
+          echo "apk_path=$apk_path" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure GitHub release exists
+        if: github.event_name == 'workflow_dispatch' && inputs.create_release == true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          tag="${{ steps.meta.outputs.tag }}"
+          version="${{ steps.meta.outputs.version }}"
+          profile="${{ steps.meta.outputs.profile }}"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --latest
+          else
+            gh release create "$tag" \
+              --title "FixIt v$version" \
+              --notes "Android APK built by EAS from the $profile profile." \
+              --latest
+          fi
+
+      - name: Upload APK to GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          tag="${{ steps.meta.outputs.tag }}"
+          apk_path="${{ steps.download.outputs.apk_path }}"
+          version="${{ steps.meta.outputs.version }}"
+
+          gh release upload "$tag" \
+            "$apk_path#FixIt Android APK v$version" \
+            --clobber
+          gh release edit "$tag" --latest

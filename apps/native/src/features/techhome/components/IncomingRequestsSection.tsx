@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -9,6 +10,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
 import { Textarea } from "@/src/components/ui/textarea";
+import { ROUTES } from "@/src/lib/navigation";
 import {
 	useAcceptOrderMutation,
 	useDeclineOrderMutation,
@@ -57,6 +59,9 @@ export function IncomingRequestsSection() {
 						key={order.id}
 						order={order}
 						pendingExpiryHours={stats?.pendingExpiryHours}
+						onPress={() =>
+							router.push(ROUTES.technician.bookingDetail(order.id))
+						}
 						onAccept={() => accept.mutate(order.id)}
 						onDecline={() => setDecliningId(order.id)}
 						actionPending={accept.isPending || decline.isPending}

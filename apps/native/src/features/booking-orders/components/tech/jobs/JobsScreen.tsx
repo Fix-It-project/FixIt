@@ -279,6 +279,7 @@ function RequestsList({
 				<RequestJobCard
 					booking={item}
 					actionPending={pendingId === item.id}
+					onPress={() => router.push(ROUTES.technician.bookingDetail(item.id))}
 					onAccept={() => onAccept(item.id)}
 					onDecline={() => onDecline(item.id)}
 				/>

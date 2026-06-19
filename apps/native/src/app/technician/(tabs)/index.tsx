@@ -1,3 +1,4 @@
+import { DeferredScreen } from "@/src/components/layout/DeferredScreen";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
 import { TechHomeScreen } from "@/src/features/techhome";
 
@@ -8,7 +9,9 @@ export default function TechHome() {
 	return (
 		<>
 			<ScreenStatusBar variant="blue" />
-			<TechHomeScreen />
+			<DeferredScreen>
+				<TechHomeScreen />
+			</DeferredScreen>
 		</>
 	);
 }

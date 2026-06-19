@@ -8,23 +8,43 @@ import type { Order } from "@/src/features/booking-orders/schemas/response.schem
 import { deriveUiState } from "@/src/features/booking-orders/utils/derive-ui-state";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
 import { ROUTES, useSafeBack } from "@/src/lib/navigation";
+import OrderPartyHeader from "./OrderPartyHeader";
 import StageProgressBar from "./StageProgressBar";
 import StepBodySlide from "./StepBodySlide";
 import StickyBottomCTA from "./StickyBottomCTA";
-
-const IN_PROGRESS_PILL_COUNT = 4;
 
 interface StateScreenLayoutProps {
 	readonly order: Order;
 	readonly viewer: "user" | "technician";
 	readonly children: ReactNode;
 	readonly stickyCta?: ReactNode;
+	// Suppress the stage pills (e.g. tech incoming-request / accept-reject screen,
+	// where no stage is active yet and the bar conveys nothing).
+	readonly hidePills?: boolean;
+	// Suppress the centralized party header — e.g. the payment finalize screen,
+	// which renders its own richer summary card.
+	readonly hidePartyHeader?: boolean;
 }
 
-function toVisibleStepIndex(lifecycleStepIndex: number): number {
-	if (lifecycleStepIndex < 3) return 0;
-	if (lifecycleStepIndex > 6) return 4;
-	return lifecycleStepIndex - 2;
+// Resolve the visible 1-based step from the UI phase (NOT the lifecycle
+// stepIndex): `in_progress` and `awaiting_payment` collide at lifecycle index 6,
+// so the Payment pill must come from `ui.phase`. 0 = no segment active yet
+// (waiting/accepted and the terminal phases, which don't render this layout).
+function visibleStepFor(phase: string, isCard: boolean): number {
+	switch (phase) {
+		case "tech_on_the_way":
+			return 1;
+		case "tech_inspecting":
+			return 2;
+		case "quote_open":
+			return 3;
+		case "work_in_progress":
+			return 4;
+		case "payment_pending":
+			return isCard ? 5 : 4;
+		default:
+			return 0;
+	}
 }
 
 export default function StateScreenLayout({
@@ -32,16 +52,29 @@ export default function StateScreenLayout({
 	viewer,
 	children,
 	stickyCta,
+	hidePills = false,
+	hidePartyHeader = false,
 }: StateScreenLayoutProps) {
 	const { t } = useTranslation("orders");
 	const ui = deriveUiState(order, viewer);
-	const pillLabels = [
-		t("detail.pills.onTheWay"),
-		t("detail.pills.inspecting"),
-		t("detail.pills.quote"),
-		t("detail.pills.finalize"),
-	] as const;
-	const visibleStepIndex = toVisibleStepIndex(ui.stepIndex);
+	// Card orders carry a distinct Payment step; cash settles in person, so the
+	// flow ends at Work.
+	const isCard = order.payment_method === "card";
+	const pillLabels = isCard
+		? ([
+				t("detail.pills.onTheWay"),
+				t("detail.pills.inspecting"),
+				t("detail.pills.quote"),
+				t("detail.pills.work"),
+				t("detail.pills.payment"),
+			] as const)
+		: ([
+				t("detail.pills.onTheWay"),
+				t("detail.pills.inspecting"),
+				t("detail.pills.quote"),
+				t("detail.pills.work"),
+			] as const);
+	const visibleStepIndex = visibleStepFor(ui.phase, isCard);
 	const [ctaHeight, setCtaHeight] = useState(0);
 
 	const goBack = useSafeBack(
@@ -66,11 +99,13 @@ export default function StateScreenLayout({
 					onBack={goBack}
 					title={t("detail.orderTitle")}
 				/>
-				<StageProgressBar
-					stepIndex={visibleStepIndex}
-					stepCount={IN_PROGRESS_PILL_COUNT}
-					labels={pillLabels}
-				/>
+				{hidePills ? null : (
+					<StageProgressBar
+						stepIndex={visibleStepIndex}
+						stepCount={pillLabels.length}
+						labels={pillLabels}
+					/>
+				)}
 				<ScrollView
 					className="flex-1"
 					bounces={false}
@@ -83,6 +118,11 @@ export default function StateScreenLayout({
 						paddingBottom: space[6] + (stickyCta ? ctaHeight : 0),
 					}}
 				>
+					{hidePartyHeader ? null : (
+						<View style={{ marginBottom: space[5] }}>
+							<OrderPartyHeader order={order} viewer={viewer} />
+						</View>
+					)}
 					<StepBodySlide slideKey={ui.phase}>{children}</StepBodySlide>
 				</ScrollView>
 			</ScreenSafeAreaView>

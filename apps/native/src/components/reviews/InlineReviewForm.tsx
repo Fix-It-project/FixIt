@@ -3,7 +3,7 @@
 // Single source of truth for: rating state, optional comment, schema
 // validation, and the createReview mutation. Used by:
 //   • user CompletedView (inline above the Done button)
-//   • ReviewSubmissionSheet (inside the bottom-sheet body)
+//   • OrderSummaryScreen (read-only terminal summary, when not yet reviewed)
 //
 // Consumers wire their OWN submit/done button and call `ref.current?.submit()`.
 // If no rating was selected, `submit()` resolves with `{ submitted: false }`

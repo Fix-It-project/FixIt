@@ -1,5 +1,5 @@
 import { Ban, MapPin, Navigation } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Linking, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
@@ -11,17 +11,13 @@ import {
 	useThemeColors,
 } from "@/src/constants/design-tokens";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
+import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
-	CustomerInfoSheet,
-	type CustomerInfoSheetHandle,
-	OrderInfoCompact,
-	StageHero,
-} from "@/src/features/booking-orders/components/state-machine/shared";
-import {
+	useArrivalGeofence,
 	useOrderDistance,
 	useTechCancel,
-	useTechLocationPing,
 	useTechMarkArrived,
+	useTechTracking,
 } from "@/src/features/booking-orders/hooks";
 import type {
 	Order,
@@ -36,11 +32,11 @@ interface Props {
 
 export default function TrackingBody({ order }: Props) {
 	const themeColors = useThemeColors();
-	const booking = order as unknown as TechnicianBooking;
-	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
 
-	const { permissionStatus, canAskAgain, requestPermission } =
-		useTechLocationPing({ orderId: order.id, enabled: true });
+	const { permissionStatus, canAskAgain, requestPermission } = useTechTracking({
+		orderId: order.id,
+		active: true,
+	});
 
 	const { data: distance } = useOrderDistance(order.id, {
 		enabled: true,
@@ -118,21 +114,6 @@ export default function TrackingBody({ order }: Props) {
 					</Text>
 				</View>
 			) : null}
-			<OrderInfoCompact
-				order={order}
-				viewer="technician"
-				onIdentityPress={() =>
-					customerSheetRef.current?.open({
-						name: booking.user_name ?? "Customer",
-						phone: booking.user_phone ?? null,
-						address: booking.user_address ?? null,
-						latitude: booking.user_latitude ?? null,
-						longitude: booking.user_longitude ?? null,
-						problem: order.problem_description ?? null,
-					})
-				}
-			/>
-			<CustomerInfoSheet ref={customerSheetRef} />
 		</View>
 	);
 }
@@ -142,16 +123,31 @@ export function TrackingCta({ order }: Props) {
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 
-	const { data: distance } = useOrderDistance(order.id, {
-		enabled: true,
-		viewer: "technician",
+	// Fast unblur: device GPS geofence (~1–2s) + realtime-fresh `arrived_at`.
+	// The button no longer reads the 30s `useOrderDistance` poll.
+	const destination =
+		typeof booking.user_latitude === "number" &&
+		typeof booking.user_longitude === "number"
+			? { latitude: booking.user_latitude, longitude: booking.user_longitude }
+			: null;
+	const { withinGeofence: localGeofence, confirmArrival } = useArrivalGeofence({
+		orderId: order.id,
+		destination,
+		active: true,
 	});
-	const withinGeofence = distance?.within_geofence === true;
+	const arrivedServerSide = Boolean(
+		(order as { arrived_at?: string | null }).arrived_at,
+	);
+	const withinGeofence = localGeofence || arrivedServerSide;
 	const markArrived = useTechMarkArrived();
 	const cancelMutation = useTechCancel();
 
-	const handleArrive = () => {
+	const handleArrive = async () => {
 		if (!withinGeofence) return;
+		// UI-enable ≠ backend-ready: send a fresh ping first so the server has
+		// registered arrival (`arrived_at`) before we mark arrived. Otherwise the
+		// transition can fail with arrival_not_detected_yet / too_far_from_destination.
+		await confirmArrival();
 		markArrived.mutate(
 			{ orderId: order.id },
 			{

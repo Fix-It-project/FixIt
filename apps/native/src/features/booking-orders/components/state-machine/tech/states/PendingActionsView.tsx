@@ -1,24 +1,15 @@
 import { Check, Inbox, X } from "lucide-react-native";
-import { useRef } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
 import { confirm } from "@/src/components/ui/dialog";
 import { space, useThemeColors } from "@/src/constants/design-tokens";
-import {
-	CustomerInfoSheet,
-	type CustomerInfoSheetHandle,
-	OrderInfoCompact,
-	StageHero,
-} from "@/src/features/booking-orders/components/state-machine/shared";
+import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
 import {
 	useTechAccept,
 	useTechDecline,
 } from "@/src/features/booking-orders/hooks/useTechLifecycleMutations";
-import type {
-	Order,
-	TechnicianBooking,
-} from "@/src/features/booking-orders/schemas/response.schema";
+import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
 import {
 	extractOrderErrorToken,
 	translateOrderError,
@@ -33,10 +24,8 @@ interface Props {
 /** Detail view for an incoming (pending) request — full info + maps, so a tech
  *  arriving from a notification can decide right here. Fixes the old bug where
  *  pending fell through to the terminal "Done" screen. */
-export default function PendingActionsView({ order }: Props) {
+export default function PendingActionsView(_props: Props) {
 	const themeColors = useThemeColors();
-	const booking = order as unknown as TechnicianBooking;
-	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
 
 	return (
 		<View style={{ gap: space[5] }}>
@@ -47,21 +36,6 @@ export default function PendingActionsView({ order }: Props) {
 				subtitle="Review the details, then accept to lock it in or decline to release it."
 				accentColor={themeColors.primary}
 			/>
-			<OrderInfoCompact
-				order={order}
-				viewer="technician"
-				onIdentityPress={() =>
-					customerSheetRef.current?.open({
-						name: booking.user_name ?? "Customer",
-						phone: booking.user_phone ?? null,
-						address: booking.user_address ?? null,
-						latitude: booking.user_latitude ?? null,
-						longitude: booking.user_longitude ?? null,
-						problem: order.problem_description ?? null,
-					})
-				}
-			/>
-			<CustomerInfoSheet ref={customerSheetRef} />
 		</View>
 	);
 }

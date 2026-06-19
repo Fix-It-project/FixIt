@@ -49,6 +49,8 @@ const TOKEN_MESSAGES: Record<string, string> = {
 	service_not_offered_by_technician:
 		"This technician doesn't offer that service. Please pick another.",
 	slot_taken: "That time slot was just booked. Please choose another.",
+	booking_must_be_future: "Bookings must be for the next day or later.",
+	price_out_of_range: "Enter a price within the service's listed range.",
 	inspection_fee_pricing_unavailable:
 		"We couldn't calculate the inspection fee for this booking. Please update the saved locations and try again.",
 

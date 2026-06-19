@@ -5,6 +5,7 @@
 	"rateTechnician": "Rate technician",
 	"commentPlaceholder": "Add a comment (optional)",
 	"invalidInput": "Invalid input.",
+	"submitSuccess": "Thanks for your review!",
 	"anonymous": "Anonymous",
 	"stats": {
 		"noReviews": "No reviews yet",

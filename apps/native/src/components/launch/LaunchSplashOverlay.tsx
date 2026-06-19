@@ -11,7 +11,7 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 
-const splashLogo = require("@/src/assets/images/splash-logo.png");
+const splashLogo = require("@/src/assets/images/fixittext.png");
 
 interface LaunchSplashOverlayProps {
 	readonly backgroundColor: string;

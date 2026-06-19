@@ -18,7 +18,51 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.anonymous.fixitapp",
-            "certificate_hash": "119a0537302ffbffe3f7e101be8c55f6e1102ff3"
+            "certificate_hash": "fc03ff4982716ccd5cdda26c93c07477d58abeeb"
+          }
+        },
+        {
+          "client_id": "866505803556-gscvgi0pavffdlqcv5p502ie3fbnbhcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBje7sHkWYIpyrUDi17Zkj3zzXPU85nVAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866505803556-gscvgi0pavffdlqcv5p502ie3fbnbhcl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "866505803556-aqb153idv0acsmgqfj3g8nv16foel1ho.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anonymous.fixitapp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866505803556:android:0f3417003875ea9f4a55b1",
+        "android_client_info": {
+          "package_name": "com.anonymous.fixitapp.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "866505803556-itq1qfj9curk7ta9g0nec4i5imq59itu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.fixitapp.dev",
+            "certificate_hash": "fc03ff4982716ccd5cdda26c93c07477d58abeeb"
           }
         },
         {

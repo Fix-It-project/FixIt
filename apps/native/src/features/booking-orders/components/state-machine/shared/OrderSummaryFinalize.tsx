@@ -1,6 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import * as WebBrowser from "expo-web-browser";
-import { Check, CheckCircle2, Circle, CreditCard, Wallet } from "lucide-react-native";
+import { router } from "expo-router";
+import {
+	Check,
+	CheckCircle2,
+	Circle,
+	CreditCard,
+	Wallet,
+} from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -35,6 +41,7 @@ import { getDateLocale } from "@/src/features/booking-orders/utils/booking-helpe
 import { formatAmount } from "@/src/features/booking-orders/utils/format-currency";
 import { showError } from "@/src/lib/errors";
 import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { ROUTES } from "@/src/lib/navigation";
 import OrderInfoCompact from "./OrderInfoCompact";
 import StageHero from "./StageHero";
 
@@ -107,14 +114,14 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 
 	const handleCardCheckout = async () => {
 		try {
-			// Payment method is already 'card' (chosen upfront), so just open the
-			// gateway; the webhook flips the order to completed and we poll for it.
+			// Payment method is already 'card' (chosen upfront). Open the gateway in
+			// the in-app webview; the webhook flips the order to completed and the
+			// poll below picks it up once the webview returns.
 			const session = await userCreateCardSession.mutateAsync({
 				orderId: order.id,
 			});
 			setIsPollingForCard(true);
-			await WebBrowser.openBrowserAsync(session.checkoutUrl);
-			void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+			router.push(ROUTES.user.paymentCheckout(session.checkoutUrl));
 		} catch (error) {
 			setIsPollingForCard(false);
 			showError(error);
@@ -192,11 +199,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				>
 					<Text
 						variant="caption"
-						className="font-google-sans-bold uppercase"
+						className="font-google-sans-bold"
 						style={{
 							color: themeColors.onPrimaryHeader,
 							opacity: 0.78,
-							letterSpacing: 1.1,
 						}}
 					>
 						{t("detail.finalize.finalPrice")}
@@ -320,11 +326,10 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							}}
 						>
 							<Text
-								variant="caption"
-								className="font-google-sans-bold uppercase"
+								variant="bodySm"
+								className="font-google-sans-bold"
 								style={{
 									color: themeColors.onPrimaryHeader,
-									letterSpacing: 0.8,
 								}}
 							>
 								{t("detail.finalize.totalPayable")}
@@ -360,8 +365,8 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 				>
 					<Text
 						variant="caption"
-						className="font-google-sans-bold uppercase"
-						style={{ color: themeColors.textMuted, letterSpacing: 1 }}
+						className="font-google-sans-bold"
+						style={{ color: themeColors.textMuted }}
 					>
 						{t("detail.finalize.timeline")}
 					</Text>
@@ -425,7 +430,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							flexDirection: "row",
 							alignItems: "center",
 							gap: space[2],
-							backgroundColor: themeColors.success,
+							backgroundColor: themeColors.primary,
 						}}
 					>
 						<CheckCircle2
@@ -463,7 +468,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 							: t("detail.finalize.payWithCard")}
 					</Button>
 					<Button
-						variant="outline"
+						variant="secondary"
 						size="lg"
 						fullWidth
 						iconLeft={Wallet}

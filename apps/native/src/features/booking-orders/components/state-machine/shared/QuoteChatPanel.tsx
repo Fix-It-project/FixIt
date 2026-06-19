@@ -6,14 +6,15 @@
 //   • Round 5 → no further counter; only Accept or Cancel.
 //   • "Cancel order" is a destructive action (Ban icon) — it ends the order.
 
-import { Ban, Check, MessageSquare, Pencil } from "lucide-react-native";
+import { Ban, Check, Pencil } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
+import { Button } from "@/src/components/ui/button";
 import { Text } from "@/src/components/ui/text";
-import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
 import {
 	useOrderQuoteHistory,
 	useTechAcceptUserQuote,
@@ -25,8 +26,8 @@ import {
 } from "@/src/features/booking-orders/hooks";
 import type { OrderQuote } from "@/src/features/booking-orders/schemas/quote.schema";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
-import { Button } from "@/src/components/ui/button";
+import { formatCurrency } from "@/src/features/booking-orders/utils/format-currency";
+import { translateOrderError } from "@/src/features/booking-orders/utils/translate-order-error";
 import CancelReasonModal from "../../shared/CancelReasonModal";
 import QuoteBubble from "./QuoteBubble";
 import QuoteOfferSheet, { type QuoteOfferSheetHandle } from "./QuoteOfferSheet";
@@ -39,6 +40,14 @@ interface QuoteChatProps {
 }
 
 const MAX_ROUNDS = 5;
+
+/** "EGP 250 – EGP 400" for the order's service, or null when unconfigured. */
+function workPriceRangeLabel(order: Order): string | null {
+	const min = order.service_min_price;
+	const max = order.service_max_price;
+	if (typeof min !== "number" || typeof max !== "number") return null;
+	return `${formatCurrency(min)} – ${formatCurrency(max)}`;
+}
 
 function deriveQuoteState(
 	rounds: readonly OrderQuote[],
@@ -68,77 +77,24 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 	const latestQuote = rounds[rounds.length - 1] ?? null;
 	const latestTotal =
 		latestQuote != null ? latestQuote.amount + inspectionFee : inspectionFee;
+	const rangeLabel = workPriceRangeLabel(order);
 
 	return (
-		<View
-			style={{
-				borderRadius: radius.card,
-				backgroundColor: themeColors.surfaceElevated,
-				padding: space[4],
-				gap: space[3],
-			}}
-		>
-			<View
-				style={{
-					flexDirection: "row",
-					alignItems: "center",
-					gap: space[2],
-				}}
-			>
-				<MessageSquare
-					size={spacing.icon.caption}
-					color={themeColors.primary}
-					strokeWidth={2.4}
-				/>
+		<View style={{ gap: space[3] }}>
+			{roundCount > 0 ? (
 				<Text
-					variant="bodySm"
+					variant="caption"
 					className="font-google-sans-bold"
-					style={{ color: themeColors.textPrimary }}
+					style={{ color: themeColors.textMuted, letterSpacing: 0.4 }}
 				>
 					{t("detail.quote.negotiation", {
-						n: Math.min(MAX_ROUNDS, Math.max(1, roundCount)),
+						n: roundCount,
 						max: MAX_ROUNDS,
 					})}
 				</Text>
-			</View>
+			) : null}
 
-			<View
-				style={{
-					borderRadius: radius.card,
-					backgroundColor: `${themeColors.primary}10`,
-					padding: space[3],
-					gap: space[1],
-				}}
-			>
-				<Text
-					variant="caption"
-					className="font-google-sans-bold uppercase"
-					style={{ color: themeColors.textMuted, letterSpacing: 0.8 }}
-				>
-					{t("detail.quote.totalPricing")}
-				</Text>
-				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-					{t("detail.quote.inspectionFee", {
-						amount: formatCurrency(inspectionFee),
-					})}
-				</Text>
-				<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
-					{t("detail.quote.acceptedTotalRule")}
-				</Text>
-				{latestQuote ? (
-					<Text
-						variant="bodySm"
-						className="font-google-sans-medium"
-						style={{ color: themeColors.textPrimary }}
-					>
-						{t("detail.quote.latestTotalIfAccepted", {
-							amount: formatCurrency(latestTotal),
-						})}
-					</Text>
-				) : null}
-			</View>
-
-			<View style={{ gap: space[2] }}>
+			<View style={{ gap: space[3] }}>
 				{rounds.length === 0 ? (
 					<Text
 						variant="bodySm"
@@ -164,6 +120,40 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 					))
 				)}
 			</View>
+
+			{latestQuote ? (
+				<>
+					<View
+						style={{
+							height: 1,
+							backgroundColor: themeColors.borderDefault,
+							opacity: 0.5,
+						}}
+					/>
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							justifyContent: "space-between",
+						}}
+					>
+						<Text variant="bodySm" style={{ color: themeColors.textSecondary }}>
+							{t("detail.quote.totalIfAccepted")}
+						</Text>
+						<Text
+							variant="h3"
+							className="font-google-sans-bold"
+							style={{ color: themeColors.primary }}
+						>
+							{formatCurrency(latestTotal)}
+						</Text>
+					</View>
+				</>
+			) : rangeLabel ? (
+				<Text variant="caption" style={{ color: themeColors.textMuted }}>
+					{t("detail.quote.workPriceRange", { range: rangeLabel })}
+				</Text>
+			) : null}
 		</View>
 	);
 }
@@ -212,7 +202,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				Toast.show({
 					type: "info",
 					text1: t("detail.quote.toastSubmitFailed"),
-					text2: err.message,
+					text2: translateOrderError(err),
 				}),
 		});
 	}
@@ -233,7 +223,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				Toast.show({
 					type: "info",
 					text1: t("detail.quote.toastAcceptFailed"),
-					text2: err.message,
+					text2: translateOrderError(err),
 				}),
 		});
 	}
@@ -255,7 +245,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				Toast.show({
 					type: "info",
 					text1: t("detail.quote.toastCancelFailed"),
-					text2: err.message,
+					text2: translateOrderError(err),
 				}),
 		});
 	}
@@ -265,7 +255,10 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			? ((order as { user_name?: string | null }).user_name ?? null)
 			: order.technician_name;
 
-	const showTechInitial = viewer === "technician" && roundCount === 0;
+	const showTechInitial =
+		viewer === "technician" &&
+		order.status === "awaiting_final_cost" &&
+		roundCount === 0;
 	// Counter CTA is shown only to the actor whose turn it is — i.e. the side
 	// that DID NOT make the latest quote. Final round has no counter step.
 	const showCounter =
@@ -302,22 +295,25 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		? t("detail.quote.ctaSendQuote")
 		: t("detail.quote.ctaSendCounter");
 
-	if (!showTechInitial && !showAcceptDecline) {
-		return (
-			<QuoteOfferSheet
-				ref={sheetRef}
-				title={sheetTitle}
-				subtitle={sheetSubtitle}
-				ctaLabel={sheetCta}
-				isPending={isSubmitPending}
-				previousAmount={latest?.amount ?? null}
-				onSubmit={handleSheetSubmit}
-			/>
-		);
-	}
+	// Neither side has an actionable quote on this turn — the viewer is waiting
+	// on the counterparty. We still render a cancel affordance so they're never
+	// stuck (previously this branch showed no controls at all).
+	const showWaitingOnly = !showTechInitial && !showAcceptDecline;
 
 	return (
 		<View style={{ gap: space[2] }}>
+			{showWaitingOnly ? (
+				<Button
+					variant="secondary"
+					fullWidth
+					iconLeft={Ban}
+					onPress={() => setCancelOpen(true)}
+					loading={isCancelPending}
+					accessibilityLabel={t("detail.a11y.cancelOrder")}
+				>
+					{t("detail.a11y.cancelOrder")}
+				</Button>
+			) : null}
 			{showTechInitial ? (
 				<View className="flex-row items-center gap-stack-md">
 					<View className="flex-1">
@@ -347,49 +343,48 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			) : null}
 
 			{showAcceptDecline ? (
-				<>
-					<View className="flex-row items-center gap-stack-md">
-						<View className="flex-1">
-							<Button
-								variant="success"
-								size="lg"
-								fullWidth
-								iconLeft={Check}
-								onPress={handleAccept}
-								loading={isAcceptPending}
-							>
-								{latestTotal != null
-									? t("detail.quote.acceptAmount", {
-											amount: formatCurrency(latestTotal),
-										})
-									: t("detail.quote.accept")}
-							</Button>
-						</View>
-						<View className="shrink-0">
-							<Button
-								variant="destructive"
-								size="icon"
-								accessibilityLabel={t("detail.a11y.cancelOrder")}
-								onPress={() => setCancelOpen(true)}
-								loading={isCancelPending}
-							>
-								<Ban size={20} />
-							</Button>
-						</View>
-					</View>
-					{showCounter ? (
+				<View className="flex-row items-center gap-stack-md">
+					<View className="flex-1">
 						<Button
-							variant="secondary"
+							variant="primary"
 							size="lg"
 							fullWidth
-							iconLeft={Pencil}
-							onPress={openSheet}
-							loading={isSubmitPending}
+							iconLeft={Check}
+							onPress={handleAccept}
+							loading={isAcceptPending}
 						>
-							{t("detail.quote.suggestAnother")}
+							{latestTotal != null
+								? t("detail.quote.acceptAmount", {
+										amount: formatCurrency(latestTotal),
+									})
+								: t("detail.quote.accept")}
 						</Button>
+					</View>
+					{showCounter ? (
+						<View className="shrink-0">
+							<Button
+								variant="secondary"
+								size="icon"
+								accessibilityLabel={t("detail.quote.suggestAnother")}
+								onPress={openSheet}
+								loading={isSubmitPending}
+							>
+								<Pencil size={20} />
+							</Button>
+						</View>
 					) : null}
-				</>
+					<View className="shrink-0">
+						<Button
+							variant="destructive"
+							size="icon"
+							accessibilityLabel={t("detail.a11y.cancelOrder")}
+							onPress={() => setCancelOpen(true)}
+							loading={isCancelPending}
+						>
+							<Ban size={20} />
+						</Button>
+					</View>
+				</View>
 			) : null}
 
 			<QuoteOfferSheet
@@ -399,6 +394,8 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 				ctaLabel={sheetCta}
 				isPending={isSubmitPending}
 				previousAmount={latest?.amount ?? null}
+				minPrice={order.service_min_price}
+				maxPrice={order.service_max_price}
 				onSubmit={handleSheetSubmit}
 			/>
 			<CancelReasonModal

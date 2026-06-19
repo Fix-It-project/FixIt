@@ -1,15 +1,15 @@
+import { Image } from "expo-image";
 import Animated, {
 	interpolate,
 	type SharedValue,
 	useAnimatedStyle,
 } from "react-native-reanimated";
-import FixItWordmark from "@/src/assets/images/fixittext.svg";
 
-// The wordmark's text glyphs occupy this band of the 1536x1024 artboard; cropping
-// to it removes the surrounding whitespace so width/height frame the logo tightly.
-const WORDMARK_VIEWBOX = "360 405 800 220";
-// Cropped wordmark aspect (~800:220) — height follows width instead of being square.
-const WORDMARK_RATIO = 0.28;
+// FixItText wordmark PNG (same asset LaunchSplashOverlay uses). The SVG wordmark
+// didn't animate cleanly under the cropped viewBox, so we render the PNG and
+// animate the wrapper instead. `contentFit="contain"` centers the wordmark in
+// the square box, so the existing width-driven layout is unchanged.
+const splashLogo = require("@/src/assets/images/fixittext.png");
 
 interface BrandMarkProps {
 	width: number;
@@ -40,10 +40,10 @@ export function BrandMark({
 
 	return (
 		<Animated.View style={animatedStyle}>
-			<FixItWordmark
-				width={width}
-				height={width * WORDMARK_RATIO}
-				viewBox={WORDMARK_VIEWBOX}
+			<Image
+				source={splashLogo}
+				style={{ width, height: width }}
+				contentFit="contain"
 				accessibilityLabel="Fix It"
 			/>
 		</Animated.View>

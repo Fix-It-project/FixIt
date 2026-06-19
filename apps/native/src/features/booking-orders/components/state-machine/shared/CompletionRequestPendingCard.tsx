@@ -176,7 +176,7 @@ export default function CompletionRequestPendingCard({
 			) : (
 				<View style={{ gap: spacing.stack.sm }}>
 					<Button
-						variant="success"
+						variant="primary"
 						size="lg"
 						fullWidth
 						iconLeft={CheckCircle2}

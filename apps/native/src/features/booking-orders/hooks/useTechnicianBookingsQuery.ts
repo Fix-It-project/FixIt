@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { getTechnicianBookings } from "../api/technician-bookings";
@@ -9,17 +9,22 @@ import type { TechnicianBooking } from "../schemas/response.schema";
 // Past statuses for the "history" tab — everything terminal.
 const PAST_BOOKING_STATUSES: ReadonlySet<string> = TERMINAL_STATUSES;
 
+// Shared query (key + fn) so screen hooks and the startup prefetch use an
+// identical, id-scoped key — preventing a prefetch cache miss.
+export function technicianBookingsQueryOptions(userId: string | undefined) {
+	return queryOptions({
+		queryKey: orderQueryKeys.technicianBookingsFor(userId),
+		queryFn: () => {
+			if (!userId) throw new Error("User not authenticated");
+			return getTechnicianBookings(userId);
+		},
+		enabled: !!userId,
+	});
+}
+
 export function useTechnicianBookingsQuery() {
 	const user = useAuthStore((state) => state.user);
-
-	return useQuery({
-		queryKey: orderQueryKeys.technicianBookingsFor(user?.id),
-		queryFn: () => {
-			if (!user?.id) throw new Error("User not authenticated");
-			return getTechnicianBookings(user.id);
-		},
-		enabled: !!user?.id,
-	});
+	return useQuery(technicianBookingsQueryOptions(user?.id));
 }
 
 export function usePastTechnicianBookings() {

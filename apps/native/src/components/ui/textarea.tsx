@@ -44,6 +44,11 @@ const Textarea = React.forwardRef<TextInput, TextareaProps>(
 	) => {
 		const themeColors = useThemeColors();
 		const [isFocused, setIsFocused] = React.useState(false);
+		// Android duplicates typed characters when a multiline TextInput also
+		// receives `numberOfLines` (RN long-standing bug). Drop it there and let
+		// the min-height utility class size the field instead.
+		const resolvedNumberOfLines =
+			Platform.OS === "android" && multiline ? undefined : numberOfLines;
 		const borderClass =
 			variant === "outline"
 				? hasError
@@ -73,7 +78,7 @@ const Textarea = React.forwardRef<TextInput, TextareaProps>(
 				placeholderTextColor={placeholderTextColor ?? themeColors.textMuted}
 				style={[typography.input, { textAlignVertical: "top" }, style]}
 				multiline={multiline}
-				numberOfLines={numberOfLines}
+				numberOfLines={resolvedNumberOfLines}
 				onFocus={(e) => {
 					setIsFocused(true);
 					onFocus?.(e);

@@ -1,6 +1,8 @@
 import { useCallback, useEffect } from "react";
 import { AppState, type AppStateStatus, Linking } from "react-native";
+import { useAuthStore } from "@/src/stores/auth-store";
 import {
+	selectIsBackgroundLocationSatisfied,
 	selectIsLocationSatisfied,
 	useLocationStore,
 } from "@/src/stores/location-store";
@@ -20,6 +22,8 @@ export type LocationGateStatus =
 	| "satisfied"
 	/** Permission can still be requested in-app (undetermined or "ask every time"). */
 	| "request"
+	/** Foreground granted (tech only): still need background ("Always"), promptable. */
+	| "requestBackground"
 	/** Permission permanently denied — only Settings can re-enable it. */
 	| "openSettings"
 	/** Permission granted but the device GPS master switch is off. */
@@ -29,7 +33,14 @@ export type LocationGateStatus =
 export function useLocationGuard(): { shouldGate: boolean } {
 	const checkLocationStatus = useLocationStore((s) => s.checkLocationStatus);
 	const hasChecked = useLocationStore((s) => s.hasChecked);
-	const isSatisfied = useLocationStore(selectIsLocationSatisfied);
+	// Technicians must also hold background ("Always") permission; users don't.
+	const requireBackground =
+		useAuthStore((s) => s.userType) === "technician";
+	const isSatisfied = useLocationStore(
+		requireBackground
+			? selectIsBackgroundLocationSatisfied
+			: selectIsLocationSatisfied,
+	);
 
 	useEffect(() => {
 		void checkLocationStatus();
@@ -50,34 +61,56 @@ export function useLocationGuard(): { shouldGate: boolean } {
 export function useLocationGate() {
 	const permissionStatus = useLocationStore((s) => s.permissionStatus);
 	const canAskAgain = useLocationStore((s) => s.canAskAgain);
+	const servicesEnabled = useLocationStore((s) => s.servicesEnabled);
+	const backgroundStatus = useLocationStore((s) => s.backgroundStatus);
+	const backgroundCanAskAgain = useLocationStore(
+		(s) => s.backgroundCanAskAgain,
+	);
 	const isLoading = useLocationStore((s) => s.isLoading);
-	const isSatisfied = useLocationStore(selectIsLocationSatisfied);
 	const requestLocationPermission = useLocationStore(
 		(s) => s.requestLocationPermission,
 	);
+	const requestBackgroundPermission = useLocationStore(
+		(s) => s.requestBackgroundPermission,
+	);
+	const requireBackground =
+		useAuthStore((s) => s.userType) === "technician";
 
-	const status: LocationGateStatus = isSatisfied
-		? "satisfied"
-		: permissionStatus === "granted"
-			? // Permission is fine; the device GPS switch is what's off.
-				"servicesOff"
-			: canAskAgain
-				? // Undetermined or "ask every time" — we can still prompt in-app.
-					"request"
-				: // Permanently denied — only Settings can re-enable it.
-					"openSettings";
+	const foregroundSatisfied =
+		servicesEnabled && permissionStatus === "granted";
+	const isSatisfied =
+		foregroundSatisfied &&
+		(!requireBackground || backgroundStatus === "granted");
+
+	let status: LocationGateStatus;
+	if (isSatisfied) {
+		status = "satisfied";
+	} else if (permissionStatus !== "granted") {
+		// Undetermined / "ask every time" → prompt in-app; else permanently denied.
+		status = canAskAgain ? "request" : "openSettings";
+	} else if (!servicesEnabled) {
+		// Permission fine; the device GPS master switch is off.
+		status = "servicesOff";
+	} else {
+		// Foreground granted + GPS on, but a technician still lacks background.
+		status = backgroundCanAskAgain ? "requestBackground" : "openSettings";
+	}
 
 	const onPressCta = useCallback(async () => {
 		// Only ever prompt in-app; never open Settings on the user's behalf unless
 		// permission is permanently denied or the GPS switch is off (both unflippable
-		// programmatically). iOS opens the app settings page; the device-wide location
-		// services switch lives under system Privacy settings.
+		// programmatically). iOS "Allow Once" / declining "Always" falls through to
+		// the Settings route via the openSettings status.
 		if (status === "request") {
 			await requestLocationPermission();
 			return;
 		}
+		if (status === "requestBackground") {
+			await requestBackgroundPermission();
+			return;
+		}
 		await Linking.openSettings();
-	}, [status, requestLocationPermission]);
+	}, [status, requestLocationPermission, requestBackgroundPermission]);
 
 	return { isSatisfied, status, isLoading, onPressCta };
 }

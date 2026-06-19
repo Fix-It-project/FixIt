@@ -1,16 +1,11 @@
 import { Ban, CheckCircle2, Hammer } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Button } from "@/src/components/ui/button";
 import { space } from "@/src/constants/design-tokens";
 import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
-import {
-	CustomerInfoSheet,
-	type CustomerInfoSheetHandle,
-	OrderInfoCompact,
-	StageHero,
-} from "@/src/features/booking-orders/components/state-machine/shared";
+import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
 import CompletionRequestPendingCard from "@/src/features/booking-orders/components/state-machine/shared/CompletionRequestPendingCard";
 import {
 	useTechCancel,
@@ -28,8 +23,6 @@ interface Props {
 }
 
 export default function WorkCompleteBody({ order }: Props) {
-	const booking = order as unknown as TechnicianBooking;
-	const customerSheetRef = useRef<CustomerInfoSheetHandle>(null);
 	const userCompletedAt = order.user_completed_at ?? null;
 	const techCompletedAt = order.technician_completed_at ?? null;
 	const userRequested = userCompletedAt !== null && techCompletedAt === null;
@@ -59,20 +52,6 @@ export default function WorkCompleteBody({ order }: Props) {
 				title="Job in motion."
 				subtitle="Mark complete when done. Customer must confirm."
 			/>
-			<OrderInfoCompact
-				order={order}
-				viewer="technician"
-				onIdentityPress={() =>
-					customerSheetRef.current?.open({
-						name: booking.user_name ?? "Customer",
-						phone: booking.user_phone ?? null,
-						address: booking.user_address ?? null,
-						latitude: booking.user_latitude ?? null,
-						longitude: booking.user_longitude ?? null,
-						problem: order.problem_description ?? null,
-					})
-				}
-			/>
 			{techRequested ? (
 				<CompletionRequestPendingCard
 					direction="awaiting_them"
@@ -93,7 +72,6 @@ export default function WorkCompleteBody({ order }: Props) {
 					declinePending={decline.isPending}
 				/>
 			) : null}
-			<CustomerInfoSheet ref={customerSheetRef} />
 		</View>
 	);
 }

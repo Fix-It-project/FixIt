@@ -128,6 +128,7 @@
 			"durationHoursMinutes": "{{hours}}h {{minutes}}m",
 			"durationMinutes": "{{minutes}}m",
 			"autoDeclinesIn": "Auto-declines in {{time}}",
+			"openDetailsAria": "Open request details",
 			"declineRequestAria": "Decline request",
 			"acceptRequestAria": "Accept request",
 			"decline": "Decline",
@@ -212,6 +213,7 @@
 			"openBookingAria": "Open booking with {{name}}"
 		},
 		"requests": {
+			"openDetailsAria": "Open request details",
 			"declineAria": "Decline request",
 			"acceptAria": "Accept request",
 			"decline": "Decline",

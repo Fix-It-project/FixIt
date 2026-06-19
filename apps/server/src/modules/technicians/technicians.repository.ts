@@ -137,6 +137,16 @@ export interface TechnicianServiceDTO {
 	max_price: number | null;
 }
 
+export function mergeTechnicianServices(
+	categoryServices: TechnicianServiceDTO[],
+	linkedServices: TechnicianServiceDTO[],
+): TechnicianServiceDTO[] {
+	const byId = new Map<string, TechnicianServiceDTO>();
+	for (const service of categoryServices) byId.set(service.id, service);
+	for (const service of linkedServices) byId.set(service.id, service);
+	return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export function toDTO(
 	row: TechnicianWithAddressRow,
 	userLat?: number,
@@ -434,17 +444,18 @@ export class TechniciansRepository implements ITechniciansRepository {
 			services: TechnicianServiceDTO | TechnicianServiceDTO[] | null;
 		}>;
 
-		const services = rows
+		const linkedServices = rows
 			.map((row) =>
 				Array.isArray(row.services) ? (row.services[0] ?? null) : row.services,
 			)
 			.filter((s): s is TechnicianServiceDTO => s != null);
 
-		if (services.length > 0) return this.sortTechnicianServices(services);
-
 		// Existing production data may predate technician_services seeding. Fall back
-		// to the technician's category services so the detail page remains real-data only.
-		return this.getCategoryServicesForTechnician(technicianId);
+		// to category services, then merge explicit links so approved custom services
+		// add to the defaults instead of replacing them.
+		const categoryServices =
+			await this.getCategoryServicesForTechnician(technicianId);
+		return mergeTechnicianServices(categoryServices, linkedServices);
 	}
 
 	private async getCategoryServicesForTechnician(

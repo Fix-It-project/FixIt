@@ -1,7 +1,7 @@
-import { z } from "zod";
 import apiClient from "@/src/config/api-client";
 import { safeParseResponse } from "@/src/lib/api/safe-parse";
 import type {
+	LocationPingResponse,
 	OrderDistanceResponse,
 	OrderQuoteResponse,
 	OrderQuotesResponse,
@@ -10,6 +10,7 @@ import type {
 	RescheduleResponse,
 } from "../schemas";
 import {
+	locationPingResponseSchema,
 	orderDistanceResponseSchema,
 	orderQuoteResponseSchema,
 	orderQuotesResponseSchema,
@@ -79,16 +80,6 @@ export async function getTechOrderDistance(
 // /location-ping route; the name `postTechLocationPing` is just intent-clear
 // from the caller's perspective — the underlying URL is `/location`.
 
-/**
- * Backend `techUpsertLocation` returns `{ data: <row-from-order_locations> }`
- * with an opaque shape; we don't depend on the body, only the envelope. A
- * permissive schema is defined inline (not promoted to a shared schema file)
- * because the response is internal-only — hooks discard it.
- */
-const orderLocationResponseSchema = z.object({
-	data: z.unknown(),
-});
-
 export interface TechLocationPingCoords {
 	latitude: number;
 	longitude: number;
@@ -99,7 +90,7 @@ export interface TechLocationPingCoords {
 export async function postTechLocationPing(
 	orderId: string,
 	coords: TechLocationPingCoords,
-): Promise<{ data: unknown }> {
+): Promise<LocationPingResponse> {
 	const response = await apiClient.post(
 		`/api/orders/technician/orders/${orderId}/location`,
 		{
@@ -110,7 +101,7 @@ export async function postTechLocationPing(
 		},
 	);
 	return safeParseResponse(
-		orderLocationResponseSchema,
+		locationPingResponseSchema,
 		response.data,
 		"postTechLocationPing",
 	);

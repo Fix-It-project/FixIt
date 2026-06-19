@@ -215,6 +215,7 @@ const HUMAN: Record<string, string> = {
 		"This technician doesn't offer that service.",
 	slot_taken: "That time slot was just booked. Please pick another.",
 	tech_unavailable: "The technician isn't available on that day.",
+	booking_must_be_future: "Bookings must be for the next day or later.",
 	order_not_found_or_not_owner: "Order not found.",
 	order_not_found: "Order not found.",
 	not_owner: "You don't have access to this order.",
@@ -246,6 +247,7 @@ const HUMAN: Record<string, string> = {
 	wrong_actor_for_round: "It's the other party's turn to act on this quote.",
 	max_quote_rounds_reached:
 		"You've reached the maximum number of quote rounds.",
+	price_out_of_range: "Enter a price within the service's listed range.",
 	missing_final_price: "A final price is required to complete this order.",
 	no_cash_payment_pending: "There's no pending cash payment for this order.",
 	no_completion_pending:
@@ -310,6 +312,8 @@ export function mapLifecycleRpcError(error: {
 		badRequest("service_not_offered_by_technician");
 	if (msg.includes("slot_taken")) conflict("slot_taken");
 	if (msg.includes("tech_unavailable")) conflict("tech_unavailable");
+	if (msg.includes("booking_must_be_future"))
+		badRequest("booking_must_be_future");
 	if (msg.includes("order_not_found_or_not_owner"))
 		notFound("order_not_found_or_not_owner");
 
@@ -366,6 +370,17 @@ export function mapLifecycleRpcError(error: {
 	if (msg.includes("wrong_actor_for_round")) badRequest("wrong_actor_for_round");
 	if (msg.includes("max_quote_rounds_reached"))
 		conflict("max_quote_rounds_reached");
+	if (msg.includes("price_out_of_range")) {
+		// The Postgres function attaches `HINT EGP <min>-<max>` so we can show the
+		// exact accepted range to whoever proposed the out-of-range price.
+		const sentence = error.hint
+			? `Enter a price within the service's range (${error.hint}).`
+			: humanMessageFor("price_out_of_range");
+		throw AppError.badRequest(sentence, {
+			token: "price_out_of_range",
+			devMessage: error.hint ?? undefined,
+		});
+	}
 
 	// Completion / payment / fees.
 	if (msg.includes("missing_final_price")) conflict("missing_final_price");

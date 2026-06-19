@@ -5,77 +5,38 @@ import Animated, {
 	useReducedMotion,
 } from "react-native-reanimated";
 import { Text } from "@/src/components/ui/text";
-import {
-	DUR_STAGGER,
-	STAGGER_GAP,
-} from "@/src/constants/animation";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { DUR_STAGGER, STAGGER_GAP } from "@/src/constants/animation";
+import { space } from "@/src/constants/design-tokens";
 
+// `icon` + `eyebrow` are accepted for call-site back-compat but intentionally
+// not rendered: the old uppercase tracked eyebrow + tinted icon chip is gone.
+// Phase identity now reads off the stepper alone; the hero shows one plain
+// title (+ optional subtitle).
 interface StageHeroProps {
-	readonly icon: LucideIcon;
-	readonly eyebrow: string;
+	readonly icon?: LucideIcon;
+	readonly eyebrow?: string;
 	readonly title: string;
 	readonly subtitle?: string;
 	readonly accentColor?: string;
 }
 
-export default function StageHero({
-	icon: Icon,
-	eyebrow,
-	title,
-	subtitle,
-	accentColor,
-}: StageHeroProps) {
-	const themeColors = useThemeColors();
+export default function StageHero({ title, subtitle }: StageHeroProps) {
 	const reducedMotion = useReducedMotion();
 	const fadeIn = (i: number) =>
 		reducedMotion
 			? undefined
 			: FadeInDown.delay(i * STAGGER_GAP).duration(DUR_STAGGER);
-	const tint = accentColor ?? themeColors.primary;
 
 	return (
 		<View style={{ gap: space[1] }}>
-			<Animated.View
-				entering={fadeIn(0)}
-				style={{
-					flexDirection: "row",
-					alignItems: "center",
-					gap: space[2],
-				}}
-			>
-				<View
-					style={{
-						width: 28,
-						height: 28,
-						borderRadius: radius.pill,
-						alignItems: "center",
-						justifyContent: "center",
-						backgroundColor: `${tint}1A`,
-					}}
-				>
-					<Icon size={spacing.icon.caption} color={tint} strokeWidth={2.6} />
-				</View>
-				<Text
-					variant="caption"
-					className="font-google-sans-bold uppercase"
-					style={{ color: tint, letterSpacing: 1.2 }}
-				>
-					{eyebrow}
-				</Text>
-			</Animated.View>
-
-			<Animated.View entering={fadeIn(1)}>
-				<Text
-					variant="h3"
-					className="font-google-sans-bold text-content"
-				>
+			<Animated.View entering={fadeIn(0)}>
+				<Text variant="h3" className="font-google-sans-bold text-content">
 					{title}
 				</Text>
 			</Animated.View>
 
 			{subtitle ? (
-				<Animated.View entering={fadeIn(2)}>
+				<Animated.View entering={fadeIn(1)}>
 					<Text
 						variant="bodySm"
 						className="text-content-secondary"

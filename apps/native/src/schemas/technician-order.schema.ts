@@ -26,6 +26,9 @@ export const technicianBookingSchema = z.object({
 	user_longitude: z.number().nullable().optional(),
 	service_name: z.string().nullable().optional(),
 	category_id: z.string().nullable().optional(),
+	// Service quote range (null when the service has no configured range).
+	service_min_price: z.number().nullable().optional(),
+	service_max_price: z.number().nullable().optional(),
 	has_pending_reschedule: z.boolean().optional(),
 	active: z.boolean().optional(),
 	created_at: z.string().optional(),

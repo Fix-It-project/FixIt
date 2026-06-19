@@ -26,6 +26,10 @@ interface QuoteOfferSheetProps {
 	readonly currency?: string;
 	readonly isPending: boolean;
 	readonly previousAmount: number | null;
+	/** Service work-price range. When both are set, the amount is constrained to
+	 *  [minPrice, maxPrice] (mirrors the DB guard rpc_submit_quote/price_out_of_range). */
+	readonly minPrice?: number | null;
+	readonly maxPrice?: number | null;
 	readonly onSubmit: (args: { amount: number; note: string }) => void;
 }
 
@@ -38,6 +42,8 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 			currency = "EGP",
 			isPending,
 			previousAmount,
+			minPrice,
+			maxPrice,
 			onSubmit,
 		},
 		ref,
@@ -47,6 +53,12 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 		const [visible, setVisible] = useState(false);
 		const [amount, setAmount] = useState("");
 		const [note, setNote] = useState("");
+
+		const hasRange =
+			typeof minPrice === "number" && typeof maxPrice === "number";
+		const rangeLabel = hasRange
+			? `${formatCurrency(minPrice as number, currency)} – ${formatCurrency(maxPrice as number, currency)}`
+			: null;
 
 		const close = () => setVisible(false);
 
@@ -83,6 +95,17 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 				});
 				return;
 			}
+			if (
+				hasRange &&
+				(parsed < (minPrice as number) || parsed > (maxPrice as number))
+			) {
+				Toast.show({
+					type: "info",
+					text1: t("detail.quote.offer.outOfRangeTitle"),
+					text2: t("detail.quote.offer.outOfRangeBody", { range: rangeLabel }),
+				});
+				return;
+			}
 			onSubmit({ amount: parsed, note: note.trim() });
 		};
 
@@ -108,6 +131,15 @@ const QuoteOfferSheet = forwardRef<QuoteOfferSheetHandle, QuoteOfferSheetProps>(
 								})}
 								autoFocus
 							/>
+							{rangeLabel ? (
+								<Text
+									variant="caption"
+									className="font-google-sans-medium"
+									style={{ color: themeColors.primary }}
+								>
+									{t("detail.quote.offer.rangeHint", { range: rangeLabel })}
+								</Text>
+							) : undefined}
 							{typeof previousAmount === "number" ? (
 								<Text
 									variant="caption"
