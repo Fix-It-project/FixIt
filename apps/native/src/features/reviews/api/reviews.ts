@@ -20,7 +20,7 @@ export async function createReview(
 ): Promise<void> {
 	// Validate on client before network call
 	createReviewClientSchema.parse(input);
-	await apiClient.post("/api/reviews/", input);
+	await apiClient.post("/api/reviews", input);
 }
 
 /**
