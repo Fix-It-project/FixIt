@@ -1,4 +1,4 @@
-import { setStatusBarStyle } from "expo-status-bar";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
@@ -34,30 +34,26 @@ export function LocationGate() {
 	// The gate sits on the surface; keep status-bar icons legible even if it
 	// appears over a screen that had set light (blue-chrome) icons.
 	useEffect(() => {
-		setStatusBarStyle(tokens.statusBarStyle);
+		StatusBar.setStyle(tokens.statusBarStyle);
 	}, [tokens.statusBarStyle]);
 
 	const illustrationW = Math.min(width * 0.6, height * 0.34, 280);
 	const fadeDown = (delay: number) =>
 		reducedMotion ? undefined : FadeInDown.delay(delay).duration(440);
 
-	const ctaLabel =
-		status === "request"
-			? t("gate.cta.request")
-			: status === "requestBackground"
-				? t("gate.cta.requestBackground")
-				: status === "openSettings"
-					? t("gate.cta.openSettings")
-					: t("gate.cta.enableServices");
+	const ctaLabelByStatus: Record<string, string> = {
+		request: t("gate.cta.request"),
+		requestBackground: t("gate.cta.requestBackground"),
+		openSettings: t("gate.cta.openSettings"),
+	};
+	const ctaLabel = ctaLabelByStatus[status] ?? t("gate.cta.enableServices");
 
-	const hint =
-		status === "openSettings"
-			? t("gate.deniedHint")
-			: status === "servicesOff"
-				? t("gate.servicesHint")
-				: status === "requestBackground"
-					? t("gate.backgroundHint")
-					: null;
+	const hintByStatus: Record<string, string> = {
+		openSettings: t("gate.deniedHint"),
+		servicesOff: t("gate.servicesHint"),
+		requestBackground: t("gate.backgroundHint"),
+	};
+	const hint = hintByStatus[status] ?? null;
 
 	// The background ("Always") step gets its own title/body so technicians
 	// understand why a second, stronger permission is being requested.

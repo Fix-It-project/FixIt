@@ -20,7 +20,7 @@ export const requireUserAuth = (req: Request, _res: Response, next: NextFunction
 
       const user = await authService.getCurrentUser(token);
 
-      if (!user || !user.id) {
+      if (!user?.id) {
         throw AppError.unauthorized('Invalid or expired token', { token: 'expired' });
       }
 

@@ -18,7 +18,7 @@ export default function TechnicianLayout() {
 	// history / booking view renders against cache instead of a cold fetch.
 	useEffect(() => {
 		if (!userId) return;
-		void queryClient.prefetchQuery(technicianBookingsQueryOptions(userId));
+		queryClient.prefetchQuery(technicianBookingsQueryOptions(userId));
 	}, [userId, queryClient]);
 
 	return (

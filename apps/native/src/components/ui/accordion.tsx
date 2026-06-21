@@ -71,7 +71,7 @@ function Accordion({
 	);
 }
 
-function AccordionTrigger({ onPress, ...props }: PressableProps) {
+function AccordionTrigger({ onPress, ...props }: Readonly<PressableProps>) {
 	const { expanded, setExpanded } = useAccordionContext();
 
 	return (
@@ -87,7 +87,11 @@ function AccordionTrigger({ onPress, ...props }: PressableProps) {
 	);
 }
 
-function AccordionContent({ children, style, ...props }: ViewProps) {
+function AccordionContent({
+	children,
+	style,
+	...props
+}: Readonly<ViewProps>) {
 	const { expanded } = useAccordionContext();
 	const reducedMotion = useReducedMotion();
 	const [contentHeight, setContentHeight] = React.useState(0);

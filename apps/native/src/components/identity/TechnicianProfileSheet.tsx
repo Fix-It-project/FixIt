@@ -193,17 +193,22 @@ const TechnicianProfileSheet = forwardRef<TechnicianProfileSheetRef, object>(
 										className="flex-1 text-content-secondary"
 										style={{ includeFontPadding: false }}
 									>
-										{profile.avg_rating !== null && profile.review_count > 0
-											? t(
-													profile.review_count === 1
-														? "profileSheet.reviewSummaryOne"
-														: "profileSheet.reviewSummaryOther",
-													{
-														rating: numberFormatter.format(profile.avg_rating),
-														count: numberFormatter.format(profile.review_count),
-													},
-												)
-											: t("profileSheet.noReviewsYet")}
+										{(() => {
+											if (
+												profile.avg_rating === null ||
+												profile.review_count <= 0
+											) {
+												return t("profileSheet.noReviewsYet");
+											}
+											const summaryKey =
+												profile.review_count === 1
+													? "profileSheet.reviewSummaryOne"
+													: "profileSheet.reviewSummaryOther";
+											return t(summaryKey, {
+												rating: numberFormatter.format(profile.avg_rating),
+												count: numberFormatter.format(profile.review_count),
+											});
+										})()}
 									</Text>
 								</View>
 							</View>

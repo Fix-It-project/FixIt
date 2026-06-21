@@ -18,19 +18,19 @@ vi.mock('../../addresses.service.js', () => ({
 
 const { userAddressHandlers, technicianAddressHandlers } = await import('../../addresses.controller.js');
 
+function createUserReq(overrides: Partial<Request> = {}) {
+  return createMockReq({ user: { id: 'u-1' }, ...overrides } as Partial<Request>);
+}
+
+function createTechnicianReq(overrides: Partial<Request> = {}) {
+  return createMockReq({ technician: { id: 't-1' }, ...overrides } as Partial<Request>);
+}
+
+function createReqRes(req: Request) {
+  return { req, res: createMockRes() };
+}
+
 describe('Addresses Controller', () => {
-  function createUserReq(overrides: Partial<Request> = {}) {
-    return createMockReq({ user: { id: 'u-1' }, ...overrides } as Partial<Request>);
-  }
-
-  function createTechnicianReq(overrides: Partial<Request> = {}) {
-    return createMockReq({ technician: { id: 't-1' }, ...overrides } as Partial<Request>);
-  }
-
-  function createReqRes(req: Request) {
-    return { req, res: createMockRes() };
-  }
-
   describe('getAddresses', () => {
     it('should return 200 with addresses for user role', async () => {
       const addresses = [{ id: 'a1', city: 'Amman' }];

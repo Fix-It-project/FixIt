@@ -26,6 +26,11 @@ export default function ReviewStatsHeader({
 	// The DB's stats column reports rating=5.00 for zero-review rows; UI must not surface that.
 	const isEmpty = reviewCount === 0 || avgRating === null;
 
+	let reviewCountLabel: string;
+	if (reviewCount === 0) reviewCountLabel = t("stats.noReviews");
+	else if (reviewCount === 1) reviewCountLabel = t("stats.reviewOne");
+	else reviewCountLabel = t("stats.reviewOther", { count: reviewCount });
+
 	return (
 		<View className="px-button-x py-stack-xl">
 			<View className="items-center">
@@ -33,11 +38,7 @@ export default function ReviewStatsHeader({
 					{isEmpty ? "—" : (avgRating?.toFixed(2) ?? "—")}
 				</Text>
 				<Text variant="caption" className="mt-stack-xs text-content-muted">
-					{reviewCount === 0
-						? t("stats.noReviews")
-						: reviewCount === 1
-							? t("stats.reviewOne")
-							: t("stats.reviewOther", { count: reviewCount })}
+					{reviewCountLabel}
 				</Text>
 			</View>
 

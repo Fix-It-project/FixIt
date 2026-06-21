@@ -34,7 +34,7 @@ export default function RatingChip({ technicianId }: { technicianId: string }) {
 		);
 	}
 
-	if (!profile || profile.avg_rating == null) {
+	if (profile?.avg_rating == null) {
 		return (
 			<View style={{ width: PLACEHOLDER_WIDTH, height: PLACEHOLDER_HEIGHT }} />
 		);

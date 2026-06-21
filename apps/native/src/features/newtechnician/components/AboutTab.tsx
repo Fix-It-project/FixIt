@@ -103,13 +103,16 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 	}, [templates]);
 
 	const hasSchedule = activeDays.length > 0;
-	const inspectionFeeLabel = inspectionFeeQuery.data
-		? formatCurrency(inspectionFeeQuery.data.inspection_fee)
-		: isLoadingAddresses || inspectionFeeQuery.isLoading
-			? t("about.loadingInspectionFee")
-			: !activePricingAddress?.id
-				? t("about.addAddressForFee")
-				: t("about.inspectionFeeUnavailable");
+	let inspectionFeeLabel: string;
+	if (inspectionFeeQuery.data) {
+		inspectionFeeLabel = formatCurrency(inspectionFeeQuery.data.inspection_fee);
+	} else if (isLoadingAddresses || inspectionFeeQuery.isLoading) {
+		inspectionFeeLabel = t("about.loadingInspectionFee");
+	} else if (!activePricingAddress?.id) {
+		inspectionFeeLabel = t("about.addAddressForFee");
+	} else {
+		inspectionFeeLabel = t("about.inspectionFeeUnavailable");
+	}
 
 	return (
 		<View className="py-stack-md">
@@ -130,7 +133,8 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 						<Skeleton className="h-12 w-full rounded-input" />
 						<Skeleton className="h-12 w-full rounded-input" />
 					</View>
-				) : hasSchedule ? (
+				) : null}
+				{!isLoading && hasSchedule ? (
 					<>
 						<InfoRow
 							icon={CalendarDays}
@@ -150,13 +154,14 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 							}
 						/>
 					</>
-				) : (
+				) : null}
+				{!isLoading && !hasSchedule ? (
 					<View className="mt-stack-xs rounded-input bg-surface-elevated px-card py-stack-md">
 						<Text variant="bodySm" className="text-content-muted">
 							{t("about.noSchedule")}
 						</Text>
 					</View>
-				)}
+				) : null}
 			</View>
 		</View>
 	);

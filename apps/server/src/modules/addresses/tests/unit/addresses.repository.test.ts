@@ -38,25 +38,25 @@ vi.mock('@/shared/db/supabase.js', () => ({
 // Import AFTER mocking
 const { AddressesRepository } = await import('../../addresses.repository.js');
 
+function useSingleChain() {
+  const chain = createChain();
+  mockFrom.mockReturnValue(chain);
+  return chain;
+}
+
+function useDoubleChain() {
+  const checkChain = createChain();
+  const writeChain = createChain();
+  mockFrom.mockReturnValueOnce(checkChain).mockReturnValueOnce(writeChain);
+  return { checkChain, writeChain };
+}
+
 describe('AddressesRepository', () => {
   let repo: InstanceType<typeof AddressesRepository>;
 
   beforeEach(() => {
     repo = new AddressesRepository();
   });
-
-  function useSingleChain() {
-    const chain = createChain();
-    mockFrom.mockReturnValue(chain);
-    return chain;
-  }
-
-  function useDoubleChain() {
-    const checkChain = createChain();
-    const writeChain = createChain();
-    mockFrom.mockReturnValueOnce(checkChain).mockReturnValueOnce(writeChain);
-    return { checkChain, writeChain };
-  }
 
   // ─── createAddress ────────────────────────────────────────────────────
 

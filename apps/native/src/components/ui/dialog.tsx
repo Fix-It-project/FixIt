@@ -8,7 +8,6 @@
  */
 
 import * as DialogPrimitive from "@rn-primitives/dialog";
-import { PortalHost } from "@rn-primitives/portal";
 import { X } from "lucide-react-native";
 import * as React from "react";
 import {
@@ -32,7 +31,7 @@ import { overlayTokens } from "@/src/constants/design-tokens/themes/overlay";
 import { useDialogStore } from "@/src/stores/dialog-store";
 
 export { confirm } from "@/src/stores/dialog-store";
-export { PortalHost };
+export { PortalHost } from "@rn-primitives/portal";
 
 type DialogProps = {
 	visible: boolean;
@@ -75,11 +74,11 @@ function DialogOverlay({
 	children,
 	dismissible,
 	keyboardVerticalOffset = 0,
-}: {
+}: Readonly<{
 	children: React.ReactNode;
 	dismissible: boolean;
 	keyboardVerticalOffset?: number;
-}) {
+}>) {
 	const themeColors = useThemeColors();
 
 	return (
@@ -118,10 +117,10 @@ function DialogOverlay({
 function DialogContent({
 	children,
 	accessibilityRoleOverride = "none",
-}: {
+}: Readonly<{
 	children: React.ReactNode;
 	accessibilityRoleOverride?: "alert" | "none";
-}) {
+}>) {
 	const themeColors = useThemeColors();
 	const { height: screenHeight, width: screenWidth } = useWindowDimensions();
 	const viewportMargin =
@@ -159,7 +158,7 @@ function DialogContent({
 	);
 }
 
-function DialogHeader({ children }: { children: React.ReactNode }) {
+function DialogHeader({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<View style={styles.header}>
 			<DialogTitle asChild>
@@ -169,7 +168,7 @@ function DialogHeader({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function DialogBody({ children }: { children: React.ReactNode }) {
+function DialogBody({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<View style={styles.body}>
 			{typeof children === "string" ? (
@@ -183,11 +182,11 @@ function DialogBody({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function DialogForm({ children }: { children: React.ReactNode }) {
+function DialogForm({ children }: Readonly<{ children: React.ReactNode }>) {
 	return <View style={styles.form}>{children}</View>;
 }
 
-function DialogFooter({ children }: { children: React.ReactNode }) {
+function DialogFooter({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<View style={styles.footer}>
 			{React.Children.map(children, (child) => (
@@ -204,7 +203,7 @@ function ReusablesDialog({
 	children,
 	accessibilityRoleOverride = "none",
 	keyboardVerticalOffset,
-}: DialogProps) {
+}: Readonly<DialogProps>) {
 	const handleOpenChange = React.useCallback(
 		(open: boolean) => {
 			if (open) return;
@@ -282,7 +281,7 @@ function DialogProvider() {
 	);
 }
 
-function DialogCloseButton({ style, ...props }: ViewProps) {
+function DialogCloseButton({ style, ...props }: Readonly<ViewProps>) {
 	const themeColors = useThemeColors();
 
 	return (

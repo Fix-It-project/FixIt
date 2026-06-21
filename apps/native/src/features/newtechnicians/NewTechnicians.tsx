@@ -104,11 +104,11 @@ function EmptyState({
 				variant="bodySm"
 				className="mt-stack-xs max-w-sm text-center text-content-muted"
 			>
-				{isError
-					? t("list.empty.errorBody")
-					: hasSearch
-						? t("list.empty.searchBody")
-						: t("list.empty.categoryBody")}
+				{(() => {
+					if (isError) return t("list.empty.errorBody");
+					if (hasSearch) return t("list.empty.searchBody");
+					return t("list.empty.categoryBody");
+				})()}
 			</Text>
 			{isError ? (
 				<Button
@@ -247,7 +247,7 @@ export default function NewTechnicians() {
 			);
 			const listState = queryClient.getQueryState(listKey);
 			if (isCacheOlderThanOneMinute(listState?.dataUpdatedAt)) {
-				void refetch();
+				refetch();
 			}
 			if (activeSort === "Recommended") {
 				const rankKey = recommendedRankQueryKey({
@@ -257,7 +257,7 @@ export default function NewTechnicians() {
 				});
 				const rankState = queryClient.getQueryState(rankKey);
 				if (isCacheOlderThanOneMinute(rankState?.dataUpdatedAt)) {
-					void queryClient.invalidateQueries({
+					queryClient.invalidateQueries({
 						queryKey: rankKey,
 						exact: true,
 						refetchType: "active",
@@ -470,7 +470,7 @@ export default function NewTechnicians() {
 	}, [isBackgroundRefreshing]);
 	const loadNextPage = useCallback(() => {
 		if (!hasNextPage || isFetching || isFetchingNextPage) return;
-		void fetchNextPage();
+		fetchNextPage();
 	}, [fetchNextPage, hasNextPage, isFetching, isFetchingNextPage]);
 	const handleListScroll = useCallback(
 		(event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -535,15 +535,17 @@ export default function NewTechnicians() {
 
 				{showSkeleton ? (
 					<TechnicianListSkeleton />
-				) : displayedTechnicians.length === 0 ? (
+				) : null}
+				{!showSkeleton && displayedTechnicians.length === 0 ? (
 					<EmptyState
 						isError={isError}
 						hasSearch={hasSearch}
 						onRetry={() => {
-							void refetch();
+							refetch();
 						}}
 					/>
-				) : (
+				) : null}
+				{!showSkeleton && displayedTechnicians.length > 0 ? (
 					<FlatList
 						data={displayedTechnicians}
 						keyExtractor={keyExtractor}
@@ -564,7 +566,7 @@ export default function NewTechnicians() {
 						windowSize={9}
 						removeClippedSubviews
 					/>
-				)}
+				) : null}
 			</View>
 
 			<TechnicianProfileSheet ref={profileSheetRef} />

@@ -29,7 +29,6 @@ export default function ChatbotScreen() {
 		// Audio
 		recorderState,
 		recordedAudio,
-		recordingDurationMs,
 		startRecording,
 		stopRecording,
 		clearAudio,
@@ -83,7 +82,6 @@ export default function ChatbotScreen() {
 					// Audio
 					recorderState={recorderState}
 					recordedAudio={recordedAudio}
-					recordingDurationMs={recordingDurationMs}
 					onStartRecording={() => {
 						setMessage("");
 						void startRecording();

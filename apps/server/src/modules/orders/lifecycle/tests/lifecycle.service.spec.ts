@@ -80,52 +80,59 @@ const tableHandlers: Record<string, TableHandler> = {
 	user_fee_obligations: () => ({ data: null, error: null }),
 };
 
+// Each `from(table)` call returns a fresh chainable builder. The chain
+// captures method calls (select/eq/limit/etc.) and `single()`/`maybeSingle()`
+// return real Promises whose value comes from the current table handler.
+function makeChain(table: string) {
+	const state: TableContext = {
+		eq: {},
+		method: "select",
+	};
+	const settle = (method: TableContext["method"]): Promise<HandlerResult> => {
+		state.method = method;
+		return Promise.resolve(
+			tableHandlers[table]?.(state) ?? { data: null, error: null },
+		);
+	};
+	const builder: Record<string, unknown> = {
+		select: () => {
+			state.method = "select";
+			return builder;
+		},
+		update: (payload: unknown) => {
+			state.method = "update";
+			state.payload = payload;
+			return builder;
+		},
+		insert: (payload: unknown) => {
+			state.method = "insert";
+			state.payload = payload;
+			return builder;
+		},
+		eq: (column: string, value: unknown) => {
+			state.eq[column] = value;
+			return builder;
+		},
+		is: () => builder,
+		order: () => builder,
+		limit: () => builder,
+		maybeSingle: () => settle("maybeSingle"),
+		single: () => settle("single"),
+	};
+	// The real Supabase query builder is a PromiseLike: awaiting it runs the
+	// query. Defined off the object literal so the mock stays awaitable without
+	// declaring a literal `then` member.
+	// biome-ignore lint/suspicious/noThenProperty: intentional PromiseLike mock mirroring Supabase's awaitable query builder
+	Object.defineProperty(builder, "then", { // NOSONAR intentional PromiseLike mock mirroring Supabase's awaitable query builder
+		value: (
+			resolve: (value: HandlerResult) => unknown,
+			reject?: (reason: unknown) => unknown,
+		) => settle(state.method).then(resolve, reject),
+		enumerable: false,
+	});
+	return builder;
+}
 function buildSupabaseMock() {
-	// Each `from(table)` call returns a fresh chainable builder. The chain
-	// captures method calls (select/eq/limit/etc.) and `single()`/`maybeSingle()`
-	// return real Promises whose value comes from the current table handler.
-	function makeChain(table: string) {
-		const state: TableContext = {
-			eq: {},
-			method: "select",
-		};
-		const settle = (method: TableContext["method"]): Promise<HandlerResult> => {
-			state.method = method;
-			return Promise.resolve(
-				tableHandlers[table]?.(state) ?? { data: null, error: null },
-			);
-		};
-		const builder: Record<string, unknown> = {
-			select: () => {
-				state.method = "select";
-				return builder;
-			},
-			update: (payload: unknown) => {
-				state.method = "update";
-				state.payload = payload;
-				return builder;
-			},
-			insert: (payload: unknown) => {
-				state.method = "insert";
-				state.payload = payload;
-				return builder;
-			},
-			eq: (column: string, value: unknown) => {
-				state.eq[column] = value;
-				return builder;
-			},
-			is: () => builder,
-			order: () => builder,
-			limit: () => builder,
-			maybeSingle: () => settle("maybeSingle"),
-			single: () => settle("single"),
-			then: (
-				resolve: (value: HandlerResult) => unknown,
-				reject?: (reason: unknown) => unknown,
-			) => settle(state.method).then(resolve, reject),
-		};
-		return builder;
-	}
 	return { from: (table: string) => makeChain(table) };
 }
 

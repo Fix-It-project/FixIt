@@ -56,10 +56,11 @@ function FormInput({
 	const hasAccessory =
 		(clearable && value.length > 0) || (!!Icon && !clearable);
 	const accessoryStyle: ViewStyle = isRTL ? { left: 16 } : { right: 16 };
+	const accessoryPadding: TextStyle = isRTL
+		? { paddingLeft: 48 }
+		: { paddingRight: 48 };
 	const inputAccessoryPadding: TextStyle | undefined = hasAccessory
-		? isRTL
-			? { paddingLeft: 48 }
-			: { paddingRight: 48 }
+		? accessoryPadding
 		: undefined;
 	const textDirectionStyle: TextStyle = {
 		textAlign,
@@ -91,6 +92,7 @@ function FormInput({
 						autoCapitalize={autoCapitalize}
 						editable={!disabled}
 						testID={testID}
+						accessibilityLabel={label}
 						className="flex-1"
 						style={[inputAccessoryPadding, textDirectionStyle]}
 					/>
@@ -106,6 +108,7 @@ function FormInput({
 						editable={!disabled}
 						secureToggle={secureToggle}
 						testID={testID}
+						accessibilityLabel={label}
 						className="flex-1"
 						style={[inputAccessoryPadding, textDirectionStyle]}
 					/>

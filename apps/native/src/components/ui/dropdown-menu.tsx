@@ -49,7 +49,7 @@ function DropdownMenuContent({
 	return (
 		<DropdownMenuPrimitive.Portal hostName={portalHost}>
 			<DropdownMenuPrimitive.Overlay
-				style={Platform.OS !== "web" ? StyleSheet.absoluteFill : undefined}
+				style={Platform.OS === "web" ? undefined : StyleSheet.absoluteFill}
 			>
 				<NativeOnlyAnimatedView
 					entering={FadeIn.duration(140)}

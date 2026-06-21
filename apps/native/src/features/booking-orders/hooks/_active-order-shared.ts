@@ -46,10 +46,12 @@ export function deriveActiveOrderState<T extends ActiveOrderLike>(
 	const bubbleOrder =
 		matches.length === 0
 			? undefined
-			: matches.reduce((earliest, candidate) =>
-					timestamp(candidate.created_at) < timestamp(earliest.created_at)
-						? candidate
-						: earliest,
+			: matches.reduce(
+					(earliest, candidate) =>
+						timestamp(candidate.created_at) < timestamp(earliest.created_at)
+							? candidate
+							: earliest,
+					matches[0],
 				);
 
 	const currentPhase = activeOrder

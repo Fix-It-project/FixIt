@@ -177,9 +177,9 @@ export default function RecommendScreen() {
 										...route.params,
 										technicianName: result.name,
 										distanceKm:
-											result.distance_km != null
-												? result.distance_km.toFixed(1)
-												: undefined,
+											result.distance_km == null
+												? undefined
+												: result.distance_km.toFixed(1),
 									},
 								});
 							}}
@@ -211,11 +211,11 @@ export default function RecommendScreen() {
 											result.category
 												? translateCategoryLabel(tc, null, result.category)
 												: "",
-											result.distance_km != null
-												? t("recommend.distance", {
+											result.distance_km == null
+												? null
+												: t("recommend.distance", {
 														km: result.distance_km.toFixed(1),
-													})
-												: null,
+													}),
 										]
 											.filter(Boolean)
 											.join(" · ")}

@@ -6,11 +6,25 @@ import {
 import { markAllNotificationLogsRead } from "@/src/features/notifications/api/notifications";
 import type {
 	NotificationLogItem,
-	NotificationPreferencesRole,
+	NotificationViewerRole,
 } from "@/src/features/notifications/types";
 
+function markItemRead(
+	item: NotificationLogItem,
+	readAt: string,
+): NotificationLogItem {
+	return { ...item, isRead: true, readAt: item.readAt ?? readAt };
+}
+
+function markPageRead(
+	page: NotificationLogItem[],
+	readAt: string,
+): NotificationLogItem[] {
+	return page.map((item) => markItemRead(item, readAt));
+}
+
 export function useMarkAllNotificationsReadMutation(
-	role: NotificationPreferencesRole,
+	role: NotificationViewerRole,
 ) {
 	const queryClient = useQueryClient();
 
@@ -21,22 +35,14 @@ export function useMarkAllNotificationsReadMutation(
 			queryClient.setQueryData<
 				InfiniteData<NotificationLogItem[], number> | undefined
 			>(["notification-logs", role], (current) => {
+				if (!current) return current;
 				const readAt = new Date().toISOString();
-
-				return current
-					? {
-							...current,
-							pages: current.pages.map((page) =>
-								page.map((item) => ({
-									...item,
-									isRead: true,
-									readAt: item.readAt ?? readAt,
-								})),
-							),
-						}
-					: current;
+				return {
+					...current,
+					pages: current.pages.map((page) => markPageRead(page, readAt)),
+				};
 			});
-			void queryClient.invalidateQueries({
+			queryClient.invalidateQueries({
 				queryKey: ["notification-unread-count", role],
 			});
 		},

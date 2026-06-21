@@ -24,19 +24,19 @@ export default function ReviewRow({ review, variant = "row" }: Props) {
 	const themeColors = useThemeColors();
 	const rating = review.rating ?? 0;
 
+	const nonCardClassName =
+		variant === "preview" ? "py-stack-sm" : "py-stack-md";
 	const containerClassName =
-		variant === "card"
-			? "rounded-card p-card"
-			: variant === "preview"
-				? "py-stack-sm"
-				: "py-stack-md";
+		variant === "card" ? "rounded-card p-card" : nonCardClassName;
 
+	const nonCardStyle =
+		variant === "row"
+			? { borderBottomWidth: 1, borderBottomColor: themeColors.borderDefault }
+			: undefined;
 	const containerStyle =
 		variant === "card"
 			? { backgroundColor: themeColors.surfaceElevated }
-			: variant === "row"
-				? { borderBottomWidth: 1, borderBottomColor: themeColors.borderDefault }
-				: undefined;
+			: nonCardStyle;
 
 	const commentLines = variant === "preview" ? 2 : undefined;
 

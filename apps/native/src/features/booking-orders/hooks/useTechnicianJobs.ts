@@ -61,7 +61,7 @@ export function useScheduledJobGroups() {
 		}
 		return [...byDate.entries()]
 			.sort(([a], [b]) => a.localeCompare(b))
-			.map(([date, jobs]) => ({ date, jobs: jobs.sort(byStartAtAsc) }));
+			.map(([date, jobs]) => ({ date, jobs: [...jobs].sort(byStartAtAsc) }));
 	}, [query.data]);
 	return { ...query, data };
 }

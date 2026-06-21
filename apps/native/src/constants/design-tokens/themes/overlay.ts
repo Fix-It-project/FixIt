@@ -20,17 +20,17 @@ export const overlayTokens = {
     footerGap: 8,
     enter: {
       duration: 150,
-      easing: Easing.bezier(0.4, 0.0, 0.2, 1), // MD2 standard
+      easing: Easing.bezier(0.4, 0, 0.2, 1), // MD2 standard
       scaleFrom: 0.85,
       backdropDuration: 100,
-      backdropEasing: Easing.bezier(0.0, 0.0, 0.2, 1), // MD2 decelerate
+      backdropEasing: Easing.bezier(0, 0, 0.2, 1), // MD2 decelerate
     },
     exit: {
       duration: 120,
-      easing: Easing.bezier(0.4, 0.0, 1, 1), // MD2 accelerate
+      easing: Easing.bezier(0.4, 0, 1, 1), // MD2 accelerate
       scaleTo: 0.85,
       backdropDuration: 120,
-      backdropEasing: Easing.bezier(0.4, 0.0, 1, 1), // MD2 accelerate
+      backdropEasing: Easing.bezier(0.4, 0, 1, 1), // MD2 accelerate
       opacityDuration: 80,
     },
     shadow: {

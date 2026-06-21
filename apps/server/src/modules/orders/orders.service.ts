@@ -33,8 +33,8 @@ export class OrdersService {
 
 	async getUserOrderById(userId: string, id: string) {
 		const order = await ordersRepository.getOrderById(id);
-		if (!order || order.user_id !== userId) {
-			throw { status: 404, message: "Order not found" };
+		if (order?.user_id !== userId) {
+			throw Object.assign(new Error("Order not found"), { status: 404 });
 		}
 		const enriched = await this.enrichWithReconcile(order);
 		// D9 (Phase 2 CONTEXT): GET enriched with active_quote
@@ -43,8 +43,8 @@ export class OrdersService {
 
 	async getTechnicianOrderById(technicianId: string, id: string) {
 		const order = await ordersRepository.getOrderById(id);
-		if (!order || order.technician_id !== technicianId) {
-			throw { status: 404, message: "Order not found" };
+		if (order?.technician_id !== technicianId) {
+			throw Object.assign(new Error("Order not found"), { status: 404 });
 		}
 		const enriched = await this.enrichWithReconcile(order);
 		// D9 (Phase 2 CONTEXT): GET enriched with active_quote

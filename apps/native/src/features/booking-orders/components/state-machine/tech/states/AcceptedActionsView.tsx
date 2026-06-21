@@ -178,7 +178,8 @@ export function AcceptedCta({ order }: Props) {
 					>
 						{"Resolve the pending reschedule request before starting tracking."}
 					</Text>
-				) : blocked ? (
+				) : null}
+				{!hasPendingReschedule && blocked ? (
 					<Text
 						variant="caption"
 						style={{

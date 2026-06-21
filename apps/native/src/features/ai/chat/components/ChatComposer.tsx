@@ -45,7 +45,6 @@ type Props = {
 	// Audio props
 	recorderState: AudioRecorderState;
 	recordedAudio: RecordedAudio | null;
-	recordingDurationMs: number;
 	onStartRecording: () => void;
 	onStopRecording: () => void;
 	onClearAudio: () => void;
@@ -76,7 +75,7 @@ export default function ChatComposer({
 	onStopRecording,
 	onClearAudio,
 	onCancelRecording,
-}: Props) {
+}: Readonly<Props>) {
 	const { t } = useTranslation("chat");
 	const themeColors = useThemeColors();
 
@@ -279,7 +278,8 @@ export default function ChatComposer({
 								style={{ backgroundColor: themeColors.onPrimaryHeader }}
 							/>
 						</CircleButton>
-					) : canSend ? (
+					) : null}
+					{!isRecording && canSend ? (
 						<CircleButton
 							bg={themeColors.primary}
 							onPress={onSend}
@@ -292,7 +292,8 @@ export default function ChatComposer({
 								strokeWidth={2.6}
 							/>
 						</CircleButton>
-					) : (
+					) : null}
+					{!isRecording && !canSend ? (
 						<CircleButton
 							bg={themeColors.primary}
 							onPress={onStartRecording}
@@ -304,7 +305,7 @@ export default function ChatComposer({
 								strokeWidth={2.2}
 							/>
 						</CircleButton>
-					)}
+					) : null}
 				</View>
 			</View>
 		</View>
@@ -315,11 +316,11 @@ function ModeItem({
 	label,
 	active,
 	onPress,
-}: {
+}: Readonly<{
 	label: string;
 	active: boolean;
 	onPress: () => void;
-}) {
+}>) {
 	const themeColors = useThemeColors();
 	return (
 		<DropdownMenuItem onPress={onPress}>
@@ -340,11 +341,11 @@ function AttachRow({
 	icon,
 	label,
 	onPress,
-}: {
+}: Readonly<{
 	icon: React.ReactNode;
 	label: string;
 	onPress: () => void;
-}) {
+}>) {
 	return (
 		<Pressable
 			onPress={onPress}
@@ -364,13 +365,13 @@ function CircleButton({
 	disabled,
 	label,
 	children,
-}: {
+}: Readonly<{
 	bg: string;
 	onPress: () => void;
 	disabled?: boolean;
 	label: string;
 	children: React.ReactNode;
-}) {
+}>) {
 	return (
 		<TouchableOpacity
 			onPress={onPress}
@@ -396,12 +397,12 @@ function ComposerChip({
 	title,
 	subtitle,
 	onClear,
-}: {
+}: Readonly<{
 	leading: React.ReactNode;
 	title: string;
 	subtitle: string;
 	onClear: () => void;
-}) {
+}>) {
 	const themeColors = useThemeColors();
 	return (
 		<View

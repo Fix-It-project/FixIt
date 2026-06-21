@@ -35,7 +35,7 @@ import {
 import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
 import { ROUTES } from "@/src/lib/navigation/routes";
 
-const CATEGORY_RAIL_HEIGHT = 104;
+const CATEGORY_RAIL_HEIGHT = 96;
 
 const ICON_MAP: Record<string, LucideIcon> = {
 	"air condition": AirVent,
@@ -165,7 +165,6 @@ export function CategoryRow() {
 					style={{ height: CATEGORY_RAIL_HEIGHT }}
 					contentContainerStyle={{
 						paddingHorizontal: 20,
-						paddingBottom: 6,
 						gap: 8,
 					}}
 				>
@@ -197,8 +196,8 @@ export function CategoryRow() {
 										height: 56,
 										borderRadius: 14,
 										backgroundColor: t.surfaceElevated,
-										borderWidth: 1,
-										borderColor: t.borderChip,
+										borderWidth: 1.25,
+										borderColor: t.primary,
 										alignItems: "center",
 										justifyContent: "center",
 									}}

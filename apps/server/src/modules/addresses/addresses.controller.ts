@@ -41,11 +41,9 @@ function createAddressHandlers(role: OwnerRole) {
 				return res.status(201).json({ address });
 			} catch (err: unknown) {
 				const { status, message } = normalizeError(err);
-				const resolvedStatus = message.includes("Maximum of")
-					? 409
-					: status === 500
-						? 400
-						: status;
+				let resolvedStatus = status;
+				if (message.includes("Maximum of")) resolvedStatus = 409;
+				else if (status === 500) resolvedStatus = 400;
 				return res.status(resolvedStatus).json({ error: message });
 			}
 		},

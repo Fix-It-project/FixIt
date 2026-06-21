@@ -61,13 +61,15 @@ export default function MyAddressesScreen() {
 					<View className="flex-1 items-center justify-center">
 						<ActivityIndicator size="large" color={themeColors.primary} />
 					</View>
-				) : isError || !addresses ? (
+				) : null}
+				{!isLoading && (isError || !addresses) ? (
 					<View className="flex-1 items-center justify-center">
 						<Text variant="buttonLg" className="text-center text-danger">
 							{t("manage.loadError")}
 						</Text>
 					</View>
-				) : (
+				) : null}
+				{!isLoading && !isError && addresses ? (
 					<>
 						<Text
 							variant="bodySm"
@@ -123,7 +125,7 @@ export default function MyAddressesScreen() {
 							{t("manage.add")}
 						</Button>
 					</>
-				)}
+				) : null}
 			</View>
 		</ScreenSafeAreaView>
 	);

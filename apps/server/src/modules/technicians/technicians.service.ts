@@ -13,7 +13,6 @@ import {
 import { PENDING_ORDER_EXPIRY_HOURS } from "../../shared/time/order-expiry.js";
 import { sortByDistance } from "../../shared/utils/technicians/index.js";
 import type { ICategoriesRepository } from "../categories/categories.repository.js";
-import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 import type {
 	ITechnicianQueryRepository,
 	ITechniciansRepository,
@@ -25,6 +24,7 @@ import type {
 	UpdateTechnicianSelfData,
 } from "./technicians.repository.js";
 import { toDTO } from "./technicians.repository.js";
+import type { ITechniciansStatsRepository } from "./technicians-stats.repository.js";
 
 export interface TechnicianListOpts {
 	lat?: number;
@@ -125,6 +125,60 @@ export interface ITechniciansService {
 		technicianId: string,
 		file: Express.Multer.File,
 	): Promise<{ profile_image: string }>;
+}
+
+function aggregatePaymentTotals(
+	payments: ReadonlyArray<{ paid_at: string; amount: number }>,
+	dailyMap: Map<string, number>,
+	bounds: { startOfToday: Date; startOfYesterday: Date; startOfWeek: Date },
+): { today: number; yesterday: number; thisWeek: number } {
+	let today = 0;
+	let yesterday = 0;
+	let thisWeek = 0;
+	for (const p of payments) {
+		const paidAt = new Date(p.paid_at);
+		const day = cairoDateString(paidAt);
+		if (dailyMap.has(day))
+			dailyMap.set(day, (dailyMap.get(day) ?? 0) + p.amount);
+		if (paidAt >= bounds.startOfToday) today += p.amount;
+		else if (paidAt >= bounds.startOfYesterday) yesterday += p.amount;
+		if (paidAt >= bounds.startOfWeek) thisWeek += p.amount;
+	}
+	return { today, yesterday, thisWeek };
+}
+
+function aggregateOrderCounts(
+	orders: ReadonlyArray<{ status: string; scheduled_date: string }>,
+	todayStr: string,
+	weekStartDate: string,
+): {
+	doneToday: number;
+	doneThisWeek: number;
+	pendingCount: number;
+	cancelledByTech: number;
+	completedTotal: number;
+} {
+	let doneToday = 0;
+	let doneThisWeek = 0;
+	let pendingCount = 0;
+	let cancelledByTech = 0;
+	let completedTotal = 0;
+	for (const o of orders) {
+		if (o.status === "pending") pendingCount += 1;
+		if (o.status === "completed") {
+			completedTotal += 1;
+			if (o.scheduled_date === todayStr) doneToday += 1;
+			if (o.scheduled_date >= weekStartDate) doneThisWeek += 1;
+		}
+		if (o.status === "cancelled_by_technician") cancelledByTech += 1;
+	}
+	return {
+		doneToday,
+		doneThisWeek,
+		pendingCount,
+		cancelledByTech,
+		completedTotal,
+	};
 }
 
 export class TechniciansService implements ITechniciansService {
@@ -241,11 +295,10 @@ export class TechniciansService implements ITechniciansService {
 	private paginate<T>(
 		items: T[],
 		limit: number | undefined,
-		offset: number | undefined,
+		offset = 0,
 	): T[] {
-		const start = offset ?? 0;
-		if (limit == null) return start > 0 ? items.slice(start) : items;
-		return items.slice(start, start + limit);
+		if (limit == null) return offset > 0 ? items.slice(offset) : items;
+		return items.slice(offset, offset + limit);
 	}
 
 	async getTechnicianProfile(id: string): Promise<TechnicianProfile> {
@@ -351,33 +404,19 @@ export class TechniciansService implements ITechniciansService {
 			]);
 
 		const dailyMap = new Map<string, number>(last7Days.map((d) => [d, 0]));
-		let today = 0;
-		let yesterday = 0;
-		let thisWeek = 0;
-		for (const p of payments) {
-			const paidAt = new Date(p.paid_at);
-			const day = cairoDateString(paidAt);
-			if (dailyMap.has(day))
-				dailyMap.set(day, (dailyMap.get(day) ?? 0) + p.amount);
-			if (paidAt >= startOfToday) today += p.amount;
-			else if (paidAt >= startOfYesterday) yesterday += p.amount;
-			if (paidAt >= startOfWeek) thisWeek += p.amount;
-		}
+		const { today, yesterday, thisWeek } = aggregatePaymentTotals(
+			payments,
+			dailyMap,
+			{ startOfToday, startOfYesterday, startOfWeek },
+		);
 
-		let doneToday = 0;
-		let doneThisWeek = 0;
-		let pendingCount = 0;
-		let cancelledByTech = 0;
-		let completedTotal = 0;
-		for (const o of orders) {
-			if (o.status === "pending") pendingCount += 1;
-			if (o.status === "completed") {
-				completedTotal += 1;
-				if (o.scheduled_date === todayStr) doneToday += 1;
-				if (o.scheduled_date >= weekStartDate) doneThisWeek += 1;
-			}
-			if (o.status === "cancelled_by_technician") cancelledByTech += 1;
-		}
+		const {
+			doneToday,
+			doneThisWeek,
+			pendingCount,
+			cancelledByTech,
+			completedTotal,
+		} = aggregateOrderCounts(orders, todayStr, weekStartDate);
 
 		const accepts = decisions.filter(
 			(d) => d.event_type === "tech_accept",

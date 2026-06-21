@@ -96,11 +96,8 @@ export default function SignUpStep2() {
 		});
 	};
 
-	const errorMessage = signUpMutation.error
-		? getErrorMessage(signUpMutation.error)
-		: oauthCompleteMutation.error
-			? getErrorMessage(oauthCompleteMutation.error)
-			: null;
+	const activeError = signUpMutation.error ?? oauthCompleteMutation.error;
+	const errorMessage = activeError ? getErrorMessage(activeError) : null;
 
 	const isFormValid =
 		city.trim().length > 0 &&

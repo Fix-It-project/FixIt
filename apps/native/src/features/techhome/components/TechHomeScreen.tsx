@@ -62,8 +62,8 @@ export function TechHomeScreen() {
 		(statsQuery.isPending && !statsQuery.data);
 	const refreshing = ordersQuery.isRefetching || statsQuery.isRefetching;
 	const onRefresh = () => {
-		void ordersQuery.refetch();
-		void statsQuery.refetch();
+		ordersQuery.refetch();
+		statsQuery.refetch();
 	};
 
 	return (

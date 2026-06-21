@@ -189,6 +189,23 @@ interface AvailabilityCalendarProps {
 	readonly backgroundColor?: string;
 }
 
+// A day is unavailable when templates exist and it isn't an available weekday
+// (or it's an explicit exception). With no templates, availability depends on
+// the permissive flag. Kept out of the day-cell renderer to flatten it.
+function computeDayUnavailable(
+	ymd: string,
+	hasTemplates: boolean,
+	availableDays: ReadonlySet<number>,
+	exceptionDates: ReadonlySet<string>,
+	permissiveWhenEmpty: boolean,
+): boolean {
+	if (hasTemplates) {
+		return !availableDays.has(dayOfWeek(ymd)) || exceptionDates.has(ymd);
+	}
+	if (permissiveWhenEmpty) return exceptionDates.has(ymd);
+	return true;
+}
+
 export function AvailabilityCalendar({
 	templates,
 	exceptions,
@@ -290,11 +307,13 @@ export function AvailabilityCalendar({
 			// Same-day and past are not bookable — bookings start next day.
 			const isPast = ymd <= today;
 			const hasTemplates = templates.length > 0;
-			const isUnavailable = hasTemplates
-				? !availableDays.has(dayOfWeek(ymd)) || exceptionDates.has(ymd)
-				: permissiveWhenEmpty
-					? exceptionDates.has(ymd)
-					: true;
+			const isUnavailable = computeDayUnavailable(
+				ymd,
+				hasTemplates,
+				availableDays,
+				exceptionDates,
+				permissiveWhenEmpty,
+			);
 			const isSelected = ymd === selectedDate;
 			const isBlocked = isPast || isUnavailable;
 			const hasOrder = orderDateSet.has(ymd);

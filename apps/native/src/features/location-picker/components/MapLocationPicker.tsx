@@ -60,22 +60,24 @@ export default function MapLocationPicker() {
 
 	// Initial region precedence: route coords → current GPS → Cairo default.
 	const storeLocation = useLocationStore.getState().location;
-	const initialRegion: Region =
-		paramLat != null && paramLng != null
-			? {
-					latitude: paramLat,
-					longitude: paramLng,
-					latitudeDelta: ZOOM_DELTA,
-					longitudeDelta: ZOOM_DELTA,
-				}
-			: storeLocation
-				? {
-						latitude: storeLocation.latitude,
-						longitude: storeLocation.longitude,
-						latitudeDelta: ZOOM_DELTA,
-						longitudeDelta: ZOOM_DELTA,
-					}
-				: CAIRO;
+	let initialRegion: Region;
+	if (paramLat != null && paramLng != null) {
+		initialRegion = {
+			latitude: paramLat,
+			longitude: paramLng,
+			latitudeDelta: ZOOM_DELTA,
+			longitudeDelta: ZOOM_DELTA,
+		};
+	} else if (storeLocation) {
+		initialRegion = {
+			latitude: storeLocation.latitude,
+			longitude: storeLocation.longitude,
+			latitudeDelta: ZOOM_DELTA,
+			longitudeDelta: ZOOM_DELTA,
+		};
+	} else {
+		initialRegion = CAIRO;
+	}
 
 	// Latest map centre — updated as the user pans; read on confirm.
 	const centerRef = useRef({

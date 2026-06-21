@@ -164,14 +164,12 @@ export default function RescheduleScreen({
 		const trimmedReason = reason.trim();
 		// Reason is optional in the UI but required by the server — fall back to a
 		// localized default so blank notes still submit.
+		const defaultReasonKey =
+			viewer === "technician"
+				? "detail.reschedule.defaultReasonTech"
+				: "detail.reschedule.defaultReasonUser";
 		const finalReason =
-			trimmedReason.length > 0
-				? trimmedReason
-				: tr(
-						viewer === "technician"
-							? "detail.reschedule.defaultReasonTech"
-							: "detail.reschedule.defaultReasonUser",
-					);
+			trimmedReason.length > 0 ? trimmedReason : tr(defaultReasonKey);
 		const proposedStartAtIso = buildCairoSlotIsoUtc(selectedDateIso, slot.hour);
 
 		mutation.mutate(

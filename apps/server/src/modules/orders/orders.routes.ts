@@ -19,7 +19,11 @@ import { ordersController } from "./orders.controller.js";
 import rescheduleRoutes from "./reschedule.routes.js";
 
 const router: RouterType = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+	storage: multer.memoryStorage(),
+	// Cap upload size to bound memory use and reject oversized payloads (DoS guard).
+	limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 router.get("/user/orders", requireUserAuth, ordersController.getUserOrders);
 router.post(

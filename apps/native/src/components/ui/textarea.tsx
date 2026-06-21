@@ -49,16 +49,14 @@ const Textarea = React.forwardRef<TextInput, TextareaProps>(
 		// the min-height utility class size the field instead.
 		const resolvedNumberOfLines =
 			Platform.OS === "android" && multiline ? undefined : numberOfLines;
-		const borderClass =
-			variant === "outline"
-				? hasError
-					? "border-danger"
-					: isFocused
-						? "border-app-primary"
-						: "border-edge"
-				: hasError
-					? "border border-danger"
-					: "";
+		let borderClass = "";
+		if (variant === "outline") {
+			if (hasError) borderClass = "border-danger";
+			else if (isFocused) borderClass = "border-app-primary";
+			else borderClass = "border-edge";
+		} else if (hasError) {
+			borderClass = "border border-danger";
+		}
 
 		return (
 			<TextInput

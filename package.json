@@ -18,7 +18,8 @@
 		"db:studio": "turbo -F @FixIt/db db:studio",
 		"db:generate": "turbo -F @FixIt/db db:generate",
 		"db:migrate": "turbo -F @FixIt/db db:migrate",
-		"check": "biome check --write ."
+		"check": "biome check --write .",
+		"sonar": "pnpm --filter server test:coverage && sonar-scanner"
 	},
 	"dependencies": {
 		"@FixIt/env": "workspace:*",

@@ -61,7 +61,7 @@ function handleCacheError(
 	meta: CacheMeta,
 ): void {
 	const app = toAppError(err);
-	const keyHead = String(key[0] ?? "unknown");
+	const keyHead = typeof key[0] === "string" ? key[0] : "unknown";
 
 	// Known business errors → warn (no Expo red overlay). Unknown / unexpected
 	// errors still go through logger.error so real bugs stay visible in dev.

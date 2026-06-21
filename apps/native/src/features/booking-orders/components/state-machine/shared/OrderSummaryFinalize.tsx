@@ -98,7 +98,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 		}
 		const startedAt = Date.now();
 		const interval = setInterval(() => {
-			void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+			queryClient.invalidateQueries({ queryKey: ["user-orders"] });
 			if (Date.now() - startedAt >= 45_000) {
 				clearInterval(interval);
 				setIsPollingForCard(false);
@@ -136,13 +136,17 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 	const counterpartyLabel = isUser
 		? t("card.technicianFallback")
 		: t("card.customerFallback");
-	const workCompletedAt =
-		order.user_completed_at && order.technician_completed_at
-			? new Date(order.user_completed_at) >
-				new Date(order.technician_completed_at)
+	let workCompletedAt: string | null;
+	if (order.user_completed_at && order.technician_completed_at) {
+		workCompletedAt =
+			new Date(order.user_completed_at) >
+			new Date(order.technician_completed_at)
 				? order.user_completed_at
-				: order.technician_completed_at
-			: (order.user_completed_at ?? order.technician_completed_at ?? null);
+				: order.technician_completed_at;
+	} else {
+		workCompletedAt =
+			order.user_completed_at ?? order.technician_completed_at ?? null;
+	}
 
 	const timeline: TimelineRow[] = [
 		{
@@ -459,7 +463,7 @@ export default function OrderSummaryFinalize({ order, viewer }: Props) {
 						fullWidth
 						iconLeft={CreditCard}
 						onPress={() => {
-							void handleCardCheckout();
+							handleCardCheckout();
 						}}
 						loading={userCreateCardSession.isPending || isPollingForCard}
 					>

@@ -14,7 +14,7 @@ export function RoleProtectedLayout({
 	requiredRole,
 	otherRoleHome,
 	overlay,
-}: RoleProtectedLayoutProps) {
+}: Readonly<RoleProtectedLayoutProps>) {
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const isLoading = useAuthStore((state) => state.isLoading);
 	const userType = useAuthStore((state) => state.userType);

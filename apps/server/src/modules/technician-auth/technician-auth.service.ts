@@ -148,12 +148,12 @@ export class TechnicianAuthService {
     const status = record.status ?? 'pending';
     if (status !== 'verified') {
       await this.safeSignOut(result.session?.access_token ?? '');
-      const message =
-        status === 'pending'
-          ? 'Your account is pending admin verification. Please wait for approval.'
-          : status === 'blocked'
-            ? 'Your account has been blocked. Contact support for assistance.'
-            : 'Your application was not approved.';
+      let message = 'Your application was not approved.';
+      if (status === 'pending') {
+        message = 'Your account is pending admin verification. Please wait for approval.';
+      } else if (status === 'blocked') {
+        message = 'Your account has been blocked. Contact support for assistance.';
+      }
       // Machine-readable status discriminator for the native verification/blocked
       // screens. Carried via the existing `fields` slot (round-trips through
       // problem+json) so the client renders the right state without parsing text.

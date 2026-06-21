@@ -5,12 +5,12 @@
 	"browseServices": "Browse services",
 	"seeAll": "See all",
 	"viewAll": "View all",
-	"topRated": "Top rated",
+	"recommended": "Recommended",
 	"previousOrders": "Book again",
 	"latestBooking": "Latest order",
 	"noCategories": "No categories available",
 	"couldNotLoadServices": "Could not load services. Pull to refresh.",
-	"couldNotLoadTopRated": "Could not load top rated technicians. Pull to refresh.",
+	"couldNotLoadRecommended": "Could not load recommended technicians. Pull to refresh.",
 	"couldNotLoadOrders": "Could not load orders. Pull to refresh.",
 	"noPreviousOrders": "No previous orders yet",
 	"bookFirstService": "Book your first service to see it here.",
@@ -63,7 +63,7 @@
 	"offers": {
 		"cleaning": {
 			"label": "This week",
-			"title": "Freshen up your home",
+			"title": "Clean home, fast",
 			"subtitle": "Cleaning visits from nearby verified pros.",
 			"cta": "Book cleaning"
 		},
@@ -75,7 +75,7 @@
 		},
 		"plumbing": {
 			"label": "Quick repair",
-			"title": "Leaks handled today",
+			"title": "Fix leaks, fast",
 			"subtitle": "Trusted plumbers for urgent home fixes.",
 			"cta": "Book plumbing"
 		}

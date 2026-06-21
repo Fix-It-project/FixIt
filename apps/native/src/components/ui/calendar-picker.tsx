@@ -34,7 +34,7 @@ function CalendarPicker({
 	markedDates: externalMarkedDates,
 	style,
 	...rest
-}: CalendarPickerProps) {
+}: Readonly<CalendarPickerProps>) {
 	const tokens = useThemeTokens();
 
 	const calendarTheme = useMemo(() => getCalendarTheme(tokens), [tokens]);

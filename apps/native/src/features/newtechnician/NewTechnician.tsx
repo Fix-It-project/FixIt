@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import type { TFunction } from "i18next";
 import {
 	CalendarCheck,
 	CalendarDays,
@@ -7,6 +8,7 @@ import {
 	Navigation,
 	Star,
 } from "lucide-react-native";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -88,6 +90,67 @@ function DetailSkeleton() {
 	);
 }
 
+function resolveTechnicianName(
+	technicianName: string | undefined,
+	profileName: string | undefined,
+	t: TFunction<"technicians">,
+): string {
+	if (typeof technicianName === "string" && technicianName) {
+		return technicianName;
+	}
+	return profileName ?? t("detail.technicianFallback");
+}
+
+function resolveTechnicianInitials(
+	initials: string | undefined,
+	name: string,
+): string {
+	if (typeof initials === "string" && initials) return initials;
+	return getPfpInitialsFallback(name);
+}
+
+function formatDistanceLabel(
+	distanceKm: string | undefined,
+	t: TFunction<"technicians">,
+): string {
+	const parsed = Number(distanceKm);
+	return Number.isFinite(parsed)
+		? `${parsed.toFixed(1)} km`
+		: t("detail.notAvailable");
+}
+
+function formatTechnicianRating(
+	avgRating: number | null,
+	reviewCount: number,
+	t: TFunction<"technicians">,
+): string {
+	return avgRating !== null && reviewCount > 0
+		? formatRating(avgRating)
+		: t("detail.ratingNew");
+}
+
+// Lazy-mounted tab panel: stays unmounted until first visited, then kept
+// alive and toggled via `display` so tab state is preserved.
+function TabPanel({
+	mounted,
+	visible,
+	children,
+}: {
+	readonly mounted: boolean;
+	readonly visible: boolean;
+	readonly children: ReactNode;
+}) {
+	if (!mounted) return null;
+	return <View style={{ display: visible ? "flex" : "none" }}>{children}</View>;
+}
+
+function addVisitedTab(prev: Set<TabKey>, next: TabKey): Set<TabKey> {
+	if (prev.has(next)) return prev;
+	const updated = new Set(prev);
+	updated.add(next);
+	return updated;
+}
+
 export default function NewTechnician() {
 	const { t } = useTranslation("technicians");
 	const { t: tc } = useTranslation("categories");
@@ -122,12 +185,7 @@ export default function NewTechnician() {
 
 	const selectTab = useCallback((next: TabKey) => {
 		setTab(next);
-		setVisited((prev) => {
-			if (prev.has(next)) return prev;
-			const updated = new Set(prev);
-			updated.add(next);
-			return updated;
-		});
+		setVisited((prev) => addVisitedTab(prev, next));
 	}, []);
 
 	useEffect(() => {
@@ -142,26 +200,20 @@ export default function NewTechnician() {
 		setTabBarWidth(event.nativeEvent.layout.width);
 	}, []);
 
-	const resolvedName = useMemo(() => {
-		if (typeof params.technicianName === "string" && params.technicianName) {
-			return params.technicianName;
-		}
-		return profile?.name ?? t("detail.technicianFallback");
-	}, [params.technicianName, profile?.name, t]);
+	const resolvedName = useMemo(
+		() => resolveTechnicianName(params.technicianName, profile?.name, t),
+		[params.technicianName, profile?.name, t],
+	);
 
-	const resolvedInitials = useMemo(() => {
-		if (typeof params.initials === "string" && params.initials) {
-			return params.initials;
-		}
-		return getPfpInitialsFallback(resolvedName);
-	}, [params.initials, resolvedName]);
+	const resolvedInitials = useMemo(
+		() => resolveTechnicianInitials(params.initials, resolvedName),
+		[params.initials, resolvedName],
+	);
 
-	const cachedDistanceLabel = useMemo(() => {
-		const parsed = Number(params.distanceKm);
-		return Number.isFinite(parsed)
-			? `${parsed.toFixed(1)} km`
-			: t("detail.notAvailable");
-	}, [params.distanceKm, t]);
+	const cachedDistanceLabel = useMemo(
+		() => formatDistanceLabel(params.distanceKm, t),
+		[params.distanceKm, t],
+	);
 
 	const goBack = useSafeBack(ROUTES.user.home);
 
@@ -255,10 +307,11 @@ export default function NewTechnician() {
 													className="font-semibold text-content"
 													numberOfLines={1}
 												>
-													{profile.avg_rating !== null &&
-													profile.review_count > 0
-														? formatRating(profile.avg_rating)
-														: t("detail.ratingNew")}
+													{formatTechnicianRating(
+														profile.avg_rating,
+														profile.review_count,
+														t,
+													)}
 												</Text>
 											</View>
 										</View>
@@ -368,31 +421,34 @@ export default function NewTechnician() {
 							</View>
 
 							{/* ── Tab content (lazy-mounted, kept alive) ── */}
-							{visited.has("Details") ? (
-								<View style={{ display: tab === "Details" ? "flex" : "none" }}>
-									<AboutTab technicianId={technicianId} />
-								</View>
-							) : null}
+							<TabPanel
+								mounted={visited.has("Details")}
+								visible={tab === "Details"}
+							>
+								<AboutTab technicianId={technicianId} />
+							</TabPanel>
 
-							{visited.has("Services") ? (
-								<View style={{ display: tab === "Services" ? "flex" : "none" }}>
-									<ServicesTab
-										technicianId={technicianId}
-										selectedServiceId={selectedService?.id ?? null}
-										onSelect={setSelectedService}
-										preselectServiceId={params.preselectServiceId}
-									/>
-								</View>
-							) : null}
+							<TabPanel
+								mounted={visited.has("Services")}
+								visible={tab === "Services"}
+							>
+								<ServicesTab
+									technicianId={technicianId}
+									selectedServiceId={selectedService?.id ?? null}
+									onSelect={setSelectedService}
+									preselectServiceId={params.preselectServiceId}
+								/>
+							</TabPanel>
 
-							{visited.has("Reviews") ? (
-								<View style={{ display: tab === "Reviews" ? "flex" : "none" }}>
-									<ReviewsTab
-										technicianId={technicianId}
-										endReachedSignal={reviewEndSignal}
-									/>
-								</View>
-							) : null}
+							<TabPanel
+								mounted={visited.has("Reviews")}
+								visible={tab === "Reviews"}
+							>
+								<ReviewsTab
+									technicianId={technicianId}
+									endReachedSignal={reviewEndSignal}
+								/>
+							</TabPanel>
 						</ScrollView>
 
 						{/* ── Sticky CTA ── */}

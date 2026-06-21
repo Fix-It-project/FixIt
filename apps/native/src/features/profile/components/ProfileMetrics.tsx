@@ -92,15 +92,14 @@ export default function ProfileMetrics({
 		>
 			{metrics.map((metric, index) => (
 				<Fragment key={metric.key}>
-					{index > 0 ? (
-						onHero ? (
-							<View
-								className="h-8 w-px"
-								style={{ backgroundColor: themeColors.overlayMd }}
-							/>
-						) : (
-							<Separator orientation="vertical" className="h-8" />
-						)
+					{index > 0 && onHero ? (
+						<View
+							className="h-8 w-px"
+							style={{ backgroundColor: themeColors.overlayMd }}
+						/>
+					) : null}
+					{index > 0 && !onHero ? (
+						<Separator orientation="vertical" className="h-8" />
 					) : null}
 					<Cell metric={metric} onHero={onHero} />
 				</Fragment>

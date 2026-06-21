@@ -18,14 +18,14 @@ export class ReviewsService {
 		body: CreateReviewRequest,
 	): Promise<Review> {
 		const order = await ordersRepository.getOrderById(body.order_id);
-		if (!order || order.user_id !== userId) {
-			throw { status: 404, message: "Order not found" };
+		if (order?.user_id !== userId) {
+			throw Object.assign(new Error("Order not found"), { status: 404 });
 		}
 		if (order.status !== "completed") {
-			throw {
-				status: 400,
-				message: "Reviews can only be submitted for completed orders",
-			};
+			throw Object.assign(
+				new Error("Reviews can only be submitted for completed orders"),
+				{ status: 400 },
+			);
 		}
 
 		try {
@@ -40,10 +40,10 @@ export class ReviewsService {
 			const code =
 				typeof e === "object" && e !== null && "code" in e ? e.code : undefined;
 			if (code === "23505") {
-				throw {
-					status: 409,
-					message: "Review already submitted for this order",
-				};
+				throw Object.assign(
+					new Error("Review already submitted for this order"),
+					{ status: 409 },
+				);
 			}
 			throw e;
 		}

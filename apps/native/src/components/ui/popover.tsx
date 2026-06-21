@@ -48,7 +48,7 @@ function PopoverContent({
 	return (
 		<PopoverPrimitive.Portal hostName={portalHost}>
 			<PopoverPrimitive.Overlay
-				style={Platform.OS !== "web" ? StyleSheet.absoluteFill : undefined}
+				style={Platform.OS === "web" ? undefined : StyleSheet.absoluteFill}
 			>
 				<NativeOnlyAnimatedView
 					entering={FadeIn.duration(140)}

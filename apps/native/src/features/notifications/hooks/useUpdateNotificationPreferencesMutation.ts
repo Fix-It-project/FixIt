@@ -3,11 +3,11 @@ import { updateNotificationPreferences } from "@/src/features/notifications/api/
 import { configureAndroidNotificationChannel } from "@/src/features/notifications/utils/configureAndroidNotificationChannel";
 import type {
   NotificationPreferences,
-  NotificationPreferencesRole,
+  NotificationViewerRole,
 } from "@/src/features/notifications/types";
 
 export function useUpdateNotificationPreferencesMutation(
-  role: NotificationPreferencesRole,
+  role: NotificationViewerRole,
 ) {
   const queryClient = useQueryClient();
   const queryKey = ["notification-preferences", role] as const;

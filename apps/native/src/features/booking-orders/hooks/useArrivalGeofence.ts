@@ -26,6 +26,12 @@ export interface ArrivalDestination {
 	readonly longitude: number;
 }
 
+// Seed the server `arrived_at` the moment the local geofence flips true.
+// Best-effort: a failed ping is swallowed — the 30s poll remains the failover.
+function seedArrivalPing(orderId: string, coords: ArrivalDestination): void {
+	void postTechLocationPing(orderId, coords).catch(() => {});
+}
+
 export interface UseArrivalGeofenceOptions {
 	readonly orderId: string;
 	readonly destination: ArrivalDestination | null;
@@ -106,7 +112,7 @@ export function useArrivalGeofence({
 							if (!seededRef.current) {
 								seededRef.current = true;
 								// Seed server `arrived_at` the moment we cross the radius.
-								void postTechLocationPing(orderId, coords).catch(() => {});
+								seedArrivalPing(orderId, coords);
 							}
 						} else {
 							seededRef.current = false;

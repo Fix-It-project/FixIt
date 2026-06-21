@@ -39,10 +39,10 @@ function Progress({
 function ProgressIndicator({
 	value,
 	className,
-}: {
+}: Readonly<{
 	value?: number | null;
 	className?: string;
-}) {
+}>) {
 	const progress = useDerivedValue(() => value ?? 0);
 
 	const indicatorStyle = useAnimatedStyle(() => ({

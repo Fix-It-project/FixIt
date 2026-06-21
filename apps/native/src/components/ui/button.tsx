@@ -264,6 +264,39 @@ type IconLikeChildProps = {
 	children?: React.ReactNode;
 };
 
+// Resolve a valid element child: clone icons with default color/size, or clamp
+// a caller-supplied <Text> label to one line. Returns the child untouched when
+// neither applies.
+function resolveIconChild(
+	child: React.ReactElement<IconLikeChildProps>,
+	size: string,
+	color: string,
+): React.ReactNode {
+	const looksLikeIcon =
+		"size" in child.props ||
+		"strokeWidth" in child.props ||
+		"absoluteStrokeWidth" in child.props;
+
+	if (looksLikeIcon) {
+		const iconProps: Partial<IconLikeChildProps> = {};
+		if (child.props.color === undefined) iconProps.color = color;
+		if (child.props.size === undefined) iconProps.size = ICON_SIZE[size] ?? 18;
+
+		if (Object.keys(iconProps).length > 0) {
+			return React.cloneElement(child, iconProps);
+		}
+		return child;
+	}
+
+	// A direct <Text> label (callers that pass their own Text instead of a
+	// string) bypasses the auto-wrap below — clamp it to one line too, but only
+	// inject numberOfLines when the caller didn't set it.
+	if (child.type === Text && child.props.numberOfLines == null) {
+		return React.cloneElement(child, { numberOfLines: 1 });
+	}
+	return child;
+}
+
 // ─── Children helpers (string → <Text>, fragment unwrap) ─────────────────
 function renderButtonChild(
 	child: React.ReactNode,
@@ -288,30 +321,7 @@ function renderButtonChild(
 		);
 	}
 	if (React.isValidElement<IconLikeChildProps>(child)) {
-		const looksLikeIcon =
-			"size" in child.props ||
-			"strokeWidth" in child.props ||
-			"absoluteStrokeWidth" in child.props;
-
-		if (looksLikeIcon) {
-			const iconProps: Partial<IconLikeChildProps> = {};
-			if (child.props.color === undefined) iconProps.color = color;
-			if (child.props.size === undefined)
-				iconProps.size = ICON_SIZE[size] ?? 18;
-
-			if (Object.keys(iconProps).length > 0) {
-				return React.cloneElement(child, iconProps);
-			}
-			return child;
-		}
-
-		// A direct <Text> label (callers that pass their own Text instead of a
-		// string) bypasses the auto-wrap above — clamp it to one line too, but
-		// only inject numberOfLines when the caller didn't set it, preserving
-		// all existing props/className/style.
-		if (child.type === Text && child.props.numberOfLines == null) {
-			return React.cloneElement(child, { numberOfLines: 1 });
-		}
+		return resolveIconChild(child, size, color);
 	}
 	return child;
 }
@@ -358,7 +368,7 @@ const Button = React.forwardRef<
 ) {
 	const themeColors = useThemeColors();
 	const reducedMotion = useReducedMotion();
-	const resolvedVariant = (variant ?? "primary") as ButtonVariant;
+	const resolvedVariant = variant ?? "primary";
 	const resolvedSize = (size ?? "md") as string;
 
 	const hasShadow = SHADOWED_VARIANTS.has(resolvedVariant);
@@ -478,7 +488,7 @@ const Button = React.forwardRef<
 					(disabled || loading) && "opacity-50",
 					className,
 				)}
-				style={[animatedContainerStyle, style as ViewStyle]}
+				style={[animatedContainerStyle, style]}
 				{...props}
 			>
 				{/* Inner top-edge highlight — only on filled variants.

@@ -30,7 +30,12 @@ interface CardProps extends ViewProps {
  *
  * To restyle EVERY card (radius, shadow, border, fill) change it here once.
  */
-export function Card({ elevated, className, style, ...props }: CardProps) {
+export function Card({
+	elevated,
+	className,
+	style,
+	...props
+}: Readonly<CardProps>) {
 	const themeColors = useThemeColors();
 	return (
 		<View

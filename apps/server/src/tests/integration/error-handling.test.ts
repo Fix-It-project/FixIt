@@ -27,8 +27,7 @@ describe('Error Handling - RFC 9457 Problem Details', () => {
 
   describe('401 Unauthenticated', () => {
     it('should return Problem Details without token', async () => {
-      const res = await request(app)
-        .get('/api/auth/me');
+      const res = await Promise.resolve(request(app).get('/api/auth/me'));
 
       expect(res.status).toBe(401);
       expect(res.headers['content-type']).toMatch(/application\/problem\+json/);
@@ -83,7 +82,7 @@ describe('Error Handling - RFC 9457 Problem Details', () => {
       for (const endpoint of endpoints) {
         let res;
         if (endpoint.method === 'get') {
-          res = await request(app).get(endpoint.path);
+          res = await Promise.resolve(request(app).get(endpoint.path));
         }
 
         if (res && res.status >= 400) {
@@ -123,7 +122,7 @@ describe('Error Handling - RFC 9457 Problem Details', () => {
       if (res.status >= 400) {
         expect(res.body.traceId).toBeTruthy();
         // UUID v4 pattern or similar
-        expect(res.body.traceId).toMatch(/^[a-f0-9\-]+$/i);
+        expect(res.body.traceId).toMatch(/^[a-f0-9-]+$/i);
       }
     });
   });

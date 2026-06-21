@@ -17,7 +17,7 @@ export default function PaymentCheckoutScreen() {
 	};
 
 	const handleReturn = () => {
-		void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+		queryClient.invalidateQueries({ queryKey: ["user-orders"] });
 		close();
 	};
 

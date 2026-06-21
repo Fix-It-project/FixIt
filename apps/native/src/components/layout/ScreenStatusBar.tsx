@@ -1,5 +1,5 @@
 import { useFocusEffect } from "expo-router/react-navigation";
-import { type StatusBarStyle, setStatusBarStyle } from "expo-status-bar";
+import { StatusBar, type StatusBarStyle } from "expo-status-bar";
 import { useCallback } from "react";
 import { useScreenChromeStore } from "@/src/components/layout/screen-chrome-store";
 import { useThemeTokens } from "@/src/constants/design-tokens";
@@ -36,10 +36,10 @@ export function ScreenStatusBar({
 	// that declares nothing — never inherits a blue band or light icons.
 	useFocusEffect(
 		useCallback(() => {
-			setStatusBarStyle(style);
+			StatusBar.setStyle(style);
 			setTopVariant(variant);
 			return () => {
-				setStatusBarStyle(surfaceStyle);
+				StatusBar.setStyle(surfaceStyle);
 				setTopVariant("surface");
 			};
 		}, [style, surfaceStyle, variant, setTopVariant]),

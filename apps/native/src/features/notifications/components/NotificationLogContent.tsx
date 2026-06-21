@@ -23,7 +23,7 @@ import { useMarkAllNotificationsReadMutation } from "@/src/features/notification
 import { useNotificationLogsQuery } from "@/src/features/notifications/hooks/useNotificationLogsQuery";
 import type {
 	NotificationLogItem,
-	NotificationPreferencesRole,
+	NotificationViewerRole,
 } from "@/src/features/notifications/types";
 import { getAvatarColor } from "@/src/lib/avatar";
 import { formatRelativeTime } from "@/src/lib/date/relative-time";
@@ -32,9 +32,22 @@ import { ROUTES } from "@/src/lib/navigation";
 
 const systemNotificationIcon = require("@/src/assets/images/notification-icon.png");
 
+function NotificationItemSeparator() {
+	const themeColors = useThemeColors();
+	return (
+		<View
+			style={{
+				height: StyleSheet.hairlineWidth,
+				marginLeft: spacing.screen.paddingX + spacing.avatar.md + 12,
+				backgroundColor: themeColors.borderDefault,
+			}}
+		/>
+	);
+}
+
 function notificationTarget(
 	item: NotificationLogItem,
-	role: NotificationPreferencesRole,
+	role: NotificationViewerRole,
 ) {
 	if (!item.orderId) return null;
 	const viewerRole = item.viewerRole ?? role;
@@ -90,6 +103,31 @@ function localDayKey(d: Date): string {
 	return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
+/** Resolve a section title for a day bucket: Today / Yesterday / weekday / date. */
+function formatDayTitle(
+	key: string,
+	date: Date,
+	now: Date,
+	ctx: {
+		todayKey: string;
+		yesterdayKey: string;
+		todayLabel: string;
+		yesterdayLabel: string;
+		weekdayFmt: Intl.DateTimeFormat;
+		monthDayFmt: Intl.DateTimeFormat;
+		fullFmt: Intl.DateTimeFormat;
+	},
+): string {
+	if (key === ctx.todayKey) return ctx.todayLabel;
+	if (key === ctx.yesterdayKey) return ctx.yesterdayLabel;
+	const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+	if (diffDays >= 0 && diffDays < 7) return ctx.weekdayFmt.format(date);
+	if (date.getFullYear() === now.getFullYear()) {
+		return ctx.monthDayFmt.format(date);
+	}
+	return ctx.fullFmt.format(date);
+}
+
 /**
  * Group notifications into day buckets (Today / Yesterday / weekday / date) in
  * arrival order, YouTube-style. Input is assumed newest-first, so sections come
@@ -125,22 +163,15 @@ function groupByDay(
 		const key = localDayKey(date);
 		let section = byKey.get(key);
 		if (!section) {
-			let title: string;
-			if (key === todayKey) {
-				title = todayLabel;
-			} else if (key === yesterdayKey) {
-				title = yesterdayLabel;
-			} else {
-				const diffDays = Math.floor(
-					(now.getTime() - date.getTime()) / 86_400_000,
-				);
-				title =
-					diffDays >= 0 && diffDays < 7
-						? weekdayFmt.format(date)
-						: date.getFullYear() === now.getFullYear()
-							? monthDayFmt.format(date)
-							: fullFmt.format(date);
-			}
+			const title = formatDayTitle(key, date, now, {
+				todayKey,
+				yesterdayKey,
+				todayLabel,
+				yesterdayLabel,
+				weekdayFmt,
+				monthDayFmt,
+				fullFmt,
+			});
 			section = { title, data: [] };
 			byKey.set(key, section);
 			sections.push(section);
@@ -155,7 +186,7 @@ export default function NotificationLogContent({
 	title,
 	showBackButton = true,
 }: Readonly<{
-	notificationRole: NotificationPreferencesRole;
+	notificationRole: NotificationViewerRole;
 	title: string;
 	showBackButton?: boolean;
 }>) {
@@ -182,7 +213,7 @@ export default function NotificationLogContent({
 
 	const handleEndReached = useCallback(() => {
 		if (hasNextPage && !isFetchingNextPage) {
-			void fetchNextPage();
+			fetchNextPage();
 		}
 	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
@@ -236,15 +267,7 @@ export default function NotificationLogContent({
 					SectionSeparatorComponent={null}
 					onEndReached={handleEndReached}
 					onEndReachedThreshold={0.35}
-					ItemSeparatorComponent={() => (
-						<View
-							style={{
-								height: StyleSheet.hairlineWidth,
-								marginLeft: spacing.screen.paddingX + spacing.avatar.md + 12,
-								backgroundColor: themeColors.borderDefault,
-							}}
-						/>
-					)}
+					ItemSeparatorComponent={NotificationItemSeparator}
 					renderSectionHeader={({ section }) => (
 						<Text
 							variant="caption"

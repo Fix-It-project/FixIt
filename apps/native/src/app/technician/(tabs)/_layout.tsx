@@ -72,11 +72,56 @@ function TechNotificationTabIcon({
 	);
 }
 
+function HomeTabBarIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideTabIconProps>) {
+	const themeColors = useThemeColors();
+	return (
+		<HouseTabIcon
+			color={color}
+			size={size}
+			focused={focused}
+			detailColor={themeColors.surfaceBase}
+		/>
+	);
+}
+
+function ScheduleTabBarIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideTabIconProps>) {
+	const themeColors = useThemeColors();
+	return (
+		<CalendarDaysTabIcon
+			color={color}
+			size={size}
+			focused={focused}
+			detailColor={themeColors.surfaceBase}
+		/>
+	);
+}
+
+function NotificationsTabBarIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideTabIconProps>) {
+	const { data: unreadCount } = useNotificationUnreadCountQuery("technician");
+	return (
+		<TechNotificationTabIcon
+			color={color}
+			size={size}
+			focused={focused}
+			hasUnread={(unreadCount ?? 0) > 0}
+		/>
+	);
+}
+
 export default function TechAppTabsLayout() {
 	const { t } = useTranslation("technician");
-	const themeColors = useThemeColors();
-	const { data: unreadCount } = useNotificationUnreadCountQuery("technician");
-	const hasUnread = (unreadCount ?? 0) > 0;
 
 	// Top-inset color is driven per-screen via the chrome store (ScreenStatusBar),
 	// so it always blends with the focused page — no pathname mapping here.
@@ -90,14 +135,7 @@ export default function TechAppTabsLayout() {
 				name="index"
 				options={{
 					title: t("tabs.home"),
-					tabBarIcon: ({ color, size, focused }) => (
-						<HouseTabIcon
-							color={color}
-							size={size}
-							focused={focused}
-							detailColor={themeColors.surfaceBase}
-						/>
-					),
+					tabBarIcon: HomeTabBarIcon,
 				}}
 			/>
 			<Tabs.Screen
@@ -111,28 +149,14 @@ export default function TechAppTabsLayout() {
 				name="schedule/index"
 				options={{
 					title: t("tabs.schedule"),
-					tabBarIcon: ({ color, size, focused }) => (
-						<CalendarDaysTabIcon
-							color={color}
-							size={size}
-							focused={focused}
-							detailColor={themeColors.surfaceBase}
-						/>
-					),
+					tabBarIcon: ScheduleTabBarIcon,
 				}}
 			/>
 			<Tabs.Screen
 				name="notifications/index"
 				options={{
 					title: t("tabs.notifications"),
-					tabBarIcon: ({ color, size, focused }) => (
-						<TechNotificationTabIcon
-							color={color}
-							size={size}
-							focused={focused}
-							hasUnread={hasUnread}
-						/>
-					),
+					tabBarIcon: NotificationsTabBarIcon,
 				}}
 			/>
 			{/* Wallet is parked off the footer until the Profile revamp folds it in. */}

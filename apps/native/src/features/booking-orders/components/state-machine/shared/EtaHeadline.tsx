@@ -24,12 +24,10 @@ export default function EtaHeadline({ orderId }: Props) {
 	const themeColors = useThemeColors();
 	const { data: distance } = useOrderDistance(orderId);
 	const etaMinutes = distance?.eta_minutes;
-	const headline =
-		etaMinutes == null
-			? t("detail.eta.locating")
-			: etaMinutes < 1
-				? t("detail.eta.arrivingNow")
-				: t("detail.eta.arrivesIn", { n: etaMinutes });
+	let headline: string;
+	if (etaMinutes == null) headline = t("detail.eta.locating");
+	else if (etaMinutes < 1) headline = t("detail.eta.arrivingNow");
+	else headline = t("detail.eta.arrivesIn", { n: etaMinutes });
 
 	return (
 		<View

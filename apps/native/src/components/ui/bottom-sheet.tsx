@@ -44,7 +44,10 @@ interface DefaultBackdropProps extends BottomSheetBackdropProps {
 	canDismiss: boolean;
 }
 
-function DefaultBackdrop({ canDismiss, ...props }: DefaultBackdropProps) {
+function DefaultBackdrop({
+	canDismiss,
+	...props
+}: Readonly<DefaultBackdropProps>) {
 	return (
 		<BottomSheetBackdrop
 			{...props}
