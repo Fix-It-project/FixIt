@@ -20,7 +20,6 @@ import { OnlineSwitch } from "./OnlineSwitch";
 interface HeroHeaderProps {
 	/** Extra bottom padding so the earnings card can overlap the hero. */
 	overlapPadding: number;
-	topInset: number;
 }
 
 /** Language toggle — flips the global app language (no techhome translation yet). */
@@ -62,7 +61,7 @@ function LanguageToggle() {
 	);
 }
 
-export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
+export function HeroHeader({ overlapPadding }: HeroHeaderProps) {
 	const colors = useThemeColors();
 	const { t } = useTranslation("technician");
 	const { data: profile } = useTechSelfQuery();
@@ -77,11 +76,12 @@ export function HeroHeader({ overlapPadding, topInset }: HeroHeaderProps) {
 		<View
 			style={{
 				backgroundColor: colors.tint.heroStart,
-				paddingTop: topInset,
 				paddingBottom: overlapPadding,
 			}}
 		>
-			<View className="flex-row items-center justify-between px-screen-x pt-stack-sm">
+			{/* No top inset here — the tab safe-area frame reserves + paints it
+			    (heroStart), so the band blends straight into this hero. */}
+			<View className="flex-row items-center justify-between px-screen-x pt-stack-md">
 				<View className="flex-1 flex-row items-center gap-stack-sm">
 					<Avatar
 						alt={fullName || t("home.hero.technicianFallback")}

@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		/* FixIt brand — ported from native design tokens */
+		--background: 0 0% 100%; /* white page */
+		--foreground: 0 0% 6%; /* #0F0F0F text */
+		--primary: 218 100% 50%; /* #005EFF true blue */
+		--primary-dark: 219 100% 33%; /* #003BA8 */
+		--primary-light: 214 100% 92%; /* #D4E6FF */
+		--primary-foreground: 0 0% 100%;
+		--hero-start: 217 98% 60%; /* #3582FD */
+		--hero-mid: 219 100% 33%; /* #003BA8 */
+		--hero-end: 221 100% 25%; /* #002880 */
+		--surface: 0 0% 96%; /* #F5F5F5 filled sections */
+		--surface-muted: 0 0% 93%; /* #ECECEC */
+		--muted-foreground: 0 0% 38%; /* #606060 */
+		--border: 0 0% 90%; /* #E5E5E5 */
+		--ink: 222 38% 6%; /* #090D15 dark band */
+		--accent-cyan: 189 86% 37%; /* #0D97AF */
+		--success: 156 40% 30%; /* #2E6B53 */
+		--warning: 34 66% 42%; /* #B27524 */
+		--danger: 6 62% 48%; /* #C63E2F */
+		--radius: 1rem;
+	}
+
+	* {
+		@apply border-border;
+	}
+
+	html {
+		scroll-behavior: smooth;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	body {
+		@apply bg-background text-foreground font-sans antialiased;
+		font-feature-settings:
+			"rlig" 1,
+			"calt" 1;
+		text-rendering: optimizeLegibility;
+	}
+
+	::selection {
+		background-color: hsl(var(--primary) / 0.18);
+	}
+
+	/* Visible keyboard focus everywhere */
+	:focus-visible {
+		outline: 2px solid hsl(var(--primary));
+		outline-offset: 2px;
+		border-radius: 4px;
+	}
+}
+
+@layer utilities {
+	.text-balance {
+		text-wrap: balance;
+	}
+	.text-pretty {
+		text-wrap: pretty;
+	}
+	/* Blueprint grid — faint engineering texture for the hero */
+	.bg-blueprint {
+		background-image:
+			linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px),
+			linear-gradient(90deg, hsl(var(--primary) / 0.06) 1px, transparent 1px);
+		background-size: 32px 32px;
+	}
+	.mask-fade-x {
+		-webkit-mask-image: linear-gradient(
+			90deg,
+			transparent,
+			#000 8%,
+			#000 92%,
+			transparent
+		);
+		mask-image: linear-gradient(
+			90deg,
+			transparent,
+			#000 8%,
+			#000 92%,
+			transparent
+		);
+	}
+}
+
+/* Motion components gate themselves with useReducedMotion + motion-reduce:*
+   utilities; here we only need to disable smooth scrolling. */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}

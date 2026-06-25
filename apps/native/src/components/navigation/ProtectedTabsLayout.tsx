@@ -55,9 +55,13 @@ export function ProtectedTabsLayout({
 	// chrome variant (via ScreenStatusBar) which we resolve to a live theme color
 	// here, so it re-renders correctly across light/dark. An explicit prop still
 	// wins, for any caller that wants to pin the color.
+	// `blue` resolves to heroStart so the band matches the tech home hero
+	// (HeroHeader, also heroStart) with no seam — mirrors the user tabs mapping.
 	const topInsetColor =
 		topSafeAreaBackgroundColor ??
-		(topVariant === "blue" ? themeColors.primaryDark : themeColors.surfaceBase);
+		(topVariant === "blue"
+			? themeColors.tint.heroStart
+			: themeColors.surfaceBase);
 
 	return (
 		<ScreenSafeAreaView

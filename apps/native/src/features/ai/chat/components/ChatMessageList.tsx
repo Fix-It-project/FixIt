@@ -14,6 +14,7 @@ import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
 import type { ServiceOrder } from "../../schemas/response.schema";
+import { CHATBOT_ENABLED } from "../constants";
 import type { ChatEntry, ChatFlow } from "../types";
 import { getRecommendationCards } from "../utils";
 
@@ -192,7 +193,9 @@ export default function ChatMessageList({
 					</Animated.View>
 				) : null}
 			</KeyboardChatScrollView>
-			{isEmpty ? (
+			{/* Hidden while the chatbot is disabled — the unavailable overlay owns
+			    the center message; flip CHATBOT_ENABLED to restore this empty state. */}
+			{isEmpty && CHATBOT_ENABLED ? (
 				<Animated.View
 					pointerEvents="none"
 					entering={FadeIn.duration(240)}

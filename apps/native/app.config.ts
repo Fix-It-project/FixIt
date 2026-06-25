@@ -84,9 +84,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 	updates: {
 		url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
 	},
-	runtimeVersion: {
-		policy: "fingerprint",
-	},
+	runtimeVersion: "4c072dbcca463f2ff29f95981b2c257026ebb256",
 	ios: {
 		supportsTablet: true,
 		bundleIdentifier: BUNDLE_ID,

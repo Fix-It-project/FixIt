@@ -68,7 +68,7 @@ function AlertDialogOverlay({ children }: Readonly<{ children: React.ReactNode }
 					]}
 				>
 					<NativeOnlyAnimatedView
-						entering={FadeIn.duration(200).delay(50)}
+						entering={FadeIn.duration(200)}
 						exiting={FadeOut.duration(150)}
 						style={styles.overlayAnimatedFill}
 					>

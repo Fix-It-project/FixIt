@@ -1,0 +1,202 @@
+import { ArrowRight, Github, MapPin, Sparkles, Wallet } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { Counter } from "@/components/animation/Counter";
+import { PhoneFrame } from "@/components/animation/PhoneFrame";
+import { Button } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import { StoreChip } from "@/components/ui/StoreChip";
+import { mockups } from "@/constants/content/mockups";
+import { site, stores } from "@/constants/content/site";
+
+const ease = "easeOut" as const;
+
+function HeroChip({
+	icon: Icon,
+	label,
+	className,
+	delay,
+}: {
+	icon: typeof MapPin;
+	label: string;
+	className: string;
+	delay: number;
+}) {
+	const reduce = useReducedMotion();
+	return (
+		<motion.div
+			initial={reduce ? false : { opacity: 0, y: 12, scale: 0.9 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			transition={{ delay, duration: 0.5, ease }}
+			className={`absolute z-20 flex items-center gap-2 rounded-2xl bg-background/95 px-3.5 py-2.5 shadow-lift backdrop-blur ${className}`}
+		>
+			<span className="grid h-7 w-7 place-items-center rounded-full bg-primary-light text-primary">
+				<Icon className="h-4 w-4" aria-hidden />
+			</span>
+			<span className="font-semibold text-foreground text-sm">{label}</span>
+		</motion.div>
+	);
+}
+
+export function Hero() {
+	const reduce = useReducedMotion();
+
+	return (
+		<section
+			id="top"
+			className="relative overflow-hidden bg-hero text-primary-foreground"
+		>
+			<div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
+			<div
+				aria-hidden
+				className="absolute top-0 -left-40 h-[28rem] w-[28rem] rounded-full bg-primary-foreground/10 blur-3xl"
+			/>
+			<div
+				aria-hidden
+				className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background"
+			/>
+
+			<Container className="relative grid items-center gap-12 pt-28 pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6 lg:pt-36 lg:pb-32">
+				{/* Copy */}
+				<div className="flex flex-col items-start gap-7">
+					<motion.span
+						initial={reduce ? false : { opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, ease }}
+						className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3.5 py-1.5 font-mono font-semibold text-xs uppercase tracking-[0.16em] ring-1 ring-primary-foreground/15"
+					>
+						<Sparkles className="h-3.5 w-3.5" aria-hidden />
+						On-demand home maintenance · Egypt
+					</motion.span>
+
+					<motion.h1
+						initial={reduce ? false : { opacity: 0, y: 16 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, ease, delay: 0.05 }}
+						className="text-balance font-display font-extrabold text-[2.75rem] leading-[1.02] tracking-tight sm:text-6xl lg:text-[4rem]"
+					>
+						Find, book, and{" "}
+						<span className="relative whitespace-nowrap">
+							fix
+							<motion.span
+								aria-hidden
+								initial={reduce ? false : { scaleX: 0 }}
+								animate={{ scaleX: 1 }}
+								transition={{ duration: 0.6, ease, delay: 0.7 }}
+								className="absolute -bottom-1 left-0 h-2 w-full origin-left rounded-full bg-cyan"
+							/>
+						</span>
+						.
+						<br />
+						From your phone.
+					</motion.h1>
+
+					<motion.p
+						initial={reduce ? false : { opacity: 0, y: 16 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, ease, delay: 0.12 }}
+						className="max-w-xl text-pretty text-lg text-primary-foreground/80 leading-relaxed"
+					>
+						Describe the problem, get matched to a trusted technician near you,
+						and see real prices before you book. Plumbing to AC, painting to
+						cleaning — sorted in a few taps.
+					</motion.p>
+
+					<motion.div
+						initial={reduce ? false : { opacity: 0, y: 16 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, ease, delay: 0.18 }}
+						className="flex flex-wrap items-center gap-3"
+					>
+						<Button
+							variant="onDark"
+							size="lg"
+							href={site.githubUrl}
+							target="_blank"
+							rel="noreferrer"
+						>
+							<Github className="h-5 w-5" aria-hidden />
+							Get it on GitHub
+						</Button>
+						<Button variant="onDarkGhost" size="lg" href="#how-it-works">
+							See how it works
+							<ArrowRight className="h-4 w-4" aria-hidden />
+						</Button>
+					</motion.div>
+
+					<motion.div
+						initial={reduce ? false : { opacity: 0, y: 16 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, ease, delay: 0.24 }}
+						className="flex flex-wrap gap-3"
+					>
+						{stores.map((s) => (
+							<StoreChip
+								key={s.platform}
+								platform={s.platform}
+								note={s.note}
+								tone="dark"
+							/>
+						))}
+					</motion.div>
+
+					<div className="mt-1 flex items-center gap-6 text-primary-foreground/85">
+						<div className="flex flex-col">
+							<span className="font-display font-extrabold text-2xl">
+								<Counter to={10} />
+							</span>
+							<span className="text-primary-foreground/60 text-xs">
+								service categories
+							</span>
+						</div>
+						<span className="h-8 w-px bg-primary-foreground/20" aria-hidden />
+						<div className="flex flex-col">
+							<span className="font-display font-extrabold text-2xl">Cash</span>
+							<span className="text-primary-foreground/60 text-xs">
+								or card payment
+							</span>
+						</div>
+						<span className="h-8 w-px bg-primary-foreground/20" aria-hidden />
+						<div className="flex flex-col">
+							<span className="font-display font-extrabold text-2xl">
+								EN · AR
+							</span>
+							<span className="text-primary-foreground/60 text-xs">
+								Arabic & RTL
+							</span>
+						</div>
+					</div>
+				</div>
+
+				{/* Phone */}
+				<div className="relative mx-auto w-full max-w-sm lg:max-w-md">
+					<motion.div
+						initial={reduce ? false : { opacity: 0, y: 28, scale: 0.96 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						transition={{ duration: 0.7, ease, delay: 0.1 }}
+						className="relative"
+					>
+						<PhoneFrame
+							mockup={mockups.home}
+							glow
+							float
+							eager
+							className="px-6"
+						/>
+						<HeroChip
+							icon={MapPin}
+							label="1.2 km away · live"
+							className="top-16 left-0"
+							delay={0.9}
+						/>
+						<HeroChip
+							icon={Wallet}
+							label="Pay cash or card"
+							className="right-0 bottom-24"
+							delay={1.1}
+						/>
+					</motion.div>
+				</div>
+			</Container>
+		</section>
+	);
+}
