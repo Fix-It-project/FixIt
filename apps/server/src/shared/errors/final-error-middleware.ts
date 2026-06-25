@@ -1,6 +1,6 @@
 import { type ErrorRequestHandler, type Request, type Response } from 'express';
 import { AppError } from './app-error.js';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 export interface ProblemDetails {
   type: string;

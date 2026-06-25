@@ -33,6 +33,96 @@ interface RoleCardProps {
 	testID?: string;
 }
 
+function RoleCardContent({
+	eyebrow,
+	isUser,
+	title,
+	titleClass,
+	description,
+	descriptionClass,
+	features,
+	featureTextClass,
+	checkColor,
+	contentPadding,
+	horizontal,
+}: {
+	eyebrow?: string;
+	isUser: boolean;
+	title: React.ReactNode;
+	titleClass: string;
+	description: string;
+	descriptionClass: string;
+	features: string[];
+	featureTextClass: string;
+	checkColor: string;
+	contentPadding?: number;
+	horizontal: boolean;
+}) {
+	return (
+		<View
+			style={{
+				flex: 1,
+				paddingHorizontal: contentPadding ?? (horizontal ? space[4] : space[3]),
+				paddingTop: contentPadding ?? (horizontal ? space[4] : space[3]),
+				paddingBottom: contentPadding ?? space[4],
+				gap: horizontal ? space[3] : space[2],
+				justifyContent: horizontal ? "center" : undefined,
+			}}
+		>
+			{eyebrow ? (
+				<Text
+					variant="caption"
+					className={cn(
+						"font-google-sans-bold uppercase",
+						isUser ? "text-app-primary" : "text-overlay-bright",
+					)}
+				>
+					{eyebrow}
+				</Text>
+			) : null}
+
+			<View style={{ gap: space[1] }}>
+				<Text variant="h3" className={titleClass}>
+					{title}
+				</Text>
+				<Text variant="bodySm" className={descriptionClass}>
+					{description}
+				</Text>
+			</View>
+
+			<View className="bg-edge" style={{ height: 1, width: "100%" }} />
+
+			<View style={{ gap: space[2], marginTop: space[1] }}>
+				{features.slice(0, 3).map((feature) => (
+					<View
+						key={feature}
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							gap: space[2],
+							minWidth: 0,
+						}}
+					>
+						<View
+							className="items-center justify-center rounded-full bg-app-primary/10"
+							style={{ width: 24, height: 24 }}
+						>
+							<Check size={14} color={checkColor} strokeWidth={2.5} />
+						</View>
+						<Text
+							variant="bodySm"
+							className={featureTextClass}
+							style={{ flex: 1, flexShrink: 1, minWidth: 0 }}
+						>
+							{feature}
+						</Text>
+					</View>
+				))}
+			</View>
+		</View>
+	);
+}
+
 export function RoleCard({
 	variant,
 	eyebrow,
@@ -51,7 +141,9 @@ export function RoleCard({
 }: RoleCardProps) {
 	const reducedMotion = useReducedMotion();
 	const isUser = variant === "user";
-	const direction = horizontal && svgSide === "right" ? 1 : -1;
+	const svgOnRight = horizontal && svgSide === "right";
+	const direction = svgOnRight ? 1 : -1;
+	const flexFill = horizontal ? undefined : 1;
 	const enterDelay = 120 + enterIndex * 180;
 	const enterOpacity = useSharedValue(reducedMotion ? 1 : 0);
 	const enterTranslateX = useSharedValue(reducedMotion ? 0 : direction * 28);
@@ -125,76 +217,28 @@ export function RoleCard({
 	);
 
 	const contentPanel = (
-		<View
-			style={{
-				flex: 1,
-				paddingHorizontal: contentPadding ?? (horizontal ? space[4] : space[3]),
-				paddingTop: contentPadding ?? (horizontal ? space[4] : space[3]),
-				paddingBottom: contentPadding ?? (horizontal ? space[4] : space[4]),
-				gap: horizontal ? space[3] : space[2],
-				justifyContent: horizontal ? "center" : undefined,
-			}}
-		>
-			{eyebrow ? (
-				<Text
-					variant="caption"
-					className={cn(
-						"font-google-sans-bold uppercase",
-						isUser ? "text-app-primary" : "text-overlay-bright",
-					)}
-				>
-					{eyebrow}
-				</Text>
-			) : null}
-
-			<View style={{ gap: space[1] }}>
-				<Text variant="h3" className={titleClass}>
-					{title}
-				</Text>
-				<Text variant="bodySm" className={descriptionClass}>
-					{description}
-				</Text>
-			</View>
-
-			<View className="bg-edge" style={{ height: 1, width: "100%" }} />
-
-			<View style={{ gap: space[2], marginTop: space[1] }}>
-				{features.slice(0, 3).map((feature) => (
-					<View
-						key={feature}
-						style={{
-							flexDirection: "row",
-							alignItems: "center",
-							gap: space[2],
-							minWidth: 0,
-						}}
-					>
-						<View
-							className="items-center justify-center rounded-full bg-app-primary/10"
-							style={{ width: 24, height: 24 }}
-						>
-							<Check size={14} color={checkColor} strokeWidth={2.5} />
-						</View>
-						<Text
-							variant="bodySm"
-							className={featureTextClass}
-							style={{ flex: 1, flexShrink: 1, minWidth: 0 }}
-						>
-							{feature}
-						</Text>
-					</View>
-				))}
-			</View>
-		</View>
+		<RoleCardContent
+			eyebrow={eyebrow}
+			isUser={isUser}
+			title={title}
+			titleClass={titleClass}
+			description={description}
+			descriptionClass={descriptionClass}
+			features={features}
+			featureTextClass={featureTextClass}
+			checkColor={checkColor}
+			contentPadding={contentPadding}
+			horizontal={horizontal}
+		/>
 	);
 
 	return (
-		<Animated.View style={[entryStyle, { flex: horizontal ? undefined : 1 }]}>
+		<Animated.View style={[entryStyle, { flex: flexFill }]}>
 			<PressableScale
 				onPress={onPress}
 				accessibilityRole="button"
 				testID={testID}
-				style={{ flex: horizontal ? undefined : 1 }}
+				style={{ flex: flexFill }}
 			>
 				<View
 					className={containerClass}
@@ -204,13 +248,13 @@ export function RoleCard({
 							backgroundColor: isUser
 								? Colors.surfaceBase
 								: Colors.primaryLight,
-							flex: horizontal ? undefined : 1,
+							flex: flexFill,
 							flexDirection: horizontal ? "row" : "column",
 							minHeight: horizontal ? (cardMinHeight ?? 236) : undefined,
 						},
 					]}
 				>
-					{horizontal && svgSide === "right" ? (
+					{svgOnRight ? (
 						<>
 							{contentPanel}
 							{illustrationPanel}

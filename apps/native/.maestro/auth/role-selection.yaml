@@ -1,0 +1,31 @@
+# Role selection navigation. Deep-links to the role picker and verifies BOTH
+# branches reach their signup entry screen. Pure UI/navigation (the technician
+# email-existence check only fires on the next step's "Next" button, so landing
+# on step 1 writes nothing to the backend).
+appId: com.anonymous.fixitapp
+---
+- launchApp:
+    clearState: true
+- openLink: "fixitapp:///role-selection"
+- assertVisible:
+    id: "role-user"
+    timeout: 15000
+- assertVisible:
+    id: "role-technician"
+
+# Technician branch -> technician signup step 1.
+- tapOn:
+    id: "role-technician"
+- assertVisible:
+    text: "Join as a Technician."
+    timeout: 10000
+
+# Back to the picker, then verify the Homeowner branch -> user signup.
+- back
+- assertVisible:
+    id: "role-user"
+- tapOn:
+    id: "role-user"
+- assertVisible:
+    id: "signup-fullname-input"
+    timeout: 10000

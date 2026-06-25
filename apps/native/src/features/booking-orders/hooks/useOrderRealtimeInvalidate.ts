@@ -37,13 +37,13 @@ export function useOrderRealtimeInvalidate(
 		if (!enabled || !orderId) return;
 
 		const invalidateAll = () => {
-			void queryClient.invalidateQueries({
+			queryClient.invalidateQueries({
 				queryKey: orderQueryKeys.userOrders,
 			});
-			void queryClient.invalidateQueries({
+			queryClient.invalidateQueries({
 				queryKey: orderQueryKeys.technicianBookings,
 			});
-			void queryClient.invalidateQueries({
+			queryClient.invalidateQueries({
 				predicate: (q) =>
 					q.queryKey[0] === "order-quotes" && q.queryKey[2] === orderId,
 			});
@@ -102,7 +102,7 @@ export function useOrderRealtimeInvalidate(
 			});
 
 		return () => {
-			void supabase.removeChannel(channel);
+			supabase.removeChannel(channel);
 		};
 	}, [orderId, enabled, queryClient]);
 
@@ -113,10 +113,10 @@ export function useOrderRealtimeInvalidate(
 		if (!enabled || !orderId) return;
 
 		const id = setInterval(() => {
-			void queryClient.invalidateQueries({
+			queryClient.invalidateQueries({
 				queryKey: orderQueryKeys.technicianBookings,
 			});
-			void queryClient.invalidateQueries({
+			queryClient.invalidateQueries({
 				queryKey: orderQueryKeys.userOrders,
 			});
 		}, 30_000);

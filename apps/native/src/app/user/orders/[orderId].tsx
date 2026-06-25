@@ -28,7 +28,6 @@ import { useOrderRealtimeInvalidate } from "@/src/features/booking-orders/hooks/
 import { useUserOrderById } from "@/src/features/booking-orders/hooks/useUserOrders";
 import {
 	IN_PROGRESS_STATUSES,
-	type OrderStatus as LifecycleOrderStatus,
 	TERMINAL_STATUSES,
 } from "@/src/features/booking-orders/schemas/order-status.schema";
 import { useFocusBackHandler } from "@/src/hooks/useHardwareBackHandler";
@@ -43,9 +42,7 @@ export default function OrderDetailScreen() {
 
 	useOrderRealtimeInvalidate(
 		orderId,
-		order
-			? !TERMINAL_STATUSES.has(order.status as LifecycleOrderStatus)
-			: false,
+		order ? !TERMINAL_STATUSES.has(order.status) : false,
 	);
 
 	useFocusBackHandler(() => {
@@ -61,7 +58,7 @@ export default function OrderDetailScreen() {
 		);
 	}
 
-	const lifecycleStatus = order.status as unknown as LifecycleOrderStatus;
+	const lifecycleStatus = order.status;
 	const isInProgress = IN_PROGRESS_STATUSES.has(lifecycleStatus);
 
 	if (
@@ -103,7 +100,6 @@ export default function OrderDetailScreen() {
 				break;
 			case "awaiting_payment":
 				body = <AwaitingPaymentView order={order} />;
-				cta = null;
 				break;
 			default:
 				body = null;

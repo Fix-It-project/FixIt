@@ -95,13 +95,66 @@ function NotificationTabIcon({
 	);
 }
 
+function HomeTabBarIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideProps & { focused?: boolean }>) {
+	const themeColors = useThemeColors();
+	return (
+		<HouseTabIcon
+			color={color}
+			size={size}
+			focused={focused}
+			detailColor={themeColors.surfaceBase}
+		/>
+	);
+}
+
+function ActivityTabBarIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideProps & { focused?: boolean }>) {
+	const themeColors = useThemeColors();
+	return (
+		<ClipboardListTabIcon
+			color={color}
+			size={size}
+			focused={focused}
+			detailColor={themeColors.surfaceBase}
+		/>
+	);
+}
+
+function ChatTabBarIcon({
+	color,
+	focused,
+}: Readonly<{ color: ColorValue; focused: boolean }>) {
+	return <FxtTabIcon focused={focused} tint={color} />;
+}
+
+function NotificationsTabBarIcon({
+	color,
+	size,
+	focused,
+}: Readonly<LucideProps & { focused?: boolean }>) {
+	const { data: unreadCount } = useNotificationUnreadCountQuery("user");
+	return (
+		<NotificationTabIcon
+			color={color}
+			size={size}
+			focused={focused}
+			hasUnread={(unreadCount ?? 0) > 0}
+		/>
+	);
+}
+
 export default function UserTabsLayout() {
 	const { t } = useTranslation("common");
 	const themeColors = useThemeColors();
 	const metrics = useBottomTabMetrics();
 	const { width, height } = useWindowDimensions();
-	const { data: unreadCount } = useNotificationUnreadCountQuery("user");
-	const hasUnread = (unreadCount ?? 0) > 0;
 	const screenOptions = getBaseTabScreenOptions(themeColors, metrics, {
 		showLabels:
 			width >= NARROW_TAB_BAR_WIDTH && height >= NARROW_TAB_BAR_HEIGHT,
@@ -128,51 +181,28 @@ export default function UserTabsLayout() {
 						name="index"
 						options={{
 							title: t("tabs.home"),
-							tabBarIcon: ({ color, size, focused }) => (
-								<HouseTabIcon
-									color={color}
-									size={size}
-									focused={focused}
-									detailColor={themeColors.surfaceBase}
-								/>
-							),
+							tabBarIcon: HomeTabBarIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="activity/index"
 						options={{
 							title: t("tabs.activity"),
-							tabBarIcon: ({ color, size, focused }) => (
-								<ClipboardListTabIcon
-									color={color}
-									size={size}
-									focused={focused}
-									detailColor={themeColors.surfaceBase}
-								/>
-							),
+							tabBarIcon: ActivityTabBarIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="chat/index"
 						options={{
 							title: t("tabs.chat"),
-							tabBarIcon: ({ focused, color }) => (
-								<FxtTabIcon focused={focused} tint={color} />
-							),
+							tabBarIcon: ChatTabBarIcon,
 						}}
 					/>
 					<Tabs.Screen
 						name="notifications/index"
 						options={{
 							title: t("tabs.notifications"),
-							tabBarIcon: ({ color, size, focused }) => (
-								<NotificationTabIcon
-									color={color}
-									size={size}
-									focused={focused}
-									hasUnread={hasUnread}
-								/>
-							),
+							tabBarIcon: NotificationsTabBarIcon,
 						}}
 					/>
 					<Tabs.Screen

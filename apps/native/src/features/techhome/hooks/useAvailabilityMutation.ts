@@ -27,8 +27,7 @@ export function useAvailabilityMutation() {
 				queryClient.setQueryData(techHomeKeys.self, context.previous);
 			}
 		},
-		onSettled: () => {
-			void queryClient.invalidateQueries({ queryKey: techHomeKeys.self });
-		},
+		onSettled: () =>
+			queryClient.invalidateQueries({ queryKey: techHomeKeys.self }),
 	});
 }

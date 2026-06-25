@@ -13,12 +13,10 @@ interface RequestStatusChipProps {
  *  fill — those are reserved for primary actions). */
 export function RequestStatusChip({ status, label }: RequestStatusChipProps) {
 	const c = useThemeColors();
-	const tone =
-		status === "approved"
-			? { bg: c.statusAvailable, fg: c.success }
-			: status === "rejected"
-				? { bg: c.dangerLight, fg: c.danger }
-				: { bg: c.warningLight, fg: c.warning };
+	let tone: { bg: string; fg: string };
+	if (status === "approved") tone = { bg: c.statusAvailable, fg: c.success };
+	else if (status === "rejected") tone = { bg: c.dangerLight, fg: c.danger };
+	else tone = { bg: c.warningLight, fg: c.warning };
 
 	return (
 		<View

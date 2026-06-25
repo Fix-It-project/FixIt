@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
+import type { TFunction } from "i18next";
 import {
 	ArrowRight,
 	BadgeCheck,
@@ -57,6 +58,57 @@ const COPY: Record<TechVerificationState, StateCopy> = {
 	},
 };
 
+// Live push handler for the pending screen: approval flips to success in place,
+// rejection routes to the rejected screen.
+function handleVerificationPush(
+	notification: Notifications.Notification,
+	email: string | undefined,
+	onApproved: () => void,
+): void {
+	const type = (notification.request.content.data as { type?: string })?.type;
+	if (type === "technician_verified") {
+		logger.info("PushNotifications", "Approved on verification screen");
+		onApproved();
+	} else if (type === "technician_rejected") {
+		logger.info("PushNotifications", "Rejected on verification screen");
+		router.replace(ROUTES.auth.techVerification({ state: "rejected", email }));
+	}
+}
+
+function loginTarget(email: string | undefined) {
+	return email
+		? { pathname: ROUTES.auth.techLogin, params: { email } }
+		: ROUTES.auth.techLogin;
+}
+
+function buildHeader(
+	showApproved: boolean,
+	copyPrefix: string,
+	t: TFunction<"auth">,
+) {
+	if (showApproved) {
+		return {
+			eyebrow: t("verification.approved.eyebrow"),
+			title: t("verification.approved.title"),
+			body: t("verification.approved.body"),
+		};
+	}
+	return {
+		eyebrow: t(`${copyPrefix}.eyebrow`),
+		title: t(`${copyPrefix}.title`),
+		body: t(`${copyPrefix}.body`),
+	};
+}
+
+function resolveHeaderVisual(
+	showApproved: boolean,
+	copy: StateCopy,
+	c: ReturnType<typeof useThemeColors>,
+): { tint: string; Icon: LucideIcon } {
+	if (showApproved) return { tint: c.success, Icon: BadgeCheck };
+	return { tint: copy.tint(c), Icon: copy.icon };
+}
+
 export function VerificationScreen({
 	state,
 	email,
@@ -77,19 +129,8 @@ export function VerificationScreen({
 	useEffect(() => {
 		if (state !== "pending") return;
 		const subscription = Notifications.addNotificationReceivedListener(
-			(notification: Notifications.Notification) => {
-				const type = (notification.request.content.data as { type?: string })
-					?.type;
-				if (type === "technician_verified") {
-					logger.info("PushNotifications", "Approved on verification screen");
-					setApproved(true);
-				} else if (type === "technician_rejected") {
-					logger.info("PushNotifications", "Rejected on verification screen");
-					router.replace(
-						ROUTES.auth.techVerification({ state: "rejected", email }),
-					);
-				}
-			},
+			(notification: Notifications.Notification) =>
+				handleVerificationPush(notification, email, () => setApproved(true)),
 		);
 		return () => subscription.remove();
 	}, [state, email]);
@@ -98,20 +139,9 @@ export function VerificationScreen({
 	const isPendingReview = state === "pending" && !approved;
 
 	const copy = COPY[state];
-	const tint = showApproved ? c.success : copy.tint(c);
-	const Icon = showApproved ? BadgeCheck : copy.icon;
+	const { tint, Icon } = resolveHeaderVisual(showApproved, copy, c);
 	const copyPrefix = `verification.${copy.copyKey}` as const;
-	const header = showApproved
-		? {
-				eyebrow: t("verification.approved.eyebrow"),
-				title: t("verification.approved.title"),
-				body: t("verification.approved.body"),
-			}
-		: {
-				eyebrow: t(`${copyPrefix}.eyebrow`),
-				title: t(`${copyPrefix}.title`),
-				body: t(`${copyPrefix}.body`),
-			};
+	const header = buildHeader(showApproved, copyPrefix, t);
 
 	// Staggered entrance — each block fades up just behind the previous one.
 	let step = 0;
@@ -122,12 +152,7 @@ export function VerificationScreen({
 			: FadeInDown.delay(delay).duration(DUR_STAGGER);
 	};
 
-	const goToLogin = () =>
-		router.replace(
-			email
-				? { pathname: ROUTES.auth.techLogin, params: { email } }
-				: ROUTES.auth.techLogin,
-		);
+	const goToLogin = () => router.replace(loginTarget(email));
 
 	return (
 		<View className="flex-1 bg-surface">

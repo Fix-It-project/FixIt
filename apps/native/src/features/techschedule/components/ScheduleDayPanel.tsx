@@ -89,7 +89,8 @@ export function ScheduleDayPanel({
 						</Animated.View>
 					))}
 				</View>
-			) : isException ? (
+			) : null}
+			{!hasOrders && isException ? (
 				<EmptyState
 					icon={CalendarOff}
 					tint={themeColors.statusUnavailable}
@@ -108,21 +109,24 @@ export function ScheduleDayPanel({
 						</Button>
 					}
 				/>
-			) : isPast ? (
+			) : null}
+			{!hasOrders && !isException && isPast ? (
 				<EmptyState
 					icon={CalendarX2}
 					tint={themeColors.textMuted}
 					title={t("schedule.day.pastTitle")}
 					subtitle={t("schedule.day.pastBody")}
 				/>
-			) : !isWorkingDay ? (
+			) : null}
+			{!hasOrders && !isException && !isPast && !isWorkingDay ? (
 				<EmptyState
 					icon={CalendarOff}
 					tint={themeColors.textMuted}
 					title={t("schedule.day.notWorkingTitle")}
 					subtitle={t("schedule.day.notWorkingBody")}
 				/>
-			) : (
+			) : null}
+			{!hasOrders && !isException && !isPast && isWorkingDay ? (
 				<EmptyState
 					icon={CheckCircle2}
 					tint={themeColors.success}
@@ -141,7 +145,7 @@ export function ScheduleDayPanel({
 						</Button>
 					}
 				/>
-			)}
+			) : null}
 		</View>
 	);
 }

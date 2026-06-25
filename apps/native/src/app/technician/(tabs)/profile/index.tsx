@@ -51,7 +51,7 @@ export default function TechnicianProfileRoute() {
 		},
 		{
 			key: "rating",
-			value: profile?.avg_rating != null ? profile.avg_rating.toFixed(1) : "—",
+			value: profile?.avg_rating == null ? "—" : profile.avg_rating.toFixed(1),
 			label: t("metrics.rating"),
 			onPress: () => setRatingOpen(true),
 		},

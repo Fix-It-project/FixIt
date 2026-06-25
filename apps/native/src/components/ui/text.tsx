@@ -87,16 +87,18 @@ const textSizeClassToVariant: Record<string, TypographyVariant> = {
 	"text-4xl": "display",
 };
 
-const fontClassNames = new Set([
-	"font-google-sans-bold",
-	"font-google-sans-semibold",
-	"font-google-sans-medium",
-	"font-google-sans",
-	"font-bold",
-	"font-semibold",
-	"font-medium",
-	"font-normal",
-]);
+const fontClassToFamily: Record<string, string> = {
+	"font-google-sans-bold": fontFamily.bold,
+	"font-google-sans-semibold": fontFamily.semibold,
+	"font-google-sans-medium": fontFamily.medium,
+	"font-google-sans": fontFamily.regular,
+	"font-bold": fontFamily.bold,
+	"font-semibold": fontFamily.semibold,
+	"font-medium": fontFamily.medium,
+	"font-normal": fontFamily.regular,
+};
+
+const fontClassNames = new Set(Object.keys(fontClassToFamily));
 
 function removeFontClassNames(
 	className: string | undefined,
@@ -129,20 +131,35 @@ function getFontFamilyFromClassName(
 
 	const classes = className.split(/\s+/);
 	for (let i = classes.length - 1; i >= 0; i -= 1) {
-		const classNamePart = classes[i];
-		if (classNamePart === "font-google-sans-bold") return fontFamily.bold;
-		if (classNamePart === "font-google-sans-semibold") {
-			return fontFamily.semibold;
-		}
-		if (classNamePart === "font-google-sans-medium") return fontFamily.medium;
-		if (classNamePart === "font-google-sans") return fontFamily.regular;
-		if (classNamePart === "font-bold") return fontFamily.bold;
-		if (classNamePart === "font-semibold") return fontFamily.semibold;
-		if (classNamePart === "font-medium") return fontFamily.medium;
-		if (classNamePart === "font-normal") return fontFamily.regular;
+		const family = fontClassToFamily[classes[i]];
+		if (family) return family;
 	}
 
 	return undefined;
+}
+
+// In RTL (Arabic) layouts, swap each Google Sans family for its Cairo
+// weight-equivalent. Direction only changes after an app reload, so reading
+// I18nManager.isRTL at render is stable.
+function localizeFamily<T extends string | undefined>(family: T): T {
+	return I18nManager.isRTL && family
+		? ((arabicFamilyByLatin[family] ?? family) as T)
+		: family;
+}
+
+// In-app text scale (Display settings). Scales fontSize + lineHeight together
+// so vertical rhythm is preserved. 1 = off (no allocation on the hot path).
+function applyFontScale(base: TextStyle, fontScale: number): TextStyle {
+	if (fontScale === 1) return base;
+	return {
+		...base,
+		...(typeof base.fontSize === "number"
+			? { fontSize: base.fontSize * fontScale }
+			: {}),
+		...(typeof base.lineHeight === "number"
+			? { lineHeight: base.lineHeight * fontScale }
+			: {}),
+	};
 }
 
 type TextProps = React.ComponentProps<typeof RNText> &
@@ -165,30 +182,10 @@ function Text({
 			? (variant as TypographyVariant)
 			: (getTypographyVariantFromClassName(resolvedClassName) ?? "body");
 	const classFontFamily = getFontFamilyFromClassName(resolvedClassName);
-	// In RTL (Arabic) layouts, swap each Google Sans family for its Cairo
-	// weight-equivalent. Direction only changes after an app reload, so reading
-	// I18nManager.isRTL at render is stable.
-	const localizeFamily = <T extends string | undefined>(family: T): T =>
-		I18nManager.isRTL && family
-			? ((arabicFamilyByLatin[family] ?? family) as T)
-			: family;
 	const baseVariantStyle = typography[semanticVariant];
 	const localizedVariantFamily = localizeFamily(baseVariantStyle.fontFamily);
-	// In-app text scale (Display settings). Scales fontSize + lineHeight together
-	// so vertical rhythm is preserved. 1 = off (no allocation on the hot path).
 	const fontScale = usePrefsStore((s) => s.fontScale);
-	const scaledStyle: TextStyle =
-		fontScale === 1
-			? baseVariantStyle
-			: {
-					...baseVariantStyle,
-					...(typeof baseVariantStyle.fontSize === "number"
-						? { fontSize: baseVariantStyle.fontSize * fontScale }
-						: {}),
-					...(typeof baseVariantStyle.lineHeight === "number"
-						? { lineHeight: baseVariantStyle.lineHeight * fontScale }
-						: {}),
-				};
+	const scaledStyle = applyFontScale(baseVariantStyle, fontScale);
 	const variantStyle: TextStyle = localizedVariantFamily
 		? { ...scaledStyle, fontFamily: localizedVariantFamily }
 		: scaledStyle;

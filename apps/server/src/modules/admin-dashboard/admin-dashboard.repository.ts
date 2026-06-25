@@ -123,8 +123,10 @@ const ORDERS_BUCKET_STATUSES: Record<
 
 function ordersDateCutoffIso(date: OrdersListQuery["date"]): string | null {
 	if (date === "all") return null;
-	const days =
-		date === "today" ? 1 : date === "7d" ? 7 : date === "30d" ? 30 : 90;
+	let days = 90;
+	if (date === "today") days = 1;
+	else if (date === "7d") days = 7;
+	else if (date === "30d") days = 30;
 	return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 

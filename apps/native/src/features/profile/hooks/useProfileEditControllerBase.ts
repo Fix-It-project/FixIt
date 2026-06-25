@@ -24,7 +24,7 @@ interface UpdateMutation<TForm extends StringFields> {
 	) => void;
 }
 
-interface UseProfileEditControllerBaseParams<
+export interface UseProfileEditControllerBaseParams<
 	TForm extends StringFields,
 	THydrateValues,
 > {

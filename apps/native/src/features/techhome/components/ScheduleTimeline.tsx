@@ -72,12 +72,10 @@ function useTimeline(schedule: TechHomeOrder[]): {
 		const firstUpcomingIdx = slots.findIndex((s) => s.state === "upcoming");
 		if (firstUpcomingIdx !== -1) slots[firstUpcomingIdx].state = "next";
 
-		const focusIndex =
-			activeIdx !== -1
-				? activeIdx
-				: firstUpcomingIdx !== -1
-					? firstUpcomingIdx
-					: Math.max(0, slots.length - 1);
+		let focusIndex: number;
+		if (activeIdx !== -1) focusIndex = activeIdx;
+		else if (firstUpcomingIdx !== -1) focusIndex = firstUpcomingIdx;
+		else focusIndex = Math.max(0, slots.length - 1);
 
 		return { slots, focusIndex };
 	}, [schedule]);
@@ -230,13 +228,13 @@ function SlotRow({
 					<View className="flex-row items-center justify-between gap-stack-sm">
 						<Text
 							variant="caption"
-							className={`font-bold ${
-								state === "active" || state === "next"
-									? "text-app-primary"
-									: isDone
-										? "text-content-muted"
-										: "text-content-secondary"
-							}`}
+							className={`font-bold ${(() => {
+								if (state === "active" || state === "next") {
+									return "text-app-primary";
+								}
+								if (isDone) return "text-content-muted";
+								return "text-content-secondary";
+							})()}`}
 						>
 							{time}
 						</Text>
@@ -249,17 +247,19 @@ function SlotRow({
 									{t("home.timeline.next")}
 								</Text>
 							</View>
-						) : state === "active" ? (
+						) : null}
+						{state === "active" ? (
 							<View className="rounded-pill bg-app-primary-light px-2 py-0.5">
 								<Text variant="caption" className="font-bold text-app-primary">
 									{t("home.timeline.onNow")}
 								</Text>
 							</View>
-						) : order.final_price == null ? null : (
+						) : null}
+						{state !== "next" && state !== "active" && order.final_price != null ? (
 							<Text variant="caption" className="font-semibold text-content">
 								{formatEgp(order.final_price)}
 							</Text>
-						)}
+						) : null}
 					</View>
 
 					<Text

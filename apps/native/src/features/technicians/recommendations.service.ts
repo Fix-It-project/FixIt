@@ -1,4 +1,5 @@
 import { env } from "@FixIt/env/native";
+import { AppError, mapHttpStatus } from "@FixIt/errors";
 import * as SecureStore from "expo-secure-store";
 import apiClient from "@/src/config/api-client";
 import { supabase } from "@/src/config/supabase";
@@ -8,13 +9,46 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { recommendationsResponseSchema } from "./schemas/response.schema";
 
 const RECOMMENDER_BASE_URL = env.EXPO_PUBLIC_RECOMMENDATION_API_URL;
+const MIN_RECOMMENDATION_DESCRIPTION_LENGTH = 5;
+const NO_RECOMMENDATIONS_DETAIL =
+	"No technicians found within the search radius.";
 
 function requireRecommendationBaseUrl() {
 	if (!RECOMMENDER_BASE_URL) {
 		throw new Error("EXPO_PUBLIC_RECOMMENDATION_API_URL is not configured");
 	}
 
-	return RECOMMENDER_BASE_URL;
+	const baseUrl = RECOMMENDER_BASE_URL.replace(/\/+$/, "");
+	return baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
+}
+
+export function normalizeRecommendationProblemDescription(
+	value: string,
+): string {
+	const trimmed = value.trim();
+	if (trimmed.length >= MIN_RECOMMENDATION_DESCRIPTION_LENGTH) return trimmed;
+	if (trimmed.length === 0) return "General home service needed";
+	return `Need ${trimmed} service`;
+}
+
+function parseRecommendationErrorBody(text: string): unknown {
+	try {
+		return JSON.parse(text);
+	} catch {
+		return text;
+	}
+}
+
+function toRecommendationHttpError(status: number, text: string): AppError {
+	const details = parseRecommendationErrorBody(text);
+	const mapped = mapHttpStatus(status, details);
+
+	return new AppError(mapped.code, mapped.userMessage, {
+		...mapped.opts,
+		status,
+		details,
+		devMessage: `recommendation_api_${status}: ${text}`,
+	});
 }
 
 async function readSecureStoreAuthFallback(): Promise<{
@@ -92,14 +126,16 @@ export async function getRecommendedTechnicians(payload: {
 
 	const body = {
 		user_id: userUuid,
-		problem_description: payload.problemDescription,
+		problem_description: normalizeRecommendationProblemDescription(
+			payload.problemDescription,
+		),
 		latitude: finalLatitude,
 		longitude: finalLongitude,
 		radius_km: payload.radiusKm ?? 10,
 		top_k: payload.topK ?? 10,
 	};
 
-	const res = await fetch(`${requireRecommendationBaseUrl()}/api/recommend`, {
+	const res = await fetch(`${requireRecommendationBaseUrl()}/recommend`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -111,7 +147,11 @@ export async function getRecommendedTechnicians(payload: {
 
 	const text = await res.text();
 
-	if (!res.ok) throw new Error(`recommendation_api_${res.status}: ${text}`);
+	if (res.status === 404 && text.includes(NO_RECOMMENDATIONS_DETAIL)) {
+		return [];
+	}
+
+	if (!res.ok) throw toRecommendationHttpError(res.status, text);
 
 	const json = JSON.parse(text);
 	return safeParseResponse(
@@ -172,7 +212,9 @@ export async function getUserAddressCoords(): Promise<{
 			longitude: Number(latest.longitude),
 		};
 	} catch (error) {
-		logger.warn("recommend", "backend address fetch failed", { error: String(error) });
+		logger.warn("recommend", "backend address fetch failed", {
+			error: String(error),
+		});
 		return null;
 	}
 }

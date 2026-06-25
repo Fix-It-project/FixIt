@@ -33,6 +33,14 @@ function safeCall(fn: () => void): void {
 	} catch {}
 }
 
+function sanitizeString(value: string): string {
+	if (/^Bearer\s+/i.test(value)) return REDACTED;
+	if (/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)) {
+		return REDACTED;
+	}
+	return value;
+}
+
 function sanitizeForLog(
 	value: unknown,
 	depth = 0,
@@ -40,13 +48,7 @@ function sanitizeForLog(
 ): unknown {
 	if (depth > 6) return "[MaxDepth]";
 	if (value === null || value === undefined) return value;
-	if (typeof value === "string") {
-		if (/^Bearer\s+/i.test(value)) return REDACTED;
-		if (/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)) {
-			return REDACTED;
-		}
-		return value;
-	}
+	if (typeof value === "string") return sanitizeString(value);
 	if (typeof value !== "object") return value;
 	if (value instanceof Error) {
 		return {

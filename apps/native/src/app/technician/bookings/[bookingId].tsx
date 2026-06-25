@@ -50,9 +50,7 @@ export default function BookingDetailScreen() {
 
 	useOrderRealtimeInvalidate(
 		bookingId,
-		booking
-			? !TERMINAL_STATUSES.has(booking.status as LifecycleOrderStatus)
-			: false,
+		booking ? !TERMINAL_STATUSES.has(booking.status) : false,
 	);
 
 	useFocusBackHandler(() => {
@@ -68,7 +66,7 @@ export default function BookingDetailScreen() {
 		);
 	}
 
-	const lifecycleStatus = booking.status as unknown as LifecycleOrderStatus;
+	const lifecycleStatus = booking.status;
 	if (isWizardStatus(lifecycleStatus)) {
 		const bookingAsOrder = booking as unknown as Order;
 		let body: ReactNode = null;
@@ -79,9 +77,6 @@ export default function BookingDetailScreen() {
 				cta = <PendingCta order={bookingAsOrder} />;
 				break;
 			case "accepted":
-				body = <AcceptedActionsView order={bookingAsOrder} />;
-				cta = <AcceptedCta order={bookingAsOrder} />;
-				break;
 			case "reschedule_requested_by_user":
 			case "reschedule_requested_by_technician":
 				body = <AcceptedActionsView order={bookingAsOrder} />;
@@ -106,10 +101,9 @@ export default function BookingDetailScreen() {
 				break;
 			case "awaiting_payment":
 				body = <CashReceivedActionsView order={bookingAsOrder} />;
-				cta = null;
 				break;
 			default:
-				body = null;
+				break;
 		}
 		return (
 			<StateScreenLayout

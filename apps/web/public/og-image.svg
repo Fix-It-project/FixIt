@@ -1,0 +1,24 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<title>FixIt — Find, book, and fix. From your phone.</title>
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#3582FD" />
+			<stop offset="0.52" stop-color="#003BA8" />
+			<stop offset="1" stop-color="#002880" />
+		</linearGradient>
+		<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+			<path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1" />
+		</pattern>
+	</defs>
+	<rect width="1200" height="630" fill="url(#bg)" />
+	<rect width="1200" height="630" fill="url(#grid)" />
+	<g transform="translate(96 150)">
+		<rect width="92" height="92" rx="22" fill="#ffffff" />
+		<path d="M30 22h34v13H46v9h17v13H46v18H30V22Z" fill="#005EFF" />
+		<circle cx="62" cy="62" r="8" fill="#0D97AF" />
+	</g>
+	<text x="208" y="216" font-family="Verdana, sans-serif" font-size="44" font-weight="700" fill="#ffffff">FixIt</text>
+	<text x="96" y="360" font-family="Verdana, sans-serif" font-size="78" font-weight="800" fill="#ffffff">Find, book, and fix.</text>
+	<text x="96" y="452" font-family="Verdana, sans-serif" font-size="78" font-weight="800" fill="#cfe0ff">From your phone.</text>
+	<text x="96" y="540" font-family="Verdana, sans-serif" font-size="30" font-weight="500" fill="#dbe7ff">On-demand home maintenance for Egypt · cash or card · English &amp; Arabic</text>
+</svg>

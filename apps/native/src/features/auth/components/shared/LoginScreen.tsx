@@ -122,6 +122,7 @@ export default function LoginScreen({
 				disabled={!isFormValid || loginMutation.isPending}
 				className="mt-stack-sm"
 				testID="login-submit"
+				accessibilityLabel={t("login.submit")}
 			>
 				{loginMutation.isPending ? (
 					<ActivityIndicator color={themeColors.surfaceOnPrimary} />

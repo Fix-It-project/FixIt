@@ -5,10 +5,10 @@ import { toAppError } from "@/src/lib/errors";
 import { ROUTES, type TechVerificationState } from "@/src/lib/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 
-const VERIFICATION_STATES: readonly TechVerificationState[] = [
+const VERIFICATION_STATES = new Set<TechVerificationState>([
 	"pending",
 	"rejected",
-];
+]);
 
 export function useTechnicianLoginMutation() {
 	const { setSession } = useAuthStore();
@@ -44,7 +44,7 @@ export function useTechnicianLoginMutation() {
 			}
 			if (
 				status &&
-				VERIFICATION_STATES.includes(status as TechVerificationState)
+				VERIFICATION_STATES.has(status as TechVerificationState)
 			) {
 				router.replace(
 					ROUTES.auth.techVerification({

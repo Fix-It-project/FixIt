@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { SECTION_ENTER_DURATION_MS, SECTION_STAGGER_MS } from "../constants";
@@ -46,7 +45,6 @@ function Enter({
 export function TechHomeScreen() {
 	const { t } = useTranslation("technician");
 	const colors = useThemeColors();
-	const insets = useSafeAreaInsets();
 	const ordersQuery = useTechHomeOrdersQuery();
 	const statsQuery = useTechHomeStatsQuery();
 	const activeJob = useActiveJob();
@@ -62,8 +60,8 @@ export function TechHomeScreen() {
 		(statsQuery.isPending && !statsQuery.data);
 	const refreshing = ordersQuery.isRefetching || statsQuery.isRefetching;
 	const onRefresh = () => {
-		void ordersQuery.refetch();
-		void statsQuery.refetch();
+		ordersQuery.refetch();
+		statsQuery.refetch();
 	};
 
 	return (
@@ -82,10 +80,7 @@ export function TechHomeScreen() {
 					/>
 				}
 			>
-				<HeroHeader
-					topInset={insets.top}
-					overlapPadding={EARNINGS_OVERLAP + 24}
-				/>
+				<HeroHeader overlapPadding={EARNINGS_OVERLAP + 24} />
 
 				{initialLoading ? (
 					<TechHomeSkeleton />

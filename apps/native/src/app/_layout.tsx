@@ -2,7 +2,8 @@ import "../../global.css";
 import "@/src/config/reanimated";
 import "@/src/config/google-signin";
 import "@/src/config/intl-polyfills";
-import "@/src/config/monitoring";
+// Imported early (side effects: Sentry.init) and re-used below for navigation wiring.
+import { registerNavigationContainer, Sentry } from "@/src/config/monitoring";
 import "@/src/config/i18n";
 // Registers the technician background-location TaskManager task on every JS
 // launch (including the OS's headless background launch).
@@ -31,7 +32,6 @@ import {
 	configureLaunchSplashScreen,
 	hideLaunchSplashScreen,
 } from "@/src/config/launch-splash";
-import { registerNavigationContainer, Sentry } from "@/src/config/monitoring";
 import queryClient from "@/src/config/query-client";
 import {
 	createNavigationTheme,

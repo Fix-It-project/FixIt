@@ -35,6 +35,17 @@ type InputProps = TextInputProps &
 		secureToggle?: boolean;
 	};
 
+function getBorderClass(
+	variant: string | null | undefined,
+	hasError: boolean,
+	isFocused: boolean,
+): string {
+	if (variant !== "outline") return hasError ? "border border-danger" : "";
+	if (hasError) return "border-danger";
+	if (isFocused) return "border-app-primary";
+	return "border-edge";
+}
+
 const Input = React.forwardRef<TextInput, InputProps>(
 	(
 		{
@@ -63,16 +74,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
 			);
 		}
 
-		const borderClass =
-			variant === "outline"
-				? hasError
-					? "border-danger"
-					: isFocused
-						? "border-app-primary"
-						: "border-edge"
-				: hasError
-					? "border border-danger"
-					: "";
+		const borderClass = getBorderClass(variant, hasError, isFocused);
 		const heightClass = multiline ? "min-h-[48px] py-3" : "h-input";
 
 		const textInput = (

@@ -1,30 +1,11 @@
-import { useProfileEditControllerBase } from "@/src/features/profile/hooks/useProfileEditControllerBase";
-
-type StringFields = Record<string, string>;
+import {
+	type UseProfileEditControllerBaseParams,
+	useProfileEditControllerBase,
+} from "@/src/features/profile/hooks/useProfileEditControllerBase";
 
 export function useUserProfileEditController<
-	TForm extends StringFields,
+	TForm extends Record<string, string>,
 	THydrateValues,
->(params: {
-	readonly formValues: TForm;
-	readonly originalValues: TForm;
-	readonly hydrate: (values: THydrateValues) => void;
-	readonly hydrateValues: THydrateValues | null;
-	readonly reset: () => void;
-	readonly goBack: () => void;
-	readonly validate: (
-		data: unknown,
-	) => { success: true; data: TForm } | { success: false };
-	readonly updateMutation: {
-		readonly isPending: boolean;
-		readonly mutate: (
-			payload: Partial<TForm>,
-			options: {
-				onSuccess: () => void;
-				onError: (error: unknown) => void;
-			},
-		) => void;
-	};
-}) {
+>(params: UseProfileEditControllerBaseParams<TForm, THydrateValues>) {
 	return useProfileEditControllerBase(params);
 }

@@ -1,7 +1,5 @@
 export type NotificationViewerRole = "user" | "technician";
 
-export type NotificationPreferencesRole = NotificationViewerRole;
-
 export interface NotificationNavigationPayload {
   readonly type?: string;
   readonly orderId?: string;

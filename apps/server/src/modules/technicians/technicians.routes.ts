@@ -12,7 +12,11 @@ import { requireUserAuth } from "../../shared/middlewares/user-auth.middleware.j
 import { validate } from "../../shared/middlewares/validate.middleware.js";
 import { techniciansController } from "./technicians.controller.js";
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+	storage: multer.memoryStorage(),
+	// Cap upload size to bound memory use and reject oversized payloads (DoS guard).
+	limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 export const techniciansRoutes: Router = express.Router({ mergeParams: true });
 

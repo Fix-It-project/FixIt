@@ -24,7 +24,7 @@ import { CategoryRow } from "@/src/features/newhome/components/CategoryRow";
 import { HomeHeader } from "@/src/features/newhome/components/HomeHeader";
 import { OfferCard } from "@/src/features/newhome/components/OfferCard";
 import { PreviousOrdersSection } from "@/src/features/newhome/components/PreviousOrdersSection";
-import { TopRatedSection } from "@/src/features/newhome/components/TopRatedSection";
+import { RecommendedSection } from "@/src/features/newhome/components/RecommendedSection";
 import { technicianQueryKeys } from "@/src/features/technicians/query-keys";
 import { formatAddress } from "@/src/lib/helpers/format-address";
 import { ROUTES } from "@/src/lib/navigation/routes";
@@ -159,14 +159,14 @@ export function NewHome() {
 				/>
 				<View
 					style={{
-						gap: spacing.section.gap,
+						gap: spacing.section.gapCompact,
 						paddingTop: spacing.stack.lg,
 					}}
 				>
 					<ActiveOrderStrip />
 					<CategoryRow />
 					<OfferCard />
-					<TopRatedSection />
+					<RecommendedSection />
 					<PreviousOrdersSection />
 					<NeedHelpShelf />
 				</View>

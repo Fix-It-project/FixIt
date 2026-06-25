@@ -1,6 +1,7 @@
 // One round's quote message bubble for the negotiation timeline.
 // Extracted from QuoteChatPanel to keep that file focused on orchestration.
 
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -20,30 +21,35 @@ interface QuoteBubbleProps {
 	readonly reducedMotion: boolean;
 }
 
-export default function QuoteBubble({
+function QuoteBubbleBody({
+	isSelf,
+	proposerLabel,
 	item,
-	index,
-	viewer,
 	maxRounds,
 	isLatest,
 	showWaiting,
-	reducedMotion,
-}: QuoteBubbleProps) {
-	const { t } = useTranslation("orders");
-	const themeColors = useThemeColors();
-	const isSelf =
-		(viewer === "user" && item.proposed_by === "user") ||
-		(viewer === "technician" && item.proposed_by === "technician");
-	const proposerLabel = isSelf
-		? t("detail.quote.you")
-		: item.proposed_by === "user"
-			? t("card.customerFallback")
-			: t("card.technicianFallback");
-
-	const body = (
+	viewer,
+	themeColors,
+	t,
+}: {
+	isSelf: boolean;
+	proposerLabel: string;
+	item: OrderQuote;
+	maxRounds: number;
+	isLatest: boolean;
+	showWaiting: boolean;
+	viewer: "user" | "technician";
+	themeColors: ReturnType<typeof useThemeColors>;
+	t: TFunction<"orders">;
+}) {
+	const selfAlign = isSelf ? "flex-end" : "flex-start";
+	const subColor = isSelf
+		? themeColors.onPrimaryHeader
+		: themeColors.textSecondary;
+	return (
 		<View
 			style={{
-				alignSelf: isSelf ? "flex-end" : "flex-start",
+				alignSelf: selfAlign,
 				maxWidth: "88%",
 				gap: space[1],
 			}}
@@ -52,7 +58,7 @@ export default function QuoteBubble({
 				variant="caption"
 				style={{
 					color: themeColors.textMuted,
-					alignSelf: isSelf ? "flex-end" : "flex-start",
+					alignSelf: selfAlign,
 				}}
 			>
 				{proposerLabel} · {t("detail.quote.workPrice")} ·{" "}
@@ -87,24 +93,13 @@ export default function QuoteBubble({
 					<Text
 						variant="caption"
 						className="font-google-sans-medium"
-						style={{
-							color: isSelf
-								? themeColors.onPrimaryHeader
-								: themeColors.textSecondary,
-						}}
+						style={{ color: subColor }}
 					>
 						{t("detail.quote.currency")}
 					</Text>
 				</Text>
 				{item.notes ? (
-					<Text
-						variant="caption"
-						style={{
-							color: isSelf
-								? themeColors.onPrimaryHeader
-								: themeColors.textSecondary,
-						}}
-					>
+					<Text variant="caption" style={{ color: subColor }}>
 						{item.notes}
 					</Text>
 				) : null}
@@ -114,7 +109,7 @@ export default function QuoteBubble({
 					variant="caption"
 					style={{
 						color: themeColors.textMuted,
-						alignSelf: isSelf ? "flex-end" : "flex-start",
+						alignSelf: selfAlign,
 					}}
 				>
 					{viewer === "user"
@@ -123,6 +118,41 @@ export default function QuoteBubble({
 				</Text>
 			) : null}
 		</View>
+	);
+}
+
+export default function QuoteBubble({
+	item,
+	index,
+	viewer,
+	maxRounds,
+	isLatest,
+	showWaiting,
+	reducedMotion,
+}: QuoteBubbleProps) {
+	const { t } = useTranslation("orders");
+	const themeColors = useThemeColors();
+	const isSelf =
+		(viewer === "user" && item.proposed_by === "user") ||
+		(viewer === "technician" && item.proposed_by === "technician");
+	let proposerLabel: string;
+	if (isSelf) proposerLabel = t("detail.quote.you");
+	else if (item.proposed_by === "user")
+		proposerLabel = t("card.customerFallback");
+	else proposerLabel = t("card.technicianFallback");
+
+	const body = (
+		<QuoteBubbleBody
+			isSelf={isSelf}
+			proposerLabel={proposerLabel}
+			item={item}
+			maxRounds={maxRounds}
+			isLatest={isLatest}
+			showWaiting={showWaiting}
+			viewer={viewer}
+			themeColors={themeColors}
+			t={t}
+		/>
 	);
 
 	if (reducedMotion) return <View>{body}</View>;

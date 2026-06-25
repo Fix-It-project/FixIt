@@ -57,12 +57,40 @@ function deriveQuoteState(
 	const roundsLeft = Math.max(0, MAX_ROUNDS - roundCount);
 	const isFinalRound = roundCount >= MAX_ROUNDS;
 	const latest = rounds[roundCount - 1] ?? null;
+	const counterpartyRole = viewer === "user" ? "technician" : "user";
 	const canActOnLatest = latest
-		? viewer === "user"
-			? latest.proposed_by === "technician"
-			: latest.proposed_by === "user"
+		? latest.proposed_by === counterpartyRole
 		: viewer === "technician";
 	return { roundCount, roundsLeft, isFinalRound, latest, canActOnLatest };
+}
+
+function buildSheetTitle(
+	showTechInitial: boolean,
+	viewer: QuoteChatPanelViewer,
+	t: ReturnType<typeof useTranslation<"orders">>["t"],
+): string {
+	if (showTechInitial) return t("detail.quote.sheetTitleInitial");
+	if (viewer === "technician") return t("detail.quote.sheetTitleCounterTech");
+	return t("detail.quote.sheetTitleCounterUser");
+}
+
+function buildSheetSubtitle(
+	showTechInitial: boolean,
+	roundsLeft: number,
+	inspectionFee: number,
+	t: ReturnType<typeof useTranslation<"orders">>["t"],
+): string {
+	if (showTechInitial) {
+		return t("detail.quote.sheetSubtitleInitial", {
+			amount: formatCurrency(inspectionFee),
+		});
+	}
+	return t(
+		roundsLeft === 1
+			? "detail.quote.roundsLeftOne"
+			: "detail.quote.roundsLeftOther",
+		{ n: roundsLeft, amount: formatCurrency(inspectionFee) },
+	);
 }
 
 export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
@@ -149,13 +177,65 @@ export default function QuoteChatPanel({ order, viewer }: QuoteChatProps) {
 						</Text>
 					</View>
 				</>
-			) : rangeLabel ? (
-				<Text variant="caption" style={{ color: themeColors.textMuted }}>
-					{t("detail.quote.workPriceRange", { range: rangeLabel })}
-				</Text>
-			) : null}
+			) : (
+				rangeLabel && (
+					<Text variant="caption" style={{ color: themeColors.textMuted }}>
+						{t("detail.quote.workPriceRange", { range: rangeLabel })}
+					</Text>
+				)
+			)}
 		</View>
 	);
+}
+
+function deriveCtaView(params: {
+	order: Order;
+	viewer: QuoteChatPanelViewer;
+	roundCount: number;
+	isFinalRound: boolean;
+	latest: OrderQuote | null;
+	canActOnLatest: boolean;
+	inspectionFee: number;
+}) {
+	const {
+		order,
+		viewer,
+		roundCount,
+		isFinalRound,
+		latest,
+		canActOnLatest,
+		inspectionFee,
+	} = params;
+	const subjectName =
+		viewer === "technician"
+			? ((order as { user_name?: string | null }).user_name ?? null)
+			: order.technician_name;
+	const showTechInitial =
+		viewer === "technician" &&
+		order.status === "awaiting_final_cost" &&
+		roundCount === 0;
+	// Counter CTA is shown only to the actor whose turn it is — i.e. the side
+	// that DID NOT make the latest quote. Final round has no counter step.
+	const showCounter =
+		canActOnLatest &&
+		!isFinalRound &&
+		roundCount > 0 &&
+		latest != null &&
+		latest.proposed_by !== viewer;
+	const showAcceptDecline = canActOnLatest && roundCount > 0;
+	const latestTotal = latest ? latest.amount + inspectionFee : null;
+	// Neither side has an actionable quote on this turn — the viewer is waiting
+	// on the counterparty. We still render a cancel affordance so they're never
+	// stuck (previously this branch showed no controls at all).
+	const showWaitingOnly = !showTechInitial && !showAcceptDecline;
+	return {
+		subjectName,
+		showTechInitial,
+		showCounter,
+		showAcceptDecline,
+		latestTotal,
+		showWaitingOnly,
+	};
 }
 
 export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
@@ -176,12 +256,12 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	const techCancel = useTechCancel();
 	const userCancel = useUserCancelOrder();
 
-	const isSubmitPending =
-		viewer === "technician" ? techSubmit.isPending : userSubmit.isPending;
-	const isAcceptPending =
-		viewer === "technician" ? techAccept.isPending : userAccept.isPending;
-	const isCancelPending =
-		viewer === "technician" ? techCancel.isPending : userCancel.isPending;
+	const submitMutation = viewer === "technician" ? techSubmit : userSubmit;
+	const acceptMutation = viewer === "technician" ? techAccept : userAccept;
+	const cancelMutation = viewer === "technician" ? techCancel : userCancel;
+	const isSubmitPending = submitMutation.isPending;
+	const isAcceptPending = acceptMutation.isPending;
+	const isCancelPending = cancelMutation.isPending;
 
 	function handleSheetSubmit({
 		amount,
@@ -195,8 +275,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			amount,
 			notes: note.length > 0 ? note : undefined,
 		};
-		const mutation = viewer === "technician" ? techSubmit : userSubmit;
-		mutation.mutate(args, {
+		submitMutation.mutate(args, {
 			onSuccess: () => sheetRef.current?.close(),
 			onError: (err) =>
 				Toast.show({
@@ -217,8 +296,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 	function handleAccept() {
 		if (!latest) return;
 		const args = { orderId: order.id, quoteId: latest.id };
-		const mutation = viewer === "technician" ? techAccept : userAccept;
-		mutation.mutate(args, {
+		acceptMutation.mutate(args, {
 			onError: (err) =>
 				Toast.show({
 					type: "info",
@@ -235,8 +313,7 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 			reason:
 				trimmed.length > 0 ? trimmed : t("detail.quote.cancelReasonDefault"),
 		};
-		const mutation = viewer === "technician" ? techCancel : userCancel;
-		mutation.mutate(args, {
+		cancelMutation.mutate(args, {
 			onSuccess: () => {
 				setCancelOpen(false);
 				setCancelReason("");
@@ -250,55 +327,34 @@ export function QuoteChatCta({ order, viewer }: QuoteChatProps) {
 		});
 	}
 
-	const subjectName =
-		viewer === "technician"
-			? ((order as { user_name?: string | null }).user_name ?? null)
-			: order.technician_name;
+	const {
+		subjectName,
+		showTechInitial,
+		showCounter,
+		showAcceptDecline,
+		latestTotal,
+		showWaitingOnly,
+	} = deriveCtaView({
+		order,
+		viewer,
+		roundCount,
+		isFinalRound,
+		latest,
+		canActOnLatest,
+		inspectionFee,
+	});
 
-	const showTechInitial =
-		viewer === "technician" &&
-		order.status === "awaiting_final_cost" &&
-		roundCount === 0;
-	// Counter CTA is shown only to the actor whose turn it is — i.e. the side
-	// that DID NOT make the latest quote. Final round has no counter step.
-	const showCounter =
-		canActOnLatest &&
-		!isFinalRound &&
-		roundCount > 0 &&
-		latest != null &&
-		latest.proposed_by !== viewer;
-	const showAcceptDecline = canActOnLatest && roundCount > 0;
-	const latestTotal = latest ? latest.amount + inspectionFee : null;
-
-	const sheetTitle = useMemo(() => {
-		if (showTechInitial) return t("detail.quote.sheetTitleInitial");
-		if (viewer === "technician") return t("detail.quote.sheetTitleCounterTech");
-		return t("detail.quote.sheetTitleCounterUser");
-	}, [showTechInitial, viewer, t]);
-	const sheetSubtitle = useMemo(() => {
-		if (showTechInitial) {
-			return t("detail.quote.sheetSubtitleInitial", {
-				amount: formatCurrency(inspectionFee),
-			});
-		}
-		return t(
-			roundsLeft === 1
-				? "detail.quote.roundsLeftOne"
-				: "detail.quote.roundsLeftOther",
-			{
-				n: roundsLeft,
-				amount: formatCurrency(inspectionFee),
-			},
-		);
-	}, [inspectionFee, roundsLeft, showTechInitial, t]);
+	const sheetTitle = useMemo(
+		() => buildSheetTitle(showTechInitial, viewer, t),
+		[showTechInitial, viewer, t],
+	);
+	const sheetSubtitle = useMemo(
+		() => buildSheetSubtitle(showTechInitial, roundsLeft, inspectionFee, t),
+		[inspectionFee, roundsLeft, showTechInitial, t],
+	);
 	const sheetCta = showTechInitial
 		? t("detail.quote.ctaSendQuote")
 		: t("detail.quote.ctaSendCounter");
-
-	// Neither side has an actionable quote on this turn — the viewer is waiting
-	// on the counterparty. We still render a cancel affordance so they're never
-	// stuck (previously this branch showed no controls at all).
-	const showWaitingOnly = !showTechInitial && !showAcceptDecline;
 
 	return (
 		<View style={{ gap: space[2] }}>

@@ -45,7 +45,6 @@ type Props = {
 	// Audio props
 	recorderState: AudioRecorderState;
 	recordedAudio: RecordedAudio | null;
-	recordingDurationMs: number;
 	onStartRecording: () => void;
 	onStopRecording: () => void;
 	onClearAudio: () => void;
@@ -54,6 +53,8 @@ type Props = {
 
 const ICON = 22;
 const CIRCLE = 36;
+const PREVIEW_IMAGE_SIZE = 36;
+const PREVIEW_IMAGE_RADIUS = 8;
 const HIT = { top: 8, bottom: 8, left: 8, right: 8 };
 
 export default function ChatComposer({
@@ -74,7 +75,7 @@ export default function ChatComposer({
 	onStopRecording,
 	onClearAudio,
 	onCancelRecording,
-}: Props) {
+}: Readonly<Props>) {
 	const { t } = useTranslation("chat");
 	const themeColors = useThemeColors();
 
@@ -97,7 +98,11 @@ export default function ChatComposer({
 					leading={
 						<Image
 							source={{ uri: selectedImage.uri }}
-							className="h-9 w-9 rounded-lg"
+							style={{
+								width: PREVIEW_IMAGE_SIZE,
+								height: PREVIEW_IMAGE_SIZE,
+								borderRadius: PREVIEW_IMAGE_RADIUS,
+							}}
 							resizeMode="cover"
 						/>
 					}
@@ -111,8 +116,13 @@ export default function ChatComposer({
 					onClear={onClearAudio}
 					leading={
 						<View
-							className="h-9 w-9 items-center justify-center rounded-lg"
-							style={{ backgroundColor: themeColors.primary }}
+							className="items-center justify-center"
+							style={{
+								width: PREVIEW_IMAGE_SIZE,
+								height: PREVIEW_IMAGE_SIZE,
+								borderRadius: PREVIEW_IMAGE_RADIUS,
+								backgroundColor: themeColors.primary,
+							}}
 						>
 							<Mic
 								size={16}
@@ -268,7 +278,8 @@ export default function ChatComposer({
 								style={{ backgroundColor: themeColors.onPrimaryHeader }}
 							/>
 						</CircleButton>
-					) : canSend ? (
+					) : null}
+					{!isRecording && canSend ? (
 						<CircleButton
 							bg={themeColors.primary}
 							onPress={onSend}
@@ -281,7 +292,8 @@ export default function ChatComposer({
 								strokeWidth={2.6}
 							/>
 						</CircleButton>
-					) : (
+					) : null}
+					{!isRecording && !canSend ? (
 						<CircleButton
 							bg={themeColors.primary}
 							onPress={onStartRecording}
@@ -293,7 +305,7 @@ export default function ChatComposer({
 								strokeWidth={2.2}
 							/>
 						</CircleButton>
-					)}
+					) : null}
 				</View>
 			</View>
 		</View>
@@ -304,11 +316,11 @@ function ModeItem({
 	label,
 	active,
 	onPress,
-}: {
+}: Readonly<{
 	label: string;
 	active: boolean;
 	onPress: () => void;
-}) {
+}>) {
 	const themeColors = useThemeColors();
 	return (
 		<DropdownMenuItem onPress={onPress}>
@@ -329,11 +341,11 @@ function AttachRow({
 	icon,
 	label,
 	onPress,
-}: {
+}: Readonly<{
 	icon: React.ReactNode;
 	label: string;
 	onPress: () => void;
-}) {
+}>) {
 	return (
 		<Pressable
 			onPress={onPress}
@@ -353,13 +365,13 @@ function CircleButton({
 	disabled,
 	label,
 	children,
-}: {
+}: Readonly<{
 	bg: string;
 	onPress: () => void;
 	disabled?: boolean;
 	label: string;
 	children: React.ReactNode;
-}) {
+}>) {
 	return (
 		<TouchableOpacity
 			onPress={onPress}
@@ -385,12 +397,12 @@ function ComposerChip({
 	title,
 	subtitle,
 	onClear,
-}: {
+}: Readonly<{
 	leading: React.ReactNode;
 	title: string;
 	subtitle: string;
 	onClear: () => void;
-}) {
+}>) {
 	const themeColors = useThemeColors();
 	return (
 		<View

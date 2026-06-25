@@ -41,7 +41,7 @@ function formatPriceRange(
 }
 
 /** Quiet small-caps section label — hierarchy by weight, not boxes. */
-function SectionHeader({ label }: { label: string }) {
+function SectionHeader({ label }: Readonly<{ label: string }>) {
 	return (
 		<Text
 			variant="caption"
@@ -127,40 +127,54 @@ export default function TechnicianServicesScreen() {
 					className="gap-stack-sm"
 				>
 					<SectionHeader label={t("services.liveHeader")} />
-					{servicesLoading ? (
-						<View className="gap-stack-sm">
-							{SKELETON_KEYS.map((key) => (
-								<Skeleton key={key} className="h-14 w-full rounded-input" />
-							))}
-						</View>
-					) : servicesError ? (
-						<Text variant="bodySm" className="text-content-muted">
-							{t("services.loadError")}
-						</Text>
-					) : services.length === 0 ? (
-						<Text variant="bodySm" className="text-content-muted">
-							{t("services.empty")}
-						</Text>
-					) : (
-						<View>
-							{services.map((service, index) => (
-								<View
-									key={service.id}
-									className={cn(index > 0 && "border-edge border-t")}
-								>
-									<ServiceListItem
-										name={service.name}
-										description={service.description}
-										priceLabel={formatPriceRange(
-											service.min_price,
-											service.max_price,
-											t("services.priceOnRequest"),
-										)}
-									/>
+					{(() => {
+						if (servicesLoading) {
+							return (
+								<View className="gap-stack-sm">
+									{SKELETON_KEYS.map((key) => (
+										<Skeleton
+											key={key}
+											className="h-14 w-full rounded-input"
+										/>
+									))}
 								</View>
-							))}
-						</View>
-					)}
+							);
+						}
+						if (servicesError) {
+							return (
+								<Text variant="bodySm" className="text-content-muted">
+									{t("services.loadError")}
+								</Text>
+							);
+						}
+						if (services.length === 0) {
+							return (
+								<Text variant="bodySm" className="text-content-muted">
+									{t("services.empty")}
+								</Text>
+							);
+						}
+						return (
+							<View>
+								{services.map((service, index) => (
+									<View
+										key={service.id}
+										className={cn(index > 0 && "border-edge border-t")}
+									>
+										<ServiceListItem
+											name={service.name}
+											description={service.description}
+											priceLabel={formatPriceRange(
+												service.min_price,
+												service.max_price,
+												t("services.priceOnRequest"),
+											)}
+										/>
+									</View>
+								))}
+							</View>
+						);
+					})()}
 				</Animated.View>
 
 				{/* Section 2 — review pipeline (pending / approved / rejected) */}

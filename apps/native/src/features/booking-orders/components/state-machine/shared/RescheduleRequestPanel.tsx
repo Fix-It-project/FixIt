@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { CalendarClock, Check, X } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -76,6 +77,130 @@ function useCountdownMs(targetIso: string | null): number | null {
 	}, [now, targetIso]);
 }
 
+function computeExpiresAt(
+	request: { created_at: string; response_window_hours: number } | null,
+): string | null {
+	if (!request) return null;
+	const createdMs = new Date(request.created_at).getTime();
+	if (Number.isNaN(createdMs)) return null;
+	return new Date(
+		createdMs + request.response_window_hours * 3_600_000,
+	).toISOString();
+}
+
+function formatCountdown(
+	countdownMs: number | null,
+	t: TFunction<"orders">,
+): string | null {
+	if (countdownMs == null) return null;
+	if (countdownMs <= 0) return t("detail.reschedule.countdownExpired");
+	const h = Math.floor(countdownMs / 3_600_000);
+	const m = Math.floor((countdownMs % 3_600_000) / 60_000);
+	return h <= 0
+		? t("detail.reschedule.countdownMinutes", { m })
+		: t("detail.reschedule.countdownHours", { h, m });
+}
+
+function resolveEyebrow(
+	isRequester: boolean,
+	viewer: ReschedulePanelViewer,
+	t: TFunction<"orders">,
+): string {
+	if (isRequester) return t("detail.reschedule.eyebrowYou");
+	return viewer === "user"
+		? t("detail.reschedule.eyebrowTech")
+		: t("detail.reschedule.eyebrowCustomer");
+}
+
+function useViewerRescheduleMutations(viewer: ReschedulePanelViewer) {
+	const userApprove = useUserApproveReschedule();
+	const userReject = useUserRejectReschedule();
+	const userWithdraw = useUserWithdrawReschedule();
+	const techApprove = useTechApproveReschedule();
+	const techReject = useTechRejectReschedule();
+	const techWithdraw = useTechWithdrawReschedule();
+	const isTech = viewer === "technician";
+	return {
+		approveMutation: isTech ? techApprove : userApprove,
+		rejectMutation: isTech ? techReject : userReject,
+		withdrawMutation: isTech ? techWithdraw : userWithdraw,
+	};
+}
+
+interface RescheduleActionsProps {
+	readonly isCounterparty: boolean;
+	readonly approvePending: boolean;
+	readonly rejectPending: boolean;
+	readonly withdrawPending: boolean;
+	readonly onApprove: () => void;
+	readonly onReject: () => void;
+	readonly onWithdraw: () => void;
+	readonly t: TFunction<"orders">;
+}
+
+function RescheduleActions({
+	isCounterparty,
+	approvePending,
+	rejectPending,
+	withdrawPending,
+	onApprove,
+	onReject,
+	onWithdraw,
+	t,
+}: RescheduleActionsProps) {
+	if (!isCounterparty) {
+		return (
+			<Button
+				variant="secondary"
+				size="lg"
+				fullWidth
+				iconLeft={X}
+				onPress={onWithdraw}
+				loading={withdrawPending}
+				disabled={approvePending || rejectPending}
+			>
+				{withdrawPending
+					? t("detail.reschedule.cancelling")
+					: t("detail.reschedule.cancelRequest")}
+			</Button>
+		);
+	}
+	return (
+		<View style={{ flexDirection: "row", gap: space[2] }}>
+			<View style={{ flex: 1 }}>
+				<Button
+					variant="primary"
+					size="lg"
+					fullWidth
+					iconLeft={Check}
+					onPress={onApprove}
+					loading={approvePending}
+					disabled={rejectPending || withdrawPending}
+				>
+					{approvePending
+						? t("detail.reschedule.accepting")
+						: t("detail.reschedule.accept")}
+				</Button>
+			</View>
+			<View style={{ flex: 1 }}>
+				<Button
+					variant="destructive"
+					size="lg"
+					fullWidth
+					iconLeft={X}
+					onPress={onReject}
+					loading={rejectPending}
+					disabled={approvePending || withdrawPending}
+				>
+					{rejectPending
+						? t("detail.reschedule.declining")
+						: t("detail.reschedule.decline")}
+				</Button>
+			</View>
+		</View>
+	);
+}
+
 export default function RescheduleRequestPanel({
 	orderId,
 	viewer,
@@ -85,39 +210,18 @@ export default function RescheduleRequestPanel({
 	const themeColors = useThemeColors();
 	const { data, isLoading } = useOrderRescheduleQuery(orderId, viewer);
 
-	const userApprove = useUserApproveReschedule();
-	const userReject = useUserRejectReschedule();
-	const userWithdraw = useUserWithdrawReschedule();
-	const techApprove = useTechApproveReschedule();
-	const techReject = useTechRejectReschedule();
-	const techWithdraw = useTechWithdrawReschedule();
+	const { approveMutation, rejectMutation, withdrawMutation } =
+		useViewerRescheduleMutations(viewer);
 
-	const approveMutation = viewer === "technician" ? techApprove : userApprove;
-	const rejectMutation = viewer === "technician" ? techReject : userReject;
-	const withdrawMutation =
-		viewer === "technician" ? techWithdraw : userWithdraw;
+	const request = data?.resolution === "pending" ? data : null;
 
-	const request = data && data.resolution === "pending" ? data : null;
-
-	const expiresAtIso = useMemo(() => {
-		if (!request) return null;
-		const createdMs = new Date(request.created_at).getTime();
-		if (Number.isNaN(createdMs)) return null;
-		return new Date(
-			createdMs + request.response_window_hours * 3_600_000,
-		).toISOString();
-	}, [request]);
+	const expiresAtIso = useMemo(() => computeExpiresAt(request), [request]);
 
 	const countdownMs = useCountdownMs(expiresAtIso);
-	const countdown = useMemo(() => {
-		if (countdownMs == null) return null;
-		if (countdownMs <= 0) return t("detail.reschedule.countdownExpired");
-		const h = Math.floor(countdownMs / 3_600_000);
-		const m = Math.floor((countdownMs % 3_600_000) / 60_000);
-		return h <= 0
-			? t("detail.reschedule.countdownMinutes", { m })
-			: t("detail.reschedule.countdownHours", { h, m });
-	}, [countdownMs, t]);
+	const countdown = useMemo(
+		() => formatCountdown(countdownMs, t),
+		[countdownMs, t],
+	);
 
 	const isRequester = request ? request.requested_by === viewer : false;
 	const isCounterparty = request ? request.requested_by !== viewer : false;
@@ -238,8 +342,7 @@ export default function RescheduleRequestPanel({
 	}
 
 	if (!request) {
-		if (!forceVisible) return null;
-		return (
+		return forceVisible ? (
 			<View
 				style={{
 					padding: space[4],
@@ -264,14 +367,10 @@ export default function RescheduleRequestPanel({
 					</Text>
 				</View>
 			</View>
-		);
+		) : null;
 	}
 
-	const eyebrow = isRequester
-		? t("detail.reschedule.eyebrowYou")
-		: viewer === "user"
-			? t("detail.reschedule.eyebrowTech")
-			: t("detail.reschedule.eyebrowCustomer");
+	const eyebrow = resolveEyebrow(isRequester, viewer, t);
 
 	return (
 		<View
@@ -392,54 +491,16 @@ export default function RescheduleRequestPanel({
 				</View>
 			</View>
 
-			{isCounterparty ? (
-				<View style={{ flexDirection: "row", gap: space[2] }}>
-					<View style={{ flex: 1 }}>
-						<Button
-							variant="primary"
-							size="lg"
-							fullWidth
-							iconLeft={Check}
-							onPress={handleApprove}
-							loading={approveMutation.isPending}
-							disabled={rejectMutation.isPending || withdrawMutation.isPending}
-						>
-							{approveMutation.isPending
-								? t("detail.reschedule.accepting")
-								: t("detail.reschedule.accept")}
-						</Button>
-					</View>
-					<View style={{ flex: 1 }}>
-						<Button
-							variant="destructive"
-							size="lg"
-							fullWidth
-							iconLeft={X}
-							onPress={handleReject}
-							loading={rejectMutation.isPending}
-							disabled={approveMutation.isPending || withdrawMutation.isPending}
-						>
-							{rejectMutation.isPending
-								? t("detail.reschedule.declining")
-								: t("detail.reschedule.decline")}
-						</Button>
-					</View>
-				</View>
-			) : (
-				<Button
-					variant="secondary"
-					size="lg"
-					fullWidth
-					iconLeft={X}
-					onPress={handleWithdraw}
-					loading={withdrawMutation.isPending}
-					disabled={approveMutation.isPending || rejectMutation.isPending}
-				>
-					{withdrawMutation.isPending
-						? t("detail.reschedule.cancelling")
-						: t("detail.reschedule.cancelRequest")}
-				</Button>
-			)}
+			<RescheduleActions
+				isCounterparty={isCounterparty}
+				approvePending={approveMutation.isPending}
+				rejectPending={rejectMutation.isPending}
+				withdrawPending={withdrawMutation.isPending}
+				onApprove={handleApprove}
+				onReject={handleReject}
+				onWithdraw={handleWithdraw}
+				t={t}
+			/>
 		</View>
 	);
 }

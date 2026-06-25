@@ -113,8 +113,10 @@ function TechnicianCardComponent({
 	const ratingLabel = hasReviews
 		? formatRating(item.avg_rating ?? 0)
 		: t("detail.ratingNew");
+	const reviewWordKey =
+		item.review_count === 1 ? "card.reviewOne" : "card.reviewOther";
 	const reviewLabel = hasReviews
-		? `${item.review_count} ${t(item.review_count === 1 ? "card.reviewOne" : "card.reviewOther")}`
+		? `${item.review_count} ${t(reviewWordKey)}`
 		: t("card.noReviews");
 	const categorySlug = getCategorySlug(item.category_id);
 	const categoryLabel = categorySlug

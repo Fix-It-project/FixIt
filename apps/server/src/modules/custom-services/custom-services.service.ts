@@ -31,7 +31,7 @@ const AVATAR_PALETTE = [
 function colorForName(name: string): string {
 	let hash = 0;
 	for (let i = 0; i < name.length; i++) {
-		hash = (hash * 31 + name.charCodeAt(i)) | 0;
+		hash = Math.trunc(hash * 31 + name.charCodeAt(i));
 	}
 	const idx = Math.abs(hash) % AVATAR_PALETTE.length;
 	return AVATAR_PALETTE[idx] ?? AVATAR_PALETTE[0]!;

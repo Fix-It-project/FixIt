@@ -12,6 +12,10 @@ import { useTechnicianReviewsInfiniteQuery } from "@/src/features/reviews/hooks/
 import { getReviewDistribution } from "@/src/features/reviews/utils/review-distribution";
 import { useTechSelfProfileQuery } from "@/src/features/tech-self/hooks/useTechSelfProfileQuery";
 
+function ReviewSeparator() {
+	return <View className="h-stack-sm" />;
+}
+
 export default function TechnicianReviewsScreen() {
 	const themeColors = useThemeColors();
 	const { data: profile } = useTechSelfProfileQuery();
@@ -62,7 +66,7 @@ export default function TechnicianReviewsScreen() {
 								<ReviewRow review={item} variant="card" />
 							</View>
 						)}
-						ItemSeparatorComponent={() => <View className="h-stack-sm" />}
+						ItemSeparatorComponent={ReviewSeparator}
 						contentContainerStyle={{
 							paddingVertical: spacing.stack.lg,
 							paddingBottom: spacing.stack["2xl"],

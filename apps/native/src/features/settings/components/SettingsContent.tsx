@@ -99,13 +99,11 @@ export default function SettingsContent({ userType }: SettingsContentProps) {
 					icon={RefreshCw}
 					label={t("menu.checkUpdates")}
 					onPress={checkForUpdate}
-					rightText={
-						otaStatus === "checking"
-							? t("updates.checking")
-							: otaStatus === "downloading"
-								? t("updates.downloading")
-								: undefined
-					}
+					rightText={(() => {
+						if (otaStatus === "checking") return t("updates.checking");
+						if (otaStatus === "downloading") return t("updates.downloading");
+						return undefined;
+					})()}
 					hideChevron
 				/>
 			</SettingsSection>

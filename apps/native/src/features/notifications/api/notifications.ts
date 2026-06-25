@@ -2,7 +2,7 @@ import apiClient from "@/src/config/api-client";
 import type {
   NotificationLogItem,
   NotificationPreferences,
-  NotificationPreferencesRole,
+  NotificationViewerRole,
 } from "@/src/features/notifications/types";
 
 interface NotificationPreferencesApiResponse {
@@ -21,7 +21,7 @@ interface NotificationLogApiRecord {
   sender_name: string | null;
   sender_image_url: string | null;
   order_id: string | null;
-  viewer_role: NotificationPreferencesRole | null;
+  viewer_role: NotificationViewerRole | null;
   is_read: boolean;
   read_at: string | null;
   created_at: string;
@@ -47,25 +47,25 @@ function toPreferences(
   };
 }
 
-function preferencesPath(role: NotificationPreferencesRole): string {
+function preferencesPath(role: NotificationViewerRole): string {
   return role === "technician"
     ? "/api/notifications/technician/preferences"
     : "/api/notifications/user/preferences";
 }
 
-function logsPath(role: NotificationPreferencesRole): string {
+function logsPath(role: NotificationViewerRole): string {
   return role === "technician"
     ? "/api/notifications/technician/logs"
     : "/api/notifications/user/logs";
 }
 
-function unreadCountPath(role: NotificationPreferencesRole): string {
+function unreadCountPath(role: NotificationViewerRole): string {
   return role === "technician"
     ? "/api/notifications/technician/logs/unread-count"
     : "/api/notifications/user/logs/unread-count";
 }
 
-function markReadAllPath(role: NotificationPreferencesRole): string {
+function markReadAllPath(role: NotificationViewerRole): string {
   return role === "technician"
     ? "/api/notifications/technician/logs/mark-read-all"
     : "/api/notifications/user/logs/mark-read-all";
@@ -116,7 +116,7 @@ export async function unregisterTechnicianPushDevice(
 }
 
 export async function getNotificationPreferences(
-  role: NotificationPreferencesRole,
+  role: NotificationViewerRole,
 ): Promise<NotificationPreferences> {
   const response = await apiClient.get<NotificationPreferencesApiResponse>(
     preferencesPath(role),
@@ -125,7 +125,7 @@ export async function getNotificationPreferences(
 }
 
 export async function updateNotificationPreferences(
-  role: NotificationPreferencesRole,
+  role: NotificationViewerRole,
   preferences: NotificationPreferences,
 ): Promise<NotificationPreferences> {
   const response = await apiClient.patch<NotificationPreferencesApiResponse>(
@@ -140,7 +140,7 @@ export async function updateNotificationPreferences(
 }
 
 export async function getNotificationLogs(
-  role: NotificationPreferencesRole,
+  role: NotificationViewerRole,
   options: { limit?: number; offset?: number } = {},
 ): Promise<NotificationLogItem[]> {
   const response = await apiClient.get<NotificationLogsApiResponse>(logsPath(role), {
@@ -153,7 +153,7 @@ export async function getNotificationLogs(
 }
 
 export async function getNotificationUnreadCount(
-  role: NotificationPreferencesRole,
+  role: NotificationViewerRole,
 ): Promise<number> {
   const response = await apiClient.get<NotificationUnreadCountApiResponse>(
     unreadCountPath(role),
@@ -162,7 +162,7 @@ export async function getNotificationUnreadCount(
 }
 
 export async function markAllNotificationLogsRead(
-  role: NotificationPreferencesRole,
+  role: NotificationViewerRole,
 ): Promise<void> {
   await apiClient.post(markReadAllPath(role));
 }

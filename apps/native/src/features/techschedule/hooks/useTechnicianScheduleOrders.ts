@@ -23,7 +23,8 @@ export function useTechnicianScheduleOrders() {
 		const map: Record<string, TechnicianBooking[]> = {};
 		for (const order of query.data ?? []) {
 			if (!SCHEDULE_VISIBLE_STATUSES.has(order.status)) continue;
-			(map[order.scheduled_date] ??= []).push(order);
+			map[order.scheduled_date] ??= [];
+			map[order.scheduled_date].push(order);
 		}
 		for (const date of Object.keys(map)) {
 			map[date].sort((a, b) =>

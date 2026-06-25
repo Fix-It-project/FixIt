@@ -7,6 +7,7 @@ import {
 	type UpdateCalendarEntryData,
 	type UpdateTemplateData,
 } from "./technician-calendar.repository.js";
+import { AppError } from "../../shared/errors/index.js";
 
 export class TechnicianCalendarService {
 	// ─── Helpers ──────────────────────────────────────────────────────────────
@@ -14,7 +15,7 @@ export class TechnicianCalendarService {
 	private normalizeDate(date: string) {
 		const d = new Date(date);
 		if (Number.isNaN(d.getTime())) {
-			throw { status: 400, message: "Invalid date format. Use YYYY-MM-DD." };
+			throw AppError.badRequest("Invalid date format. Use YYYY-MM-DD.");
 		}
 		return d.toISOString().slice(0, 10); // YYYY-MM-DD
 	}
@@ -30,7 +31,7 @@ export class TechnicianCalendarService {
 		target.setHours(0, 0, 0, 0);
 
 		if (target < today) {
-			throw { status: 400, message: "Date cannot be in the past." };
+			throw AppError.badRequest("Date cannot be in the past.");
 		}
 
 		return normalized;
@@ -38,20 +39,17 @@ export class TechnicianCalendarService {
 
 	private validateDayOfWeek(day: number) {
 		if (!Number.isInteger(day) || day < 0 || day > 6) {
-			throw {
-				status: 400,
-				message:
-					"`day_of_week` must be an integer between 0 (Sunday) and 6 (Saturday).",
-			};
+			throw AppError.badRequest(
+				"`day_of_week` must be an integer between 0 (Sunday) and 6 (Saturday).",
+			);
 		}
 	}
 
   private validateSlotHour(slotHour: number) {
     if (![8, 11, 14, 17, 20].includes(slotHour)) {
-      throw {
-        status: 400,
-        message: "`slot_hour` must be one of 8, 11, 14, 17, 20.",
-      };
+      throw AppError.badRequest(
+        "`slot_hour` must be one of 8, 11, 14, 17, 20.",
+      );
     }
   }
 
@@ -71,21 +69,18 @@ export class TechnicianCalendarService {
 
 		const hasHoliday = entries.some((e) => !excludeId || e.id !== excludeId);
 		if (hasHoliday) {
-			throw {
-				status: 409,
-				message: "A holiday/exception already exists for this day.",
-			};
+			throw AppError.conflict(
+				"A holiday/exception already exists for this day.",
+			);
 		}
 
 		// NEW: Check the orders table for active bookings
 		const activeOrdersCount =
 			await ordersRepository.getActiveOrdersCountForDate(technicianId, date);
 		if (activeOrdersCount > 0) {
-			throw {
-				status: 409,
-				message:
-					"There are active bookings on this day. Cancel them before setting a holiday.",
-			};
+			throw AppError.conflict(
+				"There are active bookings on this day. Cancel them before setting a holiday.",
+			);
 		}
 	}
 
@@ -116,7 +111,7 @@ export class TechnicianCalendarService {
 
 	async getEntry(id: string) {
 		const entry = await technicianCalendarRepository.getEntryById(id);
-		if (!entry) throw { status: 404, message: "Calendar entry not found." };
+		if (!entry) throw AppError.notFound("Calendar entry not found.");
 		return entry;
 	}
 
@@ -134,7 +129,7 @@ export class TechnicianCalendarService {
 
 	async updateEntry(id: string, data: UpdateCalendarEntryData) {
 		const existing = await technicianCalendarRepository.getEntryById(id);
-		if (!existing) throw { status: 404, message: "Calendar entry not found." };
+		if (!existing) throw AppError.notFound("Calendar entry not found.");
 
 		const updates: UpdateCalendarEntryData = {};
 
@@ -157,7 +152,7 @@ export class TechnicianCalendarService {
 
 	async deleteEntry(id: string) {
 		const existing = await technicianCalendarRepository.getEntryById(id);
-		if (!existing) throw { status: 404, message: "Calendar entry not found." };
+		if (!existing) throw AppError.notFound("Calendar entry not found.");
 
 		await technicianCalendarRepository.deleteEntry(id);
 	}
@@ -174,16 +169,15 @@ export class TechnicianCalendarService {
 	async getTemplate(id: string) {
 		const template = await technicianCalendarRepository.getTemplateById(id);
 		if (!template)
-			throw { status: 404, message: "Availability template not found." };
+			throw AppError.notFound("Availability template not found.");
 		return template;
 	}
 
 	async createTemplate(data: CreateTemplateData) {
 		if (data.day_of_week === undefined) {
-			throw {
-				status: 400,
-				message: "day_of_week is required for availability templates.",
-			};
+			throw AppError.badRequest(
+				"day_of_week is required for availability templates.",
+			);
 		}
 
 		this.validateDayOfWeek(data.day_of_week);
@@ -204,7 +198,7 @@ export class TechnicianCalendarService {
 	async updateTemplate(id: string, data: UpdateTemplateData) {
 		const existing = await technicianCalendarRepository.getTemplateById(id);
 		if (!existing)
-			throw { status: 404, message: "Availability template not found." };
+			throw AppError.notFound("Availability template not found.");
 
 		if (
 			data.day_of_week !== undefined &&
@@ -224,10 +218,9 @@ export class TechnicianCalendarService {
 					t.id !== existing.id,
 			);
 			if (duplicate) {
-				throw {
-					status: 409,
-					message: "A template for this weekday and slot already exists.",
-				};
+				throw AppError.conflict(
+					"A template for this weekday and slot already exists.",
+				);
 			}
 		}
 
@@ -246,10 +239,9 @@ export class TechnicianCalendarService {
 					t.id !== existing.id,
 			);
 			if (duplicate) {
-				throw {
-					status: 409,
-					message: "A template for this weekday and slot already exists.",
-				};
+				throw AppError.conflict(
+					"A template for this weekday and slot already exists.",
+				);
 			}
 		}
 
@@ -259,7 +251,7 @@ export class TechnicianCalendarService {
 	async deleteTemplate(id: string) {
 		const existing = await technicianCalendarRepository.getTemplateById(id);
 		if (!existing)
-			throw { status: 404, message: "Availability template not found." };
+			throw AppError.notFound("Availability template not found.");
 
 		await technicianCalendarRepository.deleteTemplate(id);
 	}

@@ -70,11 +70,11 @@ Sentry.init({
 	enableNativeFramesTracking: !isRunningInExpoGo(),
 	enableLogs: true,
 	spotlight: __DEV__,
-	tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+	tracesSampleRate: __DEV__ ? 1 : 0.2,
 	tracePropagationTargets: tracingTargets,
-	profilesSampleRate: 1.0,
+	profilesSampleRate: 1,
 	replaysSessionSampleRate: 0.1,
-	replaysOnErrorSampleRate: 1.0,
+	replaysOnErrorSampleRate: 1,
 	// PRIV-03 (Phase 12): enabled now that plan 12-02 scrubbed auth-store + ~32 console.* sites.
 	// DO NOT flip these on without first verifying that no log site emits accessToken/
 	// refreshToken/full-user/full-session.

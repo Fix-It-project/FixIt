@@ -1,3 +1,13 @@
+import { router } from "expo-router";
+import {
+	BriefcaseBusiness,
+	ClipboardList,
+	MapPin,
+	Star,
+} from "lucide-react-native";
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import TechnicianProfileSheet, {
 	type TechnicianProfileSheetRef,
@@ -9,23 +19,13 @@ import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { useThemeColors } from "@/src/constants/design-tokens";
 import { formatRating } from "@/src/constants/format";
-import { getCategoryMeta } from "@/src/features/categories/constants/categories";
-import { useCategoriesQuery } from "@/src/features/categories/hooks/useCategoriesQuery";
+import { translateCategoryLabel } from "@/src/features/categories/constants/categories";
 import { InitialsAvatar } from "@/src/features/newhome/components/InitialsAvatar";
-import { useTopRatedTechnicians } from "@/src/features/newhome/hooks/useTopRatedTechnicians";
+import { useRecommendedTechnicians } from "@/src/features/newhome/hooks/useRecommendedTechnicians";
 import { useTechnicianProfileQuery } from "@/src/features/technicians/hooks/useTechnicianProfileQuery";
-import type { TechnicianListItem } from "@/src/features/technicians/schemas/response.schema";
+import type { RecommendedTechnicianApi } from "@/src/features/technicians/schemas/response.schema";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
 import { ROUTES } from "@/src/lib/navigation/routes";
-import { router } from "expo-router";
-import {
-	BriefcaseBusiness,
-	ClipboardList,
-	MapPin,
-	Star,
-} from "lucide-react-native";
-import { useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, useWindowDimensions, View } from "react-native";
 
 const SKELETON_KEYS = ["tr-sk-1", "tr-sk-2", "tr-sk-3"];
 
@@ -37,47 +37,43 @@ function formatCount(value: number | undefined): string {
 	return value == null ? "—" : value.toLocaleString();
 }
 
-interface TopRatedTechnicianCardProps {
-	readonly tech: TechnicianListItem;
+interface RecommendedTechnicianCardProps {
+	readonly tech: RecommendedTechnicianApi;
 	readonly categoryName: string;
 	readonly cardWidth: number;
 	readonly onOpenProfile: (technicianId: string, initials: string) => void;
 }
 
-function TopRatedTechnicianCard({
+function RecommendedTechnicianCard({
 	tech,
 	categoryName,
 	cardWidth,
 	onOpenProfile,
-}: TopRatedTechnicianCardProps) {
+}: RecommendedTechnicianCardProps) {
 	const t = useThemeColors();
 	const { t: tr } = useTranslation("home");
-	const { data: profile } = useTechnicianProfileQuery(tech.id);
-	const initials = (
-		(tech.first_name[0] ?? "") + (tech.last_name[0] ?? "")
-	).toUpperCase();
-	const name = `${tech.first_name} ${tech.last_name}`;
-	const categoryMeta = getCategoryMeta(tech.category_id);
-	const CategoryIcon = categoryMeta?.icon ?? ClipboardList;
+	const { data: profile } = useTechnicianProfileQuery(tech.technician_id);
+	const name = profile?.name ?? tech.name;
+	const initials = getPfpInitialsFallback(name);
 	const description =
-		tech.description?.trim() ||
-		profile?.description?.trim() ||
-		tr("technicianDescriptionFallback");
-	const hasRating = tech.avg_rating !== null && tech.review_count > 0;
+		profile?.description?.trim() || tr("technicianDescriptionFallback");
+	const hasRating =
+		profile?.avg_rating !== null &&
+		profile?.avg_rating !== undefined &&
+		(profile?.review_count ?? 0) > 0;
 	const totalBookings =
 		profile != null
 			? tr("totalJobs", { total: formatCount(profile.totalBookings) })
 			: null;
 
 	function openDetail() {
-		const route = ROUTES.user.technicianDetail(tech.id);
+		const route = ROUTES.user.technicianDetail(tech.technician_id);
 		router.push({
 			...route,
 			params: {
 				...route.params,
 				technicianName: name,
 				initials,
-				categoryId: tech.category_id,
 				categoryName,
 				distanceKm:
 					tech.distance_km != null ? tech.distance_km.toFixed(1) : undefined,
@@ -106,14 +102,14 @@ function TopRatedTechnicianCard({
 						pressedScale={0.94}
 						onPress={(event) => {
 							event.stopPropagation();
-							onOpenProfile(tech.id, initials);
+							onOpenProfile(tech.technician_id, initials);
 						}}
 						accessibilityRole="button"
 						accessibilityLabel={`Open ${name} profile`}
 					>
 						<InitialsAvatar
 							name={name}
-							imageUrl={tech.profile_image}
+							imageUrl={profile?.profilePicture ?? null}
 							className="size-[72px]"
 							textClassName="font-bold text-primary-foreground"
 							textStyle={{ fontSize: 24, lineHeight: 28 }}
@@ -139,13 +135,13 @@ function TopRatedTechnicianCard({
 								/>
 								<Text variant="caption" className="font-bold text-foreground">
 									{hasRating
-										? formatRating(tech.avg_rating ?? 0)
+										? formatRating(profile?.avg_rating ?? 0)
 										: tr("newTech")}
 								</Text>
 							</View>
 							<View className="mt-[2px] flex-row items-center gap-stack-xs">
 								<Icon
-									as={CategoryIcon}
+									as={ClipboardList}
 									size={12}
 									color={t.textSecondary}
 									strokeWidth={2}
@@ -177,7 +173,10 @@ function TopRatedTechnicianCard({
 							className="text-content-muted"
 							numberOfLines={1}
 						>
-							{formatDistance(tech.distance_km, tr("distanceUnavailable"))}
+							{formatDistance(
+								tech.distance_km ?? null,
+								tr("distanceUnavailable"),
+							)}
 						</Text>
 					</View>
 					{totalBookings ? (
@@ -207,18 +206,14 @@ function TopRatedTechnicianCard({
 	);
 }
 
-export function TopRatedSection() {
+export function RecommendedSection() {
 	const { t: tr } = useTranslation("home");
+	const { t: tc } = useTranslation("categories");
 	const profileSheetRef = useRef<TechnicianProfileSheetRef>(null);
 	const { width } = useWindowDimensions();
 	const cardWidth = Math.min(width - 64, 304);
 
-	const { technicians, isLoading, isError } = useTopRatedTechnicians();
-	const { data: categories } = useCategoriesQuery();
-
-	const catMap = new Map<string, string>(
-		(categories ?? []).map((c) => [c.id, c.name]),
-	);
+	const { technicians, isLoading, isError } = useRecommendedTechnicians();
 
 	if (!isLoading && !isError && technicians.length === 0) {
 		return null;
@@ -236,7 +231,7 @@ export function TopRatedSection() {
 				}}
 			>
 				<Text variant="h3" className="text-foreground">
-					{tr("topRated")}
+					{tr("recommended")}
 				</Text>
 				<PressableScale onPress={() => router.push(ROUTES.user.technicians)}>
 					<Text variant="buttonMd" className="text-app-primary">
@@ -263,7 +258,7 @@ export function TopRatedSection() {
 
 			{isError && !isLoading && (
 				<Text variant="bodySm" className="px-5 text-center text-danger">
-					{tr("couldNotLoadTopRated")}
+					{tr("couldNotLoadRecommended")}
 				</Text>
 			)}
 
@@ -277,11 +272,12 @@ export function TopRatedSection() {
 				>
 					{technicians.slice(0, 8).map((tech) => {
 						const categoryName =
-							catMap.get(tech.category_id) ?? tr("technicianFallback");
+							translateCategoryLabel(tc, null, tech.category) ||
+							tr("technicianFallback");
 
 						return (
-							<TopRatedTechnicianCard
-								key={tech.id}
+							<RecommendedTechnicianCard
+								key={tech.technician_id}
 								tech={tech}
 								categoryName={categoryName}
 								cardWidth={cardWidth}

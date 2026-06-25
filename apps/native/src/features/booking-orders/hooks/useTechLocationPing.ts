@@ -16,6 +16,13 @@ export interface UseTechLocationPingResult {
 	readonly requestPermission: () => Promise<void>;
 }
 
+// Matches the `order-distance` query for a given order so a fresh ping can
+// invalidate it. Hoisted to keep the effect's nested-function depth ≤ 4.
+function isOrderDistanceQuery(orderId: string) {
+	return (query: { queryKey: readonly unknown[] }): boolean =>
+		query.queryKey[0] === "order-distance" && query.queryKey[2] === orderId;
+}
+
 export function useTechLocationPing({
 	orderId,
 	enabled,
@@ -74,9 +81,7 @@ export function useTechLocationPing({
 					if (!cancelled) {
 						setLastPingAt(Date.now());
 						queryClient.invalidateQueries({
-							predicate: (q) =>
-								q.queryKey[0] === "order-distance" &&
-								q.queryKey[2] === orderId,
+							predicate: isOrderDistanceQuery(orderId),
 						});
 					}
 				} catch {

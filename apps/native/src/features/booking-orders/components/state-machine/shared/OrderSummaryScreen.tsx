@@ -58,6 +58,20 @@ function formatTimestamp(
 	});
 }
 
+// The later of the two dual-confirm completion timestamps, falling back to
+// whichever side is present (or null when neither is).
+function resolveWorkCompletedAt(
+	userCompletedAt: string | null | undefined,
+	techCompletedAt: string | null | undefined,
+): string | null {
+	if (userCompletedAt && techCompletedAt) {
+		return new Date(userCompletedAt) > new Date(techCompletedAt)
+			? userCompletedAt
+			: techCompletedAt;
+	}
+	return userCompletedAt ?? techCompletedAt ?? null;
+}
+
 export default function OrderSummaryScreen({ order, viewer, onBack }: Props) {
 	const { t, i18n } = useTranslation("orders");
 	const { t: tReviews } = useTranslation("reviews");
@@ -92,13 +106,10 @@ export default function OrderSummaryScreen({ order, viewer, onBack }: Props) {
 		order.work_price ?? order.estimated_price ?? order.final_price ?? 0;
 	const finalAmount = order.final_price ?? workAmount + inspectionFee;
 
-	const workCompletedAt =
-		order.user_completed_at && order.technician_completed_at
-			? new Date(order.user_completed_at) >
-				new Date(order.technician_completed_at)
-				? order.user_completed_at
-				: order.technician_completed_at
-			: (order.user_completed_at ?? order.technician_completed_at ?? null);
+	const workCompletedAt = resolveWorkCompletedAt(
+		order.user_completed_at,
+		order.technician_completed_at,
+	);
 
 	const timeline = [
 		{

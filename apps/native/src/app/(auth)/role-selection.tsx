@@ -14,6 +14,23 @@ import { RoleCard } from "@/src/features/onboarding/components/RoleCard";
 import { useDebounce } from "@/src/hooks/useDebounce";
 import { ROUTES } from "@/src/lib/navigation";
 
+/**
+ * Pick a responsive value: `whenPrimary` if the primary breakpoint matches,
+ * else `whenSecondary` if the secondary one does, else `fallback`. Keeps the
+ * screen body free of nested responsive ternaries.
+ */
+function responsiveValue<T>(
+	primary: boolean,
+	secondary: boolean,
+	whenPrimary: T,
+	whenSecondary: T,
+	fallback: T,
+): T {
+	if (primary) return whenPrimary;
+	if (secondary) return whenSecondary;
+	return fallback;
+}
+
 export default function RoleSelectionScreen() {
 	const { t } = useTranslation("auth");
 	const insets = useSafeAreaInsets();
@@ -28,20 +45,17 @@ export default function RoleSelectionScreen() {
 
 	const screenPaddingX = isNarrow ? space[4] : space[5];
 	const contentMaxWidth = Math.min(480, width - screenPaddingX * 2);
-	const titleSize = isNarrow ? 32 : isWide ? 38 : 36;
+	const titleSize = responsiveValue(isNarrow, isWide, 32, 38, 36);
 	const titleLineHeight = titleSize + 6;
 	const topPadding =
-		insets.top + (isShort ? space[6] : isWide ? space[12] : space[10]);
+		insets.top +
+		responsiveValue(isShort, isWide, space[6], space[12], space[10]);
 	const cardMinHeight = horizontalCards
-		? isShort
-			? 220
-			: isWide
-				? 260
-				: 236
+		? responsiveValue(isShort, isWide, 220, 260, 236)
 		: undefined;
-	const illustrationPanelWidth = isNarrow ? 118 : isWide ? 156 : 142;
-	const userIllustrationSize = isNarrow ? 124 : isWide ? 164 : 148;
-	const techIllustrationSize = isNarrow ? 134 : isWide ? 174 : 158;
+	const illustrationPanelWidth = responsiveValue(isNarrow, isWide, 118, 156, 142);
+	const userIllustrationSize = responsiveValue(isNarrow, isWide, 124, 164, 148);
+	const techIllustrationSize = responsiveValue(isNarrow, isWide, 134, 174, 158);
 	const cardContentPadding = isNarrow ? space[3] : space[4];
 
 	const goToUserSignup = useDebounce(() => router.push(ROUTES.auth.signup));

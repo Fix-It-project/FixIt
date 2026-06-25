@@ -16,7 +16,7 @@ export default function UserLayout() {
 	// history view renders against cache instead of a cold network round-trip.
 	useEffect(() => {
 		if (!userId) return;
-		void queryClient.prefetchQuery(userOrdersQueryOptions());
+		queryClient.prefetchQuery(userOrdersQueryOptions());
 	}, [userId, queryClient]);
 
 	return (

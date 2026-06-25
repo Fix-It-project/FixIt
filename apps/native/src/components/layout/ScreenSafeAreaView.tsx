@@ -9,6 +9,6 @@ export function ScreenSafeAreaView({
 	edges = DEFAULT_EDGES,
 	className = "flex-1",
 	...props
-}: SafeAreaViewProps) {
+}: Readonly<SafeAreaViewProps>) {
 	return <NativeSafeAreaView edges={edges} className={className} {...props} />;
 }

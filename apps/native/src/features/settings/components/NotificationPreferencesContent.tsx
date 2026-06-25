@@ -8,7 +8,7 @@ import { useNotificationPreferencesQuery } from "@/src/features/notifications/ho
 import { useUpdateNotificationPreferencesMutation } from "@/src/features/notifications/hooks/useUpdateNotificationPreferencesMutation";
 import type {
 	NotificationPreferences,
-	NotificationPreferencesRole,
+	NotificationViewerRole,
 } from "@/src/features/notifications/types";
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
@@ -69,7 +69,7 @@ function PreferenceRow({
 export default function NotificationPreferencesContent({
 	role,
 }: Readonly<{
-	role: NotificationPreferencesRole;
+	role: NotificationViewerRole;
 }>) {
 	const { t } = useTranslation("settings");
 	const { data, isLoading } = useNotificationPreferencesQuery(role);

@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { Star } from "lucide-react-native";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,75 @@ function DistributionBar({ star, count, total }: DistributionBarProps) {
 	);
 }
 
+type ReviewSummary = NonNullable<
+	ReturnType<typeof useReviewSummaryQuery>["data"]
+>;
+
+function ReviewsSummary({
+	summary,
+	summaryLoading,
+	ratedTotal,
+	themeColors,
+	t,
+}: {
+	summary: ReviewSummary | undefined;
+	summaryLoading: boolean;
+	ratedTotal: number;
+	themeColors: ReturnType<typeof useThemeColors>;
+	t: TFunction<"technicians">;
+}) {
+	if (summaryLoading) {
+		return <Skeleton className="h-28 w-full rounded-card" />;
+	}
+	if (!summary || summary.review_count === 0) return null;
+	return (
+		<View className="flex-row gap-card rounded-card bg-surface-elevated p-card">
+			<View className="items-center justify-center pr-card">
+				<Text variant="display" className="text-content">
+					{summary.avg_rating != null
+						? formatRating(summary.avg_rating)
+						: t("reviews.noRating")}
+				</Text>
+				<View className="mt-stack-xs flex-row gap-stack-xs">
+					{[1, 2, 3, 4, 5].map((s) => (
+						<Star
+							key={s}
+							size={12}
+							color={themeColors.ratingDefault}
+							fill={
+								s <= Math.round(summary.avg_rating ?? 0)
+									? themeColors.ratingDefault
+									: "transparent"
+							}
+							strokeWidth={1.5}
+						/>
+					))}
+				</View>
+				<Text variant="caption" className="mt-stack-xs text-content-muted">
+					{summary.review_count}{" "}
+					{t(
+						summary.review_count === 1
+							? "reviews.reviewOne"
+							: "reviews.reviewOther",
+					)}
+				</Text>
+			</View>
+			<View className="flex-1 justify-center gap-stack-xs">
+				{STARS.map((star) => (
+					<DistributionBar
+						key={star}
+						star={star}
+						count={
+							summary.distribution[String(star) as "1" | "2" | "3" | "4" | "5"]
+						}
+						total={ratedTotal}
+					/>
+				))}
+			</View>
+		</View>
+	);
+}
+
 interface ReviewsTabProps {
 	readonly technicianId: string;
 	readonly endReachedSignal?: number;
@@ -71,62 +141,19 @@ export function ReviewsTab({
 
 	useEffect(() => {
 		if (!endReachedSignal || !hasNextPage || isFetchingNextPage) return;
-		void fetchNextPage();
+		fetchNextPage();
 	}, [endReachedSignal, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
 	return (
 		<View className="py-stack-md">
 			{/* ── Summary ── */}
-			{summaryLoading ? (
-				<Skeleton className="h-28 w-full rounded-card" />
-			) : summary && summary.review_count > 0 ? (
-				<View className="flex-row gap-card rounded-card bg-surface-elevated p-card">
-					<View className="items-center justify-center pr-card">
-						<Text variant="display" className="text-content">
-							{summary.avg_rating != null
-								? formatRating(summary.avg_rating)
-								: t("reviews.noRating")}
-						</Text>
-						<View className="mt-stack-xs flex-row gap-stack-xs">
-							{[1, 2, 3, 4, 5].map((s) => (
-								<Star
-									key={s}
-									size={12}
-									color={themeColors.ratingDefault}
-									fill={
-										s <= Math.round(summary.avg_rating ?? 0)
-											? themeColors.ratingDefault
-											: "transparent"
-									}
-									strokeWidth={1.5}
-								/>
-							))}
-						</View>
-						<Text variant="caption" className="mt-stack-xs text-content-muted">
-							{summary.review_count}{" "}
-							{t(
-								summary.review_count === 1
-									? "reviews.reviewOne"
-									: "reviews.reviewOther",
-							)}
-						</Text>
-					</View>
-					<View className="flex-1 justify-center gap-stack-xs">
-						{STARS.map((star) => (
-							<DistributionBar
-								key={star}
-								star={star}
-								count={
-									summary.distribution[
-										String(star) as "1" | "2" | "3" | "4" | "5"
-									]
-								}
-								total={ratedTotal}
-							/>
-						))}
-					</View>
-				</View>
-			) : null}
+			<ReviewsSummary
+				summary={summary}
+				summaryLoading={summaryLoading}
+				ratedTotal={ratedTotal}
+				themeColors={themeColors}
+				t={t}
+			/>
 
 			{/* ── Review list ── */}
 			<View className="mt-stack-md">
@@ -135,7 +162,8 @@ export function ReviewsTab({
 						<Skeleton className="h-16 w-full rounded-input" />
 						<Skeleton className="h-16 w-full rounded-input" />
 					</View>
-				) : reviews.length === 0 ? (
+				) : null}
+				{!isLoading && reviews.length === 0 ? (
 					<View className="items-center py-section-y">
 						<Text variant="buttonLg" className="text-content">
 							{t("reviews.emptyTitle")}
@@ -144,7 +172,8 @@ export function ReviewsTab({
 							{t("reviews.emptyBody")}
 						</Text>
 					</View>
-				) : (
+				) : null}
+				{!isLoading && reviews.length > 0 ? (
 					<>
 						{reviews.map((review) => (
 							<ReviewRow key={review.id} review={review} variant="row" />
@@ -153,7 +182,7 @@ export function ReviewsTab({
 							<LoadingSpinner className="py-stack-lg" size="small" />
 						) : null}
 					</>
-				)}
+				) : null}
 			</View>
 		</View>
 	);

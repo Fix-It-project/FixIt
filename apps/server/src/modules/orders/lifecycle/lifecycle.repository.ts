@@ -172,7 +172,10 @@ export interface SyncCardPaymentSnapshotParams {
 
 export interface UpdateCardPaymentStatusParams {
 	paymentId: string;
-	status: Extract<PaymentStatus, "processing" | "paid" | "failed" | "cancelled">;
+	status: Extract<
+		PaymentStatus,
+		"processing" | "paid" | "failed" | "cancelled"
+	>;
 	providerOrderId?: string | null;
 	providerPaymentId?: string | null;
 	providerTransactionId?: string | null;
@@ -209,8 +212,7 @@ export interface PaymentProviderEventInsert {
 const HUMAN: Record<string, string> = {
 	cannot_submit_order_unpaid_fee:
 		"Please clear your unpaid fees before submitting another order.",
-	destination_address_not_owned_by_user:
-		"That address isn't on your account.",
+	destination_address_not_owned_by_user: "That address isn't on your account.",
 	service_not_offered_by_technician:
 		"This technician doesn't offer that service.",
 	slot_taken: "That time slot was just booked. Please pick another.",
@@ -250,8 +252,7 @@ const HUMAN: Record<string, string> = {
 	price_out_of_range: "Enter a price within the service's listed range.",
 	missing_final_price: "A final price is required to complete this order.",
 	no_cash_payment_pending: "There's no pending cash payment for this order.",
-	no_completion_pending:
-		"There's no pending completion request to act on.",
+	no_completion_pending: "There's no pending completion request to act on.",
 	fee_not_unpaid: "That fee is no longer unpaid.",
 };
 
@@ -282,113 +283,112 @@ function isRpcShapeError(error: { code?: string; message?: string }): boolean {
 	);
 }
 
+type LifecycleErrorKind =
+	| "conflict"
+	| "badRequest"
+	| "notFound"
+	| "forbidden"
+	| "tooFar"
+	| "priceRange";
+
+// Ordered most-specific-first: order_not_found_or_not_owner must precede the
+// order_not_found / not_owner substrings. Mirrors the original if-ladder so the
+// first matching substring wins exactly as before.
+const LIFECYCLE_ERROR_RULES: ReadonlyArray<
+	readonly [string, LifecycleErrorKind]
+> = [
+	// Submit-time guards.
+	["cannot_submit_order_unpaid_fee", "conflict"],
+	["destination_address_not_owned_by_user", "forbidden"],
+	["service_not_offered_by_technician", "badRequest"],
+	["slot_taken", "conflict"],
+	["tech_unavailable", "conflict"],
+	["booking_must_be_future", "badRequest"],
+	["order_not_found_or_not_owner", "notFound"],
+	// Generic ownership / lookup.
+	["order_not_found", "notFound"],
+	["not_owner", "forbidden"],
+	// Bad input shapes.
+	["bad_actor_role", "badRequest"],
+	["bad_payment_method", "badRequest"],
+	["bad_order_action", "badRequest"],
+	["bad_status", "badRequest"],
+	["scheduled_start_at_required", "badRequest"],
+	["invalid_scheduled_start_at", "badRequest"],
+	["scheduled_date_start_mismatch", "badRequest"],
+	["invalid_scheduled_slot", "badRequest"],
+	// State-machine violations.
+	["invalid_transition", "conflict"],
+	["arrival_not_detected_yet", "conflict"],
+	["too_far_from_destination", "tooFar"],
+	["location_updates_only_allowed_while_tracking", "conflict"],
+	["technician_already_has_active_order", "conflict"],
+	["technician_already_tracking_another_order", "conflict"],
+	["earlier_order_not_completed", "conflict"],
+	// Quote-flow guards.
+	["quote_not_found", "notFound"],
+	["quote_not_pending", "conflict"],
+	["cannot_accept_own_quote", "badRequest"],
+	["cannot_cancel_from_status", "badRequest"],
+	["wrong_actor_for_round", "badRequest"],
+	["max_quote_rounds_reached", "conflict"],
+	["price_out_of_range", "priceRange"],
+	// Completion / payment / fees.
+	["missing_final_price", "conflict"],
+	["no_cash_payment_pending", "conflict"],
+	["no_completion_pending", "conflict"],
+	["fee_not_unpaid", "conflict"],
+];
+
+function throwLifecycleError(
+	kind: LifecycleErrorKind,
+	code: string,
+	error: { hint?: string },
+): never {
+	switch (kind) {
+		case "conflict":
+			throw AppError.conflict(humanMessageFor(code), { token: code });
+		case "badRequest":
+			throw AppError.badRequest(humanMessageFor(code), { token: code });
+		case "notFound":
+			throw AppError.notFound(humanMessageFor(code), { token: code });
+		case "forbidden":
+			throw AppError.forbidden(humanMessageFor(code), { token: code });
+		case "tooFar": {
+			// Surface the Postgres hint (e.g. "current distance 2.34 km") to the
+			// technician so they understand how far off they are; keep the raw hint
+			// in opts.devMessage for logs.
+			const sentence = error.hint
+				? `You're too far from the destination (${error.hint}).`
+				: "You're too far from the destination to start.";
+			throw AppError.conflict(sentence, {
+				token: "too_far_from_destination",
+				devMessage: error.hint ?? undefined,
+			});
+		}
+		case "priceRange": {
+			// The Postgres function attaches `HINT EGP <min>-<max>` so we can show
+			// the exact accepted range to whoever proposed the out-of-range price.
+			const sentence = error.hint
+				? `Enter a price within the service's range (${error.hint}).`
+				: humanMessageFor("price_out_of_range");
+			throw AppError.badRequest(sentence, {
+				token: "price_out_of_range",
+				devMessage: error.hint ?? undefined,
+			});
+		}
+	}
+}
+
 export function mapLifecycleRpcError(error: {
 	code?: string;
 	message?: string;
 	hint?: string;
 }): never {
 	const msg = error.message ?? "";
-
-	const conflict = (code: string): never => {
-		throw AppError.conflict(humanMessageFor(code), { token: code });
-	};
-	const badRequest = (code: string): never => {
-		throw AppError.badRequest(humanMessageFor(code), { token: code });
-	};
-	const notFound = (code: string): never => {
-		throw AppError.notFound(humanMessageFor(code), { token: code });
-	};
-	const forbidden = (code: string): never => {
-		throw AppError.forbidden(humanMessageFor(code), { token: code });
-	};
-
-	// Submit-time guards (most specific first — order_not_found_or_not_owner
-	// must come before order_not_found / not_owner substrings).
-	if (msg.includes("cannot_submit_order_unpaid_fee"))
-		conflict("cannot_submit_order_unpaid_fee");
-	if (msg.includes("destination_address_not_owned_by_user"))
-		forbidden("destination_address_not_owned_by_user");
-	if (msg.includes("service_not_offered_by_technician"))
-		badRequest("service_not_offered_by_technician");
-	if (msg.includes("slot_taken")) conflict("slot_taken");
-	if (msg.includes("tech_unavailable")) conflict("tech_unavailable");
-	if (msg.includes("booking_must_be_future"))
-		badRequest("booking_must_be_future");
-	if (msg.includes("order_not_found_or_not_owner"))
-		notFound("order_not_found_or_not_owner");
-
-	// Generic ownership / lookup.
-	if (msg.includes("order_not_found")) notFound("order_not_found");
-	if (msg.includes("not_owner")) forbidden("not_owner");
-
-	// Bad input shapes.
-	if (msg.includes("bad_actor_role")) badRequest("bad_actor_role");
-	if (msg.includes("bad_payment_method")) badRequest("bad_payment_method");
-	if (msg.includes("bad_order_action")) badRequest("bad_order_action");
-	if (msg.includes("bad_status")) badRequest("bad_status");
-	if (msg.includes("scheduled_start_at_required"))
-		badRequest("scheduled_start_at_required");
-	if (msg.includes("invalid_scheduled_start_at"))
-		badRequest("invalid_scheduled_start_at");
-	if (msg.includes("scheduled_date_start_mismatch"))
-		badRequest("scheduled_date_start_mismatch");
-	if (msg.includes("invalid_scheduled_slot"))
-		badRequest("invalid_scheduled_slot");
-
-	// State-machine violations.
-	if (msg.includes("invalid_transition")) conflict("invalid_transition");
-	if (msg.includes("arrival_not_detected_yet"))
-		conflict("arrival_not_detected_yet");
-	if (msg.includes("too_far_from_destination")) {
-		// Surface the Postgres hint (e.g. "current distance 2.34 km") to the
-		// technician in the userMessage so they understand how far off they are.
-		// Keep the raw hint in opts.devMessage for logs.
-		const sentence = error.hint
-			? `You're too far from the destination (${error.hint}).`
-			: "You're too far from the destination to start.";
-		throw AppError.conflict(sentence, {
-			token: "too_far_from_destination",
-			devMessage: error.hint ?? undefined,
-		});
+	for (const [needle, kind] of LIFECYCLE_ERROR_RULES) {
+		if (msg.includes(needle)) throwLifecycleError(kind, needle, error);
 	}
-	if (msg.includes("location_updates_only_allowed_while_tracking"))
-		conflict("location_updates_only_allowed_while_tracking");
-	if (msg.includes("technician_already_has_active_order"))
-		conflict("technician_already_has_active_order");
-	if (msg.includes("technician_already_tracking_another_order"))
-		conflict("technician_already_tracking_another_order");
-	if (msg.includes("earlier_order_not_completed"))
-		conflict("earlier_order_not_completed");
-
-	// Quote-flow guards.
-	if (msg.includes("quote_not_found")) notFound("quote_not_found");
-	if (msg.includes("quote_not_pending")) conflict("quote_not_pending");
-	if (msg.includes("cannot_accept_own_quote"))
-		badRequest("cannot_accept_own_quote");
-	if (msg.includes("cannot_cancel_from_status"))
-		badRequest("cannot_cancel_from_status");
-	if (msg.includes("wrong_actor_for_round")) badRequest("wrong_actor_for_round");
-	if (msg.includes("max_quote_rounds_reached"))
-		conflict("max_quote_rounds_reached");
-	if (msg.includes("price_out_of_range")) {
-		// The Postgres function attaches `HINT EGP <min>-<max>` so we can show the
-		// exact accepted range to whoever proposed the out-of-range price.
-		const sentence = error.hint
-			? `Enter a price within the service's range (${error.hint}).`
-			: humanMessageFor("price_out_of_range");
-		throw AppError.badRequest(sentence, {
-			token: "price_out_of_range",
-			devMessage: error.hint ?? undefined,
-		});
-	}
-
-	// Completion / payment / fees.
-	if (msg.includes("missing_final_price")) conflict("missing_final_price");
-	if (msg.includes("no_cash_payment_pending"))
-		conflict("no_cash_payment_pending");
-	if (msg.includes("no_completion_pending")) conflict("no_completion_pending");
-	if (msg.includes("fee_not_unpaid")) conflict("fee_not_unpaid");
-
 	// Unknown error — rethrow as-is (mirrors reschedule mapper's final `throw error`).
 	throw error;
 }
@@ -413,9 +413,7 @@ export class LifecycleRepository {
 		let { data, error } = await supabase.rpc("rpc_submit_order", nextArgs);
 		if (
 			error &&
-			shouldRetryLegacySubmitOrder(
-				error as { code?: string; message?: string },
-			)
+			shouldRetryLegacySubmitOrder(error as { code?: string; message?: string })
 		) {
 			({ data, error } = await supabase.rpc("rpc_submit_order", {
 				p_user_id: p.userId,
@@ -754,7 +752,9 @@ export class LifecycleRepository {
 		};
 	}
 
-	async updateCardPaymentStatus(p: UpdateCardPaymentStatusParams): Promise<Payment> {
+	async updateCardPaymentStatus(
+		p: UpdateCardPaymentStatusParams,
+	): Promise<Payment> {
 		const { data, error } = await supabase
 			.from("payments")
 			.update({

@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
-import { AppError } from "../../../shared/errors/index.js";
 import { getPaymobConfig } from "../../../config/paymob.js";
+import { AppError } from "../../../shared/errors/index.js";
 
 export interface PaymobBillingData {
 	email: string;
@@ -75,6 +75,32 @@ type WebhookParams = Record<string, unknown>;
 function firstString(value: unknown): string | null {
 	if (typeof value === "string") return value;
 	if (Array.isArray(value)) return firstString(value[0]);
+	return null;
+}
+
+// Returns the first argument that is a string (strict — no array unwrapping),
+// mirroring the original nested-ternary precedence for merchant_order_id.
+function pickString(...values: unknown[]): string | null {
+	for (const value of values) {
+		if (typeof value === "string") return value;
+	}
+	return null;
+}
+
+function coerceIdString(value: unknown): string | null {
+	return typeof value === "number" || typeof value === "string"
+		? String(value)
+		: null;
+}
+
+function buildExternalEventId(
+	body: Record<string, unknown>,
+	obj: Record<string, unknown>,
+): string | null {
+	if (typeof body.type === "string") {
+		return `${body.type}:${String(obj.id ?? "")}`;
+	}
+	if (typeof body.id === "string") return body.id;
 	return null;
 }
 
@@ -171,8 +197,8 @@ async function postJson<T>(
 		throw AppError.internal(
 			"Card payment could not be started. Please try again.",
 			{
-			devMessage: `Paymob ${response.status}: ${text.slice(0, 500)}`,
-			token: "paymob_request_failed",
+				devMessage: `Paymob ${response.status}: ${text.slice(0, 500)}`,
+				token: "paymob_request_failed",
 			},
 		);
 	}
@@ -230,9 +256,7 @@ export class PaymobAdapter {
 				...(cfg.notificationUrl
 					? { notification_url: cfg.notificationUrl }
 					: {}),
-				...(cfg.redirectionUrl
-					? { redirection_url: cfg.redirectionUrl }
-					: {}),
+				...(cfg.redirectionUrl ? { redirection_url: cfg.redirectionUrl } : {}),
 			},
 			{ Authorization: `Token ${cfg.secretKey}` },
 		);
@@ -266,9 +290,12 @@ export class PaymobAdapter {
 		query: WebhookParams = {},
 	): void {
 		if (!this.config.hmacSecret) {
-			throw AppError.badRequest(`${this.platformLabel} webhook secret is not configured`, {
-				token: "paymob_webhook_not_configured",
-			});
+			throw AppError.badRequest(
+				`${this.platformLabel} webhook secret is not configured`,
+				{
+					token: "paymob_webhook_not_configured",
+				},
+			);
 		}
 
 		const signatureHeader =
@@ -277,9 +304,9 @@ export class PaymobAdapter {
 			headers["x-signature"];
 		const signature = Array.isArray(signatureHeader)
 			? signatureHeader[0]
-			: signatureHeader ??
+			: (signatureHeader ??
 				firstString(query.hmac) ??
-				firstString((payload as Record<string, unknown> | null)?.hmac);
+				firstString((payload as Record<string, unknown> | null)?.hmac));
 
 		if (!signature) {
 			throw AppError.badRequest("Missing Paymob webhook signature", {
@@ -327,18 +354,13 @@ export class PaymobAdapter {
 				? (obj.order as Record<string, unknown>)
 				: null;
 
-		const merchantOrderId =
-			typeof order?.merchant_order_id === "string"
-				? order.merchant_order_id
-				: typeof obj.merchant_order_id === "string"
-					? obj.merchant_order_id
-					: typeof body.merchant_order_id === "string"
-					? body.merchant_order_id
-					: typeof obj.special_reference === "string"
-						? obj.special_reference
-						: typeof body.special_reference === "string"
-							? body.special_reference
-					: null;
+		const merchantOrderId = pickString(
+			order?.merchant_order_id,
+			obj.merchant_order_id,
+			body.merchant_order_id,
+			obj.special_reference,
+			body.special_reference,
+		);
 		const paymentId = paymentIdFromMerchantReference(merchantOrderId);
 
 		if (!paymentId) {
@@ -353,23 +375,10 @@ export class PaymobAdapter {
 
 		return {
 			provider: "paymob",
-			externalEventId:
-				typeof body.type === "string"
-					? `${body.type}:${String(obj.id ?? "")}`
-					: typeof body.id === "string"
-						? body.id
-						: null,
+			externalEventId: buildExternalEventId(body, obj),
 			paymentId,
-			providerPaymentId:
-				typeof order?.id === "number" || typeof order?.id === "string"
-					? String(order.id)
-					: typeof obj.order === "number" || typeof obj.order === "string"
-						? String(obj.order)
-					: null,
-			providerTransactionId:
-				typeof obj.id === "number" || typeof obj.id === "string"
-					? String(obj.id)
-					: null,
+			providerPaymentId: coerceIdString(order?.id) ?? coerceIdString(obj.order),
+			providerTransactionId: coerceIdString(obj.id),
 			status,
 			success,
 			raw: payload,

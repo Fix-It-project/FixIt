@@ -54,7 +54,7 @@ function NativeOnlyAnimatedView(
 	return <Animated.View {...props} />;
 }
 
-function AlertDialogOverlay({ children }: { children: React.ReactNode }) {
+function AlertDialogOverlay({ children }: Readonly<{ children: React.ReactNode }>) {
 	const themeColors = useThemeColors();
 
 	return (
@@ -68,7 +68,7 @@ function AlertDialogOverlay({ children }: { children: React.ReactNode }) {
 					]}
 				>
 					<NativeOnlyAnimatedView
-						entering={FadeIn.duration(200).delay(50)}
+						entering={FadeIn.duration(200)}
 						exiting={FadeOut.duration(150)}
 						style={styles.overlayAnimatedFill}
 					>
@@ -80,7 +80,7 @@ function AlertDialogOverlay({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function AlertDialogContent({ children }: { children: React.ReactNode }) {
+function AlertDialogContent({ children }: Readonly<{ children: React.ReactNode }>) {
 	const themeColors = useThemeColors();
 	const { height: screenHeight, width: screenWidth } = useWindowDimensions();
 	const viewportMargin =
@@ -117,7 +117,7 @@ function AlertDialogContent({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function AlertDialogHeader({ children }: { children: React.ReactNode }) {
+function AlertDialogHeader({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<View style={styles.header}>
 			<AlertDialogTitle asChild>
@@ -127,7 +127,7 @@ function AlertDialogHeader({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function AlertDialogBody({ children }: { children: React.ReactNode }) {
+function AlertDialogBody({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<View style={styles.body}>
 			{typeof children === "string" ? (
@@ -141,7 +141,7 @@ function AlertDialogBody({ children }: { children: React.ReactNode }) {
 	);
 }
 
-function AlertDialogFooter({ children }: { children: React.ReactNode }) {
+function AlertDialogFooter({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<View style={styles.footer}>
 			{React.Children.map(children, (child) => (
@@ -155,7 +155,7 @@ function ReusablesAlertDialog({
 	visible,
 	onClose,
 	children,
-}: AlertDialogProps) {
+}: Readonly<AlertDialogProps>) {
 	const handleOpenChange = React.useCallback(
 		(open: boolean) => {
 			if (!open) {

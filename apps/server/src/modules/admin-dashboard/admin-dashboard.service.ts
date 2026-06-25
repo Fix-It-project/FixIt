@@ -102,7 +102,7 @@ const AVATAR_PALETTE = [
 function colorForName(name: string): string {
 	let hash = 0;
 	for (let i = 0; i < name.length; i++) {
-		hash = (hash * 31 + name.charCodeAt(i)) | 0;
+		hash = Math.trunc(hash * 31 + name.charCodeAt(i));
 	}
 	const idx = Math.abs(hash) % AVATAR_PALETTE.length;
 	return AVATAR_PALETTE[idx] ?? AVATAR_PALETTE[0]!;
@@ -338,7 +338,9 @@ export class AdminDashboardService {
 	}
 
 	async getOrdersSeries(range: SeriesRange): Promise<OrdersSeries> {
-		const days = range === "7d" ? 7 : range === "90d" ? 90 : 30;
+		let days = 30;
+		if (range === "7d") days = 7;
+		else if (range === "90d") days = 90;
 		const [createdDaily, completedDaily, acceptDaily] = await Promise.all([
 			this.repo.getOrderCreatedDaily(),
 			this.repo.getOrderCompletedDaily(),

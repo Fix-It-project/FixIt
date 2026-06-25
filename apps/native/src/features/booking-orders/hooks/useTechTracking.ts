@@ -39,13 +39,11 @@ export function useTechTracking({
 
 	const refreshPermission = useCallback(async () => {
 		const result = await Location.getForegroundPermissionsAsync();
-		setPermissionStatus(
-			result.status === "granted"
-				? "granted"
-				: result.status === "denied"
-					? "denied"
-					: "undetermined",
-		);
+		let status: "granted" | "denied" | "undetermined";
+		if (result.status === "granted") status = "granted";
+		else if (result.status === "denied") status = "denied";
+		else status = "undetermined";
+		setPermissionStatus(status);
 		setCanAskAgain(result.canAskAgain);
 	}, []);
 

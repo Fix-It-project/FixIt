@@ -241,7 +241,7 @@ export class RescheduleService {
 		}
 		let request = await rescheduleRepository.getByOrderId(orderId);
 
-		if (request && request.resolution === "pending") {
+		if (request?.resolution === "pending") {
 			const availabilityOk = await this.isProposedDateStillAvailable(
 				order.technician_id,
 				request.proposed_scheduled_date,
@@ -260,8 +260,7 @@ export class RescheduleService {
 		}
 
 		if (
-			request &&
-			request.resolution === "pending" &&
+			request?.resolution === "pending" &&
 			TERMINAL_STATUSES.has(order.status)
 		) {
 			await rescheduleRepository.cancelPendingForOrder(

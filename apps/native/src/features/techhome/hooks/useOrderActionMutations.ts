@@ -6,15 +6,15 @@ import { techHomeKeys } from "../schemas/query-keys";
 export function useInvalidateOrderCaches() {
 	const queryClient = useQueryClient();
 	return () => {
-		void queryClient.invalidateQueries({ queryKey: techHomeKeys.orders });
+		queryClient.invalidateQueries({ queryKey: techHomeKeys.orders });
 		// Old dashboard feature still exists on disk — keep its cache honest too.
-		void queryClient.invalidateQueries({
+		queryClient.invalidateQueries({
 			queryKey: techHomeKeys.legacyDashboardOrders,
 		});
-		void queryClient.invalidateQueries({
+		queryClient.invalidateQueries({
 			queryKey: techHomeKeys.scheduleEvents,
 		});
-		void queryClient.invalidateQueries({ queryKey: techHomeKeys.stats });
+		queryClient.invalidateQueries({ queryKey: techHomeKeys.stats });
 	};
 }
 

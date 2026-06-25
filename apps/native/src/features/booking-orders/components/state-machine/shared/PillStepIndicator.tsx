@@ -73,21 +73,24 @@ export default function PillStepIndicator({
 	const reducedMotion = useReducedMotion();
 
 	const segments = useMemo(() => {
-		const list: Array<"past" | "active" | "future"> = [];
+		const list: Array<{
+			stepNumber: number;
+			state: "past" | "active" | "future";
+		}> = [];
 		for (let i = 1; i <= stepCount; i += 1) {
-			if (i < stepIndex) list.push("past");
-			else if (i === stepIndex) list.push("active");
-			else list.push("future");
+			let state: "past" | "active" | "future" = "future";
+			if (i < stepIndex) state = "past";
+			else if (i === stepIndex) state = "active";
+			list.push({ stepNumber: i, state });
 		}
 		return list;
 	}, [stepIndex, stepCount]);
 
 	return (
 		<View className="flex-row gap-stack-xs px-screen-x py-stack-md">
-			{segments.map((state, i) => (
+			{segments.map(({ stepNumber, state }) => (
 				<PillSegment
-					// biome-ignore lint/suspicious/noArrayIndexKey: stable count + position
-					key={`pill-${i}`}
+					key={`pill-${stepNumber}`}
 					state={state}
 					pastColor={themeColors.primary}
 					inactiveColor={themeColors.borderDefault}

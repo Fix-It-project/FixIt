@@ -45,7 +45,8 @@ export default function ProfileRow({
 			</Text>
 			{loading ? (
 				<ActivityIndicator size="small" color={iconColor} />
-			) : showChevron ? (
+			) : null}
+			{!loading && showChevron ? (
 				<ChevronRight
 					size={20}
 					color={themeColors.textMuted}

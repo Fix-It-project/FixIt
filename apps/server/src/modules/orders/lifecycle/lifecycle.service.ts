@@ -502,6 +502,10 @@ export class LifecycleService {
 			recipientRole === "user"
 				? notificationOrder.user_id
 				: notificationOrder.technician_id;
+		const confirmerName =
+			actorRole === "user"
+				? customerName(notificationOrder)
+				: technicianName(notificationOrder);
 		await this.notifyBestEffort({
 			recipientRole,
 			recipientId,
@@ -509,8 +513,8 @@ export class LifecycleService {
 			title: "Completion confirmed",
 			body:
 				order.status === "awaiting_payment"
-					? `${actorRole === "user" ? customerName(notificationOrder) : technicianName(notificationOrder)} confirmed completion. The booking is ready for payment.`
-					: `${actorRole === "user" ? customerName(notificationOrder) : technicianName(notificationOrder)} confirmed the booking is complete.`,
+					? `${confirmerName} confirmed completion. The booking is ready for payment.`
+					: `${confirmerName} confirmed the booking is complete.`,
 			...senderForRole(notificationOrder, actorRole),
 			orderId: order.id,
 			viewerRole: recipientRole,

@@ -117,15 +117,16 @@ export default function ActiveOrderBubblePresenter({
 				<PressableScale
 					onPress={onPress}
 					accessibilityRole="button"
-					accessibilityLabel={
-						viewer === "technician"
-							? showEta
+					accessibilityLabel={(() => {
+						if (viewer === "technician") {
+							return showEta
 								? t("detail.bubble.activeJobEta", { n: etaMinutes })
-								: t("detail.bubble.activeJob")
-							: showEta
-								? t("detail.bubble.activeOrderEta", { n: etaMinutes })
-								: t("detail.bubble.activeOrder")
-					}
+								: t("detail.bubble.activeJob");
+						}
+						return showEta
+							? t("detail.bubble.activeOrderEta", { n: etaMinutes })
+							: t("detail.bubble.activeOrder");
+					})()}
 					className="flex-row items-center gap-stack-xs rounded-pill bg-app-primary px-card py-stack-sm"
 					style={shadowStyle(elevation.header, {
 						shadowColor: themeColors.shadow,

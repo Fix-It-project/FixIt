@@ -20,7 +20,7 @@ export function PressableScale({
 	style,
 	children,
 	...rest
-}: PressableScaleProps) {
+}: Readonly<PressableScaleProps>) {
 	const reducedMotion = useReducedMotion();
 	const scale = useSharedValue(1);
 	const opacity = useSharedValue(1);
@@ -55,7 +55,7 @@ export function PressableScale({
 				}
 				onPressOut?.(e);
 			}}
-			style={[animatedStyle, style as object]}
+			style={[animatedStyle, style]}
 		>
 			{children}
 		</AnimatedPressable>

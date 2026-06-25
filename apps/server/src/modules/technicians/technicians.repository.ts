@@ -524,7 +524,8 @@ export class TechniciansRepository implements ITechniciansRepository {
 		// Escape ilike wildcards in the user input, then escape backslashes/quotes and wrap
 		// the value in double quotes so commas/parens are treated as literal text inside .or().
 		const escaped = query.replace(/[\\%_]/g, (ch) => `\\${ch}`);
-		const term = `"%${escaped.replace(/["\\]/g, (ch) => `\\${ch}`)}%"`;
+		const quoted = escaped.replace(/["\\]/g, (ch) => `\\${ch}`);
+		const term = `"%${quoted}%"`;
 		const { data, error } = await supabaseAdmin
 			.from("technicians")
 			.select(

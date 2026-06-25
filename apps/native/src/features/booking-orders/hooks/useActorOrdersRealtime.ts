@@ -30,13 +30,13 @@ export function useActorOrdersRealtime(
 
 		const invalidate = () => {
 			if (actor === "technician") {
-				void queryClient.invalidateQueries({
+				queryClient.invalidateQueries({
 					queryKey: ["technician-bookings"],
 				});
-				void queryClient.invalidateQueries({ queryKey: ["dashboard-orders"] });
-				void queryClient.invalidateQueries({ queryKey: ["schedule-events"] });
+				queryClient.invalidateQueries({ queryKey: ["dashboard-orders"] });
+				queryClient.invalidateQueries({ queryKey: ["schedule-events"] });
 			} else {
-				void queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+				queryClient.invalidateQueries({ queryKey: ["user-orders"] });
 			}
 		};
 
@@ -72,7 +72,7 @@ export function useActorOrdersRealtime(
 			});
 
 		return () => {
-			void supabase.removeChannel(channel);
+			supabase.removeChannel(channel);
 		};
 	}, [actor, actorId, queryClient]);
 }

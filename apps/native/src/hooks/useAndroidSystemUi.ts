@@ -10,6 +10,6 @@ export function useAndroidSystemUi(
 			return;
 		}
 
-		void setAndroidNavigationBar(navigationBarStyle);
+		setAndroidNavigationBar(navigationBarStyle);
 	}, [enabled, navigationBarStyle]);
 }

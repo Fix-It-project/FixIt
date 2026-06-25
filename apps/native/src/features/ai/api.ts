@@ -90,8 +90,8 @@ function parseEmbeddedAgentResponse(value: unknown): EmbeddedAgentResponse {
 	const text = optionalString(value);
 	if (!text) return {};
 
-	const fencedJsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
-	const jsonCandidate = fencedJsonMatch?.[1] ?? text.match(/\{[\s\S]*\}/)?.[0];
+	const fencedJsonMatch = /```(?:json)?\s*([\s\S]*?)```/i.exec(text);
+	const jsonCandidate = fencedJsonMatch?.[1] ?? /\{[\s\S]*\}/.exec(text)?.[0];
 	if (!jsonCandidate) return {};
 
 	try {

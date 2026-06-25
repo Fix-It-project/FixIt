@@ -12,7 +12,11 @@ import {
 
 const router: RouterType = Router();
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  // Cap upload size to bound memory use and reject oversized payloads (DoS guard).
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 const documentFields = upload.fields([
   { name: 'criminal_record', maxCount: 1 },
