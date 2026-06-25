@@ -39,18 +39,18 @@ export function Navbar() {
 						: "border-border/70 border-b bg-background/80 backdrop-blur-xl",
 				)}
 			>
-				<Container className="flex h-16 items-center justify-between gap-4">
+				<Container className="flex h-16 items-center justify-between gap-4 md:grid md:grid-cols-[1fr_auto_1fr]">
 					<a
 						href="#top"
 						aria-label="FixIt home"
-						className="rounded-lg focus-visible:outline-none"
+						className="rounded-lg focus-visible:outline-none md:justify-self-start"
 					>
 						<Wordmark tone={light ? "light" : "dark"} />
 					</a>
 
 					<nav
 						aria-label="Primary"
-						className="hidden items-center gap-1 md:flex"
+						className="hidden items-center gap-1 md:flex md:justify-self-center"
 					>
 						{navLinks.map((link) => (
 							<a
@@ -68,7 +68,7 @@ export function Navbar() {
 						))}
 					</nav>
 
-					<div className="hidden items-center gap-2 md:flex">
+					<div className="hidden items-center gap-2 md:flex md:justify-self-end">
 						<Button
 							variant={light ? "onDarkGhost" : "ghost"}
 							size="sm"

@@ -1,4 +1,4 @@
-import { ArrowRight, Github, MapPin, Sparkles, Wallet } from "lucide-react";
+import { ArrowRight, Github, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Counter } from "@/components/animation/Counter";
 import { PhoneFrame } from "@/components/animation/PhoneFrame";
@@ -9,33 +9,6 @@ import { mockups } from "@/constants/content/mockups";
 import { site, stores } from "@/constants/content/site";
 
 const ease = "easeOut" as const;
-
-function HeroChip({
-	icon: Icon,
-	label,
-	className,
-	delay,
-}: {
-	icon: typeof MapPin;
-	label: string;
-	className: string;
-	delay: number;
-}) {
-	const reduce = useReducedMotion();
-	return (
-		<motion.div
-			initial={reduce ? false : { opacity: 0, y: 12, scale: 0.9 }}
-			animate={{ opacity: 1, y: 0, scale: 1 }}
-			transition={{ delay, duration: 0.5, ease }}
-			className={`absolute z-20 flex items-center gap-2 rounded-2xl bg-background/95 px-3.5 py-2.5 shadow-lift backdrop-blur ${className}`}
-		>
-			<span className="grid h-7 w-7 place-items-center rounded-full bg-primary-light text-primary">
-				<Icon className="h-4 w-4" aria-hidden />
-			</span>
-			<span className="font-semibold text-foreground text-sm">{label}</span>
-		</motion.div>
-	);
-}
 
 export function Hero() {
 	const reduce = useReducedMotion();
@@ -62,7 +35,7 @@ export function Hero() {
 						initial={reduce ? false : { opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5, ease }}
-						className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3.5 py-1.5 font-mono font-semibold text-xs uppercase tracking-[0.16em] ring-1 ring-primary-foreground/15"
+						className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3.5 py-1.5 font-sans font-semibold text-xs uppercase tracking-[0.16em] ring-1 ring-primary-foreground/15"
 					>
 						<Sparkles className="h-3.5 w-3.5" aria-hidden />
 						On-demand home maintenance · Egypt
@@ -181,18 +154,6 @@ export function Hero() {
 							float
 							eager
 							className="px-6"
-						/>
-						<HeroChip
-							icon={MapPin}
-							label="1.2 km away · live"
-							className="top-16 left-0"
-							delay={0.9}
-						/>
-						<HeroChip
-							icon={Wallet}
-							label="Pay cash or card"
-							className="right-0 bottom-24"
-							delay={1.1}
 						/>
 					</motion.div>
 				</div>

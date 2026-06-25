@@ -33,7 +33,7 @@ export function SectionHeading({
 				<Reveal>
 					<span
 						className={cn(
-							"inline-flex items-center gap-2 font-mono font-semibold text-xs uppercase tracking-[0.18em]",
+							"inline-flex items-center gap-2 font-sans font-semibold text-xs uppercase tracking-[0.18em]",
 							tone === "dark" ? "text-primary" : "text-primary-light",
 						)}
 					>

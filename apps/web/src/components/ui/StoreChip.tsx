@@ -33,7 +33,7 @@ export function StoreChip({
 		>
 			<Icon className="h-6 w-6 shrink-0" aria-hidden />
 			<span className="flex flex-col leading-tight">
-				<span className="font-mono text-[10px] uppercase tracking-wider opacity-70">
+				<span className="font-sans text-[10px] uppercase tracking-wider opacity-70">
 					{note}
 				</span>
 				<span className="font-semibold text-sm">{platform}</span>

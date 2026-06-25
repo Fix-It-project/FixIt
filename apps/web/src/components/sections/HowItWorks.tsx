@@ -46,7 +46,7 @@ export function HowItWorks() {
 				/>
 
 				<div className="relative mt-16 lg:mt-24">
-					<DispatchRoute className="absolute top-0 left-1/2 hidden h-full w-8 -translate-x-1/2 lg:block" />
+					<DispatchRoute className="absolute top-0 left-1/2 hidden h-full w-4 -translate-x-1/2 lg:block" />
 					<div className="flex flex-col gap-16 lg:gap-28">
 						{steps.map((step, i) => (
 							<StepRow key={step.n} step={step} flip={i % 2 === 1} />

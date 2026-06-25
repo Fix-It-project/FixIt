@@ -18,8 +18,8 @@ export function Categories() {
 				<Marquee>
 					{categories.map(({ label, icon: Icon }) => (
 						<div key={label} className="mx-3 flex items-center gap-3 py-2">
-							<span className="grid h-12 w-12 place-items-center rounded-2xl bg-surface text-primary">
-								<Icon className="h-6 w-6" aria-hidden />
+							<span className="grid h-12 w-12 place-items-center text-primary">
+								<Icon className="h-7 w-7" aria-hidden />
 							</span>
 							<span className="whitespace-nowrap font-semibold text-base text-foreground">
 								{label}

@@ -23,41 +23,52 @@ export function DispatchRoute({ className }: { className?: string }) {
 	const n2 = useTransform(scrollYProgress, [0.42, 0.55], [0.25, 1]);
 	const n3 = useTransform(scrollYProgress, [0.78, 0.92], [0.25, 1]);
 
+	const fade =
+		"linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent)";
+
 	return (
 		<div ref={ref} className={cn("pointer-events-none", className)}>
-			<svg
+			<div
 				className="h-full w-full"
-				viewBox="0 0 24 100"
-				preserveAspectRatio="none"
-				fill="none"
-				aria-hidden
+				style={{ maskImage: fade, WebkitMaskImage: fade }}
 			>
-				<title>Dispatch route illustration</title>
-				<defs>
-					<linearGradient id="route" x1="0" y1="0" x2="0" y2="100">
-						<stop offset="0" stopColor="hsl(var(--hero-start))" />
-						<stop offset="0.6" stopColor="hsl(var(--primary))" />
-						<stop offset="1" stopColor="hsl(var(--accent-cyan))" />
-					</linearGradient>
-				</defs>
-				{/* faint track */}
-				<path
-					d="M12 1 C 3 18, 21 32, 12 50 S 3 82, 12 99"
-					stroke="hsl(var(--primary) / 0.15)"
-					strokeWidth={2}
-					strokeLinecap="round"
-					vectorEffect="non-scaling-stroke"
-				/>
-				{/* drawn route */}
-				<motion.path
-					d="M12 1 C 3 18, 21 32, 12 50 S 3 82, 12 99"
-					stroke="url(#route)"
-					strokeWidth={2.5}
-					strokeLinecap="round"
-					vectorEffect="non-scaling-stroke"
-					style={{ pathLength }}
-				/>
-			</svg>
+				<svg
+					className="h-full w-full"
+					viewBox="0 0 24 100"
+					preserveAspectRatio="none"
+					fill="none"
+					aria-hidden
+				>
+					<title>Dispatch route illustration</title>
+					<defs>
+						<linearGradient id="route" x1="0" y1="0" x2="0" y2="100">
+							<stop offset="0" stopColor="hsl(var(--hero-start))" />
+							<stop offset="0.6" stopColor="hsl(var(--primary))" />
+							<stop offset="1" stopColor="hsl(var(--accent-cyan))" />
+						</linearGradient>
+					</defs>
+					{/* faint full-height track */}
+					<path
+						d="M12 0 V100"
+						stroke="hsl(var(--primary) / 0.12)"
+						strokeWidth={2}
+						strokeLinecap="round"
+						vectorEffect="non-scaling-stroke"
+					/>
+					{/* route that draws itself as you scroll */}
+					<motion.path
+						d="M12 0 V100"
+						stroke="url(#route)"
+						strokeWidth={2.5}
+						strokeLinecap="round"
+						vectorEffect="non-scaling-stroke"
+						style={{
+							pathLength,
+							filter: "drop-shadow(0 0 5px hsl(var(--primary) / 0.45))",
+						}}
+					/>
+				</svg>
+			</div>
 			{/* node markers aligned to thirds */}
 			{[
 				{ top: "16.6%", o: n1 },

@@ -13,7 +13,7 @@ function FeatureRow({ feature, flip }: { feature: Feature; flip: boolean }) {
 		<div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
 			<div className={cn("flex flex-col gap-5", flip && "lg:order-2")}>
 				<Reveal>
-					<span className="inline-flex items-center gap-2 font-mono font-semibold text-primary text-xs uppercase tracking-[0.16em]">
+					<span className="inline-flex items-center gap-2 font-sans font-semibold text-primary text-xs uppercase tracking-[0.16em]">
 						<span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-light text-primary">
 							<Icon className="h-5 w-5" aria-hidden />
 						</span>

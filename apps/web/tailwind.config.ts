@@ -16,7 +16,7 @@ export default {
 					"Roboto",
 					"sans-serif",
 				],
-				mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+				mono: ["ui-monospace", "monospace"],
 			},
 			colors: {
 				background: "hsl(var(--background))",
