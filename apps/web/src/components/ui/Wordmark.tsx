@@ -14,17 +14,14 @@ export function Wordmark({
 	return (
 		<span className={cn("inline-flex items-center gap-2.5", className)}>
 			{withMark ? (
-				<span
+				<img
+					src="/fixit-icon.png"
+					alt=""
 					aria-hidden
-					className={cn(
-						"grid h-8 w-8 place-items-center rounded-[10px] font-display font-extrabold text-base leading-none",
-						tone === "dark"
-							? "bg-hero text-primary-foreground"
-							: "bg-primary-foreground text-primary",
-					)}
-				>
-					F
-				</span>
+					width={32}
+					height={32}
+					className="h-8 w-8 rounded-[9px]"
+				/>
 			) : null}
 			<span
 				className={cn(
