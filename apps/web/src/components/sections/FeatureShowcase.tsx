@@ -8,18 +8,9 @@ import { type Feature, features } from "@/constants/content/features";
 import { cn } from "@/lib/utils";
 
 function FeatureRow({ feature, flip }: { feature: Feature; flip: boolean }) {
-	const Icon = feature.icon;
 	return (
 		<div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
 			<div className={cn("flex flex-col gap-5", flip && "lg:order-2")}>
-				<Reveal>
-					<span className="inline-flex items-center gap-2 font-sans font-semibold text-primary text-xs uppercase tracking-[0.16em]">
-						<span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-light text-primary">
-							<Icon className="h-5 w-5" aria-hidden />
-						</span>
-						{feature.eyebrow}
-					</span>
-				</Reveal>
 				<Reveal delay={0.05}>
 					<h3 className="max-w-md text-balance font-bold font-display text-2xl text-foreground sm:text-3xl">
 						{feature.title}
@@ -58,12 +49,15 @@ function FeatureRow({ feature, flip }: { feature: Feature; flip: boolean }) {
 
 export function FeatureShowcase() {
 	return (
-		<section id="features" className="bg-surface py-24 sm:py-32">
+		<section
+			id="features"
+			data-nav-bg="surface"
+			className="bg-surface py-24 sm:py-32"
+		>
 			<Container>
 				<SectionHeading
-					eyebrow="Features"
 					title="Everything you need to get it fixed"
-					description="Built around the way you actually find help at home — clear, quick, and honest about price."
+					description="Built around the way you actually find help at home: clear, quick, and honest about price."
 				/>
 
 				<div className="mt-20 flex flex-col gap-24 lg:gap-32">

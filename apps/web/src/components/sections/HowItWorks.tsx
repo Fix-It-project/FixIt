@@ -37,10 +37,13 @@ function StepRow({ step, flip }: { step: Step; flip: boolean }) {
 
 export function HowItWorks() {
 	return (
-		<section id="how-it-works" className="bg-background py-24 sm:py-32">
+		<section
+			id="how-it-works"
+			data-nav-bg="background"
+			className="bg-background py-24 sm:py-32"
+		>
 			<Container>
 				<SectionHeading
-					eyebrow="How it works"
 					title="From “what’s wrong?” to fixed"
 					description="Three steps, no phone calls, no haggling at the door."
 				/>

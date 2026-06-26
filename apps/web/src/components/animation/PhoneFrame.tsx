@@ -34,7 +34,8 @@ export function PhoneFrame({
 				draggable={false}
 				className={cn(
 					"h-auto w-full select-none drop-shadow-2xl",
-					float && "animate-float motion-reduce:animate-none",
+					float &&
+						"transform-gpu animate-float [will-change:transform] motion-reduce:animate-none motion-reduce:[will-change:auto]",
 					imgClassName,
 				)}
 			/>

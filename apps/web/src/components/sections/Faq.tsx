@@ -11,9 +11,13 @@ export function Faq() {
 	const reduce = useReducedMotion();
 
 	return (
-		<section id="faq" className="bg-background py-24 sm:py-32">
+		<section
+			id="faq"
+			data-nav-bg="background"
+			className="bg-background py-24 sm:py-32"
+		>
 			<Container>
-				<SectionHeading eyebrow="FAQ" title="Good questions, clear answers" />
+				<SectionHeading title="Good questions, clear answers" />
 
 				<div className="mx-auto mt-14 max-w-2xl">
 					{faqs.map((faq, i) => {

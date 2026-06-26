@@ -1,4 +1,4 @@
-import { ArrowRight, Github, Sparkles } from "lucide-react";
+import { ArrowRight, Github } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Counter } from "@/components/animation/Counter";
 import { PhoneFrame } from "@/components/animation/PhoneFrame";
@@ -16,12 +16,15 @@ export function Hero() {
 	return (
 		<section
 			id="top"
-			className="relative overflow-hidden bg-hero text-primary-foreground"
+			data-nav-bg="hero"
+			className="relative overflow-hidden bg-hero bg-fixed text-primary-foreground"
 		>
 			<div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
+			{/* Glow pushed clear of the top so the opaque navbar never clips it -
+			    a clipped blob is what broke the blend along the bar's left edge. */}
 			<div
 				aria-hidden
-				className="absolute top-0 -left-40 h-[28rem] w-[28rem] rounded-full bg-primary-foreground/10 blur-3xl"
+				className="absolute top-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-primary-foreground/10 blur-3xl"
 			/>
 			<div
 				aria-hidden
@@ -31,16 +34,6 @@ export function Hero() {
 			<Container className="relative grid items-center gap-12 pt-28 pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6 lg:pt-36 lg:pb-32">
 				{/* Copy */}
 				<div className="flex flex-col items-start gap-7">
-					<motion.span
-						initial={reduce ? false : { opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5, ease }}
-						className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3.5 py-1.5 font-sans font-semibold text-xs uppercase tracking-[0.16em] ring-1 ring-primary-foreground/15"
-					>
-						<Sparkles className="h-3.5 w-3.5" aria-hidden />
-						On-demand home maintenance · Egypt
-					</motion.span>
-
 					<motion.h1
 						initial={reduce ? false : { opacity: 0, y: 16 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -48,17 +41,7 @@ export function Hero() {
 						className="text-balance font-display font-extrabold text-[2.75rem] leading-[1.02] tracking-tight sm:text-6xl lg:text-[4rem]"
 					>
 						Find, book, and{" "}
-						<span className="relative whitespace-nowrap">
-							fix
-							<motion.span
-								aria-hidden
-								initial={reduce ? false : { scaleX: 0 }}
-								animate={{ scaleX: 1 }}
-								transition={{ duration: 0.6, ease, delay: 0.7 }}
-								className="absolute -bottom-1 left-0 h-2 w-full origin-left rounded-full bg-cyan"
-							/>
-						</span>
-						.
+						fix.
 						<br />
 						From your phone.
 					</motion.h1>
@@ -71,7 +54,7 @@ export function Hero() {
 					>
 						Describe the problem, get matched to a trusted technician near you,
 						and see real prices before you book. Plumbing to AC, painting to
-						cleaning — sorted in a few taps.
+						cleaning, sorted in a few taps.
 					</motion.p>
 
 					<motion.div

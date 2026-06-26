@@ -29,6 +29,7 @@ export function ForTechnicians() {
 	return (
 		<section
 			id="technicians"
+			data-nav-bg="ink"
 			className="relative overflow-hidden bg-ink text-primary-foreground"
 		>
 			<div className="absolute inset-0 bg-blueprint opacity-40" aria-hidden />
@@ -42,9 +43,8 @@ export function ForTechnicians() {
 					<SectionHeading
 						align="left"
 						tone="light"
-						eyebrow="For technicians"
 						title="Turn your skills into steady work"
-						description="FixIt brings the jobs to you. Get matched with nearby customers, quote your price, and get paid — cash or card."
+						description="FixIt brings the jobs to you. Get matched with nearby customers, quote your price, and get paid: cash or card."
 					/>
 
 					<ul className="flex flex-col gap-5">

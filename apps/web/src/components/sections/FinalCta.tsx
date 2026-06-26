@@ -7,7 +7,11 @@ import { site, stores } from "@/constants/content/site";
 
 export function FinalCta() {
 	return (
-		<section id="get" className="bg-background pt-4 pb-24 sm:pb-28">
+		<section
+			id="get"
+			data-nav-bg="background"
+			className="bg-background pt-4 pb-24 sm:pb-28"
+		>
 			<Container>
 				<div className="relative overflow-hidden rounded-2xl bg-hero px-6 py-16 text-center text-primary-foreground sm:px-12 sm:py-20">
 					<div

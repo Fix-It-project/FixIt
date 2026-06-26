@@ -7,7 +7,7 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				display: ['"Bricolage Grotesque"', "system-ui", "sans-serif"],
+				display: ['"Google Sans"', "system-ui", "sans-serif"],
 				sans: [
 					"Figtree",
 					"system-ui",
@@ -61,14 +61,23 @@ export default {
 					from: { transform: "translateX(0)" },
 					to: { transform: "translateX(-50%)" },
 				},
+				/* Organic drift — GPU-only transforms (translate3d + rotate), with a
+				   gentle off-axis sway and tilt so it reads as a hovering object
+				   rather than a flat up/down bob. */
 				float: {
-					"0%, 100%": { transform: "translateY(0)" },
-					"50%": { transform: "translateY(-14px)" },
+					"0%": { transform: "translate3d(0, 0, 0) rotate(-0.6deg)" },
+					"33%": {
+						transform: "translate3d(6px, -16px, 0) rotate(0.5deg)",
+					},
+					"66%": {
+						transform: "translate3d(-5px, -8px, 0) rotate(-0.3deg)",
+					},
+					"100%": { transform: "translate3d(0, 0, 0) rotate(-0.6deg)" },
 				},
 			},
 			animation: {
 				marquee: "marquee 32s linear infinite",
-				float: "float 6s ease-in-out infinite",
+				float: "float 9s cubic-bezier(0.45, 0, 0.55, 1) infinite",
 			},
 		},
 	},

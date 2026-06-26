@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 type Tone = "light" | "dark";
 
-// Custom "coming soon" chip — deliberately NOT an official App Store / Play badge,
+// Custom "coming soon" chip - deliberately NOT an official App Store / Play badge,
 // because the apps are not listed yet. Rendered as disabled.
 export function StoreChip({
 	platform,
@@ -22,7 +22,7 @@ export function StoreChip({
 	return (
 		<span
 			aria-disabled="true"
-			title={`${platform} — ${note}`}
+			title={`${platform}: ${note}`}
 			className={cn(
 				"inline-flex cursor-default select-none items-center gap-3 rounded-2xl px-4 py-2.5 opacity-90",
 				tone === "light"
