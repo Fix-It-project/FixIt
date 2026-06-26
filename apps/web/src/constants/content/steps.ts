@@ -11,13 +11,13 @@ export const steps: readonly Step[] = [
 	{
 		n: "01",
 		title: "Describe the problem",
-		body: "Tell Ask FixIt what's wrong in your own words — type it, snap a photo, or send a voice note. It points you to the right service.",
+		body: "Tell Ask FixIt what's wrong in your own words: type it, snap a photo, or send a voice note. It points you to the right service.",
 		mockup: mockups.home,
 	},
 	{
 		n: "02",
 		title: "Match with a technician",
-		body: "See technicians near you with real ratings, distance, and inspection fees — then compare EGP prices for the exact job.",
+		body: "See technicians near you with real ratings, distance, and inspection fees, then compare EGP prices for the exact job.",
 		mockup: mockups.browse,
 	},
 	{

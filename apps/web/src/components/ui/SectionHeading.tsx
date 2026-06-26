@@ -5,14 +5,12 @@ import { cn } from "@/lib/utils";
 type Tone = "dark" | "light";
 
 export function SectionHeading({
-	eyebrow,
 	title,
 	description,
 	align = "center",
 	tone = "dark",
 	className,
 }: {
-	eyebrow?: string;
 	title: ReactNode;
 	description?: ReactNode;
 	align?: "center" | "left";
@@ -29,25 +27,6 @@ export function SectionHeading({
 				className,
 			)}
 		>
-			{eyebrow ? (
-				<Reveal>
-					<span
-						className={cn(
-							"inline-flex items-center gap-2 font-sans font-semibold text-xs uppercase tracking-[0.18em]",
-							tone === "dark" ? "text-primary" : "text-primary-light",
-						)}
-					>
-						<span
-							aria-hidden
-							className={cn(
-								"h-1.5 w-1.5 rounded-full",
-								tone === "dark" ? "bg-primary" : "bg-primary-light",
-							)}
-						/>
-						{eyebrow}
-					</span>
-				</Reveal>
-			) : null}
 			<Reveal delay={0.05}>
 				<h2
 					className={cn(

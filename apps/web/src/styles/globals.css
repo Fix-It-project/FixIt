@@ -2,9 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Sans - self-hosted to match the native app's display type exactly.
+   The 700 face covers both bold (700) and extrabold (800) requests so headings
+   never get faux-bolded past the heaviest real weight. */
+@font-face {
+	font-family: "Google Sans";
+	src: url("/fonts/GoogleSans_400Regular.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Google Sans";
+	src: url("/fonts/GoogleSans_500Medium.ttf") format("truetype");
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Google Sans";
+	src: url("/fonts/GoogleSans_600SemiBold.ttf") format("truetype");
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: "Google Sans";
+	src: url("/fonts/GoogleSans_700Bold.ttf") format("truetype");
+	font-weight: 700 800;
+	font-style: normal;
+	font-display: swap;
+}
+
 @layer base {
 	:root {
-		/* FixIt brand — ported from native design tokens */
+		/* FixIt brand - ported from native design tokens */
 		--background: 0 0% 100%; /* white page */
 		--foreground: 0 0% 6%; /* #0F0F0F text */
 		--primary: 218 100% 50%; /* #005EFF true blue */
@@ -62,7 +94,7 @@
 	.text-pretty {
 		text-wrap: pretty;
 	}
-	/* Blueprint grid — faint engineering texture for the hero */
+	/* Blueprint grid - faint engineering texture for the hero */
 	.bg-blueprint {
 		background-image:
 			linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px),

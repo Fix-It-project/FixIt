@@ -5,10 +5,13 @@ import { categories } from "@/constants/content/categories";
 
 export function Categories() {
 	return (
-		<section id="categories" className="bg-background py-20 sm:py-24">
+		<section
+			id="categories"
+			data-nav-bg="background"
+			className="bg-background py-20 sm:py-24"
+		>
 			<Container>
 				<SectionHeading
-					eyebrow="Every fix, one app"
 					title="Ten home services, ready to book"
 					description="From a dripping tap to a noisy AC, the right specialist is a few taps away."
 				/>

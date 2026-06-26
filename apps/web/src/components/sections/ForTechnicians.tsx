@@ -1,6 +1,6 @@
 import { CalendarClock, LineChart, Wallet } from "lucide-react";
-import { PhoneFrame } from "@/components/animation/PhoneFrame";
 import { Reveal } from "@/components/animation/Reveal";
+import { TiltPhone } from "@/components/animation/TiltPhone";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -29,6 +29,7 @@ export function ForTechnicians() {
 	return (
 		<section
 			id="technicians"
+			data-nav-bg="ink"
 			className="relative overflow-hidden bg-ink text-primary-foreground"
 		>
 			<div className="absolute inset-0 bg-blueprint opacity-40" aria-hidden />
@@ -42,9 +43,8 @@ export function ForTechnicians() {
 					<SectionHeading
 						align="left"
 						tone="light"
-						eyebrow="For technicians"
 						title="Turn your skills into steady work"
-						description="FixIt brings the jobs to you. Get matched with nearby customers, quote your price, and get paid — cash or card."
+						description="FixIt brings the jobs to you. Get matched with nearby customers, quote your price, and get paid: cash or card."
 					/>
 
 					<ul className="flex flex-col gap-5">
@@ -82,10 +82,8 @@ export function ForTechnicians() {
 					</div>
 				</div>
 
-				<div className="relative mx-auto w-full max-w-xs">
-					<Reveal>
-						<PhoneFrame mockup={mockups.techDash} glow float />
-					</Reveal>
+				<div className="relative mx-auto w-full max-w-sm">
+					<TiltPhone mockup={mockups.techDash} pointerTilt onDark />
 				</div>
 			</Container>
 		</section>

@@ -28,13 +28,16 @@ export function PhoneFrame({
 			<img
 				src={mockup.src}
 				alt={mockup.alt}
+				width={mockup.width}
+				height={mockup.height}
 				loading={eager ? "eager" : "lazy"}
 				fetchPriority={eager ? "high" : "auto"}
 				decoding="async"
 				draggable={false}
 				className={cn(
 					"h-auto w-full select-none drop-shadow-2xl",
-					float && "animate-float motion-reduce:animate-none",
+					float &&
+						"transform-gpu animate-float [will-change:transform] motion-reduce:animate-none motion-reduce:[will-change:auto]",
 					imgClassName,
 				)}
 			/>

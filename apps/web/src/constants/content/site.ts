@@ -16,7 +16,7 @@ export const navLinks: readonly NavLink[] = [
 	{ label: "FAQ", href: "#faq" },
 ];
 
-// The apps are not listed yet — these render as disabled "Coming soon" chips,
+// The apps are not listed yet - these render as disabled "Coming soon" chips,
 // never official store badges.
 export const stores = [
 	{ platform: "App Store", note: "Coming soon" },
