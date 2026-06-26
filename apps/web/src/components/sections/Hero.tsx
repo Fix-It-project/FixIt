@@ -1,7 +1,7 @@
 import { ArrowRight, Github } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Counter } from "@/components/animation/Counter";
-import { PhoneFrame } from "@/components/animation/PhoneFrame";
+import { TiltPhone } from "@/components/animation/TiltPhone";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { StoreChip } from "@/components/ui/StoreChip";
@@ -131,12 +131,11 @@ export function Hero() {
 						transition={{ duration: 0.7, ease, delay: 0.1 }}
 						className="relative"
 					>
-						<PhoneFrame
-							mockup={mockups.home}
-							glow
-							float
+						<TiltPhone
+							mockup={mockups.homeTilted}
+							pointerTilt
 							eager
-							className="px-6"
+							className="w-full"
 						/>
 					</motion.div>
 				</div>

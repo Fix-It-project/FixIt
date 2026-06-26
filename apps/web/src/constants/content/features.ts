@@ -29,7 +29,7 @@ export const features: readonly Feature[] = [
 			"Surfaces technicians near you",
 		],
 		icon: Sparkles,
-		mockup: mockups.home,
+		mockup: mockups.homeLandscape,
 	},
 	{
 		id: "compare",
@@ -42,7 +42,7 @@ export const features: readonly Feature[] = [
 			"Sort by recommended, top rated, or nearest",
 		],
 		icon: Users,
-		mockup: mockups.browse,
+		mockup: mockups.browseLandscape,
 	},
 	{
 		id: "prices",
@@ -55,7 +55,7 @@ export const features: readonly Feature[] = [
 			"Pay with cash on the day or by card",
 		],
 		icon: ReceiptText,
-		mockup: mockups.techProfile,
+		mockup: mockups.techProfileLandscape,
 	},
 	{
 		id: "updates",
@@ -68,6 +68,6 @@ export const features: readonly Feature[] = [
 			"Full English and Arabic, right-to-left",
 		],
 		icon: BellRing,
-		mockup: mockups.home,
+		mockup: mockups.homeLandscape,
 	},
 ];

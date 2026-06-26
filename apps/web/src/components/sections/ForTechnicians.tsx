@@ -1,6 +1,6 @@
 import { CalendarClock, LineChart, Wallet } from "lucide-react";
-import { PhoneFrame } from "@/components/animation/PhoneFrame";
 import { Reveal } from "@/components/animation/Reveal";
+import { TiltPhone } from "@/components/animation/TiltPhone";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -82,10 +82,8 @@ export function ForTechnicians() {
 					</div>
 				</div>
 
-				<div className="relative mx-auto w-full max-w-xs">
-					<Reveal>
-						<PhoneFrame mockup={mockups.techDash} glow float />
-					</Reveal>
+				<div className="relative mx-auto w-full max-w-sm">
+					<TiltPhone mockup={mockups.techDash} pointerTilt onDark />
 				</div>
 			</Container>
 		</section>

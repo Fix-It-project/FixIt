@@ -28,6 +28,8 @@ export function PhoneFrame({
 			<img
 				src={mockup.src}
 				alt={mockup.alt}
+				width={mockup.width}
+				height={mockup.height}
 				loading={eager ? "eager" : "lazy"}
 				fetchPriority={eager ? "high" : "auto"}
 				decoding="async"
