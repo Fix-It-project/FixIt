@@ -1,87 +1,87 @@
-import { Ban, MapPin, Navigation } from "lucide-react-native";
-import { useState } from "react";
+import { ExternalLink } from "lucide-react-native";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Pressable } from "react-native";
 import Toast from "react-native-toast-message";
-import { Text } from "@/src/components/ui/text";
+import TechnicianProfileSheet, {
+	type TechnicianProfileSheetRef,
+} from "@/src/components/identity/TechnicianProfileSheet";
 import { Button } from "@/src/components/ui/button";
-import { StageHero } from "@/src/features/booking-orders/components/state-machine/shared";
+import { Text } from "@/src/components/ui/text";
+import { space, useThemeColors } from "@/src/constants/design-tokens";
+import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
+import OrderTrackingScreen from "@/src/features/booking-orders/components/shared/OrderTrackingScreen";
+import {
+	InspectionFeeRow,
+	TrackingPartyRow,
+	TrackingStagePills,
+	TrackingStatusLine,
+} from "@/src/features/booking-orders/components/shared/TrackingSheetParts";
 import {
 	useOrderDistance,
+	useOrderLocation,
 	useUserCancelOrder,
 } from "@/src/features/booking-orders/hooks";
 import type { Order } from "@/src/features/booking-orders/schemas/response.schema";
-import CancelReasonModal from "@/src/features/booking-orders/components/shared/CancelReasonModal";
-import { radius, space, spacing, useThemeColors } from "@/src/constants/design-tokens";
+import { getAvatarColor } from "@/src/features/booking-orders/utils/booking-helpers";
+import { getPfpInitialsFallback } from "@/src/lib/initials";
+import { openCoordinatesInMaps } from "@/src/lib/maps/open-coordinates";
 
 interface Props {
 	readonly order: Order;
 }
 
-function Distance({ orderId }: { orderId: string }) {
+function useStatusText(orderId: string): string {
 	const { t } = useTranslation("orders");
-	const themeColors = useThemeColors();
 	const { data: distance } = useOrderDistance(orderId, {
 		enabled: true,
 		viewer: "user",
 	});
-	const km = distance?.distance_km;
-	const eta =
-		typeof distance?.eta_minutes === "number"
-			? t("detail.distance.min", { n: distance.eta_minutes })
-			: null;
 	const parts: string[] = [];
-	if (typeof km === "number")
-		parts.push(t("detail.distance.km", { n: km.toFixed(1) }));
-	if (eta) parts.push(t("detail.distance.eta", { eta }));
+	if (typeof distance?.eta_minutes === "number")
+		parts.push(
+			t("detail.distance.eta", {
+				eta: t("detail.distance.min", { n: distance.eta_minutes }),
+			}),
+		);
+	if (typeof distance?.distance_km === "number")
+		parts.push(t("detail.distance.km", { n: distance.distance_km.toFixed(1) }));
 	parts.push(t("detail.distance.live"));
-	return (
-		<View
-			style={{
-				flexDirection: "row",
-				alignItems: "center",
-				gap: space[2],
-				paddingHorizontal: space[3],
-				paddingVertical: space[2],
-				borderRadius: radius.pill,
-				backgroundColor: `${themeColors.primary}14`,
-				alignSelf: "flex-start",
-			}}
-		>
-			<MapPin size={spacing.icon.caption} color={themeColors.primary} strokeWidth={2.4} />
-			<Text
-				variant="bodySm"
-				className="font-google-sans-bold"
-				style={{ color: themeColors.primary }}
-			>
-				{parts.join(" · ")}
-			</Text>
-		</View>
-	);
+	return parts.join(" · ");
 }
 
 export default function TrackingView({ order }: Props) {
 	const { t } = useTranslation("orders");
-	return (
-		<View style={{ gap: space[5] }}>
-			<StageHero
-				icon={Navigation}
-				eyebrow={t("detail.stage.tracking.eyebrow")}
-				title={t("detail.stage.tracking.title")}
-				subtitle={t("detail.stage.tracking.subtitle")}
-			/>
-			<Distance orderId={order.id} />
-		</View>
-	);
-}
+	const colors = useThemeColors();
+	const techLive = useOrderLocation(order.id, true);
+	const statusText = useStatusText(order.id);
+	const profileSheet = useRef<TechnicianProfileSheetRef>(null);
 
-export function TrackingViewCta({ order }: Props) {
-	const { t } = useTranslation("orders");
 	const [cancelOpen, setCancelOpen] = useState(false);
 	const [cancelReason, setCancelReason] = useState("");
 	const cancel = useUserCancelOrder();
 
-	const handleConfirm = () => {
+	const name = order.technician_name ?? t("detail.map.technician");
+	const initials = getPfpInitialsFallback(name);
+
+	// Floating stage pills over the map — tracking is always step 1 ("On the way").
+	const isCard = order.payment_method === "card";
+	const pillLabels = isCard
+		? [
+				t("detail.pills.onTheWay"),
+				t("detail.pills.inspecting"),
+				t("detail.pills.quote"),
+				t("detail.pills.work"),
+				t("detail.pills.payment"),
+			]
+		: [
+				t("detail.pills.onTheWay"),
+				t("detail.pills.inspecting"),
+				t("detail.pills.quote"),
+				t("detail.pills.work"),
+			];
+
+	const handleConfirmCancel = () => {
 		const trimmed = cancelReason.trim();
 		cancel.mutate(
 			{ orderId: order.id, reason: trimmed.length > 0 ? trimmed : undefined },
@@ -102,47 +102,89 @@ export function TrackingViewCta({ order }: Props) {
 	};
 
 	return (
-		<>
-			<View className="flex-row items-center gap-stack-md">
-				<View className="flex-1">
+		<OrderTrackingScreen
+			viewer="user"
+			target={techLive}
+			selfLabel={t("detail.map.you")}
+			targetLabel={name}
+			waitingLabel={t("detail.map.waiting")}
+			backLabel={t("detail.a11y.back")}
+			topSlot={<TrackingStagePills labels={pillLabels} />}
+			peek={
+				<>
+					<TrackingPartyRow
+						name={name}
+						imageUrl={order.technician_image ?? null}
+						initials={initials}
+						avatarColor={getAvatarColor(name)}
+						roleLabel={t("detail.stage.tracking.eyebrow")}
+						ratingTechnicianId={order.technician_id ?? null}
+						phone={order.technician_phone ?? null}
+						callLabel={t("detail.a11y.call", {
+							phone: order.technician_phone,
+						})}
+						onInfoPress={
+							order.technician_id
+								? () =>
+										profileSheet.current?.open(order.technician_id, initials)
+								: undefined
+						}
+						infoLabel={t("detail.a11y.openInfo", { name })}
+					/>
+					<TrackingStatusLine text={statusText} />
 					<Button
 						variant="primary"
 						size="lg"
 						fullWidth
-						iconLeft={Navigation}
-						onPress={() => {}}
-						disabled
+						iconLeft={ExternalLink}
+						disabled={!techLive}
+						onPress={() =>
+							openCoordinatesInMaps(techLive?.latitude, techLive?.longitude)
+						}
 					>
-						{t("detail.cta.liveTracking")}
+						{t("detail.map.openInMaps")}
 					</Button>
-				</View>
-				<View className="shrink-0">
-					<Button
-						variant="destructive"
-						size="icon"
+				</>
+			}
+			expanded={
+				<>
+					<InspectionFeeRow
+						label={t("detail.map.inspectionFee")}
+						amount={order.inspection_fee}
+					/>
+					<Pressable
+						accessibilityRole="button"
 						accessibilityLabel={t("detail.a11y.cancelOrder")}
 						onPress={() => setCancelOpen(true)}
-						loading={cancel.isPending}
+						disabled={cancel.isPending}
+						style={{ paddingVertical: space[2], alignItems: "center" }}
 					>
-						<Ban size={20} />
-					</Button>
-				</View>
-			</View>
-			<CancelReasonModal
-				visible={cancelOpen}
-				title={t("detail.cancelModal.title")}
-				subjectRole="order"
-				subjectName={order.technician_name}
-				subjectFallback={t("detail.cancelModal.subjectFallback")}
-				reason={cancelReason}
-				onReasonChange={setCancelReason}
-				onClose={() => {
-					if (cancel.isPending) return;
-					setCancelOpen(false);
-				}}
-				onConfirm={handleConfirm}
-				isLoading={cancel.isPending}
-			/>
-		</>
+						<Text
+							variant="bodySm"
+							className="font-google-sans-bold"
+							style={{ color: colors.danger }}
+						>
+							{t("detail.a11y.cancelOrder")}
+						</Text>
+					</Pressable>
+					<CancelReasonModal
+						visible={cancelOpen}
+						title={t("detail.cancelModal.title")}
+						subjectRole="order"
+						subjectName={order.technician_name}
+						subjectFallback={t("detail.cancelModal.subjectFallback")}
+						reason={cancelReason}
+						onReasonChange={setCancelReason}
+						onClose={() => {
+							if (cancel.isPending) return;
+							setCancelOpen(false);
+						}}
+						onConfirm={handleConfirmCancel}
+						isLoading={cancel.isPending}
+					/>
+					<TechnicianProfileSheet ref={profileSheet} />
+				</>
+			}
+		/>
 	);
 }

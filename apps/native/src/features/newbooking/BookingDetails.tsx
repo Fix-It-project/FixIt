@@ -52,9 +52,9 @@ import {
 	BookingProblemCard,
 } from "./components/BookingProblemCard";
 import {
+	PaymentMethodSelector,
 	type PaymentMethodValue,
-	PaymentMethodSegmentedControl,
-} from "./components/PaymentMethodSegmentedControl";
+} from "./components/PaymentMethodSelector";
 
 function getStringParam(value: string | string[] | undefined): string {
 	if (Array.isArray(value)) return value[0] ?? "";
@@ -374,19 +374,17 @@ export default function BookingDetails() {
 						/>
 					</Animated.View>
 
-					<Animated.View entering={entering(3)} className="mt-card gap-stack-sm">
+					<Animated.View
+						entering={entering(3)}
+						className="mt-card gap-stack-sm"
+					>
 						<Text variant="buttonMd" className="font-semibold text-content">
 							{t("payment.title")}
 						</Text>
-						<PaymentMethodSegmentedControl
+						<PaymentMethodSelector
 							value={paymentMethod}
 							onChange={setPaymentMethod}
 						/>
-						<Text variant="caption" className="text-content-muted">
-							{paymentMethod === "card"
-								? t("payment.cardHint")
-								: t("payment.cashHint")}
-						</Text>
 					</Animated.View>
 
 					<Animated.View entering={entering(4)} className="mt-card">

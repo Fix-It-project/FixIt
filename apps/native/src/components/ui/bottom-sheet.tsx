@@ -103,8 +103,11 @@ const BottomSheetInner = forwardRef<GorhomBottomSheet, BottomSheetProps>(
 				() => {
 					if (canDismiss) {
 						sheetRef.current?.close();
+						return true;
 					}
-					return true;
+					// Non-dismissable persistent sheet: don't swallow back — let the
+					// hosting screen's back handler run (e.g. navigate away).
+					return false;
 				},
 			);
 

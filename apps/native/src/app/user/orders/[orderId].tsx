@@ -20,7 +20,6 @@ import {
 	QuoteView,
 	QuoteViewCta,
 	TrackingView,
-	TrackingViewCta,
 	WorkInProgressView,
 	WorkInProgressViewCta,
 } from "@/src/features/booking-orders/components/state-machine/user/states";
@@ -77,14 +76,16 @@ export default function OrderDetailScreen() {
 		);
 	}
 
+	// Tracking is a full-bleed map screen with its own floating sheet — it
+	// deliberately bypasses the header + pills + party-card scroll frame.
+	if (lifecycleStatus === "tracking") {
+		return <TrackingView order={order} />;
+	}
+
 	if (isInProgress) {
 		let body: ReactNode;
 		let cta: ReactNode = null;
 		switch (lifecycleStatus) {
-			case "tracking":
-				body = <TrackingView order={order} />;
-				cta = <TrackingViewCta order={order} />;
-				break;
 			case "arrived_inspection":
 				body = <ArrivedInspectingView order={order} />;
 				cta = <ArrivedInspectingViewCta order={order} />;

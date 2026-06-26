@@ -6,6 +6,7 @@ export * from "./useCreateBooking";
 export * from "./useInspectionFeePreview";
 export * from "./useOrderDistance";
 export * from "./useOrderLifecycleMutations";
+export * from "./useOrderLocation";
 export * from "./useOrderQuoteHistory";
 // Phase 4c Plan 06 — Realtime invalidation hook:
 export { useOrderRealtimeInvalidate } from "./useOrderRealtimeInvalidate";
