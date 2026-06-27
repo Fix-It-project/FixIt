@@ -14,6 +14,7 @@ import Toast from "react-native-toast-message";
 import { PressableScale } from "@/src/components/animation/pressable-scale";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
+import { SegmentedTabBar } from "@/src/components/navigation/SegmentedTabBar";
 import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { confirm } from "@/src/components/ui/dialog";
 import { Icon } from "@/src/components/ui/icon";
@@ -38,7 +39,6 @@ import {
 	extractOrderErrorToken,
 	translateOrderError,
 } from "../../../utils/translate-order-error";
-import { SegmentedTabBar } from "../../shared/SegmentedTabBar";
 import { JobsEmptyState } from "./JobsEmptyState";
 import { formatJobDateLabel } from "./job-format";
 import { RequestJobCard } from "./RequestJobCard";

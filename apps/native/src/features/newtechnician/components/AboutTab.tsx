@@ -40,8 +40,8 @@ interface InfoRowProps {
 function InfoRow({ icon: Icon, label, value }: InfoRowProps) {
 	const themeColors = useThemeColors();
 	return (
-		<View className="flex-row items-start gap-stack-md rounded-input px-stack-sm py-stack-sm">
-			<View className="h-avatar-md w-avatar-md items-center justify-center rounded-input bg-app-primary-light">
+		<View className="flex-row items-start gap-stack-md py-stack-md">
+			<View className="pt-stack-xs">
 				<Icon
 					size={spacing.icon.sm}
 					color={themeColors.primary}
@@ -115,54 +115,48 @@ export function AboutTab({ technicianId }: AboutTabProps) {
 	}
 
 	return (
-		<View className="py-stack-md">
-			<Text variant="h4" className="text-content">
-				{t("about.heading")}
-			</Text>
+		<View className="pt-stack-sm">
+			<InfoRow
+				icon={Banknote}
+				label={t("about.inspectionFee")}
+				value={inspectionFeeLabel}
+			/>
+			<View className="h-px bg-edge/20" />
 
-			<View className="mt-stack-lg gap-stack-xs rounded-card bg-card p-stack-xs">
-				<InfoRow
-					icon={Banknote}
-					label={t("about.inspectionFee")}
-					value={inspectionFeeLabel}
-				/>
-				<View className="mx-stack-sm h-px bg-edge/20" />
-
-				{isLoading ? (
-					<View className="gap-stack-sm p-stack-sm">
-						<Skeleton className="h-12 w-full rounded-input" />
-						<Skeleton className="h-12 w-full rounded-input" />
-					</View>
-				) : null}
-				{!isLoading && hasSchedule ? (
-					<>
-						<InfoRow
-							icon={CalendarDays}
-							label={t("about.availableDays")}
-							value={activeDays
-								.map((d) => t(`about.days.${DAY_KEYS[d]}` as Parameters<typeof t>[0]))
-								.join(" · ")}
-						/>
-						<View className="mx-stack-sm h-px bg-edge/20" />
-						<InfoRow
-							icon={Clock}
-							label={t("about.availableTimes")}
-							value={
-								activeHours.length > 0
-									? activeHours.map(hourLabel).join(" · ")
-									: t("about.allHours")
-							}
-						/>
-					</>
-				) : null}
-				{!isLoading && !hasSchedule ? (
-					<View className="mt-stack-xs rounded-input bg-surface-elevated px-card py-stack-md">
-						<Text variant="bodySm" className="text-content-muted">
-							{t("about.noSchedule")}
-						</Text>
-					</View>
-				) : null}
-			</View>
+			{isLoading ? (
+				<View className="gap-stack-sm py-stack-md">
+					<Skeleton className="h-12 w-full rounded-input" />
+					<Skeleton className="h-12 w-full rounded-input" />
+				</View>
+			) : null}
+			{!isLoading && hasSchedule ? (
+				<>
+					<InfoRow
+						icon={CalendarDays}
+						label={t("about.availableDays")}
+						value={activeDays
+							.map((d) => t(`about.days.${DAY_KEYS[d]}` as Parameters<typeof t>[0]))
+							.join(" · ")}
+					/>
+					<View className="h-px bg-edge/20" />
+					<InfoRow
+						icon={Clock}
+						label={t("about.availableTimes")}
+						value={
+							activeHours.length > 0
+								? activeHours.map(hourLabel).join(" · ")
+								: t("about.allHours")
+						}
+					/>
+				</>
+			) : null}
+			{!isLoading && !hasSchedule ? (
+				<View className="mt-stack-sm rounded-input bg-surface-elevated px-card py-stack-md">
+					<Text variant="bodySm" className="text-content-muted">
+						{t("about.noSchedule")}
+					</Text>
+				</View>
+			) : null}
 		</View>
 	);
 }

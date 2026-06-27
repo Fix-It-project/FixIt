@@ -17,7 +17,7 @@ export function Hero() {
 		<section
 			id="top"
 			data-nav-bg="hero"
-			className="relative overflow-hidden bg-hero bg-fixed text-primary-foreground"
+			className="relative min-h-[calc(100svh+10rem)] overflow-hidden bg-hero bg-fixed text-primary-foreground"
 		>
 			<div className="absolute inset-0 bg-blueprint opacity-60" aria-hidden />
 			{/* Glow pushed clear of the top so the opaque navbar never clips it -
@@ -31,7 +31,7 @@ export function Hero() {
 				className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background"
 			/>
 
-			<Container className="relative grid items-center gap-12 pt-28 pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6 lg:pt-36 lg:pb-32">
+			<Container className="relative grid min-h-svh items-center gap-12 pt-28 pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6 lg:pt-36 lg:pb-32">
 				{/* Copy */}
 				<div className="flex flex-col items-start gap-7">
 					<motion.h1

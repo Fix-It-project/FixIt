@@ -6,12 +6,12 @@ import PagerView from "react-native-pager-view";
 import { useSharedValue } from "react-native-reanimated";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
+import { SegmentedTabBar } from "@/src/components/navigation/SegmentedTabBar";
 import { AppRefreshControl } from "@/src/components/ui/app-refresh-control";
 import { Icon } from "@/src/components/ui/icon";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { Text } from "@/src/components/ui/text";
 import { spacing, useThemeColors } from "@/src/constants/design-tokens";
-import { SegmentedTabBar } from "@/src/features/booking-orders/components/shared/SegmentedTabBar";
 import UserBookingCard from "@/src/features/booking-orders/components/user/UserBookingCard";
 import UserRescheduleCard from "@/src/features/booking-orders/components/user/UserRescheduleCard";
 import {

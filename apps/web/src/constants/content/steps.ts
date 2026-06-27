@@ -11,8 +11,8 @@ export const steps: readonly Step[] = [
 	{
 		n: "01",
 		title: "Describe the problem",
-		body: "Tell Ask FixIt what's wrong in your own words: type it, snap a photo, or send a voice note. It points you to the right service.",
-		mockup: mockups.home,
+		body: "Tell Ask FixIt what's wrong in your own words: type it, snap a photo, or send a voice note. It points you to the right service and the technicians who do it.",
+		mockup: mockups.problem,
 	},
 	{
 		n: "02",
@@ -24,6 +24,6 @@ export const steps: readonly Step[] = [
 		n: "03",
 		title: "Book and pay",
 		body: "Pick a service, choose your date and time slot, and confirm. Pay with cash on the day or by card.",
-		mockup: mockups.techProfile,
+		mockup: mockups.booking,
 	},
 ];
