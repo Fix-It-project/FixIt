@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v1.0.0...fixit-v1.1.0) (2026-06-27)
+
+
+### Features
+
+* add Google Sans font and update styles across components ([99d6d13](https://github.com/Fix-It-project/FixIt/commit/99d6d134be3d17852618d8fa9e83a2221ce4c1f2))
+* adjusting navbar ([c59960d](https://github.com/Fix-It-project/FixIt/commit/c59960d39dec789d589d79be2b77fe73b73aeede))
+* create landing page ([f1677e4](https://github.com/Fix-It-project/FixIt/commit/f1677e406226d8ead1bf2315da07c18f6338b901))
+* fixing ui bugs ([c5f2ec1](https://github.com/Fix-It-project/FixIt/commit/c5f2ec11609f483c8cabea8ae14a704547fe1275))
+* implement SlidePhone and TiltPhone components; update FeatureShowcase and ForTechnicians sections ([3a02a63](https://github.com/Fix-It-project/FixIt/commit/3a02a63b14ed64d5412645742806f96b493e530f))
+
+
+### Bug Fixes
+
+* fix sonarsmells and add more testing ([1615808](https://github.com/Fix-It-project/FixIt/commit/161580816bc2edde62bd61f794ce51a6ac7298eb))
+
 ## [1.0.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.4.0...fixit-v1.0.0) (2026-06-19)
 
 
