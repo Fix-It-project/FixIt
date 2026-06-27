@@ -1,4 +1,4 @@
-import { Wallet } from "lucide-react-native";
+import { Banknote, CreditCard, type LucideIcon } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable } from "react-native";
@@ -17,6 +17,7 @@ interface PaymentMethodSelectorProps {
 interface Option {
 	readonly value: PaymentMethodValue;
 	readonly label: string;
+	readonly icon: LucideIcon;
 	readonly trailing: ReactNode;
 }
 
@@ -36,18 +37,14 @@ export function PaymentMethodSelector({
 		{
 			value: "card",
 			label: t("payment.card"),
+			icon: CreditCard,
 			trailing: <PaymentBrandMarks />,
 		},
 		{
 			value: "cash",
 			label: t("payment.cash"),
-			trailing: (
-				<Wallet
-					size={spacing.icon.sm}
-					color={colors.textMuted}
-					strokeWidth={1.8}
-				/>
-			),
+			icon: Banknote,
+			trailing: null,
 		},
 	];
 
@@ -70,6 +67,11 @@ export function PaymentMethodSelector({
 					}}
 				>
 					<RadioGroupItem value={option.value} aria-label={option.label} />
+					<option.icon
+						size={spacing.icon.sm}
+						color={colors.textMuted}
+						strokeWidth={1.8}
+					/>
 					<Text
 						variant="body"
 						className="font-google-sans-bold"
