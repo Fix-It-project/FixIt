@@ -104,7 +104,8 @@
 			"rescheduleOrder": "Reschedule order",
 			"done": "Done",
 			"openInfo": "Open {{name}} info",
-			"call": "Call {{phone}}"
+			"call": "Call {{phone}}",
+			"back": "Back"
 		},
 		"info": {
 			"service": "Service",
@@ -185,6 +186,13 @@
 			"min": "{{n}} min",
 			"eta": "ETA {{eta}}",
 			"live": "Live"
+		},
+		"map": {
+			"you": "You",
+			"technician": "Technician",
+			"waiting": "Waiting for your technician's location…",
+			"openInMaps": "Open in Maps",
+			"inspectionFee": "Inspection fee"
 		},
 		"completed": {
 			"finalPrice": "Final price",

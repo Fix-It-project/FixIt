@@ -94,9 +94,15 @@ function mapOrderWithJoins(row: any): Order {
 		: row.technicians;
 	const usr = Array.isArray(row.users) ? row.users[0] : row.users;
 	const svc = Array.isArray(row.services) ? row.services[0] : row.services;
-	const addr = Array.isArray(usr?.addresses)
+	// Prefer the order's actual destination address (joined via
+	// destination_address_id) over the user's arbitrary first address — the
+	// technician must navigate to THIS order's booked location.
+	const destRaw = (row as { destination_address?: unknown }).destination_address;
+	const destAddr = Array.isArray(destRaw) ? destRaw[0] : (destRaw ?? null);
+	const usrAddr = Array.isArray(usr?.addresses)
 		? usr.addresses[0]
 		: (usr?.addresses ?? null);
+	const addr = destAddr ?? usrAddr;
 	const parts = [addr?.building_no, addr?.street, addr?.city].filter(Boolean);
 
 	return {
@@ -104,6 +110,7 @@ function mapOrderWithJoins(row: any): Order {
 		technicians: undefined,
 		users: undefined,
 		services: undefined,
+		destination_address: undefined,
 		user_address:
 			parts.length > 0 ? parts.join(", ") : (row.user_address ?? null),
 		user_latitude: addr?.latitude ?? row.user_latitude ?? null,
@@ -181,7 +188,7 @@ export class OrdersRepository {
 		const { data, error } = await supabase
 			.from("orders")
 			.select(
-				"*, technicians(first_name, last_name, profile_image, phone), services(name, category_id, min_price, max_price)",
+				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), destination_address:addresses!destination_address_id(city, street, building_no, latitude, longitude), technicians(first_name, last_name, profile_image, phone), services(name, category_id, min_price, max_price)",
 			)
 			.eq("user_id", userId)
 			.order("created_at", { ascending: false });
@@ -252,7 +259,7 @@ export class OrdersRepository {
 		const { data, error } = await supabase
 			.from("orders")
 			.select(
-				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), services(name, category_id, min_price, max_price)",
+				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), destination_address:addresses!destination_address_id(city, street, building_no, latitude, longitude), services(name, category_id, min_price, max_price)",
 			)
 			.eq("technician_id", technicianId)
 			.order("created_at", { ascending: false });
@@ -281,7 +288,7 @@ export class OrdersRepository {
 		const { data, error } = await supabase
 			.from("orders")
 			.select(
-				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), technicians(first_name, last_name, profile_image, phone), services(name, category_id, min_price, max_price)",
+				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), destination_address:addresses!destination_address_id(city, street, building_no, latitude, longitude), technicians(first_name, last_name, profile_image, phone), services(name, category_id, min_price, max_price)",
 			)
 			.eq("id", id)
 			.single();

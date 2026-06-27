@@ -17,7 +17,6 @@ import {
 	QuoteActionsView,
 	QuoteCta,
 	TrackingActionsView,
-	TrackingCta,
 	WorkCompleteActionsView,
 	WorkCompleteCta,
 } from "@/src/features/booking-orders/components/state-machine/tech/states";
@@ -67,6 +66,13 @@ export default function BookingDetailScreen() {
 	}
 
 	const lifecycleStatus = booking.status;
+
+	// Tracking is a full-bleed map screen with its own floating sheet — it
+	// deliberately bypasses the header + pills + party-card scroll frame.
+	if (lifecycleStatus === "tracking") {
+		return <TrackingActionsView order={booking as unknown as Order} />;
+	}
+
 	if (isWizardStatus(lifecycleStatus)) {
 		const bookingAsOrder = booking as unknown as Order;
 		let body: ReactNode = null;
@@ -81,10 +87,6 @@ export default function BookingDetailScreen() {
 			case "reschedule_requested_by_technician":
 				body = <AcceptedActionsView order={bookingAsOrder} />;
 				cta = <AcceptedCta order={bookingAsOrder} />;
-				break;
-			case "tracking":
-				body = <TrackingActionsView order={bookingAsOrder} />;
-				cta = <TrackingCta order={bookingAsOrder} />;
 				break;
 			case "arrived_inspection":
 				body = <ArrivedInspectingActionsView order={bookingAsOrder} />;

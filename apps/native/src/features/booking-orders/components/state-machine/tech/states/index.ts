@@ -18,10 +18,7 @@ export {
 	PendingCta,
 } from "./PendingActionsView";
 export { default as QuoteActionsView, QuoteCta } from "./QuoteActionsView";
-export {
-	default as TrackingActionsView,
-	TrackingCta,
-} from "./TrackingActionsView";
+export { default as TrackingActionsView } from "./TrackingActionsView";
 export {
 	default as WorkCompleteActionsView,
 	WorkCompleteCta,

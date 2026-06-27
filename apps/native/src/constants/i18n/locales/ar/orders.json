@@ -104,7 +104,8 @@
 			"rescheduleOrder": "إعادة جدولة الطلب",
 			"done": "تم",
 			"openInfo": "افتح معلومات {{name}}",
-			"call": "اتصل بـ {{phone}}"
+			"call": "اتصل بـ {{phone}}",
+			"back": "رجوع"
 		},
 		"info": {
 			"service": "الخدمة",
@@ -185,6 +186,13 @@
 			"min": "{{n}} دقيقة",
 			"eta": "الوصول {{eta}}",
 			"live": "مباشر"
+		},
+		"map": {
+			"you": "أنت",
+			"technician": "الفني",
+			"waiting": "في انتظار موقع الفني…",
+			"openInMaps": "فتح في الخرائط",
+			"inspectionFee": "رسوم المعاينة"
 		},
 		"completed": {
 			"finalPrice": "السعر النهائي",

@@ -12,3 +12,18 @@ export function openCoordinatesInMaps(
 	const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
 	void Linking.openURL(url);
 }
+
+/**
+ * Open turn-by-turn driving directions to a coordinate in the device's default
+ * maps app (Google/Apple Maps). Used for the technician's "Navigate" handoff so
+ * real turn-by-turn happens outside the app. No-op when either coordinate is
+ * missing.
+ */
+export function openDirectionsInMaps(
+	latitude: number | null | undefined,
+	longitude: number | null | undefined,
+): void {
+	if (latitude == null || longitude == null) return;
+	const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=driving`;
+	void Linking.openURL(url);
+}
