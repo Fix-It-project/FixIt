@@ -34,6 +34,12 @@ interface Props {
 	readonly viewer: "user" | "technician";
 	/** The other party's live/target coordinate. */
 	readonly target: LatLng | null;
+	/**
+	 * Fixed coordinate for the device owner's marker. When provided the map uses
+	 * it (and starts no GPS watcher) instead of the live device location — e.g.
+	 * anchoring the customer to their booked address.
+	 */
+	readonly self?: LatLng | null;
 	readonly selfLabel: string;
 	readonly targetLabel: string;
 	readonly waitingLabel: string;
@@ -56,6 +62,7 @@ const PEEK_FALLBACK = 200;
 export default function OrderTrackingScreen({
 	viewer,
 	target,
+	self,
 	selfLabel,
 	targetLabel,
 	waitingLabel,
@@ -97,6 +104,7 @@ export default function OrderTrackingScreen({
 			<LiveTrackingMap
 				screen
 				target={target}
+				self={self}
 				selfLabel={selfLabel}
 				targetLabel={targetLabel}
 				waitingLabel={waitingLabel}

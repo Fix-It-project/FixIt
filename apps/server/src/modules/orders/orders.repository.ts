@@ -188,7 +188,7 @@ export class OrdersRepository {
 		const { data, error } = await supabase
 			.from("orders")
 			.select(
-				"*, technicians(first_name, last_name, profile_image, phone), services(name, category_id, min_price, max_price)",
+				"*, users(full_name, phone, addresses(city, street, building_no, latitude, longitude)), destination_address:addresses!destination_address_id(city, street, building_no, latitude, longitude), technicians(first_name, last_name, profile_image, phone), services(name, category_id, min_price, max_price)",
 			)
 			.eq("user_id", userId)
 			.order("created_at", { ascending: false });

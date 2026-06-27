@@ -19,6 +19,12 @@ export const orderSchema = z.object({
 	technician_name: z.string().nullable().optional(),
 	technician_image: z.string().nullable().optional(),
 	technician_phone: z.string().nullable().optional(),
+	// Booked destination address of this order (resolved server-side from the
+	// order's destination_address). Anchors the customer "you" marker on the
+	// tracking map to the saved address instead of the device's live GPS.
+	user_address: z.string().nullable().optional(),
+	user_latitude: z.number().nullable().optional(),
+	user_longitude: z.number().nullable().optional(),
 	service_name: z.string().nullable().optional(),
 	category_id: z.string().nullable().optional(),
 	// Service quote range (null when the service has no configured range).

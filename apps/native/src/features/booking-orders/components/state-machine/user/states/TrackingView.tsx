@@ -64,6 +64,14 @@ export default function TrackingView({ order }: Props) {
 	const name = order.technician_name ?? t("detail.map.technician");
 	const initials = getPfpInitialsFallback(name);
 
+	// Anchor the customer "you" marker to the order's booked address (not the
+	// device's live GPS), so the map shows where the technician is actually headed.
+	const selfCoord =
+		typeof order.user_latitude === "number" &&
+		typeof order.user_longitude === "number"
+			? { latitude: order.user_latitude, longitude: order.user_longitude }
+			: null;
+
 	// Floating stage pills over the map — tracking is always step 1 ("On the way").
 	const isCard = order.payment_method === "card";
 	const pillLabels = isCard
@@ -105,6 +113,7 @@ export default function TrackingView({ order }: Props) {
 		<OrderTrackingScreen
 			viewer="user"
 			target={techLive}
+			self={selfCoord}
 			selfLabel={t("detail.map.you")}
 			targetLabel={name}
 			waitingLabel={t("detail.map.waiting")}
