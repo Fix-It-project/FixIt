@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v1.0.0...native-v1.1.0) (2026-06-27)
+
+
+### Features
+
+* create landing page ([f1677e4](https://github.com/Fix-It-project/FixIt/commit/f1677e406226d8ead1bf2315da07c18f6338b901))
+
+
+### Bug Fixes
+
+* fix sonarsmells and add more testing ([1615808](https://github.com/Fix-It-project/FixIt/commit/161580816bc2edde62bd61f794ce51a6ac7298eb))
+
 ## [1.0.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.4.0...native-v1.0.0) (2026-06-19)
 
 

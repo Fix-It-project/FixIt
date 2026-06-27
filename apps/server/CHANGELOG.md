@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.4.0...server-v0.4.1) (2026-06-27)
+
+
+### Bug Fixes
+
+* fix sonarsmells and add more testing ([1615808](https://github.com/Fix-It-project/FixIt/commit/161580816bc2edde62bd61f794ce51a6ac7298eb))
+
 ## [0.4.0](https://github.com/Fix-It-project/FixIt/compare/fixit-v0.3.0...server-v0.4.0) (2026-06-19)
 
 
