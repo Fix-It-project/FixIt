@@ -7,6 +7,7 @@ import { FinalCta } from "@/components/sections/FinalCta";
 import { ForTechnicians } from "@/components/sections/ForTechnicians";
 import { Hero } from "@/components/sections/Hero";
 import { HowItWorks } from "@/components/sections/HowItWorks";
+import { TechTimeline } from "@/components/sections/TechTimeline";
 
 export default function App() {
 	return (
@@ -24,6 +25,7 @@ export default function App() {
 				<HowItWorks />
 				<FeatureShowcase />
 				<ForTechnicians />
+				<TechTimeline />
 				<Faq />
 				<FinalCta />
 			</main>

@@ -8,21 +8,23 @@ import {
 	Navigation,
 	Star,
 } from "lucide-react-native";
-import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	type LayoutChangeEvent,
-	type NativeScrollEvent,
-	type NativeSyntheticEvent,
-	Pressable,
-	Animated as RNAnimated,
-	ScrollView,
-	View,
-} from "react-native";
+import { type LayoutChangeEvent, View } from "react-native";
+import PagerView, {
+	type PagerViewOnPageScrollEvent,
+	type PagerViewOnPageSelectedEvent,
+} from "react-native-pager-view";
+import Animated, {
+	runOnJS,
+	useAnimatedScrollHandler,
+	useAnimatedStyle,
+	useSharedValue,
+} from "react-native-reanimated";
 import PageHeader from "@/src/components/layout/PageHeader";
 import { ScreenSafeAreaView } from "@/src/components/layout/ScreenSafeAreaView";
 import { ScreenStatusBar } from "@/src/components/layout/ScreenStatusBar";
+import { SegmentedTabBar } from "@/src/components/navigation/SegmentedTabBar";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import { Skeleton } from "@/src/components/ui/skeleton";
@@ -42,7 +44,6 @@ import { ReviewsTab } from "./components/ReviewsTab";
 import { ServicesTab } from "./components/ServicesTab";
 
 const TABS = ["Details", "Services", "Reviews"] as const;
-const TAB_BAR_HEIGHT = 52;
 type TabKey = (typeof TABS)[number];
 
 interface ProfileMetricProps {
@@ -129,21 +130,6 @@ function formatTechnicianRating(
 		: t("detail.ratingNew");
 }
 
-// Lazy-mounted tab panel: stays unmounted until first visited, then kept
-// alive and toggled via `display` so tab state is preserved.
-function TabPanel({
-	mounted,
-	visible,
-	children,
-}: {
-	readonly mounted: boolean;
-	readonly visible: boolean;
-	readonly children: ReactNode;
-}) {
-	if (!mounted) return null;
-	return <View style={{ display: visible ? "flex" : "none" }}>{children}</View>;
-}
-
 function addVisitedTab(prev: Set<TabKey>, next: TabKey): Set<TabKey> {
 	if (prev.has(next)) return prev;
 	const updated = new Set(prev);
@@ -169,10 +155,15 @@ export default function NewTechnician() {
 
 	const { data: profile, isLoading } = useTechnicianProfileQuery(technicianId);
 
+	// Default to Services; a `tab` param can still deep-link to any tab.
 	const initialTab: TabKey =
-		params.tab === "Services" || params.tab === "Reviews"
+		params.tab === "Details" ||
+		params.tab === "Services" ||
+		params.tab === "Reviews"
 			? params.tab
-			: "Details";
+			: "Services";
+	const initialIndex = TABS.indexOf(initialTab);
+
 	const [tab, setTab] = useState<TabKey>(initialTab);
 	const [visited, setVisited] = useState<Set<TabKey>>(
 		() => new Set<TabKey>([initialTab]),
@@ -180,25 +171,125 @@ export default function NewTechnician() {
 	const [selectedService, setSelectedService] =
 		useState<TechnicianService | null>(null);
 	const [reviewEndSignal, setReviewEndSignal] = useState(0);
-	const [tabBarWidth, setTabBarWidth] = useState(0);
-	const tabPosition = useRef(new RNAnimated.Value(TABS.indexOf(initialTab)));
+	const [profileHeight, setProfileHeight] = useState(0);
+	const [tabBarHeight, setTabBarHeight] = useState(0);
 
-	const selectTab = useCallback((next: TabKey) => {
-		setTab(next);
-		setVisited((prev) => addVisitedTab(prev, next));
+	const pagerRef = useRef<PagerView>(null);
+	// Fractional pager position → drives the sliding underline (finger-follow).
+	const position = useSharedValue(initialIndex);
+	// Only the active page feeds the shared collapse offset.
+	const activeIndex = useSharedValue(initialIndex);
+	// Vertical offset of the active page → collapses the profile header.
+	const scrollY = useSharedValue(0);
+	// Measured profile-card height = how far the header can collapse.
+	const profileHeightSV = useSharedValue(0);
+	// Per-tab remembered offset so the header settles correctly after a swipe.
+	const offsetDetails = useSharedValue(0);
+	const offsetServices = useSharedValue(0);
+	const offsetReviews = useSharedValue(0);
+	// Latch so review pagination fires once per arrival at the list end.
+	const reviewEndLatch = useSharedValue(false);
+
+	const measured = profileHeight > 0 && tabBarHeight > 0;
+	const headerTotal = profileHeight + tabBarHeight;
+
+	const tabDefs = useMemo(
+		() =>
+			TABS.map((key) => ({
+				key,
+				label: t(`detail.tabs.${key}` as Parameters<typeof t>[0]),
+			})),
+		[t],
+	);
+
+	const bumpReviewSignal = useCallback(() => {
+		setReviewEndSignal((signal) => signal + 1);
 	}, []);
 
-	useEffect(() => {
-		RNAnimated.timing(tabPosition.current, {
-			toValue: TABS.indexOf(tab),
-			duration: 180,
-			useNativeDriver: true,
-		}).start();
-	}, [tab]);
+	const onProfileLayout = useCallback(
+		(event: LayoutChangeEvent) => {
+			const next = event.nativeEvent.layout.height;
+			profileHeightSV.value = next;
+			setProfileHeight(next);
+		},
+		[profileHeightSV],
+	);
 
-	const handleTabBarLayout = useCallback((event: LayoutChangeEvent) => {
-		setTabBarWidth(event.nativeEvent.layout.width);
+	const onTabsLayout = useCallback((event: LayoutChangeEvent) => {
+		setTabBarHeight(event.nativeEvent.layout.height);
 	}, []);
+
+	const onTabPress = useCallback((_key: TabKey, index: number) => {
+		pagerRef.current?.setPage(index);
+	}, []);
+
+	const onPageScroll = useCallback(
+		(event: PagerViewOnPageScrollEvent) => {
+			position.value = event.nativeEvent.position + event.nativeEvent.offset;
+		},
+		[position],
+	);
+
+	const onPageSelected = useCallback(
+		(event: PagerViewOnPageSelectedEvent) => {
+			const index = event.nativeEvent.position;
+			setTab(TABS[index]);
+			setVisited((prev) => addVisitedTab(prev, TABS[index]));
+			activeIndex.value = index;
+			scrollY.value = [offsetDetails, offsetServices, offsetReviews][
+				index
+			].value;
+		},
+		[activeIndex, scrollY, offsetDetails, offsetServices, offsetReviews],
+	);
+
+	const detailsScroll = useAnimatedScrollHandler({
+		onScroll: (event) => {
+			if (activeIndex.value !== 0) return;
+			const y = event.contentOffset.y;
+			scrollY.value = y;
+			offsetDetails.value = y;
+		},
+	});
+	const servicesScroll = useAnimatedScrollHandler({
+		onScroll: (event) => {
+			if (activeIndex.value !== 1) return;
+			const y = event.contentOffset.y;
+			scrollY.value = y;
+			offsetServices.value = y;
+		},
+	});
+	const reviewsScroll = useAnimatedScrollHandler({
+		onScroll: (event) => {
+			if (activeIndex.value !== 2) return;
+			const y = event.contentOffset.y;
+			scrollY.value = y;
+			offsetReviews.value = y;
+			const distanceFromEnd =
+				event.contentSize.height - (y + event.layoutMeasurement.height);
+			if (distanceFromEnd <= 96) {
+				if (!reviewEndLatch.value) {
+					reviewEndLatch.value = true;
+					runOnJS(bumpReviewSignal)();
+				}
+			} else if (reviewEndLatch.value) {
+				reviewEndLatch.value = false;
+			}
+		},
+	});
+
+	const profileAnim = useAnimatedStyle(() => ({
+		transform: [{ translateY: -Math.min(scrollY.value, profileHeightSV.value) }],
+	}));
+	const tabsAnim = useAnimatedStyle(() => ({
+		transform: [
+			{
+				translateY:
+					profileHeightSV.value -
+					Math.min(scrollY.value, profileHeightSV.value),
+			},
+		],
+	}));
 
 	const resolvedName = useMemo(
 		() => resolveTechnicianName(params.technicianName, profile?.name, t),
@@ -238,19 +329,11 @@ export default function NewTechnician() {
 		});
 	}, 600);
 
-	const handleContentScroll = useCallback(
-		(event: NativeSyntheticEvent<NativeScrollEvent>) => {
-			if (tab !== "Reviews") return;
-			const { contentOffset, contentSize, layoutMeasurement } =
-				event.nativeEvent;
-			const distanceFromEnd =
-				contentSize.height - (contentOffset.y + layoutMeasurement.height);
-			if (distanceFromEnd <= 96) {
-				setReviewEndSignal((signal) => signal + 1);
-			}
-		},
-		[tab],
-	);
+	const pageContentStyle = {
+		paddingTop: headerTotal,
+		paddingHorizontal: spacing.stack.lg,
+		paddingBottom: spacing.stack.xl,
+	};
 
 	return (
 		<ScreenSafeAreaView className="flex-1 bg-app-primary" edges={["top"]}>
@@ -266,190 +349,187 @@ export default function NewTechnician() {
 					<DetailSkeleton />
 				) : (
 					<>
-						<ScrollView
-							className="flex-1"
-							contentContainerStyle={{
-								paddingHorizontal: 16,
-								paddingTop: spacing.stack.lg,
-								paddingBottom: spacing.stack.lg,
-							}}
-							onScroll={handleContentScroll}
-							scrollEventThrottle={120}
-							showsVerticalScrollIndicator={false}
-						>
-							{/* ── Profile card ── */}
-							<View className="rounded-card bg-card p-card">
-								<View className="flex-row items-start gap-stack-md">
-									<TechnicianAvatar
-										id={technicianId}
-										initials={resolvedInitials}
-										imageUrl={profile.profilePicture}
-										size="lg"
-									/>
-									<View className="min-w-0 flex-1">
-										<View className="flex-row items-start justify-between gap-stack-sm">
-											<Text
-												variant="buttonLg"
-												className="min-w-0 flex-1 font-google-sans-bold text-content"
-												numberOfLines={1}
-											>
-												{resolvedName}
-											</Text>
-											<View className="flex-row items-center gap-stack-xs pt-px">
-												<Star
-													size={spacing.icon.caption}
-													color={themeColors.ratingDefault}
-													fill={themeColors.ratingDefault}
-													strokeWidth={0}
-												/>
+						<View className="flex-1 overflow-hidden bg-surface">
+							{/* Swipeable tab content; each page scrolls and collapses
+							    the profile header independently. */}
+							<PagerView
+								ref={pagerRef}
+								style={{ flex: 1, opacity: measured ? 1 : 0 }}
+								initialPage={initialIndex}
+								onPageScroll={onPageScroll}
+								onPageSelected={onPageSelected}
+							>
+								<View key="Details" style={{ flex: 1 }}>
+									<Animated.ScrollView
+										onScroll={detailsScroll}
+										scrollEventThrottle={16}
+										showsVerticalScrollIndicator={false}
+										contentContainerStyle={pageContentStyle}
+									>
+										{visited.has("Details") ? (
+											<AboutTab technicianId={technicianId} />
+										) : null}
+									</Animated.ScrollView>
+								</View>
+
+								<View key="Services" style={{ flex: 1 }}>
+									<Animated.ScrollView
+										onScroll={servicesScroll}
+										scrollEventThrottle={16}
+										showsVerticalScrollIndicator={false}
+										contentContainerStyle={pageContentStyle}
+									>
+										{visited.has("Services") ? (
+											<ServicesTab
+												technicianId={technicianId}
+												selectedServiceId={selectedService?.id ?? null}
+												onSelect={setSelectedService}
+												preselectServiceId={params.preselectServiceId}
+											/>
+										) : null}
+									</Animated.ScrollView>
+								</View>
+
+								<View key="Reviews" style={{ flex: 1 }}>
+									<Animated.ScrollView
+										onScroll={reviewsScroll}
+										scrollEventThrottle={16}
+										showsVerticalScrollIndicator={false}
+										contentContainerStyle={pageContentStyle}
+									>
+										{visited.has("Reviews") ? (
+											<ReviewsTab
+												technicianId={technicianId}
+												endReachedSignal={reviewEndSignal}
+											/>
+										) : null}
+									</Animated.ScrollView>
+								</View>
+							</PagerView>
+
+							{/* Collapsing profile header — slides up as content scrolls.
+							    pointerEvents none so swipes/scrolls reach the pager. */}
+							<Animated.View
+								pointerEvents="none"
+								onLayout={onProfileLayout}
+								style={[
+									{ position: "absolute", left: 0, right: 0, top: 0, zIndex: 2 },
+									profileAnim,
+								]}
+							>
+								<View
+									style={{
+										paddingHorizontal: spacing.stack.lg,
+										paddingTop: spacing.stack.lg,
+										paddingBottom: spacing.stack.lg,
+									}}
+								>
+									<View className="rounded-card bg-card p-card">
+										<View className="flex-row items-start gap-stack-md">
+											<TechnicianAvatar
+												id={technicianId}
+												initials={resolvedInitials}
+												imageUrl={profile.profilePicture}
+												size="lg"
+											/>
+											<View className="min-w-0 flex-1">
+												<View className="flex-row items-start justify-between gap-stack-sm">
+													<Text
+														variant="buttonLg"
+														className="min-w-0 flex-1 font-google-sans-bold text-content"
+														numberOfLines={1}
+													>
+														{resolvedName}
+													</Text>
+													<View className="flex-row items-center gap-stack-xs pt-px">
+														<Star
+															size={spacing.icon.caption}
+															color={themeColors.ratingDefault}
+															fill={themeColors.ratingDefault}
+															strokeWidth={0}
+														/>
+														<Text
+															variant="caption"
+															className="font-semibold text-content"
+															numberOfLines={1}
+														>
+															{formatTechnicianRating(
+																profile.avg_rating,
+																profile.review_count,
+																t,
+															)}
+														</Text>
+													</View>
+												</View>
 												<Text
 													variant="caption"
-													className="font-semibold text-content"
-													numberOfLines={1}
+													className="mt-stack-xs text-content-secondary"
+													numberOfLines={3}
 												>
-													{formatTechnicianRating(
-														profile.avg_rating,
-														profile.review_count,
-														t,
-													)}
+													{profile.description}
 												</Text>
+												<Badge
+													variant="secondary"
+													className="mt-stack-sm self-start rounded-input border-transparent bg-order-bg"
+												>
+													<MapPin
+														size={spacing.icon.caption}
+														color={themeColors.orderText}
+														strokeWidth={2.1}
+													/>
+													<Text
+														variant="caption"
+														className="font-medium text-order-text"
+														numberOfLines={1}
+													>
+														{formatLocation(null, profile.city, profile.street)}
+													</Text>
+												</Badge>
 											</View>
 										</View>
-										<Text
-											variant="caption"
-											className="mt-stack-xs text-content-secondary"
-											numberOfLines={3}
-										>
-											{profile.description}
-										</Text>
-										<Badge
-											variant="secondary"
-											className="mt-stack-sm self-start rounded-input border-transparent bg-app-primary-light"
-										>
-											<MapPin
-												size={spacing.icon.caption}
-												color={themeColors.primary}
-												strokeWidth={2.1}
+
+										<View className="my-stack-md h-px bg-edge/20" />
+
+										<View className="flex-row items-start gap-stack-md">
+											<ProfileMetric
+												icon={CalendarCheck}
+												value={profile.completedOrders}
+												label={t("detail.metrics.completed")}
 											/>
-											<Text
-												variant="caption"
-												className="font-medium text-app-primary"
-												numberOfLines={1}
-											>
-												{formatLocation(null, profile.city, profile.street)}
-											</Text>
-										</Badge>
+											<ProfileMetric
+												icon={Navigation}
+												value={cachedDistanceLabel}
+												label={t("detail.metrics.distance")}
+											/>
+											<ProfileMetric
+												icon={CalendarDays}
+												value={profile.totalBookings}
+												label={t("detail.metrics.bookings")}
+											/>
+										</View>
 									</View>
 								</View>
+							</Animated.View>
 
-								<View className="my-stack-md h-px bg-edge/20" />
-
-								<View className="flex-row items-start gap-stack-md">
-									<ProfileMetric
-										icon={CalendarCheck}
-										value={profile.completedOrders}
-										label={t("detail.metrics.completed")}
-									/>
-									<ProfileMetric
-										icon={Navigation}
-										value={cachedDistanceLabel}
-										label={t("detail.metrics.distance")}
-									/>
-									<ProfileMetric
-										icon={CalendarDays}
-										value={profile.totalBookings}
-										label={t("detail.metrics.bookings")}
+							{/* Pinned tab bar — full-bleed underline; sticks once the
+							    profile has scrolled past. */}
+							<Animated.View
+								onLayout={onTabsLayout}
+								style={[
+									{ position: "absolute", left: 0, right: 0, top: 0, zIndex: 3 },
+									tabsAnim,
+								]}
+							>
+								<View style={{ backgroundColor: themeColors.surfaceBase }}>
+									<SegmentedTabBar
+										tabs={tabDefs}
+										active={tab}
+										onChange={onTabPress}
+										position={position}
 									/>
 								</View>
-							</View>
-
-							{/* ── Tabs ── */}
-							<View className="mt-card">
-								<View
-									className="relative flex-row rounded-card bg-card px-stack-xs"
-									onLayout={handleTabBarLayout}
-									style={{ height: TAB_BAR_HEIGHT }}
-								>
-									{tabBarWidth > 0 ? (
-										<RNAnimated.View
-											className="absolute bottom-0 h-0.5 rounded-pill bg-app-primary"
-											style={{
-												left: spacing.stack.xs + spacing.stack.md,
-												width:
-													tabBarWidth / TABS.length -
-													(spacing.stack.xs + spacing.stack.md) * 2,
-												transform: [
-													{
-														translateX: tabPosition.current.interpolate({
-															inputRange: [0, 1, 2],
-															outputRange: [
-																0,
-																tabBarWidth / TABS.length,
-																(tabBarWidth / TABS.length) * 2,
-															],
-														}),
-													},
-												],
-											}}
-										/>
-									) : null}
-									{TABS.map((tabKey) => {
-										const isActive = tab === tabKey;
-										return (
-											<Pressable
-												key={tabKey}
-												onPress={() => selectTab(tabKey)}
-												className="relative flex-1 items-center justify-center"
-												style={{ height: TAB_BAR_HEIGHT }}
-											>
-												<Text
-													variant="buttonMd"
-													className={
-														isActive
-															? "font-bold text-content"
-															: "text-content-muted"
-													}
-												>
-													{t(
-														`detail.tabs.${tabKey}` as Parameters<typeof t>[0],
-													)}
-												</Text>
-											</Pressable>
-										);
-									})}
-								</View>
-							</View>
-
-							{/* ── Tab content (lazy-mounted, kept alive) ── */}
-							<TabPanel
-								mounted={visited.has("Details")}
-								visible={tab === "Details"}
-							>
-								<AboutTab technicianId={technicianId} />
-							</TabPanel>
-
-							<TabPanel
-								mounted={visited.has("Services")}
-								visible={tab === "Services"}
-							>
-								<ServicesTab
-									technicianId={technicianId}
-									selectedServiceId={selectedService?.id ?? null}
-									onSelect={setSelectedService}
-									preselectServiceId={params.preselectServiceId}
-								/>
-							</TabPanel>
-
-							<TabPanel
-								mounted={visited.has("Reviews")}
-								visible={tab === "Reviews"}
-							>
-								<ReviewsTab
-									technicianId={technicianId}
-									endReachedSignal={reviewEndSignal}
-								/>
-							</TabPanel>
-						</ScrollView>
+							</Animated.View>
+						</View>
 
 						{/* ── Sticky CTA ── */}
 						<View className="bg-surface px-card pt-stack-sm pb-stack-lg">
